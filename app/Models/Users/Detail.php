@@ -2,12 +2,13 @@
 
 namespace App\Models\Users;
 
-use App\Models\Companies\Company;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use App\Policies\Users\DetailPolicy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[UsePolicy(DetailPolicy::class)]
 class Detail extends Model
 {
     use HasFactory;

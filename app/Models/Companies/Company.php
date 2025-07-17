@@ -27,7 +27,7 @@ class Company extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function voucher() : HasMany
+    public function vouchers(): HasMany
     {
         return $this->hasMany(Voucher::class);
     }

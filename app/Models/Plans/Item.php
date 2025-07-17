@@ -2,10 +2,13 @@
 
 namespace App\Models\Plans;
 
+use App\Policies\Plans\ItemPolicy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+#[UsePolicy(ItemPolicy::class)]
 class Item extends Model
 {
     use HasFactory;

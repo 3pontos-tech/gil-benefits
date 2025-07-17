@@ -5,9 +5,11 @@ namespace App\Models\Users;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Companies\Company;
 use App\Models\Voucher;
+use App\Policies\Users\UserPolicy;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,6 +19,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 
+#[UsePolicy(UserPolicy::class)]
 class User extends Authenticatable implements FilamentUser, HasTenants
 {
     /** @use HasFactory<\Database\Factories\Users\UserFactory> */
@@ -66,21 +69,23 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     {
         return $this->companies()->whereKey($tenant)->exists();
     }
+
     public function getTenants(Panel $panel): Collection
     {
         return $this->companies;
     }
 
-    public function companies() : BelongsToMany
+    public function companies(): BelongsToMany
     {
         return $this->belongsToMany(Company::class, 'company_employees', 'user_id', 'company_id')->withTimestamps();
     }
 
-    public function detail() : HasOne
+    public function detail(): HasOne
     {
         return $this->hasOne(Detail::class);
     }
-    public function appointment() : HasMany
+
+    public function appointments(): HasMany
     {
         return $this->hasMany(Voucher::class);
     }

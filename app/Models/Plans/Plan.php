@@ -2,10 +2,13 @@
 
 namespace App\Models\Plans;
 
+use App\Policies\Plans\PlanPolicy;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[UsePolicy(PlanPolicy::class)]
 class Plan extends Model
 {
     use HasFactory;
