@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Models\Companies\Company;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -25,6 +26,7 @@ class CompanyPanelProvider extends PanelProvider
     {
         return $panel
             ->id('company')
+            ->tenant(Company::class)
             ->path('company')
             ->colors([
                 'primary' => Color::Amber,

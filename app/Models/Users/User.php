@@ -3,18 +3,24 @@
 namespace App\Models\Users;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Companies\Company;
+use App\Models\Voucher;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasTenants
 {
     /** @use HasFactory<\Database\Factories\Users\UserFactory> */
     use HasFactory,
-        HasUuids,
         Notifiable;
 
     /**
@@ -54,5 +60,28 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
+    }
+
+    public function canAccessTenant(Model $tenant): bool
+    {
+        return $this->companies()->whereKey($tenant)->exists();
+    }
+    public function getTenants(Panel $panel): Collection
+    {
+        return $this->companies;
+    }
+
+    public function companies() : BelongsToMany
+    {
+        return $this->belongsToMany(Company::class, 'company_employees', 'user_id', 'company_id')->withTimestamps();
+    }
+
+    public function detail() : HasOne
+    {
+        return $this->hasOne(Detail::class);
+    }
+    public function appointment() : HasMany
+    {
+        return $this->hasMany(Voucher::class);
     }
 }
