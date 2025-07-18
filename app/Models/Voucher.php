@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VoucherStatusEnum;
 use App\Models\Companies\Company;
 use App\Models\Users\User;
 use App\Policies\VoucherPolicy;
@@ -23,6 +24,14 @@ class Voucher extends Model
         'status',
         'valid_until',
     ];
+
+    public function casts(): array
+    {
+        return [
+            'valid_until' => 'datetime',
+            'status' => VoucherStatusEnum::class,
+        ];
+    }
 
     public function company(): BelongsTo
     {
