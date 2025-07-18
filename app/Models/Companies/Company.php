@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[UsePolicy(CompanyPolicy::class)]
@@ -26,7 +27,10 @@ class Company extends Model
     {
         return $this->belongsTo(User::class);
     }
-
+    public function employees(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'company_employees', 'company_id', 'user_id')->withTimestamps();
+    }
     public function vouchers(): HasMany
     {
         return $this->hasMany(Voucher::class);
