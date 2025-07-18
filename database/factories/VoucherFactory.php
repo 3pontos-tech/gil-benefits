@@ -55,7 +55,7 @@ class VoucherFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'user_id' => null,
             'consultant_id' => null,
-            'status' => VoucherStatusEnum::Pending
+            'status' => VoucherStatusEnum::Pending,
         ]);
     }
 

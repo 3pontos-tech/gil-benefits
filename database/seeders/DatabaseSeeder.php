@@ -34,12 +34,14 @@ class DatabaseSeeder extends Seeder
 
         $this->generateVouchers($companies, $consultants);
     }
+
     private function generateConsultants(): Collection
     {
         return Consultant::factory()
             ->count(3)
             ->create();
     }
+
     private function generatePlans(): Collection
     {
         return Plan::factory()
@@ -47,6 +49,7 @@ class DatabaseSeeder extends Seeder
             ->count(2)
             ->create();
     }
+
     private function generateCompanies(): Collection
     {
         return Company::factory()
@@ -59,6 +62,7 @@ class DatabaseSeeder extends Seeder
             })
             ->create();
     }
+
     private function generateAdmin(): User
     {
         return User::factory()->create([

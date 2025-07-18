@@ -27,10 +27,12 @@ class Company extends Model
     {
         return $this->belongsTo(User::class);
     }
+
     public function employees(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'company_employees', 'company_id', 'user_id')->withTimestamps();
     }
+
     public function vouchers(): HasMany
     {
         return $this->hasMany(Voucher::class);
