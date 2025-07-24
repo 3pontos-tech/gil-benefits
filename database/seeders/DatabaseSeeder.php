@@ -7,6 +7,7 @@ use App\Models\Companies\Company;
 use App\Models\Consultant;
 use App\Models\Plans\Item;
 use App\Models\Plans\Plan;
+use App\Models\Users\Detail;
 use App\Models\Users\User;
 use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Collection;
@@ -57,6 +58,7 @@ class DatabaseSeeder extends Seeder
             ->afterCreating(function (Company $company) {
                 $company->employees()->attach(User::factory()
                     ->count(3)
+                    ->hasDetail()
                     ->create()
                 );
             })

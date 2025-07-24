@@ -13,6 +13,8 @@ class Detail extends Model
 {
     use HasFactory;
 
+    protected $table = 'user_details';
+
     protected $fillable = [
         'user_id',
         'company_id',
