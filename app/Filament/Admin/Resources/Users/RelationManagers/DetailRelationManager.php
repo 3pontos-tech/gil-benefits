@@ -23,11 +23,9 @@ class DetailRelationManager extends RelationManager
         return $table
             ->columns([
                 TextColumn::make('tax_id')
-                    ->mask('###.###.###-##')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('document_id')
-                    ->mask('##.###.###-#')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('company_id'),
