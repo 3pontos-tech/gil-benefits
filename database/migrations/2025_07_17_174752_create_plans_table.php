@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('price');
-            $table->string('type', 50);
+            $table->string('type')->comment("'monthly', 'annual'");
             $table->integer('hours_included');
             $table->text('description');
             $table->timestamps();
