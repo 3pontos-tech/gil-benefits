@@ -18,6 +18,8 @@ class PlanResource extends Resource
 {
     protected static ?string $model = Plan::class;
 
+    protected static string|null|\UnitEnum $navigationGroup = 'Products';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ShoppingBag;
 
     public static function form(Schema $schema): Schema

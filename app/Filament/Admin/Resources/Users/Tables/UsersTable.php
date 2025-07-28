@@ -29,6 +29,14 @@ class UsersTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('detail.tax_id')
+                    ->label('Tax ID')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('detail.document_id')
+                    ->label('Document ID')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 //

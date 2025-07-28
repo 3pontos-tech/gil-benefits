@@ -18,6 +18,8 @@ class ConsultantResource extends Resource
 {
     protected static ?string $model = Consultant::class;
 
+    protected static string|null|\UnitEnum $navigationGroup = 'Staff';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
 
     public static function form(Schema $schema): Schema

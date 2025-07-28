@@ -18,6 +18,8 @@ class VoucherResource extends Resource
 {
     protected static ?string $model = Voucher::class;
 
+    protected static string|null|\UnitEnum $navigationGroup = 'Products';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Ticket;
 
     public static function form(Schema $schema): Schema

@@ -21,7 +21,6 @@ class CompaniesTable
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('tax_id')
-                    ->mask('##.###.###/####-##')
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
