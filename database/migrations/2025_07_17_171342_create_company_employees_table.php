@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('company_employees', function (Blueprint $table) {
+        Schema::create('company_employees', function (Blueprint $table): void {
             $table->foreignIdFor(Company::class);
             $table->foreignIdFor(User::class);
             $table->timestamps();

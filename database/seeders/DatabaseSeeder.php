@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
     {
         return Company::factory()
             ->count(5)
-            ->afterCreating(function (Company $company) {
+            ->afterCreating(function (Company $company): void {
                 $company->employees()->attach(User::factory()
                     ->count(3)
                     ->hasDetail()
@@ -73,7 +73,7 @@ class DatabaseSeeder extends Seeder
         ]);
     }
 
-    private function generateVouchers(Collection $companies, Collection $consultants)
+    private function generateVouchers(Collection $companies, Collection $consultants): void
     {
         /** @var Company $company */
         foreach ($companies as $company) {

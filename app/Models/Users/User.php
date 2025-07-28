@@ -22,9 +22,8 @@ use Illuminate\Support\Collection;
 #[UsePolicy(UserPolicy::class)]
 class User extends Authenticatable implements FilamentUser, HasTenants
 {
-    /** @use HasFactory<\Database\Factories\Users\UserFactory> */
-    use HasFactory,
-        Notifiable;
+    use HasFactory;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.

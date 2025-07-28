@@ -11,7 +11,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('vouchers', function (Blueprint $table) {
+        Schema::create('vouchers', function (Blueprint $table): void {
             $table->id();
             $table->string('code');
             $table->foreignIdFor(Company::class);

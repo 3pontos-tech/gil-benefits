@@ -25,7 +25,7 @@ class Voucher extends Model
         'valid_until',
     ];
 
-    public function casts(): array
+    protected function casts(): array
     {
         return [
             'valid_until' => 'datetime',
