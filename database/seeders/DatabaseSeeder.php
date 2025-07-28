@@ -57,6 +57,7 @@ class DatabaseSeeder extends Seeder
             ->afterCreating(function (Company $company) {
                 $company->employees()->attach(User::factory()
                     ->count(3)
+                    ->hasDetail()
                     ->create()
                 );
             })

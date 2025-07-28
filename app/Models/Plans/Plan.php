@@ -2,6 +2,7 @@
 
 namespace App\Models\Plans;
 
+use App\Enums\PlanTypeEnum;
 use App\Policies\Plans\PlanPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,6 +21,13 @@ class Plan extends Model
         'hours_included',
         'description',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'type' => PlanTypeEnum::class,
+        ];
+    }
 
     public function items(): HasMany
     {

@@ -14,7 +14,7 @@ class CompanyFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
+            'name' => $this->faker->company(),
             'tax_id' => $this->faker->cnpj(),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
