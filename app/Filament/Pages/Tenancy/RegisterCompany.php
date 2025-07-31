@@ -2,7 +2,7 @@
 
 namespace App\Filament\Pages\Tenancy;
 
-use Filament\Forms\Components\Select;
+use App\Models\Companies\Company;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\RegisterTenant;
 use Filament\Schemas\Components\Utilities\Set;
@@ -11,11 +11,11 @@ use Illuminate\Support\Str;
 
 class RegisterCompany extends RegisterTenant
 {
-
     public static function getLabel(): string
     {
         return 'Register team';
     }
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -23,7 +23,7 @@ class RegisterCompany extends RegisterTenant
                 TextInput::make('name')
                     ->maxLength(255)
                     ->live(onBlur: true, debounce: 500)
-                    ->afterStateUpdated(function (Set $set, $state) {
+                    ->afterStateUpdated(function (Set $set, $state): void {
                         $set('slug', Str::slug($state));
                     }),
                 TextInput::make('slug')
@@ -34,7 +34,7 @@ class RegisterCompany extends RegisterTenant
             ]);
     }
 
-    protected function handleRegistration(array $data): \App\Models\Companies\Company
+    protected function handleRegistration(array $data): Company
     {
         $user = auth()->user();
         $company = $user->ownedCompanies()->create($data);
@@ -42,6 +42,4 @@ class RegisterCompany extends RegisterTenant
 
         return $company;
     }
-
-
 }

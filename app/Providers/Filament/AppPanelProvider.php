@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Pages\Tenancy\RegisterCompany;
 use App\Filament\Shared\Pages\LoginPage;
 use App\Models\Companies\Company;
 use Filament\Http\Middleware\Authenticate;

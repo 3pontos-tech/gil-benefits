@@ -22,7 +22,7 @@ class EditCompany extends EditTenantProfile
                 TextInput::make('name')
                     ->maxLength(255)
                     ->live(onBlur: true, debounce: 500)
-                    ->afterStateUpdated(function (Set $set, $state) {
+                    ->afterStateUpdated(function (Set $set, $state): void {
                         $set('slug', Str::slug($state));
                     }),
                 TextInput::make('tax_id')
