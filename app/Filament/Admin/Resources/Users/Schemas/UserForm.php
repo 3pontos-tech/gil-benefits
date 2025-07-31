@@ -29,10 +29,8 @@ class UserForm
                 Fieldset::make('Details')
                     ->relationship('detail')
                     ->schema([
-                        TextInput::make('tax_id')
-                            ->mask('###.###.###-##'),
-                        TextInput::make('document_id')
-                            ->mask('##.###.###-#'),
+                        TextInput::make('tax_id'),
+                        TextInput::make('document_id'),
                         Select::make('company_id')
                             ->options(Company::query()->pluck('name', 'id')),
                     ])

@@ -20,8 +20,14 @@ class Company extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'slug',
         'tax_id',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function user(): BelongsTo
     {
