@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Tenancy\EditCompany;
+use App\Filament\Pages\Tenancy\RegisterCompany;
+use App\Filament\Shared\Pages\LoginPage;
 use App\Models\Companies\Company;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -26,16 +29,21 @@ class CompanyPanelProvider extends PanelProvider
     {
         return $panel
             ->id('company')
-            ->tenant(Company::class)
+            ->tenant(Company::class, slugAttribute: 'slug')
             ->path('company')
+            ->login(LoginPage::class)
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Fuchsia,
             ])
             ->discoverResources(in: app_path('Filament/Company/Resources'), for: 'App\Filament\Company\Resources')
             ->discoverPages(in: app_path('Filament/Company/Pages'), for: 'App\Filament\Company\Pages')
             ->pages([
                 Dashboard::class,
             ])
+            ->tenant(Company::class)
+            ->tenantRegistration(RegisterCompany::class)
+            ->tenantProfile(EditCompany::class)
+            ->registration()
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\Filament\Company\Widgets')
             ->widgets([
                 AccountWidget::class,

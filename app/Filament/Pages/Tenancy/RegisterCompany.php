@@ -1,23 +1,25 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Companies\Schemas;
+namespace App\Filament\Pages\Tenancy;
 
-use Filament\Forms\Components\Select;
+use App\Models\Companies\Company;
 use Filament\Forms\Components\TextInput;
+use Filament\Pages\Tenancy\RegisterTenant;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 
-class CompanyForm
+class RegisterCompany extends RegisterTenant
 {
-    public static function configure(Schema $schema): Schema
+    public static function getLabel(): string
+    {
+        return 'Register team';
+    }
+
+    public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Select::make('user_id')
-                    ->label('Owner')
-                    ->relationship('user', 'name')
-                    ->required(),
                 TextInput::make('name')
                     ->maxLength(255)
                     ->live(onBlur: true, debounce: 500)
@@ -28,8 +30,16 @@ class CompanyForm
                     ->required()
                     ->maxLength(255),
                 TextInput::make('tax_id')
-                    ->mask('99.999.999/9999-99')
-                    ->required(),
+                    ->mask('99.999.999/9999-99'),
             ]);
+    }
+
+    protected function handleRegistration(array $data): Company
+    {
+        $user = auth()->user();
+        $company = $user->ownedCompanies()->create($data);
+        $user->companies()->attach($company);
+
+        return $company;
     }
 }

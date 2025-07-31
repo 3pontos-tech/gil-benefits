@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('company_id')->constrained('companies');
             $table->string('document_id', 50);
-            $table->string('tax_id', 14)->unique();
+            $table->string('tax_id', 15)->unique();
             $table->timestamps();
         });
     }

@@ -30,9 +30,9 @@ class UserForm
                     ->relationship('detail')
                     ->schema([
                         TextInput::make('tax_id')
-                            ->mask('###.###.###-##'),
+                            ->mask('999.999.999-99'),
                         TextInput::make('document_id')
-                            ->mask('##.###.###-#'),
+                            ->mask('99.999.999-9'),
                         Select::make('company_id')
                             ->options(Company::query()->pluck('name', 'id')),
                     ])
