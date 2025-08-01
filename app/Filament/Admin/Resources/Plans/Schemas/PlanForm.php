@@ -2,7 +2,9 @@
 
 namespace App\Filament\Admin\Resources\Plans\Schemas;
 
+use App\Enums\PlanTypeEnum;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -19,7 +21,8 @@ class PlanForm
                     ->required()
                     ->numeric()
                     ->prefix('R$'),
-                TextInput::make('type')
+                Select::make('type')
+                    ->options(PlanTypeEnum::class)
                     ->required(),
                 TextInput::make('hours_included')
                     ->required()

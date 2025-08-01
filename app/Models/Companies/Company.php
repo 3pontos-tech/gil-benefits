@@ -2,6 +2,7 @@
 
 namespace App\Models\Companies;
 
+use App\Models\Plans\Plan;
 use App\Models\Users\User;
 use App\Models\Voucher;
 use App\Policies\Companies\CompanyPolicy;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model
@@ -29,6 +31,11 @@ class Company extends Model
         return 'slug';
     }
 
+    public function hasActivePlan(): bool
+    {
+        return $this->plans()->exists();
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -42,5 +49,10 @@ class Company extends Model
     public function vouchers(): HasMany
     {
         return $this->hasMany(Voucher::class);
+    }
+
+    public function plans(): BelongsToMany
+    {
+        return $this->BelongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')->withTimestamps();
     }
 }

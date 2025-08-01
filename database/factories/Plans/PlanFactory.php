@@ -14,7 +14,7 @@ class PlanFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
+            'name' => $this->faker->word(),
             'price' => $this->faker->randomNumber(),
             'type' => $this->faker->randomElement(PlanTypeEnum::cases()),
             'hours_included' => $this->faker->randomNumber(),

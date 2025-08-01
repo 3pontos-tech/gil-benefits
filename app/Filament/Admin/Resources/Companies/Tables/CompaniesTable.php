@@ -22,6 +22,8 @@ class CompaniesTable
                     ->searchable(),
                 TextColumn::make('tax_id')
                     ->searchable(),
+                TextColumn::make('plans.name')
+                    ->label('Plan'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
