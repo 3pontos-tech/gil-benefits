@@ -14,10 +14,10 @@ class PlanFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->word(),
-            'price' => $this->faker->randomNumber(),
+            'name' => $this->faker->randomElement(['gold', 'platinum', 'diamond']),
+            'price' => $this->faker->numberBetween(100, 200),
             'type' => $this->faker->randomElement(PlanTypeEnum::cases()),
-            'hours_included' => $this->faker->randomNumber(),
+            'hours_included' => $this->faker->numberBetween(4, 5),
             'description' => $this->faker->text(),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),

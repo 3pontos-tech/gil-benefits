@@ -32,7 +32,7 @@ class Company extends Model
 
     public function hasActivePlan(): bool
     {
-        return $this->plans()->exists();
+        return $this->plans()->wherePivot('status', 'active')->exists();
     }
 
     public function user(): BelongsTo
@@ -52,6 +52,6 @@ class Company extends Model
 
     public function plans(): BelongsToMany
     {
-        return $this->BelongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')->withTimestamps();
+        return $this->BelongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')->withPivot('status')->withTimestamps();
     }
 }
