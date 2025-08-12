@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Filament\App\Resources\Vouchers\Pages;
+namespace App\Filament\Shared\Resources\Vouchers\Pages;
 
-use App\Filament\App\Resources\Vouchers\VoucherResource;
+use App\Filament\Admin\Resources\Vouchers\VoucherResource;
 use Filament\Actions\CreateAction;
+use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
 
 class ListVouchers extends ListRecords
@@ -13,7 +14,7 @@ class ListVouchers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->visible(),
         ];
     }
 }

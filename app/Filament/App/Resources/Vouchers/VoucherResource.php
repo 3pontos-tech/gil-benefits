@@ -2,11 +2,9 @@
 
 namespace App\Filament\App\Resources\Vouchers;
 
-use App\Filament\App\Resources\Vouchers\Pages\CreateVoucher;
-use App\Filament\App\Resources\Vouchers\Pages\EditVoucher;
-use App\Filament\App\Resources\Vouchers\Pages\ListVouchers;
 use App\Filament\App\Resources\Vouchers\Schemas\VoucherForm;
-use App\Filament\App\Resources\Vouchers\Tables\VouchersTable;
+use App\Filament\Shared\Resources\Vouchers\Tables\VouchersTable;
+use App\Filament\Shared\Resources\Vouchers\Pages\ListVouchers;
 use App\Models\Voucher;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -33,7 +31,6 @@ class VoucherResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
         ];
     }
 
@@ -41,8 +38,6 @@ class VoucherResource extends Resource
     {
         return [
             'index' => ListVouchers::route('/'),
-            'create' => CreateVoucher::route('/create'),
-            'edit' => EditVoucher::route('/{record}/edit'),
         ];
     }
 }

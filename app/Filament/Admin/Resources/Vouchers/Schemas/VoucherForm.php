@@ -14,8 +14,6 @@ class VoucherForm
     {
         return $schema
             ->components([
-                TextInput::make('code')
-                    ->required(),
                 Select::make('company_id')
                     ->relationship('company', 'name')
                     ->required(),
@@ -25,6 +23,7 @@ class VoucherForm
                     ->relationship('user', 'name'),
                 Select::make('status')
                     ->options(VoucherStatusEnum::class)
+                    ->default(VoucherStatusEnum::Pending)
                     ->required(),
                 DateTimePicker::make('valid_until')
                     ->required(),

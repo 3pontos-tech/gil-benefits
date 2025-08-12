@@ -2,7 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Companies\Pages;
 
-use App\Filament\Admin\Resources\Actions\AttachPlanAction;
+use App\Filament\Admin\Resources\Companies\Actions\AttachPlanAction;
 use App\Filament\Admin\Resources\Companies\CompanyResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;

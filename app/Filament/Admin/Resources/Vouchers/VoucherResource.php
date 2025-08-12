@@ -2,11 +2,11 @@
 
 namespace App\Filament\Admin\Resources\Vouchers;
 
-use App\Filament\Admin\Resources\Vouchers\Pages\CreateVoucher;
-use App\Filament\Admin\Resources\Vouchers\Pages\EditVoucher;
-use App\Filament\Admin\Resources\Vouchers\Pages\ListVouchers;
 use App\Filament\Admin\Resources\Vouchers\Schemas\VoucherForm;
-use App\Filament\Admin\Resources\Vouchers\Tables\VouchersTable;
+use App\Filament\Shared\Resources\Vouchers\Pages\CreateVoucher;
+use App\Filament\Shared\Resources\Vouchers\Pages\EditVoucher;
+use App\Filament\Shared\Resources\Vouchers\Pages\ListVouchers;
+use App\Filament\Shared\Resources\Vouchers\Tables\VouchersTable;
 use App\Models\Voucher;
 use BackedEnum;
 use Filament\Resources\Resource;

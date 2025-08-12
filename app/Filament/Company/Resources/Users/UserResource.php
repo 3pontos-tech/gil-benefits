@@ -2,9 +2,9 @@
 
 namespace App\Filament\Company\Resources\Users;
 
-use App\Filament\Company\Resources\Users\Pages\CreateUser;
-use App\Filament\Company\Resources\Users\Pages\EditUser;
-use App\Filament\Company\Resources\Users\Pages\ListUsers;
+use App\Filament\Shared\Resources\Users\Pages\CreateUser;
+use App\Filament\Shared\Resources\Users\Pages\EditUser;
+use App\Filament\Shared\Resources\Users\Pages\ListUsers;
 use App\Filament\Company\Resources\Users\Schemas\UserForm;
 use App\Filament\Company\Resources\Users\Tables\UsersTable;
 use App\Models\Users\User;

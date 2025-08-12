@@ -13,13 +13,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         if (app()->isProduction()) {
@@ -27,6 +22,8 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->generateAdmin();
+        $this->generateCompanyOwner();
+        $this->generateCompanyEmployee();
         $this->generatePlans();
 
         $companies = $this->generateCompanies();
@@ -38,13 +35,13 @@ class DatabaseSeeder extends Seeder
     private function generateConsultants(): Collection
     {
         return Consultant::factory()
-            ->count(3)
+            ->count(5)
             ->create();
     }
 
-    private function generatePlans(): Collection
+    private function generatePlans(): void
     {
-        return Plan::factory()
+        Plan::factory()
             ->has(Item::factory(3))
             ->count(2)
             ->create();
@@ -71,6 +68,29 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@admin.com',
             'password' => Hash::make('password'),
         ]);
+    }
+
+    private function generateCompanyOwner(): void
+    {
+        User::factory()
+            ->afterCreating(
+                fn($user) => $user->companies()->attach($user->ownedCompanies()->first()))
+            ->has(Company::factory(), 'ownedCompanies')->create([
+                'name' => 'empresa',
+                'email' => 'empresa@empresa.com',
+                'password' => Hash::make('password'),
+            ]);
+    }
+
+    private function generateCompanyEmployee(): void
+    {
+        $company = Company::factory()->create();
+        $employee = User::factory()->create([
+            'name' => 'empregado',
+            'email' => 'empregado@empregado.com',
+            'password' => Hash::make('password'),
+        ]);
+        $company->employees()->attach($employee);
     }
 
     private function generateVouchers(Collection $companies, Collection $consultants): void

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Actions;
+namespace App\Filament\Admin\Resources\Companies\Actions;
 
 use App\Models\Companies\Company;
 use App\Models\Plans\Plan;
