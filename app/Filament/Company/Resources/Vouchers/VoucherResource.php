@@ -2,10 +2,10 @@
 
 namespace App\Filament\Company\Resources\Vouchers;
 
+use App\Filament\Company\Resources\Vouchers\Schemas\VoucherForm;
 use App\Filament\Shared\Resources\Vouchers\Pages\CreateVoucher;
 use App\Filament\Shared\Resources\Vouchers\Pages\EditVoucher;
 use App\Filament\Shared\Resources\Vouchers\Pages\ListVouchers;
-use App\Filament\Company\Resources\Vouchers\Schemas\VoucherForm;
 use App\Filament\Shared\Resources\Vouchers\Tables\VouchersTable;
 use App\Models\Voucher;
 use BackedEnum;

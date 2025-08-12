@@ -4,7 +4,6 @@ namespace App\Filament\Shared\Resources\Vouchers\Pages;
 
 use App\Filament\Admin\Resources\Vouchers\VoucherResource;
 use Filament\Actions\CreateAction;
-use Filament\Facades\Filament;
 use Filament\Resources\Pages\ListRecords;
 
 class ListVouchers extends ListRecords

@@ -5,7 +5,6 @@ namespace App\Models\Users;
 use App\Models\Companies\Company;
 use App\Models\Voucher;
 use App\Policies\Users\UserPolicy;
-use Filament\Facades\Filament;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;

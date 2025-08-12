@@ -74,7 +74,7 @@ class DatabaseSeeder extends Seeder
     {
         User::factory()
             ->afterCreating(
-                fn($user) => $user->companies()->attach($user->ownedCompanies()->first()))
+                fn ($user) => $user->companies()->attach($user->ownedCompanies()->first()))
             ->has(Company::factory(), 'ownedCompanies')->create([
                 'name' => 'empresa',
                 'email' => 'empresa@empresa.com',
