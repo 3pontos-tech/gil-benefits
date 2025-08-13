@@ -11,7 +11,6 @@ use App\Models\Users\User;
 use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,9 +20,7 @@ class DatabaseSeeder extends Seeder
             return;
         }
 
-        $this->generateAdmin();
-        $this->generateCompanyOwner();
-        $this->generateCompanyEmployee();
+        $this->generateUsers();
         $this->generatePlans();
 
         $companies = $this->generateCompanies();
@@ -61,38 +58,6 @@ class DatabaseSeeder extends Seeder
             ->create();
     }
 
-    private function generateAdmin(): User
-    {
-        return User::factory()->create([
-            'name' => 'admin',
-            'email' => 'admin@admin.com',
-            'password' => Hash::make('password'),
-        ]);
-    }
-
-    private function generateCompanyOwner(): void
-    {
-        User::factory()
-            ->afterCreating(
-                fn ($user) => $user->companies()->attach($user->ownedCompanies()->first()))
-            ->has(Company::factory(), 'ownedCompanies')->create([
-                'name' => 'empresa',
-                'email' => 'empresa@empresa.com',
-                'password' => Hash::make('password'),
-            ]);
-    }
-
-    private function generateCompanyEmployee(): void
-    {
-        $company = Company::factory()->create();
-        $employee = User::factory()->create([
-            'name' => 'empregado',
-            'email' => 'empregado@empregado.com',
-            'password' => Hash::make('password'),
-        ]);
-        $company->employees()->attach($employee);
-    }
-
     private function generateVouchers(Collection $companies, Collection $consultants): void
     {
         /** @var Company $company */
@@ -122,5 +87,22 @@ class DatabaseSeeder extends Seeder
                 ->count(3)
                 ->create();
         }
+    }
+
+    private function generateUsers(): void
+    {
+        User::factory()->admin()->create();
+
+        $ownedCompanie = User::factory()->companyOwner()->create();
+        $employee = User::factory()->employee()->create();
+
+        $company = Company::factory()
+            ->create([
+                'user_id' => $ownedCompanie->id,
+            ]);
+
+        $company->employees()->attach($employee);
+
+        $ownedCompanie->companies()->attach($company);
     }
 }

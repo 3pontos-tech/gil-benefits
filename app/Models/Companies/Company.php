@@ -35,9 +35,9 @@ class Company extends Model
         return $this->plans()->wherePivot('status', 'active')->exists();
     }
 
-    public function user(): BelongsTo
+    public function owner(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function employees(): BelongsToMany

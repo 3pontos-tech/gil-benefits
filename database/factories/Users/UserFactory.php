@@ -28,9 +28,33 @@ class UserFactory extends Factory
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function admin(): Factory|UserFactory
+    {
+        return $this->state([
+            'name' => 'admin',
+            'email' => 'admin@admin.com',
+        ]);
+    }
+
+    public function companyOwner(): Factory|UserFactory
+    {
+        return $this->state([
+            'name' => 'empresa',
+            'email' => 'empresa@empresa.com',
+        ]);
+    }
+
+    public function employee(): Factory|UserFactory
+    {
+        return $this->state([
+            'name' => 'empregado',
+            'email' => 'empregado@empregado.com',
+        ]);
     }
 
     /**
