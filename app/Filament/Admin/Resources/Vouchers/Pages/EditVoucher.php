@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Filament\Shared\Resources\Vouchers\Pages;
+namespace App\Filament\Admin\Resources\Vouchers\Pages;
 
 use App\Filament\Admin\Resources\Vouchers\VoucherResource;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
+use Filament\Actions\DeleteAction;
+use Filament\Resources\Pages\EditRecord;
 
-class ListVouchers extends ListRecords
+class EditVoucher extends EditRecord
 {
     protected static string $resource = VoucherResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

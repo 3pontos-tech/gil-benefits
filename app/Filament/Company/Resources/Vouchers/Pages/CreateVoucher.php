@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Shared\Resources\Vouchers\Pages;
+namespace App\Filament\Company\Resources\Vouchers\Pages;
 
 use App\Filament\Admin\Resources\Vouchers\VoucherResource;
 use Filament\Resources\Pages\CreateRecord;

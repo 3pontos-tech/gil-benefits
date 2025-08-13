@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Shared\Resources\Vouchers\Tables;
+namespace App\Filament\Admin\Resources\Vouchers\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -12,7 +12,6 @@ class VouchersTable
 {
     public static function configure(Table $table): Table
     {
-
         return $table
             ->columns([
                 TextColumn::make('code')

@@ -3,8 +3,8 @@
 namespace App\Filament\App\Resources\Vouchers;
 
 use App\Filament\App\Resources\Vouchers\Schemas\VoucherForm;
-use App\Filament\Shared\Resources\Vouchers\Pages\ListVouchers;
-use App\Filament\Shared\Resources\Vouchers\Tables\VouchersTable;
+use App\Filament\App\Resources\Vouchers\Pages\ListVouchers;
+use App\Filament\App\Resources\Vouchers\Tables\VouchersTable;
 use App\Models\Voucher;
 use BackedEnum;
 use Filament\Resources\Resource;
