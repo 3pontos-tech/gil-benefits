@@ -13,18 +13,16 @@ class PlanStatusStats extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $tenant = Filament::getTenant();
+        $company = $this->record ?? Filament::getTenant();
 
-        $this->record = $this->record ?? auth()->user()->ownedCompanies()->with('plans')->first();
-        $company = $this->record->where('name', $tenant->name)->first();
         $activePlan = $company->plans()->wherePivot('status', 'active')->first();
 
-        $usedVouchersCount = $this->record->vouchers()
+        $usedVouchersCount = $company->vouchers()
             ->where('status', 'used')
             ->where('valid_until', '>=', now())
             ->count();
-
-        $vouchersCount = $this->record->vouchers()->count();
+//        dd($company);
+        $vouchersCount = $company->vouchers()->count();
 
         return [
             Stat::make('Plano', $activePlan?->name ?? 'N/A')
