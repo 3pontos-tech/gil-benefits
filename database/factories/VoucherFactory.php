@@ -17,7 +17,7 @@ class VoucherFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => $this->faker->word(),
+            'code' => $this->faker->uuid(),
             'status' => $this->faker->randomElement(VoucherStatusEnum::cases()),
             'valid_until' => $this->faker->dateTimeBetween('-1 month', '+1 month'),
             'created_at' => Carbon::now(),

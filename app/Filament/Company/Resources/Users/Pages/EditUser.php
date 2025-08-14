@@ -2,7 +2,7 @@
 
 namespace App\Filament\Company\Resources\Users\Pages;
 
-use App\Filament\Company\Resources\Users\UserResource;
+use App\Filament\Admin\Resources\Users\UserResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 

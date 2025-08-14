@@ -17,7 +17,7 @@ class ItemFactory extends Factory
             'name' => $this->faker->name(),
             'price' => $this->faker->randomNumber(),
             'type' => $this->faker->word(),
-            'quantity' => $this->faker->randomNumber(),
+            'quantity' => $this->faker->numberBetween(1, 30),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
 

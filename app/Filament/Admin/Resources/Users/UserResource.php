@@ -2,11 +2,11 @@
 
 namespace App\Filament\Admin\Resources\Users;
 
-use App\Filament\Admin\Resources\Users\Pages\CreateUser;
-use App\Filament\Admin\Resources\Users\Pages\EditUser;
-use App\Filament\Admin\Resources\Users\Pages\ListUsers;
 use App\Filament\Admin\Resources\Users\Schemas\UserForm;
 use App\Filament\Admin\Resources\Users\Tables\UsersTable;
+use App\Filament\Shared\Resources\Users\Pages\CreateUser;
+use App\Filament\Shared\Resources\Users\Pages\EditUser;
+use App\Filament\Shared\Resources\Users\Pages\ListUsers;
 use App\Models\Users\User;
 use BackedEnum;
 use Filament\Resources\Resource;

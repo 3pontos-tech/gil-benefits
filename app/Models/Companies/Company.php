@@ -2,8 +2,10 @@
 
 namespace App\Models\Companies;
 
+use App\Models\Plans\Plan;
 use App\Models\Users\User;
 use App\Models\Voucher;
+use App\Models\VoucherRequest;
 use App\Policies\Companies\CompanyPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -29,9 +31,14 @@ class Company extends Model
         return 'slug';
     }
 
-    public function user(): BelongsTo
+    public function hasActivePlan(): bool
     {
-        return $this->belongsTo(User::class);
+        return $this->plans()->wherePivot('status', 'active')->exists();
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function employees(): BelongsToMany
@@ -42,5 +49,15 @@ class Company extends Model
     public function vouchers(): HasMany
     {
         return $this->hasMany(Voucher::class);
+    }
+
+    public function plans(): BelongsToMany
+    {
+        return $this->BelongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')->withPivot('status')->withTimestamps();
+    }
+
+    public function voucherRequests(): HasMany
+    {
+        return $this->hasMany(VoucherRequest::class);
     }
 }

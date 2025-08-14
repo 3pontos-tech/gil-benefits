@@ -2,7 +2,6 @@
 
 namespace App\Models\Users;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Companies\Company;
 use App\Models\Voucher;
 use App\Policies\Users\UserPolicy;

@@ -5,7 +5,6 @@ namespace App\Filament\Admin\Resources\Vouchers\Schemas;
 use App\Enums\VoucherStatusEnum;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class VoucherForm
@@ -14,8 +13,6 @@ class VoucherForm
     {
         return $schema
             ->components([
-                TextInput::make('code')
-                    ->required(),
                 Select::make('company_id')
                     ->relationship('company', 'name')
                     ->required(),
@@ -25,6 +22,7 @@ class VoucherForm
                     ->relationship('user', 'name'),
                 Select::make('status')
                     ->options(VoucherStatusEnum::class)
+                    ->default(VoucherStatusEnum::Pending)
                     ->required(),
                 DateTimePicker::make('valid_until')
                     ->required(),

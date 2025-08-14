@@ -11,22 +11,16 @@ use App\Models\Users\User;
 use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         if (app()->isProduction()) {
             return;
         }
 
-        $this->generateAdmin();
+        $this->generateUsers();
         $this->generatePlans();
 
         $companies = $this->generateCompanies();
@@ -38,13 +32,13 @@ class DatabaseSeeder extends Seeder
     private function generateConsultants(): Collection
     {
         return Consultant::factory()
-            ->count(3)
+            ->count(5)
             ->create();
     }
 
-    private function generatePlans(): Collection
+    private function generatePlans(): void
     {
-        return Plan::factory()
+        Plan::factory()
             ->has(Item::factory(3))
             ->count(2)
             ->create();
@@ -62,15 +56,6 @@ class DatabaseSeeder extends Seeder
                 );
             })
             ->create();
-    }
-
-    private function generateAdmin(): User
-    {
-        return User::factory()->create([
-            'name' => 'admin',
-            'email' => 'admin@admin.com',
-            'password' => Hash::make('password'),
-        ]);
     }
 
     private function generateVouchers(Collection $companies, Collection $consultants): void
@@ -102,5 +87,22 @@ class DatabaseSeeder extends Seeder
                 ->count(3)
                 ->create();
         }
+    }
+
+    private function generateUsers(): void
+    {
+        User::factory()->admin()->create();
+
+        $ownedCompany = User::factory()->companyOwner()->create();
+        $employee = User::factory()->employee()->create();
+
+        $company = Company::factory()
+            ->create([
+                'user_id' => $ownedCompany->id,
+            ]);
+
+        $company->employees()->attach($employee);
+
+        $ownedCompany->companies()->attach($company);
     }
 }

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('status')->comment("'pending', 'active', 'used', 'expired'");
             $table->timestamp('valid_until');
             $table->timestamps();
+            $table->unique(['code', 'company_id']);
         });
     }
 };

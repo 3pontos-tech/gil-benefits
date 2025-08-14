@@ -14,14 +14,15 @@ class CompaniesTable
     {
         return $table
             ->columns([
-                TextColumn::make('user.name')
+                TextColumn::make('owner.name')
                     ->label('Owner')
-                    ->numeric()
                     ->sortable(),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('tax_id')
                     ->searchable(),
+                TextColumn::make('plans.name')
+                    ->label('Plan'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

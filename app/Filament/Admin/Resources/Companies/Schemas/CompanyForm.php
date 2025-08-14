@@ -16,7 +16,7 @@ class CompanyForm
             ->components([
                 Select::make('user_id')
                     ->label('Owner')
-                    ->relationship('user', 'name')
+                    ->relationship('owner', 'name')
                     ->required(),
                 TextInput::make('name')
                     ->maxLength(255)
