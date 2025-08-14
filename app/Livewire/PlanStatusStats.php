@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Database\Eloquent\Model;
@@ -12,8 +13,11 @@ class PlanStatusStats extends StatsOverviewWidget
 
     protected function getStats(): array
     {
+        $tenant = Filament::getTenant();
+
         $this->record = $this->record ?? auth()->user()->ownedCompanies()->with('plans')->first();
-        $activePlan = $this->record->plans()->wherePivot('status', 'active')->first();
+        $company = $this->record->where('name', $tenant->name)->first();
+        $activePlan = $company->plans()->wherePivot('status', 'active')->first();
 
         $usedVouchersCount = $this->record->vouchers()
             ->where('status', 'used')

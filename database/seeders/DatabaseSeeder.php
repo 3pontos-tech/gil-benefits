@@ -93,16 +93,16 @@ class DatabaseSeeder extends Seeder
     {
         User::factory()->admin()->create();
 
-        $ownedCompanie = User::factory()->companyOwner()->create();
+        $ownedCompany = User::factory()->companyOwner()->create();
         $employee = User::factory()->employee()->create();
 
         $company = Company::factory()
             ->create([
-                'user_id' => $ownedCompanie->id,
+                'user_id' => $ownedCompany->id,
             ]);
 
         $company->employees()->attach($employee);
 
-        $ownedCompanie->companies()->attach($company);
+        $ownedCompany->companies()->attach($company);
     }
 }
