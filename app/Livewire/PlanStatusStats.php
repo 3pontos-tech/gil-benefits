@@ -21,7 +21,7 @@ class PlanStatusStats extends StatsOverviewWidget
             ->where('status', 'used')
             ->where('valid_until', '>=', now())
             ->count();
-//        dd($company);
+        //        dd($company);
         $vouchersCount = $company->vouchers()->count();
 
         return [

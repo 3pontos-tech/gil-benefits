@@ -3,7 +3,6 @@
 namespace App\Filament\Company\Resources\Vouchers;
 
 use App\Filament\Company\Resources\Vouchers\Pages\CreateVoucher;
-use App\Filament\Company\Resources\Vouchers\Pages\EditVoucher;
 use App\Filament\Company\Resources\Vouchers\Pages\ListVouchers;
 use App\Filament\Company\Resources\Vouchers\Schemas\VoucherForm;
 use App\Filament\Company\Resources\Vouchers\Tables\VouchersTable;
@@ -42,7 +41,7 @@ class VoucherResource extends Resource
         return [
             'index' => ListVouchers::route('/'),
             'create' => CreateVoucher::route('/create'),
-//            'edit' => EditVoucher::route('/{record}/edit'),
+            //            'edit' => EditVoucher::route('/{record}/edit'),
         ];
     }
 }

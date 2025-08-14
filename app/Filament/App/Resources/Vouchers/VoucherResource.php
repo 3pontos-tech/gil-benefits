@@ -2,8 +2,8 @@
 
 namespace App\Filament\App\Resources\Vouchers;
 
-use App\Filament\App\Resources\Vouchers\Schemas\VoucherForm;
 use App\Filament\App\Resources\Vouchers\Pages\ListVouchers;
+use App\Filament\App\Resources\Vouchers\Schemas\VoucherForm;
 use App\Filament\App\Resources\Vouchers\Tables\VouchersTable;
 use App\Models\Voucher;
 use BackedEnum;

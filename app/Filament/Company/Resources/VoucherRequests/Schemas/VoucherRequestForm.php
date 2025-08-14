@@ -2,7 +2,6 @@
 
 namespace App\Filament\Company\Resources\VoucherRequests\Schemas;
 
-use App\Models\Companies\Company;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -15,7 +14,7 @@ class VoucherRequestForm
         return $schema
             ->components([
                 Select::make('company_id')
-                    ->relationship('company', 'name', function ($query) {
+                    ->relationship('company', 'name', function ($query): void {
                         $query->whereIn('id', auth()->user()->companies()->pluck('id'));
                     })
                     ->required(),
