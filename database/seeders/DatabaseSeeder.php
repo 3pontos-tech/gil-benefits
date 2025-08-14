@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\CompanyRoleEnum;
 use App\Enums\VoucherStatusEnum;
 use App\Models\Companies\Company;
 use App\Models\Consultant;
@@ -23,10 +24,13 @@ class DatabaseSeeder extends Seeder
         $this->generateUsers();
         $this->generatePlans();
 
-        $companies = $this->generateCompanies();
         $consultants = $this->generateConsultants();
+        $companies = $this->generateCompanies();
 
         $this->generateVouchers($companies, $consultants);
+
+        $admin = User::factory()->admin()->create();
+        Company::all()->each(fn ($company) => $company->employees()->attach($admin, ['role' => CompanyRoleEnum::Owner->value]));
     }
 
     private function generateConsultants(): Collection
@@ -47,13 +51,20 @@ class DatabaseSeeder extends Seeder
     private function generateCompanies(): Collection
     {
         return Company::factory()
-            ->count(5)
+            ->count(3)
             ->afterCreating(function (Company $company): void {
-                $company->employees()->attach(User::factory()
-                    ->count(3)
-                    ->hasDetail()
-                    ->create()
-                );
+                $roles = [
+                    ['role' => CompanyRoleEnum::Owner->value],
+                    ['role' => CompanyRoleEnum::Manager->value],
+                    ['role' => CompanyRoleEnum::Employee->value],
+                ];
+                foreach ($roles as $role) {
+                    $company->employees()->attach(
+                        User::factory()->hasDetail()->create(),
+                        $role
+                    );
+                }
+
             })
             ->create();
     }
@@ -63,26 +74,26 @@ class DatabaseSeeder extends Seeder
         /** @var Company $company */
         foreach ($companies as $company) {
             Voucher::factory()
-                ->forCompany($company)
-                ->forUser($company->employees->random())
-                ->forConsultant($consultants->random())
+                ->recycle($company)
+                ->recycle($company->employees->random())
+                ->recycle($consultants->random())
                 ->withStatus(VoucherStatusEnum::Active)
                 ->create();
 
             Voucher::factory()
-                ->forCompany($company)
-                ->forUser($company->employees->random())
-                ->forConsultant($consultants->random())
+                ->recycle($company)
+                ->recycle($company->employees->random())
+                ->recycle($consultants->random())
                 ->withStatus(VoucherStatusEnum::Used)
                 ->create();
 
             Voucher::factory()
-                ->forCompany($company)
+                ->recycle($company)
                 ->expired()
                 ->create();
 
             Voucher::factory()
-                ->forCompany($company)
+                ->recycle($company)
                 ->unused()
                 ->count(3)
                 ->create();
@@ -91,8 +102,6 @@ class DatabaseSeeder extends Seeder
 
     private function generateUsers(): void
     {
-        User::factory()->admin()->create();
-
         $ownedCompany = User::factory()->companyOwner()->create();
         $employee = User::factory()->employee()->create();
 
@@ -101,8 +110,12 @@ class DatabaseSeeder extends Seeder
                 'user_id' => $ownedCompany->id,
             ]);
 
-        $company->employees()->attach($employee);
+        $company->employees()->attach($employee, [
+            'role' => CompanyRoleEnum::Employee->value,
+        ]);
 
-        $ownedCompany->companies()->attach($company);
+        $ownedCompany->companies()->attach($company, [
+            'role' => CompanyRoleEnum::Owner->value,
+        ]);
     }
 }

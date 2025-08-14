@@ -9,14 +9,18 @@ use Filament\Support\Icons\Heroicon;
 
 enum VoucherStatusEnum: string implements HasColor, HasIcon, HasLabel
 {
-    case Pending = 'pending';
     case Active = 'active';
+    case Pending = 'pending';
+
     case Used = 'used';
+    case Requested = 'requested';
+
     case Expired = 'expired';
 
     public function getLabel(): string
     {
         return match ($this) {
+            self::Requested => 'Solicitado',
             self::Pending => 'Pendente',
             self::Active => 'Ativo',
             self::Used => 'Utilizado',
@@ -27,16 +31,18 @@ enum VoucherStatusEnum: string implements HasColor, HasIcon, HasLabel
     public function getIcon(): Heroicon
     {
         return match ($this) {
-            self::Pending => Heroicon::Clock,
-            self::Active => Heroicon::CheckCircle,
-            self::Used => Heroicon::DocumentCheck,
-            self::Expired => Heroicon::XCircle,
+            self::Requested => Heroicon::OutlinedDocumentText,
+            self::Pending => Heroicon::OutlinedClock,
+            self::Active => Heroicon::OutlinedCheckCircle,
+            self::Used => Heroicon::OutlinedDocumentCheck,
+            self::Expired => Heroicon::OutlinedXCircle,
         };
     }
 
     public function getColor(): string
     {
         return match ($this) {
+            self::Requested => 'gray',
             self::Pending => 'warning',
             self::Active => 'success',
             self::Used => 'info',
