@@ -2,7 +2,6 @@
 
 namespace App\Filament\Company\Resources\Vouchers;
 
-use App\Filament\Company\Resources\Vouchers\Pages\CreateVoucher;
 use App\Filament\Company\Resources\Vouchers\Pages\ListVouchers;
 use App\Filament\Company\Resources\Vouchers\Schemas\VoucherForm;
 use App\Filament\Company\Resources\Vouchers\Tables\VouchersTable;
@@ -17,7 +16,9 @@ class VoucherResource extends Resource
 {
     protected static ?string $model = Voucher::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTicket;
+
+    protected static string|BackedEnum|null $activeNavigationIcon = Heroicon::Ticket;
 
     public static function form(Schema $schema): Schema
     {
@@ -40,8 +41,6 @@ class VoucherResource extends Resource
     {
         return [
             'index' => ListVouchers::route('/'),
-            'create' => CreateVoucher::route('/create'),
-            //            'edit' => EditVoucher::route('/{record}/edit'),
         ];
     }
 }

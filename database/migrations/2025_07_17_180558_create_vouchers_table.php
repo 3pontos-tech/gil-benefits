@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(Consultant::class)->nullable();
             $table->foreignIdFor(User::class)->nullable();
             $table->string('status')->comment("'pending', 'active', 'used', 'expired'");
-            $table->timestamp('valid_until');
+            $table->timestamp('valid_until')->nullable();
             $table->timestamps();
             $table->unique(['code', 'company_id']);
         });

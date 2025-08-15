@@ -29,12 +29,12 @@ class ConsultantPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Consultant/Resources'), for: 'App\Filament\Consultant\Resources')
-            ->discoverPages(in: app_path('Filament/Consultant/Pages'), for: 'App\Filament\Consultant\Pages')
+            ->discoverResources(in: app_path('Filament/Consultant/Resources'), for: 'App\\Filament\\Consultant\\Resources')
+            ->discoverPages(in: app_path('Filament/Consultant/Pages'), for: 'App\\Filament\\Consultant\\Pages')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Consultant/Widgets'), for: 'App\Filament\Consultant\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Consultant/Widgets'), for: 'App\\Filament\\Consultant\\Widgets')
             ->widgets([
                 AccountWidget::class,
                 FilamentInfoWidget::class,

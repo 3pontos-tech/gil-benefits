@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('company_employees', function (Blueprint $table): void {
             $table->foreignIdFor(Company::class);
             $table->foreignIdFor(User::class);
+            $table->string('role')->comment("'owner', 'manager', 'employee'");
             $table->timestamps();
         });
     }

@@ -43,7 +43,9 @@ class Company extends Model
 
     public function employees(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'company_employees', 'company_id', 'user_id')->withTimestamps();
+        return $this->belongsToMany(User::class, 'company_employees', 'company_id', 'user_id')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
     public function vouchers(): HasMany
