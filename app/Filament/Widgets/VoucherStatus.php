@@ -12,6 +12,8 @@ class VoucherStatus extends ChartWidget
 {
     protected ?string $heading = 'Vouchers By Status';
 
+    protected static ?int $sort = 2;
+
     protected function getData(): array
     {
         foreach (VoucherStatusEnum::cases() as $status) {
@@ -26,13 +28,13 @@ class VoucherStatus extends ChartWidget
 
             $datasets[] = [
                 'label' => $status->getLabel(),
-                'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
+                'data' => $data->map(fn (TrendValue $value): mixed => $value->aggregate),
                 'backgroundColor' => $this->mapEnumColor($status->getColor()),
                 'borderColor' => '#47b3bf',
             ];
         }
 
-        $statusLabels = $data->map(fn (TrendValue $value) => $value->date);
+        $statusLabels = $data->map(fn (TrendValue $value): string => $value->date);
 
         return [
             'datasets' => $datasets,

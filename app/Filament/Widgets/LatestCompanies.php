@@ -11,10 +11,15 @@ use Illuminate\Database\Eloquent\Builder;
 
 class LatestCompanies extends TableWidget
 {
+    protected int|string|array $columnSpan = 'full';
+
+    protected static ?int $sort = 1;
+
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn (): Builder => Company::query())
+            ->query(fn (): Builder => Company::query()
+                ->where('created_at', '>=', now()->subDays(7)->format('d-m-Y')))
             ->columns([
                 TextColumn::make('user_id')
                     ->numeric()
