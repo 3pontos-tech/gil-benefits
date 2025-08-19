@@ -3,7 +3,6 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Companies\Company;
-use App\Models\Plans\Plan;
 use App\Models\Users\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -23,25 +22,27 @@ class StatsOverview extends StatsOverviewWidget
         return [
             $this->mountActivePlansStat(),
             $this->mountNewUsersStat(),
-            Stat::make('Total Companies', $totalCompanies)
-                ->description('Overall'),
+            $this->mountTotalCompaniesStat(),
         ];
     }
 
     private function mountActivePlansStat(): Stat
     {
-        $activePlans = Plan::query()
-            ->whereHas('companies', function (Builder $query): void {
+        $activePlans = Company::query()
+            ->whereHas('plans', function (Builder $query): void {
                 $query->where('company_plans.status', 'active');
             })
             ->count();
 
-        $data = Trend::model(Plan::class)
+        $data = Trend::query(Company::query()
+            ->whereHas('plans', function (Builder $query): void {
+                $query->where('company_plans.status', 'active');
+            }))
             ->between(
                 start: now()->subDays(7),
                 end: now(),
             )
-            ->perDay()
+            ->perWeek()
             ->count();
 
         return Stat::make('Active Plans', $activePlans)
@@ -61,12 +62,30 @@ class StatsOverview extends StatsOverviewWidget
                 start: now()->subDays(7),
                 end: now(),
             )
-            ->perDay()
+            ->perWeek()
             ->count();
 
         return Stat::make('New Users', $newUsers)
             ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
             ->color('info')
             ->description('This week');
+    }
+
+    private function mountTotalCompaniesStat()
+    {
+        $totalCompanies = Company::query()->count();
+
+        $data = Trend::model(Company::class)
+            ->between(
+                start: now()->startOfCentury(),
+                end: now()->endOfCentury(),
+            )
+            ->perYear()
+            ->count();
+
+        return Stat::make('Total Companies', $totalCompanies)
+            ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
+            ->color('danger')
+            ->description('Overall');
     }
 }
