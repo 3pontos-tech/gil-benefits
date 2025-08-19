@@ -2,10 +2,13 @@
 
 namespace App\Filament\Admin\Resources\Vouchers\Pages;
 
+use App\Enums\VoucherStatusEnum;
 use App\Filament\Admin\Resources\Vouchers\VoucherResource;
 use App\Filament\Admin\Resources\Vouchers\Widgets\CompanyVoucherStats;
+use App\Models\Voucher;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
 
 class ListVouchers extends ListRecords
 {
@@ -17,6 +20,25 @@ class ListVouchers extends ListRecords
             CompanyVoucherStats::make(),
         ];
     }
+
+    public function getTabs(): array
+    {
+        return [
+            Tab::make()
+                ->label(__('Todos'))
+                ->badgeColor('gray')
+                ->icon('heroicon-o-inbox'),
+
+            ...collect(VoucherStatusEnum::cases())->map(fn (VoucherStatusEnum $status): Tab => Tab::make()
+                ->label($status->getLabel())
+                ->badgeColor($status->getColor())
+                ->modifyQueryUsing(fn ($query) => $query->where('status', $status))
+                ->badge(fn ($query) => Voucher::query()->where('status', $status)->count())
+                ->icon($status->getIcon())
+            )->toArray(),
+        ];
+    }
+
     protected function getHeaderActions(): array
     {
         return [
