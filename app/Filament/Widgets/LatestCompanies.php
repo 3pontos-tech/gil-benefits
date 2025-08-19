@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class LatestCompanies extends TableWidget
 {
-    protected int|string|array $columnSpan = 3;
+    protected int|string|array $columnSpan = 'full';
 
     protected static ?int $sort = 1;
 

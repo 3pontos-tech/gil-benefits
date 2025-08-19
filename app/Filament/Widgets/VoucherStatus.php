@@ -31,6 +31,7 @@ class VoucherStatus extends ChartWidget
                 'data' => $data->map(fn (TrendValue $value): mixed => $value->aggregate),
                 'backgroundColor' => $this->mapEnumColor($status->getColor()),
                 'borderColor' => '#47b3bf',
+                'borderWidth' => 1,
             ];
         }
 
@@ -45,13 +46,14 @@ class VoucherStatus extends ChartWidget
     protected function mapEnumColor(string $enumColor): string
     {
         return match ($enumColor) {
-            'gray' => '#6B7280',
-            'warning' => '#F59E0B',
-            'success' => '#10B981',
-            'info' => '#3B82F6',
-            'danger' => '#EF4444',
+            'gray' => 'rgba(107, 114, 128, 0.6)',
+            'warning' => 'rgba(245, 158, 11, 0.6)',
+            'success' => 'rgba(16, 185, 129, 0.6)',
+            'info' => 'rgba(59, 130, 246, 0.6)',
+            'danger' => 'rgba(239, 68, 68, 0.6)',
         };
     }
+
 
     protected function getType(): string
     {

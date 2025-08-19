@@ -13,15 +13,19 @@ class ActivePlansStatus extends ChartWidget
 {
     protected ?string $heading = 'Active Plans Status';
 
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 3;
 
     protected function getData(): array
     {
+        $datasets = [];
+        $labels = [];
+
         $plans = Plan::query()->get();
         foreach ($plans as $plan) {
             $data = Trend::query(Company::query()
-                ->whereHas('plans', function (Builder $query): void {
-                    $query->where('company_plans.status', 'active');
+                ->whereHas('plans', function (Builder $query) use ($plan) {
+                    $query->where('plan_id', $plan->id)
+                        ->where('company_plans.status', 'active');
                 }))
                 ->between(
                     start: now()->startOfMonth(),
@@ -31,16 +35,19 @@ class ActivePlansStatus extends ChartWidget
                 ->count();
 
             $datasets[] = [
-                'label' => $plans->get('name'),
+                'label' => $plan->name,
                 'data' => $data->map(fn (TrendValue $value): mixed => $value->aggregate),
+                'borderWidth' => 1,
             ];
-        }
 
-        $planLabels = $data->map(fn (TrendValue $value): string => $value->date);
+            if (empty($labels)) {
+                $labels = $data->map(fn (TrendValue $value): string => $value->date)->toArray();
+            }
+        }
 
         return [
             'datasets' => $datasets,
-            'labels' => $planLabels,
+            'labels' => $labels,
         ];
     }
 
