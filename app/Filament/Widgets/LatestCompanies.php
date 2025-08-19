@@ -13,7 +13,7 @@ class LatestCompanies extends TableWidget
 {
     protected int|string|array $columnSpan = 'full';
 
-    protected static ?int $sort = 1;
+    protected static ?int $sort = 2;
 
     public function table(Table $table): Table
     {
