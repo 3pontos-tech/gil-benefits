@@ -54,7 +54,6 @@ class VoucherStatus extends ChartWidget
         };
     }
 
-
     protected function getType(): string
     {
         return 'bar';
