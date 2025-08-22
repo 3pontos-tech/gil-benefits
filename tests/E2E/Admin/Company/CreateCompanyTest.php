@@ -10,8 +10,6 @@ it('should be possible create a company', function () {
 
     $this->actingAs($admin);
 
-    filament()->setCurrentPanel('admin');
-
     $page = visit('/admin');
 
     $page->assertSee('Painel de Controle');

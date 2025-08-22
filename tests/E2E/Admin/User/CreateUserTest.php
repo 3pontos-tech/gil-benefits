@@ -18,8 +18,6 @@ it('should be possible create a user', function (): void {
         ->recycle($admin)
         ->create();
 
-    filament()->setCurrentPanel('admin');
-
     $page = visit('/admin');
 
     $page->assertSee('Painel de Controle');
@@ -65,8 +63,6 @@ it('should be possible create a user and see the page of edition', function () {
     $company = Company::factory()
         ->recycle($admin)
         ->create();
-
-    filament()->setCurrentPanel('admin');
 
     $page = visit('/admin');
 
