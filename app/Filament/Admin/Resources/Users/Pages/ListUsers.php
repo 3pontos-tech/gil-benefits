@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Shared\Resources\Users\Pages;
+namespace App\Filament\Admin\Resources\Users\Pages;
 
 use App\Filament\Admin\Resources\Users\UserResource;
 use Filament\Actions\CreateAction;
