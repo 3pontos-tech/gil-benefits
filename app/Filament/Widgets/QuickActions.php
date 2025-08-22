@@ -17,7 +17,7 @@ class QuickActions extends Widget
 
     protected static ?int $sort = 1;
 
-    public function getViewData(): array
+    protected function getViewData(): array
     {
         $shortcuts = [
             [

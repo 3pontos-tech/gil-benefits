@@ -17,7 +17,7 @@ class StatsOverview extends StatsOverviewWidget
     protected function getStats(): array
     {
 
-        $totalCompanies = Company::query()->count();
+        Company::query()->count();
 
         return [
             $this->mountActivePlansStat(),
@@ -71,7 +71,7 @@ class StatsOverview extends StatsOverviewWidget
             ->description('This week');
     }
 
-    private function mountTotalCompaniesStat()
+    private function mountTotalCompaniesStat(): Stat
     {
         $totalCompanies = Company::query()->count();
 

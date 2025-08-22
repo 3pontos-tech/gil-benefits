@@ -23,7 +23,7 @@ class ActivePlansStatus extends ChartWidget
         $plans = Plan::query()->get();
         foreach ($plans as $plan) {
             $data = Trend::query(Company::query()
-                ->whereHas('plans', function (Builder $query) use ($plan) {
+                ->whereHas('plans', function (Builder $query) use ($plan): void {
                     $query->where('plan_id', $plan->id)
                         ->where('company_plans.status', 'active');
                 }))
