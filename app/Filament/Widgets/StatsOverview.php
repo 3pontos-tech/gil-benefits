@@ -16,7 +16,6 @@ class StatsOverview extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-
         Company::query()->count();
 
         return [
@@ -53,10 +52,6 @@ class StatsOverview extends StatsOverviewWidget
 
     private function mountNewUsersStat(): Stat
     {
-        $newUsers = User::query()
-            ->where('created_at', '>=', now()->subDays(7))
-            ->count();
-
         $data = Trend::model(User::class)
             ->between(
                 start: now()->subDays(7),
@@ -65,7 +60,7 @@ class StatsOverview extends StatsOverviewWidget
             ->perWeek()
             ->count();
 
-        return Stat::make('New Users', $newUsers)
+        return Stat::make('New Users', $data->sum('aggregate'))
             ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
             ->color('info')
             ->description('This week');

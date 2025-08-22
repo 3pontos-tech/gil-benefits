@@ -3,7 +3,6 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Companies\Company;
-use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -18,15 +17,18 @@ class LatestCompanies extends TableWidget
     public function table(Table $table): Table
     {
         return $table
+            ->searchable(false)
             ->query(fn (): Builder => Company::query()
-                ->where('created_at', '>=', now()->subDays(7)->format('d-m-Y')))
+                ->whereDate('created_at', '>=', now()->subDays(7)))
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('plans.name')
                     ->badge()
+                    ->default(fn (): string => 'N/A')
                     ->label('Plan'),
                 TextColumn::make('tax_id')
+                    ->badge()
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -36,20 +38,7 @@ class LatestCompanies extends TableWidget
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->headerActions([
-                //
-            ])
-            ->recordActions([
-                //
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    //
-                ]),
             ]);
+
     }
 }
