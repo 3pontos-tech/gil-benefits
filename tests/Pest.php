@@ -18,7 +18,9 @@ pest()->extend(Tests\TestCase::class)
 pest()->group('browser')
     ->in('E2E');
 
-pest()->in('E2E/Admin')->beforeEach(fn() => filament()->setCurrentPanel('admin'));
+pest()
+    ->in('E2E/Admin')
+    ->beforeEach(fn () => filament()->setCurrentPanel('admin'));
 
 /*
 |--------------------------------------------------------------------------
