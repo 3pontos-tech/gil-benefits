@@ -18,8 +18,6 @@ class EditCompany extends EditRecord
     {
         return [
             PlanStatusStats::class,
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
         ];
     }
 
