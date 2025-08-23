@@ -10,10 +10,11 @@ return new class extends Migration
     {
         Schema::create('user_details', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('company_id')->constrained('companies');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->string('document_id', 50);
             $table->string('tax_id', 15)->unique();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

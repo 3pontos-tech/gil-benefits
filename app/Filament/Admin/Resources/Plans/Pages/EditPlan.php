@@ -4,6 +4,8 @@ namespace App\Filament\Admin\Resources\Plans\Pages;
 
 use App\Filament\Admin\Resources\Plans\PlanResource;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditPlan extends EditRecord
@@ -14,6 +16,8 @@ class EditPlan extends EditRecord
     {
         return [
             DeleteAction::make(),
+            ForceDeleteAction::make(),
+            RestoreAction::make(),
         ];
     }
 }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignIdFor(Plan::class);
             $table->date('renewal_date')->nullable();
             $table->string('status')->comment("'active', 'inactive'");
+            $table->softDeletes();
             $table->timestamps();
         });
     }

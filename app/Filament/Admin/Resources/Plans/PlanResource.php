@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class PlanResource extends Resource
 {
@@ -32,11 +34,12 @@ class PlanResource extends Resource
         return PlansTable::configure($table);
     }
 
-    public static function getRelations(): array
+    public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return [
-            //
-        ];
+        return parent::getRecordRouteBindingEloquentQuery()
+            ->withoutGlobalScopes([
+                SoftDeletingScope::class,
+            ]);
     }
 
     public static function getPages(): array
