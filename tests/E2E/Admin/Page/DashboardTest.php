@@ -19,9 +19,11 @@ it('should list latest companies on the chart', function (): void {
     $admin = User::factory()->admin()->create();
     Company::factory()->recycle($admin)->create();
     $companies = Company::factory(9)->create();
+    $allCompanies = Company::all()->count();
     actingAs($admin);
 
     $page = visit('/admin');
+    $page->assertSee("Total Companies $allCompanies Overall");
 
     $companies->each(function ($company) use ($page) {
         $page->assertSee($company->name);

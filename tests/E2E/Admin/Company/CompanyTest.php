@@ -22,10 +22,10 @@ it('should be possible create a company', function () {
 
     $page->assertValue('form.slug', 'nome-foda-pra-carai');
 
-    $page->click('key-bindings-1'); // representa o botão 'Criar'
+    $page->pressAndWaitFor('key-bindings-1',3); // representa o botão 'Criar'
 
     $page->navigate('/admin/companies');
-    $page->assertSee('nome foda pra carai');
+    $page->assertSee(Company::first()->name);
     $page->assertSee($admin->name);
 
     assertDatabaseHas(Company::class, [
