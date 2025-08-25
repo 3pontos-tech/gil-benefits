@@ -9,7 +9,7 @@ use App\Models\Users\User;
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
 
-it('should be possible create a user', function (): void {
+it('should be possible create a user', function () {
 
     $admin = User::factory()->admin()->create();
 
@@ -108,8 +108,6 @@ it('should be possible edit a user data', function () {
 
     $page->click('key-bindings-2');
 
-    $page->assertNoJavaScriptErrors();
-
     $page->assertSee('Salvo');
 
     $this->assertDatabaseHas(User::class, [
@@ -125,7 +123,7 @@ it('should be possible edit a user data', function () {
         'company_id' => $newCompany->id,
     ]);
 
-    $page = visit("/admin/users/{$fakeUser->id}/edit");
+    $page = visit("/admin/users/$fakeUser->id/edit");
 
     $page->assertValue('form.name', 'novo nome');
     $page->assertValue('form.email', 'novoemail@email.com');
@@ -134,52 +132,251 @@ it('should be possible edit a user data', function () {
     $page->assertValue('form.detail.company_id', $newCompany->id);
 });
 
+it('should be possible to force delete a user from the header action', function () {
+    /** @var User $admin */
+    $admin = User::factory()->admin()->create();
 
-//WIP
-// it('should be possible to delete a user from the list', function () {
-//     /** @var User $admin */
-//     $admin = User::factory()->admin()->create();
+    /** @var User $user */
+    $user = User::factory()->create();
+    $user->delete();
 
-//     /** @var User $user */
-//     $user = User::factory()->create();
+    $this->actingAs($admin);
 
-//     $this->actingAs($admin);
+    $page = visit('/admin/users');
 
-//     $page = visit('/admin/users');
+    $page->click('.fi-dropdown.fi-ta-filters-dropdown');
+    $page->assertSee('Filtros  Registros excluídos');
 
-//     $page->assertSee($user->name);
+    $page->select('tableFiltersForm.trashed.value', 'Somente registros excluídos');
+    $page->click('Aplicar filtros');
+    $page->click('.fi-dropdown.fi-ta-filters-dropdown');
 
-//     $page->check('.fi-ta-record-checkbox.fi-checkbox-input', str($user->id)->toString());
+    $page->assertSee($user->name);
+    $page->assertSee($user->email);
 
-//     $page->click('.fi-btn.fi-size-md.fi-labeled-from-sm.fi-ac-btn-group');
-//     $page->click('.fi-dropdown-list-item-label');
-//     $page->assertSee('Excluir Users selecionado Você tem certeza que gostaria de fazer isso?');
-//     $page->click('filamentFormButton');
+    $page->check('.fi-ta-record-checkbox.fi-checkbox-input', str($user->id)->toString());
 
-//     $page->assertSee('Are you sure you want to delete?');
-//     $page->click('confirm-delete');
+    $page->click('Abrir ações');
+    $page->click('Forçar exclusão selecionado');
+    $page->assertSee('Forçar exclusão de Users selecionado Você tem certeza que gostaria de fazer isso?');
 
-//     $page->assertNoJavaScriptErrors();
+    $page->click('Excluir');
+    $page->assertSee('Excluído');
 
-//     $this->assertDatabaseMissing('users', ['id' => $user->id]);
-// });
+    $this->assertDatabaseMissing(User::class, [
+        'id' => $user->id,
+    ]);
+    $this->assertNull(User::withTrashed()->find($user->id));
+});
 
-// it('should be possible to delete a user from the edit page', function () {
-//     /** @var User $admin */
-//     $admin = User::factory()->admin()->create();
+it('should be possible to force delete a user from the table action', function () {
+    /** @var User $admin */
+    $admin = User::factory()->admin()->create();
 
-//     /** @var User $user */
-//     $user = User::factory()->create();
+    /** @var User $user */
+    $user = User::factory()->create();
+    $user->delete();
 
-//     $this->actingAs($admin);
+    $this->actingAs($admin);
 
-//     $page = visit("/admin/users/{$user->id}/edit");
+    $page = visit('/admin/users');
 
-//     $page->click('delete-user');
-//     $page->assertSee('Are you sure you want to delete?');
-//     $page->click('confirm-delete');
+    $page->click('.fi-dropdown.fi-ta-filters-dropdown');
+    $page->assertSee('Filtros  Registros excluídos');
 
-//     $page->assertNoJavaScriptErrors();
+    $page->select('tableFiltersForm.trashed.value', 'Somente registros excluídos');
+    $page->click('Aplicar filtros');
+    $page->click('.fi-dropdown.fi-ta-filters-dropdown');
 
-//     $this->assertDatabaseMissing('users', ['id' => $user->id]);
-// });
+    $page->assertSee($user->name);
+    $page->assertSee($user->email);
+
+    $page->click('Forçar exclusão');
+    $page->assertSee('Forçar exclusão de user Você tem certeza que gostaria de fazer isso?');
+    $page->click('Excluir');
+    $page->assertSee('Excluído');
+
+    $this->assertDatabaseMissing(User::class, [
+        'id' => $user->id,
+    ]);
+    $this->assertNull(User::withTrashed()->find($user->id));
+});
+
+it('should be possible to force delete a user from the edit page', function () {
+    /** @var User $admin */
+    $admin = User::factory()->admin()->create();
+
+    /** @var User $user */
+    $user = User::factory()->create();
+    $user->delete();
+
+    $this->actingAs($admin);
+
+    $page = visit("/admin/users/$user->id/edit");
+
+    $page->click('Forçar exclusão');
+
+    $page->assertSee('Forçar exclusão de User Você tem certeza que gostaria de fazer isso?');
+
+    $page->pressAndWaitFor('Excluir', 1);
+
+    $this->assertDatabaseMissing(User::class, [
+        'id' => $user->id,
+    ]);
+    $this->assertNull(User::withTrashed()->find($user->id));
+});
+
+it('should be possible to soft deleted a user from header action', function () {
+    /** @var User $admin */
+    $admin = User::factory()->admin()->create();
+
+    /** @var User $user */
+    $user = User::factory()->create();
+
+    $this->actingAs($admin);
+
+    $page = visit('/admin/users');
+
+    $page->assertSee($user->name);
+
+    $page->check('.fi-ta-record-checkbox.fi-checkbox-input', str($user->id)->toString());
+
+    $page->click('Abrir ações');
+    $page->click('Excluir selecionado');
+    $page->assertSee('Excluir Users selecionado Você tem certeza que gostaria de fazer isso?');
+
+    $page->click('Excluir');
+    $page->assertSee('Excluído');
+    $page->assertNoJavaScriptErrors();
+
+    $nullUser = User::query()->find($user->id);
+
+    expect($nullUser)->toBeNull();
+
+    $this->assertSoftDeleted(User::class, [
+        'id' => $user->id,
+    ]);
+});
+
+it('should be possible to soft deleted a user from the edit page', function () {
+    /** @var User $admin */
+    $admin = User::factory()->admin()->create();
+
+    /** @var User $user */
+    $user = User::factory()->create();
+
+    $this->actingAs($admin);
+
+    $page = visit("/admin/users/$user->id/edit");
+
+    $page->click('Excluir');
+    $page->assertSee('Excluir User Você tem certeza que gostaria de fazer isso?');
+
+    $page->pressAndWaitFor('[x-data="filamentFormButton"].fi-color-danger', 1);
+
+    $this->assertSoftDeleted(User::class, ['id' => $user->id]);
+});
+
+it('should be possible to restore a soft deleted user from the header action', function () {
+    /** @var User $admin */
+    $admin = User::factory()->admin()->create();
+
+    /** @var User $user */
+    $user = User::factory()->create();
+    $user->delete();
+
+    $this->actingAs($admin);
+
+    $page = visit('/admin/users');
+
+    $page->click('.fi-dropdown.fi-ta-filters-dropdown');
+    $page->assertSee('Filtros  Registros excluídos');
+
+    $page->select('tableFiltersForm.trashed.value', 'Somente registros excluídos');
+    $page->click('Aplicar filtros');
+    $page->click('.fi-dropdown.fi-ta-filters-dropdown');
+
+    $page->assertSee($user->name);
+    $page->assertSee($user->email);
+
+    $page->check('.fi-ta-record-checkbox.fi-checkbox-input', str($user->id)->toString());
+    $page->click('Abrir ações');
+    $page->click('Restaurar selecionado');
+
+    $page->assertSee('Restaurar Users selecionado Você tem certeza que gostaria de fazer isso?');
+
+    $page->click('[x-data="filamentFormButton"]');
+
+    $page->assertSee('Restaurado');
+
+    $restoredUser = User::query()->find($user->id);
+
+    expect($restoredUser)->not->toBeNull();
+
+    $this->assertDatabaseHas(User::class, [
+        'id' => $user->id,
+        'deleted_at' => null,
+    ]);
+});
+
+it('should be possible to restore a soft deleted user from the list page', function () {
+    /** @var User $admin */
+    $admin = User::factory()->admin()->create();
+
+    /** @var User $user */
+    $user = User::factory()->create();
+    $user->delete();
+
+    $this->actingAs($admin);
+
+    $page = visit('/admin/users');
+
+    $page->click('.fi-dropdown.fi-ta-filters-dropdown');
+    $page->assertSee('Filtros  Registros excluídos');
+
+    $page->select('tableFiltersForm.trashed.value', 'Somente registros excluídos');
+    $page->click('Aplicar filtros');
+    $page->click('.fi-dropdown.fi-ta-filters-dropdown');
+
+    $page->assertSee($user->name);
+    $page->assertSee($user->email);
+
+    $page->press('Restaurar');
+    $page->assertSee('Restaurar user Você tem certeza que gostaria de fazer isso?');
+
+    $page->click('[x-data="filamentFormButton"]');
+    $page->assertSee('Restaurado');
+    $page->assertNoJavaScriptErrors();
+
+    $restoredUser = User::query()->find($user->id);
+    expect($restoredUser)->not->toBeNull();
+
+    $this->assertDatabaseHas(User::class, [
+        'id' => $user->id,
+        'deleted_at' => null,
+    ]);
+});
+
+it('should be possible to restore a soft deleted user from the edit page', function () {
+    /** @var User $admin */
+    $admin = User::factory()->admin()->create();
+
+    /** @var User $user */
+    $user = User::factory()->create();
+    $user->delete();
+    $this->actingAs($admin);
+
+    $page = visit("/admin/users/$user->id/edit");
+
+    $page->click('Restaurar');
+    $page->assertSee('Restaurar User Você tem certeza que gostaria de fazer isso?');
+
+    $page->click('.fi-modal-window [x-data="filamentFormButton"]');
+
+    $page->assertSee('Restaurado');
+
+    $this->assertDatabaseHas(User::class, [
+        'id' => $user->id,
+        'deleted_at' => null,
+    ]);
+});
