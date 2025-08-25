@@ -6,8 +6,6 @@ use App\Filament\Admin\Resources\Companies\Actions\AttachPlanAction;
 use App\Filament\Admin\Resources\Companies\CompanyResource;
 use App\Livewire\PlanStatusStats;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditCompany extends EditRecord

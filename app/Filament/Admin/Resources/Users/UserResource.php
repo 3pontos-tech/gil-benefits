@@ -34,7 +34,6 @@ class UserResource extends Resource
         return UsersTable::configure($table);
     }
 
-
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
         return parent::getRecordRouteBindingEloquentQuery()

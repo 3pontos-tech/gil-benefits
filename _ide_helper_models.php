@@ -43,7 +43,7 @@ namespace App\Models\Companies{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Company whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Company whereUserId($value)
  */
-	class Company extends \Eloquent {}
+	class Company extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -69,7 +69,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Consultant wherePhone($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Consultant whereUpdatedAt($value)
  */
-	class Consultant extends \Eloquent {}
+	class Consultant extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models\Plans{
@@ -96,7 +96,7 @@ namespace App\Models\Plans{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereUpdatedAt($value)
  */
-	class Item extends \Eloquent {}
+	class Item extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models\Plans{
@@ -130,7 +130,7 @@ namespace App\Models\Plans{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan whereUpdatedAt($value)
  */
-	class Plan extends \Eloquent {}
+	class Plan extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models\Users{
@@ -155,7 +155,7 @@ namespace App\Models\Users{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Detail whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Detail whereUserId($value)
  */
-	class Detail extends \Eloquent {}
+	class Detail extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models\Users{
@@ -190,7 +190,7 @@ namespace App\Models\Users{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  */
-	class User extends \Eloquent implements \Filament\Models\Contracts\FilamentUser, \Filament\Models\Contracts\HasTenants {}
+	class User extends \Illuminate\Database\Eloquent\Model implements \Filament\Models\Contracts\FilamentUser, \Filament\Models\Contracts\HasTenants {}
 }
 
 namespace App\Models{
@@ -221,7 +221,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereUserId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher whereValidUntil($value)
  */
-	class Voucher extends \Eloquent {}
+	class Voucher extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -232,6 +232,6 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VoucherRequest newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|VoucherRequest query()
  */
-	class VoucherRequest extends \Eloquent {}
+	class VoucherRequest extends \Illuminate\Database\Eloquent\Model {}
 }
 

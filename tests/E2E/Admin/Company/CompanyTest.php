@@ -2,6 +2,7 @@
 
 use App\Models\Companies\Company;
 use App\Models\Users\User;
+
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
 
@@ -22,7 +23,7 @@ it('should be possible create a company', function () {
 
     $page->assertValue('form.slug', 'nome-foda-pra-carai');
 
-    $page->pressAndWaitFor('key-bindings-1',3); // representa o botão 'Criar'
+    $page->pressAndWaitFor('key-bindings-1', 3); // representa o botão 'Criar'
 
     $page->navigate('/admin/companies');
     $page->assertSee(Company::first()->name);
