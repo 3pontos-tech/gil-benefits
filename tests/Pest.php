@@ -12,8 +12,15 @@
 */
 
 pest()->extend(Tests\TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->in('Feature', 'E2E');
+
+pest()->group('browser')
+    ->in('E2E');
+
+pest()
+    ->in('E2E/Admin')
+    ->beforeEach(fn () => filament()->setCurrentPanel('admin'));
 
 /*
 |--------------------------------------------------------------------------

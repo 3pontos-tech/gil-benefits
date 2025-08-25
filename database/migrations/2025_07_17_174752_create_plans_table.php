@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('hours_included');
             $table->text('description');
             $table->date('renewal_date')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

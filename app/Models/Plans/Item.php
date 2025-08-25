@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[UsePolicy(ItemPolicy::class)]
 class Item extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $table = 'plan_items';
 

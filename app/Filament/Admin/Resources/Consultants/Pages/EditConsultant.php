@@ -4,6 +4,8 @@ namespace App\Filament\Admin\Resources\Consultants\Pages;
 
 use App\Filament\Admin\Resources\Consultants\ConsultantResource;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditConsultant extends EditRecord
@@ -14,6 +16,8 @@ class EditConsultant extends EditRecord
     {
         return [
             DeleteAction::make(),
+            ForceDeleteAction::make(),
+            RestoreAction::make(),
         ];
     }
 }
