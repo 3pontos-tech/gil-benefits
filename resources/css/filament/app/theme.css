@@ -1,4 +1,14 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 
-@source '../../../../app/Filament/**/*';
-@source '../../../../resources/views/filament/**/*';
+@source '../../../../app/**/*';
+@source '../../../../resources/views/**/*';
+
+
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
+/* Firefox */
+.scrollbar-hidden {
+    scrollbar-width: none;
+}

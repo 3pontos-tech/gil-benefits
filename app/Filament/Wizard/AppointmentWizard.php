@@ -2,6 +2,7 @@
 
 namespace App\Filament\Wizard;
 
+use App\Livewire\ConsultantSelector;
 use App\Models\Consultant;
 use App\Models\Voucher;
 use Filament\Forms\Components\DatePicker;
@@ -9,10 +10,10 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ViewField;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
 
 class AppointmentWizard
 {
@@ -24,13 +25,26 @@ class AppointmentWizard
                 ->icon(Heroicon::User)
                 ->description('Select your preferred financial advisor')
                 ->schema([
-                    TextColumn::make('Choose Consultant'),
-                    Select::make('consultant_id')
-                        ->label('Consultant')
-                        ->options(Consultant::pluck('name', 'id'))
-                        ->required(),
+                    View::make('filament.app.layout.choose-consultant-step-layout')
+                        ->schema([
+                            ConsultantSelector::make('consultant_id')
+                                ->label('Choose your consultant')
+                                ->required()
+                                ->consultants(function () {
+                                    return Consultant::all()
+                                        ->map(function ($consultant) {
+                                            return [
+                                                'id' => $consultant->id,
+                                                'name' => $consultant->name,
+                                                'description' => $consultant->description,
+                                                'phone' => $consultant->phone,
+                                                'email' => $consultant->email,
+                                            ];
+                                        })
+                                        ->toArray();
+                                }),
+                        ]),
                 ]),
-
             Step::make('Pick Date & Time')
                 ->description("Choose when you'd like to meet")
                 ->schema([
@@ -48,7 +62,7 @@ class AppointmentWizard
                         ->required(),
 
                     ViewField::make('duration')
-                        ->view('forms.fields.fixed-duration') // blade com "60 minutes"
+                        ->view('forms.fields.fixed-duration')
                         ->dehydrated(false),
                 ]),
 
@@ -72,7 +86,7 @@ class AppointmentWizard
                 ->description('Confirm your appointment details')
                 ->schema([
                     ViewField::make('summary')
-                        ->view('forms.fields.appointment-summary'), // Blade que mostra dados escolhidos
+                        ->view('forms.fields.appointment-summary'),
                     Textarea::make('note')->label('Notes')->rows(3),
                 ]),
         ]);

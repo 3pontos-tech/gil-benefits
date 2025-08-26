@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Pages\Page;
 use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Support\Enums\Width;
 
 class Appointments extends Page implements HasSchemas
 {
@@ -43,6 +44,9 @@ class Appointments extends Page implements HasSchemas
                     AppointmentWizard::make(),
                 ])
                 ->modalHeading('Book a new appointment')
+                ->modalWidth(Width::Large)
+                ->modalSubmitAction(false)
+                ->modalCancelAction(false)
                 ->action(function (array $data) {
                     // Salvar no banco
                     Appointment::create([
