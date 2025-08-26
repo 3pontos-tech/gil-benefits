@@ -5,11 +5,13 @@ namespace App\Filament\Wizard;
 use App\Livewire\ConsultantSelector;
 use App\Models\Consultant;
 use App\Models\Voucher;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Wizard;
@@ -21,7 +23,6 @@ class AppointmentWizard
     public static function make(): Wizard
     {
         return Wizard::make([
-
             Step::make('Consultant')
                 ->icon(Heroicon::User)
                 ->schema([
@@ -92,7 +93,9 @@ class AppointmentWizard
                         ->view('forms.fields.appointment-summary'),
                     Textarea::make('note')->label('Notes')->rows(3),
                 ]),
-        ]);
+        ])
+            ->submitAction(Action::make('vai-caralho')->action(fn (): Notification => Notification::make()->title('Appointment booked successfully!')->success()->send()))
+            ->hiddenHeader(true);
     }
 
     public static function availableSlots(?string $date): array

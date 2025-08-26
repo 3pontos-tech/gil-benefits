@@ -43,8 +43,10 @@ class Appointments extends Page implements HasSchemas
                 ->schema([
                     AppointmentWizard::make(),
                 ])
+                ->modalSubmitAction(false)
+                ->modalCancelAction(false)
                 ->modalHeading('Book a new appointment')
-                ->modalWidth(Width::Large)
+                ->modalWidth(Width::ExtraLarge)
                 ->action(function (array $data): void {
                     Appointment::query()->create([
                         'consultant_id' => $data['consultant_id'],
