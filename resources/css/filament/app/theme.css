@@ -2,6 +2,7 @@
 
 @source '../../../../app/**/*';
 @source '../../../../resources/views/**/*';
+@plugin "@tailwindcss/typography";
 
 
 .scrollbar-hidden::-webkit-scrollbar {

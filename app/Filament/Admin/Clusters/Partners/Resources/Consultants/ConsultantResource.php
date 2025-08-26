@@ -1,14 +1,16 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Consultants;
+namespace App\Filament\Admin\Clusters\Partners\Resources\Consultants;
 
-use App\Filament\Admin\Resources\Consultants\Pages\CreateConsultant;
-use App\Filament\Admin\Resources\Consultants\Pages\EditConsultant;
-use App\Filament\Admin\Resources\Consultants\Pages\ListConsultants;
-use App\Filament\Admin\Resources\Consultants\Schemas\ConsultantForm;
-use App\Filament\Admin\Resources\Consultants\Tables\ConsultantsTable;
+use App\Filament\Admin\Clusters\Partners\PartnersCluster;
+use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\CreateConsultant;
+use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\EditConsultant;
+use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\ListConsultants;
+use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Schemas\ConsultantForm;
+use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Tables\ConsultantsTable;
 use App\Models\Consultant;
 use BackedEnum;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -18,9 +20,11 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ConsultantResource extends Resource
 {
+    protected static ?string $cluster = PartnersCluster::class;
+
     protected static ?string $model = Consultant::class;
 
-    protected static string|null|\UnitEnum $navigationGroup = 'Staff';
+    protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
 

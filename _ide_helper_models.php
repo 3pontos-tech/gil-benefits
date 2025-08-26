@@ -35,7 +35,7 @@ namespace App\Models{
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Appointment whereUpdatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Appointment whereVoucherId($value)
      */
-    class Appointment extends \Eloquent {}
+    class Appointment extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models\Companies{
@@ -76,7 +76,7 @@ namespace App\Models\Companies{
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Company withTrashed(bool $withTrashed = true)
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Company withoutTrashed()
      */
-    class Company extends \Eloquent {}
+    class Company extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -108,7 +108,7 @@ namespace App\Models{
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Consultant withTrashed(bool $withTrashed = true)
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Consultant withoutTrashed()
      */
-    class Consultant extends \Eloquent {}
+    class Consultant extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models\Plans{
@@ -141,7 +141,7 @@ namespace App\Models\Plans{
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Item withTrashed(bool $withTrashed = true)
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Item withoutTrashed()
      */
-    class Item extends \Eloquent {}
+    class Item extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models\Plans{
@@ -181,7 +181,7 @@ namespace App\Models\Plans{
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan withTrashed(bool $withTrashed = true)
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Plan withoutTrashed()
      */
-    class Plan extends \Eloquent {}
+    class Plan extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models\Users{
@@ -212,7 +212,7 @@ namespace App\Models\Users{
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Detail withTrashed(bool $withTrashed = true)
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Detail withoutTrashed()
      */
-    class Detail extends \Eloquent {}
+    class Detail extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models\Users{
@@ -255,7 +255,7 @@ namespace App\Models\Users{
      * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
      * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
      */
-    class User extends \Eloquent implements \Filament\Models\Contracts\FilamentUser, \Filament\Models\Contracts\HasTenants {}
+    class User extends \Illuminate\Database\Eloquent\Model implements \Filament\Models\Contracts\FilamentUser, \Filament\Models\Contracts\HasTenants {}
 }
 
 namespace App\Models{
@@ -292,7 +292,7 @@ namespace App\Models{
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher withTrashed(bool $withTrashed = true)
      * @method static \Illuminate\Database\Eloquent\Builder<static>|Voucher withoutTrashed()
      */
-    class Voucher extends \Eloquent {}
+    class Voucher extends \Illuminate\Database\Eloquent\Model {}
 }
 
 namespace App\Models{
@@ -304,5 +304,5 @@ namespace App\Models{
      * @method static \Illuminate\Database\Eloquent\Builder<static>|VoucherRequest newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<static>|VoucherRequest query()
      */
-    class VoucherRequest extends \Eloquent {}
+    class VoucherRequest extends \Illuminate\Database\Eloquent\Model {}
 }

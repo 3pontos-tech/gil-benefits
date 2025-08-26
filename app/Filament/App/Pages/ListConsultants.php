@@ -38,8 +38,9 @@ class ListConsultants extends Page implements HasSchemas
         if (empty($value)) {
             $this->consultants = Consultant::all();
         }
+
         $this->consultants = Consultant::query()->when(
-            $this->consultant, function ($query) {
+            $this->consultant, function ($query): void {
                 $query->where('id', $this->consultant);
             }
         )->get();
@@ -57,7 +58,7 @@ class ListConsultants extends Page implements HasSchemas
             ]);
     }
 
-    public function save()
+    public function save(): void
     {
         dd($this->consultant);
     }

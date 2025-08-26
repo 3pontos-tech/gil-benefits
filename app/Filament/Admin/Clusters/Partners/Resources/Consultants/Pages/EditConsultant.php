@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Consultants\Pages;
+namespace App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages;
 
-use App\Filament\Admin\Resources\Consultants\ConsultantResource;
+use App\Filament\Admin\Clusters\Partners\Resources\Consultants\ConsultantResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;

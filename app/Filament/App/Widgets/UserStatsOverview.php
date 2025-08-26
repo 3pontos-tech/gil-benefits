@@ -53,7 +53,7 @@ class UserStatsOverview extends StatsOverviewWidget
         $appointment = Appointment::query()->where('user_id', auth()->id())->where('date', '>=', now())->first();
         $consultant = $appointment->consultant->name ?? 'Make an appointment';
         $appointmentDate = $appointment->date ?? null;
-        $description = "{$consultant} - {$appointmentDate}";
+        $description = sprintf('%s - %s', $consultant, $appointmentDate);
 
         return Stat::make('Next Appointment', $appointment ?? 'N/A')
             ->icon('heroicon-s-calendar')

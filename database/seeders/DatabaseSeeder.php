@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
 
         $admin = User::factory()->admin()->create();
         Company::all()->each(fn ($company) => $company->employees()->attach($admin, ['role' => CompanyRoleEnum::Owner->value]));
+        Company::query()->inRandomOrder()->first()->update(['slug' => 'my-company']);
     }
 
     private function generateConsultants(): Collection

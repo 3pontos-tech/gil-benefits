@@ -45,7 +45,7 @@ class Appointments extends Page implements HasSchemas
                 ])
                 ->modalHeading('Book a new appointment')
                 ->modalWidth(Width::Large)
-                ->action(function (array $data) {
+                ->action(function (array $data): void {
                     Appointment::query()->create([
                         'consultant_id' => $data['consultant_id'],
                         'voucher_id' => $data['voucher_id'] ?? null,

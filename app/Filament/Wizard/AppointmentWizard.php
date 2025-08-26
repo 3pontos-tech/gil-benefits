@@ -32,7 +32,7 @@ class AppointmentWizard
                                 ->required()
                                 ->consultants(function () {
                                     return Consultant::all()
-                                        ->map(function ($consultant) {
+                                        ->map(function ($consultant): array {
                                             return [
                                                 'id' => $consultant->id,
                                                 'name' => $consultant->name,
@@ -58,7 +58,7 @@ class AppointmentWizard
                     ViewField::make('time')
                         ->label('Available Times')
                         ->view('forms.fields.available-times', [
-                            'slots' => fn (Get $get) => static::availableSlots($get('date')),
+                            'slots' => fn (Get $get): array => static::availableSlots($get('date')),
                         ])
                         ->dehydrated(true),
 
@@ -97,7 +97,7 @@ class AppointmentWizard
 
     public static function availableSlots(?string $date): array
     {
-        if (! $date) {
+        if ($date === null || $date === '' || $date === '0') {
             return [];
         }
 

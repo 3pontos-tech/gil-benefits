@@ -12,11 +12,17 @@ class ConsultantFactory extends Factory
 
     public function definition(): array
     {
+        $name = $this->faker->firstName() . ' ' . $this->faker->lastName();
+
         return [
-            'name' => $this->faker->name(),
+            'name' => $name,
             'phone' => $this->faker->phoneNumber(),
             'email' => $this->faker->unique()->safeEmail(),
-            'description' => $this->faker->text(),
+            'short_description' => $this->faker->sentence(),
+            'slug' => str($name)->slug(),
+            'biography' => $this->faker->paragraph(),
+            'readme' => $this->faker->paragraph(),
+            'socials_urls' => [],
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
