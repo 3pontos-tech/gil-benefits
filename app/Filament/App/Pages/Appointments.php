@@ -45,11 +45,8 @@ class Appointments extends Page implements HasSchemas
                 ])
                 ->modalHeading('Book a new appointment')
                 ->modalWidth(Width::Large)
-                ->modalSubmitAction(false)
-                ->modalCancelAction(false)
                 ->action(function (array $data) {
-                    // Salvar no banco
-                    Appointment::create([
+                    Appointment::query()->create([
                         'consultant_id' => $data['consultant_id'],
                         'voucher_id' => $data['voucher_id'] ?? null,
                         'date' => $data['date'] . ' ' . $data['time'],

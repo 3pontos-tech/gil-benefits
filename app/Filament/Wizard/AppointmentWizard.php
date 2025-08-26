@@ -6,10 +6,11 @@ use App\Livewire\ConsultantSelector;
 use App\Models\Consultant;
 use App\Models\Voucher;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
@@ -21,9 +22,8 @@ class AppointmentWizard
     {
         return Wizard::make([
 
-            Step::make('Choose Consultant')
+            Step::make('Consultant')
                 ->icon(Heroicon::User)
-                ->description('Select your preferred financial advisor')
                 ->schema([
                     View::make('filament.app.layout.choose-consultant-step-layout')
                         ->schema([
@@ -46,7 +46,7 @@ class AppointmentWizard
                         ]),
                 ]),
             Step::make('Pick Date & Time')
-                ->description("Choose when you'd like to meet")
+                ->icon(Heroicon::Calendar)
                 ->schema([
                     DatePicker::make('date')
                         ->label('Date')
@@ -55,19 +55,22 @@ class AppointmentWizard
                         ->reactive()
                         ->afterStateUpdated(fn (callable $set) => $set('time', null)),
 
-                    // slots de 1h -> você pode gerar dinamicamente
-                    Radio::make('time')
+                    ViewField::make('time')
                         ->label('Available Times')
-                        ->options(fn ($get) => static::availableSlots($get('date')))
-                        ->required(),
+                        ->view('forms.fields.available-times', [
+                            'slots' => fn (Get $get) => static::availableSlots($get('date')),
+                        ])
+                        ->dehydrated(true),
 
-                    ViewField::make('duration')
-                        ->view('forms.fields.fixed-duration')
+                    TextInput::make('duration')
+                        ->label('Duration')
+                        ->default('60 minutes')
+                        ->disabled()
                         ->dehydrated(false),
                 ]),
 
             Step::make('Apply Voucher')
-                ->description('Use a voucher or pay later')
+                ->icon(Heroicon::Ticket)
                 ->schema([
                     Select::make('voucher_id')
                         ->label('Voucher')
@@ -83,7 +86,7 @@ class AppointmentWizard
                 ]),
 
             Step::make('Review & Confirm')
-                ->description('Confirm your appointment details')
+                ->icon(Heroicon::CheckCircle)
                 ->schema([
                     ViewField::make('summary')
                         ->view('forms.fields.appointment-summary'),
@@ -92,7 +95,7 @@ class AppointmentWizard
         ]);
     }
 
-    protected static function availableSlots(?string $date): array
+    public static function availableSlots(?string $date): array
     {
         if (! $date) {
             return [];
