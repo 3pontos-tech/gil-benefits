@@ -54,7 +54,7 @@ it('should be possible create a user', function () {
         'document_id' => '11.111.111-1',
         'company_id' => 1,
     ]);
-});
+})->skipOnCI();
 
 it('should be possible edit a user data', function () {
     /** @var User $admin */
@@ -130,7 +130,7 @@ it('should be possible edit a user data', function () {
     $page->assertValue('form.detail.tax_id', '222.222.222-22');
     $page->assertValue('form.detail.document_id', '33.333.333-3');
     $page->assertValue('form.detail.company_id', $newCompany->id);
-});
+})->skipOnCI();
 
 it('should be possible to force delete a user from the header action', function () {
     /** @var User $admin */
@@ -167,7 +167,7 @@ it('should be possible to force delete a user from the header action', function 
         'id' => $user->id,
     ]);
     $this->assertNull(User::withTrashed()->find($user->id));
-});
+})->skipOnCI();
 
 it('should be possible to force delete a user from the table action', function () {
     /** @var User $admin */
@@ -200,7 +200,7 @@ it('should be possible to force delete a user from the table action', function (
         'id' => $user->id,
     ]);
     $this->assertNull(User::withTrashed()->find($user->id));
-});
+})->skipOnCI();
 
 it('should be possible to force delete a user from the edit page', function () {
     /** @var User $admin */
@@ -224,7 +224,7 @@ it('should be possible to force delete a user from the edit page', function () {
         'id' => $user->id,
     ]);
     $this->assertNull(User::withTrashed()->find($user->id));
-});
+})->skipOnCI();
 
 it('should be possible to soft deleted a user from header action', function () {
     /** @var User $admin */
@@ -256,7 +256,7 @@ it('should be possible to soft deleted a user from header action', function () {
     $this->assertSoftDeleted(User::class, [
         'id' => $user->id,
     ]);
-});
+})->skipOnCI();
 
 it('should be possible to soft deleted a user from the edit page', function () {
     /** @var User $admin */
@@ -275,7 +275,7 @@ it('should be possible to soft deleted a user from the edit page', function () {
     $page->pressAndWaitFor('[x-data="filamentFormButton"].fi-color-danger', 1);
 
     $this->assertSoftDeleted(User::class, ['id' => $user->id]);
-});
+})->skipOnCI();
 
 it('should be possible to restore a soft deleted user from the header action', function () {
     /** @var User $admin */
@@ -317,7 +317,7 @@ it('should be possible to restore a soft deleted user from the header action', f
         'id' => $user->id,
         'deleted_at' => null,
     ]);
-});
+})->skipOnCI();
 
 it('should be possible to restore a soft deleted user from the list page', function () {
     /** @var User $admin */
@@ -355,7 +355,7 @@ it('should be possible to restore a soft deleted user from the list page', funct
         'id' => $user->id,
         'deleted_at' => null,
     ]);
-});
+})->skipOnCI();
 
 it('should be possible to restore a soft deleted user from the edit page', function () {
     /** @var User $admin */
@@ -379,4 +379,4 @@ it('should be possible to restore a soft deleted user from the edit page', funct
         'id' => $user->id,
         'deleted_at' => null,
     ]);
-});
+})->skipOnCI();

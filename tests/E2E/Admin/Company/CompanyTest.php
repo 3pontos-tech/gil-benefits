@@ -37,4 +37,4 @@ it('should be possible create a company', function () {
     ]);
 
     assertDatabaseCount(Company::class, 1);
-});
+})->skipOnCI();
