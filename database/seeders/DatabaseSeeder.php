@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         $this->generateUsers();
         $this->generatePlans();
 
-        $consultants = $this->generateConsultants();
+        $consultants = $this->getConsultants();
         $companies = $this->generateCompanies();
 
         $this->generateVouchers($companies, $consultants);
@@ -34,11 +34,9 @@ class DatabaseSeeder extends Seeder
         Company::query()->inRandomOrder()->first()->update(['slug' => 'my-company']);
     }
 
-    private function generateConsultants(): Collection
+    private function getConsultants(): Collection
     {
-        return Consultant::factory()
-            ->count(5)
-            ->create();
+        return Consultant::all();
     }
 
     private function generatePlans(): void

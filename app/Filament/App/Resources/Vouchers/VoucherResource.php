@@ -31,7 +31,13 @@ class VoucherResource extends Resource
     public static function getRelations(): array
     {
         return [
+
         ];
+    }
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['code'];
     }
 
     public static function getPages(): array

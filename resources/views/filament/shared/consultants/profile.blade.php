@@ -51,7 +51,7 @@
                             <a href="{{ $url }}" target="_blank" rel="noopener noreferrer"
                                class="flex items-center space-x-2  hover:underline">
                                 <x-dynamic-component class="h-4 w-4 hover:text-primary-500"
-                                                     component="fab-{{$social}}"></x-dynamic-component>
+                                                     component="fab-{{$social}}" />
                             </a>
                         @endforeach
 
@@ -61,7 +61,7 @@
         </x-slot:heading>
 
         <div class="grid grid-cols-12 gap-6">
-            <div id="about-content" class="col-span-8 flex flex-col gap-6">
+            <div id="about-content" class="md:col-span-8 col-span-12 flex flex-col gap-6">
                 <div id="about">
                     <h3 class="font-bold mb-4 text-lg">Sobre {{ str($consultant->name)->explode(' ')->first() }}</h3>
                     <div id="about-content" class="prose prose-sm prose-neutral dark:prose-invert">
@@ -77,10 +77,10 @@
 
             </div>
 
-            <div id="sidebar" class="col-span-4 flex flex-col gap-6">
-                <div class="flex gap-4 flex-col">
+            <div id="sidebar" class="md:col-span-4 grid grid-cols-2  col-span-12 wrap-normal md:flex md:flex-col gap-6">
+                <div class=" md:flex gap-4 md:flex-col">
                     @if($specializations = $consultant->tagsWithType(AvailableTagsEnum::Specialization->value))
-                        <x-filament::section>
+                        <x-filament::section class="col-span-1">
                             <div class="flex flex-row items-center gap-2">
                                 <x-filament::icon :icon="AvailableTagsEnum::Specialization->getIcon()"
                                                   class="h-4 w-4 text-muted-foreground"></x-filament::icon>
@@ -98,7 +98,7 @@
 
                 <div class="flex gap-4 flex-col">
                     @if($tags = $consultant->tagsWithType(AvailableTagsEnum::Language->value))
-                        <x-filament::section>
+                        <x-filament::section class="col-span-1">
                             <div class="flex flex-row items-center gap-2">
                                 <x-filament::icon :icon="AvailableTagsEnum::Language->getIcon()"
                                                   class="h-4 w-4 text-muted-foreground"></x-filament::icon>
