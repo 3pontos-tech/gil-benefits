@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Widgets;
+namespace App\Filament\Admin\Widgets;
 
 use App\Filament\Admin\Resources\Companies\Pages\CreateCompany;
 use App\Filament\Admin\Resources\Plans\Pages\CreatePlan;

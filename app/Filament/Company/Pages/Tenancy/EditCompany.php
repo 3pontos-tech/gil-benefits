@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Pages\Tenancy;
+namespace App\Filament\Company\Pages\Tenancy;
 
 use Filament\Actions\CreateAction;
 use Filament\Actions\DetachAction;

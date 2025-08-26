@@ -2,8 +2,8 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Pages\Tenancy\EditCompany;
-use App\Filament\Pages\Tenancy\RegisterCompany;
+use App\Filament\Company\Pages\Tenancy\EditCompany;
+use App\Filament\Company\Pages\Tenancy\RegisterCompany;
 use App\Filament\Shared\Pages\LoginPage;
 use App\Livewire\PlanStatusStats;
 use App\Models\Companies\Company;
