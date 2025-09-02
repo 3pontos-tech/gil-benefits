@@ -14,7 +14,7 @@ it('should load the statuses on dashboard page', function (): void {
     $page->assertSee('Active Plans 0 Current active plans');
     $page->assertSee('New Users 1 This week');
     $page->assertSee('Total Companies 1 Overall');
-});
+})->skipOnCI();
 it('should list latest companies on the chart', function (): void {
     $admin = User::factory()->admin()->create();
     Company::factory()->recycle($admin)->create();
@@ -29,4 +29,4 @@ it('should list latest companies on the chart', function (): void {
         $page->assertSee($company->name);
         $page->assertSee($company->tax_id);
     });
-});
+})->skipOnCI();

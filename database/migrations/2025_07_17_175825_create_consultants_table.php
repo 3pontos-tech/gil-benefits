@@ -11,9 +11,15 @@ return new class extends Migration
         Schema::create('consultants', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
+            $table->string('slug');
             $table->string('phone');
             $table->string('email');
-            $table->text('description');
+            $table->string('short_description');
+            $table->text('biography');
+            $table->text('readme')->comment('More like a "How to work with me" section');
+
+            $table->jsonb('socials_urls')->default('[]');
+
             $table->softDeletes();
             $table->timestamps();
         });

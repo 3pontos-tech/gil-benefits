@@ -2,6 +2,7 @@
 
 namespace App\Models\Users;
 
+use App\Models\Appointment;
 use App\Models\Companies\Company;
 use App\Models\Voucher;
 use App\Policies\Users\UserPolicy;
@@ -25,6 +26,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -94,5 +96,10 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function appointments(): HasMany
     {
         return $this->hasMany(Voucher::class);
+    }
+
+    public function scheduledAppointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
     }
 }

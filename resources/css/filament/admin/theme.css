@@ -2,3 +2,5 @@
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/**/*';
+
+@plugin "@tailwindcss/typography";

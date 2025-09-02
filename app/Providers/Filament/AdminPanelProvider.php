@@ -2,8 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Admin\Widgets\VoucherStatus;
 use App\Filament\Shared\Pages\LoginPage;
-use App\Filament\Widgets\VoucherStatus;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,15 +29,18 @@ class AdminPanelProvider extends PanelProvider
             ->login(LoginPage::class)
             ->colors([
                 'primary' => Color::Blue,
+                'zinc' => Color::Zinc,
+                'slate' => Color::Slate,
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
-            ->pages([])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
+            ->discoverClusters(in: app_path('Filament/Admin/Clusters'), for: 'App\\Filament\\Admin\\Clusters')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->widgets([
                 VoucherStatus::class,
             ])
+            ->sidebarCollapsibleOnDesktop()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
