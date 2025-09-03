@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AppointmentStatus;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +20,16 @@ class Appointment extends Model
         'status',
     ];
 
+
+
+    protected function casts(): array
+    {
+        return [
+            'date' => 'datetime',
+            'status' => AppointmentStatus::class,
+        ];
+    }
+
     public function consultant(): BelongsTo
     {
         return $this->belongsTo(Consultant::class);
@@ -32,12 +43,5 @@ class Appointment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'date' => 'datetime',
-        ];
     }
 }

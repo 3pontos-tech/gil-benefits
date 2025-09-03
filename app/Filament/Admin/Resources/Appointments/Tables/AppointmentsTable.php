@@ -1,33 +1,31 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Plans\Tables;
+namespace App\Filament\Admin\Resources\Appointments\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
-class PlansTable
+class AppointmentsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('consultant.name')
                     ->searchable(),
-                TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
-                TextColumn::make('type')
-                    ->badge()
+                TextColumn::make('user.name')
                     ->searchable(),
-                TextColumn::make('hours_included')
-                    ->numeric()
+                TextColumn::make('voucher.id')
+                    ->searchable(),
+                TextColumn::make('date')
+                    ->dateTime()
                     ->sortable(),
+                TextColumn::make('status')
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -37,17 +35,16 @@ class PlansTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->recordActions([
-                EditAction::make(),
-            ])
             ->filters([
-                TrashedFilter::make(),
+                //
+            ])
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
                 ]),
             ]);
     }
