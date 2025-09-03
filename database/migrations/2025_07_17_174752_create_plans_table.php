@@ -13,11 +13,9 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Company::class)->nullable();
             $table->string('name');
-            $table->integer('price');
-            $table->string('type')->comment("'monthly', 'annual'");
+            $table->integer('suggested_employees_count');
             $table->integer('hours_included');
             $table->text('description');
-            $table->date('renewal_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

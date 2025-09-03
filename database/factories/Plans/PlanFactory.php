@@ -15,8 +15,7 @@ class PlanFactory extends Factory
     {
         return [
             'name' => $this->faker->randomElement(['gold', 'platinum', 'diamond']),
-            'price' => $this->faker->numberBetween(100, 200),
-            'type' => $this->faker->randomElement(PlanTypeEnum::cases()),
+            'suggested_employees_count' => $this->faker->numberBetween(10, 20),
             'hours_included' => $this->faker->numberBetween(4, 5),
             'description' => $this->faker->text(),
             'created_at' => Carbon::now(),

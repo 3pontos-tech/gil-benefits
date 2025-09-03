@@ -21,15 +21,11 @@ class PlanStatusStats extends StatsOverviewWidget
             ->where('status', 'used')
             ->where('valid_until', '>=', now())
             ->count();
-        //        dd($company);
-        $vouchersCount = $company->vouchers()->count();
 
         return [
-            Stat::make('Plano', $activePlan?->name ?? 'N/A')
-                ->description($activePlan?->type->value ?? 'N/A'),
-            Stat::make('Horas incluídas', $activePlan?->hours_included ?? 'N/A'),
-            Stat::make('Data de renovação', $activePlan?->renewal_date?->format('d/m/Y') ?? 'N/A'),
-            Stat::make('Total de vouchers', $vouchersCount),
+            Stat::make('Plano ' . $activePlan?->type->getLabel() , $activePlan?->plan->name ?? 'N/A'),
+            Stat::make('Horas Mensais', $activePlan?->plan->hours_included ?? 'N/A'),
+            Stat::make('Data de renovação', $activePlan?->subscription_starting_at?->format('d/m/Y') ?? 'N/A'),
             Stat::make('Vouchers Usados', $usedVouchersCount),
         ];
     }

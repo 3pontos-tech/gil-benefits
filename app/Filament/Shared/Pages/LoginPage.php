@@ -11,7 +11,7 @@ class LoginPage extends Login
         parent::mount();
         if (! app()->isProduction()) {
             $this->form->fill([
-                'email' => 'admin@admin.com',
+                'email' => 'admin@5pontos.com',
                 'password' => 'password',
             ]);
         }

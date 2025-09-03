@@ -11,10 +11,8 @@ return new class extends Migration
         Schema::create('plan_items', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('plan_id')->constrained('plans')->onDelete('cascade');
-            $table->string('name');
             $table->integer('price');
             $table->string('type');
-            $table->integer('quantity');
             $table->softDeletes();
             $table->timestamps();
         });

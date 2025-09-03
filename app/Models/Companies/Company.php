@@ -2,6 +2,7 @@
 
 namespace App\Models\Companies;
 
+use App\Models\Plans\Item;
 use App\Models\Plans\Plan;
 use App\Models\Users\User;
 use App\Models\Voucher;
@@ -57,7 +58,7 @@ class Company extends Model
 
     public function plans(): BelongsToMany
     {
-        return $this->BelongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')->withPivot('status')->withTimestamps();
+        return $this->BelongsToMany(Item::class, 'company_plans', 'company_id', 'item_id')->withPivot('status')->withTimestamps();
     }
 
     public function voucherRequests(): HasMany

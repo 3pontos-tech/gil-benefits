@@ -19,9 +19,11 @@ class Detail extends Model
 
     protected $fillable = [
         'user_id',
+        'phone_number',
         'company_id',
         'document_id',
         'tax_id',
+        'integration_id'
     ];
 
     public function user(): BelongsTo
