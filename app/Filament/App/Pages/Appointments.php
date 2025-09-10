@@ -2,11 +2,11 @@
 
 namespace App\Filament\App\Pages;
 
-use App\Filament\Wizard\AppointmentWizard;
-use App\Models\Appointment;
+use App\Filament\App\Resources\Appointments\Schemas\AppointmentWizard;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Enums\Width;
@@ -19,20 +19,14 @@ class Appointments extends Page implements HasSchemas
 
     protected string $view = 'filament.app.pages.appointments';
 
-    public function submit(): void
+    protected static ?string $slug = '123';
+
+    public function start(): void
     {
-        // Aqui você pode salvar no banco
-        // Appointment::create($this->data);
-
-        // Exemplo:
-        // Appointment::create([
-        //     'consultant_id' => $this->data['consultant_id'],
-        //     'voucher_id' => $this->data['voucher_id'] ?? null,
-        //     'date' => $this->data['date'].' '.$this->data['time'],
-        //     'status' => 'pending',
-        // ]);
-
-        $this->notify('success', 'Appointment booked successfully.');
+        Notification::make()
+            ->title('Appointment booked successfully')
+            ->success()
+            ->send();
     }
 
     protected function getHeaderActions(): array
@@ -47,14 +41,6 @@ class Appointments extends Page implements HasSchemas
                 ->modalCancelAction(false)
                 ->modalHeading('Book a new appointment')
                 ->modalWidth(Width::ExtraLarge)
-                ->action(function (array $data): void {
-                    Appointment::query()->create([
-                        'consultant_id' => $data['consultant_id'],
-                        'voucher_id' => $data['voucher_id'] ?? null,
-                        'date' => $data['date'] . ' ' . $data['time'],
-                        'status' => 'pending',
-                    ]);
-                }),
         ];
     }
 }

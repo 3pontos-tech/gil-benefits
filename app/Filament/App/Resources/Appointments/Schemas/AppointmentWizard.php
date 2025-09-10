@@ -1,22 +1,29 @@
 <?php
 
-namespace App\Filament\Wizard;
+namespace App\Filament\App\Resources\Appointments\Schemas;
 
+use App\Clients\HighLevelClient;
+use App\Clients\Requests\FetchCalendarSlotsDTO;
+use App\Enums\VoucherStatusEnum;
 use App\Livewire\ConsultantSelector;
 use App\Models\Consultant;
 use App\Models\Voucher;
+use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
+use Filament\Support\Exceptions\Halt;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Cache;
 
 class AppointmentWizard
 {
@@ -52,16 +59,18 @@ class AppointmentWizard
                     DatePicker::make('date')
                         ->label('Date')
                         ->required()
-                        ->afterOrEqual(today())
+                        ->native(false)
+                        ->minDate(now()->format('Y-m-d'))
                         ->reactive()
-                        ->afterStateUpdated(fn (callable $set) => $set('time', null)),
+                        ->afterStateUpdated(fn(callable $set) => $set('time', null)),
 
                     ViewField::make('time')
-                        ->label('Available Times')
+                        ->label('Horários Disponíveis')
                         ->view('forms.fields.available-times', [
-                            'slots' => fn (Get $get): array => static::availableSlots($get('date')),
+                            'slots' => fn(Get $get): array => static::availableSlots($get('date')),
                         ])
-                        ->dehydrated(true),
+                        ->required()
+                        ->reactive(),
 
                     TextInput::make('duration')
                         ->label('Duration')
@@ -72,18 +81,32 @@ class AppointmentWizard
 
             Step::make('Apply Voucher')
                 ->icon(Heroicon::Ticket)
+                ->beforeValidation(function (Get $get) {
+                    $voucher = Voucher::query()->find($get('voucher_id'));
+                    if (!$voucher) {
+                        Notification::make()
+                            ->warning()
+                            ->title('Voucher is not active')
+                            ->send();
+
+                        throw new Halt();
+                    }
+                })
                 ->schema([
-                    Select::make('voucher_id')
+                    Hidden::make('voucher_id')
                         ->label('Voucher')
-                        ->options(function () {
-                            return Voucher::query()
-                                ->where('user_id', auth()->user()->id)
-                                ->where('status', 'active')
-                                ->whereDate('valid_until', '>=', today())
-                                ->pluck('code', 'id');
-                        })
-                        ->searchable()
-                        ->placeholder('No voucher, pay later'),
+                        ->afterStateUpdated(fn(Set $set) => $set('time', null))
+                        ->default(Voucher::query()
+                            ->where('company_id', filament()->getTenant()->getKey())
+                            ->where('user_id', auth()->user()->getKey())
+                            ->where('status', VoucherStatusEnum::Active)
+                            ->whereDate('valid_until', '>=', today())
+                            ->first()
+                            ?->getKey() ?? null),
+                    ViewField::make('voucher')
+                        ->view('forms.fields.available-voucher', [
+                            'voucher' => fn(Get $get): ?Voucher => Voucher::query()->find($get('voucher_id')),
+                        ])
                 ]),
 
             Step::make('Review & Confirm')
@@ -94,27 +117,43 @@ class AppointmentWizard
                     Textarea::make('note')->label('Notes')->rows(3),
                 ]),
         ])
-            ->submitAction(Action::make('vai-caralho')->action(fn (): Notification => Notification::make()->title('Appointment booked successfully!')->success()->send()))
-            ->hiddenHeader(true);
+            ->columnSpanFull()
+            ->statePath('formData')
+            ->submitAction(Action::make('submit')
+                ->label('Start researching')
+                ->icon('heroicon-m-arrow-right')
+                ->iconPosition('after')
+                ->action('start'))
+            ->hiddenHeader();
     }
 
     public static function availableSlots(?string $date): array
     {
-        if ($date === null || $date === '' || $date === '0') {
+        if (is_null($date)) return [];
+
+
+        $startDate = Carbon::parse($date);
+
+        if ($startDate->diffInDays(now()) > 0) {
+
             return [];
         }
 
-        $start = now()->setTime(9, 0);
-        $end = now()->setTime(17, 0);
 
-        $slots = [];
-        while ($start < $end) {
-            $time = $start->format('H:i');
-            // Aqui você poderia checar se já existe Appointment marcado nesse horário
-            $slots[$time] = $time;
-            $start->addHour();
-        }
+        $key = sprintf('available_slots_for_%s_%s', $date, auth()->user()->id);
+        return Cache::remember($key, now()->addMinutes(10), function () use ($startDate) {
+            $response = app(HighLevelClient::class)
+                ->getCalendarFreeSlots(FetchCalendarSlotsDTO::make($startDate, $startDate));
 
-        return $slots;
+            $formattedDate = $startDate->format('Y-m-d');
+            $response = $response[$formattedDate]['slots'];
+
+            return collect($response)
+                ->mapWithKeys(fn($slot) => [
+                    $slot => Carbon::parse($slot)->format('H:i'),
+                ])->toArray();
+
+        });
+
     }
 }

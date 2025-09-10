@@ -3,7 +3,9 @@
 namespace Database\Factories;
 
 use App\Models\Appointment;
+use App\Models\Companies\Company;
 use App\Models\Consultant;
+use App\Models\Users\User;
 use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
@@ -22,6 +24,8 @@ class AppointmentFactory extends Factory
 
             'consultant_id' => Consultant::factory(),
             'voucher_id' => Voucher::factory(),
+            'user_id' => User::factory(),
+            'company_id' => Company::factory(),
         ];
     }
 }

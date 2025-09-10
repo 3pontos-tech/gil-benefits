@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AppointmentStatus;
+use App\Models\Companies\Company;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,11 +17,10 @@ class Appointment extends Model
         'user_id',
         'consultant_id',
         'voucher_id',
+        'company_id',
         'date',
         'status',
     ];
-
-
 
     protected function casts(): array
     {
@@ -43,5 +43,10 @@ class Appointment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 }

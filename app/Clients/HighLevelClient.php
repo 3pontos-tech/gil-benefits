@@ -2,6 +2,8 @@
 
 namespace App\Clients;
 
+use App\Clients\Requests\CreateAppointmentDTO;
+use App\Clients\Requests\FetchCalendarSlotsDTO;
 use App\Clients\Requests\UpsertContactDTO;
 use App\Clients\Requests\UpsertOpportunityDTO;
 use App\Clients\Responses\ContactResponse;
@@ -55,6 +57,30 @@ class HighLevelClient
             ->withDefaultVersion()
             ->asJson()
             ->post('https://services.leadconnectorhq.com/opportunities/upsert', $dto->jsonSerialize())
+            ->json();
+    }
+
+
+    public function getCalendarFreeSlots(FetchCalendarSlotsDTO $dto)
+    {
+        $url = sprintf('https://services.leadconnectorhq.com/calendars/%s/free-slots', $dto->calendarId);
+        return Http::withToken(config('services.highlevel.secret'))
+            ->withDefaultVersion()
+            ->asJson()
+            ->withQueryParameters($dto->jsonSerialize())
+            ->get($url)
+            ->json();
+    }
+
+    public function scheduleAppointment(CreateAppointmentDTO $dto): array
+    {
+        $url = 'https://services.leadconnectorhq.com/calendars/events/appointments';
+
+        return Http::withToken(config('services.highlevel.secret'))
+            ->withDefaultVersion()
+            ->asJson()
+            ->withQueryParameters($dto->jsonSerialize())
+            ->post($url, $dto->jsonSerialize())
             ->json();
     }
 }

@@ -10,6 +10,7 @@ use Filament\Support\Icons\Heroicon;
 enum VoucherStatusEnum: string implements HasColor, HasIcon, HasLabel
 {
     case Active = 'active';
+
     case Pending = 'pending';
 
     case Used = 'used';
