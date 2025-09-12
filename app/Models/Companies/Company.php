@@ -3,7 +3,6 @@
 namespace App\Models\Companies;
 
 use App\Models\Plans\Item;
-use App\Models\Plans\Plan;
 use App\Models\Users\User;
 use App\Models\Voucher;
 use App\Models\VoucherRequest;

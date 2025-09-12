@@ -2,29 +2,24 @@
 
 namespace App\Clients\Requests;
 
-use App\Enums\VoucherStatusEnum;
 use Carbon\CarbonInterface;
 
 class FetchCalendarSlotsDTO implements \JsonSerializable
 {
     public function __construct(
-        public string          $calendarId,
+        public string $calendarId,
         public CarbonInterface $startDate,
         public CarbonInterface $endDate,
-        public ?string         $timezone = null,
-        public ?string         $userId = null,
-        public ?array          $userIds = null
-    )
-    {
-    }
-
+        public ?string $timezone = null,
+        public ?string $userId = null,
+        public ?array $userIds = null
+    ) {}
 
     public static function make(
         CarbonInterface $startDate,
         CarbonInterface $endDate,
-        ?string         $userId = null,
-    )
-    {
+        ?string $userId = null,
+    ) {
         return new self(
             calendarId: config('services.highlevel.calendar', 'lAwKkZ3QFKKGSrFPTXNf'),
             startDate: $startDate,
@@ -34,7 +29,6 @@ class FetchCalendarSlotsDTO implements \JsonSerializable
         );
 
     }
-
 
     public function jsonSerialize(): array
     {
@@ -48,7 +42,7 @@ class FetchCalendarSlotsDTO implements \JsonSerializable
             $data['userId'] = $this->userId;
         }
 
-        if (!empty($this->userIds)) {
+        if (! empty($this->userIds)) {
             $data['userIds'] = $this->userIds;
         }
 

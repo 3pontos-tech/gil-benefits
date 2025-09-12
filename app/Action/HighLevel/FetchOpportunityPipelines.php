@@ -3,7 +3,6 @@
 namespace App\Action\HighLevel;
 
 use App\Clients\HighLevelClient;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
 class FetchOpportunityPipelines

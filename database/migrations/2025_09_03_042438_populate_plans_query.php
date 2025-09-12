@@ -3,8 +3,6 @@
 use App\Enums\PlanTypeEnum;
 use App\Models\Plans\Plan;
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -100,7 +98,6 @@ return new class extends Migration
             $types = $plan['types'];
             unset($plan['types']);
 
-
             $plan = Plan::create($plan);
 
             foreach ($types as $type) {
@@ -109,5 +106,4 @@ return new class extends Migration
         }
 
     }
-
 };

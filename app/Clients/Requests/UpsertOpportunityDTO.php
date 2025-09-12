@@ -7,16 +7,28 @@ use JsonSerializable;
 class UpsertOpportunityDTO implements JsonSerializable
 {
     public function __construct(
-        public string  $pipelineId,
-        public string  $locationId,
-        public string  $contactId,
+        public string $pipelineId,
+        public string $locationId,
+        public string $contactId,
         public ?string $name,
         public ?string $status,
         public ?string $pipelineStageId,
-        public ?int    $monetaryValue,
+        public ?int $monetaryValue,
         public ?string $assignedTo
-    )
+    ) {}
+
+    public static function make(string $contactId, string $name): self
     {
+        return new self(
+            pipelineId: config('services.highlevel.pipeline'),
+            locationId: config('services.highlevel.location'),
+            contactId: $contactId,
+            name: $name,
+            status: null,
+            pipelineStageId: null,
+            monetaryValue: null,
+            assignedTo: null,
+        );
     }
 
     public function jsonSerialize(): mixed

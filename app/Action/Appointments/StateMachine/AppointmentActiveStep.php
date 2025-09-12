@@ -7,7 +7,6 @@ use Filament\Notifications\Notification;
 
 class AppointmentActiveStep extends AbstractAppointmentStep
 {
-
     public function processStep(): void
     {
         $this->appointment->update(['status' => AppointmentStatus::Completed]);

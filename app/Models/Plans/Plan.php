@@ -2,7 +2,6 @@
 
 namespace App\Models\Plans;
 
-use App\Enums\PlanTypeEnum;
 use App\Models\Companies\Company;
 use App\Policies\Plans\PlanPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -22,9 +21,8 @@ class Plan extends Model
         'name',
         'hours_included',
         'description',
-        'suggested_employees_count'
+        'suggested_employees_count',
     ];
-
 
     public function items(): HasMany
     {

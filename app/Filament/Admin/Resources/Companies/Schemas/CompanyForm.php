@@ -5,7 +5,6 @@ namespace App\Filament\Admin\Resources\Companies\Schemas;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -50,14 +49,14 @@ class CompanyForm
                                             ->disabled()
                                             ->required(),
                                         Select::make('role')
-                                        ->options([
-                                            'admin' => 'Admin',
-                                            'employee' => 'Employee',
-                                            'owner' => 'Owner'
-                                        ])
+                                            ->options([
+                                                'admin' => 'Admin',
+                                                'employee' => 'Employee',
+                                                'owner' => 'Owner',
+                                            ]),
 
-                                    ])
-                            ])
+                                    ]),
+                            ]),
                     ]),
 
             ]);

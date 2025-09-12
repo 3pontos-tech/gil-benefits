@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Filament\Shared\Fields;
 
 use App\Models\Consultant;
 use Closure;

@@ -7,10 +7,7 @@ readonly class ContactResponse
     public function __construct(
         public string $contactId,
         public bool $isNewContact
-    )
-    {
-
-    }
+    ) {}
 
     public static function make(array $json): self
     {

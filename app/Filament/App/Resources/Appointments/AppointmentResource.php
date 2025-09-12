@@ -6,7 +6,6 @@ use App\Filament\App\Resources\Appointments\Pages\CreateAppointment;
 use App\Filament\App\Resources\Appointments\Pages\EditAppointment;
 use App\Filament\App\Resources\Appointments\Pages\ListAppointments;
 use App\Filament\App\Resources\Appointments\Pages\ViewAppointment;
-use App\Filament\App\Resources\Appointments\Schemas\AppointmentForm;
 use App\Filament\App\Resources\Appointments\Schemas\AppointmentInfolist;
 use App\Filament\App\Resources\Appointments\Tables\AppointmentsTable;
 use App\Models\Appointment;
@@ -21,7 +20,6 @@ class AppointmentResource extends Resource
     protected static ?string $model = Appointment::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-
 
     public static function infolist(Schema $schema): Schema
     {

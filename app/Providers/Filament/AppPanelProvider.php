@@ -29,7 +29,7 @@ class AppPanelProvider extends PanelProvider
             ->tenant(Company::class, slugAttribute: 'slug')
             ->login(LoginPage::class)
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => Color::hex('#F1785A'),
             ])
             ->sidebarFullyCollapsibleOnDesktop()
             ->globalSearch()

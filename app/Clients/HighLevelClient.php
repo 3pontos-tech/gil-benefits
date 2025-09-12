@@ -7,6 +7,8 @@ use App\Clients\Requests\FetchCalendarSlotsDTO;
 use App\Clients\Requests\UpsertContactDTO;
 use App\Clients\Requests\UpsertOpportunityDTO;
 use App\Clients\Responses\ContactResponse;
+use App\Clients\Responses\ScheduledAppointmentResponse;
+use App\Clients\Responses\UpsertOpportunityResponse;
 use Illuminate\Support\Facades\Http;
 
 class HighLevelClient
@@ -51,19 +53,21 @@ class HighLevelClient
             ->json();
     }
 
-    public function upsertOpportunity(UpsertOpportunityDTO $dto)
+    public function upsertOpportunity(UpsertOpportunityDTO $dto): UpsertOpportunityResponse
     {
-        return Http::withToken(config('services.highlevel.secret'))
+        $response = Http::withToken(config('services.highlevel.secret'))
             ->withDefaultVersion()
             ->asJson()
             ->post('https://services.leadconnectorhq.com/opportunities/upsert', $dto->jsonSerialize())
             ->json();
-    }
 
+        return UpsertOpportunityResponse::make($response);
+    }
 
     public function getCalendarFreeSlots(FetchCalendarSlotsDTO $dto)
     {
         $url = sprintf('https://services.leadconnectorhq.com/calendars/%s/free-slots', $dto->calendarId);
+
         return Http::withToken(config('services.highlevel.secret'))
             ->withDefaultVersion()
             ->asJson()
@@ -72,15 +76,17 @@ class HighLevelClient
             ->json();
     }
 
-    public function scheduleAppointment(CreateAppointmentDTO $dto): array
+    public function scheduleAppointment(CreateAppointmentDTO $dto): ScheduledAppointmentResponse
     {
         $url = 'https://services.leadconnectorhq.com/calendars/events/appointments';
 
-        return Http::withToken(config('services.highlevel.secret'))
+        $response = Http::withToken(config('services.highlevel.secret'))
             ->withDefaultVersion()
             ->asJson()
             ->withQueryParameters($dto->jsonSerialize())
             ->post($url, $dto->jsonSerialize())
             ->json();
+
+        return ScheduledAppointmentResponse::make($response);
     }
 }

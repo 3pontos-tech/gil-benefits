@@ -4,7 +4,6 @@ namespace App\Models\Users;
 
 use App\Models\Appointment;
 use App\Models\Companies\Company;
-use App\Models\Voucher;
 use App\Policies\Users\UserPolicy;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
@@ -96,7 +95,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     public function appointments(): HasMany
     {
-        return $this->hasMany(Voucher::class);
+        return $this->hasMany(Appointment::class);
     }
 
     public function scheduledAppointments(): HasMany

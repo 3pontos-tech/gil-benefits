@@ -9,9 +9,7 @@ readonly class FetchConsultants
 {
     public function __construct(
         private HighLevelClient $client,
-    )
-    {
-    }
+    ) {}
 
     public function populateAction(): array
     {
@@ -21,12 +19,10 @@ readonly class FetchConsultants
             config('services.highlevel.company')
         );
 
-//        return Cache::flexible($cacheKey, [$baseTtl, $baseTtl * 2], function () {
-            return collect($this->client->getCompanyEmployees()['users'])
-                ->mapWithKeys(fn($employee) => [$employee['id'] => $employee['name']])
-                ->toArray();
-//        });
+        //        return Cache::flexible($cacheKey, [$baseTtl, $baseTtl * 2], function () {
+        return collect($this->client->getCompanyEmployees()['users'])
+            ->mapWithKeys(fn ($employee) => [$employee['id'] => $employee['name']])
+            ->toArray();
+        //        });
     }
-
-
 }

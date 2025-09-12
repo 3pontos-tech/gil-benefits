@@ -23,7 +23,7 @@ class Detail extends Model
         'company_id',
         'document_id',
         'tax_id',
-        'integration_id'
+        'integration_id',
     ];
 
     public function user(): BelongsTo

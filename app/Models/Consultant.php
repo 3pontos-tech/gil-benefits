@@ -31,6 +31,7 @@ class Consultant extends Model implements HasMedia
         'biography',
         'readme',
         'socials_urls',
+        'external_id',
     ];
 
     protected $casts = [

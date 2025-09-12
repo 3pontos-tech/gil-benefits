@@ -3,7 +3,6 @@
 namespace App\Filament\Company\Pages\Tenancy;
 
 use App\Models\Users\User;
-use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DetachAction;
 use Filament\Forms\Components\TextInput;
@@ -66,25 +65,25 @@ class EditCompany extends EditTenantProfile implements HasTable
                                 TextInput::make('tax_id'),
                                 TextInput::make('document_id'),
                                 TextInput::make('phone_number'),
-                            ])
-                    ])
+                            ]),
+                    ]),
             ])
             ->recordActions([
                 DetachAction::make()
-                    ->action(fn($record) => filament()->getTenant()->employees()->detach($record)),
+                    ->action(fn ($record) => filament()->getTenant()->employees()->detach($record)),
 
             ])
             ->columns([
                 TextColumn::make('name'),
                 TextColumn::make('role')
-                    ->color(fn($state): string => match ($state) {
+                    ->color(fn ($state): string => match ($state) {
                         'owner' => 'danger',
                         'manager' => 'warning',
                         'employee' => 'success',
                     })
                     ->badge(),
                 TextColumn::make('vouchers_used_count')
-                    ->state(fn($record) => $record->appointments()->count()),
+                    ->state(fn ($record) => $record->appointments()->count()),
             ]);
     }
 

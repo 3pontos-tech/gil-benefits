@@ -2,12 +2,15 @@
 
 namespace App\Filament\App\Resources\Appointments\Pages;
 
+use App\Action\Appointments\BookAppointmentAction;
+use App\DTO\BookAppointmentDTO;
 use App\Filament\App\Resources\Appointments\AppointmentResource;
 use App\Filament\App\Resources\Appointments\Schemas\AppointmentWizard;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Width;
 
 class CreateAppointment extends CreateRecord
 {
@@ -15,7 +18,14 @@ class CreateAppointment extends CreateRecord
 
     protected string $view = 'filament-panels::pages.page';
 
-    public ?array $formData = [];
+    protected Width|string|null $maxContentWidth = '4xl';
+
+    protected static string $layout = 'filament-panels::components.layout.simple';
+
+    protected function getFormActions(): array
+    {
+        return [];
+    }
 
     public function form(Schema $schema): Schema
     {
@@ -30,6 +40,10 @@ class CreateAppointment extends CreateRecord
 
     public function submit()
     {
+        $appointmentDTO = BookAppointmentDTO::make(auth()->user()->getKey(), $this->form->getRawState());
+
+        app(BookAppointmentAction::class)->handle($appointmentDTO);
+
         Notification::make()
             ->title('Appointment booked successfully')
             ->success()

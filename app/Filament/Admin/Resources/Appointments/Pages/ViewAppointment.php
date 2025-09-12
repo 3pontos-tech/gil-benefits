@@ -29,7 +29,7 @@ class ViewAppointment extends ViewRecord
                     Select::make('consultant_selected')
                         ->searchable()
                         ->native(false)
-                        ->options(fn () => app(FetchConsultants::class)->populateAction())
+                        ->options(fn () => app(FetchConsultants::class)->populateAction()),
                 ])->action(function (array $data): void {
                     dd($data);
                 }),

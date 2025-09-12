@@ -14,18 +14,16 @@ class UpsertContactDTO implements JsonSerializable
         public string $email,
         public string $locationId,
         public string $phone,
-    )
-    {
-    }
+    ) {}
 
     public static function make(
         string $tenantName,
         string $fullName,
         string $email,
         string $phone,
-    ): self
-    {
+    ): self {
         $name = str($fullName)->explode(' ');
+
         return new self(
             companyName: $tenantName,
             firstName: $name->first(),

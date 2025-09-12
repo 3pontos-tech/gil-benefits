@@ -2,7 +2,6 @@
 
 namespace Database\Factories\Plans;
 
-use App\Enums\PlanTypeEnum;
 use App\Models\Plans\Plan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;

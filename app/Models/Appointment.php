@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AppointmentCategoryEnum;
 use App\Enums\AppointmentStatus;
 use App\Models\Companies\Company;
 use App\Models\Users\User;
@@ -17,16 +18,20 @@ class Appointment extends Model
         'user_id',
         'consultant_id',
         'voucher_id',
+        'external_opportunity_id',
+        'external_appointment_id',
+        'category_type',
         'company_id',
-        'date',
+        'appointment_at',
         'status',
     ];
 
     protected function casts(): array
     {
         return [
-            'date' => 'datetime',
+            'appointment_at' => 'datetime',
             'status' => AppointmentStatus::class,
+            'category_type' => AppointmentCategoryEnum::class,
         ];
     }
 

@@ -14,7 +14,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Support\Htmlable;
 
-enum AppointmentStatus: string implements HasLabel, HasColor
+enum AppointmentStatus: string implements HasColor, HasLabel
 {
     case Draft = 'draft';
 

@@ -10,9 +10,7 @@ abstract class AbstractAppointmentStep
 {
     public function __construct(
         public Appointment $appointment,
-    )
-    {
-    }
+    ) {}
 
     public function handle(): void
     {
@@ -38,5 +36,4 @@ abstract class AbstractAppointmentStep
             'status' => AppointmentStatus::Cancelled,
         ]);
     }
-
 }

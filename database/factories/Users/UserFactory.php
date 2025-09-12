@@ -48,6 +48,7 @@ class UserFactory extends Factory
             'email' => $this->faker->userName() . '@5pontos.com',
         ]);
     }
+
     public function adminCompanyEmployee(): Factory|UserFactory
     {
         $names = [

@@ -1,5 +1,6 @@
 @php
-    use Filament\Support\Icons\Heroicon;$consultants = $getConsultants();
+    use Filament\Support\Icons\Heroicon;
+    $consultants = $getConsultants();
     $selectedValue = $getState();
 @endphp
 
