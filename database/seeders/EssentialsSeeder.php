@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Action\Plans\ProcessPlanAction;
 use App\DTO\ProcessPlanDTO;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
+use TresPontosTech\Plans\Actions\ProcessPlanAction;
 use TresPontosTech\Tenant\Enums\CompanyRoleEnum;
 use TresPontosTech\Tenant\Models\Company;
 

@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\Plans\Plan;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use TresPontosTech\Plans\Models\Plan;
 
 return new class extends Migration
 {

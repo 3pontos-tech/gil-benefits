@@ -4,9 +4,9 @@ namespace App\Filament\Admin\Resources\Companies\Pages;
 
 use App\Filament\Admin\Resources\Companies\Actions\AttachPlanAction;
 use App\Filament\Admin\Resources\Companies\CompanyResource;
-use App\Livewire\PlanStatusStats;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
 
 class EditCompany extends EditRecord
 {
@@ -15,7 +15,7 @@ class EditCompany extends EditRecord
     protected function getHeaderWidgets(): array
     {
         return [
-            PlanStatusStats::class,
+            TenantPlanStatusStats::class,
         ];
     }
 

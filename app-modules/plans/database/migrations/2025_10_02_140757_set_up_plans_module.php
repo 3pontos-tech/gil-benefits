@@ -6,7 +6,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Schema::create('tenant', function(Blueprint $table) {
+        // Schema::create('plans', function(Blueprint $table) {
         // 	$table->bigIncrements('id');
         // 	$table->timestamps();
         // 	$table->softDeletes();
@@ -16,6 +16,6 @@ return new class extends Migration
     public function down(): void
     {
         // Don't listen to the haters
-        // Schema::dropIfExists('tenant');
+        // Schema::dropIfExists('plans');
     }
 };

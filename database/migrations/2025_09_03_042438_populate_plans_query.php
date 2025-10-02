@@ -1,8 +1,8 @@
 <?php
 
 use App\Enums\PlanTypeEnum;
-use App\Models\Plans\Plan;
 use Illuminate\Database\Migrations\Migration;
+use TresPontosTech\Plans\Models\Plan;
 
 return new class extends Migration
 {

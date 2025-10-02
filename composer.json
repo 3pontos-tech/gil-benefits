@@ -24,6 +24,7 @@
   "require": {
     "php": "^8.4",
     "3pontos-tech/integration-highlevel": "*",
+    "3pontos-tech/plans": "*",
     "3pontos-tech/tenant": "*",
     "basementdevs/filament-webhooks": "dev-main",
     "filament/filament": "^4.1",

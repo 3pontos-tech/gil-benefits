@@ -3,7 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Shared\Pages\LoginPage;
-use App\Livewire\PlanStatusStats;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -20,6 +19,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditCompany;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\RegisterCompany;
+use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
 use TresPontosTech\Tenant\Models\Company;
 
 class CompanyPanelProvider extends PanelProvider
@@ -45,7 +45,7 @@ class CompanyPanelProvider extends PanelProvider
             ->registration()
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->widgets([
-                PlanStatusStats::class,
+                TenantPlanStatusStats::class,
             ])
             ->middleware([
                 EncryptCookies::class,

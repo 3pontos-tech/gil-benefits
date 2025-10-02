@@ -7,7 +7,7 @@ use Illuminate\Support\ServiceProvider;
 
 class IntegrationHighlevelServiceProvider extends ServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/config-highlevel.php', 'highlevel');
     }

@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\Tenant\Models;
 
-use App\Models\Plans\Item;
 use App\Models\Users\User;
 use App\Models\Voucher;
 use App\Models\VoucherRequest;
@@ -13,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Tenant\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
 
