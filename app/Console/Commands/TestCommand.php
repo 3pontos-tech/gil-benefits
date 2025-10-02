@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Clients\HighLevelClient;
-use App\Clients\Requests\CreateAppointmentDTO;
-use App\Clients\Requests\FetchCalendarSlotsDTO;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use TresPontosTech\IntegrationHighlevel\HighLevelClient;
+use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
+use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
 
 class TestCommand extends Command
 {

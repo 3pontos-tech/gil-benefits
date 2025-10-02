@@ -2,6 +2,7 @@
 
 use App\Models\Users\User;
 use TresPontosTech\Tenant\Models\Company;
+
 use function Pest\Laravel\actingAs;
 
 it('should load the statuses on dashboard page', function (): void {
