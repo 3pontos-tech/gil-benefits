@@ -2,13 +2,13 @@
 
 namespace App\Action\Appointments;
 
-use App\Clients\HighLevelClient;
-use App\Clients\Requests\CreateAppointmentDTO;
-use App\Clients\Requests\UpsertOpportunityDTO;
 use App\DTO\BookAppointmentDTO;
 use App\Enums\AppointmentStatus;
 use App\Models\Users\User;
 use App\Models\Voucher;
+use TresPontosTech\IntegrationHighlevel\HighLevelClient;
+use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
+use TresPontosTech\IntegrationHighlevel\Requests\UpsertOpportunityDTO;
 
 readonly class BookAppointmentAction
 {

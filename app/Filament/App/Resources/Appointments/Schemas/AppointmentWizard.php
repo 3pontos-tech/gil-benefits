@@ -2,8 +2,6 @@
 
 namespace App\Filament\App\Resources\Appointments\Schemas;
 
-use App\Clients\HighLevelClient;
-use App\Clients\Requests\FetchCalendarSlotsDTO;
 use App\Enums\VoucherStatusEnum;
 use App\Filament\Shared\Fields\AppointmentCategorySelector;
 use App\Models\Voucher;
@@ -20,6 +18,8 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Exceptions\Halt;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
+use TresPontosTech\IntegrationHighlevel\HighLevelClient;
+use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
 
 class AppointmentWizard
 {

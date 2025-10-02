@@ -2,13 +2,13 @@
 
 namespace App\Filament\Admin\Resources\Appointments\Pages;
 
-use App\Action\HighLevel\FetchConsultants;
-use App\Action\HighLevel\FetchOpportunityPipelines;
 use App\Filament\Admin\Resources\Appointments\AppointmentResource;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Pages\ViewRecord;
+use TresPontosTech\IntegrationHighlevel\Actions\FetchConsultants;
+use TresPontosTech\IntegrationHighlevel\Actions\FetchOpportunityPipelines;
 
 class ViewAppointment extends ViewRecord
 {

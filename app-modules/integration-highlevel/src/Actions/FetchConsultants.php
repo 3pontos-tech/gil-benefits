@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Action\HighLevel;
+namespace TresPontosTech\IntegrationHighlevel\Actions;
 
-use App\Clients\HighLevelClient;
+use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 
-readonly class FetchConsultants
+final readonly class FetchConsultants
 {
     public function __construct(
         private HighLevelClient $client,
@@ -16,6 +16,7 @@ readonly class FetchConsultants
             '%s_company_employees',
             config('services.highlevel.company')
         );
+
         //        return Cache::flexible($cacheKey, [$baseTtl, $baseTtl * 2], function () {
         return collect($this->client->getCompanyEmployees()['users'])
             ->mapWithKeys(fn ($employee): array => [$employee['id'] => $employee['name']])

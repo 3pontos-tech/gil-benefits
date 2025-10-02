@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Clients\Responses;
+namespace TresPontosTech\IntegrationHighlevel\Responses;
 
 class ScheduledAppointmentResponse
 {

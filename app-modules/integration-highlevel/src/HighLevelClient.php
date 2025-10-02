@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Clients;
+namespace TresPontosTech\IntegrationHighlevel;
 
-use App\Clients\Requests\CreateAppointmentDTO;
-use App\Clients\Requests\FetchCalendarSlotsDTO;
-use App\Clients\Requests\UpsertContactDTO;
-use App\Clients\Requests\UpsertOpportunityDTO;
-use App\Clients\Responses\ContactResponse;
-use App\Clients\Responses\ScheduledAppointmentResponse;
-use App\Clients\Responses\UpsertOpportunityResponse;
 use Illuminate\Support\Facades\Http;
+use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
+use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
+use TresPontosTech\IntegrationHighlevel\Requests\UpsertContactDTO;
+use TresPontosTech\IntegrationHighlevel\Requests\UpsertOpportunityDTO;
+use TresPontosTech\IntegrationHighlevel\Responses\ContactResponse;
+use TresPontosTech\IntegrationHighlevel\Responses\ScheduledAppointmentResponse;
+use TresPontosTech\IntegrationHighlevel\Responses\UpsertOpportunityResponse;
 
 class HighLevelClient
 {
     public function searchContacts(string $query = '')
     {
-        return Http::withToken(config('services.highlevel.secret'))
+        return Http::withToken(config('highlevel.secret'))
             ->withLocation()
             ->withDefaultVersion()
             ->withQueryParameters([
@@ -26,7 +26,7 @@ class HighLevelClient
 
     public function createContact(UpsertContactDTO $dto): ContactResponse
     {
-        $response = Http::withToken(config('services.highlevel.secret'))
+        $response = Http::withToken(config('highlevel.secret'))
             ->withDefaultVersion()
             ->post('https://services.leadconnectorhq.com/contacts/upsert', $dto->jsonSerialize());
 
@@ -35,7 +35,7 @@ class HighLevelClient
 
     public function getLocationPipelines(): array
     {
-        return Http::withToken(config('services.highlevel.secret'))
+        return Http::withToken(config('highlevel.secret'))
             ->withLocation()
             ->withDefaultVersion()
             ->get('https://services.leadconnectorhq.com/opportunities/pipelines')
@@ -44,7 +44,7 @@ class HighLevelClient
 
     public function getCompanyEmployees()
     {
-        return Http::withToken(config('services.highlevel.secret'))
+        return Http::withToken(config('highlevel.secret'))
             ->withLocation()
             ->withDefaultVersion()
             ->withDefaultCompany()
@@ -55,7 +55,7 @@ class HighLevelClient
 
     public function upsertOpportunity(UpsertOpportunityDTO $dto): UpsertOpportunityResponse
     {
-        $response = Http::withToken(config('services.highlevel.secret'))
+        $response = Http::withToken(config('highlevel.secret'))
             ->withDefaultVersion()
             ->asJson()
             ->post('https://services.leadconnectorhq.com/opportunities/upsert', $dto->jsonSerialize())
@@ -68,7 +68,7 @@ class HighLevelClient
     {
         $url = sprintf('https://services.leadconnectorhq.com/calendars/%s/free-slots', $dto->calendarId);
 
-        return Http::withToken(config('services.highlevel.secret'))
+        return Http::withToken(config('highlevel.secret'))
             ->withDefaultVersion()
             ->asJson()
             ->withQueryParameters($dto->jsonSerialize())
@@ -80,7 +80,7 @@ class HighLevelClient
     {
         $url = 'https://services.leadconnectorhq.com/calendars/events/appointments';
 
-        $response = Http::withToken(config('services.highlevel.secret'))
+        $response = Http::withToken(config('highlevel.secret'))
             ->withDefaultVersion()
             ->asJson()
             ->withQueryParameters($dto->jsonSerialize())

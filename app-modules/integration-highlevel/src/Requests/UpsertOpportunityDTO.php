@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Clients\Requests;
+namespace TresPontosTech\IntegrationHighlevel\Requests;
 
 use JsonSerializable;
 
@@ -20,8 +20,8 @@ class UpsertOpportunityDTO implements JsonSerializable
     public static function make(string $contactId, string $name): self
     {
         return new self(
-            pipelineId: config('services.highlevel.pipeline'),
-            locationId: config('services.highlevel.location'),
+            pipelineId: config('highlevel.pipeline'),
+            locationId: config('highlevel.location'),
             contactId: $contactId,
             name: $name,
             status: null,

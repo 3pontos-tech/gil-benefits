@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Action\HighLevel;
+namespace TresPontosTech\IntegrationHighlevel\Actions;
 
-use App\Clients\HighLevelClient;
 use Illuminate\Support\Facades\Cache;
+use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 
-class FetchOpportunityPipelines
+final readonly class FetchOpportunityPipelines
 {
     public function populateAction()
     {

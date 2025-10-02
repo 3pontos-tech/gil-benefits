@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Clients\Requests;
+namespace TresPontosTech\IntegrationHighlevel\Requests;
 
 use JsonSerializable;
 
