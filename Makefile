@@ -47,3 +47,10 @@ refacto: rector pint
 
 .PHONY: check
 check: test-rector test-pint test-pest ## Run Pint code style fixer, PHPStan with Rector and Pest in dry-run mode
+
+
+.PHONY: essentials-seeder
+essentials-seeder: ## Run the essentials seeder
+	@echo "Running Essentials Seeder..."
+	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
+	@echo "Essentials Seeder completed."

@@ -28,12 +28,6 @@ class PlansTable
                 TextColumn::make('hours_included')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('items.name')
-                    ->label('Item Names')
-                    ->separator(', '),
-                TextColumn::make('items.quantity')
-                    ->numeric()
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

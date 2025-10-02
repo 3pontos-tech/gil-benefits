@@ -2,6 +2,7 @@
 
 namespace App\Models\Plans;
 
+use App\Enums\PlanTypeEnum;
 use App\Policies\Plans\ItemPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,11 +20,16 @@ class Item extends Model
 
     protected $fillable = [
         'plan_id',
-        'name',
         'price',
         'type',
-        'quantity',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'type' => PlanTypeEnum::class,
+        ];
+    }
 
     public function plan(): BelongsTo
     {

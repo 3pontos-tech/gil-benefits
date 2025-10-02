@@ -2,7 +2,6 @@
 
 namespace App\Models\Plans;
 
-use App\Enums\PlanTypeEnum;
 use App\Models\Companies\Company;
 use App\Policies\Plans\PlanPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -20,19 +19,10 @@ class Plan extends Model
 
     protected $fillable = [
         'name',
-        'price',
-        'type',
         'hours_included',
         'description',
-        'renewal_date',
+        'suggested_employees_count',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'type' => PlanTypeEnum::class,
-        ];
-    }
 
     public function items(): HasMany
     {
@@ -41,6 +31,6 @@ class Plan extends Model
 
     public function companies(): BelongsToMany
     {
-        return $this->belongsToMany(Company::class, 'company_plans', 'plan_id', 'company_id')->withTimestamps();
+        return $this->belongsToMany(Company::class, 'company_plans', 'item_id', 'company_id')->withTimestamps();
     }
 }

@@ -27,6 +27,11 @@ class Voucher extends Model
         'valid_until',
     ];
 
+    public function markAsUsed(): void
+    {
+        $this->update(['status' => VoucherStatusEnum::Used]);
+    }
+
     protected function casts(): array
     {
         return [

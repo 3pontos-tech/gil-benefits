@@ -36,8 +36,8 @@ class UserFactory extends Factory
     public function admin(): Factory|UserFactory
     {
         return $this->state([
-            'name' => 'admin',
-            'email' => 'admin@admin.com',
+            'name' => 'Dev Admin',
+            'email' => 'admin@5pontos.com',
         ]);
     }
 
@@ -45,7 +45,21 @@ class UserFactory extends Factory
     {
         return $this->state([
             'name' => 'empresa',
-            'email' => 'empresa@empresa.com',
+            'email' => $this->faker->userName() . '@5pontos.com',
+        ]);
+    }
+
+    public function adminCompanyEmployee(): Factory|UserFactory
+    {
+        $names = [
+            'Renan Silva',
+            'Clinton Rocha',
+            'Paula Santos',
+        ];
+
+        return $this->state([
+            'name' => $this->faker->randomElement($names),
+            'email' => $this->faker->userName() . '@5pontos.com',
         ]);
     }
 

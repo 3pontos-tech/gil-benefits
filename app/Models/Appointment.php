@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\AppointmentCategoryEnum;
+use App\Enums\AppointmentStatus;
+use App\Models\Companies\Company;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,9 +18,22 @@ class Appointment extends Model
         'user_id',
         'consultant_id',
         'voucher_id',
-        'date',
+        'external_opportunity_id',
+        'external_appointment_id',
+        'category_type',
+        'company_id',
+        'appointment_at',
         'status',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'appointment_at' => 'datetime',
+            'status' => AppointmentStatus::class,
+            'category_type' => AppointmentCategoryEnum::class,
+        ];
+    }
 
     public function consultant(): BelongsTo
     {
@@ -34,10 +50,8 @@ class Appointment extends Model
         return $this->belongsTo(User::class);
     }
 
-    protected function casts(): array
+    public function company(): BelongsTo
     {
-        return [
-            'date' => 'datetime',
-        ];
+        return $this->belongsTo(Company::class);
     }
 }

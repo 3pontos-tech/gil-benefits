@@ -10,10 +10,14 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('consultant_id')->constrained('consultants');
+            $table->foreignId('consultant_id')->nullable()->constrained('consultants');
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('voucher_id')->constrained('vouchers');
-            $table->dateTime('date');
+            $table->string('external_opportunity_id');
+            $table->string('external_appointment_id');
+
+            $table->string('category_type');
+            $table->timestamp('appointment_at');
             $table->string('status');
             $table->timestamps();
         });
