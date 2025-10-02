@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/vouchers",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\Vouchers\\": "src/",
+			"TresPontosTech\\Vouchers\\Tests\\": "tests/",
+			"TresPontosTech\\Vouchers\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\Vouchers\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\Vouchers\\Providers\\VouchersServiceProvider"
+			]
+		}
+	}
+}

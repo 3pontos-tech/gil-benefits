@@ -3,8 +3,6 @@
 namespace TresPontosTech\Tenant\Models;
 
 use App\Models\Users\User;
-use App\Models\Voucher;
-use App\Models\VoucherRequest;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +13,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Tenant\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
+use TresPontosTech\Vouchers\Models\Voucher;
+use TresPontosTech\Vouchers\Models\VoucherRequest;
 
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model

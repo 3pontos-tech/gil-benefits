@@ -7,10 +7,10 @@ use App\Enums\AppointmentStatus;
 use App\Models\Appointment;
 use App\Models\Consultant;
 use App\Models\Users\User;
-use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Vouchers\Models\Voucher;
 
 class AppointmentFactory extends Factory
 {

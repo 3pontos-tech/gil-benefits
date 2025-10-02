@@ -3,10 +3,10 @@
 namespace App\Filament\Admin\Widgets;
 
 use App\Enums\VoucherStatusEnum;
-use App\Models\Voucher;
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
+use TresPontosTech\Vouchers\Models\Voucher;
 
 class VoucherStatus extends ChartWidget
 {

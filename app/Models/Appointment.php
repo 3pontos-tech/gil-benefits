@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Vouchers\Models\Voucher;
 
 class Appointment extends Model
 {

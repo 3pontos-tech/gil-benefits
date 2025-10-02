@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
+use TresPontosTech\Vouchers\Models\Voucher;
 
 #[UsePolicy(ConsultantPolicy::class)]
 class Consultant extends Model implements HasMedia

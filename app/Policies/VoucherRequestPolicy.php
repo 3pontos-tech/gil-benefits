@@ -3,8 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Users\User;
-use App\Models\VoucherRequest;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use TresPontosTech\Vouchers\Models\VoucherRequest;
 
 class VoucherRequestPolicy
 {
