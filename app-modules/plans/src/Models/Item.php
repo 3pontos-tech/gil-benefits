@@ -2,13 +2,13 @@
 
 namespace TresPontosTech\Plans\Models;
 
-use TresPontosTech\Plans\Database\Factories\ItemFactory;
 use App\Enums\PlanTypeEnum;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use TresPontosTech\Plans\Database\Factories\ItemFactory;
 use TresPontosTech\Plans\Policies\ItemPolicy;
 
 #[UsePolicy(ItemPolicy::class)]

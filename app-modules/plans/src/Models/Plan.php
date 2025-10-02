@@ -2,13 +2,13 @@
 
 namespace TresPontosTech\Plans\Models;
 
-use TresPontosTech\Plans\Database\Factories\PlanFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use TresPontosTech\Plans\Database\Factories\PlanFactory;
 use TresPontosTech\Plans\Policies\PlanPolicy;
 use TresPontosTech\Tenant\Models\Company;
 
