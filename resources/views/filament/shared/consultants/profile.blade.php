@@ -1,5 +1,5 @@
 @php
-    use App\Enums\AvailableTagsEnum;use App\Models\Consultant;use Filament\Support\Icons\Heroicon;
+    use App\Enums\AvailableTagsEnum;use Filament\Support\Icons\Heroicon;use TresPontosTech\Consultants\Models\Consultant;
 
     /** @var Consultant $consultant */
     $consultant = $this->getRecord();
@@ -51,7 +51,7 @@
                             <a href="{{ $url }}" target="_blank" rel="noopener noreferrer"
                                class="flex items-center space-x-2  hover:underline">
                                 <x-dynamic-component class="h-4 w-4 hover:text-primary-500"
-                                                     component="fab-{{$social}}" />
+                                                     component="fab-{{$social}}"/>
                             </a>
                         @endforeach
 

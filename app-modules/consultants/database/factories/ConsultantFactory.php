@@ -1,10 +1,10 @@
 <?php
 
-namespace Database\Factories;
+namespace TresPontosTech\Consultants\Database\Factories;
 
-use App\Models\Consultant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Consultants\Models\Consultant;
 
 class ConsultantFactory extends Factory
 {

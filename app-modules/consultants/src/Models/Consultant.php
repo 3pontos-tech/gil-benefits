@@ -1,9 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace TresPontosTech\Consultants\Models;
 
 use App\Enums\AvailableTagsEnum;
-use App\Policies\ConsultantPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
+use TresPontosTech\Consultants\Policies\ConsultantPolicy;
 use TresPontosTech\Vouchers\Models\Voucher;
 
 #[UsePolicy(ConsultantPolicy::class)]

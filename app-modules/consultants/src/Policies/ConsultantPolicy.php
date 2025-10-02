@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Policies;
+namespace TresPontosTech\Consultants\Policies;
 
-use App\Models\Consultant;
 use App\Models\Users\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use TresPontosTech\Consultants\Models\Consultant;
 
 class ConsultantPolicy
 {
