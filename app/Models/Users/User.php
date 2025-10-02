@@ -2,7 +2,6 @@
 
 namespace App\Models\Users;
 
-use App\Models\Appointment;
 use App\Policies\Users\UserPolicy;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
@@ -17,6 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Tenant\Models\Company;
 
 #[UsePolicy(UserPolicy::class)]

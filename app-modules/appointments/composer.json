@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/appointments",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\Appointments\\": "src/",
+			"TresPontosTech\\Appointments\\Tests\\": "tests/",
+			"TresPontosTech\\Appointments\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\Appointments\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\Appointments\\Providers\\AppointmentsServiceProvider"
+			]
+		}
+	}
+}

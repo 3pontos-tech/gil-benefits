@@ -4,8 +4,104 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "98b06c3dd75c990db70196a825b72e3f",
+    "content-hash": "b3894dd95e1ed9f702090f0cfdc22718",
     "packages": [
+        {
+            "name": "3pontos-tech/appointments",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/appointments",
+                "reference": "b348a8df0867e894b88e8052365d606137245e0d"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\Appointments\\Providers\\AppointmentsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\Appointments\\": "src/",
+                    "TresPontosTech\\Appointments\\Tests\\": "tests/",
+                    "TresPontosTech\\Appointments\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\Appointments\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/integration-highlevel",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/integration-highlevel",
+                "reference": "690566c96124fef9d2b72919326e3e89d357c6e8"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\IntegrationHighlevel\\IntegrationHighlevelServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\IntegrationHighlevel\\": "src/",
+                    "TresPontosTech\\IntegrationHighlevel\\Tests\\": "tests/",
+                    "TresPontosTech\\IntegrationHighlevel\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\IntegrationHighlevel\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/plans",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/plans",
+                "reference": "789ace36742ffbdce650d67c3160a67f2138dc2e"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\Plans\\Providers\\PlansServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\Plans\\": "src/",
+                    "TresPontosTech\\Plans\\Tests\\": "tests/",
+                    "TresPontosTech\\Plans\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\Plans\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
         {
             "name": "3pontos-tech/tenant",
             "version": "1.0",
@@ -32,6 +128,38 @@
             "autoload-dev": {
                 "psr-4": {
                     "TresPontosTech\\Tenant\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/vouchers",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/vouchers",
+                "reference": "2dae6af1869bffbe0a213addf1068fde6f841dbc"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\Vouchers\\Providers\\VouchersServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\Vouchers\\": "src/",
+                    "TresPontosTech\\Vouchers\\Tests\\": "tests/",
+                    "TresPontosTech\\Vouchers\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\Vouchers\\Database\\Seeders\\": "database/seeders/"
                 }
             },
             "license": [
