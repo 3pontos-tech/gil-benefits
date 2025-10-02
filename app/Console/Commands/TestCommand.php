@@ -5,8 +5,6 @@ namespace App\Console\Commands;
 use App\Clients\HighLevelClient;
 use App\Clients\Requests\CreateAppointmentDTO;
 use App\Clients\Requests\FetchCalendarSlotsDTO;
-use App\Clients\Requests\UpsertContactDTO;
-use App\Clients\Requests\UpsertOpportunityDTO;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 
@@ -29,7 +27,7 @@ class TestCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle(HighLevelClient $client)
+    public function handle(HighLevelClient $client): void
     {
         //        $upsertDTO = UpsertContactDTO::make(
         //            tenantName: '5pontos',
@@ -64,7 +62,7 @@ class TestCommand extends Command
         ));
 
         // Filter if the next slot has the availability minimum of 1h
-        $firstSlot = collect($response[date('Y-m-d')])->first()[0];
+        $firstSlot = collect($response[\Carbon\Carbon::now()->format('Y-m-d')])->first()[0];
 
         $appointmentTime = Carbon::parse($firstSlot);
 

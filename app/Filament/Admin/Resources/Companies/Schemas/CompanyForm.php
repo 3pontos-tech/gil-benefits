@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Companies\Schemas;
 
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -20,7 +21,7 @@ class CompanyForm
                     ->vertical()
                     ->columnSpanFull()
                     ->schema([
-                        Tabs\Tab::make('Basic')
+                        Tab::make('Basic')
                             ->schema([
                                 Select::make('user_id')
                                     ->label('Owner')
@@ -39,7 +40,7 @@ class CompanyForm
                                     ->mask('99.999.999/9999-99')
                                     ->required(),
                             ]),
-                        Tabs\Tab::make('Members')
+                        Tab::make('Members')
                             ->schema([
                                 Repeater::make('employees')
                                     ->relationship()

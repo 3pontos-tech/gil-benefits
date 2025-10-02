@@ -19,7 +19,7 @@ class FetchCalendarSlotsDTO implements \JsonSerializable
         CarbonInterface $startDate,
         CarbonInterface $endDate,
         ?string $userId = null,
-    ) {
+    ): self {
         return new self(
             calendarId: config('services.highlevel.calendar', 'lAwKkZ3QFKKGSrFPTXNf'),
             startDate: $startDate,
@@ -42,7 +42,7 @@ class FetchCalendarSlotsDTO implements \JsonSerializable
             $data['userId'] = $this->userId;
         }
 
-        if (! empty($this->userIds)) {
+        if ($this->userIds !== null && $this->userIds !== []) {
             $data['userIds'] = $this->userIds;
         }
 

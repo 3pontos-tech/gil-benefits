@@ -12,7 +12,7 @@ use App\Models\Voucher;
 
 readonly class BookAppointmentAction
 {
-    public function __construct(private readonly HighLevelClient $client) {}
+    public function __construct(private HighLevelClient $client) {}
 
     public function handle(
         BookAppointmentDTO $payload

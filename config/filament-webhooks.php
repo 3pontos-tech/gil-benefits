@@ -1,7 +1,7 @@
 <?php
 
-use Basement\Webhooks\Models\InboundWebhook;
 use Basement\Webhooks\Enums\InboundWebhookSource;
+use Basement\Webhooks\Models\InboundWebhook;
 use Filament\Support\Icons\Heroicon;
 
 return [
@@ -12,5 +12,5 @@ return [
     'navigation_sort' => 100,
 
     'model' => InboundWebhook::class,
-    'providers_enum' => \App\Enums\SomeEnum::class,
+    'providers_enum' => InboundWebhookSource::class,
 ];

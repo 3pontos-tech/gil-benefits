@@ -98,7 +98,7 @@ return new class extends Migration
             $types = $plan['types'];
             unset($plan['types']);
 
-            $plan = Plan::create($plan);
+            $plan = Plan::query()->create($plan);
 
             foreach ($types as $type) {
                 $plan->items()->create($type);

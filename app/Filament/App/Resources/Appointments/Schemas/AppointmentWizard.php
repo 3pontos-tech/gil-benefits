@@ -61,7 +61,7 @@ class AppointmentWizard
 
             Step::make('Apply Voucher')
                 ->icon(Heroicon::Ticket)
-                ->beforeValidation(function (Get $get) {
+                ->beforeValidation(function (Get $get): void {
                     $voucher = $get('voucher_id');
                     if (is_null($voucher)) {
                         Notification::make()
@@ -123,7 +123,7 @@ class AppointmentWizard
             $response = $response[$formattedDate]['slots'];
 
             return collect($response)
-                ->mapWithKeys(fn ($slot) => [
+                ->mapWithKeys(fn ($slot): array => [
                     $slot => Carbon::parse($slot)->format('H:i'),
                 ])->toArray();
 

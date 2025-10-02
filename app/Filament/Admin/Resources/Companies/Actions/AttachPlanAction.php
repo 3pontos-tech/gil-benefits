@@ -28,7 +28,7 @@ class AttachPlanAction extends Action
                     ->schema([
                         Select::make('item_id')
                             ->label('Plan Item')
-                            ->options(fn () => Plan::query()->with('items')->get()->mapWithKeys(function ($plan) {
+                            ->options(fn () => Plan::query()->with('items')->get()->mapWithKeys(function ($plan): array {
                                 return [$plan->name => collect($plan->items()->pluck('type', 'id')->toArray())
                                     ->map(fn ($item) => $item->getLabel())];
                             })->toArray())

@@ -42,7 +42,7 @@ class AdminPanelProvider extends PanelProvider
                 VoucherStatus::class,
             ])
             ->plugins([
-                FilamentWebhookPlugin::make()
+                FilamentWebhookPlugin::make(),
             ])
             ->sidebarCollapsibleOnDesktop()
             ->middleware([

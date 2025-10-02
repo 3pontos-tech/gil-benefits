@@ -49,11 +49,10 @@ class EditCompany extends EditTenantProfile implements HasTable
             ->headerActions([
                 CreateAction::make('Invite Member')
                     ->model(User::class)
-                    ->after(function ($record) {
+                    ->after(function ($record): void {
                         filament()->getTenant()->employees()->attach($record, ['role' => 'employee']);
                     })
                     ->schema([
-
                         TextInput::make('name'),
                         TextInput::make('email'),
                         TextInput::make('password')

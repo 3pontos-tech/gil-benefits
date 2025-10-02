@@ -17,7 +17,7 @@ class FetchOpportunityPipelines
 
         Cache::forget($cacheKey);
 
-        return Cache::flexible($cacheKey, [$baseTtl, $baseTtl * 2], function () {
+        return Cache::flexible($cacheKey, [$baseTtl, $baseTtl * 2], function (): array {
             $payload = app(HighLevelClient::class)->getLocationPipelines();
 
             $response = [];
@@ -29,6 +29,7 @@ class FetchOpportunityPipelines
                         $stage['id'] => $stage['name'],
                     ]);
                 }
+
                 $response[$pipeline['name']] = $options;
             }
 

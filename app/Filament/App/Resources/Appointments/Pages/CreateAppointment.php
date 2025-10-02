@@ -38,7 +38,7 @@ class CreateAppointment extends CreateRecord
             ]);
     }
 
-    public function submit()
+    public function submit(): void
     {
         $appointmentDTO = BookAppointmentDTO::make(auth()->user()->getKey(), $this->form->getRawState());
 
