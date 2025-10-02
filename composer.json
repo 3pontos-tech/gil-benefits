@@ -16,11 +16,12 @@
   ],
   "require": {
     "php": "^8.4",
-    "filament/filament": "^4.0",
     "basementdevs/filament-webhooks": "dev-main",
+    "filament/filament": "^4.1",
     "filament/spatie-laravel-media-library-plugin": "^4.0",
     "filament/spatie-laravel-tags-plugin": "^4.0",
     "flowframe/laravel-trend": "^0.4.0",
+    "internachi/modular": "*",
     "laravel/framework": "^12.0",
     "laravel/tinker": "^2.10.1",
     "owenvoke/blade-fontawesome": "^2.9",
