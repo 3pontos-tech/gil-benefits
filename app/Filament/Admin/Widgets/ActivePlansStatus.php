@@ -2,12 +2,12 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use App\Models\Companies\Company;
 use App\Models\Plans\Plan;
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Tenant\Models\Company;
 
 class ActivePlansStatus extends ChartWidget
 {

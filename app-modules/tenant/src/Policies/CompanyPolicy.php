@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Policies\Companies;
+namespace TresPontosTech\Tenant\Policies;
 
-use App\Models\Companies\Company;
 use App\Models\Users\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use TresPontosTech\Tenant\Models\Company;
 
 class CompanyPolicy
 {

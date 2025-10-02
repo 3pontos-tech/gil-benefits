@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Company\Pages\Tenancy;
+namespace TresPontosTech\Tenant\Filament\Pages\Tenancy;
 
 use App\Models\Users\User;
 use Filament\Actions\CreateAction;

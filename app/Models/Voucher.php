@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Enums\VoucherStatusEnum;
-use App\Models\Companies\Company;
 use App\Models\Users\User;
 use App\Policies\VoucherPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -11,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use TresPontosTech\Tenant\Models\Company;
 
 #[UsePolicy(VoucherPolicy::class)]
 class Voucher extends Model

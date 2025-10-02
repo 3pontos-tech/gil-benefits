@@ -3,12 +3,12 @@
 namespace Database\Factories;
 
 use App\Enums\VoucherStatusEnum;
-use App\Models\Companies\Company;
 use App\Models\Consultant;
 use App\Models\Users\User;
 use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Tenant\Models\Company;
 
 class VoucherFactory extends Factory
 {

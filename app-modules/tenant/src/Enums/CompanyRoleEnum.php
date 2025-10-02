@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Enums;
+namespace TresPontosTech\Tenant\Enums;
 
 enum CompanyRoleEnum: string
 {

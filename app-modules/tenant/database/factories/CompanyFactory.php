@@ -1,11 +1,11 @@
 <?php
 
-namespace Database\Factories\Companies;
+namespace TresPontosTech\Tenant\Database\Factories;
 
-use App\Models\Companies\Company;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Tenant\Models\Company;
 
 class CompanyFactory extends Factory
 {

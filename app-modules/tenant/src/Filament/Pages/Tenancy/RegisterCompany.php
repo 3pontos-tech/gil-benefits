@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\Company\Pages\Tenancy;
+namespace TresPontosTech\Tenant\Filament\Pages\Tenancy;
 
-use App\Models\Companies\Company;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\RegisterTenant;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use TresPontosTech\Tenant\Models\Company;
 
 class RegisterCompany extends RegisterTenant
 {

@@ -4,11 +4,11 @@ namespace App\Models;
 
 use App\Enums\AppointmentCategoryEnum;
 use App\Enums\AppointmentStatus;
-use App\Models\Companies\Company;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use TresPontosTech\Tenant\Models\Company;
 
 class Appointment extends Model
 {

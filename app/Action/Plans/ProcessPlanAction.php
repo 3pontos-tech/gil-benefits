@@ -4,10 +4,10 @@ namespace App\Action\Plans;
 
 use App\DTO\ProcessPlanDTO;
 use App\Enums\VoucherStatusEnum;
-use App\Models\Companies\Company;
 use App\Models\Plans\Item;
 use Illuminate\Support\Carbon;
 use Ramsey\Uuid\Uuid;
+use TresPontosTech\Tenant\Models\Company;
 
 class ProcessPlanAction
 {

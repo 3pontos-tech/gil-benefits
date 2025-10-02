@@ -4,12 +4,12 @@ namespace App\Filament\Admin\Resources\Companies\Actions;
 
 use App\Action\Plans\ProcessPlanAction;
 use App\DTO\ProcessPlanDTO;
-use App\Models\Companies\Company;
 use App\Models\Plans\Plan;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
+use TresPontosTech\Tenant\Models\Company;
 
 class AttachPlanAction extends Action
 {

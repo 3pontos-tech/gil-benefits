@@ -4,10 +4,10 @@ namespace Database\Seeders;
 
 use App\Action\Plans\ProcessPlanAction;
 use App\DTO\ProcessPlanDTO;
-use App\Enums\CompanyRoleEnum;
-use App\Models\Companies\Company;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
+use TresPontosTech\Tenant\Enums\CompanyRoleEnum;
+use TresPontosTech\Tenant\Models\Company;
 
 class EssentialsSeeder extends Seeder
 {

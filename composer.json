@@ -12,10 +12,18 @@
     {
       "type": "vcs",
       "url": "https://github.com/basementdevs/filament-webhooks.git"
+    },
+    {
+      "type": "path",
+      "url": "app-modules/*",
+      "options": {
+        "symlink": true
+      }
     }
   ],
   "require": {
     "php": "^8.4",
+    "3pontos-tech/tenant": "*",
     "basementdevs/filament-webhooks": "dev-main",
     "filament/filament": "^4.1",
     "filament/spatie-laravel-media-library-plugin": "^4.0",

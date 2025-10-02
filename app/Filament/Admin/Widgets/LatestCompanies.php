@@ -2,11 +2,11 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use App\Models\Companies\Company;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Tenant\Models\Company;
 
 class LatestCompanies extends TableWidget
 {

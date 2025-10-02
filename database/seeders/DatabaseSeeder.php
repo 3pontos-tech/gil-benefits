@@ -2,9 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Enums\CompanyRoleEnum;
 use App\Enums\VoucherStatusEnum;
-use App\Models\Companies\Company;
 use App\Models\Consultant;
 use App\Models\Plans\Item;
 use App\Models\Plans\Plan;
@@ -12,6 +10,8 @@ use App\Models\Users\User;
 use App\Models\Voucher;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
+use TresPontosTech\Tenant\Enums\CompanyRoleEnum;
+use TresPontosTech\Tenant\Models\Company;
 
 class DatabaseSeeder extends Seeder
 {

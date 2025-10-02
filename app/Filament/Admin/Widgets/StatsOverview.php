@@ -2,13 +2,13 @@
 
 namespace App\Filament\Admin\Widgets;
 
-use App\Models\Companies\Company;
 use App\Models\Users\User;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Tenant\Models\Company;
 
 class StatsOverview extends StatsOverviewWidget
 {

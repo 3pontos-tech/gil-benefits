@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Models\Companies;
+namespace TresPontosTech\Tenant\Models;
 
 use App\Models\Plans\Item;
 use App\Models\Users\User;
 use App\Models\Voucher;
 use App\Models\VoucherRequest;
-use App\Policies\Companies\CompanyPolicy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use TresPontosTech\Tenant\Database\Factories\CompanyFactory;
+use TresPontosTech\Tenant\Policies\CompanyPolicy;
 
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model
@@ -63,5 +64,10 @@ class Company extends Model
     public function voucherRequests(): HasMany
     {
         return $this->hasMany(VoucherRequest::class);
+    }
+
+    protected static function newFactory(): CompanyFactory
+    {
+        return CompanyFactory::new();
     }
 }

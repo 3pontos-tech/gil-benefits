@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\Companies\Company;
 use App\Models\VoucherRequest;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Tenant\Models\Company;
 
 class VoucherRequestFactory extends Factory
 {
