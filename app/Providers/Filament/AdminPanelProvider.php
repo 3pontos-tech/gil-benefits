@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Admin\Widgets\VoucherStatus;
 use App\Filament\Shared\Pages\LoginPage;
+use Basement\Webhooks\FilamentWebhookPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -39,6 +40,9 @@ class AdminPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->widgets([
                 VoucherStatus::class,
+            ])
+            ->plugins([
+                FilamentWebhookPlugin::make()
             ])
             ->sidebarCollapsibleOnDesktop()
             ->middleware([
