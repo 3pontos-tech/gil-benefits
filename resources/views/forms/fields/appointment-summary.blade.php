@@ -1,5 +1,5 @@
 @php
-    use App\Models\Consultant;use Carbon\Carbon;use TresPontosTech\Vouchers\Models\Voucher;
+    use Carbon\Carbon;use TresPontosTech\Consultants\Models\Consultant;use TresPontosTech\Vouchers\Models\Voucher;
 
     $consultant = Consultant::query()->find($get('consultant_id'));
     $date = $get('date') ? Carbon::parse($get('date'))->translatedFormat('l, F d, Y') : null;

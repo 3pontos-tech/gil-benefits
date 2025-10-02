@@ -1,14 +1,14 @@
 <?php
 
-namespace factories;
+namespace TresPontosTech\Appointments\Database\Factories;
 
-use App\Models\Consultant;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Tenant\Models\Company;
 use TresPontosTech\Vouchers\Models\Voucher;
 

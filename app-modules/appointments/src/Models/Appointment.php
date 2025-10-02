@@ -2,13 +2,13 @@
 
 namespace TresPontosTech\Appointments\Models;
 
-use App\Models\Consultant;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Tenant\Models\Company;
 use TresPontosTech\Vouchers\Models\Voucher;
 
