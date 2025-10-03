@@ -8,10 +8,7 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function boot(): void
-    {
-
-    }
+    public function boot(): void {}
 
     public function register()
     {
@@ -19,10 +16,10 @@ class AppServiceProvider extends ServiceProvider
             $studlyPanel = str($panel->value)->studly();
 
             $filamentModulePath = module_path($module, sprintf('src/Filament/%s', $studlyPanel));
-            $filamentModuleNamespace = sprintf("TresPontosTech\\%s\\Filament\\%s", str($module)->studly(), $studlyPanel);
+            $filamentModuleNamespace = sprintf('TresPontosTech\\%s\\Filament\\%s', str($module)->studly(), $studlyPanel);
 
             $in = $filamentModulePath . '/Resources';
-            $for = $filamentModuleNamespace . "\\Resources";
+            $for = $filamentModuleNamespace . '\\Resources';
 
             $this
                 ->discoverResources(
@@ -31,11 +28,11 @@ class AppServiceProvider extends ServiceProvider
                 )
                 ->discoverWidgets(
                     in: $filamentModulePath . '/Widgets',
-                    for: $filamentModuleNamespace . "\\Widgets",
+                    for: $filamentModuleNamespace . '\\Widgets',
                 )
                 ->discoverPages(
                     in: $filamentModulePath . '/Pages',
-                    for: $filamentModuleNamespace . "\\Pages",
+                    for: $filamentModuleNamespace . '\\Pages',
                 );
         });
     }
