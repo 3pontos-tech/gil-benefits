@@ -2,9 +2,9 @@
 
 namespace TresPontosTech\Vouchers\Filament\Company\Resources\Vouchers\Widgets;
 
-use App\Enums\VoucherStatusEnum;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 
 class UserVoucherStats extends StatsOverviewWidget
 {

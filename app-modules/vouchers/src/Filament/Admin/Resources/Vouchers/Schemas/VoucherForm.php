@@ -2,10 +2,10 @@
 
 namespace TresPontosTech\Vouchers\Filament\Admin\Resources\Vouchers\Schemas;
 
-use App\Enums\VoucherStatusEnum;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
+use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 
 class VoucherForm
 {

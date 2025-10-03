@@ -2,10 +2,10 @@
 
 namespace TresPontosTech\Vouchers\Filament\Admin\Resources\Vouchers\Pages;
 
-use App\Enums\VoucherStatusEnum;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
+use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 use TresPontosTech\Vouchers\Filament\Admin\Resources\Vouchers\VoucherResource;
 use TresPontosTech\Vouchers\Filament\Admin\Resources\Vouchers\Widgets\CompanyVoucherStats;
 use TresPontosTech\Vouchers\Models\Voucher;

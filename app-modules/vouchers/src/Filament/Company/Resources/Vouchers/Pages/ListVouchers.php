@@ -2,13 +2,13 @@
 
 namespace TresPontosTech\Vouchers\Filament\Company\Resources\Vouchers\Pages;
 
-use App\Enums\VoucherStatusEnum;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Ramsey\Uuid\Uuid;
+use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 use TresPontosTech\Vouchers\Filament\Company\Resources\Vouchers\VoucherResource;
 use TresPontosTech\Vouchers\Filament\Company\Resources\Vouchers\Widgets\UserVoucherStats;
 

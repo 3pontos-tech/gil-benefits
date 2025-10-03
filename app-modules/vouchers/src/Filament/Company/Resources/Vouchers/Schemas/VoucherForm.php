@@ -2,13 +2,13 @@
 
 namespace TresPontosTech\Vouchers\Filament\Company\Resources\Vouchers\Schemas;
 
-use App\Enums\VoucherStatusEnum;
 use App\Models\Users\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 use Ramsey\Uuid\Uuid;
+use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 
 class VoucherForm
 {

@@ -2,12 +2,12 @@
 
 namespace TresPontosTech\Vouchers\Database\Factories;
 
-use App\Enums\VoucherStatusEnum;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 use TresPontosTech\Vouchers\Models\Voucher;
 
 class VoucherFactory extends Factory

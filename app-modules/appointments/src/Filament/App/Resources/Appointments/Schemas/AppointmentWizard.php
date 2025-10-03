@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\Appointments\Filament\App\Resources\Appointments\Schemas;
 
-use App\Enums\VoucherStatusEnum;
 use App\Filament\Shared\Fields\AppointmentCategorySelector;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -19,6 +18,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
+use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 use TresPontosTech\Vouchers\Models\Voucher;
 
 class AppointmentWizard

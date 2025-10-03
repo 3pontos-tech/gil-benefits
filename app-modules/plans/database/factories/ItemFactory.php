@@ -2,9 +2,9 @@
 
 namespace TresPontosTech\Plans\Database\Factories;
 
-use App\Enums\PlanTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Plans\Enums\PlanTypeEnum;
 use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Plans\Models\Plan;
 
