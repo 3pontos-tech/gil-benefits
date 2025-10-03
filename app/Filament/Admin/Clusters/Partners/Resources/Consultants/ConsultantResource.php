@@ -8,7 +8,6 @@ use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\EditConsult
 use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\ListConsultants;
 use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Schemas\ConsultantForm;
 use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Tables\ConsultantsTable;
-use App\Models\Consultant;
 use BackedEnum;
 use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Resource;
@@ -17,6 +16,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use TresPontosTech\Consultants\Models\Consultant;
 
 class ConsultantResource extends Resource
 {

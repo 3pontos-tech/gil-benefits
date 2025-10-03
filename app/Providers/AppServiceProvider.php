@@ -2,24 +2,38 @@
 
 namespace App\Providers;
 
-use Illuminate\Http\Client\PendingRequest;
+use App\Filament\FilamentPanel;
+use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    public function boot(): void
+    public function boot(): void {}
+
+    public function register(): void
     {
-        PendingRequest::macro('withLocation', fn () => $this->withQueryParameters([
-            'locationId' => config('services.highlevel.location'),
-        ]));
+        Panel::macro('discoverResourcesForPanel', function (string $module, FilamentPanel $panel): void {
+            $studlyPanel = str($panel->value)->studly();
 
-        PendingRequest::macro('withDefaultVersion', fn (?string $version = null) => $this->withHeader(
-            'Version',
-            $version ?? config('services.highlevel.version')
-        ));
+            $filamentModulePath = module_path($module, sprintf('src/Filament/%s', $studlyPanel));
+            $filamentModuleNamespace = sprintf('TresPontosTech\\%s\\Filament\\%s', str($module)->studly(), $studlyPanel);
 
-        PendingRequest::macro('withDefaultCompany', fn (?string $companyId = null) => $this->withQueryParameters(
-            ['companyId' => $companyId ?? config('services.highlevel.company')]
-        ));
+            $in = $filamentModulePath . '/Resources';
+            $for = $filamentModuleNamespace . '\\Resources';
+
+            $this
+                ->discoverResources(
+                    in: $in,
+                    for: $for,
+                )
+                ->discoverWidgets(
+                    in: $filamentModulePath . '/Widgets',
+                    for: $filamentModuleNamespace . '\\Widgets',
+                )
+                ->discoverPages(
+                    in: $filamentModulePath . '/Pages',
+                    for: $filamentModuleNamespace . '\\Pages',
+                );
+        });
     }
 }

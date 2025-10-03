@@ -2,11 +2,11 @@
 
 namespace App\Filament\Admin\Resources\Companies\Schemas;
 
-use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;

@@ -2,9 +2,9 @@
 
 namespace App\Filament\Shared\Fields;
 
-use App\Models\Consultant;
 use Closure;
 use Filament\Forms\Components\Field;
+use TresPontosTech\Consultants\Models\Consultant;
 
 class ConsultantSelector extends Field
 {
