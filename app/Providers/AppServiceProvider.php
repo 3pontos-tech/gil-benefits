@@ -10,9 +10,9 @@ class AppServiceProvider extends ServiceProvider
 {
     public function boot(): void {}
 
-    public function register()
+    public function register(): void
     {
-        Panel::macro('discoverResourcesForPanel', function (string $module, FilamentPanel $panel) {
+        Panel::macro('discoverResourcesForPanel', function (string $module, FilamentPanel $panel): void {
             $studlyPanel = str($panel->value)->studly();
 
             $filamentModulePath = module_path($module, sprintf('src/Filament/%s', $studlyPanel));
