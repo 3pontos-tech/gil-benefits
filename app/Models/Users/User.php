@@ -18,6 +18,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
 
 #[UsePolicy(UserPolicy::class)]
@@ -71,8 +72,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function companies(): BelongsToMany
     {
         return $this->belongsToMany(Company::class, 'company_employees', 'user_id', 'company_id')
-            ->withPivot('role')
-            ->withTimestamps();
+            ->withTimestamps()
+            ->withPivot(['role'])
+            ->using(TenantMember::class);
     }
 
     public function ownedCompanies(): HasMany

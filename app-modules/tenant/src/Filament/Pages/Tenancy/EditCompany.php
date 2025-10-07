@@ -17,6 +17,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use TresPontosTech\Tenant\Enums\CompanyRoleEnum;
 
 class EditCompany extends EditTenantProfile implements HasTable
 {
@@ -75,11 +76,7 @@ class EditCompany extends EditTenantProfile implements HasTable
             ->columns([
                 TextColumn::make('name'),
                 TextColumn::make('role')
-                    ->color(fn ($state): string => match ($state) {
-                        'owner' => 'danger',
-                        'manager' => 'warning',
-                        'employee' => 'success',
-                    })
+                    ->color(fn ($state) => CompanyRoleEnum::from($state)->getColor())
                     ->badge(),
                 TextColumn::make('vouchers_used_count')
                     ->state(fn ($record) => $record->appointments()->count()),
