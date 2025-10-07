@@ -18,6 +18,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Tenant\Models\Traits\HasTenant;
 
 #[UsePolicy(UserPolicy::class)]
 class User extends Authenticatable implements FilamentUser, HasTenants
@@ -25,6 +26,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
+    use HasTenant;
 
     /**
      * The attributes that are mass assignable.
@@ -64,16 +66,6 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
-    }
-
-    public function canAccessTenant(Model $tenant): bool
-    {
-        return $this->companies()->whereKey($tenant)->exists();
-    }
-
-    public function getTenants(Panel $panel): Collection
-    {
-        return $this->companies;
     }
 
     public function companies(): BelongsToMany

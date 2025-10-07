@@ -24,6 +24,7 @@
   "require": {
     "php": "^8.4",
     "3pontos-tech/appointments": "*",
+    "3pontos-tech/company": "*",
     "3pontos-tech/consultants": "*",
     "3pontos-tech/integration-highlevel": "*",
     "3pontos-tech/plans": "*",
@@ -59,7 +60,7 @@
   },
   "autoload": {
     "files": [
-        "bootstrap/helpers.php"
+      "bootstrap/helpers.php"
     ],
     "psr-4": {
       "App\\": "app/",
