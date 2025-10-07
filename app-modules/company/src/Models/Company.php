@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Tenant\Models;
+namespace TresPontosTech\Company\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -10,8 +10,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Plans\Models\Item;
-use TresPontosTech\Tenant\Database\Factories\CompanyFactory;
+use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
 use TresPontosTech\Vouchers\Models\Voucher;
 use TresPontosTech\Vouchers\Models\VoucherRequest;

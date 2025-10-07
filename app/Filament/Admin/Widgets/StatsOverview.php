@@ -8,7 +8,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Database\Eloquent\Builder;
-use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Company\Models\Company;
 
 class StatsOverview extends StatsOverviewWidget
 {

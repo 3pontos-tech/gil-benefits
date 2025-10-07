@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Companies\Pages;
+namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages;
 
-use App\Filament\Admin\Resources\Companies\CompanyResource;
 use Filament\Resources\Pages\CreateRecord;
+use TresPontosTech\Company\Filament\Admin\Resources\Companies\CompanyResource;
 
 class CreateCompany extends CreateRecord
 {

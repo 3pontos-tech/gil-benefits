@@ -5,9 +5,9 @@ namespace Database\Seeders;
 use App\DTO\ProcessPlanDTO;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
+use TresPontosTech\Company\Enums\CompanyRoleEnum;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Plans\Actions\ProcessPlanAction;
-use TresPontosTech\Tenant\Enums\CompanyRoleEnum;
-use TresPontosTech\Tenant\Models\Company;
 
 class EssentialsSeeder extends Seeder
 {

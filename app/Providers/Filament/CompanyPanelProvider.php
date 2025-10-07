@@ -17,10 +17,10 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditCompany;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\RegisterCompany;
 use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
-use TresPontosTech\Tenant\Models\Company;
 
 class CompanyPanelProvider extends PanelProvider
 {

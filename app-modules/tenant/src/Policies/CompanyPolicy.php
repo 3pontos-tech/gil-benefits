@@ -4,7 +4,7 @@ namespace TresPontosTech\Tenant\Policies;
 
 use App\Models\Users\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Company\Models\Company;
 
 class CompanyPolicy
 {

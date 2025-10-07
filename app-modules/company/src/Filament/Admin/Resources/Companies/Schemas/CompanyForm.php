@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Companies\Schemas;
+namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Schemas;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;

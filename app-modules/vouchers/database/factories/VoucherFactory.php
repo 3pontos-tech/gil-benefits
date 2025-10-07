@@ -5,8 +5,8 @@ namespace TresPontosTech\Vouchers\Database\Factories;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\Tenant\Models\Company;
 use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 use TresPontosTech\Vouchers\Models\Voucher;
 

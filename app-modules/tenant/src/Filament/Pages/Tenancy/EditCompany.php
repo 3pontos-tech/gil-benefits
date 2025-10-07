@@ -17,7 +17,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use TresPontosTech\Tenant\Enums\CompanyRoleEnum;
+use TresPontosTech\Company\Enums\CompanyRoleEnum;
 
 class EditCompany extends EditTenantProfile implements HasTable
 {

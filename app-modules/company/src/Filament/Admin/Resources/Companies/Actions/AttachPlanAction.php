@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Companies\Actions;
+namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Actions;
 
 use App\DTO\ProcessPlanDTO;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
+use Illuminate\Support\Carbon;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Plans\Actions\ProcessPlanAction;
 use TresPontosTech\Plans\Models\Plan;
-use TresPontosTech\Tenant\Models\Company;
 
 class AttachPlanAction extends Action
 {
@@ -33,7 +34,8 @@ class AttachPlanAction extends Action
                                     ->map(fn ($item) => $item->getLabel())];
                             })->toArray())
                             ->required(),
-                        DatePicker::make('subscription_starting_at'),
+                        DatePicker::make('subscription_starting_at')
+                            ->dehydrateStateUsing(fn ($state): string => Carbon::parse($state)),
                         Select::make('status')
                             ->options(['active' => 'Active', 'inactive' => 'Inactive']),
                     ]),

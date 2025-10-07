@@ -8,16 +8,14 @@ use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
 
@@ -25,9 +23,9 @@ use TresPontosTech\Tenant\Models\Traits\HasTenant;
 class User extends Authenticatable implements FilamentUser, HasTenants
 {
     use HasFactory;
+    use HasTenant;
     use Notifiable;
     use SoftDeletes;
-    use HasTenant;
 
     /**
      * The attributes that are mass assignable.

@@ -1,10 +1,9 @@
 <?php
 
-namespace TresPontosTech\Tenant\Enums;
+namespace TresPontosTech\Company\Enums;
 
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
-
 
 enum CompanyRoleEnum: string implements HasColor
 {

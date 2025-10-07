@@ -7,7 +7,7 @@ use Filament\Pages\Tenancy\RegisterTenant;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
-use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Company\Models\Company;
 
 class RegisterCompany extends RegisterTenant
 {

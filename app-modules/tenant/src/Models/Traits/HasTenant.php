@@ -8,7 +8,6 @@ use Illuminate\Support\Collection;
 
 trait HasTenant
 {
-
     public function canAccessTenant(Model $tenant): bool
     {
         $tenantKey = $this->getTenantRelationship();
@@ -27,5 +26,4 @@ trait HasTenant
     {
         return 'companies';
     }
-
 }

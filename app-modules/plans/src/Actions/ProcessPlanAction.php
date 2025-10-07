@@ -5,8 +5,8 @@ namespace TresPontosTech\Plans\Actions;
 use App\DTO\ProcessPlanDTO;
 use Illuminate\Support\Carbon;
 use Ramsey\Uuid\Uuid;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Plans\Models\Item;
-use TresPontosTech\Tenant\Models\Company;
 use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 
 class ProcessPlanAction
