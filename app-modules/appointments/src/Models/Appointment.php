@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\Tenant\Models\Company;
 use TresPontosTech\Vouchers\Models\Voucher;
 
 class Appointment extends Model

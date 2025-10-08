@@ -4,7 +4,7 @@ namespace Tests\E2E;
 
 use App\Models\Users\Detail;
 use App\Models\Users\User;
-use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Company\Models\Company;
 
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;

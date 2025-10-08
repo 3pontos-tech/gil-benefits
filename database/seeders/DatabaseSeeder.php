@@ -5,11 +5,11 @@ namespace Database\Seeders;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
+use TresPontosTech\Company\Enums\CompanyRoleEnum;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Plans\Models\Plan;
-use TresPontosTech\Tenant\Enums\CompanyRoleEnum;
-use TresPontosTech\Tenant\Models\Company;
 use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
 use TresPontosTech\Vouchers\Models\Voucher;
 

@@ -6,7 +6,7 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
-use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Company\Models\Company;
 
 class DetailFactory extends Factory
 {

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Companies\Pages;
+namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages;
 
-use App\Filament\Admin\Resources\Companies\Actions\AttachPlanAction;
-use App\Filament\Admin\Resources\Companies\CompanyResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use TresPontosTech\Company\Filament\Admin\Resources\Companies\Actions\AttachPlanAction;
+use TresPontosTech\Company\Filament\Admin\Resources\Companies\CompanyResource;
 use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
 
 class EditCompany extends EditRecord

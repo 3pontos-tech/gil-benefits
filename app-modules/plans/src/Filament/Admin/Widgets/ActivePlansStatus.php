@@ -6,8 +6,8 @@ use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Plans\Models\Plan;
-use TresPontosTech\Tenant\Models\Company;
 
 class ActivePlansStatus extends ChartWidget
 {

@@ -3,8 +3,8 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Plans\Models\Item;
-use TresPontosTech\Tenant\Models\Company;
 
 return new class extends Migration
 {

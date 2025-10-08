@@ -1,12 +1,7 @@
 <?php
 
-namespace App\Filament\Admin\Resources\Companies;
+namespace TresPontosTech\Company\Filament\Admin\Resources\Companies;
 
-use App\Filament\Admin\Resources\Companies\Pages\CreateCompany;
-use App\Filament\Admin\Resources\Companies\Pages\EditCompany;
-use App\Filament\Admin\Resources\Companies\Pages\ListCompanies;
-use App\Filament\Admin\Resources\Companies\Schemas\CompanyForm;
-use App\Filament\Admin\Resources\Companies\Tables\CompaniesTable;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -14,7 +9,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Tenant\Models\Company;
+use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\CreateCompany;
+use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\EditCompany;
+use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\ListCompanies;
+use TresPontosTech\Company\Filament\Admin\Resources\Companies\Schemas\CompanyForm;
+use TresPontosTech\Company\Filament\Admin\Resources\Companies\Tables\CompaniesTable;
+use TresPontosTech\Company\Models\Company;
 
 class CompanyResource extends Resource
 {

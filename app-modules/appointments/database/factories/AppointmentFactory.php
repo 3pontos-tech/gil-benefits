@@ -8,8 +8,8 @@ use Illuminate\Support\Carbon;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\Tenant\Models\Company;
 use TresPontosTech\Vouchers\Models\Voucher;
 
 class AppointmentFactory extends Factory
