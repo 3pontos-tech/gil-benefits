@@ -2,9 +2,9 @@
 
 namespace TresPontosTech\Company\Database\Factories;
 
+use Illuminate\Support\Facades\Date;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 use TresPontosTech\Company\Models\Company;
 
 class CompanyFactory extends Factory
@@ -17,8 +17,8 @@ class CompanyFactory extends Factory
             'name' => $this->faker->company(),
             'slug' => $this->faker->slug(),
             'tax_id' => $this->faker->cnpj(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
 
             'user_id' => User::factory(),
         ];

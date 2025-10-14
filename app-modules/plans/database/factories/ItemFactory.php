@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\Plans\Database\Factories;
 
+use Illuminate\Support\Facades\Date;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 use TresPontosTech\Plans\Enums\PlanTypeEnum;
 use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Plans\Models\Plan;
@@ -17,8 +17,8 @@ class ItemFactory extends Factory
         return [
             'price' => $this->faker->randomNumber(),
             'type' => $this->faker->randomElement(PlanTypeEnum::cases()),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
 
             'plan_id' => Plan::factory(),
         ];

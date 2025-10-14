@@ -2,7 +2,7 @@
 
 namespace TresPontosTech\Appointments\DTO;
 
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Carbon\CarbonInterface;
 use JsonSerializable;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
@@ -22,7 +22,7 @@ class BookAppointmentDTO implements JsonSerializable
         return new self(
             userId: $userId,
             categoryType: AppointmentCategoryEnum::from($payload['category_type']),
-            appointmentAt: Carbon::parse($payload['appointment_at']),
+            appointmentAt: Date::parse($payload['appointment_at']),
             voucherId: $payload['voucher_id'],
             notes: $payload['notes'] ?? null,
         );

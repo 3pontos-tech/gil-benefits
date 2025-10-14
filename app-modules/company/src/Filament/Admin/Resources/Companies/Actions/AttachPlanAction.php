@@ -2,12 +2,12 @@
 
 namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Actions;
 
+use Illuminate\Support\Facades\Date;
 use App\DTO\ProcessPlanDTO;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
-use Illuminate\Support\Carbon;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Plans\Actions\ProcessPlanAction;
 use TresPontosTech\Plans\Models\Plan;
@@ -35,7 +35,7 @@ class AttachPlanAction extends Action
                             })->toArray())
                             ->required(),
                         DatePicker::make('subscription_starting_at')
-                            ->dehydrateStateUsing(fn ($state): string => Carbon::parse($state)),
+                            ->dehydrateStateUsing(fn ($state): string => Date::parse($state)),
                         Select::make('status')
                             ->options(['active' => 'Active', 'inactive' => 'Inactive']),
                     ]),

@@ -41,7 +41,7 @@ class ActivePlansStatus extends ChartWidget
             ];
 
             if (empty($labels)) {
-                $labels = $data->map(fn (TrendValue $value): string => $value->date)->toArray();
+                $labels = $data->map(fn (TrendValue $value): string => $value->date)->all();
             }
         }
 

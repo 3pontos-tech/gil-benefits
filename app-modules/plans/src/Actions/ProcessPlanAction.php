@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\Plans\Actions;
 
+use Illuminate\Support\Facades\Date;
 use App\DTO\ProcessPlanDTO;
-use Illuminate\Support\Carbon;
 use Ramsey\Uuid\Uuid;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Plans\Models\Item;
@@ -26,7 +26,7 @@ class ProcessPlanAction
             $company->vouchers()->create([
                 'code' => Uuid::uuid4()->toString(),
                 'status' => VoucherStatusEnum::Pending,
-                'valid_until' => Carbon::parse($payload->subscriptionStartingAt)->addMonth(),
+                'valid_until' => Date::parse($payload->subscriptionStartingAt)->addMonth(),
             ]);
         }
     }

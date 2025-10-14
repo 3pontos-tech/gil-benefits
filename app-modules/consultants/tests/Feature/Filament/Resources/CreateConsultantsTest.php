@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Str;
 use App\Enums\AvailableTagsEnum;
 use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\CreateConsultant;
 use App\Models\Users\User;
@@ -12,7 +13,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     Filament::setCurrentPanel('admin');
     actingAs(User::factory()->admin()->create());
 });
@@ -67,7 +68,7 @@ it('should be able to register an consultant', function (): void {
     ]);
 });
 
-it('sets the slug after name field is set', function () {
+it('sets the slug after name field is set', function (): void {
     livewire(CreateConsultant::class)
         ->assertOk()
         ->fillForm([
@@ -80,7 +81,7 @@ it('sets the slug after name field is set', function () {
 
 describe('validation tests', function (): void {
 
-    test('name field', function ($value, $rule) {
+    test('name field', function ($value, $rule): void {
         livewire(CreateConsultant::class)
             ->assertOk()
             ->fillForm([
@@ -92,7 +93,7 @@ describe('validation tests', function (): void {
         'required' => ['', 'required'],
     ]);
 
-    test('email field', function ($value, $rule) {
+    test('email field', function ($value, $rule): void {
         livewire(CreateConsultant::class)
             ->assertOk()
             ->fillForm([
@@ -105,7 +106,7 @@ describe('validation tests', function (): void {
         'email' => ['notemail', 'email'],
     ]);
 
-    test('phone field', function ($value, $rule) {
+    test('phone field', function ($value, $rule): void {
         livewire(CreateConsultant::class)
             ->assertOk()
             ->fillForm([
@@ -117,7 +118,7 @@ describe('validation tests', function (): void {
         'required' => ['', 'required'],
     ]);
 
-    test('short_description field', function ($value, $rule) {
+    test('short_description field', function ($value, $rule): void {
         livewire(CreateConsultant::class)
             ->assertOk()
             ->fillForm([
@@ -130,7 +131,7 @@ describe('validation tests', function (): void {
         'max:255' => [str_repeat('a', 256), 'max:255'],
     ]);
 
-    test('biography field', function ($value, $rule) {
+    test('biography field', function ($value, $rule): void {
         livewire(CreateConsultant::class)
             ->assertOk()
             ->fillForm([
@@ -142,7 +143,7 @@ describe('validation tests', function (): void {
         'required' => ['', 'required'],
     ]);
 
-    test('readme field', function ($value, $rule) {
+    test('readme field', function ($value, $rule): void {
         livewire(CreateConsultant::class)
             ->assertOk()
             ->fillForm([

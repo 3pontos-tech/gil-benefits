@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\Vouchers\Database\Factories;
 
+use Illuminate\Support\Facades\Date;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Vouchers\Models\VoucherRequest;
 
@@ -16,8 +16,8 @@ class VoucherRequestFactory extends Factory
         return [
             'quantity' => $this->faker->randomNumber(),
             'status' => $this->faker->randomElement(['pending', 'approved', 'rejected']),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
 
             'company_id' => Company::factory(),
         ];

@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\Appointments\Filament\App\Resources\Appointments\Schemas;
 
+use Illuminate\Support\Facades\Date;
 use App\Filament\Shared\Fields\AppointmentCategorySelector;
-use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
@@ -106,7 +106,7 @@ class AppointmentWizard
             return [];
         }
 
-        $startDate = Carbon::parse($date);
+        $startDate = Date::parse($date);
 
         if ($startDate->diffInDays(now()) > 0) {
 
@@ -124,8 +124,8 @@ class AppointmentWizard
 
             return collect($response)
                 ->mapWithKeys(fn ($slot): array => [
-                    $slot => Carbon::parse($slot)->format('H:i'),
-                ])->toArray();
+                    $slot => Date::parse($slot)->format('H:i'),
+                ])->all();
 
         });
 

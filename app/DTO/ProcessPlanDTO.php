@@ -2,7 +2,7 @@
 
 namespace App\DTO;
 
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use DateTimeInterface;
 
 class ProcessPlanDTO
@@ -20,7 +20,7 @@ class ProcessPlanDTO
             companyId: $companyId,
             itemId: $data['item_id'],
             status: $data['status'],
-            subscriptionStartingAt: Carbon::parse($data['subscription_starting_at']),
+            subscriptionStartingAt: Date::parse($data['subscription_starting_at']),
         );
     }
 }

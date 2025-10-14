@@ -2,9 +2,9 @@
 
 namespace TresPontosTech\Appointments\Database\Factories;
 
+use Illuminate\Support\Facades\Date;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -30,9 +30,9 @@ class AppointmentFactory extends Factory
             'status' => $this->faker->randomElement(AppointmentStatus::cases()),
             'category_type' => $this->faker->randomElement(AppointmentCategoryEnum::cases()),
 
-            'appointment_at' => Carbon::now(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'appointment_at' => Date::now(),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
         ];
     }
 }
