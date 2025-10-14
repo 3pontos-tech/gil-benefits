@@ -1,8 +1,9 @@
 <?php
+
 //
-//namespace TresPontosTech\Company\Tests;
+// namespace TresPontosTech\Company\Tests;
 //
-//class CompanyServiceProviderTest extends TestCase
-//{
+// class CompanyServiceProviderTest extends TestCase
+// {
 //    // TODO
-//}
+// }
