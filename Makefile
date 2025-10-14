@@ -37,6 +37,10 @@ test-phpstan: ## Run PHPStan in test mode
 test-pest: ## Run Pest tests
 	@$(CURDIR)/vendor/bin/pest
 
+.PHONY: test
+test: ## Run Pest tests without browser tests
+	@$(CURDIR)/vendor/bin/pest --exclude-group=browser
+
 .PHONY: test-rector
 test-rector: ## Run Rector in test mode
 	$(CURDIR)/vendor/bin/rector process --dry-run

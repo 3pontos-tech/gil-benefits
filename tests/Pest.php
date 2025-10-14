@@ -13,7 +13,7 @@
 
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature', 'E2E');
+    ->in('Feature', 'E2E', '../app-modules/*/tests');
 
 pest()->group('browser')
     ->in('E2E');
