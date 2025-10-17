@@ -2,10 +2,10 @@
 
 namespace Database\Factories\Users;
 
-use Illuminate\Support\Facades\Date;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Company\Models\Company;
 
 class DetailFactory extends Factory

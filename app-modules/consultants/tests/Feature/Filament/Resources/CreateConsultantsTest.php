@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Support\Str;
 use App\Enums\AvailableTagsEnum;
 use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\CreateConsultant;
 use App\Models\Users\User;
 use Filament\Facades\Filament;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use TresPontosTech\Consultants\Models\Consultant;
 
 use function Pest\Laravel\actingAs;

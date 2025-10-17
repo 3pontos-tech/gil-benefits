@@ -2,9 +2,9 @@
 
 namespace TresPontosTech\Appointments\Database\Factories;
 
-use Illuminate\Support\Facades\Date;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;

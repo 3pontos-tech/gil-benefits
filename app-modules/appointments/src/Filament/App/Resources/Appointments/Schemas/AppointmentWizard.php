@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\Appointments\Filament\App\Resources\Appointments\Schemas;
 
-use Illuminate\Support\Facades\Date;
 use App\Filament\Shared\Fields\AppointmentCategorySelector;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -16,6 +15,7 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Exceptions\Halt;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
 use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;

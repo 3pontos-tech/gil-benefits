@@ -2,9 +2,9 @@
 
 namespace TresPontosTech\Company\Database\Factories;
 
-use Illuminate\Support\Facades\Date;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Company\Models\Company;
 
 class CompanyFactory extends Factory

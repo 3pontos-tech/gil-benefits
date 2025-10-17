@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\Plans\Database\Factories;
 
-use Illuminate\Support\Facades\Date;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Plans\Enums\PlanTypeEnum;
 use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Plans\Models\Plan;

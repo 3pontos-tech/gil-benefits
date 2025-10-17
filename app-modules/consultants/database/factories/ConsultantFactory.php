@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\Consultants\Database\Factories;
 
-use Illuminate\Support\Facades\Date;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Consultants\Models\Consultant;
 
 class ConsultantFactory extends Factory

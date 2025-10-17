@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\Appointments\DTO;
 
-use Illuminate\Support\Facades\Date;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\Date;
 use JsonSerializable;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 

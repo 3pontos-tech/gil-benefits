@@ -2,8 +2,8 @@
 
 namespace App\DTO;
 
-use Illuminate\Support\Facades\Date;
 use DateTimeInterface;
+use Illuminate\Support\Facades\Date;
 
 class ProcessPlanDTO
 {

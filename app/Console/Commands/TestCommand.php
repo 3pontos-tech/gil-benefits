@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Facades\Date;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;

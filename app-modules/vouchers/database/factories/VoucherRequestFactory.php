@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\Vouchers\Database\Factories;
 
-use Illuminate\Support\Facades\Date;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Vouchers\Models\VoucherRequest;
 
