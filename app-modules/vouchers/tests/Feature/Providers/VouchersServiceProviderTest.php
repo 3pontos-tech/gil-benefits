@@ -1,8 +1,9 @@
 <?php
 
-namespace TresPontosTech\Vouchers\Tests;
-
-class VouchersServiceProviderTest extends TestCase
-{
-    // TODO
-}
+//
+// namespace TresPontosTech\Vouchers\Tests;
+//
+// class VouchersServiceProviderTest extends TestCase
+// {
+//    // TODO
+// }

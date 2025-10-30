@@ -3,7 +3,7 @@
 namespace TresPontosTech\Consultants\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Consultants\Models\Consultant;
 
 class ConsultantFactory extends Factory
@@ -23,8 +23,8 @@ class ConsultantFactory extends Factory
             'biography' => $this->faker->paragraph(),
             'readme' => $this->faker->paragraph(),
             'socials_urls' => [],
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
         ];
     }
 }

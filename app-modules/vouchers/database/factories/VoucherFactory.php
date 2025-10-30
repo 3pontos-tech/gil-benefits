@@ -4,7 +4,7 @@ namespace TresPontosTech\Vouchers\Database\Factories;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
@@ -20,8 +20,8 @@ class VoucherFactory extends Factory
             'code' => $this->faker->uuid(),
             'status' => $this->faker->randomElement(VoucherStatusEnum::cases()),
             'valid_until' => $this->faker->dateTimeBetween('-1 month', '+1 month'),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
 
             'company_id' => Company::factory(),
             'consultant_id' => Consultant::factory(),
@@ -69,7 +69,7 @@ class VoucherFactory extends Factory
     public function expired(): self
     {
         return $this->state(fn (array $attributes): array => [
-            'valid_until' => Carbon::now()->subDay(),
+            'valid_until' => Date::now()->subDay(),
             'status' => VoucherStatusEnum::Expired,
         ]);
     }

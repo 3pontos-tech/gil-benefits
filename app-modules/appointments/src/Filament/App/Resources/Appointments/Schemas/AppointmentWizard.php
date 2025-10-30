@@ -3,7 +3,6 @@
 namespace TresPontosTech\Appointments\Filament\App\Resources\Appointments\Schemas;
 
 use App\Filament\Shared\Fields\AppointmentCategorySelector;
-use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
@@ -16,6 +15,7 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Exceptions\Halt;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
 use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
@@ -106,7 +106,7 @@ class AppointmentWizard
             return [];
         }
 
-        $startDate = Carbon::parse($date);
+        $startDate = Date::parse($date);
 
         if ($startDate->diffInDays(now()) > 0) {
 
@@ -124,8 +124,8 @@ class AppointmentWizard
 
             return collect($response)
                 ->mapWithKeys(fn ($slot): array => [
-                    $slot => Carbon::parse($slot)->format('H:i'),
-                ])->toArray();
+                    $slot => Date::parse($slot)->format('H:i'),
+                ])->all();
 
         });
 

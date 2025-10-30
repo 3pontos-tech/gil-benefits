@@ -5,7 +5,7 @@ namespace Database\Factories\Users;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Company\Models\Company;
 
 class DetailFactory extends Factory
@@ -17,8 +17,8 @@ class DetailFactory extends Factory
         return [
             'document_id' => $this->faker->rg(),
             'tax_id' => $this->faker->cpf(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
 
             'user_id' => User::factory(),
             'company_id' => Company::factory(),

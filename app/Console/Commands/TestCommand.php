@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
@@ -62,9 +62,9 @@ class TestCommand extends Command
         ));
 
         // Filter if the next slot has the availability minimum of 1h
-        $firstSlot = collect($response[\Carbon\Carbon::now()->format('Y-m-d')])->first()[0];
+        $firstSlot = collect($response[Date::now()->format('Y-m-d')])->first()[0];
 
-        $appointmentTime = Carbon::parse($firstSlot);
+        $appointmentTime = Date::parse($firstSlot);
 
         $dto = CreateAppointmentDTO::make(
             'teste integração',
