@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\CreateCompany;
 use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\EditCompany;
 use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\ListCompanies;
+use TresPontosTech\Company\Filament\Admin\Resources\Companies\RelationManagers\EmployeesRelationManager;
 use TresPontosTech\Company\Filament\Admin\Resources\Companies\Schemas\CompanyForm;
 use TresPontosTech\Company\Filament\Admin\Resources\Companies\Tables\CompaniesTable;
 use TresPontosTech\Company\Models\Company;
@@ -48,6 +49,13 @@ class CompanyResource extends Resource
             'index' => ListCompanies::route('/'),
             'create' => CreateCompany::route('/create'),
             'edit' => EditCompany::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            EmployeesRelationManager::class,
         ];
     }
 }
