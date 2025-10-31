@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use App\Filament\FilamentPanel;
+use App\Models\Users\User;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Cashier\Cashier;
+use TresPontosTech\Company\Models\Company;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -12,6 +15,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+
+        Cashier::useCustomerModel(Company::class);
+
         Panel::macro('discoverResourcesForPanel', function (string $module, FilamentPanel $panel): void {
             $studlyPanel = str($panel->value)->studly();
 

@@ -15,8 +15,6 @@ final readonly class FetchOpportunityPipelines
             config('services.highlevel.location')
         );
 
-        Cache::forget($cacheKey);
-
         return Cache::flexible($cacheKey, [$baseTtl, $baseTtl * 2], function (): array {
             $payload = app(HighLevelClient::class)->getLocationPipelines();
 

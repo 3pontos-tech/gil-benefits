@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Cashier\Billable;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Tenant\Models\TenantMember;
@@ -20,6 +21,8 @@ use TresPontosTech\Vouchers\Models\VoucherRequest;
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model
 {
+    use Billable;
+
     use HasFactory;
     use SoftDeletes;
 
