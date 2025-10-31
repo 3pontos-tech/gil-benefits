@@ -2,6 +2,7 @@
 
 use Laravel\Cashier\Console\WebhookCommand;
 use Laravel\Cashier\Invoices\DompdfInvoiceRenderer;
+use TresPontosTech\Billing\Core\Price;
 
 return [
 
@@ -124,11 +125,29 @@ return [
 
     'logger' => env('CASHIER_LOGGER'),
 
-
     'plans' => [
         'company' => [
             'product_id' => 'prod_TL48odIM2WlZJP',
-            'price_id' => 'price_1SOO0eEfQ3poR4ZSTDnJmc95',
+            'prices' => [
+                new Price('basic', 'price_1SOO0eEfQ3poR4ZSTDnJmc95'),
+                new Price('start', 'price_1SOO0eEfQ3poR4ZSTDnJmc95'),
+                new Price('pro', 'price_1SOO0eEfQ3poR4ZSTDnJmc95'),
+                new Price('plus', 'price_1SOO0eEfQ3poR4ZSTDnJmc95'),
+                new Price('full', 'price_1SOO0eEfQ3poR4ZSTDnJmc95'),
+            ],
+            'trial_days' => 14, // Optional
+            'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
+            'allow_promotion_codes' => true, // Optional
+            'collect_tax_ids' => true, // Optional
+            'metered_price' => true, // Optional
+        ],
+        'user' => [
+            'product_id' => 'prod_TL48odIM2WlZJP',
+            'prices' => [
+                new Price('gold', 'price_1SOO0eEfQ3poR4ZSTDnJmc95'),
+                new Price('platinum', 'price_1SOO0eEfQ3poR4ZSTDnJmc95'),
+                new Price('black', 'price_1SOO0eEfQ3poR4ZSTDnJmc95'),
+            ],
             'trial_days' => 14, // Optional
             'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
             'allow_promotion_codes' => true, // Optional

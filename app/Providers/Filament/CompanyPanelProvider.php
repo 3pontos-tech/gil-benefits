@@ -17,7 +17,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Maartenpaauw\Filament\Cashier\Stripe\BillingProvider;
+use TresPontosTech\Billing\Core\Pages\SubscriptionPage;
+use TresPontosTech\Billing\Stripe\Subscription\Company\CompanyBillingProvider;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditCompany;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\RegisterCompany;
@@ -35,10 +36,12 @@ class CompanyPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Sky,
             ])
+            ->viteTheme('resources/css/filament/guest/theme.css')
             ->discoverResources(in: app_path('Filament/Company/Resources'), for: 'App\\Filament\\Company\\Resources')
             ->discoverPages(in: app_path('Filament/Company/Pages'), for: 'App\\Filament\\Company\\Pages')
             ->pages([
                 Dashboard::class,
+                SubscriptionPage::class,
             ])
             ->tenant(Company::class)
             ->tenantRegistration(RegisterCompany::class)
@@ -59,8 +62,9 @@ class CompanyPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->tenantBillingProvider(new BillingProvider('company'))
+            ->tenantBillingProvider(new CompanyBillingProvider)
             ->requiresTenantSubscription()
+
             ->authMiddleware([
                 Authenticate::class,
             ]);
