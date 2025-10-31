@@ -37,9 +37,9 @@
     "filament/spatie-laravel-tags-plugin": "^4.0",
     "flowframe/laravel-trend": "^0.4.0",
     "internachi/modular": "*",
+    "laravel/cashier": "*",
     "laravel/framework": "^12.0",
     "laravel/tinker": "^2.10.1",
-    "maartenpaauw/filament-cashier-billing-provider": "^3.0",
     "owenvoke/blade-fontawesome": "^2.9",
     "spatie/laravel-medialibrary": "^11.13",
     "spatie/laravel-permission": "^6.20"
