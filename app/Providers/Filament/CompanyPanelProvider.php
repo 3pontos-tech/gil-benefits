@@ -34,7 +34,9 @@ class CompanyPanelProvider extends PanelProvider
             ->path('company')
             ->login(LoginPage::class)
             ->colors([
-                'primary' => Color::Sky,
+                'primary' => Color::hex('#F1785A'),
+                ...Color::all(),
+                'gray' => Color::Zinc,
             ])
             ->viteTheme('resources/css/filament/guest/theme.css')
             ->discoverResources(in: app_path('Filament/Company/Resources'), for: 'App\\Filament\\Company\\Resources')
