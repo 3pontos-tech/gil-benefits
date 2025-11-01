@@ -7,6 +7,9 @@ use InvalidArgumentException;
 
 final readonly class Plan
 {
+    /**
+     * @param  Collection<int, Price>  $prices
+     */
     public function __construct(
         public string $type,
         public string $productId,
@@ -37,4 +40,5 @@ final readonly class Plan
             throw new InvalidArgumentException(message: 'Trial days must be greater than 0.');
         }
     }
+
 }

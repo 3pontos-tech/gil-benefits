@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Override;
 use TresPontosTech\Billing\Core\Plan;
 use TresPontosTech\Billing\Core\PlanRepository;
+use TresPontosTech\Billing\Core\Price;
 
 final readonly class ConfigPlanRepository implements PlanRepository
 {
@@ -34,10 +35,13 @@ final readonly class ConfigPlanRepository implements PlanRepository
 
     private function createPlanFromArray(array $plan, string $name): Plan
     {
+        $prices = collect(Arr::get($plan, key: 'prices', default: []))
+            ->map(fn (array $price) => Price::make($price));
+
         return new Plan(
             type: Arr::get($plan, key: 'type', default: $name),
             productId: Arr::get($plan, key: 'product_id', default: ''),
-            prices: collect(Arr::get($plan, key: 'prices', default: [])),
+            prices: $prices,
             trialDays: Arr::get($plan, key: 'trial_days', default: false),
             hasGenericTrial: Arr::get($plan, key: 'has_generic_trial', default: false),
             allowPromotionCodes: Arr::get($plan, key: 'allow_promotion_codes', default: false),
