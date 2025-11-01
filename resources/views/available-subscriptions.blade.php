@@ -1,124 +1,153 @@
+@php use Filament\Support\Icons\Heroicon; @endphp
+@props([
+    'plan'
+])
+
 @php
-    use Illuminate\Support\Str;
+    /** @var \TresPontosTech\Billing\Core\Plan $plan */
 
-    $plans = config('cashier.plans', []);
-
-    $getPriceLabel = function ($price, $fallbackIndex = null) {
-        // Try common property/method names safely
-        if (is_array($price)) {
-            return $price['name'] ?? $price['label'] ?? $price['id'] ?? ($fallbackIndex !== null ? 'Price #' . ($fallbackIndex + 1) : 'Price');
-        }
-        if (is_object($price)) {
-            // Public properties first
-            foreach (['name', 'label', 'nickname', 'title'] as $prop) {
-                if (property_exists($price, $prop) && ! empty($price->{$prop})) {
-                    return (string) $price->{$prop};
-                }
-            }
-            // Common getters
-            foreach (['getName', 'name', 'getLabel', 'label', 'getNickname', 'nickname', 'getTitle', 'title'] as $method) {
-                if (method_exists($price, $method)) {
-                    try { return (string) $price->{$method}(); } catch (Throwable) {}
-                }
-            }
-            // Fallback to ID-like
-            foreach (['id', 'priceId', 'stripe_price_id', 'getId', 'getPriceId'] as $idProp) {
-                if (property_exists($price, $idProp) && ! empty($price->{$idProp})) {
-                    return (string) $price->{$idProp};
-                }
-                if (method_exists($price, $idProp)) {
-                    try { return (string) $price->{$idProp}(); } catch (Throwable) {}
-                }
-            }
-        }
-        return $fallbackIndex !== null ? 'Price #' . ($fallbackIndex + 1) : 'Price';
-    };
-
-    $getPriceId = function ($price) {
-        if (is_array($price)) {
-            return $price['id'] ?? $price['price_id'] ?? null;
-        }
-        if (is_object($price)) {
-            foreach (['id', 'priceId', 'stripe_price_id'] as $prop) {
-                if (property_exists($price, $prop) && ! empty($price->{$prop})) {
-                    return (string) $price->{$prop};
-                }
-            }
-            foreach (['getId', 'getPriceId'] as $method) {
-                if (method_exists($price, $method)) {
-                    try { return (string) $price->{$method}(); } catch (Throwable) {}
-                }
-            }
-        }
-        return null;
-    };
+    $tiers = [
+        [
+            'label' => '5-15 colaboradores',
+            'pricing' => 44.90,
+            'min' => 5,
+            'max' => 15
+        ],
+        [
+            'label' => '16-30 colaboradores',
+            'pricing' => 34.90,
+            'min' => 16,
+            'max' => 30
+        ],
+        [
+            'label' => '31-70 colaboradores',
+            'pricing' => 24.90,
+            'min' => 31,
+            'max' => 70
+        ],
+        [
+            'label' => '71+ colaboradores',
+            'pricing' => 11.90,
+            'min' => 71,
+            'max' => 9999999999
+        ],
+    ];
 @endphp
 
-<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-    <div class="mb-8 text-center">
-        <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Choose your plan</h1>
-        <p class="mt-2 text-gray-600 dark:text-gray-400">Select the pricing option that fits you best. You can change anytime.</p>
-    </div>
 
-    @if (empty($plans))
-        <div class="rounded-lg border border-dashed p-8 text-center text-gray-500 dark:text-gray-400">
-            No plans are configured. Please define plans in config/cashier.php.
+<div
+    x-data="{
+        min: 5,
+        qty: 5,
+        tierPrice() {
+            if (this.qty <= 15) { return 44.90 }
+            if (this.qty <= 30) { return 34.90 }
+            if (this.qty <= 70) { return 24.90 }
+            return 11.90
+        },
+        formatBRL(v) { return 'R$ ' + Number(v).toFixed(2).replace('.', ',') },
+        clamp() { if (!this.qty || this.qty < this.min) this.qty = this.min },
+        inRange(min, max) { return this.qty >= min && (max === null ? true : this.qty <= max) },
+        subtotal() { return this.qty * this.tierPrice() },
+    }"
+    x-init="clamp()"
+    class=" py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl ">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-balance mb-2">Monte seu Plano</h1>
+            <p class="text-muted-foreground text-lg">
+                Nosso sistema é feito baseado na sua demanda.</br>
+                Escolha a quantidade de assentos e finalize o Checkout!</p>
         </div>
-    @else
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            @foreach ($plans as $planKey => $plan)
-                @php
-                    $productId = is_array($plan) ? ($plan['product_id'] ?? null) : (is_object($plan) && property_exists($plan, 'productId') ? $plan->productId : null);
-                    $trialDays = is_array($plan) ? ($plan['trial_days'] ?? null) : (is_object($plan) && property_exists($plan, 'trialDays') ? $plan->trialDays : null);
-                    $prices = is_array($plan) ? ($plan['prices'] ?? []) : (is_object($plan) && property_exists($plan, 'prices') ? $plan->prices : []);
-                    // If it's a Laravel collection
-                    if (is_object($prices) && method_exists($prices, 'all')) { $prices = $prices->all(); }
-                @endphp
+        <div class="grid lg:grid-cols-3 gap-8 ">
+            <div class="lg:col-span-2 space-y-6 space-x-10">
+                <x-filament::section
+                    heading="Detalhes do Produto"
+                    description="Selecione o número de colaboradores para sua avaliação financeira">
+                    <div class="grid sm:grid-cols-2 gap-3 mb-10">
+                        @foreach($tiers as $tier)
+                            <x-filament::section compact="true" x-bind:class="inRange({{$tier['min']}},{{$tier['max']}}) ? 'bg-primary-900/10 ring-primary-800/30' : ''">
+                                <x-filament::section.heading>
+                                    {{ $tier['label'] }}
+                                    <x-filament::badge x-show="inRange({{$tier['min']}},{{$tier['max']}})"
+                                                       badge-color="primary">Atual
+                                    </x-filament::badge>
+                                </x-filament::section.heading>
 
-                <div class="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                    <div class="border-b border-gray-200 p-6 dark:border-gray-800">
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ Str::headline((string) $planKey) }}</h2>
-                        @if ($trialDays)
-                            <p class="mt-1 text-sm text-green-700 dark:text-green-400">{{ $trialDays }}-day free trial</p>
-                        @endif
-                        @if ($productId)
-                            <p class="mt-1 text-xs text-gray-500">Product: {{ $productId }}</p>
-                        @endif
+                                <x-filament::section.description>
+                                    <span class="text-2xl font-bold">R$ 44.90</span>
+                                </x-filament::section.description>
+                            </x-filament::section>
+                        @endforeach
                     </div>
 
-                    <div class="flex flex-1 flex-col justify-between p-6">
-                        <div>
-                            <p class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">Available prices</p>
-                            <div class="space-y-2">
-                                @forelse ($prices as $idx => $price)
-                                    @php
-                                        $label = $getPriceLabel($price, $idx);
-                                        $priceId = $getPriceId($price);
-                                    @endphp
-                                    <label class="flex cursor-pointer items-center justify-between rounded-lg border px-4 py-3 text-sm hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
-                                        <div class="flex items-center gap-3">
-                                            <input type="radio" name="price[{{ $planKey }}]" value="{{ $priceId ?? $label }}" class="h-4 w-4 text-primary-600 focus:ring-primary-500" />
-                                            <span class="font-medium text-gray-900 dark:text-gray-100">{{ Str::headline($label) }}</span>
-                                        </div>
-                                        @if ($priceId)
-                                            <span class="text-xs text-gray-500">{{ $priceId }}</span>
-                                        @endif
-                                    </label>
-                                @empty
-                                    <div class="rounded-md bg-yellow-50 p-3 text-xs text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200">No prices configured for this plan.</div>
-                                @endforelse
+                    <x-filament::section :icon="Heroicon::Users" secondary="true" heading="Quantidade de Colaboradores">
+                        <x-filament::input.wrapper>
+                            <x-slot name="prefix">
+                                <x-filament::icon-button
+                                    color="gray"
+                                    icon="heroicon-m-minus"
+                                    size="lg"
+                                    x-bind:disabled="qty <= min"
+                                    x-on:click="qty = Math.max(min, qty - 1)"
+                                />
+                            </x-slot>
+
+                            <x-filament::input
+                                min="5"
+                                type="number"
+                                x-model.number="qty"
+                                wire:model="seatsAmount"
+                                x-on:blur="clamp()"
+                            />
+
+                            <x-slot name="suffix">
+                                <x-filament::icon-button
+                                    color="gray"
+                                    icon="heroicon-m-plus"
+                                    size="lg"
+                                    x-on:click="qty = qty + 1"
+                                />
+                            </x-slot>
+                        </x-filament::input.wrapper>
+                    </x-filament::section>
+                </x-filament::section>
+
+            </div>
+            <div class="lg:col-span-1 min-h-full ">
+                <div class="sticky top-8 min-h-full">
+                    <x-filament::section  heading="Resumo do Pedido" class="flex flex-col ">
+                        <x-filament::section.description>
+                            <div class="space-y-3 mb-10">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Produto</span>
+                                    <x-filament::badge>Flamma para Empresas</x-filament::badge>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Assentos</span>
+                                    <x-filament::badge color="gray"  x-text="qty" />
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Preço unitário</span>
+                                    <x-filament::badge color="green" x-text="formatBRL(tierPrice())" />
+                                </div>
+
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-muted-foreground">Subtotal</span>
+                                    <span class="font-medium" x-text="formatBRL(subtotal())"></span>
+                                </div>
+
                             </div>
-                        </div>
 
-                        <div class="mt-6">
-                            <button type="button" class="w-full rounded-lg bg-primary-600 px-4 py-2.5 text-center text-sm font-semibold text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-60" disabled>
-                                Continue
-                            </button>
-                            <p class="mt-2 text-xs text-gray-500">Frontend mockup only. Integrate with your checkout action to enable.</p>
-                        </div>
-                    </div>
+                            <x-filament::button
+                                x-bind:disabled="qty < min"
+                                wire:click="checkout()" icon="fab-stripe" color="primary" size="xl" class="w-full text-base">
+                                Finalizar Assinatura
+                            </x-filament::button>
+                        </x-filament::section.description>
+                    </x-filament::section>
                 </div>
-            @endforeach
+            </div>
         </div>
-    @endif
+    </div>
 </div>

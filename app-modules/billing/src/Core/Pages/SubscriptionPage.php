@@ -2,7 +2,16 @@
 
 namespace TresPontosTech\Billing\Core\Pages;
 
+use Filament\Facades\Filament;
+use Filament\Pages\Dashboard;
 use Filament\Pages\Page;
+use Filament\Support\Enums\Width;
+use Laravel\Cashier\SubscriptionBuilder;
+use Livewire\Attributes\Computed;
+use TresPontosTech\Billing\Core\Plan;
+use TresPontosTech\Billing\Core\PlanRepository;
+use TresPontosTech\Billing\Core\Price;
+use TresPontosTech\Company\Models\Company;
 
 class SubscriptionPage extends Page
 {
@@ -10,6 +19,68 @@ class SubscriptionPage extends Page
 
     protected static string $layout = 'filament-panels::components.layout.simple';
 
+    protected Width|string|null $maxContentWidth = Width::ScreenLarge;
 
     protected string $view = 'available-subscriptions';
+
+    public string $selectedPlan = 'company_1';
+    public int $seatsAmount = 5;
+
+    protected function getViewData(): array
+    {
+        return [
+            'plan' => $this->planRepository($this->selectedPlan),
+        ];
+    }
+
+    #[Computed]
+    public function planRepository(string $type): Plan
+    {
+        return app(PlanRepository::class)->get($type);
+    }
+
+    public function checkout()
+    {
+
+
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+
+        $plan = $this->planRepository($this->selectedPlan);
+        /** @var Price $prices */
+        $price = $plan->prices->first();
+
+        $seats = $this->seatsAmount;
+
+        if($seats < 5) {
+            $seats = 5;
+        }
+
+        $sessionCheckout = $tenant
+            ->newSubscription(type: $plan->type)
+            ->when(
+                value: $plan->isMeteredPrice,
+                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription
+                    ->meteredPrice($price->priceId)
+                    ->quantity($seats),
+            )
+            ->when(
+                value: $plan->hasGenericTrial === false && $plan->trialDays !== false,
+                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->trialDays(trialDays: $plan->trialDays),
+            )
+            ->when(
+                value: $plan->allowPromotionCodes === true,
+                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->allowPromotionCodes(),
+            )
+            ->when(
+                value: $plan->collectTaxIds === true,
+                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
+            )
+            ->checkout(sessionOptions: [
+                'success_url' => Dashboard::getUrl(),
+                'cancel_url' => Dashboard::getUrl(),
+            ]);
+
+        redirect($sessionCheckout->asStripeCheckoutSession()->url);
+    }
 }
