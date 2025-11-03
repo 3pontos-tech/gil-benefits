@@ -26,9 +26,10 @@
 
 @theme inline {
     --breakpoint-md: 821px;
-    --font-sans: "Syne", sans-serif;
+    --font-sans: "Space Grotesk", sans-serif;
     --font-smooth: never;
     --color-brand-primary: var(--brand-primary);
+    --color-brand-secondary: var(--brand-secondary);
     --color-brand-accent: var(--brand-accent);
     --color-red-primary: var(--red-primary);
     --color-red-900: var(--red-900);
@@ -374,7 +375,8 @@
 
 @layer base {
     :root {
-        --brand-primary: #E2410A;
+        --brand-primary: #FD0342;
+        --brand-secondary: #FF803C;
         --brand-accent: #09090a;
         --red-primary: #ff3838;
         --red-900: #870000;

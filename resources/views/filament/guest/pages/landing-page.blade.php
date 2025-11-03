@@ -1,3 +1,3 @@
-<x-filament-panels::page>
-    {{-- Page content --}}
+<x-filament-panels::page full-height="true">
+
 </x-filament-panels::page>

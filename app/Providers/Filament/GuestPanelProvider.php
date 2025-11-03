@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Guest\Pages\LandingPage;
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -28,6 +29,7 @@ class GuestPanelProvider extends PanelProvider
         return $panel
             ->id('guest')
             ->path('')
+            ->defaultThemeMode(ThemeMode::Light)
             ->colors([
                 'primary' => Color::hex('FD0342'),
             ])
