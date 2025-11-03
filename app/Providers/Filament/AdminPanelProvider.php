@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Admin\Widgets\VoucherStatus;
 use App\Filament\Shared\Pages\LoginPage;
+use Basement\BetterMails\Filament\FilamentBetterEmailPlugin;
 use Basement\Webhooks\FilamentWebhookPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -43,6 +44,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 FilamentWebhookPlugin::make(),
+                FilamentBetterEmailPlugin::make(),
             ])
             ->sidebarCollapsibleOnDesktop()
             ->middleware([

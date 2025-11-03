@@ -124,7 +124,6 @@ return [
 
     'logger' => env('CASHIER_LOGGER'),
 
-
     'plans' => [
         'company' => [
             'product_id' => 'prod_TL48odIM2WlZJP',

@@ -3,7 +3,6 @@
 namespace App\Filament\Guest\Pages;
 
 use Filament\Pages\Dashboard;
-use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 
 class LandingPage extends Dashboard
@@ -14,6 +13,5 @@ class LandingPage extends Dashboard
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected Width | string | null $maxContentWidth = Width::ScreenExtraLarge;
-
+    protected Width|string|null $maxContentWidth = Width::ScreenExtraLarge;
 }

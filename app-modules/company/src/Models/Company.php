@@ -22,7 +22,6 @@ use TresPontosTech\Vouchers\Models\VoucherRequest;
 class Company extends Model
 {
     use Billable;
-
     use HasFactory;
     use SoftDeletes;
 
