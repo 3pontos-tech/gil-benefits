@@ -17,7 +17,9 @@
             {{ $description }}
         </x-slot:description>
         <x-slot:actions>
-            button
+            <x-button>
+                Saiba mais
+            </x-button>
         </x-slot:actions>
     </x-headline>
     <div class="order-3 lg:order-2">
