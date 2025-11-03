@@ -4,16 +4,19 @@
     'size' => 'lg',      // sm|md|lg|xl|2xl|3xl|4xl
     'animate' => true,
     'keywords' => [],
-    'keywordColor' => 'primary'
+    'keywordColor' => 'primary',
+    'contentLayout' => null
 ])
 
 @php
     $tag = $as;
 
     $alignCls = match($align) {
-        'left' => 'sm:text-left text-center items-center sm:items-start flex flex-col',
-        default => 'text-center flex flex-col items-center',
+        'left' => 'sm:text-left text-center items-center sm:items-start',
+        default => 'text-center items-center',
     };
+
+    $baseLayoutCls = $contentLayout ? '' : 'flex flex-col';
 
     $actionsAlignCls = match($align) {
         'left' => 'sm:justify-start justify-center',
@@ -38,7 +41,11 @@
 @endphp
 
 <div {{ $attributes->class(($align === 'center' ? 'mx-auto' : '') . ' max-w-2xl md:max-w-3xl lg:max-w-7xl') }}>
-    <{{ $tag }} class="{{ $animateCls }} {{ $alignCls }}">
+    <{{ $tag }} @class([
+        $animateCls,
+        $alignCls,
+        'flex flex-col'
+    ])>
 
     @isset($badge)
         <div {{ $badge->attributes->class('mb-4') }}>
@@ -46,30 +53,44 @@
         </div>
     @endisset
 
-    @isset($title)
-        @php
-            $words = str($title)->explode(' ');
-        @endphp
+    <div @class([
+        'w-full',
+        'mb-4 sm:mb-6' => isset($actions) && (isset($title) || isset($description)),
+        $contentLayout ?? $baseLayoutCls,
+    ])>
 
-        <h1 {{ $title->attributes->class('font-bold drop-shadow-lg leading-tight mb-4 sm:mb-6 ' . $sizes['h']) }}>
-            @foreach($words as $word)
-                @if(in_array(trim($word), $keywords))
-                    <span class="{{ $highlightClass }}">{{ $word }}</span>
-                @else
-                    {{ $word }}
-                @endif
-                @if(!$loop->last)
-                    {{ ' ' }}
-                @endif
-            @endforeach
-        </h1>
-    @endisset
+        @isset($title)
+            @php
+                $words = str($title)->explode(' ');
+            @endphp
 
-    @isset($description)
-        <p {{ $description->attributes->class('text-medium font-medium delay-200 max-w-full mb-4 sm:mb-6 ' . $sizes['p']) }}>
-            {{ $description }}
-        </p>
-    @endisset
+            <h1 {{ $title->attributes->class([
+                'font-bold drop-shadow-lg leading-tight',
+                $sizes['h'],
+                'mb-4 sm:mb-6' => !$contentLayout && isset($description),
+            ]) }}>
+                @foreach($words as $word)
+                    @if(in_array(trim($word), $keywords))
+                        <span class="{{ $highlightClass }}">{{ $word }}</span>
+                    @else
+                        {{ $word }}
+                    @endif
+                    @if(!$loop->last)
+                        {{ ' ' }}
+                    @endif
+                @endforeach
+            </h1>
+        @endisset
+
+        @isset($description)
+            <p {{ $description->attributes->class([
+                'text-medium font-medium delay-200 max-w-full',
+                $sizes['p']
+            ]) }}>
+                {{ $description }}
+            </p>
+        @endisset
+    </div>
 
     @isset($actions)
         <div {{ $actions->attributes->class('flex w-full flex-col sm:flex-row gap-6 sm:gap-x-4 items-center ' . $actionsAlignCls) }}>
