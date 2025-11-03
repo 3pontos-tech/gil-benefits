@@ -29,7 +29,7 @@
     $sizes = [
         'sm' => ['h' => 'text-lg sm:text-xl md:text-2xl lg:text-3xl', 'p' => 'text-sm sm:text-base'],
         'md' => ['h' => 'text-xl sm:text-2xl md:text-3xl lg:text-4xl', 'p' => 'text-sm sm:text-base md:text-lg'],
-        'lg' => ['h' => 'text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl', 'p' => 'text-sm md:text-md lg:text-base'],
+        'lg' => ['h' => 'text-2xl sm:text-4xl md:text-3xl lg:text-4xl xl:text-5xl', 'p' => 'text-sm md:text-md lg:text-base'],
         'xl' => ['h' => 'text-2xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl', 'p' => 'text-sm sm:text-md md:text-base lg:text-lg'],
         '2xl' => ['h' => 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl', 'p' => 'text-base md:text-lg lg:text-xl xl:text-2xl'],
         '3xl' => ['h' => 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl', 'p' => 'text-base md:text-lg lg:text-xl xl:text-2xl'],
