@@ -33,7 +33,6 @@ class GuestPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('FD0342'),
             ])
-            ->font('Space Grotesk')
             ->renderHook(PanelsRenderHook::TOPBAR_END, fn() => Blade::render(<<<'BLADE'
                @guest
                     <x-filament::button outlined tag='a' href='/app/login'>Acessar Plataforma</x-filament::button>

@@ -9,12 +9,21 @@
 @endphp
 
 <section class="w-full mx-auto mb-28 sm:mb-44 grid grid-cols-1 lg:grid-cols-[2fr_1fr] h-fit">
-    <x-headline align="left" :keywords="$keywords">
+    <x-headline class="lg:order-1" align="left" :keywords="$keywords">
         <x-slot:title>
             {{ $title }}
         </x-slot:title>
         <x-slot:description>
             {{ $description }}
         </x-slot:description>
+        <x-slot:actions>
+            button
+        </x-slot:actions>
     </x-headline>
+    <div class="order-3 lg:order-2">
+        card
+    </div>
+    <div class="lg:col-span-2 lg:order-3">
+        image
+    </div>
 </section>
