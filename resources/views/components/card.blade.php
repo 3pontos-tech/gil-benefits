@@ -26,9 +26,9 @@
                 'descriptionHover' => '',
             ],
             'light' => [
-                'base' => 'bg-elevation-01dp border-outline-light dark:border-outline-dark',
-                'title' => 'text-text-high',
-                'description' => 'text-text-medium',
+                'base' => 'bg-elevation-01dp border border-outline-light dark:border-outline-dark',
+                'title' => 'bg-gradient-to-br from-brand-primary to-brand-secondary w-fit bg-clip-text text-transparent',
+                'description' => 'text-medium font-medium',
                 'hover' => 'hover:border-brand-primary hover:bg-brand-primary',
                 'titleHover' => 'group-hover/card:text-light',
                 'descriptionHover' => 'group-hover/card:text-light',
@@ -59,7 +59,7 @@
     $disabledClasses = $disabled ? 'pointer-events-none cursor-not-allowed opacity-60' : '';
 
     $classes = trim(implode(' ', [
-        'rounded-xl transition flex flex-col gap-y-3',
+        'rounded-xl transition flex flex-col gap-y-8',
         $paddingClass,
         $groupClass,
         $baseClasses,

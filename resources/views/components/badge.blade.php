@@ -1,10 +1,16 @@
 @props([
     'icon' => null,
     'size' => 'sm',
+    'color' => 'neutral'
 ])
 
 @php
     $baseContentClasses = 'text-light';
+
+    $colorClasses = match($color) {
+        'primary' => 'bg-gradient-to-br from-brand-primary to-brand-secondary',
+        'neutral' => 'bg-elevation-surface/16 border border-elevation-surface/16'
+    };
 
     $sizeClasses = match($size) {
         'md' => [
@@ -26,7 +32,7 @@
 @endphp
 
 <div {{ $attributes->merge([
-    'class' => 'flex items-center justify-center bg-elevation-surface/16 border border-elevation-surface/16 rounded-sm w-fit ' . $sizeClasses['padding']
+    'class' => 'flex items-center justify-center rounded-sm w-fit ' . $sizeClasses['padding'] . ' ' . $colorClasses
 ]) }}>
 
     @if ($icon)
