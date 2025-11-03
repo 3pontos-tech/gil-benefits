@@ -1,4 +1,5 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import "./fonts.css";
 
 @source '../../../../app/Filament/Guest/**/*';
 @source '../../../../resources/views/**/*';
@@ -26,7 +27,7 @@
 
 @theme inline {
     --breakpoint-md: 821px;
-    --font-sans: "Space Grotesk", sans-serif;
+    --font-space-grotesk: "Space Grotesk", sans-serif;
     --font-smooth: never;
     --color-brand-primary: var(--brand-primary);
     --color-brand-secondary: var(--brand-secondary);
@@ -174,11 +175,11 @@
     --color-gray-200: var(--gray-200);
     --color-gray-100: var(--gray-100);
     --color-gray-50: var(--gray-50);
-    --color-text-high: var(--text-high);
-    --color-text-medium: var(--text-medium);
-    --color-text-low: var(--text-low);
-    --color-text-light: var(--text-light);
-    --color-text-dark: var(--text-dark);
+    --color-high: var(--high);
+    --color-medium: var(--medium);
+    --color-low: var(--low);
+    --color-light: var(--light);
+    --color-dark: var(--dark);
     --color-icon-high: var(--icon-high);
     --color-icon-medium: var(--icon-medium);
     --color-icon-low: var(--icon-low);
@@ -233,7 +234,7 @@
         overflow-x: auto;
         padding: 1em;
         background: var(--color-elevation-02dp) !important;
-        color: var(--color-text-high);
+        color: var(--color-high);
         border-radius: 0.5rem;
         font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
@@ -248,20 +249,20 @@
 
     /* Comment */
     .hljs-comment {
-        color: var(--color-text-medium);
+        color: var(--color-medium);
         opacity: 0.6;
     }
 
     /* Tags & punctuation */
     .hljs-punctuation,
     .hljs-tag {
-        color: var(--color-text-high);
+        color: var(--color-high);
         opacity: 0.7;
     }
 
     .hljs-tag .hljs-name,
     .hljs-tag .hljs-attr {
-        color: var(--color-text-high);
+        color: var(--color-high);
     }
 
     /* Keywords, meta, selectors */
@@ -339,7 +340,7 @@
 
 
     .dark .hljs-comment {
-        color: var(--color-text-medium);
+        color: var(--color-medium);
         opacity: 0.6;
     }
     .dark .hljs-title  {
@@ -351,7 +352,7 @@
     }
 
     .dark .hljs-variable {
-        color: var(--color-text-medium) !important;
+        color: var(--color-medium) !important;
     }
 
     .dark .hljs-string,
@@ -521,11 +522,11 @@
         --gray-200: #c6c6c7;
         --gray-100: #dddddd;
         --gray-50: #f3f3f4;
-        --text-high: #09090a;
-        --text-medium: #4f4f4f;
-        --text-low: #707070;
-        --text-light: #fdfdfd;
-        --text-dark: #09090a;
+        --high: #09090a;
+        --medium: #4f4f4f;
+        --low: #707070;
+        --light: #fdfdfd;
+        --dark: #09090a;
         --icon-high: #09090a;
         --icon-medium: #868687;
         --icon-low: #b9b9be;
@@ -552,11 +553,11 @@
         --brand-primary: #E2410A;
         --brand-accent: #FFFFFF;
         --brand-50: #FFD9A0;
-        --text-high: #fdfdfd;
-        --text-medium: #9c9c9c;
-        --text-low: #7a7a7b;
-        --text-light: #fdfdfd;
-        --text-dark: #09090a;
+        --high: #fdfdfd;
+        --medium: #9c9c9c;
+        --low: #7a7a7b;
+        --light: #fdfdfd;
+        --dark: #09090a;
         --icon-high: #fdfdfd;
         --icon-medium: #9c9c9c;
         --icon-low: #7a7a7b;
