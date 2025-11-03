@@ -27,6 +27,7 @@ class RedirectCompanyIfNotSubscribed
         }
 
         $route = 'filament.company.pages.available-subscriptions';
+
         if (request()->routeIs($route)) {
             return $next($request);
         }

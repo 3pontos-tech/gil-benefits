@@ -75,7 +75,7 @@
                                 </x-filament::section.heading>
 
                                 <x-filament::section.description>
-                                    <span class="text-2xl font-bold">R$ 44.90</span>
+                                    <span class="text-2xl font-bold">R$ {{ number_format($tier['pricing'], 2, ',') }}</span>
                                 </x-filament::section.description>
                             </x-filament::section>
                         @endforeach

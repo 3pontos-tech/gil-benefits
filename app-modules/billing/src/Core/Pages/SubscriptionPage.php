@@ -23,7 +23,8 @@ class SubscriptionPage extends Page
 
     protected string $view = 'available-subscriptions';
 
-    public string $selectedPlan = 'company_1';
+    public string $selectedPlan = 'company';
+
     public int $seatsAmount = 5;
 
     protected function getViewData(): array
@@ -42,7 +43,6 @@ class SubscriptionPage extends Page
     public function checkout()
     {
 
-
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
@@ -52,7 +52,7 @@ class SubscriptionPage extends Page
 
         $seats = $this->seatsAmount;
 
-        if($seats < 5) {
+        if ($seats < 5) {
             $seats = 5;
         }
 
@@ -79,6 +79,9 @@ class SubscriptionPage extends Page
             ->checkout(sessionOptions: [
                 'success_url' => Dashboard::getUrl(),
                 'cancel_url' => Dashboard::getUrl(),
+                'customer_update' => [
+                    'address' => 'auto',
+                ],
             ]);
 
         redirect($sessionCheckout->asStripeCheckoutSession()->url);
