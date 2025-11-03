@@ -26,7 +26,7 @@
     $animateCls = $animate ? 'animate-fade-in' : '';
 
     $highlightClass = match ($keywordColor) {
-        'primary' => 'text-brand-primary'
+        'primary' => 'bg-gradient-to-br from-brand-primary to-brand-secondary w-fit bg-clip-text text-transparent'
     };
 
     $sizes = [

@@ -9,7 +9,7 @@
 
     $colorClasses = match($color) {
         'primary' => 'bg-gradient-to-br from-brand-primary to-brand-secondary',
-        'neutral' => 'bg-elevation-surface/16 border border-elevation-surface/16'
+        'neutral' => 'bg-elevation-surface/16 border border-icon-light/32'
     };
 
     $sizeClasses = match($size) {

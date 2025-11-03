@@ -56,10 +56,10 @@
             ],
             'white' => [
                 'bg' => 'bg-elevation-surface',
-                'text' => 'text-blue-primary',
+                'text' => 'text-brand-primary',
                 'border' => 'none',
-                'hoverBg' => 'hover:bg-elevation-01dp',
-                'hoverText' => 'hover:text-blue-800',
+                'hoverBg' => '',
+                'hoverText' => '',
             ]
         ],
     ][$color] ?? $colors['brand'];
@@ -68,8 +68,8 @@
 
     $variantCls = match ($variant) {
         'solid' => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']} {$variantColors['hoverBg']} hover:scale-[1.02] transition-all duration-300",
-        'outline' => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']} {$variantColors['hoverBg']} {$variantColors['hoverText']} border",
-        'white' => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']} {$variantColors['hoverBg']} {$variantColors['hoverText']}",
+        'outline' => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']} {$variantColors['hoverBg']} {$variantColors['hoverText']} border hover:scale-[1.02] transition-all duration-300",
+        'white' => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']} {$variantColors['hoverBg']} {$variantColors['hoverText']} hover:scale-[1.02] transition-all duration-300",
         default => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']}",
     };
 

@@ -26,13 +26,21 @@
                 'descriptionHover' => '',
             ],
             'light' => [
-                'base' => 'bg-elevation-01dp border border-outline-light dark:border-outline-dark',
+                'base' => 'bg-elevation-01dp border border-outline-light',
                 'title' => 'bg-gradient-to-br from-brand-primary to-brand-secondary w-fit bg-clip-text text-transparent',
                 'description' => 'text-medium font-medium',
                 'hover' => 'hover:border-brand-primary hover:bg-brand-primary',
                 'titleHover' => 'group-hover/card:text-light',
                 'descriptionHover' => 'group-hover/card:text-light',
             ],
+            'transparent' => [
+                'base' => 'bg-elevation-surface/12 border border-outline-light/16',
+                'title' => 'text-light',
+                'description' => 'text-light font-medium',
+                'hover' => '',
+                'titleHover' => '',
+                'descriptionHover' => '',
+            ]
         ],
     ];
 
@@ -59,7 +67,7 @@
     $disabledClasses = $disabled ? 'pointer-events-none cursor-not-allowed opacity-60' : '';
 
     $classes = trim(implode(' ', [
-        'rounded-xl transition flex flex-col gap-y-8',
+        'rounded-lg transition flex flex-col gap-y-8',
         $paddingClass,
         $groupClass,
         $baseClasses,
