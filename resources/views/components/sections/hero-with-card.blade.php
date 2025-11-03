@@ -28,7 +28,7 @@
         <div class="flex flex-col h-full overflow-hidden order-3 lg:order-2">
             <x-card class="h-full flex flex-col justify-between p-8 gap-y-8">
                 <x-slot:icon>
-                    <x-badge icon="heroicon-o-check-circle" />
+                    <x-badge size="md" icon="heroicon-o-check-circle" />
                 </x-slot:icon>
                 <x-slot:title>
                     {{ $cardTitle }}
