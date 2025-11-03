@@ -27,7 +27,7 @@ return [
         ],
 
         'headers' => [
-            'key' => 'X-Better-Mails-Event-ID'
+            'key' => 'X-Better-Mails-Event-ID',
         ],
 
         'logging' => [
@@ -36,7 +36,7 @@ return [
                 'disk' => env('FILESYSTEM_DISK', 'local'),
                 'root' => 'mails/attachments',
             ],
-        ]
+        ],
     ],
     'webhooks' => [
         'provider' => env('MAILS_WEBHOOK_PROVIDER', 'resend'),
@@ -46,6 +46,6 @@ return [
                 'driver' => ResendDriver::class,
                 'key_secret' => env('RESEND_WEBHOOK_SECRET'),
             ],
-        ]
-    ]
+        ],
+    ],
 ];

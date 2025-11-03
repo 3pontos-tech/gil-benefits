@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create(config('filament-better-mails.mails.database.tables.mails','mails'), function (Blueprint $table): void {
+        Schema::create(config('filament-better-mails.mails.database.tables.mails', 'mails'), function (Blueprint $table): void {
             $table->id();
             $table->string('uuid')->nullable()->index();
             $table->string('mail_class')->nullable()->index();
@@ -44,7 +44,7 @@ return new class extends Migration
 
         Schema::create(config('filament-better-mails.mails.database.tables.events', 'mail_events'), function (Blueprint $table): void {
             $table->id();
-            $table->foreignIdFor(config('filament-better-mails.mails.models.mail'),'mail_id')
+            $table->foreignIdFor(config('filament-better-mails.mails.models.mail'), 'mail_id')
                 ->constrained()
                 ->cascadeOnDelete();
             $table->string('type');
@@ -72,19 +72,18 @@ return new class extends Migration
             $table->morphs('mailable');
         });
 
-
-        Schema::create(config('filament-better-mails.mails.database.tables.attachments', 'mail_attachments'), function (Blueprint $table) {
-                    $table->id();
-                    $table->foreignIdFor(config('filament-better-mails.mails.models.mail'),'mail_id')
-                        ->constrained()
-                        ->cascadeOnDelete();
-                    $table->string('disk');
-                    $table->string('uuid');
-                    $table->string('filename');
-                    $table->string('mime');
-                    $table->boolean('inline', false);
-                    $table->bigInteger('size');
-                    $table->timestamps();
-                });
+        Schema::create(config('filament-better-mails.mails.database.tables.attachments', 'mail_attachments'), function (Blueprint $table): void {
+            $table->id();
+            $table->foreignIdFor(config('filament-better-mails.mails.models.mail'), 'mail_id')
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->string('disk');
+            $table->string('uuid');
+            $table->string('filename');
+            $table->string('mime');
+            $table->boolean('inline');
+            $table->bigInteger('size');
+            $table->timestamps();
+        });
     }
 };
