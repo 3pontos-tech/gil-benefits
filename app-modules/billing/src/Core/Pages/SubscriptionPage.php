@@ -65,7 +65,7 @@ class SubscriptionPage extends Page
                     ->quantity($seats),
             )
             ->when(
-                value: $plan->hasGenericTrial === false && $plan->trialDays !== false,
+                value: $plan->hasGenericTrial && $plan->trialDays !== false,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->trialDays(trialDays: $plan->trialDays),
             )
             ->when(
