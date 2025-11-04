@@ -10,9 +10,9 @@
     $cardTitle = 'Consultoria Financeira que se Torna o Benefício Mais Valioso para Seus Funcionários';
 @endphp
 
-<section class="flex flex-col mx-auto mb-28 sm:mb-44">
+<section class="flex flex-col w-full mx-auto mb-28 sm:mb-44">
     <div class="grid grid-cols-1 lg:grid-cols-[3fr_1fr] h-full gap-12 lg:gap-16">
-        <x-headline class="lg:order-1" align="left" :keywords="$keywords">
+        <x-headline class="lg:order-1 max-w-full!" align="left" :keywords="$keywords">
             <x-slot:title>
                 {{ $title }}
             </x-slot:title>
