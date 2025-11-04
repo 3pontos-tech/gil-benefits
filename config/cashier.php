@@ -126,13 +126,9 @@ return [
 
     'plans' => [
         'company' => [
-            'product_id' => 'prod_TMAjO7CZCwu4qG',
+            'product_id' => env('FLAMMA_STRIPE_ENTERPRISE_PRODUCT_ID'),
             'prices' => [
-                ['type' => 'basic', 'price_id' => 'price_1SPSNrJLq1iwS6pTBA9FMoXd', 'metadata' => []],
-                ['type' => 'start', 'price_id' => 'price_1SPSNrJLq1iwS6pTBA9FMoXd', 'metadata' => []],
-                ['type' => 'pro', 'price_id' => 'price_1SPSNrJLq1iwS6pTBA9FMoXd', 'metadata' => []],
-                ['type' => 'plus', 'price_id' => 'price_1SPSNrJLq1iwS6pTBA9FMoXd', 'metadata' => []],
-                ['type' => 'full', 'price_id' => 'price_1SPSNrJLq1iwS6pTBA9FMoXd', 'metadata' => []],
+                ['type' => 'enterprise', 'price_id' => env('FLAMMA_STRIPE_ENTERPRISE_PRICE_ID'), 'metadata' => []],
             ],
             'trial_days' => 0, // Optional
             'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
