@@ -1,5 +1,7 @@
 @props([
-    'reversed' => false
+    'reversed' => false,
+    'textColor' => 'light',
+    'buttonVariant' => 'white'
 ])
 
 @php
@@ -9,6 +11,8 @@
         que vai além do básico, promovendo uma verdadeira evolução na relação das pessoas com o dinheiro. Nosso
         propósito é disseminar conhecimento e ferramentas para que seus funcionários alcancem a tão desejada liberdade
         financeira, refletindo diretamente no sucesso da sua organização.';
+
+    $textLight = $textColor === 'light' ? 'text-light' : '';
 @endphp
 
 <div {{ $attributes->class([
@@ -26,15 +30,15 @@
         />
     </div>
 
-    <x-headline class="text-light max-w-full!" align="left">
+    <x-headline class="{{ $textLight }} max-w-full!" align="left">
         <x-slot:title>
             {{ $title }}
         </x-slot:title>
-        <x-slot:description class="text-light!">
+        <x-slot:description class="{{ $textLight }}!">
             {{ $description }}
         </x-slot:description>
         <x-slot:actions>
-            <x-button variant="white">
+            <x-button :variant="$buttonVariant">
                 Saiba mais
             </x-button>
         </x-slot:actions>

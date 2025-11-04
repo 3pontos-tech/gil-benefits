@@ -4,4 +4,5 @@
     <x-sections.split-header-with-grid />
     <x-sections.horizontal-header-with-grid />
     <x-sections.horizontal-header-with-grid-surface-bg />
+    <x-sections.text-image-left />
 </x-filament-panels::page>
