@@ -65,7 +65,7 @@
             @endphp
 
             <h1 {{ $title->attributes->class([
-                'font-bold drop-shadow-lg leading-tight',
+                'font-bold drop-shadow-lg leading-none',
                 $sizes['h'],
                 'mb-4 sm:mb-6' => !$contentLayout && isset($description),
             ]) }}>
