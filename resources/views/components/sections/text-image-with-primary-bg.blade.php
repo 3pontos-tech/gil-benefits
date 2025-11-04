@@ -1,0 +1,3 @@
+<section class="flex flex-col mx-auto mb-28 sm:mb-44 items-center justify-center bg-gradient-to-br from-brand-primary to-brand-secondary rounded-xl p-8 lg:p-16">
+    <x-partials.split-image-with-headline />
+</section>
