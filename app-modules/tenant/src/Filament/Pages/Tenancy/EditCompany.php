@@ -3,21 +3,22 @@
 namespace TresPontosTech\Tenant\Filament\Pages\Tenancy;
 
 use App\Models\Users\User;
-use Filament\Actions\CreateAction;
+use Filament\Actions\Action;
 use Filament\Actions\DetachAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\EditTenantProfile;
 use Filament\Schemas\Components\EmbeddedTable;
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Enums\CompanyRoleEnum;
+use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Tenant\Filament\Actions\CreateAndAttachAction;
+use TresPontosTech\Tenant\Filament\Actions\TenantSeatsCounterAction;
 
 class EditCompany extends EditTenantProfile implements HasTable
 {
@@ -47,36 +48,40 @@ class EditCompany extends EditTenantProfile implements HasTable
     {
         return $table
             ->query(filament()->getTenant()->employees()->getQuery())
+            ->heading('Lista de Membros ativos')
             ->headerActions([
-                CreateAction::make('Invite Member')
-                    ->model(User::class)
-                    ->after(function ($record): void {
-                        filament()->getTenant()->employees()->attach($record, ['role' => 'employee']);
-                    })
-                    ->schema([
-                        TextInput::make('name'),
-                        TextInput::make('email'),
-                        TextInput::make('password')
-                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                            ->password(),
-                        Grid::make(1)
-                            ->relationship('detail')
-                            ->schema([
-                                TextInput::make('tax_id'),
-                                TextInput::make('document_id'),
-                                TextInput::make('phone_number'),
-                            ]),
-                    ]),
+                TenantSeatsCounterAction::make(),
+                CreateAndAttachAction::make('Invite Member')
+                    ->model(User::class),
             ])
             ->recordActions([
-                DetachAction::make()
-                    ->action(fn ($record) => filament()->getTenant()->employees()->detach($record)),
+                Action::make('toggle-active')
+                    ->label(fn ($record) => $record->active ? 'Desativar' : 'Ativar')
+                    ->action(function (User $record) {
+                        /** @var Company $company */
+                        $company = filament()->getTenant();
 
+                        $company->employees()->updateExistingPivot($record, [
+                            'active' => ! $record->active,
+                            'role' => $record->role,
+                        ]);
+                    }),
+                DetachAction::make()
+
+                    ->action(fn ($record) => filament()->getTenant()->employees()->detach($record)),
             ])
             ->columns([
-                TextColumn::make('name'),
+                TextColumn::make('active')
+                    ->badge()
+                    ->label('Status')
+                    ->formatStateUsing(fn ($state) => $state ? 'Ativo' : 'Inativo')
+                    ->color(fn ($state) => $state ? 'success' : 'danger')
+                    ->searchable(),
+                TextColumn::make('name')
+                    ->searchable(),
                 TextColumn::make('role')
                     ->color(fn ($state) => CompanyRoleEnum::from($state)->getColor())
+                    ->formatStateUsing(fn ($state) => CompanyRoleEnum::from($state)->getLabel())
                     ->badge(),
                 TextColumn::make('vouchers_used_count')
                     ->state(fn ($record) => $record->appointments()->count()),
