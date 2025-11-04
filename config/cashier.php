@@ -133,7 +133,7 @@ return [
             'trial_days' => 0, // Optional
             'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
             'allow_promotion_codes' => true, // Optional
-            'collect_tax_ids' => true, // Optional
+            'collect_tax_ids' => false, // Optional
             'metered_price' => true, // Optional
         ],
         'user' => [
