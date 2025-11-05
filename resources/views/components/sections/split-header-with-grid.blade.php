@@ -24,7 +24,16 @@
 @endphp
 
 <section class="flex flex-col mx-auto mb-28 sm:mb-44 gap-12 bg-gradient-to-r from-brand-primary to-brand-secondary p-8 lg:p-16 rounded-xl">
-    <x-partials.split-image-with-headline class="lg:grid-cols-[1.5fr_2fr]!" />
+    <x-partials.split-image-with-headline
+        class="lg:grid-cols-[1.5fr_2fr]!"
+        icon="flamma-icon"
+        title="O Desafio do RH: Como o Estresse Financeiro Afeta Sua Empresa"
+        description="A Flamma surge como um benefício corporativo inovador, desenhado para empoderar seus colaboradores
+        com educação financeira de alta qualidade. Somos pioneiros em oferecer uma consultoria financeira personalizada,
+        que vai além do básico, promovendo uma verdadeira evolução na relação das pessoas com o dinheiro. Nosso
+        propósito é disseminar conhecimento e ferramentas para que seus funcionários alcancem a tão desejada liberdade
+        financeira, refletindo diretamente no sucesso da sua organização."
+    />
 
     <x-partials.card-grid class="sm:grid-cols-1! lg:grid-cols-4! lg:col-span-2">
         @foreach ($cards as $card)

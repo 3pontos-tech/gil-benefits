@@ -1,17 +1,14 @@
 @props([
     'reversed' => false,
     'textColor' => 'light',
-    'buttonVariant' => 'white'
+    'buttonVariant' => 'white',
+    'title' => '',
+    'description' => '',
+    'icon' => '',
+    'iconColor' => 'white'
 ])
 
 @php
-    $title = 'O Desafio do RH: Como o Estresse Financeiro Afeta Sua Empresa';
-    $description = 'A Flamma surge como um benefício corporativo inovador, desenhado para empoderar seus colaboradores
-        com educação financeira de alta qualidade. Somos pioneiros em oferecer uma consultoria financeira personalizada,
-        que vai além do básico, promovendo uma verdadeira evolução na relação das pessoas com o dinheiro. Nosso
-        propósito é disseminar conhecimento e ferramentas para que seus funcionários alcancem a tão desejada liberdade
-        financeira, refletindo diretamente no sucesso da sua organização.';
-
     $textLight = $textColor === 'light' ? 'text-light!' : '';
 @endphp
 
@@ -31,9 +28,20 @@
     </div>
 
     <x-headline class="{{ $textLight }} max-w-full!" align="left">
-        <x-slot:title>
-            {{ $title }}
-        </x-slot:title>
+        @if($icon === 'flamma-icon')
+            <x-slot:badge>
+                <x-logo class="w-28 h-fit" :color="$iconColor" />
+            </x-slot:badge>
+        @elseif($icon)
+            <x-slot:badge>
+                <x-filament::icon :icon="$icon" class="w-12 h-12" />
+            </x-slot:badge>
+        @endif
+        @if($title)
+            <x-slot:title>
+                {{ $title }}
+            </x-slot:title>
+        @endif
         <x-slot:description class="{{ $textLight }}">
             {{ $description }}
         </x-slot:description>
