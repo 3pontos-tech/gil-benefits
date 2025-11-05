@@ -31,7 +31,7 @@ class TenantSeatsCounterAction extends Action
         /** @var Subscription $activeSubscription */
         $activeSubscription = $tenant->subscriptions()->where('stripe_status', '=', 'active')->first();
 
-        $employeesCount = $tenant->employees()->wherePivot('active',true)->count();
+        $employeesCount = $tenant->employees()->wherePivot('active', true)->count();
 
         return sprintf('Assentos: %s/%s', $employeesCount, $activeSubscription->quantity);
     }

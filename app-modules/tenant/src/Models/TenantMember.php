@@ -12,7 +12,6 @@ class TenantMember extends Pivot
 {
     public $timestamps = true;
 
-
     protected $fillable = [
         'role',
         'active',

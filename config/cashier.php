@@ -136,14 +136,43 @@ return [
             'collect_tax_ids' => false, // Optional
             'metered_price' => true, // Optional
         ],
-        'user' => [
-            'product_id' => 'prod_TL48odIM2WlZJP',
+        'user_gold' => [
+            'product_id' => env('FLAMMA_STRIPE_USER_GOLD_PRODUCT_ID'),
             'prices' => [
-                ['type' => 'gold', 'price_id' => 'price_1SOO0eEfQ3poR4ZSTDnJmc95', 'metadata' => []],
-                ['type' => 'platinum', 'price_id' => 'price_1SOO0eEfQ3poR4ZSTDnJmc95', 'metadata' => []],
-                ['type' => 'black', 'price_id' => 'price_1SOO0eEfQ3poR4ZSTDnJmc95', 'metadata' => []],
+                ['type' => 'gold', 'price_id' => env('FLAMMA_STRIPE_USER_GOLD_PRICE_ID'), 'metadata' => [
+                    'price' => 150,
+                    'features' => ['1 zap', '1 treco'],
+                ]],
             ],
-            'trial_days' => 14, // Optional
+            'trial_days' => false, // Optional
+            'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
+            'allow_promotion_codes' => true, // Optional
+            'collect_tax_ids' => true, // Optional
+            'metered_price' => true, // Optional
+        ],
+        'user_platinum' => [
+            'product_id' => env('FLAMMA_STRIPE_USER_PLATINUM_PRODUCT_ID'),
+            'prices' => [
+                ['type' => 'platinum', 'price_id' => env('FLAMMA_STRIPE_USER_PLATINUM_PRICE_ID'), 'metadata' => [
+                    'price' => 189,
+                    'features' => ['1 zap', 'outro treco'],
+                ]],
+            ],
+            'trial_days' => false, // Optional
+            'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
+            'allow_promotion_codes' => true, // Optional
+            'collect_tax_ids' => true, // Optional
+            'metered_price' => true, // Optional
+        ],
+        'user_black' => [
+            'product_id' => env('FLAMMA_STRIPE_USER_BLACK_PRODUCT_ID'),
+            'prices' => [
+                ['type' => 'black', 'price_id' => env('FLAMMA_STRIPE_USER_BLACK_PRICE_ID'), 'metadata' => [
+                    'price' => 250,
+                    'features' => ['2 zap', 'treco de novo', 'bagulho'],
+                ]],
+            ],
+            'trial_days' => false, // Optional
             'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
             'allow_promotion_codes' => true, // Optional
             'collect_tax_ids' => true, // Optional

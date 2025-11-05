@@ -4,6 +4,7 @@ namespace TresPontosTech\Billing\Core\Repositories;
 
 use Illuminate\Config\Repository;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Override;
 use TresPontosTech\Billing\Core\Plan;
 use TresPontosTech\Billing\Core\PlanRepository;
@@ -48,5 +49,11 @@ final readonly class ConfigPlanRepository implements PlanRepository
             collectTaxIds: Arr::get($plan, key: 'collect_tax_ids', default: false),
             isMeteredPrice: Arr::get($plan, key: 'metered_price', default: false),
         );
+    }
+
+    public function getPlansFor(string $name): Collection
+    {
+        return collect($this->all())
+            ->filter(fn ($plan, $key) => str_starts_with($key, 'user_'));
     }
 }

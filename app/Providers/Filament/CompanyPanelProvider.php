@@ -30,8 +30,8 @@ class CompanyPanelProvider extends PanelProvider
     {
         return $panel
             ->id('company')
-            ->tenant(Company::class, slugAttribute: 'slug')
             ->path('company')
+            ->tenant(Company::class, slugAttribute: 'slug')
             ->login(LoginPage::class)
             ->colors([
                 'primary' => Color::hex('#F1785A'),

@@ -2,6 +2,8 @@
 
 namespace TresPontosTech\Billing\Core;
 
+use Illuminate\Support\Collection;
+
 interface PlanRepository
 {
     /**
@@ -10,4 +12,6 @@ interface PlanRepository
     public function all(): array;
 
     public function get(string $name): Plan;
+
+    public function getPlansFor(string $name): Collection;
 }
