@@ -8,4 +8,5 @@
     <x-sections.text-image-with-primary-bg />
     <x-sections.text-image-left />
     <x-sections.text-image-right />
+    <x-sections.faq />
 </x-filament-panels::page>
