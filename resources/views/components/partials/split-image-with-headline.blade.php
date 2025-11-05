@@ -12,7 +12,7 @@
         propósito é disseminar conhecimento e ferramentas para que seus funcionários alcancem a tão desejada liberdade
         financeira, refletindo diretamente no sucesso da sua organização.';
 
-    $textLight = $textColor === 'light' ? 'text-light' : '';
+    $textLight = $textColor === 'light' ? 'text-light!' : '';
 @endphp
 
 <div {{ $attributes->class([
@@ -34,7 +34,7 @@
         <x-slot:title>
             {{ $title }}
         </x-slot:title>
-        <x-slot:description class="{{ $textLight }}!">
+        <x-slot:description class="{{ $textLight }}">
             {{ $description }}
         </x-slot:description>
         <x-slot:actions>
