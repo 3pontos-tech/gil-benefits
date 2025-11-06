@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a5ab1ca6b86af20c2a7c4179b545caa3",
+    "content-hash": "d30f83becb7c900e5f90198e3c018b1f",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -337,7 +337,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:basementdevs/filament-better-mail.git",
+                "url": "https://github.com/basementdevs/filament-better-mail.git",
                 "reference": "8c469876c0d5bd7b7bf5196daddd2d8699df3510"
             },
             "dist": {
@@ -422,6 +422,16 @@
                 "filament-better-mails",
                 "laravel"
             ],
+            "support": {
+                "source": "https://github.com/basementdevs/filament-better-mail/tree/main",
+                "issues": "https://github.com/basementdevs/filament-better-mail/issues"
+            },
+            "funding": [
+                {
+                    "type": "github",
+                    "url": "https://github.com/Basement Developers"
+                }
+            ],
             "time": "2025-10-31T20:21:10+00:00"
         },
         {
@@ -429,7 +439,7 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:basementdevs/filament-webhooks.git",
+                "url": "https://github.com/basementdevs/filament-webhooks.git",
                 "reference": "18fc3e1422b2577857b219995fe63bdd2cd67c5a"
             },
             "dist": {
@@ -513,6 +523,16 @@
                 "Basement Developers",
                 "filament-webhooks",
                 "laravel"
+            ],
+            "support": {
+                "source": "https://github.com/basementdevs/filament-webhooks/tree/main",
+                "issues": "https://github.com/basementdevs/filament-webhooks/issues"
+            },
+            "funding": [
+                {
+                    "type": "github",
+                    "url": "https://github.com/danielhe4rt"
+                }
             ],
             "time": "2025-09-18T21:14:43+00:00"
         },
@@ -956,16 +976,16 @@
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.5.8",
+            "version": "1.5.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "719026bb30813accb68271fee7e39552a58e9f65"
+                "reference": "1905981ee626e6f852448b7aaa978f8666c5bc54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/719026bb30813accb68271fee7e39552a58e9f65",
-                "reference": "719026bb30813accb68271fee7e39552a58e9f65",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/1905981ee626e6f852448b7aaa978f8666c5bc54",
+                "reference": "1905981ee626e6f852448b7aaa978f8666c5bc54",
                 "shasum": ""
             },
             "require": {
@@ -1012,7 +1032,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.5.8"
+                "source": "https://github.com/composer/ca-bundle/tree/1.5.9"
             },
             "funding": [
                 {
@@ -1024,7 +1044,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-08-20T18:49:47+00:00"
+            "time": "2025-11-06T11:46:17+00:00"
         },
         {
             "name": "composer/class-map-generator",
@@ -3443,16 +3463,16 @@
         },
         {
             "name": "laravel/cashier",
-            "version": "v16.0.4",
+            "version": "v15.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/cashier-stripe.git",
-                "reference": "0b7a354745d4ca6aa6bfb24c1289b356bfecadff"
+                "reference": "8dd6a6c35fd2eb67857d06438d849254e47de7d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/cashier-stripe/zipball/0b7a354745d4ca6aa6bfb24c1289b356bfecadff",
-                "reference": "0b7a354745d4ca6aa6bfb24c1289b356bfecadff",
+                "url": "https://api.github.com/repos/laravel/cashier-stripe/zipball/8dd6a6c35fd2eb67857d06438d849254e47de7d1",
+                "reference": "8dd6a6c35fd2eb67857d06438d849254e47de7d1",
                 "shasum": ""
             },
             "require": {
@@ -3470,20 +3490,17 @@
                 "moneyphp/money": "^4.0",
                 "nesbot/carbon": "^2.0|^3.0",
                 "php": "^8.1",
-                "stripe/stripe-php": "^17.3.0",
+                "stripe/stripe-php": "^16.2",
                 "symfony/console": "^6.0|^7.0",
                 "symfony/http-kernel": "^6.0|^7.0",
-                "symfony/polyfill-intl-icu": "^1.22.1",
-                "symfony/polyfill-php84": "^1.32"
+                "symfony/polyfill-intl-icu": "^1.22.1"
             },
             "require-dev": {
                 "dompdf/dompdf": "^2.0|^3.0",
                 "mockery/mockery": "^1.0",
                 "orchestra/testbench": "^8.18|^9.0|^10.0",
-                "orchestra/workbench": "^8.0|^9.0|^10.0",
                 "phpstan/phpstan": "^1.10",
-                "phpunit/phpunit": "^10.4|^11.5",
-                "spatie/laravel-ray": "^1.40"
+                "phpunit/phpunit": "^10.4|^11.5"
             },
             "suggest": {
                 "dompdf/dompdf": "Required when generating and downloading invoice PDF's using Dompdf (^2.0|^3.0).",
@@ -3497,7 +3514,7 @@
                     ]
                 },
                 "branch-alias": {
-                    "dev-master": "16.x-dev"
+                    "dev-master": "15.x-dev"
                 }
             },
             "autoload": {
@@ -3530,7 +3547,7 @@
                 "issues": "https://github.com/laravel/cashier/issues",
                 "source": "https://github.com/laravel/cashier"
             },
-            "time": "2025-11-04T15:45:45+00:00"
+            "time": "2025-07-22T15:49:31+00:00"
         },
         {
             "name": "laravel/framework",
@@ -4736,6 +4753,88 @@
                 }
             ],
             "time": "2025-07-17T05:12:15+00:00"
+        },
+        {
+            "name": "maartenpaauw/filament-cashier-billing-provider",
+            "version": "3.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/maartenpaauw/filament-cashier-billing-provider.git",
+                "reference": "e9b4e9dc882537141d8cc54d9c932955edca83b6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/maartenpaauw/filament-cashier-billing-provider/zipball/e9b4e9dc882537141d8cc54d9c932955edca83b6",
+                "reference": "e9b4e9dc882537141d8cc54d9c932955edca83b6",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^4.0",
+                "illuminate/config": "^11.0|^12.0",
+                "illuminate/http": "^11.0|^12.0",
+                "illuminate/support": "^11.0|^12.0",
+                "laravel/cashier": "^15.2",
+                "php": "^8.2",
+                "symfony/polyfill-php83": "^1.32"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "orchestra/testbench": "^9.14|^10.4",
+                "pestphp/pest": "^3.7",
+                "pestphp/pest-plugin-laravel": "^3.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Maartenpaauw\\Filament\\Cashier\\FilamentCashierServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Maartenpaauw\\Filament\\Cashier\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Maarten Paauw",
+                    "email": "maartenpaauw@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Filament billing provider for Laravel Cashier",
+            "homepage": "https://github.com/maartenpaauw/filament-cashier-billing-provider",
+            "keywords": [
+                "billing-provider",
+                "cashier",
+                "filament",
+                "laravel",
+                "maartenpaauw"
+            ],
+            "support": {
+                "issues": "https://github.com/maartenpaauw/filament-cashier-billing-provider/issues",
+                "source": "https://github.com/maartenpaauw/filament-cashier-billing-provider/tree/3.0.1"
+            },
+            "funding": [
+                {
+                    "url": "https://filamentphp.com/plugins/maartenpaauw-model-states",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://filamentphp.com/plugins/maartenpaauw-pennant",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/maartenpaauw",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-08-22T21:12:29+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -8124,16 +8223,16 @@
         },
         {
             "name": "stripe/stripe-php",
-            "version": "v17.6.0",
+            "version": "v16.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stripe/stripe-php.git",
-                "reference": "a6219df5df1324a0d3f1da25fb5e4b8a3307ea16"
+                "reference": "d6de0a536f00b5c5c74f36b8f4d0d93b035499ff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/a6219df5df1324a0d3f1da25fb5e4b8a3307ea16",
-                "reference": "a6219df5df1324a0d3f1da25fb5e4b8a3307ea16",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/d6de0a536f00b5c5c74f36b8f4d0d93b035499ff",
+                "reference": "d6de0a536f00b5c5c74f36b8f4d0d93b035499ff",
                 "shasum": ""
             },
             "require": {
@@ -8143,7 +8242,7 @@
                 "php": ">=5.6.0"
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "3.72.0",
+                "friendsofphp/php-cs-fixer": "3.5.0",
                 "phpstan/phpstan": "^1.2",
                 "phpunit/phpunit": "^5.7 || ^9.0"
             },
@@ -8177,9 +8276,9 @@
             ],
             "support": {
                 "issues": "https://github.com/stripe/stripe-php/issues",
-                "source": "https://github.com/stripe/stripe-php/tree/v17.6.0"
+                "source": "https://github.com/stripe/stripe-php/tree/v16.6.0"
             },
-            "time": "2025-08-27T19:32:42+00:00"
+            "time": "2025-02-24T22:35:29+00:00"
         },
         {
             "name": "symfony/clock",
@@ -8355,16 +8454,16 @@
         },
         {
             "name": "symfony/css-selector",
-            "version": "v7.3.0",
+            "version": "v7.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
-                "reference": "601a5ce9aaad7bf10797e3663faefce9e26c24e2"
+                "reference": "84321188c4754e64273b46b406081ad9b18e8614"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/css-selector/zipball/601a5ce9aaad7bf10797e3663faefce9e26c24e2",
-                "reference": "601a5ce9aaad7bf10797e3663faefce9e26c24e2",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/84321188c4754e64273b46b406081ad9b18e8614",
+                "reference": "84321188c4754e64273b46b406081ad9b18e8614",
                 "shasum": ""
             },
             "require": {
@@ -8400,7 +8499,7 @@
             "description": "Converts CSS selectors to XPath expressions",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/css-selector/tree/v7.3.0"
+                "source": "https://github.com/symfony/css-selector/tree/v7.3.6"
             },
             "funding": [
                 {
@@ -8412,11 +8511,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-25T14:21:43+00:00"
+            "time": "2025-10-29T17:24:25+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
