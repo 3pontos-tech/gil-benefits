@@ -17,11 +17,11 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use TresPontosTech\Billing\Core\Pages\SubscriptionPage;
+use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\Billing\Stripe\Subscription\Company\CompanyBillingProvider;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditCompany;
-use TresPontosTech\Tenant\Filament\Pages\Tenancy\RegisterCompany;
+use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditTenantProfile;
+use TresPontosTech\Tenant\Filament\Pages\Tenancy\RegisterTenant;
 use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
 
 class CompanyPanelProvider extends PanelProvider
@@ -43,11 +43,11 @@ class CompanyPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Company/Pages'), for: 'App\\Filament\\Company\\Pages')
             ->pages([
                 Dashboard::class,
-                SubscriptionPage::class,
+                TenantSubscriptionPage::class,
             ])
             ->tenant(Company::class)
-            ->tenantRegistration(RegisterCompany::class)
-            ->tenantProfile(EditCompany::class)
+            ->tenantRegistration(RegisterTenant::class)
+            ->tenantProfile(EditTenantProfile::class)
             ->registration()
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->widgets([

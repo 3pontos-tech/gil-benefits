@@ -28,7 +28,6 @@ class AppPanelProvider extends PanelProvider
         return $panel
             ->id('app')
             ->path('app')
-            ->tenant(Company::class, slugAttribute: 'slug')
             ->login(LoginPage::class)
             ->colors([
                 'primary' => Color::hex('#F1785A'),
@@ -44,9 +43,6 @@ class AppPanelProvider extends PanelProvider
                 UserSubscriptionPage::class, // ?
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
-            ->widgets([
-
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -58,9 +54,10 @@ class AppPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->searchableTenantMenu(false)
             ->tenantBillingProvider(new UserBillingProvider)
+            ->tenant(Company::class, slugAttribute: 'slug')
             ->requiresTenantSubscription()
-
             ->authMiddleware([
                 Authenticate::class,
             ])
