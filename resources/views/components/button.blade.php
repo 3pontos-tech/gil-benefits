@@ -25,7 +25,7 @@
     $hasLeading = isset($leading) || (filled($icon) && $iconPosition === 'leading');
     $hasTrailing = isset($trailing) || (filled($icon) && $iconPosition === 'trailing');
 
-    $base = 'relative inline-flex items-center justify-center font-medium transition-all duration-200 border group/button active:scale-95 cursor-pointer';
+    $base = 'relative inline-flex items-center justify-center font-medium transition-all duration-200 group/button active:scale-95 cursor-pointer';
 
     $roundCls = [
         'full' => 'rounded-full', 'lg' => 'rounded-xl', 'md' => 'rounded-lg', 'sm' => 'rounded-md',
@@ -49,13 +49,13 @@
             ],
             'outline' => [
                 'bg' => 'bg-transparent',
-                'text' => 'text-blue-primary',
-                'border' => 'border-blue-primary',
-                'hoverBg' => 'hover:bg-blue-primary',
+                'text' => 'text-brand-primary',
+                'border' => 'border-brand-primary',
+                'hoverBg' => 'hover:bg-brand-primary',
                 'hoverText' => 'hover:text-light',
             ],
             'white' => [
-                'bg' => 'bg-elevation-surface',
+                'bg' => 'bg-white',
                 'text' => 'text-brand-primary',
                 'border' => 'none',
                 'hoverBg' => '',

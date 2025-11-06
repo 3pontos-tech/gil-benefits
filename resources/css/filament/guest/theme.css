@@ -615,7 +615,6 @@
     }
 
     .dark {
-        --brand-primary: #E2410A;
         --brand-accent: #FFFFFF;
         --brand-50: #FFD9A0;
         --high: #fdfdfd;
@@ -631,7 +630,7 @@
         --outline-high: #99999f;
         --outline-medium: #7c7c83;
         --outline-low: #2c2c2d;
-        --outline-light: #e8e9f1;
+        --outline-light: #2c2c2d;
         --outline-dark: #2c2c2d;
         --elevation-surface: #09090A;
         --elevation-01dp: #0F0F10;

@@ -34,7 +34,7 @@
                 'descriptionHover' => 'group-hover/card:text-light',
             ],
             'white' => [
-                'base' => 'bg-elevation-surface border border-outline-light',
+                'base' => 'bg-elevation-02dp border border-outline-light',
                 'title' => 'bg-gradient-to-br from-brand-primary to-brand-secondary w-fit bg-clip-text text-transparent',
                 'description' => 'text-medium font-medium',
                 'hover' => 'hover:border-brand-primary hover:bg-brand-primary',
@@ -42,7 +42,7 @@
                 'descriptionHover' => 'group-hover/card:text-light',
             ],
             'transparent' => [
-                'base' => 'bg-elevation-surface/12 border border-outline-light/16',
+                'base' => 'bg-white/12 border border-white/16',
                 'title' => 'text-light',
                 'description' => 'text-light font-medium',
                 'hover' => '',

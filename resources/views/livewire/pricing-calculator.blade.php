@@ -12,8 +12,8 @@
         x-data="{
             tiers: $wire.planTiers,
             sliderValue: 1,
-            min: $wire.minCollaborators,
-            max: $wire.maxCollaborators,
+            min: 1,
+            max: 151,
 
             currentPrice: 0,
             totalCost: 0,
@@ -114,7 +114,7 @@
     </div>
 
     <div class="flex items-center justify-center w-full mt-8">
-        <x-button class="rounded-xl">
+        <x-button class="rounded-xl" variant="outline">
             Solicitar proposta
         </x-button>
     </div>

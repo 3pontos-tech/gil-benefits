@@ -98,7 +98,7 @@
                 </p>
                 <form class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                     <input type="email" placeholder="Seu email" id="email"
-                           class="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-outline-light rounded-lg focus:border-primary focus:outline-none  bg-transparent placeholder: text-sm sm:text-base">
+                           class="flex-1 px-3 sm:px-4 py-2 sm:py-2.5 border border-outline-white rounded-lg focus:border-primary focus:outline-none  bg-transparent placeholder: text-sm sm:text-base">
                     <x-button class="w-fit!" variant="white">
                         Inscrever-se
                     </x-button>
