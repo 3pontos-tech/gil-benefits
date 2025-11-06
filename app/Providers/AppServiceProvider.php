@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Filament\FilamentPanel;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
+use TresPontosTech\Billing\Core\Models\Subscription;
 use TresPontosTech\Company\Models\Company;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,8 +16,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function register(): void
     {
+        Relation::morphMap([
+            'user' => config('auth.providers.users.model'),
+        ]);
 
-        Cashier::useCustomerModel(Company::class);
+        Cashier::useSubscriptionModel(Subscription::class);
 
         Panel::macro('discoverResourcesForPanel', function (string $module, FilamentPanel $panel): void {
             $studlyPanel = str($panel->value)->studly();
