@@ -8,6 +8,71 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+[x-cloak] { display: none !important; }
+
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: none;
+    outline: none;
+    cursor: pointer;
+}
+
+.slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8px;
+    cursor: pointer;
+    border-radius: 5px;
+
+    background: linear-gradient(to right,
+    var(--brand-primary),
+    var(--brand-secondary) var(--progress-percent, 50%),
+    var(--color-outline-light) var(--progress-percent, 50%)
+    );
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+
+    background: radial-gradient(var(--brand-primary), var(--brand-secondary));
+
+    outline: 1px solid var(--brand-primary);
+    outline-offset: 4px;
+
+    margin-top: -2px;
+    border: none;
+}
+
+.slider::-moz-range-track {
+    width: 100%;
+    height: 8px;
+    cursor: pointer;
+    border-radius: 5px;
+    background: linear-gradient(to right,
+    var(--brand-primary),
+    var(--brand-secondary) var(--progress-percent, 50%),
+    var(--color-outline-light) var(--progress-percent, 50%)
+    );
+}
+
+.slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    background: radial-gradient(var(--brand-primary), var(--brand-secondary));
+    box-shadow: inset 0 0 0 2px black;
+    border: none;
+}
+
 @utility container {
     padding-inline: 16px;
     @variant sm {
