@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Filament\FilamentPanel;
-use App\Models\Users\User;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
