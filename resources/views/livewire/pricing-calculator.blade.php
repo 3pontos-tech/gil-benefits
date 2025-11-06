@@ -88,7 +88,7 @@
             </div>
         </div>
 
-        <div class="w-full grid grid-cols-1 lg:grid-cols-5 gap-8">
+        <div class="w-full grid grid-cols-1 sm:grid-cols-5 gap-8">
             @foreach($planTiers as $tier)
                 <div
                     wire:key="tier-{{ $tier['id'] }}"

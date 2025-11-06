@@ -28,8 +28,8 @@
 
     background: linear-gradient(to right,
     var(--brand-primary),
-    var(--brand-secondary) var(--progress-percent, 50%),
-    var(--color-outline-light) var(--progress-percent, 50%)
+    var(--brand-secondary) var(--progress-percent, 0%),
+    var(--color-outline-light) var(--progress-percent, 0%)
     );
 }
 
@@ -58,8 +58,8 @@
     border-radius: 5px;
     background: linear-gradient(to right,
     var(--brand-primary),
-    var(--brand-secondary) var(--progress-percent, 50%),
-    var(--color-outline-light) var(--progress-percent, 50%)
+    var(--brand-secondary) var(--progress-percent, 0%),
+    var(--color-outline-light) var(--progress-percent, 0%)
     );
 }
 

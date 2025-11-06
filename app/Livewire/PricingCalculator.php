@@ -8,7 +8,6 @@ use Livewire\Component;
 
 class PricingCalculator extends Component
 {
-    public $collaborators = 1;
 
     public $planTiers = [];
 
