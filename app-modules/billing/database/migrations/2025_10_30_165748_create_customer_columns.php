@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('pm_provider')->after('password')->nullable()->index();
-            $table->string('pm_provider_id')->after('pm_provider')->nullable()->index();
+            $table->string('stripe_id')->after('id')->nullable()->index();
             $table->string('pm_type')->after('pm_provider_id')->nullable();
             $table->string('pm_last_four', 4)->after('pm_provider_id')->nullable();
             $table->timestamp('trial_ends_at')->after('pm_last_four')->nullable();
@@ -21,8 +20,6 @@ return new class extends Migration
 
         Schema::table('companies', function (Blueprint $table) {
             $table->string('stripe_id')->after('tax_id')->nullable()->index();
-            $table->string('pm_provider')->after('tax_id')->nullable()->index();
-            $table->string('pm_provider_id')->after('pm_provider')->nullable()->index();
             $table->string('pm_type')->after('pm_provider_id')->nullable();
             $table->string('pm_last_four', 4)->after('pm_provider_id')->nullable();
             $table->timestamp('trial_ends_at')->after('pm_last_four')->nullable();

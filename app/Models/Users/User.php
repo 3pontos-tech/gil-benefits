@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Cashier\Billable;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Models\Subscription;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
@@ -95,5 +97,10 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function scheduledAppointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function subscriptions(): MorphMany
+    {
+        return $this->morphMany(Subscription::class, 'subscriptionable');
     }
 }
