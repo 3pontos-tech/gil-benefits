@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use App\Filament\Guest\Pages\LandingPage;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -33,8 +35,8 @@ class GuestPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('FD0342'),
             ])
-            ->renderHook(PanelsRenderHook::FOOTER, fn() => view('components.guest-footer'))
-            ->renderHook(PanelsRenderHook::TOPBAR_END, fn() => Blade::render(<<<'BLADE'
+            ->renderHook(PanelsRenderHook::FOOTER, fn (): Factory|View => view('components.guest-footer'))
+            ->renderHook(PanelsRenderHook::TOPBAR_END, fn () => Blade::render(<<<'BLADE'
                @guest
                     <x-filament::button outlined tag='a' href='/app/login'>Acessar Plataforma</x-filament::button>
                 @endguest

@@ -4,8 +4,6 @@ namespace App\Filament\Guest\Pages;
 
 use Filament\Pages\Dashboard;
 use Filament\Support\Enums\Width;
-use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Contracts\View\View;
 
 class LandingPage extends Dashboard
 {
@@ -15,7 +13,7 @@ class LandingPage extends Dashboard
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected Width | string | null $maxContentWidth = Width::ScreenTwoExtraLarge;
+    protected Width|string|null $maxContentWidth = Width::ScreenTwoExtraLarge;
 
     public function getHeading(): string
     {
