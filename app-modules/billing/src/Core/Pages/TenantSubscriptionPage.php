@@ -6,6 +6,7 @@ use Filament\Facades\Filament;
 use Filament\Pages\Dashboard;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\Plan;
@@ -13,7 +14,7 @@ use TresPontosTech\Billing\Core\PlanRepository;
 use TresPontosTech\Billing\Core\Price;
 use TresPontosTech\Company\Models\Company;
 
-class SubscriptionPage extends Page
+class TenantSubscriptionPage extends Page
 {
     protected static ?string $slug = 'available-subscriptions';
 
@@ -23,6 +24,7 @@ class SubscriptionPage extends Page
 
     protected string $view = 'available-subscriptions';
 
+    protected static bool $shouldRegisterNavigation = false;
     public string $selectedPlan = 'company';
 
     public int $seatsAmount = 5;
@@ -76,6 +78,9 @@ class SubscriptionPage extends Page
                 value: $plan->collectTaxIds === true,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
             )
+            ->withMetadata([
+                'model' => Relation::getMorphAlias(Company::class),
+            ])
             ->checkout(sessionOptions: [
                 'success_url' => Dashboard::getUrl(),
                 'cancel_url' => Dashboard::getUrl(),

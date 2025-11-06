@@ -20,7 +20,9 @@ class CompanyBillingProvider implements BillingProvider
                 $tenant->createAsStripeCustomer();
             }
 
-            return $tenant->redirectToBillingPortal(returnUrl: Dashboard::getUrl());
+            return $tenant->redirectToBillingPortal(returnUrl: Dashboard::getUrl(), options: [
+                'configuration' => config('cashier.portals.company'),
+            ]);
         };
     }
 

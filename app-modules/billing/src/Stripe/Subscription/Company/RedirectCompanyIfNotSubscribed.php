@@ -16,7 +16,11 @@ class RedirectCompanyIfNotSubscribed
         $tenant = Filament::getTenant();
 
         if ($tenant->hasStripeId() === false) {
-            $tenant->createAsStripeCustomer();
+            $tenant->createAsStripeCustomer([
+                'metadata' => [
+                    'model_type' => Company::class,
+                ],
+            ]);
         }
 
         $plans = resolve(PlanRepository::class)->all();

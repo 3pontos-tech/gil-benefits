@@ -2,16 +2,17 @@
 
 namespace TresPontosTech\Billing\Core\Pages;
 
-use Filament\Facades\Filament;
+use App\Models\Users\User;
 use Filament\Pages\Dashboard;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
+use Laravel\Cashier\Cashier;
 use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\PlanRepository;
 use TresPontosTech\Billing\Core\Price;
-use TresPontosTech\Company\Models\Company;
 
 class UserSubscriptionPage extends Page
 {
@@ -22,6 +23,8 @@ class UserSubscriptionPage extends Page
     protected Width|string|null $maxContentWidth = Width::ScreenLarge;
 
     protected string $view = 'user-available-subscriptions';
+
+    protected static bool $shouldRegisterNavigation = false;
 
     public string $selectedPlan = 'user';
 
@@ -42,15 +45,14 @@ class UserSubscriptionPage extends Page
 
     public function checkout(string $plan_id)
     {
-
-        /** @var Company $tenant */
-        $tenant = Filament::getTenant();
+        $user = auth()->user();
+        Cashier::useCustomerModel(User::class);
 
         $plan = app(PlanRepository::class)->get($plan_id);
         /** @var Price $prices */
         $price = $plan->prices->first();
 
-        $sessionCheckout = $tenant
+        $sessionCheckout = $user
             ->newSubscription(type: $plan->type, prices: [$price->priceId])
             ->when(
                 value: $plan->hasGenericTrial && $plan->trialDays !== false,
@@ -64,12 +66,12 @@ class UserSubscriptionPage extends Page
                 value: $plan->collectTaxIds === true,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
             )
+            ->withMetadata([
+                'model' => Relation::getMorphAlias(User::class),
+            ])
             ->checkout(sessionOptions: [
                 'success_url' => Dashboard::getUrl(),
                 'cancel_url' => Dashboard::getUrl(),
-                'customer_update' => [
-                    'address' => 'auto',
-                ],
             ]);
 
         redirect($sessionCheckout->asStripeCheckoutSession()->url);

@@ -124,13 +124,18 @@ return [
 
     'logger' => env('CASHIER_LOGGER'),
 
+    'portals' => [
+        'company' => env('FLAMMA_STRIPE_ENTERPRISE_PORTAL_ID', null),
+        'user' => env('FLAMMA_STRIPE_USER_PORTAL_ID', null),
+    ],
+
     'plans' => [
         'company' => [
             'product_id' => env('FLAMMA_STRIPE_ENTERPRISE_PRODUCT_ID'),
             'prices' => [
                 ['type' => 'enterprise', 'price_id' => env('FLAMMA_STRIPE_ENTERPRISE_PRICE_ID'), 'metadata' => []],
             ],
-            'trial_days' => 0, // Optional
+            'trial_days' => false, // Optional
             'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
             'allow_promotion_codes' => true, // Optional
             'collect_tax_ids' => false, // Optional
@@ -147,8 +152,8 @@ return [
             'trial_days' => false, // Optional
             'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
             'allow_promotion_codes' => true, // Optional
-            'collect_tax_ids' => true, // Optional
-            'metered_price' => true, // Optional
+            'collect_tax_ids' => false, // Optional
+            'metered_price' => false, // Optional
         ],
         'user_platinum' => [
             'product_id' => env('FLAMMA_STRIPE_USER_PLATINUM_PRODUCT_ID'),
@@ -161,8 +166,8 @@ return [
             'trial_days' => false, // Optional
             'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
             'allow_promotion_codes' => true, // Optional
-            'collect_tax_ids' => true, // Optional
-            'metered_price' => true, // Optional
+            'collect_tax_ids' => false, // Optional
+            'metered_price' => false, // Optional
         ],
         'user_black' => [
             'product_id' => env('FLAMMA_STRIPE_USER_BLACK_PRODUCT_ID'),
@@ -175,8 +180,8 @@ return [
             'trial_days' => false, // Optional
             'has_generic_trial' => false, // Optional, only `trial_days` OR `has_generic_trial` can be used.
             'allow_promotion_codes' => true, // Optional
-            'collect_tax_ids' => true, // Optional
-            'metered_price' => true, // Optional
+            'collect_tax_ids' => false, // Optional
+            'metered_price' => false, // Optional
         ],
     ],
 
