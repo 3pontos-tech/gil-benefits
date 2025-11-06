@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(Company::class);
             $table->foreignIdFor(User::class);
             $table->string('role')->comment("'owner', 'manager', 'employee'")->nullable();
+            $table->boolean('active')->default(true);
             $table->softDeletes();
             $table->timestamps();
         });

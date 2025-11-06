@@ -8,9 +8,7 @@ use Illuminate\Support\ServiceProvider;
 
 class PlansServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
-
-    public function boot(): void
+    public function register(): void
     {
         Panel::configureUsing(function (Panel $panel): void {
             if ($panel->getId() === 'admin') {
@@ -18,4 +16,6 @@ class PlansServiceProvider extends ServiceProvider
             }
         });
     }
+
+    public function boot(): void {}
 }

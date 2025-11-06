@@ -8,4 +8,5 @@ enum FilamentPanel: string
     case Admin = 'admin';
     case Company = 'company';
     case Consultant = 'consultant';
+    case Guest = 'guest';
 }
