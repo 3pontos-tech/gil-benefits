@@ -6,7 +6,7 @@ use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
-use Hash;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Cashier\Subscription;
 use TresPontosTech\Company\Models\Company;
 
@@ -21,7 +21,7 @@ class CreateAndAttachAction extends CreateAction
     {
         parent::setUp();
 
-        $this->disabled(fn () => $this->isSubscriptionCapacityExceeded());
+        $this->disabled(fn (): bool => $this->isSubscriptionCapacityExceeded());
 
         $this->after(
             fn ($record) => filament()->getTenant()->employees()->attach($record, ['role' => 'employee'])

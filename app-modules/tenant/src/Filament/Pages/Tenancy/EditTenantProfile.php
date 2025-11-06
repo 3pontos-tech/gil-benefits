@@ -56,8 +56,8 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
             ])
             ->recordActions([
                 Action::make('toggle-active')
-                    ->label(fn ($record) => $record->active ? 'Desativar' : 'Ativar')
-                    ->action(function (User $record) {
+                    ->label(fn ($record): string => $record->active ? 'Desativar' : 'Ativar')
+                    ->action(function (User $record): void {
                         /** @var Company $company */
                         $company = filament()->getTenant();
 
@@ -74,8 +74,8 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                 TextColumn::make('active')
                     ->badge()
                     ->label('Status')
-                    ->formatStateUsing(fn ($state) => $state ? 'Ativo' : 'Inativo')
-                    ->color(fn ($state) => $state ? 'success' : 'danger')
+                    ->formatStateUsing(fn ($state): string => $state ? 'Ativo' : 'Inativo')
+                    ->color(fn ($state): string => $state ? 'success' : 'danger')
                     ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),

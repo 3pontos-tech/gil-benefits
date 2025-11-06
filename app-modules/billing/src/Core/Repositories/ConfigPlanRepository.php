@@ -21,7 +21,7 @@ final readonly class ConfigPlanRepository implements PlanRepository
     {
         return Arr::map(
             array: $this->config->array(key: 'cashier.plans'),
-            callback: fn (array $plan, string $name) => $this->createPlanFromArray(plan: $plan, name: $name),
+            callback: fn (array $plan, string $name): Plan => $this->createPlanFromArray(plan: $plan, name: $name),
         );
     }
 
@@ -29,7 +29,7 @@ final readonly class ConfigPlanRepository implements PlanRepository
     public function get(string $name): Plan
     {
         return $this->createPlanFromArray(
-            plan: $this->config->array(key: "cashier.plans.$name"),
+            plan: $this->config->array(key: 'cashier.plans.' . $name),
             name: $name,
         );
     }
@@ -37,7 +37,7 @@ final readonly class ConfigPlanRepository implements PlanRepository
     private function createPlanFromArray(array $plan, string $name): Plan
     {
         $prices = collect(Arr::get($plan, key: 'prices', default: []))
-            ->map(fn (array $price) => Price::make($price));
+            ->map(fn (array $price): Price => Price::make($price));
 
         return new Plan(
             type: Arr::get($plan, key: 'type', default: $name),
@@ -54,6 +54,6 @@ final readonly class ConfigPlanRepository implements PlanRepository
     public function getPlansFor(string $name): Collection
     {
         return collect($this->all())
-            ->filter(fn ($plan, $key) => str_starts_with($key, 'user_'));
+            ->filter(fn ($plan, $key): bool => str_starts_with($key, 'user_'));
     }
 }

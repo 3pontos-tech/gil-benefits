@@ -12,7 +12,6 @@ use Laravel\Cashier\Cashier;
 use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\PlanRepository;
-use TresPontosTech\Billing\Core\Price;
 
 class UserSubscriptionPage extends Page
 {
@@ -43,13 +42,12 @@ class UserSubscriptionPage extends Page
         return app(PlanRepository::class)->getPlansFor($type);
     }
 
-    public function checkout(string $plan_id)
+    public function checkout(string $plan_id): void
     {
         $user = auth()->user();
         Cashier::useCustomerModel(User::class);
 
         $plan = app(PlanRepository::class)->get($plan_id);
-        /** @var Price $prices */
         $price = $plan->prices->first();
 
         $sessionCheckout = $user

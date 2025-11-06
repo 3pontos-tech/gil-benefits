@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 use TresPontosTech\Billing\Core\Models\Subscription;
-use TresPontosTech\Company\Models\Company;
 
 class AppServiceProvider extends ServiceProvider
 {

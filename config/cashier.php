@@ -125,8 +125,8 @@ return [
     'logger' => env('CASHIER_LOGGER'),
 
     'portals' => [
-        'company' => env('FLAMMA_STRIPE_ENTERPRISE_PORTAL_ID', null),
-        'user' => env('FLAMMA_STRIPE_USER_PORTAL_ID', null),
+        'company' => env('FLAMMA_STRIPE_ENTERPRISE_PORTAL_ID'),
+        'user' => env('FLAMMA_STRIPE_USER_PORTAL_ID'),
     ],
 
     'plans' => [

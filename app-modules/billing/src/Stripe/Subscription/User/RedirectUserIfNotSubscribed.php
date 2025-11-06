@@ -26,18 +26,14 @@ class RedirectUserIfNotSubscribed
             $tenant->createAsStripeCustomer();
         }
 
-        if (! $tenant->subscribed('company')) {
-            // TODO: when the company cancels the subscription, the user needs a page to understand what do next
-            // TODO: ask the team which kind of page to add here
-            abort(401);
-        }
+        // TODO: when the company cancels the subscription, the user needs a page to understand what do next
+        // TODO: ask the team which kind of page to add here
+        abort_unless($tenant->subscribed('company'), 401);
 
-        /** @var User $user $user */
         $employee = auth()->user();
 
         // TODO: Employee needs to pick a plan to continue
         // TODO: the plan is already settled up (by pila) so, let them continue
-
 
         /** @var Collection<string, Plan> $availableEmployeesPlans */
         $availableEmployeesPlans = $this->planRepository->getPlansFor('user');
@@ -46,7 +42,6 @@ class RedirectUserIfNotSubscribed
                 return $next($request);
             }
         }
-
 
         $route = 'filament.app.pages.available-subscriptions';
 

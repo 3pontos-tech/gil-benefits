@@ -11,7 +11,6 @@ use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\Plan;
 use TresPontosTech\Billing\Core\PlanRepository;
-use TresPontosTech\Billing\Core\Price;
 use TresPontosTech\Company\Models\Company;
 
 class TenantSubscriptionPage extends Page
@@ -25,6 +24,7 @@ class TenantSubscriptionPage extends Page
     protected string $view = 'available-subscriptions';
 
     protected static bool $shouldRegisterNavigation = false;
+
     public string $selectedPlan = 'company';
 
     public int $seatsAmount = 5;
@@ -42,14 +42,13 @@ class TenantSubscriptionPage extends Page
         return app(PlanRepository::class)->get($type);
     }
 
-    public function checkout()
+    public function checkout(): void
     {
 
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
         $plan = $this->planRepository($this->selectedPlan);
-        /** @var Price $prices */
         $price = $plan->prices->first();
 
         $seats = $this->seatsAmount;
@@ -71,11 +70,11 @@ class TenantSubscriptionPage extends Page
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->trialDays(trialDays: $plan->trialDays),
             )
             ->when(
-                value: $plan->allowPromotionCodes === true,
+                value: $plan->allowPromotionCodes,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->allowPromotionCodes(),
             )
             ->when(
-                value: $plan->collectTaxIds === true,
+                value: $plan->collectTaxIds,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
             )
             ->withMetadata([

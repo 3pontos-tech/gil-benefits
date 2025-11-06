@@ -20,25 +20,15 @@ final readonly class Plan
         public bool $collectTaxIds,
         public bool $isMeteredPrice,
     ) {
-        if ($this->type === '') {
-            throw new InvalidArgumentException(message: 'Type cannot be empty.');
-        }
+        throw_if($this->type === '', InvalidArgumentException::class, message: 'Type cannot be empty.');
 
-        if ($this->productId === '') {
-            throw new InvalidArgumentException(message: 'Product ID cannot be empty.');
-        }
+        throw_if($this->productId === '', InvalidArgumentException::class, message: 'Product ID cannot be empty.');
 
-        if ($this->prices->isEmpty()) {
-            throw new InvalidArgumentException(message: 'Price ID cannot be empty.');
-        }
+        throw_if($this->prices->isEmpty(), InvalidArgumentException::class, message: 'Price ID cannot be empty.');
 
-        if ($this->trialDays !== false && $this->hasGenericTrial === true) {
-            throw new InvalidArgumentException(message: 'Only "trial days" or "has generic trial" can be used.');
-        }
+        throw_if($this->trialDays !== false && $this->hasGenericTrial, InvalidArgumentException::class, message: 'Only "trial days" or "has generic trial" can be used.');
 
-        if ($this->trialDays !== false && $this->trialDays < 0) {
-            throw new InvalidArgumentException(message: 'Trial days must be greater than 0.');
-        }
+        throw_if($this->trialDays !== false && $this->trialDays < 0, InvalidArgumentException::class, message: 'Trial days must be greater than 0.');
     }
 
 }

@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table): void {
             $table->string('stripe_id')->after('id')->nullable()->index();
             $table->string('pm_type')->after('pm_provider_id')->nullable();
             $table->string('pm_last_four', 4)->after('pm_provider_id')->nullable();
             $table->timestamp('trial_ends_at')->after('pm_last_four')->nullable();
         });
 
-        Schema::table('companies', function (Blueprint $table) {
+        Schema::table('companies', function (Blueprint $table): void {
             $table->string('stripe_id')->after('tax_id')->nullable()->index();
             $table->string('pm_type')->after('pm_provider_id')->nullable();
             $table->string('pm_last_four', 4)->after('pm_provider_id')->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table): void {
             $table->dropIndex([
                 'pm_provider',
                 'pm_provider_id',
@@ -46,7 +46,7 @@ return new class extends Migration
             ]);
         });
 
-        Schema::table('companies', function (Blueprint $table) {
+        Schema::table('companies', function (Blueprint $table): void {
             $table->dropIndex([
                 'pm_provider',
                 'pm_provider_id',

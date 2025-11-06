@@ -19,7 +19,7 @@ class TenantSeatsCounterAction extends Action
 
         $this->disabled();
         $this->outlined();
-        $this->label(fn () => $this->countSeats());
+        $this->label(fn (): string => $this->countSeats());
 
     }
 
