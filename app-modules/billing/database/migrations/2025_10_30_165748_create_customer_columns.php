@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('pm_type')->after('pm_provider_id')->nullable();
             $table->string('pm_last_four', 4)->after('pm_provider_id')->nullable();
             $table->timestamp('trial_ends_at')->after('pm_last_four')->nullable();
-
         });
     }
 
