@@ -20,10 +20,7 @@ class BillingServiceProvider extends ServiceProvider
     {
         $this->app->bind(abstract: PlanRepository::class, concrete: ConfigPlanRepository::class);
         $this->app->bind(abstract: WebhookController::class, concrete: SubscriptionWebhookController::class);
-    }
 
-    public function boot(): void
-    {
         Panel::configureUsing(function (Panel $panel): void {
             if ($panel->getId() === 'company') {
                 Cashier::useCustomerModel(Company::class);
@@ -34,4 +31,6 @@ class BillingServiceProvider extends ServiceProvider
             }
         });
     }
+
+    public function boot(): void {}
 }
