@@ -6,7 +6,7 @@ use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\DetachAction;
 use Filament\Forms\Components\TextInput;
-use Filament\Pages\Tenancy\EditTenantProfile;
+use Filament\Pages\Tenancy\EditTenantProfile as BaseEditTenantProfile;
 use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
@@ -20,7 +20,7 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Filament\Actions\CreateAndAttachAction;
 use TresPontosTech\Tenant\Filament\Actions\TenantSeatsCounterAction;
 
-class EditCompany extends EditTenantProfile implements HasTable
+class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 {
     use InteractsWithTable;
 
