@@ -3,14 +3,22 @@
 namespace TresPontosTech\Tenant\Filament\Pages\Tenancy;
 
 use Filament\Forms\Components\TextInput;
-use Filament\Pages\Tenancy\RegisterTenant;
+use Filament\Pages\Tenancy\RegisterTenant as BaseRegisterTenant;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 
-class RegisterCompany extends RegisterTenant
+class RegisterTenant extends BaseRegisterTenant
 {
+    public static function canView(): bool
+    {
+        /** @var Company $tenant */
+        $tenant = filament()->getTenant();
+
+        return ! $tenant->subscribed('company');
+    }
+
     public static function getLabel(): string
     {
         return 'Register team';

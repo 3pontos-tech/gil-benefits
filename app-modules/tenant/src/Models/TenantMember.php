@@ -14,10 +14,12 @@ class TenantMember extends Pivot
 
     protected $fillable = [
         'role',
+        'active',
     ];
 
     protected $casts = [
         'role' => CompanyRoleEnum::class,
+        'active' => 'boolean',
     ];
 
     public function user(): BelongsTo

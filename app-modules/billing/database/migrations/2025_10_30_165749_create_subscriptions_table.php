@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('subscriptions', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('company_id');
+            $table->morphs('subscriptionable');
             $table->string('type');
             $table->string('stripe_id')->unique();
             $table->string('stripe_status');

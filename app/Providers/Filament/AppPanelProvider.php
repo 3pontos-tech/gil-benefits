@@ -17,6 +17,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TresPontosTech\Billing\Core\Pages\UserSubscriptionPage;
+use TresPontosTech\Billing\Stripe\Subscription\User\UserBillingProvider;
 use TresPontosTech\Company\Models\Company;
 
 class AppPanelProvider extends PanelProvider
@@ -26,7 +28,6 @@ class AppPanelProvider extends PanelProvider
         return $panel
             ->id('app')
             ->path('app')
-            ->tenant(Company::class, slugAttribute: 'slug')
             ->login(LoginPage::class)
             ->colors([
                 'primary' => Color::hex('#F1785A'),
@@ -39,11 +40,9 @@ class AppPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
                 Dashboard::class,
+                UserSubscriptionPage::class, // ?
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
-            ->widgets([
-
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -55,6 +54,10 @@ class AppPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->searchableTenantMenu(false)
+            ->tenantBillingProvider(new UserBillingProvider)
+            ->tenant(Company::class, slugAttribute: 'slug')
+            ->requiresTenantSubscription()
             ->authMiddleware([
                 Authenticate::class,
             ])
