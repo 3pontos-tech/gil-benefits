@@ -1,4 +1,4 @@
-<x-filament-panels::page full-height="true">
+<x-filament-panels::page full-height="true" class="scroll-smooth">
     <x-sections.hero-with-card />
     <x-sections.header-with-grid />
     <x-sections.split-header-with-grid />

@@ -25,7 +25,7 @@
     ];
 @endphp
 
-<section class="flex flex-col mx-auto mb-28 sm:mb-44 space-y-8 lg:space-y-16">
+<section class="flex flex-col mx-auto mb-28 sm:mb-44 space-y-8 lg:space-y-16" id="how-it-works">
     <x-headline class="max-w-full!" align="left" contentLayout="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-4 lg:gap-12">
         <x-slot:title>
             {{ $title }}

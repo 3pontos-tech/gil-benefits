@@ -34,7 +34,7 @@
     ];
 @endphp
 
-<div class="relative w-screen left-1/2 -ml-[50vw] mb-28 sm:mb-44 bg-elevation-01dp border border-tb border-outline-light">
+<div class="relative w-screen left-1/2 -ml-[50vw] mb-28 sm:mb-44 bg-elevation-01dp border border-tb border-outline-light" >
     <div class="mx-auto max-w-screen-2xl px-4 py-16 lg:px-8">
         <section class="flex flex-col space-y-8 lg:space-y-16 items-center justify-center">
             <x-headline

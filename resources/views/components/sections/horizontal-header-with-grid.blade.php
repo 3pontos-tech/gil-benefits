@@ -34,7 +34,7 @@
     ];
 @endphp
 
-<section class="flex flex-col mx-auto mb-28 sm:mb-44 space-y-8 lg:space-y-16 items-center justify-center">
+<section class="flex flex-col mx-auto mb-28 sm:mb-44 space-y-8 lg:space-y-16 items-center justify-center" id="assessment">
     <x-headline
         class="max-w-full!"
         align="left"

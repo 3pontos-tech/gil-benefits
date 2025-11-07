@@ -4,7 +4,7 @@
         sodales. Donec lectus nisi, aliquam eu ante at, blandit laoret...';
 @endphp
 
-<section class="flex flex-col mx-auto mb-28 sm:mb-44 items-center justify-center space-y-8 lg:space-y-16 w-full">
+<section class="flex flex-col mx-auto mb-28 sm:mb-44 items-center justify-center space-y-8 lg:space-y-16 w-full" id="pricing">
     <x-headline class="max-w-3xl!">
         <x-slot:title>
             {{ $title }}

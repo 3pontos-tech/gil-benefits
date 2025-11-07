@@ -23,7 +23,7 @@
     ];
 @endphp
 
-<section class="flex flex-col mx-auto mb-28 sm:mb-44 gap-12 bg-gradient-to-r from-brand-primary to-brand-secondary p-8 lg:p-16 rounded-xl">
+<section class="flex flex-col mx-auto mb-28 sm:mb-44 gap-12 bg-gradient-to-r from-brand-primary to-brand-secondary p-8 lg:p-16 rounded-xl" id="challenge">
     <x-partials.split-image-with-headline
         class="lg:grid-cols-[1.5fr_2fr]!"
         icon="flamma-icon"
