@@ -13,5 +13,15 @@ class LandingPage extends Dashboard
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected Width|string|null $maxContentWidth = Width::ScreenExtraLarge;
+    protected Width|string|null $maxContentWidth = Width::ScreenTwoExtraLarge;
+
+    public function getHeading(): string
+    {
+        return '';
+    }
+
+    public function getSubheading(): ?string
+    {
+        return null;
+    }
 }
