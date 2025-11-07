@@ -88,12 +88,14 @@
             </div>
         </div>
 
-        <div class="w-full grid grid-cols-1 sm:grid-cols-5 gap-8">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-5 gap-8">
             @foreach($planTiers as $tier)
                 <div
                     wire:key="tier-{{ $tier['id'] }}"
                     class="flex flex-col gap-4 p-4 text-medium"
-                    :class="activeTierId === {{ $tier['id'] }} ? 'border-brand-primary border rounded-lg scale-105 transition-all ease-in-out duration-500' : 'border border-outline-light'"
+                    :class="activeTierId === {{ $tier['id'] }} ?
+                        'border-brand-primary border rounded-lg lg:scale-105 transition-all ease-in-out duration-500' :
+                        'border border-outline-light'"
                 >
                     <h2 class="font-bold text-center">
                         @if($loop->last)
@@ -102,11 +104,11 @@
                             {{ $tier['min'] }} a {{ $tier['max'] }} Colaboradores
                         @endif
                     </h2>
-                    <div class="items-center justify-center flex flex-col">
-                <span class="flex items-center font-bold text-high text-xl lg:text-2xl gap-1">
-                    R$ {{ number_format($tier['price'], 2, ',', '.') }}
-                    <span class="text-medium font-medium text-xs">/colaborador</span>
-                </span>
+                    <div class="flex flex-col">
+                        <span class="flex items-center font-bold text-high text-xl lg:text-2xl gap-1">
+                            R$ {{ number_format($tier['price'], 2, ',', '.') }}
+                            <span class="text-medium font-medium text-xs">/colaborador</span>
+                        </span>
                     </div>
                 </div>
             @endforeach
@@ -114,7 +116,7 @@
     </div>
 
     <div class="flex items-center justify-center w-full mt-8">
-        <x-button class="rounded-xl" variant="outline">
+        <x-button class="rounded-xl">
             Solicitar proposta
         </x-button>
     </div>
