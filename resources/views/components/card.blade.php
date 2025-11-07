@@ -1,14 +1,14 @@
 @props([
     'as' => 'div',
     'href' => null,
-    'interactive' => false,
+    'interactive' => true,
     'disabled' => false,
     'density' => 'normal',
     'target' => null,
     'rel' => null,
     'textBox' => 'flex flex-col gap-y-1',
     'color' => 'primary',
-    'variant' => 'neutral',
+    'variant' => 'solid',
 ])
 
 @php
@@ -21,7 +21,7 @@
                 'base' => 'bg-gradient-to-br from-brand-primary to-brand-secondary',
                 'title' => 'text-light',
                 'description' => 'text-light',
-                'hover' => 'hover:brightness-110',
+                'hover' => 'hover:scale-105 transition-all duration-500',
                 'titleHover' => '',
                 'descriptionHover' => '',
             ],
@@ -29,7 +29,7 @@
                 'base' => 'bg-elevation-01dp border border-outline-light',
                 'title' => 'bg-gradient-to-br from-brand-primary to-brand-secondary w-fit bg-clip-text text-transparent',
                 'description' => 'text-medium font-medium',
-                'hover' => 'hover:border-brand-primary hover:bg-brand-primary',
+                'hover' => 'hover:border-brand-primary hover:bg-brand-primary transition-all duration-500 hover:scale-105',
                 'titleHover' => 'group-hover/card:text-light',
                 'descriptionHover' => 'group-hover/card:text-light',
             ],
@@ -42,10 +42,10 @@
                 'descriptionHover' => 'group-hover/card:text-light',
             ],
             'transparent' => [
-                'base' => 'bg-white/12 border border-white/16',
+                'base' => 'bg-white/12 border border-white/16 backdrop-blur-md',
                 'title' => 'text-light',
                 'description' => 'text-light font-medium',
-                'hover' => '',
+                'hover' => 'hover:scale-105 transition-all duration-500',
                 'titleHover' => '',
                 'descriptionHover' => '',
             ]
