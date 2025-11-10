@@ -2,7 +2,6 @@
     <x-partials.split-image-with-headline
         class="lg:grid-cols-[2fr_1fr]"
         text-color="normal"
-        button-variant="primary"
         reversed
         icon="flamma-icon"
         icon-color="primary"

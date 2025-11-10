@@ -1,7 +1,7 @@
 @props([
     'reversed' => false,
     'textColor' => 'light',
-    'buttonVariant' => 'white',
+    'buttonVariant' => 'solid',
     'title' => '',
     'description' => '',
     'icon' => '',

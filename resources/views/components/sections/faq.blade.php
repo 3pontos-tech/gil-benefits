@@ -33,7 +33,7 @@
     ];
 @endphp
 
-<section class="mx-auto mb-28 sm:mb-44 w-full grid grid-cols-1 lg:grid-cols-2 gap-8" id="faq">
+<section class="mx-auto mb-28 sm:mb-44 w-full grid grid-cols-1 lg:grid-cols-2 gap-8 scroll-mt-28" id="faq">
     <div>
         <x-headline class="lg:order-1 max-w-full!" align="left" :keywords="$keywords">
             <x-slot:title>

@@ -31,9 +31,7 @@
     };
 @endphp
 
-<div {{ $attributes->merge([
-    'class' => 'flex items-center justify-center rounded-sm w-fit ' . $sizeClasses['padding'] . ' ' . $colorClasses
-]) }}>
+<div {{ $attributes->class(['flex items-center justify-center rounded-sm w-fit ' . $sizeClasses['padding'] . ' ' . $colorClasses]) }}>
 
     @if ($icon)
         <x-filament::icon

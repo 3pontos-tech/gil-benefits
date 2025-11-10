@@ -25,10 +25,10 @@
                 </x-button>
             </x-slot:actions>
         </x-headline>
-        <div class="flex flex-col h-full overflow-hidden order-3 lg:order-2">
+        <div class="flex flex-col h-full overflow-hidden order-3 lg:order-2 p-2">
             <x-card class="h-full flex flex-col justify-between p-8">
                 <x-slot:icon>
-                    <x-badge size="md" icon="heroicon-o-check-circle" />
+                    <x-badge size="md" icon="heroicon-o-check-circle"/>
                 </x-slot:icon>
                 <x-slot:title>
                     {{ $cardTitle }}

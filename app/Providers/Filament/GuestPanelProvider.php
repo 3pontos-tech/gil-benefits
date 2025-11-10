@@ -43,8 +43,8 @@ class GuestPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::FOOTER, fn (): Factory|View => view('components.guest-footer'))
             ->renderHook(PanelsRenderHook::TOPBAR_END, fn () => Blade::render(<<<'BLADE'
                @guest
-                    <x-filament::button outlined tag='a' href='/app/login'>Acessar Plataforma</x-filament::button>
-                @endguest
+                    <x-button class="w-fit!" variant="outline" tag='a' href='/app/login'>Acessar Plataforma</x-button>
+               @endguest
             BLADE
             ))
             ->viteTheme('resources/css/filament/guest/theme.css')

@@ -23,10 +23,11 @@
     ];
 @endphp
 
-<section class="flex flex-col mx-auto mb-28 sm:mb-44 gap-12 bg-gradient-to-r from-brand-primary to-brand-secondary p-8 lg:p-16 rounded-xl" id="challenge">
+<section class="flex flex-col mx-auto mb-28 sm:mb-44 gap-12 bg-gradient-to-r from-brand-primary to-brand-secondary p-8 lg:p-16 rounded-xl scroll-mt-28" id="challenge">
     <x-partials.split-image-with-headline
         class="lg:grid-cols-[1.5fr_2fr]!"
         icon="flamma-icon"
+        button-variant="white"
         title="O Desafio do RH: Como o Estresse Financeiro Afeta Sua Empresa"
         description="A Flamma surge como um benefício corporativo inovador, desenhado para empoderar seus colaboradores
         com educação financeira de alta qualidade. Somos pioneiros em oferecer uma consultoria financeira personalizada,
