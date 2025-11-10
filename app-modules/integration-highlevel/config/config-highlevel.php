@@ -5,6 +5,6 @@ return [
     'secret' => env('HIGHLEVEL_SECRET_ACCESS_KEY'),
     'location' => env('HIGHLEVEL_DEFAULT_LOCATION', 'us-east-1'),
     'pipeline' => env('HIGHLEVEL_DEFAULT_PIPELINE', 'miSaf2ppCkOQd6icQu9e'),
-    'version' => env('HIGHLEVEL_API_VERSION', '2021-07-28'),
+    'version' => env('HIGHLEVEL_API_VERSION', '2021-04-15'),
     'company' => env('HIGHLEVEL_COMPANY_ID', 'qaCJB3XmO2nXwz6GeQbk'),
 ];

@@ -3,49 +3,35 @@
 namespace TresPontosTech\IntegrationHighlevel\Requests;
 
 use Carbon\CarbonInterface;
+use JsonSerializable;
 
-class FetchCalendarSlotsDTO implements \JsonSerializable
+class FetchCalendarSlotsDTO implements JsonSerializable
 {
     public function __construct(
         public string $calendarId,
         public CarbonInterface $startDate,
         public CarbonInterface $endDate,
-        public ?string $timezone = null,
-        public ?string $userId = null,
-        public ?array $userIds = null
+        public ?string $timezone = 'America/Sao_Paulo',
     ) {}
 
     public static function make(
         CarbonInterface $startDate,
         CarbonInterface $endDate,
-        ?string $userId = null,
     ): self {
         return new self(
             calendarId: config('services.highlevel.calendar', 'lAwKkZ3QFKKGSrFPTXNf'),
             startDate: $startDate,
             endDate: $endDate,
             timezone: config('app.timezone', 'America/Sao_Paulo'),
-            userId: $userId
         );
-
     }
 
     public function jsonSerialize(): array
     {
-        $data = [
+        return [
             'startDate' => $this->startDate->getTimestampMs(),
             'endDate' => $this->endDate->getTimestampMs(),
             'timezone' => $this->timezone,
         ];
-
-        if ($this->userId !== null) {
-            $data['userId'] = $this->userId;
-        }
-
-        if ($this->userIds !== null && $this->userIds !== []) {
-            $data['userIds'] = $this->userIds;
-        }
-
-        return $data;
     }
 }

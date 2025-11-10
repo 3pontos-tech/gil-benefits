@@ -22,16 +22,7 @@ enum AppointmentCategoryEnum: string implements HasDescription, HasIcon, HasLabe
 
     public function getDescription(): string|Htmlable|null
     {
-        return match ($this) {
-            self::PersonalFinance => 'Assistance with budgeting, saving, and managing personal finances.',
-            self::InvestmentAdvisory => 'Guidance on investment strategies and portfolio management.',
-            self::RetirementAndEstatePlanning => 'Planning for retirement and managing estate affairs.',
-            self::BusinessFinancialManagement => 'Support for business financial operations and strategy.',
-            self::TaxPlanning => 'Advice on tax strategies and compliance.',
-            self::FundraisingAndCredit => 'Help with fundraising efforts and credit management.',
-            self::MergersAndAcquisitions => 'Consultation on mergers, acquisitions, and business growth.',
-            self::RiskAndCompliance => 'Ensuring adherence to regulations and managing financial risks.',
-        };
+        return __('appointments::categories.' . $this->value . '.description');
     }
 
     public function getIcon(): BackedEnum
@@ -50,15 +41,6 @@ enum AppointmentCategoryEnum: string implements HasDescription, HasIcon, HasLabe
 
     public function getLabel(): string|Htmlable|null
     {
-        return match ($this) {
-            self::PersonalFinance => 'Personal Finance',
-            self::InvestmentAdvisory => 'Investment Advisory',
-            self::RetirementAndEstatePlanning => 'Retirement and Estate Planning',
-            self::BusinessFinancialManagement => 'Business Financial Management',
-            self::TaxPlanning => 'Tax Planning',
-            self::FundraisingAndCredit => 'Fundraising and Credit',
-            self::MergersAndAcquisitions => 'Mergers and Acquisitions',
-            self::RiskAndCompliance => 'Risk and Compliance',
-        };
+        return __('appointments::categories.' . $this->value . '.label');
     }
 }

@@ -12,7 +12,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
@@ -36,7 +36,7 @@ class AppointmentWizard
                         ->label('Date')
                         ->required()
                         ->native(false)
-                        ->minDate(now()->format('Y-m-d'))
+                        ->minDate(now()->addDays(2)->format('Y-m-d'))
                         ->reactive()
                         ->afterStateUpdated(fn (callable $set) => $set('appointment_at', null)),
 
@@ -84,21 +84,25 @@ class AppointmentWizard
             return [];
         }
 
-        $key = sprintf('available_slots_for_%s_%s', $date, auth()->user()->id);
+        sprintf('available_slots_for_%s_%s', $date, auth()->user()->id);
 
-        return Cache::remember($key, now()->addMinutes(10), function () use ($startDate) {
-            $response = app(HighLevelClient::class)
-                ->getCalendarFreeSlots(FetchCalendarSlotsDTO::make($startDate, $startDate));
+        return self::getAvailableTimeSlots($startDate);
 
-            $formattedDate = $startDate->format('Y-m-d');
-            $response = $response[$formattedDate]['slots'];
+    }
 
-            return collect($response)
-                ->mapWithKeys(fn ($slot): array => [
-                    $slot => Date::parse($slot)->format('H:i'),
-                ])->all();
+    private static function getAvailableTimeSlots(Carbon $startDate): array
+    {
+        $endDate = $startDate->clone()->endOfDay();
+        $response = app(HighLevelClient::class)
+            ->getCalendarFreeSlots(FetchCalendarSlotsDTO::make($startDate, $endDate));
 
-        });
+        $formattedDate = $startDate->format('Y-m-d');
 
+        $response = $response[$formattedDate]['slots'];
+
+        return collect($response)
+            ->mapWithKeys(fn ($slot): array => [
+                $slot => Date::parse($slot)->format('H:i'),
+            ])->all();
     }
 }

@@ -12,6 +12,10 @@ class AppointmentsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Load package translations for the appointments module
+        $this->loadTranslationsFrom(__DIR__ . '/../lang', 'appointments');
+        $this->loadJsonTranslationsFrom(__DIR__ . '/../lang');
+
         Panel::configureUsing(function (Panel $panel): void {
             if ($panel->getId() === 'admin') {
                 $panel->discoverResourcesForPanel('appointments', FilamentPanel::Admin);

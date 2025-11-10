@@ -16,8 +16,6 @@ class CreateAppointment extends CreateRecord
 {
     protected static string $resource = AppointmentResource::class;
 
-    protected string $view = 'filament-panels::pages.page';
-
     protected Width|string|null $maxContentWidth = '4xl';
 
     protected static string $layout = 'filament-panels::components.layout.simple';

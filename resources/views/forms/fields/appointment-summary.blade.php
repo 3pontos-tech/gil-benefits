@@ -1,11 +1,10 @@
 @php
-    use Carbon\Carbon;use TresPontosTech\Consultants\Models\Consultant;use TresPontosTech\Vouchers\Models\Voucher;
+    use Carbon\Carbon;use TresPontosTech\Consultants\Models\Consultant;
 
     $consultant = Consultant::query()->find($get('consultant_id'));
     $date = $get('date') ? Carbon::parse($get('date'))->translatedFormat('l, F d, Y') : null;
     $time = $get('time');
     $duration = '60 minutes';
-    $voucher = $get('voucher_id') ? Voucher::query()->find($get('voucher_id')) : null;
 @endphp
 
 <div class="space-y-6">
@@ -42,20 +41,7 @@
                     </div>
                 </div>
 
-                {{-- Voucher / Payment --}}
-                <div class="flex items-center space-x-3">
-                    <x-heroicon-o-ticket class="h-5 w-5 text-gray-400"/>
-                    <div>
-                        @if($voucher)
-                            <p class="font-medium">Voucher: {{ $voucher->code }}</p>
-                            <p class="text-sm text-gray-500">{{ $voucher->hours_remaining }} hours remaining after
-                                booking</p>
-                        @else
-                            <p class="font-medium">Payment: Invoice to company</p>
-                            <p class="text-sm text-gray-500">Will be charged to company account</p>
-                        @endif
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>
