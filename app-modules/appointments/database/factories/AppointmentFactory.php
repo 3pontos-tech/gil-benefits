@@ -10,7 +10,6 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\Vouchers\Models\Voucher;
 
 class AppointmentFactory extends Factory
 {
@@ -20,7 +19,6 @@ class AppointmentFactory extends Factory
     {
         return [
             'consultant_id' => Consultant::factory(),
-            'voucher_id' => Voucher::factory(),
             'user_id' => User::factory(),
             'company_id' => Company::factory(),
 

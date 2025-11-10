@@ -2,12 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\DTO\ProcessPlanDTO;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
 use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Plans\Actions\ProcessPlanAction;
 
 class EssentialsSeeder extends Seeder
 {
@@ -23,17 +21,6 @@ class EssentialsSeeder extends Seeder
         $company = Company::factory()->create([
             'name' => '5Pontos',
             'slug' => '5pontos',
-            'user_id' => $admin->id,
-        ]);
-
-        app(ProcessPlanAction::class)->handle(ProcessPlanDTO::make(
-            companyId: $company->getKey(), data: [
-                'item_id' => 1,
-                'status' => 'active',
-                'subscription_starting_at' => now(),
-            ]));
-
-        $company->vouchers()->first()->update([
             'user_id' => $admin->id,
         ]);
 

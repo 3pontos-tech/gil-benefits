@@ -8,7 +8,6 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
 use TresPontosTech\IntegrationHighlevel\Requests\UpsertOpportunityDTO;
-use TresPontosTech\Vouchers\Models\Voucher;
 
 readonly class BookAppointmentAction
 {
@@ -18,7 +17,6 @@ readonly class BookAppointmentAction
         BookAppointmentDTO $payload
     ): void {
         $user = User::query()->find($payload->userId);
-        $voucher = Voucher::query()->find($payload->voucherId);
 
         $opportunityResponse = $this->client->upsertOpportunity(UpsertOpportunityDTO::make(
             $user->external_id,
@@ -41,6 +39,5 @@ readonly class BookAppointmentAction
             'external_appointment_id' => $schedule->id,
         ]);
 
-        $voucher->markAsUsed();
     }
 }

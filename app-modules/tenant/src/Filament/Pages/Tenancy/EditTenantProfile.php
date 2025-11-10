@@ -83,8 +83,6 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->color(fn ($state) => CompanyRoleEnum::from($state)->getColor())
                     ->formatStateUsing(fn ($state) => CompanyRoleEnum::from($state)->getLabel())
                     ->badge(),
-                TextColumn::make('vouchers_used_count')
-                    ->state(fn ($record) => $record->appointments()->count()),
             ]);
     }
 

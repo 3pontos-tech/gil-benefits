@@ -19,8 +19,6 @@ class AppointmentsTable
                     ->searchable(),
                 TextColumn::make('user.name')
                     ->searchable(),
-                TextColumn::make('voucher.id')
-                    ->searchable(),
                 TextColumn::make('date')
                     ->dateTime()
                     ->sortable(),

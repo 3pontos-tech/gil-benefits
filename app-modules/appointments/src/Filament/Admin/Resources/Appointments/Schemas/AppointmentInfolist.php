@@ -13,7 +13,6 @@ class AppointmentInfolist
             ->components([
                 TextEntry::make('consultant.name'),
                 TextEntry::make('user.name'),
-                TextEntry::make('voucher.id'),
                 TextEntry::make('date')
                     ->dateTime(),
                 TextEntry::make('status'),

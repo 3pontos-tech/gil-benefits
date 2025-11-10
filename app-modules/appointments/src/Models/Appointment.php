@@ -10,7 +10,6 @@ use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\Vouchers\Models\Voucher;
 
 class Appointment extends Model
 {
@@ -19,7 +18,6 @@ class Appointment extends Model
     protected $fillable = [
         'user_id',
         'consultant_id',
-        'voucher_id',
         'external_opportunity_id',
         'external_appointment_id',
         'category_type',
@@ -40,11 +38,6 @@ class Appointment extends Model
     public function consultant(): BelongsTo
     {
         return $this->belongsTo(Consultant::class);
-    }
-
-    public function voucher(): BelongsTo
-    {
-        return $this->belongsTo(Voucher::class);
     }
 
     public function user(): BelongsTo

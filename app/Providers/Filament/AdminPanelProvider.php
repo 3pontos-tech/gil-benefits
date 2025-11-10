@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Admin\Widgets\VoucherStatus;
 use App\Filament\Shared\Pages\LoginPage;
 use Basement\BetterMails\Filament\FilamentBetterEmailPlugin;
 use Basement\Webhooks\FilamentWebhookPlugin;
@@ -39,9 +38,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->discoverClusters(in: app_path('Filament/Admin/Clusters'), for: 'App\\Filament\\Admin\\Clusters')
             ->viteTheme('resources/css/filament/admin/theme.css')
-            ->widgets([
-                VoucherStatus::class,
-            ])
             ->plugins([
                 FilamentWebhookPlugin::make(),
                 FilamentBetterEmailPlugin::make(),

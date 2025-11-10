@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('consultant_id')->nullable()->constrained('consultants');
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('voucher_id')->constrained('vouchers');
             $table->string('external_opportunity_id');
             $table->string('external_appointment_id');
 

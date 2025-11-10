@@ -35,7 +35,6 @@
         "3pontos-tech/integration-highlevel": "*",
         "3pontos-tech/plans": "*",
         "3pontos-tech/tenant": "*",
-        "3pontos-tech/vouchers": "*",
         "basementdevs/filament-webhooks": "dev-main",
         "filament/filament": "^4.1",
         "filament/spatie-laravel-media-library-plugin": "^4.0",

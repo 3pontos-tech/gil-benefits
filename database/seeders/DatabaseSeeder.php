@@ -10,8 +10,6 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Plans\Models\Plan;
-use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
-use TresPontosTech\Vouchers\Models\Voucher;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,10 +22,8 @@ class DatabaseSeeder extends Seeder
         $this->generateUsers();
         $this->generatePlans();
 
-        $consultants = $this->getConsultants();
-        $companies = $this->generateCompanies();
-
-        $this->generateVouchers($companies, $consultants);
+        $this->getConsultants();
+        $this->generateCompanies();
 
         $admin = User::factory()->admin()->create();
         Company::all()->each(fn ($company) => $company->employees()->attach($admin, ['role' => CompanyRoleEnum::Owner->value]));
@@ -66,37 +62,6 @@ class DatabaseSeeder extends Seeder
 
             })
             ->create();
-    }
-
-    private function generateVouchers(Collection $companies, Collection $consultants): void
-    {
-        /** @var Company $company */
-        foreach ($companies as $company) {
-            Voucher::factory()
-                ->recycle($company)
-                ->recycle($company->employees->random())
-                ->recycle($consultants->random())
-                ->withStatus(VoucherStatusEnum::Active)
-                ->create();
-
-            Voucher::factory()
-                ->recycle($company)
-                ->recycle($company->employees->random())
-                ->recycle($consultants->random())
-                ->withStatus(VoucherStatusEnum::Used)
-                ->create();
-
-            Voucher::factory()
-                ->recycle($company)
-                ->expired()
-                ->create();
-
-            Voucher::factory()
-                ->recycle($company)
-                ->unused()
-                ->count(3)
-                ->create();
-        }
     }
 
     private function generateUsers(): void

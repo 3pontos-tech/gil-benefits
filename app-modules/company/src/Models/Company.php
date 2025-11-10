@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Cashier\Billable;
@@ -17,8 +16,6 @@ use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
-use TresPontosTech\Vouchers\Models\Voucher;
-use TresPontosTech\Vouchers\Models\VoucherRequest;
 
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model
@@ -57,19 +54,9 @@ class Company extends Model
             ->using(TenantMember::class);
     }
 
-    public function vouchers(): HasMany
-    {
-        return $this->hasMany(Voucher::class);
-    }
-
     public function plans(): BelongsToMany
     {
         return $this->BelongsToMany(Item::class, 'company_plans', 'company_id', 'item_id')->withPivot('status')->withTimestamps();
-    }
-
-    public function voucherRequests(): HasMany
-    {
-        return $this->hasMany(VoucherRequest::class);
     }
 
     protected static function newFactory(): CompanyFactory

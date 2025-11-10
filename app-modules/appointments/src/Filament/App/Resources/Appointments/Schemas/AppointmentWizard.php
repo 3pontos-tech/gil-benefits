@@ -8,18 +8,14 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
-use Filament\Support\Exceptions\Halt;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
-use TresPontosTech\Vouchers\Enums\VoucherStatusEnum;
-use TresPontosTech\Vouchers\Models\Voucher;
 
 class AppointmentWizard
 {
@@ -57,31 +53,6 @@ class AppointmentWizard
                         ->default('60 minutes')
                         ->disabled()
                         ->dehydrated(false),
-                ]),
-
-            Step::make('Apply Voucher')
-                ->icon(Heroicon::Ticket)
-                ->beforeValidation(function (Get $get): void {
-                    $voucher = $get('voucher_id');
-                    if (is_null($voucher)) {
-                        Notification::make()
-                            ->warning()
-                            ->title('Voucher is not active')
-                            ->send();
-
-                        throw new Halt;
-                    }
-                })
-                ->schema([
-                    ViewField::make('voucher_id')
-                        ->formatStateUsing(fn () => Voucher::query()
-                            ->where('company_id', filament()->getTenant()->getKey())
-                            ->where('user_id', auth()->user()->getKey())
-                            ->where('status', VoucherStatusEnum::Pending)
-                            ->first()
-                            ?->getKey()
-                        )
-                        ->view('forms.fields.available-voucher'),
                 ]),
 
             Step::make('Review & Confirm')

@@ -19,9 +19,6 @@ class AppointmentForm
                 Select::make('user_id')
                     ->relationship('user', 'name')
                     ->required(),
-                Select::make('voucher_id')
-                    ->relationship('voucher', 'id')
-                    ->required(),
                 DateTimePicker::make('date')
                     ->required(),
                 Select::make('status')

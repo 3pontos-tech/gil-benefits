@@ -13,7 +13,6 @@ class BookAppointmentDTO implements JsonSerializable
         public int|string $userId,
         public AppointmentCategoryEnum $categoryType,
         public CarbonInterface $appointmentAt,
-        public int $voucherId,
         public ?string $notes = null,
     ) {}
 
@@ -23,7 +22,6 @@ class BookAppointmentDTO implements JsonSerializable
             userId: $userId,
             categoryType: AppointmentCategoryEnum::from($payload['category_type']),
             appointmentAt: Date::parse($payload['appointment_at']),
-            voucherId: $payload['voucher_id'],
             notes: $payload['notes'] ?? null,
         );
     }
@@ -34,7 +32,6 @@ class BookAppointmentDTO implements JsonSerializable
             'userId' => $this->userId,
             'category_type' => $this->categoryType->value,
             'appointment_at' => $this->appointmentAt->getTimestampMs(),
-            'voucher_id' => $this->voucherId,
             'notes' => $this->notes,
         ];
     }
