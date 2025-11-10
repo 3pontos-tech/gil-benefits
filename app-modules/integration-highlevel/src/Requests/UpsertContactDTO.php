@@ -35,9 +35,11 @@ class UpsertContactDTO implements JsonSerializable
         );
     }
 
-    public function jsonSerialize(): mixed
+    public function jsonSerialize(): array
     {
         return [
+            'source' => config('app.name'),
+            'companyName' => $this->companyName,
             'firstName' => $this->firstName,
             'lastName' => $this->lastName,
             'name' => $this->name,

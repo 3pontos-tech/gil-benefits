@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "20cacb96c56c5fc3a8a1bd7f5284ae73",
+    "content-hash": "a90e04c26d6f7d5b2866b98ae0ab8d98",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -224,6 +224,38 @@
             "autoload-dev": {
                 "psr-4": {
                     "TresPontosTech\\Tenant\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/user",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/user",
+                "reference": "91bfef84307c16e0b67955bdc3f9d0fb86396d8d"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\User\\Providers\\UserServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\User\\": "src/",
+                    "TresPontosTech\\User\\Tests\\": "tests/",
+                    "TresPontosTech\\User\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\User\\Database\\Seeders\\": "database/seeders/"
                 }
             },
             "license": [

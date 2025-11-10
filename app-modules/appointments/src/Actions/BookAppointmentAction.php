@@ -20,11 +20,11 @@ readonly class BookAppointmentAction
 
         $opportunityResponse = $this->client->upsertOpportunity(UpsertOpportunityDTO::make(
             $user->external_id,
-            '[Test] ' . $payload->categoryType->value . ' - ' . $user->name
+            $user->name . ' - ' . $payload->categoryType->value
         ));
 
         $dto = CreateAppointmentDTO::make(
-            'teste integração',
+            'Acompanhamento Financeiro - ' . $user->name,
             $user->external_id,
             $payload->appointmentAt->toIso8601ZuluString(),
             $payload->appointmentAt->addHour()->toIso8601ZuluString(),
