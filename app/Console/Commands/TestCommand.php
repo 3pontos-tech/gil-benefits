@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use TresPontosTech\Billing\Core\PlanRepository;
-use TresPontosTech\Billing\Core\Price;
+use TresPontosTech\Billing\Core\Repositories\PlanRepository;
+use TresPontosTech\Billing\Core\Entities\PriceEntity;
 
 class TestCommand extends Command
 {
@@ -29,7 +29,7 @@ class TestCommand extends Command
     {
         $plan = $planRepository->get('user');
 
-        $proPlan = $plan->prices->first(fn (Price $price): bool => $price->type === 'pro');
+        $proPlan = $plan->prices->first(fn (PriceEntity $price): bool => $price->type === 'pro');
 
         dd($proPlan);
 

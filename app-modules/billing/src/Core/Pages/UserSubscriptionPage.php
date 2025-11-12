@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
-use TresPontosTech\Billing\Core\PlanRepository;
+use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 
 class UserSubscriptionPage extends Page
 {

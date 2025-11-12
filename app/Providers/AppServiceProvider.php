@@ -7,7 +7,7 @@ use Filament\Panel;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
-use TresPontosTech\Billing\Core\Models\Subscription;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
 class AppServiceProvider extends ServiceProvider
 {

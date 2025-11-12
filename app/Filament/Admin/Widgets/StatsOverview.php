@@ -19,9 +19,9 @@ class StatsOverview extends StatsOverviewWidget
         Company::query()->count();
 
         return [
-            $this->mountActivePlansStat(),
-            $this->mountNewUsersStat(),
-            $this->mountTotalCompaniesStat(),
+//            $this->mountActivePlansStat(),
+//            $this->mountNewUsersStat(),
+//            $this->mountTotalCompaniesStat(),
         ];
     }
 

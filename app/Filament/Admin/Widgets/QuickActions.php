@@ -32,12 +32,12 @@ class QuickActions extends Widget
                 'icon' => 'heroicon-o-building-office',
                 'href' => CreateCompany::getUrl(),
             ],
-            [
-                'title' => 'Criar Plano',
-                'description' => 'Configurar novo plano de assinatura',
-                'icon' => 'heroicon-o-credit-card',
-                'href' => CreatePlan::getUrl(),
-            ],
+//            [
+//                'title' => 'Criar Plano',
+//                'description' => 'Configurar novo plano de assinatura',
+//                'icon' => 'heroicon-o-credit-card',
+//                'href' => CreatePlan::getUrl(),
+//            ],
             [
                 'title' => 'Gerenciar Usuários',
                 'description' => 'Visualizar e editar usuários existentes',

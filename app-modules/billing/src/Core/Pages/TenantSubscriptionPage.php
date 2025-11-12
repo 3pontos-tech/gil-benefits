@@ -9,8 +9,8 @@ use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
-use TresPontosTech\Billing\Core\Plan;
-use TresPontosTech\Billing\Core\PlanRepository;
+use TresPontosTech\Billing\Core\Entities\PlanEntity;
+use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
 class TenantSubscriptionPage extends Page
@@ -37,7 +37,7 @@ class TenantSubscriptionPage extends Page
     }
 
     #[Computed]
-    public function planRepository(string $type): Plan
+    public function planRepository(string $type): PlanEntity
     {
         return app(PlanRepository::class)->get($type);
     }

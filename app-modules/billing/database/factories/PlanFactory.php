@@ -1,0 +1,34 @@
+<?php
+
+namespace TresPontosTech\Billing\Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Carbon;
+use TresPontosTech\Billing\Core\Models\Plan;
+
+/** @extends \Illuminate\Database\Eloquent\Factories\Factory<\TresPontosTech\Billing\Core\Models\Plan> */
+class PlanFactory extends Factory
+{
+    protected $model = Plan::class;
+
+    public function definition(): array
+    {
+        return [
+            'name' => $this->faker->name(),
+            'description' => $this->faker->text(),
+            'provider' => $this->faker->word(),
+            'provider_product_id' => $this->faker->word(),
+            'trial_days' => $this->faker->randomNumber(),
+            'has_generic_trial' => $this->faker->boolean(),
+            'allow_promotion_codes' => $this->faker->boolean(),
+            'collect_tax_ids' => $this->faker->boolean(),
+            'active' => $this->faker->boolean(),
+            'slug' => $this->faker->slug(),
+            'type' => $this->faker->word(),
+            'unit_label' => $this->faker->word(),
+            'statement_descriptor' => $this->faker->word(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ];
+    }
+}

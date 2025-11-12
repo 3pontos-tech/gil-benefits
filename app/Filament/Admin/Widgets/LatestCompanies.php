@@ -26,7 +26,7 @@ class LatestCompanies extends TableWidget
                 TextColumn::make('plans.name')
                     ->badge()
                     ->default(fn (): string => 'N/A')
-                    ->label('Plan'),
+                    ->label('PlanEntity'),
                 TextColumn::make('tax_id')
                     ->badge()
                     ->searchable(),

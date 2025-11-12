@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Cashier\Billable;
-use TresPontosTech\Billing\Core\Models\Subscription;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Tenant\Models\TenantMember;
@@ -54,10 +54,6 @@ class Company extends Model
             ->using(TenantMember::class);
     }
 
-    public function plans(): BelongsToMany
-    {
-        return $this->BelongsToMany(Item::class, 'company_plans', 'company_id', 'item_id')->withPivot('status')->withTimestamps();
-    }
 
     protected static function newFactory(): CompanyFactory
     {
