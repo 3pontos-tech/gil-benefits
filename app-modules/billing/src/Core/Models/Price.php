@@ -11,6 +11,7 @@ class Price extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
     protected $table = 'billing_plan_prices';
 
     protected $fillable = [
@@ -35,7 +36,6 @@ class Price extends Model
         return [
             'default' => 'boolean',
             'active' => 'boolean',
-            'metadata' => 'array',
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Billing\Core\Filament\Admin\Resources\Prices;
 
+use Filament\Forms\Components\CodeEditor\Enums\Language;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -11,6 +12,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
@@ -27,12 +29,15 @@ use TresPontosTech\Billing\Core\Filament\Admin\Resources\Prices\Pages\CreatePric
 use TresPontosTech\Billing\Core\Filament\Admin\Resources\Prices\Pages\EditPrice;
 use TresPontosTech\Billing\Core\Filament\Admin\Resources\Prices\Pages\ListPrices;
 use TresPontosTech\Billing\Core\Models\Price;
+use UnitEnum;
 
 class PriceResource extends Resource
 {
     protected static ?string $model = Price::class;
 
     protected static ?string $slug = 'prices';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Billing';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
@@ -62,6 +67,11 @@ class PriceResource extends Resource
                     ->required(),
 
                 TextInput::make('provider_price_id')
+                    ->required(),
+
+                CodeEditor::make('metadata')
+                    ->formatStateUsing(fn (?string $state): string => $state ? json_encode(json_decode($state), JSON_PRETTY_PRINT) : '')
+                    ->language(Language::Json)
                     ->required(),
 
                 TextEntry::make('created_at')

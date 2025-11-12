@@ -38,4 +38,9 @@ enum BillableTypeEnum: string implements HasColor, HasIcon, HasLabel
     {
         return $this->name;
     }
+
+    public function isMetered(): bool
+    {
+        return $this === self::Company;
+    }
 }

@@ -39,7 +39,7 @@ final readonly class ConfigPlanRepository implements PlanRepository
             ->map(fn (array $price): PriceEntity => PriceEntity::make($price));
 
         return new PlanEntity(
-            type: Arr::get($plan, key: 'type', default: $name),
+            slug: Arr::get($plan, key: 'type', default: $name),
             productId: Arr::get($plan, key: 'product_id', default: ''),
             prices: $prices,
             trialDays: Arr::get($plan, key: 'trial_days', default: false),
@@ -54,5 +54,12 @@ final readonly class ConfigPlanRepository implements PlanRepository
     {
         return collect($this->all())
             ->filter(fn ($plan, $key): bool => str_starts_with($key, 'user_'));
+    }
+
+    public function getActiveTenantPlan(): PlanEntity
+    {
+        return collect($this->all())
+            ->filter(fn ($plan, $key): bool => str_starts_with($key, 'company'))
+            ->firstOrFail();
     }
 }

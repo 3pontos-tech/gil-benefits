@@ -6,13 +6,15 @@
 @php
     /** @var Collection<string, PlanEntity> $plans */
 
-    $tiers = $plans->map(fn (PlanEntity $plan, string $key) => [
-        'label' => $key,
+    $tiers = $plans
+
+    ->map(fn (PlanEntity $plan, string $key) => [
+        'label' => $plan->slug,
         'pricing' => $plan->prices->first()->metadata['price'],
         'features' => $plan->prices->first()->metadata['features'],
         'min' => 2,
         'max' => 5,
-        'price_key' => $key,
+        'price_key' => $plan->slug,
     ])->toArray();
 
 @endphp

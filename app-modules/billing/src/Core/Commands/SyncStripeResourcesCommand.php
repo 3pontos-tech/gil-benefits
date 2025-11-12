@@ -51,7 +51,10 @@ class SyncStripeResourcesCommand extends Command
                     'unit_amount_decimal' => $price->unit_amount ?? 0,
                     'active' => $price->active,
                     'default' => false,
-                    'metadata' => $price->metadata->toArray(),
+                    'metadata' => [
+                        'price' => 250,
+                        'features' => ['2 zap', 'treco de novo', 'bagulho'],
+                    ],
                 ]));
         }
     }

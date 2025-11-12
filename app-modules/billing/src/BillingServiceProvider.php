@@ -10,6 +10,7 @@ use Laravel\Cashier\Http\Controllers\WebhookController;
 use Override;
 use TresPontosTech\Billing\Core\Commands\SyncStripeResourcesCommand;
 use TresPontosTech\Billing\Core\Repositories\ConfigPlanRepository;
+use TresPontosTech\Billing\Core\Repositories\EloquentPlanRepository;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Billing\Stripe\Subscription\SubscriptionWebhookController;
 use TresPontosTech\Company\Models\Company;
@@ -19,7 +20,7 @@ class BillingServiceProvider extends ServiceProvider
     #[Override]
     public function register(): void
     {
-        $this->app->bind(abstract: PlanRepository::class, concrete: ConfigPlanRepository::class);
+        $this->app->bind(abstract: PlanRepository::class, concrete: EloquentPlanRepository::class);
         $this->app->bind(abstract: WebhookController::class, concrete: SubscriptionWebhookController::class);
 
         $this->commands([

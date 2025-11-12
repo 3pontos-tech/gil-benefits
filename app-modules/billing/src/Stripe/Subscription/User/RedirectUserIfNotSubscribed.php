@@ -2,12 +2,13 @@
 
 namespace TresPontosTech\Billing\Stripe\Subscription\User;
 
-use App\Models\User;
+use App\Models\Users\User;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Laravel\Cashier\Cashier;
 use Stripe\Collection;
+use Stripe\Stripe;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
@@ -26,10 +27,13 @@ class RedirectUserIfNotSubscribed
             $tenant->createAsStripeCustomer();
         }
 
+
         // TODO: when the company cancels the subscription, the user needs a page to understand what do next
         // TODO: ask the team which kind of page to add here
-        abort_unless($tenant->subscribed('company'), 401);
 
+        $hasActiveSubscription = $tenant->subscriptions()->whereIn('stripe_status', ['active', 'incomplete'])->exists();
+
+        abort_unless($hasActiveSubscription, 403);
         $employee = auth()->user();
 
         // TODO: Employee needs to pick a plan to continue
@@ -38,7 +42,7 @@ class RedirectUserIfNotSubscribed
         /** @var Collection<string, PlanEntity> $availableEmployeesPlans */
         $availableEmployeesPlans = $this->planRepository->getPlansFor('user');
         foreach ($availableEmployeesPlans as $plan) {
-            if ($employee->subscribed($plan->type)) {
+            if ($employee->subscribed($plan->slug)) {
                 return $next($request);
             }
         }

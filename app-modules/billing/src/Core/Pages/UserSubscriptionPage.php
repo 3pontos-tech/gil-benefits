@@ -51,7 +51,7 @@ class UserSubscriptionPage extends Page
         $price = $plan->prices->first();
 
         $sessionCheckout = $user
-            ->newSubscription(type: $plan->type, prices: [$price->priceId])
+            ->newSubscription(type: $plan->slug, prices: [$price->priceId])
             ->when(
                 value: $plan->hasGenericTrial && $plan->trialDays !== false,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->trialDays(trialDays: $plan->trialDays),

@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\Billing\Stripe\Subscription\User;
 
-use App\Models\User;
 use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
 use Filament\Pages\Dashboard;
@@ -17,7 +16,7 @@ class UserBillingProvider implements BillingProvider
             if ($tenant->hasStripeId() === false) {
                 $tenant->createAsStripeCustomer([
                     'metadata' => [
-                        'model_type' => User::class,
+                        'model_type' => \App\Models\Users\User::class,
                     ],
                 ]);
             }

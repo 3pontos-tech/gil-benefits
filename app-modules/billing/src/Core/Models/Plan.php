@@ -13,6 +13,7 @@ class Plan extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
     protected $table = 'billing_plans';
 
     protected $fillable = [

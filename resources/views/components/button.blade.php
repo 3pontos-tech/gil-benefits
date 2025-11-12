@@ -94,13 +94,19 @@
 
 <{{ $tag }}
     @if (!$isLink)
-    type="{{ $type }}"
-@if ($isDisabled) disabled @endif
+    type="{{ $slug }}"
+@if ($isDisabled)
+    disabled
+@endif
 @else
     href="{{ $href }}"
-    @if ($isDisabled) aria-disabled="true" tabindex="-1" @endif
+    @if ($isDisabled)
+        aria-disabled="true" tabindex="-1"
+    @endif
 @endif
-@if ($isBusy) aria-busy="true" @endif
+@if ($isBusy)
+    aria-busy="true"
+@endif
 {{ $attributes->class($classes) }}
 >
 
@@ -108,7 +114,7 @@
 @if ($hasLeading)
     <span class="{{ $sizeCls['icon'] }} shrink-0">
             @if ($icon)
-            <x-dynamic-component :component="$icon" class="w-full h-full" />
+            <x-dynamic-component :component="$icon" class="w-full h-full"/>
         @else
             {{ $leading }}
         @endif
@@ -126,7 +132,7 @@
 @if ($hasTrailing)
     <span class="{{ $sizeCls['icon'] }} shrink-0">
             @if ($icon)
-            <x-dynamic-component :component="$icon" class="w-full h-full" />
+            <x-dynamic-component :component="$icon" class="w-full h-full"/>
         @else
             {{ $trailing }}
         @endif
@@ -138,7 +144,8 @@
     <span class="absolute inline-flex items-center justify-center">
             <svg class="animate-spin {{ $sizeCls['icon'] }}" viewBox="0 0 24 24" aria-hidden="true">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                <path class="opacity-75" d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                <path class="opacity-75" d="M4 12a8 8 0 018-8" stroke="currentColor" stroke-width="4"
+                      stroke-linecap="round"/>
             </svg>
         </span>
 @endif

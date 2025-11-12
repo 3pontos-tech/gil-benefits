@@ -25,7 +25,7 @@ class RedirectCompanyIfNotSubscribed
 
         $plans = resolve(PlanRepository::class)->all();
         foreach ($plans as $plan) {
-            if ($tenant->subscribed($plan->type)) {
+            if ($tenant->subscribed($plan->slug)) {
                 return $next($request);
             }
         }

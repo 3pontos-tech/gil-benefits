@@ -47,22 +47,30 @@ class PlanResource extends Resource
     {
         return $schema
             ->components([
+                TextInput::make('provider')
+                    ->disabled()
+                    ->required(),
+                TextInput::make('provider_product_id')
+                    ->disabled()
+                    ->required(),
                 TextInput::make('name')
                     ->required()
+                    ->disabled()
                     ->reactive()
                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
+                TextInput::make('slug')
+                    ->disabled()
+                    ->required()
+                    ->unique(Plan::class, 'slug', fn ($record) => $record),
                 TextInput::make('description')
+                    ->disabled()
                     ->required(),
 
-                TextInput::make('provider')
+                Select::make('type')
+                    ->enum(BillableTypeEnum::class)
+                    ->options(BillableTypeEnum::class)
                     ->required(),
-
-                TextInput::make('provider_product_id')
-                    ->required(),
-
-                TextInput::make('trial_days')
-                    ->integer(),
 
                 Section::make('Behavior')
                     ->columnSpanFull()
@@ -70,7 +78,6 @@ class PlanResource extends Resource
                     ->schema([
                         CheckboxList::make('has_generic_trial')
                             ->label('Has a generic trial period')
-
                             ->options([
                                 'yes' => 'Yes',
                                 'no' => 'No',
@@ -103,14 +110,8 @@ class PlanResource extends Resource
                             ]),
                     ]),
 
-                TextInput::make('slug')
-                    ->disabled()
-                    ->required()
-                    ->unique(Plan::class, 'slug', fn ($record) => $record),
-
-                Select::make('type')
-                    ->enum(BillableTypeEnum::class)
-                    ->required(),
+                TextInput::make('trial_days')
+                    ->integer(),
 
                 TextInput::make('unit_label')
                     ->required(),
@@ -141,6 +142,9 @@ class PlanResource extends Resource
                     ->description(fn (Plan $record) => $record->slug)
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('prices_count')
+                    ->counts('prices'),
                 ToggleColumn::make('active'),
             ])
             ->filters([

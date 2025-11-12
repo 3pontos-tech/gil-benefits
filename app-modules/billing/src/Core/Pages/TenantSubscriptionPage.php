@@ -32,14 +32,14 @@ class TenantSubscriptionPage extends Page
     protected function getViewData(): array
     {
         return [
-            'plan' => $this->planRepository($this->selectedPlan),
+            'plan' => $this->getActiveTenantPlan(),
         ];
     }
 
     #[Computed]
-    public function planRepository(string $type): PlanEntity
+    public function getActiveTenantPlan(): PlanEntity
     {
-        return app(PlanRepository::class)->get($type);
+        return app(PlanRepository::class)->getActiveTenantPlan();
     }
 
     public function checkout(): void
@@ -48,7 +48,7 @@ class TenantSubscriptionPage extends Page
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
-        $plan = $this->planRepository($this->selectedPlan);
+        $plan = $this->getActiveTenantPlan($this->selectedPlan);
         $price = $plan->prices->first();
 
         $seats = $this->seatsAmount;
@@ -58,7 +58,7 @@ class TenantSubscriptionPage extends Page
         }
 
         $sessionCheckout = $tenant
-            ->newSubscription(type: $plan->type)
+            ->newSubscription(type: $plan->slug)
             ->when(
                 value: $plan->isMeteredPrice,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription

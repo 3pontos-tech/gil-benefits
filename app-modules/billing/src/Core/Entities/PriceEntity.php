@@ -19,6 +19,15 @@ class PriceEntity implements \JsonSerializable
         );
     }
 
+    public static function fromEloquent(array $payload): self
+    {
+        return new self(
+            type: $payload['type'],
+            priceId: $payload['provider_price_id'],
+            metadata: is_string($payload['metadata']) ? json_decode($payload['metadata'], true) : $payload['metadata']
+        );
+    }
+
     public function jsonSerialize(): mixed
     {
         return [

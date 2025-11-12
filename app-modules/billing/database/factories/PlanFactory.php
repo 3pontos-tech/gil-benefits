@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\Billing\Database\Factories;
 
-use Illuminate\Support\Facades\Date;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Billing\Core\Models\Plan;
 
 /** @extends Factory<Plan> */
