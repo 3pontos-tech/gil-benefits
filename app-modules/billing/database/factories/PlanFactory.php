@@ -2,11 +2,11 @@
 
 namespace TresPontosTech\Billing\Database\Factories;
 
+use Illuminate\Support\Facades\Date;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 use TresPontosTech\Billing\Core\Models\Plan;
 
-/** @extends \Illuminate\Database\Eloquent\Factories\Factory<\TresPontosTech\Billing\Core\Models\Plan> */
+/** @extends Factory<Plan> */
 class PlanFactory extends Factory
 {
     protected $model = Plan::class;
@@ -27,8 +27,8 @@ class PlanFactory extends Factory
             'type' => $this->faker->word(),
             'unit_label' => $this->faker->word(),
             'statement_descriptor' => $this->faker->word(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
+            'created_at' => Date::now(),
+            'updated_at' => Date::now(),
         ];
     }
 }

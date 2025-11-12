@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
+use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 
 class TestCommand extends Command
 {

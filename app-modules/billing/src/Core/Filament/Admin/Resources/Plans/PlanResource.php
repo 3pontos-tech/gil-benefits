@@ -11,7 +11,6 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -40,7 +39,7 @@ class PlanResource extends Resource
 
     protected static ?string $slug = 'plans';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Billing';
+    protected static string|UnitEnum|null $navigationGroup = 'Billing';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CircleStack;
 

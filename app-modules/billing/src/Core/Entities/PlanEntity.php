@@ -4,7 +4,6 @@ namespace TresPontosTech\Billing\Core\Entities;
 
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
-use TresPontosTech\Billing\Core\Entities\PriceEntity;
 
 final readonly class PlanEntity
 {

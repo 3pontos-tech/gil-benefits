@@ -4,14 +4,15 @@ namespace TresPontosTech\Billing\Core\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 
 class Plan extends Model
 {
-    use HasFactory, SoftDeletes;
-
+    use HasFactory;
+    use SoftDeletes;
     protected $table = 'billing_plans';
 
     protected $fillable = [
@@ -39,5 +40,10 @@ class Plan extends Model
             'allow_promotion_codes' => 'boolean',
             'collect_tax_ids' => 'boolean',
         ];
+    }
+
+    public function prices(): HasMany
+    {
+        return $this->hasMany(Price::class, 'billing_plan_id');
     }
 }

@@ -5,6 +5,7 @@ namespace TresPontosTech\Billing;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use TresPontosTech\Billing\Core\Filament\Admin\Resources\Plans\PlanResource;
+use TresPontosTech\Billing\Core\Filament\Admin\Resources\Prices\PriceResource;
 
 class AdminBillingPluginProvider implements Plugin
 {
@@ -17,6 +18,7 @@ class AdminBillingPluginProvider implements Plugin
     {
         $panel->resources([
             PlanResource::class,
+            PriceResource::class,
         ]);
     }
 

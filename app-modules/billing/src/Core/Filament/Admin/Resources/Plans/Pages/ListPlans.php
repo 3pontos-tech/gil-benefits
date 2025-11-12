@@ -2,9 +2,9 @@
 
 namespace TresPontosTech\Billing\Core\Filament\Admin\Resources\Plans\Pages;
 
-use TresPontosTech\Billing\Core\Filament\Admin\Resources\Plans\PlanResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use TresPontosTech\Billing\Core\Filament\Admin\Resources\Plans\PlanResource;
 
 class ListPlans extends ListRecords
 {

@@ -19,7 +19,6 @@ class DatabaseSeeder extends Seeder
 
         $this->generateUsers();
 
-
         $this->getConsultants();
         $this->generateCompanies();
 
@@ -32,7 +31,6 @@ class DatabaseSeeder extends Seeder
     {
         return Consultant::all();
     }
-
 
     private function generateCompanies(): Collection
     {

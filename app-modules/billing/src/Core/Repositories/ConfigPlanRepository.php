@@ -7,7 +7,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Override;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
-use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
 
 final readonly class ConfigPlanRepository implements PlanRepository

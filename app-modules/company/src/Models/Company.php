@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Cashier\Billable;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
-use TresPontosTech\Plans\Models\Item;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
 
@@ -53,7 +52,6 @@ class Company extends Model
             ->withPivot(['role', 'active'])
             ->using(TenantMember::class);
     }
-
 
     protected static function newFactory(): CompanyFactory
     {

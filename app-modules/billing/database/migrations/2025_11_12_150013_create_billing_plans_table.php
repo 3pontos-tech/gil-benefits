@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('billing_plans', function (Blueprint $table) {
+        Schema::create('billing_plans', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->string('description');
@@ -25,7 +25,7 @@ return new class extends Migration
                 ->nullable()
                 ->comment('the unit of what is being sold: a seat, an item or a month of subscription');
             $table->string('statement_descriptor')
-                ->comment('the description that will be displayed on the customer\'s credit card statement');
+                ->comment("the description that will be displayed on the customer's credit card statement");
             $table->timestamps();
             $table->softDeletes();
         });
