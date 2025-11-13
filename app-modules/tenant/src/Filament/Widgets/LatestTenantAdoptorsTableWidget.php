@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\Tenant\Filament\Widgets;
 
-use App\Models\Users\User;
 use Filament\Actions\BulkActionGroup;
 use Filament\Facades\Filament;
 use Filament\Tables\Columns\TextColumn;

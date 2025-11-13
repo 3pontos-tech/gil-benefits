@@ -4,7 +4,6 @@ namespace TresPontosTech\Tenant\Filament\Widgets;
 
 use Filament\Facades\Filament;
 use Filament\Support\Colors\Color;
-use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -44,7 +43,7 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
             : 0;
 
         return Stat::make('Employees with access', $employeesWithAccess)
-            ->description("{$percentage}% of total ({$employeesWithAccess}/{$totalEmployees})")
+            ->description(sprintf('%s%% of total (%s/%s)', $percentage, $employeesWithAccess, $totalEmployees))
             ->descriptionIcon('heroicon-o-user-group')
             ->color(Color::Emerald);
     }
@@ -67,7 +66,7 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
             : 0;
 
         return Stat::make('Employees with plans', $employeesWithPlans)
-            ->description("{$percentage}% of those with access ({$employeesWithPlans}/{$employeesWithAccess})")
+            ->description(sprintf('%s%% of those with access (%s/%s)', $percentage, $employeesWithPlans, $employeesWithAccess))
             ->descriptionIcon('heroicon-o-credit-card')
             ->color('success');
     }
@@ -86,8 +85,8 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
             ? round(($employeesWithPlans / $totalEmployees) * 100, 1)
             : 0;
 
-        return Stat::make('Adoption Rate', "{$adoptionRate}%")
-            ->description("{$employeesWithPlans} of {$totalEmployees} employees")
+        return Stat::make('Adoption Rate', $adoptionRate . '%')
+            ->description(sprintf('%s of %s employees', $employeesWithPlans, $totalEmployees))
             ->descriptionIcon('heroicon-o-chart-bar')
             ->color($adoptionRate >= 70 ? Color::Cyan : ($adoptionRate >= 30 ? Color::Amber : Color::Red));
     }

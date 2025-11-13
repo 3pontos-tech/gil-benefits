@@ -18,6 +18,7 @@ class SyncStripeResourcesCommand extends Command
      * @var string
      */
     protected $signature = 'billing:sync-stripe';
+
     /**
      * The console command description.
      *
