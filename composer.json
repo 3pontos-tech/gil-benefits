@@ -32,7 +32,6 @@
         "3pontos-tech/company": "*",
         "3pontos-tech/consultants": "*",
         "3pontos-tech/integration-highlevel": "*",
-        "3pontos-tech/plans": "*",
         "3pontos-tech/tenant": "*",
         "3pontos-tech/user": "*",
         "basementdevs/filament-better-mails": "dev-main",

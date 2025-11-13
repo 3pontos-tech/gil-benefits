@@ -2,7 +2,7 @@
 
 namespace TresPontosTech\Billing\Stripe\Subscription\User;
 
-use App\Models\User;
+use App\Models\Users\User;
 use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
 use Filament\Pages\Dashboard;

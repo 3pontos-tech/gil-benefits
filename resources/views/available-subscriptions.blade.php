@@ -4,7 +4,7 @@
 ])
 
 @php
-    /** @var \TresPontosTech\Billing\Core\Plan $plan */
+    /** @var \TresPontosTech\Billing\Core\Entities\PlanEntity $plan */
 
     $tiers = [
         [
@@ -66,7 +66,8 @@
                     description="Selecione o número de colaboradores para sua avaliação financeira">
                     <div class="grid sm:grid-cols-2 gap-3 mb-10">
                         @foreach($tiers as $tier)
-                            <x-filament::section compact="true" x-bind:class="inRange({{$tier['min']}},{{$tier['max']}}) ? 'bg-primary-900/10 ring-primary-800/30' : ''">
+                            <x-filament::section compact="true"
+                                                 x-bind:class="inRange({{$tier['min']}},{{$tier['max']}}) ? 'bg-primary-900/10 ring-primary-800/30' : ''">
                                 <x-filament::section.heading>
                                     {{ $tier['label'] }}
                                     <x-filament::badge x-show="inRange({{$tier['min']}},{{$tier['max']}})"
@@ -75,7 +76,8 @@
                                 </x-filament::section.heading>
 
                                 <x-filament::section.description>
-                                    <span class="text-2xl font-bold">R$ {{ number_format($tier['pricing'], 2, ',') }}</span>
+                                    <span
+                                        class="text-2xl font-bold">R$ {{ number_format($tier['pricing'], 2, ',') }}</span>
                                 </x-filament::section.description>
                             </x-filament::section>
                         @endforeach
@@ -116,7 +118,7 @@
             </div>
             <div class="lg:col-span-1 min-h-full ">
                 <div class="sticky top-8 min-h-full">
-                    <x-filament::section  heading="Resumo do Pedido" class="flex flex-col ">
+                    <x-filament::section heading="Resumo do Pedido" class="flex flex-col ">
                         <x-filament::section.description>
                             <div class="space-y-3 mb-10">
                                 <div class="flex justify-between text-sm">
@@ -125,11 +127,11 @@
                                 </div>
                                 <div class="flex justify-between text-sm">
                                     <span class="text-muted-foreground">Assentos</span>
-                                    <x-filament::badge color="gray"  x-text="qty" />
+                                    <x-filament::badge color="gray" x-text="qty"/>
                                 </div>
                                 <div class="flex justify-between text-sm">
                                     <span class="text-muted-foreground">Preço unitário</span>
-                                    <x-filament::badge color="green" x-text="formatBRL(tierPrice())" />
+                                    <x-filament::badge color="green" x-text="formatBRL(tierPrice())"/>
                                 </div>
 
                                 <div class="flex justify-between text-sm">
@@ -141,7 +143,8 @@
 
                             <x-filament::button
                                 x-bind:disabled="qty < min"
-                                wire:click="checkout()" icon="fab-stripe" color="primary" size="xl" class="w-full text-base">
+                                wire:click="checkout()" icon="fab-stripe" color="primary" size="xl"
+                                class="w-full text-base">
                                 Finalizar Assinatura
                             </x-filament::button>
                         </x-filament::section.description>

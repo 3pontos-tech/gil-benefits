@@ -6,9 +6,8 @@ use Illuminate\Config\Repository;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Override;
-use TresPontosTech\Billing\Core\Plan;
-use TresPontosTech\Billing\Core\PlanRepository;
-use TresPontosTech\Billing\Core\Price;
+use TresPontosTech\Billing\Core\Entities\PlanEntity;
+use TresPontosTech\Billing\Core\Entities\PriceEntity;
 
 final readonly class ConfigPlanRepository implements PlanRepository
 {
@@ -21,12 +20,12 @@ final readonly class ConfigPlanRepository implements PlanRepository
     {
         return Arr::map(
             array: $this->config->array(key: 'cashier.plans'),
-            callback: fn (array $plan, string $name): Plan => $this->createPlanFromArray(plan: $plan, name: $name),
+            callback: fn (array $plan, string $name): PlanEntity => $this->createPlanFromArray(plan: $plan, name: $name),
         );
     }
 
     #[Override]
-    public function get(string $name): Plan
+    public function get(string $name): PlanEntity
     {
         return $this->createPlanFromArray(
             plan: $this->config->array(key: 'cashier.plans.' . $name),
@@ -34,13 +33,13 @@ final readonly class ConfigPlanRepository implements PlanRepository
         );
     }
 
-    private function createPlanFromArray(array $plan, string $name): Plan
+    private function createPlanFromArray(array $plan, string $name): PlanEntity
     {
         $prices = collect(Arr::get($plan, key: 'prices', default: []))
-            ->map(fn (array $price): Price => Price::make($price));
+            ->map(fn (array $price): PriceEntity => PriceEntity::make($price));
 
-        return new Plan(
-            type: Arr::get($plan, key: 'type', default: $name),
+        return new PlanEntity(
+            slug: Arr::get($plan, key: 'type', default: $name),
             productId: Arr::get($plan, key: 'product_id', default: ''),
             prices: $prices,
             trialDays: Arr::get($plan, key: 'trial_days', default: false),
@@ -55,5 +54,12 @@ final readonly class ConfigPlanRepository implements PlanRepository
     {
         return collect($this->all())
             ->filter(fn ($plan, $key): bool => str_starts_with($key, 'user_'));
+    }
+
+    public function getActiveTenantPlan(): PlanEntity
+    {
+        return collect($this->all())
+            ->filter(fn ($plan, $key): bool => str_starts_with($key, 'company'))
+            ->firstOrFail();
     }
 }

@@ -7,7 +7,6 @@ use App\Filament\Admin\Resources\Users\Pages\ListUsers;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\CreateCompany;
-use TresPontosTech\Plans\Filament\Admin\Resources\Plans\Pages\CreatePlan;
 
 class QuickActions extends Widget
 {
@@ -32,12 +31,12 @@ class QuickActions extends Widget
                 'icon' => 'heroicon-o-building-office',
                 'href' => CreateCompany::getUrl(),
             ],
-            [
-                'title' => 'Criar Plano',
-                'description' => 'Configurar novo plano de assinatura',
-                'icon' => 'heroicon-o-credit-card',
-                'href' => CreatePlan::getUrl(),
-            ],
+            //            [
+            //                'title' => 'Criar Plano',
+            //                'description' => 'Configurar novo plano de assinatura',
+            //                'icon' => 'heroicon-o-credit-card',
+            //                'href' => CreatePlan::getUrl(),
+            //            ],
             [
                 'title' => 'Gerenciar Usuários',
                 'description' => 'Visualizar e editar usuários existentes',

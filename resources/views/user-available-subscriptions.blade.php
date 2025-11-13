@@ -1,18 +1,20 @@
-@php use Filament\Support\Icons\Heroicon;use Illuminate\Support\Collection;use TresPontosTech\Billing\Core\Plan; @endphp
+@php use Filament\Support\Icons\Heroicon;use Illuminate\Support\Collection;use TresPontosTech\Billing\Core\Entities\PlanEntity; @endphp
 @props([
     'plans'
 ])
 
 @php
-    /** @var Collection<string, Plan> $plans */
+    /** @var Collection<string, PlanEntity> $plans */
 
-    $tiers = $plans->map(fn (Plan $plan, string $key) => [
-        'label' => $key,
-        'pricing' => $plan->prices->first()->metadata['price'],
+    $tiers = $plans
+
+    ->map(fn (PlanEntity $plan, string $key) => [
+        'label' => $plan->slug,
+        'pricing' => Number::currency($plan->prices->first()->priceInCents / 100, 'BRL'),
         'features' => $plan->prices->first()->metadata['features'],
         'min' => 2,
         'max' => 5,
-        'price_key' => $key,
+        'price_key' => $plan->slug,
     ])->toArray();
 
 @endphp
@@ -60,13 +62,13 @@
 
                                 <x-filament::section.description>
                                     <span
-                                        class="text-2xl font-bold">R$ {{ number_format($tier['pricing'], 2, ',') }}</span>
+                                        class="text-2xl font-bold">{{ $tier['pricing'] }}</span>
                                     <div class="flex flex-col gap-2">
-                                    @foreach($tier['features'] as $feature)
-                                        <x-filament::badge badge-color="primary">
-                                            {{ $feature }}
-                                        </x-filament::badge>
-                                    @endforeach
+                                        @foreach($tier['features'] as $feature)
+                                            <x-filament::badge badge-color="primary">
+                                                {{ $feature }}
+                                            </x-filament::badge>
+                                        @endforeach
                                     </div>
                                 </x-filament::section.description>
                             </x-filament::section>

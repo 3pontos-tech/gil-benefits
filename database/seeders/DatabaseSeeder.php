@@ -8,8 +8,6 @@ use Illuminate\Database\Seeder;
 use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\Plans\Models\Item;
-use TresPontosTech\Plans\Models\Plan;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,7 +18,6 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->generateUsers();
-        $this->generatePlans();
 
         $this->getConsultants();
         $this->generateCompanies();
@@ -33,14 +30,6 @@ class DatabaseSeeder extends Seeder
     private function getConsultants(): Collection
     {
         return Consultant::all();
-    }
-
-    private function generatePlans(): void
-    {
-        Plan::factory()
-            ->has(Item::factory(3))
-            ->count(2)
-            ->create();
     }
 
     private function generateCompanies(): Collection

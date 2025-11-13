@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
-use TresPontosTech\Billing\Core\PlanRepository;
+use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 
 class UserSubscriptionPage extends Page
 {
@@ -51,7 +51,7 @@ class UserSubscriptionPage extends Page
         $price = $plan->prices->first();
 
         $sessionCheckout = $user
-            ->newSubscription(type: $plan->type, prices: [$price->priceId])
+            ->newSubscription(type: $plan->slug, prices: [$price->priceId])
             ->when(
                 value: $plan->hasGenericTrial && $plan->trialDays !== false,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->trialDays(trialDays: $plan->trialDays),
