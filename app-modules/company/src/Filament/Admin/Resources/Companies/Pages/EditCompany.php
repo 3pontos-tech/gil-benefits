@@ -23,9 +23,9 @@ class EditCompany extends EditRecord
     {
         return [
             DeleteAction::make(),
-            AttachPlanAction::make()
-                ->disabled($this->record->hasActivePlan())
-                ->after(fn () => $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->record]))),
+//            AttachPlanAction::make()
+//                ->disabled($this->record->hasActivePlan())
+//                ->after(fn () => $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->record]))),
         ];
     }
 }
