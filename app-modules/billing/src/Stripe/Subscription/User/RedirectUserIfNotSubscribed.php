@@ -8,7 +8,6 @@ use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Laravel\Cashier\Cashier;
 use Stripe\Collection;
-use Stripe\Stripe;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
@@ -27,11 +26,13 @@ class RedirectUserIfNotSubscribed
             $tenant->createAsStripeCustomer();
         }
 
-
         // TODO: when the company cancels the subscription, the user needs a page to understand what do next
         // TODO: ask the team which kind of page to add here
 
-        $hasActiveSubscription = $tenant->subscriptions()->whereIn('stripe_status', ['active', 'incomplete'])->exists();
+        $hasActiveSubscription = $tenant
+            ->subscriptions()
+            ->whereIn('stripe_status', ['active', 'incomplete'])
+            ->exists();
 
         abort_unless($hasActiveSubscription, 403);
         $employee = auth()->user();

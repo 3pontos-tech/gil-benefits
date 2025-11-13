@@ -10,7 +10,7 @@
 
     ->map(fn (PlanEntity $plan, string $key) => [
         'label' => $plan->slug,
-        'pricing' => $plan->prices->first()->metadata['price'],
+        'pricing' => Number::currency($plan->prices->first()->priceInCents / 100, 'BRL'),
         'features' => $plan->prices->first()->metadata['features'],
         'min' => 2,
         'max' => 5,
@@ -62,7 +62,7 @@
 
                                 <x-filament::section.description>
                                     <span
-                                        class="text-2xl font-bold">R$ {{ number_format($tier['pricing'], 2, ',') }}</span>
+                                        class="text-2xl font-bold">{{ $tier['pricing'] }}</span>
                                     <div class="flex flex-col gap-2">
                                         @foreach($tier['features'] as $feature)
                                             <x-filament::badge badge-color="primary">

@@ -38,7 +38,7 @@ final readonly class PlanEntity
         return new self(
             slug: $plan->slug,
             productId: $plan->provider_product_id,
-            prices: $plan->prices->map(fn (Price $price) => PriceEntity::fromEloquent($price->toArray())),
+            prices: $plan->prices->map(fn (Price $price): PriceEntity => PriceEntity::fromEloquent($price->toArray())),
             trialDays: $plan->trial_days,
             hasGenericTrial: $plan->has_generic_trial,
             allowPromotionCodes: $plan->allow_promotion_codes,
@@ -57,7 +57,7 @@ final readonly class PlanEntity
                     type: 'one_time',
                     priceId: 'price_default',
                     metadata: []
-                )
+                ),
             ]),
             trialDays: false,
             hasGenericTrial: false,

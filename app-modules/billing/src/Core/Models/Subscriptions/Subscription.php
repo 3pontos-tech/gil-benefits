@@ -7,6 +7,8 @@ use Laravel\Cashier\Subscription as BaseSubscriptionModel;
 
 class Subscription extends BaseSubscriptionModel
 {
+    protected $table = 'billing_subscriptions';
+
     public function owner(): MorphTo
     {
         return $this->morphTo('subscriptionable');

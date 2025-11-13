@@ -15,13 +15,13 @@ class EloquentPlanRepository implements PlanRepository
         return Plan::query()
             ->where('active', true)
             ->get()
-            ->map(fn (Plan $plan) => PlanEntity::fromEloquent($plan))
-            ->toArray();
+            ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan))
+            ->all();
     }
 
     public function get(string $name): PlanEntity
     {
-        return collect($this->all())->firstOrFail(fn (PlanEntity $plan) => $plan->slug === $name);
+        return collect($this->all())->firstOrFail(fn (PlanEntity $plan): bool => $plan->slug === $name);
     }
 
     public function getPlansFor(string $name): Collection
@@ -30,13 +30,13 @@ class EloquentPlanRepository implements PlanRepository
             ->where('type', BillableTypeEnum::User)
             ->where('active', true)
             ->get()
-            ->map(fn (Plan $plan) => PlanEntity::fromEloquent($plan))
+            ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan))
         );
     }
 
     public function getActiveTenantPlan(): PlanEntity
     {
-        return Cache::remember('active_tenant_plan', 60, fn () => PlanEntity::fromEloquent(
+        return Cache::remember('active_tenant_plan', 60, fn (): PlanEntity => PlanEntity::fromEloquent(
             Plan::query()
                 ->where('type', BillableTypeEnum::Company)
                 ->where('active', true)->firstOrFail()

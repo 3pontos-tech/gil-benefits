@@ -36,6 +36,7 @@ class Price extends Model
         return [
             'default' => 'boolean',
             'active' => 'boolean',
+            'unit_amount_decimal' => 'integer',
         ];
     }
 }

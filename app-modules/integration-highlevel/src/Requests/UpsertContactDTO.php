@@ -13,7 +13,7 @@ class UpsertContactDTO implements JsonSerializable
         public string $name,
         public string $email,
         public string $locationId,
-        public string $phone,
+        public ?string $phone = null,
     ) {}
 
     public static function make(

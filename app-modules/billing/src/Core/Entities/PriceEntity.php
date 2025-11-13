@@ -7,6 +7,7 @@ class PriceEntity implements \JsonSerializable
     public function __construct(
         public string $type,
         public string $priceId,
+        public int $priceInCents = 0,
         public array $metadata = []
     ) {}
 
@@ -24,6 +25,7 @@ class PriceEntity implements \JsonSerializable
         return new self(
             type: $payload['type'],
             priceId: $payload['provider_price_id'],
+            priceInCents: $payload['unit_amount_decimal'] ?? 0,
             metadata: is_string($payload['metadata']) ? json_decode($payload['metadata'], true) : $payload['metadata']
         );
     }
@@ -33,6 +35,7 @@ class PriceEntity implements \JsonSerializable
         return [
             'type' => $this->type,
             'price_id' => $this->priceId,
+            'unit_amount_decimal' => $this->priceInCents,
             'metadata' => $this->metadata,
         ];
     }

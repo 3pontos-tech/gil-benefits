@@ -48,7 +48,7 @@ class TenantSubscriptionPage extends Page
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
-        $plan = $this->getActiveTenantPlan($this->selectedPlan);
+        $plan = $this->getActiveTenantPlan();
         $price = $plan->prices->first();
 
         $seats = $this->seatsAmount;

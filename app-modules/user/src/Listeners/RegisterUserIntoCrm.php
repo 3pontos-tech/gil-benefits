@@ -39,7 +39,7 @@ class RegisterUserIntoCrm
             $company->name,
             $user->name,
             $user->email,
-            $user->detail->phone_number,
+            $user->detail?->phone_number,
         ));
 
         $user->update([

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table): void {
+        Schema::create('billing_subscriptions', function (Blueprint $table): void {
             $table->id();
             $table->morphs('subscriptionable');
             $table->string('type');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('subscriptions');
+        Schema::dropIfExists('billing_subscriptions');
     }
 };
