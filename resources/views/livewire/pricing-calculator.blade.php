@@ -11,7 +11,7 @@
 
         x-data="{
             tiers: $wire.planTiers,
-            sliderValue: 1,
+            sliderValue: 150,
             min: 1,
             max: 151,
 

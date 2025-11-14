@@ -94,7 +94,7 @@
 
 <{{ $tag }}
     @if (!$isLink)
-    type="{{ $slug }}"
+    type="{{ $type }}"
 @if ($isDisabled)
     disabled
 @endif

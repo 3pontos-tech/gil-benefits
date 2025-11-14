@@ -13,6 +13,7 @@ final readonly class PlanEntity
      * @param  Collection<int, PriceEntity>  $prices
      */
     public function __construct(
+        public string $name,
         public string $slug,
         public string $productId,
         public Collection $prices,
@@ -36,6 +37,7 @@ final readonly class PlanEntity
     public static function fromEloquent(Plan $plan): self
     {
         return new self(
+            name: $plan->name,
             slug: $plan->slug,
             productId: $plan->provider_product_id,
             prices: $plan->prices->map(fn (Price $price): PriceEntity => PriceEntity::fromEloquent($price->toArray())),
@@ -50,6 +52,7 @@ final readonly class PlanEntity
     public static function default(): self
     {
         return new self(
+            name: 'Default Item',
             slug: 'default-plan',
             productId: 'prod_default',
             prices: collect([
