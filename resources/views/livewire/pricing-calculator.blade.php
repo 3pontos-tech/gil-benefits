@@ -11,7 +11,7 @@
 
         x-data="{
             tiers: $wire.planTiers,
-            sliderValue: 150,
+            sliderValue: 1,
             min: 1,
             max: 151,
 
@@ -48,6 +48,12 @@
             updateGradient();
 
             $watch('sliderValue', (value) => {
+                if (value === '' || value === null) {
+                    sliderValue = min;
+                    return;
+                }
+                if (value > max) sliderValue = max;
+
                 updatePricing();
                 updateGradient();
             });
@@ -59,8 +65,13 @@
             <div class="order-1 flex flex-col gap-1">
                 <h2 class="font-medium">Quantos colaboradores?</h2>
                 <p class="font-bold text-high text-xl sm:text-2xl">
-                    <span x-show="sliderValue < max" x-text="sliderValue"></span>
-                    <span x-show="sliderValue == max">150+</span>
+                    <div class="gradient-wrapper max-w-56">
+                        <input
+                            x-model.number="sliderValue"
+                            type="number"
+                            class="input-gradient-border p-1 font-bold border border-outline-dark text-high text-xl sm:text-2xl rounded-lg w-full"
+                        />
+                    </div>
                 </p>
             </div>
 

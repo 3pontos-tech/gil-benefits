@@ -10,6 +10,29 @@
 
 [x-cloak] { display: none !important; }
 
+.gradient-wrapper {
+    @apply relative p-[1px] rounded-lg;
+}
+
+.gradient-wrapper::after {
+    content: "";
+    @apply z-0 opacity-0 absolute inset-0 border-inherit rounded-lg bg-gradient-to-br from-brand-primary to-brand-secondary;
+    @apply transition-opacity duration-200 ease-in-out;
+    @apply pointer-events-none;
+}
+
+.gradient-wrapper:focus-within::after {
+    @apply opacity-100;
+}
+
+.gradient-wrapper input {
+    @apply bg-elevation-01dp z-1 relative;
+}
+
+.gradient-wrapper input:focus {
+    @apply border-transparent ring-0 outline-0;
+}
+
 .slider {
     -webkit-appearance: none;
     appearance: none;
