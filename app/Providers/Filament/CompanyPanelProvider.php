@@ -22,6 +22,9 @@ use TresPontosTech\Billing\Stripe\Subscription\Company\CompanyBillingProvider;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\RegisterTenant;
+use TresPontosTech\Tenant\Filament\Widgets\LatestScheduledSessionsTableWidget;
+use TresPontosTech\Tenant\Filament\Widgets\LatestTenantAdoptorsTableWidget;
+use TresPontosTech\Tenant\Filament\Widgets\TenantAdoptionStatsWidget;
 use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
 
 class CompanyPanelProvider extends PanelProvider
@@ -52,6 +55,9 @@ class CompanyPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->widgets([
                 TenantPlanStatusStats::class,
+                TenantAdoptionStatsWidget::class,
+                LatestTenantAdoptorsTableWidget::class,
+                LatestScheduledSessionsTableWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
