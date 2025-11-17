@@ -3,13 +3,15 @@
 namespace TresPontosTech\Appointments\Enums;
 
 use BackedEnum;
+use Filament\Support\Colors\Color;
+use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasDescription;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
-enum AppointmentCategoryEnum: string implements HasDescription, HasIcon, HasLabel
+enum AppointmentCategoryEnum: string implements HasColor, HasDescription, HasIcon, HasLabel
 {
     case PersonalFinance = 'personal_finance';
     case InvestmentAdvisory = 'investment_advisory';
@@ -36,6 +38,20 @@ enum AppointmentCategoryEnum: string implements HasDescription, HasIcon, HasLabe
             self::FundraisingAndCredit => Heroicon::HomeModern,
             self::MergersAndAcquisitions => Heroicon::BuildingOffice2,
             self::RiskAndCompliance => Heroicon::ShieldCheck,
+        };
+    }
+
+    public function getColor(): array
+    {
+        return match ($this) {
+            self::PersonalFinance => Color::Green,
+            self::InvestmentAdvisory => Color::Blue,
+            self::RetirementAndEstatePlanning => Color::Purple,
+            self::BusinessFinancialManagement => Color::Orange,
+            self::TaxPlanning => Color::Pink,
+            self::FundraisingAndCredit => Color::Teal,
+            self::MergersAndAcquisitions => Color::Indigo,
+            self::RiskAndCompliance => Color::Red,
         };
     }
 
