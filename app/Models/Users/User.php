@@ -54,19 +54,6 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
-
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
@@ -108,6 +95,19 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function activeSubscription(): MorphOne
     {
         return $this->morphOne(Subscription::class, 'subscriptionable')
-            ->where('status', 'active');
+            ->where('stripe_status', 'active');
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 }
