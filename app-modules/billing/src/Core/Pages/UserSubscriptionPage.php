@@ -42,12 +42,12 @@ class UserSubscriptionPage extends Page
         return app(PlanRepository::class)->getPlansFor($type);
     }
 
-    public function checkout(string $plan_id): void
+    public function checkout(): void
     {
         $user = auth()->user();
         Cashier::useCustomerModel(User::class);
 
-        $plan = app(PlanRepository::class)->get($plan_id);
+        $plan = app(PlanRepository::class)->get($this->selectedPlan);
         $price = $plan->prices->first();
 
         $sessionCheckout = $user
