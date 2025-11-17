@@ -5,6 +5,7 @@ namespace TresPontosTech\Appointments\Providers;
 use App\Filament\FilamentPanel;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
+use TresPontosTech\Appointments\Filament\App\Widgets\AppointmentHistoryWidget;
 
 class AppointmentsServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,9 @@ class AppointmentsServiceProvider extends ServiceProvider
 
             if ($panel->getId() === 'app') {
                 $panel->discoverResourcesForPanel('appointments', FilamentPanel::User);
+                $panel->widgets([
+                    AppointmentHistoryWidget::class,
+                ]);
             }
         });
     }
