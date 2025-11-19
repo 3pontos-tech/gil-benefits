@@ -4,7 +4,9 @@ namespace TresPontosTech\Appointments\Enums;
 
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
+use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use TresPontosTech\Appointments\Actions\StateMachine\AbstractAppointmentStep;
 use TresPontosTech\Appointments\Actions\StateMachine\AppointmentActiveStep;
@@ -14,7 +16,7 @@ use TresPontosTech\Appointments\Actions\StateMachine\AppointmentPendingStep;
 use TresPontosTech\Appointments\Actions\StateMachine\AppointmentSchedulingStep;
 use TresPontosTech\Appointments\Models\Appointment;
 
-enum AppointmentStatus: string implements HasColor, HasLabel
+enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
 {
     case Draft = 'draft';
 
@@ -25,6 +27,18 @@ enum AppointmentStatus: string implements HasColor, HasLabel
     case Completed = 'completed';
 
     case Cancelled = 'cancelled';
+
+    public function getIcon(): Heroicon
+    {
+        return match ($this) {
+            self::Draft => Heroicon::Pencil,
+            self::Pending => Heroicon::Clock,
+            self::Scheduling => Heroicon::Calendar,
+            self::Active => Heroicon::Check,
+            self::Completed => Heroicon::CheckCircle,
+            self::Cancelled => Heroicon::XCircle,
+        };
+    }
 
     public function getColor(): array
     {
