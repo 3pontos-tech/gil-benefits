@@ -23,8 +23,8 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
     {
         $employeesCount = Filament::getTenant()->employees()->count();
 
-        return Stat::make('Employees', $employeesCount)
-            ->description('Users')
+        return Stat::make('Funcionários', $employeesCount)
+            ->description('Membros')
             ->descriptionIcon('heroicon-o-user-group')
             ->color('primary');
     }
@@ -42,8 +42,8 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
             ? round(($employeesWithAccess / $totalEmployees) * 100, 1)
             : 0;
 
-        return Stat::make('Employees with access', $employeesWithAccess)
-            ->description(sprintf('%s%% of total (%s/%s)', $percentage, $employeesWithAccess, $totalEmployees))
+        return Stat::make('Funcionários com acesso', $employeesWithAccess)
+            ->description(sprintf('%s%% do total (%s/%s)', $percentage, $employeesWithAccess, $totalEmployees))
             ->descriptionIcon('heroicon-o-user-group')
             ->color(Color::Emerald);
     }
@@ -65,8 +65,8 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
             ? round(($employeesWithPlans / $employeesWithAccess) * 100, 1)
             : 0;
 
-        return Stat::make('Employees with plans', $employeesWithPlans)
-            ->description(sprintf('%s%% of those with access (%s/%s)', $percentage, $employeesWithPlans, $employeesWithAccess))
+        return Stat::make('Funcionários com plano', $employeesWithPlans)
+            ->description(sprintf('%s%% dos com acesso (%s/%s)', $percentage, $employeesWithPlans, $employeesWithAccess))
             ->descriptionIcon('heroicon-o-credit-card')
             ->color('success');
     }
@@ -85,8 +85,8 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
             ? round(($employeesWithPlans / $totalEmployees) * 100, 1)
             : 0;
 
-        return Stat::make('Adoption Rate', $adoptionRate . '%')
-            ->description(sprintf('%s of %s employees', $employeesWithPlans, $totalEmployees))
+        return Stat::make('Taxa de adesão', $adoptionRate . '%')
+            ->description(sprintf('%s de %s funcionários', $employeesWithPlans, $totalEmployees))
             ->descriptionIcon('heroicon-o-chart-bar')
             ->color($adoptionRate >= 70 ? Color::Cyan : ($adoptionRate >= 30 ? Color::Amber : Color::Red));
     }

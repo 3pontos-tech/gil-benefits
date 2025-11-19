@@ -66,7 +66,7 @@ stripe-listen:
 .PHONY: stripe-fresh
 stripe-fresh: ## Run migrations and seed the database
 	@echo "Running migrations and seeding the database..."
-	@php artisan migrate:fresh --seed
+	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Migrations and seeding completed."
 	@echo "Seeding Stripe"
 	@php artisan billing:sync-stripe
