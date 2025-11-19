@@ -6,20 +6,12 @@
 @php
     /** @var Collection<string, PlanEntity> $plans */
 
-    $tiers = $plans
-
-    ->map(fn (PlanEntity $plan, string $key) => [
-        'label' => $plan->name,
-        'slug' => $plan->slug,
-        'pricing_in_cents' => $plan->prices->first()->priceInCents,
-        'pricing' => Number::currency($plan->prices->first()->priceInCents / 100, 'BRL'),
-        'features' => $plan->prices->first()->metadata['features'],
-        'price_key' => $plan->slug,
-    ])
-    ->sort(fn ($a, $b) => $a['pricing_in_cents'] > $b['pricing_in_cents'])
-    ->toArray();
-
-    $defaultPlanSlug = $tiers[array_key_first($tiers)]['slug'] ?? '';
+    // Sort plans by their first price value (ascending)
+    $sortedPlans = $plans->sort(function (PlanEntity $a, PlanEntity $b): int {
+        $firstPrice = $a->prices->first();
+        $secondPrice = $b->prices->first();
+        return $firstPrice?->priceInCents > $secondPrice->priceInCents;
+    });
 @endphp
 
 
@@ -40,26 +32,36 @@
                     heading="Detalhes do Produto"
                     description="Selecione o número de colaboradores para sua avaliação financeira">
                     <div class="grid sm:grid-cols-1 lg:grid-cols-3 gap-3 mb-10">
-                        @foreach($tiers as $tier)
+                        @foreach($sortedPlans as $plan)
+                            @php
+                                /** @var PlanEntity $plan */
+                                $price = $plan->prices->first();
+                                $features =  [
+                                    'appointments' => $price->monthlyAppointments,
+                                    'whatsapp_access' => $price->whatsappEnabled,
+                                    'exclusive_materials' => $price->materialsEnabled,
+                                ];
+                                $formatted = $price ? Number::currency(($price->priceInCents ?? 0) / 100, 'BRL') : '';
+                            @endphp
                             <x-card-gradient>
                                 <x-slot name="title" class="flex flex-row justify-between">
-                                    <h4>{{ __($tier['label']) }}</h4>
+                                    <h4>{{ __($plan->name) }}</h4>
                                     <span class="inline-flex items-center">
-                                        <label class="relative inline-flex items-center cursor-pointer select-none" :aria-checked="selectedPlan === '{{ $tier['slug'] }}'" role="radio">
+                                        <label class="relative inline-flex items-center cursor-pointer select-none" :aria-checked="selectedPlan === '{{ $plan->slug }}'" role="radio">
                                             <input
                                                 type="radio"
                                                 name="plan"
                                                 class="sr-only"
                                                 x-model="selectedPlan"
-                                                value="{{ $tier['slug'] }}"
+                                                value="{{ $plan->slug }}"
                                             />
                                             <span
                                                 class="grid size-7 place-items-center rounded-full border transition-all duration-300 ease-out"
-                                                :class="selectedPlan === '{{ $tier['slug'] }}' ? 'border-primary-600 bg-primary-600/10 ring-4 ring-primary-600/10' : 'border-gray-300 dark:border-gray-600'"
-                                                @click.prevent="selectedPlan = '{{ $tier['slug'] }}'"
+                                                :class="selectedPlan === '{{ $plan->slug }}' ? 'border-primary-600 bg-primary-600/10 ring-4 ring-primary-600/10' : 'border-gray-300 dark:border-gray-600'"
+                                                @click.prevent="selectedPlan = '{{ $plan->slug }}'"
                                             >
                                                 <svg
-                                                    x-show="selectedPlan === '{{ $tier['slug'] }}'"
+                                                    x-show="selectedPlan === '{{ $plan->slug }}'"
                                                     x-transition:enter="transition ease-out duration-200"
                                                     x-transition:enter-start="opacity-0 scale-75"
                                                     x-transition:enter-end="opacity-100 scale-100"
@@ -78,7 +80,7 @@
 
                                 </x-slot>
                                 <x-slot name="description">
-                                    @foreach($tier['features'] as $key => $feature)
+                                    @foreach($features as $key => $feature)
                                         <div class="flex">
                                             <span class="text-gray-500">{{ __('all.' . $key) }}</span>
                                             @if(is_bool($feature))
@@ -104,7 +106,7 @@
                                     <span>Subtotal</span>
                                     <div class="flex">
                                         <span class="flex items-center font-bold text-high text-xl gap-1">
-                                            {{ $tier['pricing'] }}
+                                            {{ $formatted }}
                                             <span class="text-medium font-medium text-xs">/mês</span>
                                         </span>
                                     </div>

@@ -23,6 +23,9 @@ class Price extends Model
         'active',
         'provider_price_id',
         'default',
+        'whatsapp_enabled',
+        'materials_enabled',
+        'monthly_appointments',
         'metadata',
     ];
 
@@ -36,6 +39,8 @@ class Price extends Model
         return [
             'default' => 'boolean',
             'active' => 'boolean',
+            'whatsapp_enabled' => 'boolean',
+            'materials_enabled' => 'boolean',
             'unit_amount_decimal' => 'integer',
         ];
     }

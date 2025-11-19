@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
 use Filament\Pages\Dashboard;
+use TresPontosTech\User\Filament\App\Pages\UserDashboard;
 
 class UserBillingProvider implements BillingProvider
 {
@@ -22,7 +23,7 @@ class UserBillingProvider implements BillingProvider
                 ]);
             }
 
-            return $tenant->redirectToBillingPortal(returnUrl: Dashboard::getUrl(), options: [
+            return $tenant->redirectToBillingPortal(returnUrl: UserDashboard::getUrl(), options: [
                 'configuration' => config('cashier.portals.user'),
             ]);
         };

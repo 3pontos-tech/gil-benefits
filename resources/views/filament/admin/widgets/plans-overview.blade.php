@@ -2,7 +2,8 @@
     'planName',
     'description',
     'status',
-    'features'
+    'features',
+    'availableAppointments'
 ])
 
 @php
@@ -22,7 +23,7 @@
                 </div>
                 <div>
                     <x-filament::badge icon="heroicon-o-check-circle">
-                        1 sessão restante esse mês
+                        {{ trans_choice('all.appointments_left', $availableAppointments, ['count' => $availableAppointments]) }}
                     </x-filament::badge>
                 </div>
             </div>
@@ -40,9 +41,34 @@
 
 
         <x-slot name="footer">
-            <x-filament::button  wire:click="redirectToAppointmentCreation" icon="heroicon-o-calendar">
+            @php
+                $blockReasons = [];
+                if (($availableAppointments ?? 0) <= 0) {
+                    $blockReasons[] = __('Você não possui agendamentos disponíveis neste mês.');
+                }
+                if (($hasOngoingAppointment ?? false) === true) {
+                    $blockReasons[] = __('Você possui uma consultoria em andamento. Finalize a anterior para agendar outra.');
+                }
+            @endphp
+
+            <x-filament::button
+                wire:click="redirectToAppointmentCreation"
+                icon="heroicon-o-calendar"
+                :disabled="isset($canCreateAppointment) && ! $canCreateAppointment"
+            >
                 Agendar Consultoria
             </x-filament::button>
+
+            @if(isset($canCreateAppointment) && ! $canCreateAppointment && count($blockReasons) > 0)
+                <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
+                    @foreach($blockReasons as $reason)
+                        <div class="flex items-start gap-2">
+                            <x-filament::icon icon="heroicon-o-exclamation-triangle" class="h-4 w-4 shrink-0" />
+                            <span>{{ $reason }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </x-slot>
 
 

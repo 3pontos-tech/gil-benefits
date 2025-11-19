@@ -15,11 +15,15 @@ use Filament\Forms\Components\CodeEditor;
 use Filament\Forms\Components\CodeEditor\Enums\Language;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -45,42 +49,100 @@ class PriceResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('billing_plan_id')
-                    ->relationship('plan', 'name')
-                    ->searchable()
-                    ->required(),
+                Grid::make(2)
+                    ->schema([
+                        Section::make('Plan & Type')
+                            ->description('Select the plan and define how this price should be billed.')
+                            ->key('section-plan-type')
+                            ->schema([
+                                Select::make('billing_plan_id')
+                                    ->label('Plan')
+                                    ->relationship('plan', 'name')
+                                    ->searchable()
+                                    ->required(),
 
-                TextInput::make('billing_scheme')
-                    ->required(),
+                                TextInput::make('type')
+                                    ->helperText('e.g. recurring, one_time')
+                                    ->required(),
 
-                TextInput::make('tiers_mode')
-                    ->required(),
+                                TextInput::make('billing_scheme')
+                                    ->helperText('How the billing is calculated (per_unit, tiered, etc).')
+                                    ->required(),
 
-                TextInput::make('type')
-                    ->required(),
+                                TextInput::make('tiers_mode')
+                                    ->helperText('If billing is tiered, choose the mode (graduated, volume).')
+                                    ->required(),
+                            ])->columns(2),
 
-                TextInput::make('unit_amount_decimal')
-                    ->required()
-                    ->integer(),
+                        Section::make('Pricing')
+                            ->description('Set the price amount and included usage.')
+                            ->key('section-pricing')
+                            ->schema([
+                                TextInput::make('unit_amount_decimal')
+                                    ->label('Unit Amount (cents)')
+                                    ->suffix('¢')
+                                    ->required()
+                                    ->integer(),
 
-                TextInput::make('active')
-                    ->required(),
+                                TextInput::make('monthly_appointments')
+                                    ->label('Monthly Appointments')
+                                    ->numeric()
+                                    ->helperText('How many appointments are included per month.')
+                                    ->required(),
+                            ])->columns(2),
 
-                TextInput::make('provider_price_id')
-                    ->required(),
+                        Section::make('Features')
+                            ->description('Toggle which features are included for this price.')
+                            ->key('section-features')
+                            ->schema([
+                                Toggle::make('active')
+                                    ->helperText('Whether this price can be purchased.')
+                                    ->required(),
+                                Toggle::make('whatsapp_enabled')
+                                    ->label('WhatsApp Enabled')
+                                    ->required(),
+                                Toggle::make('materials_enabled')
+                                    ->label('Materials Enabled')
+                                    ->required(),
+                            ])->columns(3),
 
-                CodeEditor::make('metadata')
-                    ->formatStateUsing(fn (?string $state): string => $state ? json_encode(json_decode($state), JSON_PRETTY_PRINT) : '')
-                    ->language(Language::Json)
-                    ->required(),
+                        Section::make('Provider')
+                            ->description('External payment provider references.')
+                            ->key('section-provider')
+                            ->schema([
+                                TextInput::make('provider_price_id')
+                                    ->disabled()
+                                    ->label('Provider Price ID')
+                                    ->helperText('Identifier of this price on the payment provider (e.g., Stripe).')
+                                    ->required(),
+                            ]),
 
-                TextEntry::make('created_at')
-                    ->label('Created Date')
-                    ->state(fn (?Price $record): string => $record?->created_at?->diffForHumans() ?? '-'),
+                        Section::make('Metadata')
+                            ->description('Structured JSON metadata associated with this price.')
+                            ->key('section-metadata')
+                            ->schema([
+                                CodeEditor::make('metadata')
+                                    ->formatStateUsing(fn (?string $state): string => $state ? json_encode(json_decode($state), JSON_PRETTY_PRINT) : '')
+                                    ->language(Language::Json)
+                                    ->required(),
+                            ])
+                            ->columnSpanFull(),
 
-                TextEntry::make('updated_at')
-                    ->label('Last Modified Date')
-                    ->state(fn (?Price $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
+                        Section::make('Auditing')
+                            ->description('Automatically tracked timestamps.')
+                            ->key('section-auditing')
+                            ->schema([
+                                TextEntry::make('created_at')
+                                    ->label('Created Date')
+                                    ->state(fn (?Price $record): string => $record?->created_at?->diffForHumans() ?? '-'),
+
+                                TextEntry::make('updated_at')
+                                    ->label('Last Modified Date')
+                                    ->state(fn (?Price $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+                    ])->columnSpanFull(),
             ]);
     }
 
@@ -92,19 +154,20 @@ class PriceResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('billing_scheme'),
+                TextColumn::make('billing_scheme')
+                    ->badge(),
 
-                TextColumn::make('tiers_mode'),
+                TextColumn::make('tiers_mode')
+                    ->badge(),
 
-                TextColumn::make('type'),
+                TextColumn::make('type')
+                    ->badge(),
 
-                TextColumn::make('unit_amount_decimal'),
+                TextColumn::make('unit_amount_decimal')
 
-                TextColumn::make('active'),
+                    ->money(currency: 'BRL', divideBy: 100),
 
-                TextColumn::make('provider_price_id'),
-
-                TextColumn::make('metadata'),
+                ToggleColumn::make('active'),
             ])
             ->filters([
                 TrashedFilter::make(),

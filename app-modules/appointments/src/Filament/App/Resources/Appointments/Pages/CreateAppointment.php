@@ -21,6 +21,23 @@ class CreateAppointment extends CreateRecord
 
     protected static string $layout = 'filament-panels::components.layout.simple';
 
+    public function mount(): void
+    {
+        parent::mount();
+
+        /** @var \App\Models\Users\User $user */
+        $user = auth()->user();
+        if ($user && ! $user->canCreateAppointment()) {
+            Notification::make()
+                ->title(__('Não é possível agendar agora'))
+                ->body(__('Você não possui agendamentos disponíveis neste mês ou já possui uma consultoria em andamento. Finalize a anterior para agendar outra.'))
+                ->danger()
+                ->send();
+
+            $this->redirectIntended(AppointmentResource::getUrl('index'));
+        }
+    }
+
     protected function getFormActions(): array
     {
         return [];

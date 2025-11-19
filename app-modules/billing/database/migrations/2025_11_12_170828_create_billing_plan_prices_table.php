@@ -19,6 +19,9 @@ return new class extends Migration
             $table->boolean('active');
             $table->boolean('default')->default(false);
             $table->string('provider_price_id');
+            $table->boolean('whatsapp_enabled')->default(false);
+            $table->boolean('materials_enabled')->default(false);
+            $table->tinyInteger('monthly_appointments')->default(1);
             $table->jsonb('metadata')->nullable();
             $table->timestamps();
             $table->softDeletes();

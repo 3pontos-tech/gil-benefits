@@ -8,6 +8,9 @@ class PriceEntity implements \JsonSerializable
         public string $type,
         public string $priceId,
         public int $priceInCents = 0,
+        public int $monthlyAppointments = 1,
+        public bool $whatsappEnabled = false,
+        public bool $materialsEnabled = true,
         public array $metadata = []
     ) {}
 
@@ -26,6 +29,9 @@ class PriceEntity implements \JsonSerializable
             type: $payload['type'],
             priceId: $payload['provider_price_id'],
             priceInCents: $payload['unit_amount_decimal'] ?? 0,
+            monthlyAppointments: $payload['monthly_appointments'] ?? 1,
+            whatsappEnabled: $payload['whatsapp_enabled'] ?? false,
+            materialsEnabled: $payload['materials_enabled'] ?? true,
             metadata: is_string($payload['metadata']) ? json_decode($payload['metadata'], true) : $payload['metadata']
         );
     }
