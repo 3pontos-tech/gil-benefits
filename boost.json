@@ -5,5 +5,7 @@
     "editors": [
         "phpstorm"
     ],
-    "guidelines": []
+    "guidelines": [
+        "filament/filament"
+    ]
 }

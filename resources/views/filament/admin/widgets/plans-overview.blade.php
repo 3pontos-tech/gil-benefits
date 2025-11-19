@@ -1,41 +1,48 @@
+@props([
+    'planName',
+    'description',
+    'status',
+    'features'
+])
+
 @php
-    use Filament\Support\Icons\Heroicon;@endphp
+    use Filament\Support\Icons\Heroicon;
+@endphp
 <x-filament-widgets::widget>
-    <x-filament::section
-        icon="heroicon-o-cube"
-        class="overflow-hidden border border-gray-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
-
+    <x-filament::section icon="heroicon-o-cube">
         <x-slot name="heading">
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white leading-tight">
-                Plano {{ $planName }}
-            </h2>
-        </x-slot>
-
-        <x-slot name="description">
-            <div>
-                <x-filament::badge icon="heroicon-o-check-circle">
-                    @if($status === 'active')
-                        Ativo
-                    @elseif($status === 'inactive')
-                        Inativo
-                    @else
-                        Expirado
-                    @endif
-                </x-filament::badge>
-
-                @if($isRecurring)
-                    <x-filament::badge icon="heroicon-o-arrow-path">
-                        Recorrente
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white leading-tight">
+                        Plano {{ $planName }}
+                    </h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">
+                        {{ $description }}
+                    </p>
+                </div>
+                <div>
+                    <x-filament::badge icon="heroicon-o-check-circle">
+                        1 sessão restante esse mês
                     </x-filament::badge>
-                @endif
+                </div>
             </div>
         </x-slot>
 
-        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
-            {{ $description }}
-        </p>
 
-        <x-filament::button icon="heroicon-o-calendar">Agendar nova sessão</x-filament::button>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            @foreach($features as $key => $feature)
+                <div class="flex items-center gap-2 text-sm">
+                    <div class="h-1.5 w-1.5 rounded-full bg-primary-500"></div>
+                    <span>{{ __('all.' . $key) }}</span>
+                </div>
+            @endforeach
+        </div>
+
+
+        <x-slot name="footer">
+            <x-filament::button icon="heroicon-o-calendar">Agendar nova sessão</x-filament::button>
+        </x-slot>
+
 
     </x-filament::section>
 </x-filament-widgets::widget>

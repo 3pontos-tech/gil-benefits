@@ -1,33 +1,33 @@
 <?php
 
-namespace TresPontosTech\Billing\Core\Filament\App\Widget;
+namespace TresPontosTech\User\Filament\App\Widgets;
 
 use Filament\Widgets\Widget;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
 class UserCurrentPlanWidget extends Widget
 {
     protected string $view = 'filament.admin.widgets.plans-overview';
 
-    public function getColumnSpan(): int|string|array
-    {
-        return 'full';
-    }
+    protected int | string | array $columnSpan = 4;
 
     protected function getViewData(): array
     {
-        $subscription = auth()
-            ->user()
+        $user = auth()->user();
+
+        /** @var Subscription $subscription */
+        $subscription = $user
             ->activeSubscription()
-            ->with('price.billingPlan')
+            ->with('price.plan')
             ->first();
 
-        $plan = $subscription?->price?->billingPlan;
+        $plan = $subscription?->price?->plan;
 
         return [
             'planName' => $plan->name,
             'description' => $plan->description,
             'status' => $subscription->ends_at ? 'expired' : ($subscription->stripe_status === 'active' ? 'active' : 'inactive'),
-            'isRecurring' => $subscription->price->type === 'recurring',
+            'features' => json_decode($subscription->price?->metadata, true)['features'] ?? [],
         ];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Appointments\Filament\App\Widgets;
+namespace TresPontosTech\User\Filament\App\Widgets;
 
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -10,9 +10,10 @@ class AppointmentHistoryWidget extends TableWidget
 {
     protected static ?string $heading = 'Últimos Atendimentos';
 
+    protected int | string | array $columnSpan = 'full';
+
     public function table(Table $table): Table
     {
-
         return $table
             ->query(
                 auth()

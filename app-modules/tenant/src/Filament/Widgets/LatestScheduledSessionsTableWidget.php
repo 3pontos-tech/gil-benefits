@@ -60,20 +60,7 @@ class LatestScheduledSessionsTableWidget extends TableWidget
                     ->label('ID da consultoria externa')
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->headerActions([
-                //
-            ])
-            ->recordActions([
-                //
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    //
-                ]),
             ]);
+
     }
 }

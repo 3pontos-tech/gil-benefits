@@ -26,7 +26,7 @@ class Price extends Model
         'metadata',
     ];
 
-    public function billingPlan(): BelongsTo
+    public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class, 'billing_plan_id');
     }

@@ -1,0 +1,27 @@
+<?php
+
+namespace TresPontosTech\User\Filament\App\Pages;
+
+use Filament\Pages\Dashboard;
+use Filament\Widgets\AccountWidget;
+use TresPontosTech\User\Filament\App\Widgets\AppointmentHistoryWidget;
+use TresPontosTech\User\Filament\App\Widgets\UserAccountWidget;
+use TresPontosTech\User\Filament\App\Widgets\UserCurrentPlanWidget;
+
+class UserDashboard extends Dashboard
+{
+
+    public function getColumns(): int|array
+    {
+        return 6;
+    }
+
+    public function getWidgets(): array
+    {
+        return [
+            UserCurrentPlanWidget::make(),
+            UserAccountWidget::make(),
+            AppointmentHistoryWidget::make(),
+        ];
+    }
+}

@@ -46,7 +46,7 @@ class PriceResource extends Resource
         return $schema
             ->components([
                 Select::make('billing_plan_id')
-                    ->relationship('billingPlan', 'name')
+                    ->relationship('plan', 'name')
                     ->searchable()
                     ->required(),
 
@@ -88,7 +88,7 @@ class PriceResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('billingPlan.name')
+                TextColumn::make('plan.name')
                     ->searchable()
                     ->sortable(),
 
@@ -143,20 +143,20 @@ class PriceResource extends Resource
 
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['billingPlan']);
+        return parent::getGlobalSearchEloquentQuery()->with(['plan']);
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['billingPlan.name'];
+        return ['plan.name'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         $details = [];
 
-        if ($record->billingPlan) {
-            $details['BillingPlan'] = $record->billingPlan->name;
+        if ($record->plan) {
+            $details['plan'] = $record->plan->name;
         }
 
         return $details;

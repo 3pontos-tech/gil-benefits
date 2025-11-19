@@ -28,3 +28,4 @@ Thumbs.db
 .pint.result.cache
 /.rector.cache
 _ide_helper_models.php
+.output.txt
