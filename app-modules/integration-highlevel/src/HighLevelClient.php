@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\IntegrationHighlevel;
 
+use GuzzleHttp\Exception\BadResponseException;
 use Illuminate\Support\Facades\Http;
 use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
@@ -58,10 +59,13 @@ class HighLevelClient
         $response = Http::withToken(config('highlevel.secret'))
             ->withDefaultVersion()
             ->asJson()
-            ->post('https://services.leadconnectorhq.com/opportunities/upsert', $dto->jsonSerialize())
-            ->json();
+            ->post('https://services.leadconnectorhq.com/opportunities/upsert', $dto->jsonSerialize());
 
-        return UpsertOpportunityResponse::make($response);
+        if (! $response->created()) {
+            throw new \Exception('Error: ' . $response->status() . ' - ' . $response->body());
+        }
+
+        return UpsertOpportunityResponse::make($response->json());
     }
 
     public function getCalendarFreeSlots(FetchCalendarSlotsDTO $dto)

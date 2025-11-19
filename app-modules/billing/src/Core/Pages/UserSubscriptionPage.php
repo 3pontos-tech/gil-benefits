@@ -12,6 +12,7 @@ use Laravel\Cashier\Cashier;
 use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
+use TresPontosTech\User\Filament\App\Pages\UserDashboard;
 
 class UserSubscriptionPage extends Page
 {
@@ -68,8 +69,8 @@ class UserSubscriptionPage extends Page
                 'model' => Relation::getMorphAlias(User::class),
             ])
             ->checkout(sessionOptions: [
-                'success_url' => Dashboard::getUrl(),
-                'cancel_url' => Dashboard::getUrl(),
+                'success_url' => UserDashboard::getUrl(),
+                'cancel_url' => UserDashboard::getUrl(),
             ]);
 
         redirect($sessionCheckout->asStripeCheckoutSession()->url);

@@ -22,18 +22,18 @@ class AppointmentWizard
     public static function make(): Wizard
     {
         return Wizard::make([
-            Step::make('Consultant')
+            Step::make(__('appointments::resources.appointments.wizard.steps.consultant'))
                 ->icon(Heroicon::User)
                 ->schema([
                     AppointmentCategorySelector::make('category_type')
-                        ->label('Choose your consultant')
+                        ->label(__('appointments::resources.appointments.wizard.labels.choose_consultant'))
                         ->required(),
                 ]),
-            Step::make('Pick Date & Time')
+            Step::make(__('appointments::resources.appointments.wizard.steps.pick_datetime'))
                 ->icon(Heroicon::Calendar)
                 ->schema([
                     DatePicker::make('date')
-                        ->label('Date')
+                        ->label(__('appointments::resources.appointments.wizard.labels.date'))
                         ->required()
                         ->native(false)
                         ->minDate(now()->addDays(2)->format('Y-m-d'))
@@ -41,7 +41,7 @@ class AppointmentWizard
                         ->afterStateUpdated(fn (callable $set) => $set('appointment_at', null)),
 
                     ViewField::make('appointment_at')
-                        ->label('Horários Disponíveis')
+                        ->label(__('appointments::resources.appointments.wizard.labels.available_times'))
                         ->view('forms.fields.available-times', [
                             'slots' => fn (Get $get): array => static::availableSlots($get('date')),
                         ])
@@ -49,23 +49,24 @@ class AppointmentWizard
                         ->reactive(),
 
                     TextInput::make('duration')
-                        ->label('Duration')
-                        ->default('60 minutes')
+                        ->label(__('appointments::resources.appointments.wizard.labels.duration'))
+                        ->default(__('appointments::resources.appointments.wizard.labels.duration_default'))
                         ->disabled()
                         ->dehydrated(false),
                 ]),
 
-            Step::make('Review & Confirm')
+            Step::make(__('appointments::resources.appointments.wizard.steps.review_confirm'))
                 ->icon(Heroicon::CheckCircle)
                 ->schema([
                     ViewField::make('summary')
+                        ->label(__('appointments::resources.appointments.wizard.labels.summary'))
                         ->view('forms.fields.appointment-summary'),
-                    Textarea::make('note')->label('Notes')->rows(3),
+                    Textarea::make('note')->label(__('appointments::resources.appointments.wizard.labels.notes'))->rows(3),
                 ]),
         ])
             ->columnSpanFull()
             ->submitAction(Action::make('submit')
-                ->label('Start researching')
+                ->label(__('appointments::resources.appointments.wizard.actions.submit'))
                 ->icon('heroicon-m-arrow-right')
                 ->iconPosition('after')
                 ->action('start'));

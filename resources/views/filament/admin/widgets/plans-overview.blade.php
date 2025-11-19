@@ -6,7 +6,7 @@
 ])
 
 @php
-    use Filament\Support\Icons\Heroicon;
+    use Filament\Support\Icons\Heroicon;use TresPontosTech\Appointments\Filament\App\Resources\Appointments\AppointmentResource;
 @endphp
 <x-filament-widgets::widget>
     <x-filament::section icon="heroicon-o-cube">
@@ -40,7 +40,9 @@
 
 
         <x-slot name="footer">
-            <x-filament::button icon="heroicon-o-calendar">Agendar nova sessão</x-filament::button>
+            <x-filament::button  wire:click="redirectToAppointmentCreation" icon="heroicon-o-calendar">
+                Agendar Consultoria
+            </x-filament::button>
         </x-slot>
 
 

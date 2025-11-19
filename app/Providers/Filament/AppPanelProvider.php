@@ -32,6 +32,7 @@ class AppPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#F1785A'),
             ])
+            ->topbar(false)
             ->sidebarFullyCollapsibleOnDesktop()
             ->globalSearch()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])

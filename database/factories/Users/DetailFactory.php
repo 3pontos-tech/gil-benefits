@@ -17,6 +17,7 @@ class DetailFactory extends Factory
         return [
             'document_id' => $this->faker->rg(),
             'tax_id' => $this->faker->cpf(),
+            'phone_number' => $this->faker->phoneNumber(),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
 

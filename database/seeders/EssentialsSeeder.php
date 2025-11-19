@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -15,15 +16,25 @@ class EssentialsSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::factory()->admin()->create([
-            'external_id' => 'IZtkYVpbP7JCgqjlzuAA',
-        ]);
+        $admin = User::factory()
+            ->admin()
+            ->create();
+
+        $appUser = User::factory()
+            ->has(Detail::factory())
+            ->create([
+                'email' => 'daniel@5pontos.com',
+                'name' => 'Daniel Reis (ADMIN TESTE)',
+                'password' => \Hash::make('admin'),
+            ]);
 
         $company = Company::factory()->create([
             'name' => '5Pontos',
             'slug' => '5pontos',
             'user_id' => $admin->id,
         ]);
+
+        $company->employees()->attach($appUser, ['role' => CompanyRoleEnum::Employee->value]);
 
         Appointment::factory()
             ->count(5)

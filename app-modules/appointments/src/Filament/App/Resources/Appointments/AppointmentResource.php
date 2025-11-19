@@ -21,6 +21,21 @@ class AppointmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    public static function getModelLabel(): string
+    {
+        return __('appointments::resources.appointments.label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('appointments::resources.appointments.plural');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('appointments::resources.appointments.navigation');
+    }
+
     public static function infolist(Schema $schema): Schema
     {
         return AppointmentInfolist::configure($schema);
@@ -33,9 +48,7 @@ class AppointmentResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
@@ -43,8 +56,6 @@ class AppointmentResource extends Resource
         return [
             'index' => ListAppointments::route('/'),
             'create' => CreateAppointment::route('/create'),
-            'view' => ViewAppointment::route('/{record}'),
-            'edit' => EditAppointment::route('/{record}/edit'),
         ];
     }
 }

@@ -7,6 +7,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
+use Throwable;
 use TresPontosTech\Appointments\Actions\BookAppointmentAction;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Filament\App\Resources\Appointments\AppointmentResource;
@@ -40,11 +41,19 @@ class CreateAppointment extends CreateRecord
     {
         $appointmentDTO = BookAppointmentDTO::make(auth()->user()->getKey(), $this->form->getRawState());
 
-        app(BookAppointmentAction::class)->handle($appointmentDTO);
+        try {
+            app(BookAppointmentAction::class)->handle($appointmentDTO);
+            Notification::make()
+                ->title('Appointment booked successfully')
+                ->success()
+                ->send();
 
-        Notification::make()
-            ->title('Appointment booked successfully')
-            ->success()
-            ->send();
+            $this->redirectIntended(AppointmentResource::getUrl('index'));
+        } catch (Throwable) {
+            Notification::make()
+                ->title('Failed to book appointment')
+                ->danger()
+                ->send();
+        }
     }
 }

@@ -54,14 +54,9 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
 
     public function getLabel(): string|Htmlable|null
     {
-        return match ($this) {
-            self::Draft => 'Draft',
-            self::Pending => 'Pending',
-            self::Scheduling => 'Scheduling',
-            self::Active => 'Scheduled',
-            self::Completed => 'Completed',
-            self::Cancelled => 'Cancelled',
-        };
+        return __(
+            'appointments::enums.appointment_status.' . $this->value
+        );
     }
 
     public function currentStep(Appointment $appointment): AbstractAppointmentStep
