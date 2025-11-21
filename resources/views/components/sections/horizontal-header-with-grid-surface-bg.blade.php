@@ -6,7 +6,7 @@
     $cards = [
         [
             'title' => 'Para os colaboradores',
-            'description' => 'Tem como retirar esse quadrado, pq o texto seria o mesmo do "para a empresa"',
+            'description' => 'Mudanças visíveis na vida financeira de seus colaboradores, pois eles merecem estabilidade e tranquilidade.',
         ],
         [
             'title' => 'Educação Financeira Personalizada',
