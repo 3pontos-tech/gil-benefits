@@ -7,6 +7,6 @@
         {{ $text }}
     </p>
     <x-button>
-        Lorem Ipsum
+        Entrar em contato
     </x-button>
 </div>

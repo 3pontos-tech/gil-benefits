@@ -4,7 +4,6 @@
         icon="flamma-icon"
         button-variant="white"
         title="Plano personalizado"
-        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. In efficitur velit vitae enim sodales
-        sodales. Donec lectus nisi, aliquam eu ante at, blandit laoreet ligula. "
+        description="Analisamos caso a caso, empresa por empresa para entender as necessidades e possibilidades que cabem perfeitamente em cada situação. "
     />
 </section>

@@ -1,35 +1,32 @@
 @php
     $title = 'Pronto para transformar o bem-estar financeiro da sua equipe?';
     $keywords = ['bem-estar', 'financeiro', 'da', 'sua', 'equipe?'];
-    $description = 'A empresa contrata um pacote de horas de atendimento (mensal, semestral ou anual). Os colaboradores
-        agendam seus atendimentos diretamente pela plataforma Flamma. Você tem acesso à atendimentos individuais com
-        até 60 minutos, online ou presenciais.  Relatórios consolidados de uso para acompanhamento da adesão e
-        impacto.';
+    $description = 'Com a Flamma, você não oferece apenas um benefício; você oferece uma transformação. Estamos comprometidos em levar a educação financeira e a evolução da relação das pessoas com o dinheiro a um novo nível, disseminando algo bom e duradouro para todos.';
 
     $cards = [
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'A empresa define o pacote ideal de horas e inicia o acompanhamento personalizado pela Flamma.',
+            'title' => 'Para os colaboradores',
+            'description' => 'Tem como retirar esse quadrado, pq o texto seria o mesmo do "para a empresa"',
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Os colaboradores agendam seus atendimentos diretamente pela plataforma Flamma.'
+            'title' => 'Educação Financeira Personalizada',
+            'description' => 'Acesso a consultores especializados para sessões individuais de 1 hora, focadas nas necessidades específicas de cada um.'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Atendimentos individuais com até 60 minutos, online ou presenciais.'
+            'title' => 'Controle e Planejamento',
+            'description' => 'Ferramentas e conhecimentos para gerenciar dívidas, criar orçamentos, planejar investimentos e alcançar objetivos financeiros.'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Relatórios consolidados de uso para acompanhamento da adesão e impacto.'
+            'title' => 'Redução do Estresse',
+            'description' => 'Alívio da ansiedade e preocupação com dinheiro, promovendo maior bem-estar e qualidade de vida.'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Relatórios consolidados de uso para acompanhamento da adesão e impacto.'
+            'title' => 'Empoderamento Financeiro',
+            'description' => 'Capacitação para tomar decisões financeiras mais conscientes e construir um futuro financeiro sólido.'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'A empresa define o pacote ideal de horas e inicia o acompanhamento personalizado pela Flamma.',
+            'title' => 'Melhora da Qualidade de Vida',
+            'description' => 'Impacto positivo em todas as áreas da vida, desde a saúde mental até os relacionamentos pessoais.',
         ],
     ];
 @endphp
@@ -79,9 +76,7 @@
             </x-partials.card-grid>
 
             <x-partials.text-with-action-stacked
-                text="Nosso propósito é disseminar conhecimento e ferramentas para que seus
-                funcionários alcancem a tão desejada liberdade financeira,
-                refletindo diretamente no sucesso da sua organização"
+                text="Estamos comprometidos em levar a educação financeira e a evolução da relação das pessoas com o dinheiro a um novo nível, disseminando algo bom e duradouro para todos."
             />
         </section>
     </div>

@@ -21,7 +21,7 @@
             </x-slot:description>
             <x-slot:actions>
                 <x-button>
-                    Saiba mais
+                    Cotação gratuita
                 </x-button>
             </x-slot:actions>
         </x-headline>

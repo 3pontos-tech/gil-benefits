@@ -22,63 +22,39 @@
                 <h4 class="text-lg sm:text-xl font-semibold  mb-3 sm:mb-4">Links de Serviços</h4>
                 <ul class="space-y-1 sm:space-y-2  text-sm sm:text-base">
                     <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Key Account
+                        <a href="#home" class="hover:text-secondary transition">
+                            Inicio
                         </a>
                     </li>
                     <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Code Capital
+                        <a href="#how-it-works" class="hover:text-secondary transition">
+                            Como Funciona
                         </a>
                     </li>
                     <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Planejamento
+                        <a href="#challenge" class="hover:text-secondary transition">
+                            Nosso Desafio
                         </a>
                     </li>
                     <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Educa Fire
+                        <a href="#assessment" class="hover:text-secondary transition">
+                            Consultoria
                         </a>
                     </li>
                     <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Parcerias
+                        <a href="#pricing" class="hover:text-secondary transition">
+                            Preços
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#faq" class="hover:text-secondary transition">
+                            FAQ
                         </a>
                     </li>
                 </ul>
             </div>
 
-            <div class="col-span-1">
-                <h4 class="text-lg sm:text-xl font-semibold  mb-3 sm:mb-4">Links de Serviços</h4>
-                <ul class="space-y-1 sm:space-y-2  text-sm sm:text-base">
-                    <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Key Account
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Code Capital
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Planejamento
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Educa Fire
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/" class="hover:text-secondary transition">
-                            Parcerias
-                        </a>
-                    </li>
-                </ul>
-            </div>
+            
 
             <div class="flex flex-col gap-y-3 sm:gap-y-4 col-span-1">
                 <h4 class="text-lg sm:text-xl font-semibold ">Contato e endereço</h4>
@@ -90,7 +66,7 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-y-3 sm:gap-y-4 col-span-1 lg:col-span-2 xl:col-span-2">
+            <div class="flex flex-col gap-y-3 sm:gap-y-4 col-span-1 lg:col-span-2 xl:col-span-3">
                 <h4 class="text-lg sm:text-xl font-semibold ">Nossa Newsletter</h4>
                 <p class=" text-sm sm:text-base">
                     Envie nos o seu email e receba as melhores notícias e textos sobre o que

@@ -47,7 +47,7 @@
         </x-slot:description>
         <x-slot:actions>
             <x-button :variant="$buttonVariant">
-                Saiba mais
+                Entrar em contato
             </x-button>
         </x-slot:actions>
     </x-headline>
