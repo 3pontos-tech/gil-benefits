@@ -9,7 +9,6 @@ use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Override;
 use TresPontosTech\Billing\Core\Commands\SyncStripeResourcesCommand;
-use TresPontosTech\User\Filament\App\Widgets\UserCurrentPlanWidget;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Models\Subscriptions\SubscriptionItem;
 use TresPontosTech\Billing\Core\Repositories\EloquentPlanRepository;

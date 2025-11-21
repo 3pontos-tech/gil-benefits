@@ -19,9 +19,7 @@ class LatestTenantAdoptorsTableWidget extends TableWidget
             ->heading('Últimos 5 membros')
             ->query(fn (): Builder => Filament::getTenant()
                 ->employees()
-                ->latest('created_at')
                 ->take(5)
-                ->orderByDesc('email_verified_at')
                 ->getQuery())
             ->paginated(false)
             ->columns([

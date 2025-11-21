@@ -5,7 +5,6 @@ namespace TresPontosTech\Appointments\Providers;
 use App\Filament\FilamentPanel;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
-use TresPontosTech\User\Filament\App\Widgets\AppointmentHistoryWidget;
 
 class AppointmentsServiceProvider extends ServiceProvider
 {

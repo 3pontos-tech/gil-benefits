@@ -46,7 +46,8 @@
         "maartenpaauw/filament-cashier-billing-provider": "^3.0",
         "owenvoke/blade-fontawesome": "^2.9",
         "spatie/laravel-medialibrary": "^11.13",
-        "spatie/laravel-permission": "^6.20"
+        "spatie/laravel-permission": "^6.20",
+        "ysfkaya/filament-phone-input": "^4.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",
