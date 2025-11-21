@@ -35,7 +35,7 @@
     <x-headline
         class="max-w-full!"
         align="center"
-        contentLayout="grid grid-cols-1 justify-items-center text-centergap-4"
+        contentLayout="grid grid-cols-1 justify-items-center text-center gap-4"
         :keywords="$keywords"
     >
         <x-slot:title>
