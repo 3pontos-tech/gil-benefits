@@ -14,7 +14,9 @@
                 {{ $this->form }}
 
                 <div class="mt-6 flex justify-end">
-                    {{ $this->getFormActions() }}
+                    @foreach ($this->getFormActions() as $action)
+                        {{ $action }}
+                    @endforeach
                 </div>
             </form>
         </div>

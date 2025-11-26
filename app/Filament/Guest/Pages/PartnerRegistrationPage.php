@@ -6,11 +6,11 @@ use App\Actions\RegisterPartnerCollaboratorAction;
 use App\DTO\PartnerRegistrationDTO;
 use App\Models\Users\Detail;
 use App\Utils\CpfValidator;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Validator;
@@ -34,9 +34,9 @@ class PartnerRegistrationPage extends Page implements HasForms
         $this->form->fill();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Section::make('Dados Pessoais')
                     ->description('Preencha os dados do colaborador')
