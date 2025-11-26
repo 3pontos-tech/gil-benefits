@@ -20,6 +20,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use TresPontosTech\Company\Models\Company;
 
@@ -182,13 +183,11 @@ class PartnerRegistrationPage extends Page implements HasForms
             // Validate form data first
             $data = $this->form->getState();
 
+            // Sanitize input data for security
+            $data = $this->sanitizeInputData($data);
+
             // Log registration attempt for security monitoring
-            Log::info('Partner registration attempt', [
-                'email' => $data['email'] ?? 'unknown',
-                'partner_code' => $data['partner_code'] ?? 'unknown',
-                'ip' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-            ]);
+            $this->logRegistrationAttempt($data, 'attempt');
 
             // Create DTO from form data
             $dto = PartnerRegistrationDTO::fromArray($data);
@@ -199,9 +198,8 @@ class PartnerRegistrationPage extends Page implements HasForms
 
             if ($result->isSuccess()) {
                 // Log successful registration
-                Log::info('Partner registration successful', [
+                $this->logRegistrationAttempt($data, 'success', [
                     'user_id' => $result->user?->id,
-                    'email' => $data['email'],
                     'company_id' => $result->company?->id,
                 ]);
 
@@ -230,10 +228,8 @@ class PartnerRegistrationPage extends Page implements HasForms
                 $this->js('setTimeout(() => { window.location.href = "/app/login"; }, 3000);');
             } else {
                 // Log registration failure
-                Log::warning('Partner registration failed', [
-                    'email' => $data['email'],
+                $this->logRegistrationAttempt($data, 'failure', [
                     'error' => $result->error,
-                    'partner_code' => $data['partner_code'],
                 ]);
 
                 // Show detailed error notification but preserve form data
@@ -249,16 +245,14 @@ class PartnerRegistrationPage extends Page implements HasForms
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Validation errors are handled automatically by Filament
             // Form state is preserved automatically
-            Log::warning('Partner registration validation failed', [
-                'email' => $this->data['email'] ?? 'unknown',
+            $this->logRegistrationAttempt($this->data ?? [], 'validation_error', [
                 'errors' => $e->errors(),
             ]);
             
             throw $e;
         } catch (\Exception $e) {
             // Log unexpected errors
-            Log::error('Partner registration system error', [
-                'email' => $this->data['email'] ?? 'unknown',
+            $this->logRegistrationAttempt($this->data ?? [], 'system_error', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -305,6 +299,100 @@ class PartnerRegistrationPage extends Page implements HasForms
                     'class' => $this->isSubmitting ? 'animate-pulse' : '',
                 ]),
         ];
+    }
+
+    /**
+     * Sanitize input data for security
+     */
+    protected function sanitizeInputData(array $data): array
+    {
+        return [
+            'name' => isset($data['name']) ? trim(html_entity_decode(strip_tags($data['name']), ENT_QUOTES, 'UTF-8')) : '',
+            'rg' => isset($data['rg']) ? preg_replace('/[^0-9\-\.]/', '', $data['rg']) : '',
+            'cpf' => isset($data['cpf']) ? preg_replace('/[^0-9\-\.]/', '', $data['cpf']) : '',
+            'email' => isset($data['email']) ? strtolower(trim(strip_tags($data['email']))) : '',
+            'password' => $data['password'] ?? '', // Don't sanitize password as it may contain special chars
+            'password_confirmation' => $data['password_confirmation'] ?? '',
+            'partner_code' => isset($data['partner_code']) ? trim(strip_tags($data['partner_code'])) : '',
+        ];
+    }
+
+    /**
+     * Comprehensive logging for security monitoring
+     */
+    protected function logRegistrationAttempt(array $data, string $status, array $additionalData = []): void
+    {
+        $request = request();
+        
+        $logData = [
+            'status' => $status,
+            'email' => $data['email'] ?? 'unknown',
+            'partner_code' => $data['partner_code'] ?? 'unknown',
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'referer' => $request->header('referer'),
+            'timestamp' => now()->toISOString(),
+            'session_id' => $request->session()->getId(),
+            'request_id' => Str::uuid()->toString(),
+        ];
+
+        // Add additional context data
+        $logData = array_merge($logData, $additionalData);
+
+        // Detect potential security threats
+        $securityFlags = $this->detectSecurityThreats($request, $data);
+        if (!empty($securityFlags)) {
+            $logData['security_flags'] = $securityFlags;
+        }
+
+        // Log with appropriate level based on status
+        match ($status) {
+            'success' => Log::info('Partner registration successful', $logData),
+            'failure', 'validation_error' => Log::warning("Partner registration {$status}", $logData),
+            'system_error' => Log::error('Partner registration system error', $logData),
+            default => Log::info('Partner registration attempt', $logData),
+        };
+
+        // Additional security monitoring for suspicious activity
+        if (!empty($securityFlags)) {
+            Log::channel('security')->warning('Suspicious partner registration activity detected', $logData);
+        }
+    }
+
+    /**
+     * Detect potential security threats in registration attempts
+     */
+    protected function detectSecurityThreats($request, array $data): array
+    {
+        $flags = [];
+
+        // Check for suspicious user agents
+        $userAgent = $request->userAgent();
+        if (empty($userAgent) || preg_match('/bot|crawler|spider|scraper/i', $userAgent)) {
+            $flags[] = 'suspicious_user_agent';
+        }
+
+        // Check for suspicious email patterns
+        $email = $data['email'] ?? '';
+        if (preg_match('/[+].*[+]|\.{2,}|[0-9]{10,}/', $email)) {
+            $flags[] = 'suspicious_email_pattern';
+        }
+
+        // Check for suspicious name patterns (too short, all caps, numbers only)
+        $name = $data['name'] ?? '';
+        if (strlen($name) < 3 || ctype_upper($name) || ctype_digit(str_replace(' ', '', $name))) {
+            $flags[] = 'suspicious_name_pattern';
+        }
+
+        // Check for missing referer (direct access)
+        if (empty($request->header('referer'))) {
+            $flags[] = 'missing_referer';
+        }
+
+        // Check for rapid successive attempts (would need Redis/cache to implement properly)
+        // This is a placeholder for future implementation
+        
+        return $flags;
     }
 
     /**
