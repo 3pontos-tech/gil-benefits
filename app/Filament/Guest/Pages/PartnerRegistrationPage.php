@@ -5,7 +5,12 @@ namespace App\Filament\Guest\Pages;
 use App\Actions\RegisterPartnerCollaboratorAction;
 use App\DTO\PartnerRegistrationDTO;
 use App\Models\Users\Detail;
+use App\Rules\CpfRule;
+use App\Rules\RgRule;
+use App\Rules\UniqueCpfRule;
+use App\Rules\ValidPartnerCodeRule;
 use App\Utils\CpfValidator;
+use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -13,6 +18,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 use TresPontosTech\Company\Models\Company;
@@ -47,15 +53,24 @@ class PartnerRegistrationPage extends Page implements HasForms
                             ->maxLength(255)
                             ->placeholder('Digite o nome completo')
                             ->live(onBlur: true)
-                            ->rules(['required', 'string', 'max:255']),
+                            ->rules(['required', 'string', 'max:255'])
+                            ->validationMessages([
+                                'required' => 'O nome completo é obrigatório.',
+                                'string' => 'O nome deve ser um texto válido.',
+                                'max' => 'O nome não pode ter mais de 255 caracteres.',
+                            ]),
 
                         TextInput::make('rg')
                             ->label('RG')
                             ->required()
                             ->maxLength(20)
-                            ->placeholder('Digite o RG')
+                            ->placeholder('Digite o RG (ex: 12.345.678-9)')
                             ->live(onBlur: true)
-                            ->rules(['required', 'string', 'max:20']),
+                            ->rules(['required', new RgRule()])
+                            ->validationMessages([
+                                'required' => 'O RG é obrigatório.',
+                                'max' => 'O RG não pode ter mais de 20 caracteres.',
+                            ]),
 
                         TextInput::make('cpf')
                             ->label('CPF')
@@ -66,22 +81,12 @@ class PartnerRegistrationPage extends Page implements HasForms
                             ->rules([
                                 'required',
                                 'string',
-                                function ($attribute, $value, $fail) {
-                                    if (!CpfValidator::validate($value)) {
-                                        $fail('CPF inválido. Verifique o formato');
-                                    }
-                                },
+                                new CpfRule(),
+                                new UniqueCpfRule(),
                             ])
-                            ->rule(function () {
-                                return function ($attribute, $value, $fail) {
-                                    $cleanCpf = CpfValidator::clean($value);
-                                    if (Detail::where('tax_id', $cleanCpf)->exists()) {
-                                        $fail('Este CPF já está cadastrado no sistema');
-                                    }
-                                };
-                            })
                             ->validationMessages([
-                                'unique' => 'Este CPF já está cadastrado no sistema',
+                                'required' => 'O CPF é obrigatório.',
+                                'string' => 'O CPF deve ser um texto válido.',
                             ]),
 
                         TextInput::make('email')
@@ -89,12 +94,14 @@ class PartnerRegistrationPage extends Page implements HasForms
                             ->email()
                             ->required()
                             ->maxLength(255)
-                            ->placeholder('Digite o e-mail')
+                            ->placeholder('Digite o e-mail (ex: usuario@exemplo.com)')
                             ->live(onBlur: true)
                             ->unique('users', 'email')
                             ->validationMessages([
-                                'email' => 'Digite um e-mail válido',
-                                'unique' => 'Este e-mail já está cadastrado no sistema',
+                                'required' => 'O e-mail é obrigatório.',
+                                'email' => 'Digite um e-mail válido (ex: usuario@exemplo.com).',
+                                'unique' => 'Este e-mail já está cadastrado no sistema. Tente fazer login ou use outro e-mail.',
+                                'max' => 'O e-mail não pode ter mais de 255 caracteres.',
                             ]),
                     ]),
 
@@ -105,20 +112,30 @@ class PartnerRegistrationPage extends Page implements HasForms
                             ->label('Senha')
                             ->password()
                             ->required()
-                            ->placeholder('Digite a senha')
-                            ->rules([Password::min(8)])
+                            ->placeholder('Digite uma senha segura (mínimo 8 caracteres)')
+                            ->rules([
+                                'required',
+                                Password::min(8)
+                                    ->letters()
+                                    ->numbers()
+                                    ->mixedCase()
+                                    ->symbols()
+                            ])
                             ->validationMessages([
-                                'min' => 'A senha deve ter pelo menos 8 caracteres',
-                            ]),
+                                'required' => 'A senha é obrigatória.',
+                                'min' => 'A senha deve ter pelo menos 8 caracteres.',
+                            ])
+                            ->helperText('A senha deve conter pelo menos 8 caracteres, incluindo letras maiúsculas, minúsculas, números e símbolos.'),
 
                         TextInput::make('password_confirmation')
                             ->label('Confirmar Senha')
                             ->password()
                             ->required()
-                            ->placeholder('Confirme a senha')
+                            ->placeholder('Digite a senha novamente')
                             ->same('password')
                             ->validationMessages([
-                                'same' => 'As senhas não coincidem',
+                                'required' => 'A confirmação de senha é obrigatória.',
+                                'same' => 'As senhas não coincidem. Digite a mesma senha nos dois campos.',
                             ]),
                     ]),
 
@@ -129,18 +146,20 @@ class PartnerRegistrationPage extends Page implements HasForms
                             ->label('Código do Parceiro')
                             ->required()
                             ->maxLength(50)
-                            ->placeholder('Digite o código do parceiro')
+                            ->placeholder('Digite o código fornecido pela empresa parceira')
                             ->live(onBlur: true)
                             ->rules([
                                 'required',
                                 'string',
                                 'max:50',
-                                function ($attribute, $value, $fail) {
-                                    if (!$this->validatePartnerCode($value)) {
-                                        $fail('Código de parceiro inválido ou não encontrado');
-                                    }
-                                },
-                            ]),
+                                new ValidPartnerCodeRule(),
+                            ])
+                            ->validationMessages([
+                                'required' => 'O código do parceiro é obrigatório.',
+                                'string' => 'O código deve ser um texto válido.',
+                                'max' => 'O código não pode ter mais de 50 caracteres.',
+                            ])
+                            ->helperText('Este código foi fornecido pela empresa parceira. Entre em contato com o responsável se não tiver o código.'),
                     ]),
             ])
             ->statePath('data');
@@ -149,7 +168,16 @@ class PartnerRegistrationPage extends Page implements HasForms
     public function submit(): void
     {
         try {
+            // Validate form data first
             $data = $this->form->getState();
+
+            // Log registration attempt for security monitoring
+            Log::info('Partner registration attempt', [
+                'email' => $data['email'] ?? 'unknown',
+                'partner_code' => $data['partner_code'] ?? 'unknown',
+                'ip' => request()->ip(),
+                'user_agent' => request()->userAgent(),
+            ]);
 
             // Create DTO from form data
             $dto = PartnerRegistrationDTO::fromArray($data);
@@ -159,40 +187,70 @@ class PartnerRegistrationPage extends Page implements HasForms
             $result = $action->execute($dto);
 
             if ($result->isSuccess()) {
-                // Clear form data
+                // Log successful registration
+                Log::info('Partner registration successful', [
+                    'user_id' => $result->user?->id,
+                    'email' => $data['email'],
+                    'company_id' => $result->company?->id,
+                ]);
+
+                // Clear form data only on success
                 $this->form->fill();
 
-                // Show success notification
+                // Show success notification with detailed instructions
                 Notification::make()
                     ->title('Cadastro realizado com sucesso!')
-                    ->body('O colaborador foi cadastrado com sucesso. Você pode fazer login na plataforma usando o e-mail e senha cadastrados.')
+                    ->body('Parabéns! Seu cadastro foi concluído. Agora você pode acessar a plataforma usando seu e-mail e senha. Você será redirecionado para a página de login.')
                     ->success()
                     ->persistent()
-                    ->actions([
-                        \Filament\Notifications\Actions\Action::make('login')
-                            ->label('Fazer Login')
-                            ->url('/app/login')
-                            ->button(),
-                    ])
                     ->send();
 
                 // Redirect to login page after a short delay
                 $this->redirect('/app/login');
             } else {
-                // Show error notification
+                // Log registration failure
+                Log::warning('Partner registration failed', [
+                    'email' => $data['email'],
+                    'error' => $result->error,
+                    'partner_code' => $data['partner_code'],
+                ]);
+
+                // Show detailed error notification but preserve form data
                 Notification::make()
                     ->title('Erro no cadastro')
-                    ->body($result->error)
+                    ->body($result->error ?: 'Não foi possível completar o cadastro. Verifique os dados informados e tente novamente.')
                     ->danger()
+                    ->persistent()
                     ->send();
+
+                // Form data is preserved automatically by not calling form->fill()
             }
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Validation errors are handled automatically by Filament
+            // Form state is preserved automatically
+            Log::warning('Partner registration validation failed', [
+                'email' => $this->data['email'] ?? 'unknown',
+                'errors' => $e->errors(),
+            ]);
+            
+            throw $e;
         } catch (\Exception $e) {
-            // Show generic error notification
+            // Log unexpected errors
+            Log::error('Partner registration system error', [
+                'email' => $this->data['email'] ?? 'unknown',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            // Show user-friendly error notification and preserve form data
             Notification::make()
-                ->title('Erro interno')
-                ->body('Ocorreu um erro interno. Tente novamente mais tarde.')
+                ->title('Erro do sistema')
+                ->body('Ocorreu um erro interno no sistema. Por favor, tente novamente em alguns minutos. Se o problema persistir, entre em contato com o suporte.')
                 ->danger()
+                ->persistent()
                 ->send();
+
+            // Form data is preserved by not calling form->fill()
         }
     }
 
@@ -211,7 +269,7 @@ class PartnerRegistrationPage extends Page implements HasForms
     public function getFormActions(): array
     {
         return [
-            \Filament\Actions\Action::make('submit')
+            Action::make('submit')
                 ->label('Cadastrar Colaborador')
                 ->submit('submit')
                 ->keyBindings(['mod+s']),
