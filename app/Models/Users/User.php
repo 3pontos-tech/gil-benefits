@@ -58,7 +58,72 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     public function canAccessPanel(Panel $panel): bool
     {
+        // Check if user is a partner collaborator (employee of a company with partner_code)
+        if ($this->isPartnerCollaborator()) {
+            // Partner collaborators can only access the User Panel
+            return $panel->getId() === \App\Filament\FilamentPanel::User->value;
+        }
+
+        // For non-partner collaborators, allow access to all panels (existing behavior)
         return true;
+    }
+
+    /**
+     * Determine if the user is a partner collaborator.
+     * A partner collaborator is an employee of a company that has a partner_code.
+     */
+    public function isPartnerCollaborator(): bool
+    {
+        return $this->companies()
+            ->whereNotNull('partner_code')
+            ->wherePivot('role', \TresPontosTech\Company\Enums\CompanyRoleEnum::Employee)
+            ->exists();
+    }
+
+    /**
+     * Get the partner company for this collaborator.
+     * Returns the company if the user is a partner collaborator, null otherwise.
+     */
+    public function getPartnerCompany(): ?Company
+    {
+        if (!$this->isPartnerCollaborator()) {
+            return null;
+        }
+
+        return $this->companies()
+            ->whereNotNull('partner_code')
+            ->wherePivot('role', \TresPontosTech\Company\Enums\CompanyRoleEnum::Employee)
+            ->first();
+    }
+
+    /**
+     * Get the tenants (companies) that this user can access.
+     * For partner collaborators, this is restricted to their partner company only.
+     */
+    public function getTenants(Panel $panel): \Illuminate\Support\Collection
+    {
+        if ($this->isPartnerCollaborator()) {
+            $partnerCompany = $this->getPartnerCompany();
+            return $partnerCompany ? collect([$partnerCompany]) : collect();
+        }
+
+        // For non-partner collaborators, return all companies they have access to
+        return $this->companies;
+    }
+
+    /**
+     * Check if the user can access a specific tenant (company).
+     * For partner collaborators, access is restricted to their partner company only.
+     */
+    public function canAccessTenant(\Illuminate\Database\Eloquent\Model $tenant): bool
+    {
+        if ($this->isPartnerCollaborator()) {
+            $partnerCompany = $this->getPartnerCompany();
+            return $partnerCompany && $partnerCompany->is($tenant);
+        }
+
+        // For non-partner collaborators, check if they are associated with the company
+        return $this->companies->contains($tenant);
     }
 
     public function companies(): BelongsToMany

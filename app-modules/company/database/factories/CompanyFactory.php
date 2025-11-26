@@ -13,10 +13,12 @@ class CompanyFactory extends Factory
 
     public function definition(): array
     {
+        $randomId = rand(100, 999);
+        $name = 'Test Company ' . $randomId;
         return [
-            'name' => $this->faker->company(),
-            'slug' => $this->faker->slug(),
-            'tax_id' => $this->faker->cnpj(),
+            'name' => $name,
+            'slug' => \Illuminate\Support\Str::slug($name),
+            'tax_id' => '12.345.678/0001-90',
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
 
