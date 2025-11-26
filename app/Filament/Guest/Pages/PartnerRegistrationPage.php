@@ -35,6 +35,14 @@ class PartnerRegistrationPage extends Page implements HasForms
 
     public ?array $data = [];
 
+    public bool $isSubmitting = false;
+
+    public bool $registrationSuccess = false;
+
+    public ?string $successMessage = null;
+
+    public ?string $redirectUrl = null;
+
     public function mount(): void
     {
         $this->form->fill();
@@ -168,6 +176,9 @@ class PartnerRegistrationPage extends Page implements HasForms
     public function submit(): void
     {
         try {
+            // Set loading state
+            $this->isSubmitting = true;
+
             // Validate form data first
             $data = $this->form->getState();
 
@@ -194,19 +205,29 @@ class PartnerRegistrationPage extends Page implements HasForms
                     'company_id' => $result->company?->id,
                 ]);
 
+                // Set success state
+                $this->registrationSuccess = true;
+                $this->successMessage = sprintf(
+                    'Parabéns, %s! Seu cadastro foi concluído com sucesso. Você foi associado à empresa %s e agora pode acessar a plataforma usando seu e-mail (%s) e senha.',
+                    $result->user->name,
+                    $result->company->name,
+                    $result->user->email
+                );
+                $this->redirectUrl = '/app/login';
+
                 // Clear form data only on success
                 $this->form->fill();
 
                 // Show success notification with detailed instructions
                 Notification::make()
                     ->title('Cadastro realizado com sucesso!')
-                    ->body('Parabéns! Seu cadastro foi concluído. Agora você pode acessar a plataforma usando seu e-mail e senha. Você será redirecionado para a página de login.')
+                    ->body($this->successMessage)
                     ->success()
                     ->persistent()
                     ->send();
 
-                // Redirect to login page after a short delay
-                $this->redirect('/app/login');
+                // Redirect to login page after showing success message
+                $this->js('setTimeout(() => { window.location.href = "/app/login"; }, 3000);');
             } else {
                 // Log registration failure
                 Log::warning('Partner registration failed', [
@@ -251,6 +272,10 @@ class PartnerRegistrationPage extends Page implements HasForms
                 ->send();
 
             // Form data is preserved by not calling form->fill()
+            // Explicitly preserve form state by not modifying $this->data
+        } finally {
+            // Reset loading state
+            $this->isSubmitting = false;
         }
     }
 
@@ -270,9 +295,23 @@ class PartnerRegistrationPage extends Page implements HasForms
     {
         return [
             Action::make('submit')
-                ->label('Cadastrar Colaborador')
+                ->label($this->isSubmitting ? 'Processando...' : 'Cadastrar Colaborador')
                 ->submit('submit')
-                ->keyBindings(['mod+s']),
+                ->disabled($this->isSubmitting || $this->registrationSuccess)
+                ->keyBindings(['mod+s'])
+                ->icon($this->isSubmitting ? 'heroicon-o-arrow-path' : 'heroicon-o-user-plus')
+                ->iconPosition($this->isSubmitting ? 'before' : 'after')
+                ->extraAttributes([
+                    'class' => $this->isSubmitting ? 'animate-pulse' : '',
+                ]),
         ];
+    }
+
+    /**
+     * Redirect to login page manually
+     */
+    public function redirectToLogin(): void
+    {
+        $this->redirect('/app/login');
     }
 }
