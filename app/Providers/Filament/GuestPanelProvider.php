@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Guest\Pages\LandingPage;
+use App\Filament\Guest\Pages\PartnerRegistrationPage;
 use Filament\Actions\Action;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -53,6 +54,7 @@ class GuestPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Guest/Pages'), for: 'App\Filament\Guest\Pages')
             ->pages([
                 LandingPage::class,
+                PartnerRegistrationPage::class,
             ])
             ->userMenuItems([
                 Action::make('user_panel')
