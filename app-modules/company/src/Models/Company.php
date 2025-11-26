@@ -28,6 +28,7 @@ class Company extends Model
         'name',
         'slug',
         'tax_id',
+        'partner_code',
     ];
 
     public function getRouteKeyName(): string
@@ -38,6 +39,11 @@ class Company extends Model
     public function hasActivePlan(): bool
     {
         return $this->plans()->wherePivot('status', 'active')->exists();
+    }
+
+    public static function findByPartnerCode(string $code): ?self
+    {
+        return static::where('partner_code', $code)->first();
     }
 
     public function owner(): BelongsTo

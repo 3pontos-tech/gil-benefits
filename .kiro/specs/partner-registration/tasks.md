@@ -1,6 +1,6 @@
 # Implementation Plan
 
-- [ ] 1. Set up database schema and model enhancements
+- [x] 1. Set up database schema and model enhancements
   - Create migration to add partner_code field to companies table with unique constraint
   - Update Company model to include partner_code in fillable array and add findByPartnerCode method
   - Write unit tests for Company model partner code functionality
