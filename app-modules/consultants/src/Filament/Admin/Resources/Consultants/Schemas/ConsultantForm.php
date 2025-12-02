@@ -12,7 +12,7 @@ class ConsultantForm
     {
         return $schema
             ->components([
-                TextInput::make('external_id'),
+                TextInput::make('crm_id'),
                 TextInput::make('name')
                     ->required(),
                 TextInput::make('slug')

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('consultants', function (Blueprint $table): void {
             $table->id();
-            $table->string('external_id')->nullable();
+            $table->string('crm_id')->nullable();
             $table->string('name');
             $table->string('slug');
             $table->string('phone');

@@ -28,6 +28,7 @@ class Company extends Model
         'name',
         'slug',
         'tax_id',
+        'integration_access_key',
     ];
 
     public function getRouteKeyName(): string

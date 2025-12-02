@@ -19,13 +19,13 @@ readonly class BookAppointmentAction
         $user = User::query()->find($payload->userId);
 
         $opportunityResponse = $this->client->upsertOpportunity(UpsertOpportunityDTO::make(
-            $user->external_id,
+            $user->crm_id,
             $user->name . ' - ' . $payload->categoryType->value
         ));
 
         $dto = CreateAppointmentDTO::make(
             'Acompanhamento Financeiro - ' . $user->name,
-            $user->external_id,
+            $user->crm_id,
             $payload->appointmentAt->toIso8601ZuluString(),
             $payload->appointmentAt->addHour()->toIso8601ZuluString(),
         );

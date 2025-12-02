@@ -43,7 +43,7 @@ class RegisterUserIntoCrm
         ));
 
         $user->update([
-            'external_id' => $response->contactId,
+            'crm_id' => $response->contactId,
         ]);
     }
 }
