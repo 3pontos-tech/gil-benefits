@@ -12,21 +12,83 @@ use Illuminate\Support\Facades\Hash;
 use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
 
+/**
+ * Action class responsible for registering new partner collaborators.
+ * 
+ * This action handles the complete registration process including:
+ * - Partner code validation
+ * - CPF format and uniqueness validation
+ * - Email uniqueness validation
+ * - User account creation
+ * - User details creation with document information
+ * - Company association with appropriate role assignment
+ * 
+ * The entire process is wrapped in a database transaction to ensure data consistency.
+ * 
+ * @package App\Actions
+ * @author TresPontosTech Development Team
+ * @since 1.0.0
+ */
 class RegisterPartnerCollaboratorAction
 {
     /**
-     * Register a new partner collaborator
+     * Execute the partner collaborator registration process.
+     * 
+     * This method orchestrates the complete registration workflow:
+     * 1. Validates the provided partner code against existing companies
+     * 2. Validates CPF format using Brazilian CPF validation rules
+     * 3. Checks for duplicate email addresses in the system
+     * 4. Checks for duplicate CPF numbers in user details
+     * 5. Creates the user account with encrypted password
+     * 6. Creates associated user details with document information
+     * 7. Associates the user with the partner company as an employee
+     * 
+     * All operations are performed within a database transaction to ensure
+     * atomicity. If any step fails, the entire process is rolled back.
+     * 
+     * @param PartnerRegistrationDTO $dto The registration data transfer object containing
+     *                                   all required user information including name, email,
+     *                                   password, CPF, RG, and partner code
+     * 
+     * @return RegistrationResult Success result with created user and company objects,
+     *                           or failure result with descriptive error message
+     * 
+     * @throws \Exception When database transaction fails or unexpected errors occur
+     * 
+     * @example
+     * ```php
+     * $dto = PartnerRegistrationDTO::fromArray([
+     *     'name' => 'João Silva',
+     *     'email' => 'joao@example.com',
+     *     'password' => 'SecurePass123!',
+     *     'cpf' => '123.456.789-00',
+     *     'rg' => '12.345.678-9',
+     *     'partner_code' => 'PARTNER123'
+     * ]);
+     * 
+     * $action = new RegisterPartnerCollaboratorAction();
+     * $result = $action->execute($dto);
+     * 
+     * if ($result->isSuccess()) {
+     *     $user = $result->getUser();
+     *     $company = $result->getCompany();
+     *     // Handle successful registration
+     * } else {
+     *     $errorMessage = $result->getErrorMessage();
+     *     // Handle registration failure
+     * }
+     * ```
      */
     public function execute(PartnerRegistrationDTO $dto): RegistrationResult
     {
         // Validate partner code
         $company = $this->validatePartnerCode($dto->partnerCode);
-        if (!$company) {
+        if (! $company) {
             return RegistrationResult::failure('Código de parceiro inválido ou não encontrado');
         }
 
         // Validate CPF format
-        if (!CpfValidator::validate($dto->cpf)) {
+        if (! CpfValidator::validate($dto->cpf)) {
             return RegistrationResult::failure('CPF inválido. Verifique o formato');
         }
 
@@ -59,7 +121,25 @@ class RegisterPartnerCollaboratorAction
     }
 
     /**
-     * Validate partner code against companies table (case-insensitive)
+     * Validate partner code against companies table using case-insensitive matching.
+     * 
+     * This method performs a case-insensitive search for the provided partner code
+     * in the companies table. Partner codes are unique identifiers that allow
+     * users to register as collaborators for specific companies.
+     * 
+     * @param string $partnerCode The partner code to validate (case-insensitive)
+     * 
+     * @return Company|null The matching company if found, null if no match exists
+     * 
+     * @example
+     * ```php
+     * $company = $this->validatePartnerCode('PARTNER123');
+     * if ($company) {
+     *     // Valid partner code, proceed with registration
+     * } else {
+     *     // Invalid partner code, show error
+     * }
+     * ```
      */
     private function validatePartnerCode(string $partnerCode): ?Company
     {
@@ -67,7 +147,14 @@ class RegisterPartnerCollaboratorAction
     }
 
     /**
-     * Check if email already exists
+     * Check if the provided email address already exists in the system.
+     * 
+     * This method performs an exact match search for the email address
+     * in the users table to prevent duplicate registrations.
+     * 
+     * @param string $email The email address to check for existence
+     * 
+     * @return bool True if email exists, false otherwise
      */
     private function emailExists(string $email): bool
     {
@@ -75,16 +162,35 @@ class RegisterPartnerCollaboratorAction
     }
 
     /**
-     * Check if CPF already exists
+     * Check if the provided CPF already exists in the system.
+     * 
+     * This method cleans the CPF (removes formatting) and searches for it
+     * in the user details table to prevent duplicate registrations with
+     * the same tax identification number.
+     * 
+     * @param string $cpf The CPF to check (can be formatted or unformatted)
+     * 
+     * @return bool True if CPF exists, false otherwise
      */
     private function cpfExists(string $cpf): bool
     {
         $cleanCpf = CpfValidator::clean($cpf);
+
         return Detail::where('tax_id', $cleanCpf)->exists();
     }
 
     /**
-     * Create user record with hashed password
+     * Create a new user record with securely hashed password.
+     * 
+     * This method creates the main user account with the provided name,
+     * email, and password. The password is automatically hashed using
+     * Laravel's default hashing algorithm (bcrypt).
+     * 
+     * @param PartnerRegistrationDTO $dto The registration data containing user information
+     * 
+     * @return User The newly created user model instance
+     * 
+     * @throws \Illuminate\Database\QueryException If user creation fails
      */
     private function createUser(PartnerRegistrationDTO $dto): User
     {
@@ -96,7 +202,19 @@ class RegisterPartnerCollaboratorAction
     }
 
     /**
-     * Create user details record with RG and CPF
+     * Create user details record containing document information.
+     * 
+     * This method creates the user details record that stores additional
+     * information such as RG (document ID) and CPF (tax ID). The CPF
+     * is cleaned of formatting before storage.
+     * 
+     * @param User $user The user model to associate details with
+     * @param PartnerRegistrationDTO $dto The registration data containing document information
+     * @param Company $company The company to associate the user details with
+     * 
+     * @return Detail The newly created user details model instance
+     * 
+     * @throws \Illuminate\Database\QueryException If details creation fails
      */
     private function createUserDetails(User $user, PartnerRegistrationDTO $dto, Company $company): Detail
     {
@@ -109,7 +227,19 @@ class RegisterPartnerCollaboratorAction
     }
 
     /**
-     * Associate user with company via company_employees table with Employee role
+     * Associate user with company through the company_employees pivot table.
+     * 
+     * This method creates the many-to-many relationship between the user
+     * and company, assigning the Employee role and setting the association
+     * as active. This allows the user to access company-specific features
+     * and data within their assigned role permissions.
+     * 
+     * @param User $user The user to associate with the company
+     * @param Company $company The company to associate the user with
+     * 
+     * @return void
+     * 
+     * @throws \Illuminate\Database\QueryException If association creation fails
      */
     private function associateUserWithCompany(User $user, Company $company): void
     {

@@ -8,7 +8,7 @@ uses(RefreshDatabase::class);
 
 describe('ValidPartnerCodeRule', function () {
     beforeEach(function () {
-        $this->rule = new ValidPartnerCodeRule();
+        $this->rule = new ValidPartnerCodeRule;
         $this->failMessages = [];
         $this->fail = function (string $message) {
             $this->failMessages[] = $message;
@@ -28,7 +28,7 @@ describe('ValidPartnerCodeRule', function () {
     it('passes validation for valid partner code with different case', function () {
         $this->rule->validate('partner_code', 'test123', $this->fail);
         expect($this->failMessages)->toBeEmpty();
-        
+
         $this->failMessages = [];
         $this->rule->validate('partner_code', 'Test123', $this->fail);
         expect($this->failMessages)->toBeEmpty();
@@ -47,7 +47,7 @@ describe('ValidPartnerCodeRule', function () {
     it('fails validation for empty partner code', function () {
         $this->rule->validate('partner_code', '', $this->fail);
         expect($this->failMessages)->toContain('O código do parceiro é obrigatório.');
-        
+
         $this->failMessages = [];
         $this->rule->validate('partner_code', '   ', $this->fail);
         expect($this->failMessages)->toContain('O código do parceiro é obrigatório.');

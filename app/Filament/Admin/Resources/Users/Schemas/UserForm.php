@@ -6,7 +6,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Schema;
-use TresPontosTech\Company\Models\Company;
 
 class UserForm
 {
@@ -34,7 +33,9 @@ class UserForm
                         TextInput::make('document_id')
                             ->mask('99.999.999-9'),
                         Select::make('company_id')
-                            ->options(Company::query()->pluck('name', 'id')),
+                            ->relationship('company', 'name')
+                            ->searchable()
+                            ->preload(),
                     ])
                     ->columns(1),
             ]);

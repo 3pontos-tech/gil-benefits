@@ -11,8 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('companies', function (Blueprint $table) {
-            $table->string('partner_code', 50)->unique()->nullable()->after('tax_id');
+        Schema::table('companies', function (Blueprint $table): void {
+            // Add partner_code with all necessary attributes for Laravel 12 compliance
+            $table->string('partner_code', 50)
+                  ->unique()
+                  ->nullable(true)
+                  ->after('tax_id')
+                  ->comment('Unique partner identification code for referral tracking');
         });
     }
 
@@ -21,9 +26,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('companies', function (Blueprint $table) {
-            $table->dropUnique(['partner_code']);
-            $table->dropColumn('partner_code');
+        Schema::table('companies', function (Blueprint $table): void {
+            // Drop unique constraint first, then column
+            if (Schema::hasColumn('companies', 'partner_code')) {
+                $table->dropUnique(['partner_code']);
+                $table->dropColumn('partner_code');
+            }
         });
     }
 };

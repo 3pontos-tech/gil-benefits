@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\IntegrationHighlevel;
 
-use GuzzleHttp\Exception\BadResponseException;
 use Illuminate\Support\Facades\Http;
 use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;

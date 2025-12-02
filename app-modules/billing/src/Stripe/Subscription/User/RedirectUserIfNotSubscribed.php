@@ -16,7 +16,7 @@ class RedirectUserIfNotSubscribed
 {
     public function __construct(private readonly PlanRepository $planRepository) {}
 
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         /** @var Company|Filament $tenant */
         $tenant = Filament::getTenant();

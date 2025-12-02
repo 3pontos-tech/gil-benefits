@@ -15,6 +15,7 @@ class CompanyFactory extends Factory
     {
         $randomId = rand(100, 999);
         $name = 'Test Company ' . $randomId;
+
         return [
             'name' => $name,
             'slug' => \Illuminate\Support\Str::slug($name),

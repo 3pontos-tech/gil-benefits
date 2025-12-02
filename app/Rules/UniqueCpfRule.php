@@ -18,20 +18,22 @@ class UniqueCpfRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             $fail('O CPF deve ser uma string válida.');
+
             return;
         }
 
         $cleanCpf = CpfValidator::clean($value);
-        
+
         if (empty($cleanCpf)) {
             $fail('O CPF não pode estar vazio.');
+
             return;
         }
 
         $query = Detail::where('tax_id', $cleanCpf);
-        
+
         if ($this->ignoreUserId) {
             $query->where('user_id', '!=', $this->ignoreUserId);
         }

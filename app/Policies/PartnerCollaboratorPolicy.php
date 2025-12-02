@@ -12,7 +12,7 @@ class PartnerCollaboratorPolicy
      */
     public function accessAdminPanel(User $user): Response
     {
-        return $user->isPartnerCollaborator() 
+        return $user->isPartnerCollaborator()
             ? Response::deny('Partner collaborators cannot access the admin panel.')
             : Response::allow();
     }
@@ -22,7 +22,7 @@ class PartnerCollaboratorPolicy
      */
     public function accessCompanyPanel(User $user): Response
     {
-        return $user->isPartnerCollaborator() 
+        return $user->isPartnerCollaborator()
             ? Response::deny('Partner collaborators cannot access the company panel.')
             : Response::allow();
     }
@@ -32,7 +32,7 @@ class PartnerCollaboratorPolicy
      */
     public function accessConsultantPanel(User $user): Response
     {
-        return $user->isPartnerCollaborator() 
+        return $user->isPartnerCollaborator()
             ? Response::deny('Partner collaborators cannot access the consultant panel.')
             : Response::allow();
     }
@@ -42,7 +42,7 @@ class PartnerCollaboratorPolicy
      */
     public function accessGuestPanel(User $user): Response
     {
-        return $user->isPartnerCollaborator() 
+        return $user->isPartnerCollaborator()
             ? Response::deny('Partner collaborators cannot access the guest panel.')
             : Response::allow();
     }
@@ -58,12 +58,12 @@ class PartnerCollaboratorPolicy
     /**
      * Determine if the user can access data from other companies (tenant isolation).
      */
-    public function accessTenantData(User $user, $tenant): Response
+    public function accessTenantData(User $user, \Illuminate\Database\Eloquent\Model $tenant): Response
     {
         if ($user->isPartnerCollaborator()) {
             $partnerCompany = $user->getPartnerCompany();
-            
-            if (!$partnerCompany || !$partnerCompany->is($tenant)) {
+
+            if (! $partnerCompany || ! $partnerCompany->is($tenant)) {
                 return Response::deny('Partner collaborators can only access their own company data.');
             }
         }

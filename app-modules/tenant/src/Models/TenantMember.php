@@ -17,10 +17,13 @@ class TenantMember extends Pivot
         'active',
     ];
 
-    protected $casts = [
-        'role' => CompanyRoleEnum::class,
-        'active' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'role' => CompanyRoleEnum::class,
+            'active' => 'boolean',
+        ];
+    }
 
     public function user(): BelongsTo
     {

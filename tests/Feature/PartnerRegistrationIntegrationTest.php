@@ -15,34 +15,35 @@ use TresPontosTech\Company\Models\Company;
 uses(RefreshDatabase::class);
 
 // Helper function to generate valid CPF
-function generateValidCpf(?int $seed = null): string {
+function generateValidCpf(?int $seed = null): string
+{
     if ($seed !== null) {
         // Generate deterministic CPF based on seed
-        $base = str_pad((string)($seed * 123456789 % 999999999), 9, '0', STR_PAD_LEFT);
+        $base = str_pad((string) ($seed * 123456789 % 999999999), 9, '0', STR_PAD_LEFT);
     } else {
         // Generate random base
-        $base = str_pad((string)rand(100000000, 999999999), 9, '0', STR_PAD_LEFT);
+        $base = str_pad((string) rand(100000000, 999999999), 9, '0', STR_PAD_LEFT);
     }
-    
+
     // Calculate first verification digit
     $sum = 0;
-    for ($i = 0; $i < 9; $i++) {
+    for ($i = 0; $i < 9; ++$i) {
         $sum += intval($base[$i]) * (10 - $i);
     }
     $remainder = $sum % 11;
     $firstDigit = $remainder < 2 ? 0 : 11 - $remainder;
-    
+
     // Calculate second verification digit
     $sum = 0;
-    for ($i = 0; $i < 9; $i++) {
+    for ($i = 0; $i < 9; ++$i) {
         $sum += intval($base[$i]) * (11 - $i);
     }
     $sum += $firstDigit * 2;
     $remainder = $sum % 11;
     $secondDigit = $remainder < 2 ? 0 : 11 - $remainder;
-    
+
     $cpf = $base . $firstDigit . $secondDigit;
-    
+
     // Format with mask
     return substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
 }
@@ -119,7 +120,7 @@ describe('End-to-End Registration Process', function () {
             ->where('user_id', $user->id)
             ->where('company_id', $this->partnerCompany->id)
             ->first();
-        
+
         expect($employeeRecord)->not()->toBeNull();
         expect($employeeRecord->role)->toBe(CompanyRoleEnum::Employee->value);
         expect($employeeRecord->active)->toBe(1);
@@ -187,7 +188,7 @@ describe('End-to-End Registration Process', function () {
             'partner_code' => 'PARTNER123',
         ]);
 
-        $action = new RegisterPartnerCollaboratorAction();
+        $action = new RegisterPartnerCollaboratorAction;
         $result = $action->execute($dto);
 
         expect($result->isSuccess())->toBeTrue();
@@ -216,7 +217,7 @@ describe('Database Transaction Integrity and Rollback Scenarios', function () {
 
         // Use duplicate email to cause constraint violation
         $existingUser = User::factory()->create(['email' => 'existing@example.com']);
-        
+
         $invalidDto = new PartnerRegistrationDTO(
             name: 'Test User',
             rg: '12.345.678-9',
@@ -226,7 +227,7 @@ describe('Database Transaction Integrity and Rollback Scenarios', function () {
             partnerCode: 'PARTNER123'
         );
 
-        $action = new RegisterPartnerCollaboratorAction();
+        $action = new RegisterPartnerCollaboratorAction;
         $result = $action->execute($invalidDto);
 
         expect($result->isFailure())->toBeTrue();
@@ -240,10 +241,10 @@ describe('Database Transaction Integrity and Rollback Scenarios', function () {
     test('transaction rolls back on detail creation failure', function () {
         // Create a partial mock that allows user creation but fails on detail creation
         $originalDetailClass = Detail::class;
-        
+
         // Use database transaction to test rollback
         DB::beginTransaction();
-        
+
         try {
             $user = User::create([
                 'name' => 'Test User',
@@ -262,7 +263,7 @@ describe('Database Transaction Integrity and Rollback Scenarios', function () {
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             // Verify rollback worked
             expect(User::where('email', 'test@example.com')->exists())->toBeFalse();
             expect(Detail::count())->toBe(0);
@@ -284,7 +285,7 @@ describe('Database Transaction Integrity and Rollback Scenarios', function () {
             partnerCode: 'INVALID_CODE' // This will cause validation failure
         );
 
-        $action = new RegisterPartnerCollaboratorAction();
+        $action = new RegisterPartnerCollaboratorAction;
         $result = $action->execute($dto);
 
         expect($result->isFailure())->toBeTrue();
@@ -326,7 +327,7 @@ describe('Database Transaction Integrity and Rollback Scenarios', function () {
     test('database constraints are properly enforced', function () {
         // Test foreign key constraint on company_id in user_details
         $user = User::factory()->create();
-        
+
         expect(function () use ($user) {
             Detail::create([
                 'user_id' => $user->id,
@@ -362,7 +363,7 @@ describe('Company Association and Employee Table Updates', function () {
             ->call('submit');
 
         $user = User::where('email', 'joao.silva@example.com')->first();
-        
+
         // Refresh user to ensure relationships are loaded
         $user->refresh();
         $user->load('companies');
@@ -374,13 +375,13 @@ describe('Company Association and Employee Table Updates', function () {
         // Test pivot table data
         $pivot = $user->companies->first()->pivot;
         expect($pivot->role)->toBe(CompanyRoleEnum::Employee);
-        
+
         // Check the raw database record to verify the data was inserted correctly
         $rawRecord = DB::table('company_employees')
             ->where('user_id', $user->id)
             ->where('company_id', $this->partnerCompany->id)
             ->first();
-        
+
         expect($rawRecord)->not()->toBeNull();
         expect($rawRecord->active)->toBe(1);
         expect($rawRecord->role)->toBe(CompanyRoleEnum::Employee->value);
@@ -389,11 +390,11 @@ describe('Company Association and Employee Table Updates', function () {
         $this->partnerCompany->refresh();
         $this->partnerCompany->load('employees');
         expect($this->partnerCompany->employees->contains($user))->toBeTrue();
-        
+
         // Verify employee role in company
         $employeePivot = $this->partnerCompany->employees->where('id', $user->id)->first()->pivot;
         expect($employeePivot->role)->toBe(CompanyRoleEnum::Employee);
-        
+
         // Verify the employee record exists in the database with correct values
         $employeeRecord = DB::table('company_employees')
             ->where('user_id', $user->id)
@@ -404,8 +405,8 @@ describe('Company Association and Employee Table Updates', function () {
 
     test('multiple users can be associated with same partner company', function () {
         $users = [];
-        
-        for ($i = 1; $i <= 3; $i++) {
+
+        for ($i = 1; $i <= 3; ++$i) {
             $registrationData = array_merge($this->validRegistrationData, [
                 'name' => "User {$i}",
                 'email' => "user{$i}@example.com",
@@ -431,7 +432,7 @@ describe('Company Association and Employee Table Updates', function () {
         // Verify company has all employees
         $this->partnerCompany->refresh();
         expect($this->partnerCompany->employees->count())->toBe(3);
-        
+
         foreach ($users as $user) {
             expect($this->partnerCompany->employees->contains($user))->toBeTrue();
         }
@@ -472,7 +473,7 @@ describe('Company Association and Employee Table Updates', function () {
 
         // Test that deleting the user removes the employee record (if cascade is set up)
         $user->delete();
-        
+
         $employeeRecordAfterDelete = DB::table('company_employees')
             ->where('user_id', $user->id)
             ->first();
@@ -488,11 +489,11 @@ describe('Company Association and Employee Table Updates', function () {
             ->call('submit');
 
         $user = User::where('email', 'joao.silva@example.com')->first();
-        
+
         // Test that the relationship uses TenantMember as pivot
         $company = $user->companies->first();
         expect($company->pivot)->toBeInstanceOf(\TresPontosTech\Tenant\Models\TenantMember::class);
-        
+
         // Test reverse relationship
         $employee = $this->partnerCompany->employees->first();
         expect($employee->pivot)->toBeInstanceOf(\TresPontosTech\Tenant\Models\TenantMember::class);
@@ -585,9 +586,9 @@ describe('Tenant Isolation and Access Control Integration', function () {
 
     test('multiple partner collaborators from same company have same access', function () {
         $users = [];
-        
+
         // Register multiple users for the same partner company
-        for ($i = 1; $i <= 3; $i++) {
+        for ($i = 1; $i <= 3; ++$i) {
             $registrationData = array_merge($this->validRegistrationData, [
                 'name' => "Partner User {$i}",
                 'email' => "partner{$i}@example.com",
@@ -608,11 +609,11 @@ describe('Tenant Isolation and Access Control Integration', function () {
         foreach ($users as $user) {
             expect($user->isPartnerCollaborator())->toBeTrue();
             expect($user->getPartnerCompany()->id)->toBe($this->partnerCompany->id);
-            
+
             $tenants = $user->getTenants($userPanel);
             expect($tenants->count())->toBe(1);
             expect($tenants->first()->id)->toBe($this->partnerCompany->id);
-            
+
             expect($user->canAccessTenant($this->partnerCompany))->toBeTrue();
             expect($user->canAccessTenant($this->anotherPartnerCompany))->toBeFalse();
         }

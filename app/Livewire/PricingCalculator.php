@@ -8,13 +8,14 @@ use Livewire\Component;
 
 class PricingCalculator extends Component
 {
-    public $planTiers = [];
+    /** @var array<int, array<string, mixed>> */
+    public array $planTiers = [];
 
-    public $maxCollaborators = 500;
+    public int $maxCollaborators = 500;
 
-    public $minCollaborators = 5;
+    public int $minCollaborators = 5;
 
-    public $seatsCount = 1;
+    public int $seatsCount = 1;
 
     public function mount(): void
     {

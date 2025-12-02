@@ -13,12 +13,13 @@ class CpfRule implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (!is_string($value)) {
+        if (! is_string($value)) {
             $fail('O CPF deve ser uma string válida.');
+
             return;
         }
 
-        if (!CpfValidator::validate($value)) {
+        if (! CpfValidator::validate($value)) {
             $fail('O CPF informado é inválido. Verifique os dígitos e tente novamente.');
         }
     }

@@ -11,7 +11,7 @@ describe('Company Model', function () {
     describe('partner_code functionality', function () {
         it('can be created with a partner_code', function () {
             $user = User::factory()->create();
-            
+
             $company = Company::create([
                 'user_id' => $user->id,
                 'name' => 'Test Company',
@@ -21,7 +21,7 @@ describe('Company Model', function () {
             ]);
 
             expect($company->partner_code)->toBe('PARTNER123');
-            
+
             assertDatabaseHas('companies', [
                 'id' => $company->id,
                 'partner_code' => 'PARTNER123',
@@ -30,7 +30,7 @@ describe('Company Model', function () {
 
         it('can be created without a partner_code', function () {
             $user = User::factory()->create();
-            
+
             $company = Company::create([
                 'user_id' => $user->id,
                 'name' => 'Test Company',
@@ -44,7 +44,7 @@ describe('Company Model', function () {
         it('enforces unique constraint on partner_code', function () {
             $user1 = User::factory()->create();
             $user2 = User::factory()->create();
-            
+
             Company::create([
                 'user_id' => $user1->id,
                 'name' => 'First Company',
@@ -66,7 +66,7 @@ describe('Company Model', function () {
 
         it('can find company by partner code using findByPartnerCode method', function () {
             $user = User::factory()->create();
-            
+
             $company = Company::create([
                 'user_id' => $user->id,
                 'name' => 'Partner Company',
@@ -90,7 +90,7 @@ describe('Company Model', function () {
 
         it('performs case-sensitive search for partner code', function () {
             $user = User::factory()->create();
-            
+
             Company::create([
                 'user_id' => $user->id,
                 'name' => 'Case Sensitive Company',
@@ -108,7 +108,7 @@ describe('Company Model', function () {
 
         it('can update partner_code', function () {
             $user = User::factory()->create();
-            
+
             $company = Company::create([
                 'user_id' => $user->id,
                 'name' => 'Update Test Company',
@@ -120,7 +120,7 @@ describe('Company Model', function () {
             $company->update(['partner_code' => 'UPDATED123']);
 
             expect($company->fresh()->partner_code)->toBe('UPDATED123');
-            
+
             assertDatabaseHas('companies', [
                 'id' => $company->id,
                 'partner_code' => 'UPDATED123',
@@ -129,7 +129,7 @@ describe('Company Model', function () {
 
         it('can set partner_code to null', function () {
             $user = User::factory()->create();
-            
+
             $company = Company::create([
                 'user_id' => $user->id,
                 'name' => 'Nullable Test Company',

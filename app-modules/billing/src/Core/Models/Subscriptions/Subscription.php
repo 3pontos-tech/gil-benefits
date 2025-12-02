@@ -2,13 +2,16 @@
 
 namespace TresPontosTech\Billing\Core\Models\Subscriptions;
 
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Laravel\Cashier\Subscription as BaseSubscriptionModel;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Billing\Policies\SubscriptionPolicy;
 
+#[UsePolicy(SubscriptionPolicy::class)]
 class Subscription extends BaseSubscriptionModel
 {
     protected $table = 'billing_subscriptions';

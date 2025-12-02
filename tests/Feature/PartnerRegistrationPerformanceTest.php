@@ -16,7 +16,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Run the performance indexes migration
         $this->artisan('migrate');
     }
@@ -27,10 +27,10 @@ class PartnerRegistrationPerformanceTest extends TestCase
         Company::factory()->count(100)->sequence(
             fn ($sequence) => ['slug' => 'test-company-' . $sequence->index]
         )->create();
-        
+
         Company::factory()->create([
             'partner_code' => 'TESTCODE123',
-            'slug' => 'test-company-special'
+            'slug' => 'test-company-special',
         ]);
 
         // Enable query logging
@@ -44,10 +44,10 @@ class PartnerRegistrationPerformanceTest extends TestCase
 
         $this->assertNotNull($company);
         $this->assertEquals('TESTCODE123', $company->partner_code);
-        
+
         // Verify only one query was executed
         $this->assertCount(1, $queries);
-        
+
         // The query should use the index (this is more of a documentation test)
         $query = $queries[0]['query'];
         $this->assertStringContainsString('partner_code', $query);
@@ -58,7 +58,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
         // Create multiple user details to test index performance
         $users = User::factory()->count(1000)->create();
         $company = Company::factory()->create();
-        
+
         foreach ($users as $user) {
             Detail::factory()->create([
                 'user_id' => $user->id,
@@ -85,10 +85,10 @@ class PartnerRegistrationPerformanceTest extends TestCase
         DB::disableQueryLog();
 
         $this->assertTrue($exists);
-        
+
         // Verify only one query was executed
         $this->assertCount(1, $queries);
-        
+
         // The query should use the index
         $query = $queries[0]['query'];
         $this->assertStringContainsString('tax_id', $query);
@@ -110,10 +110,10 @@ class PartnerRegistrationPerformanceTest extends TestCase
         DB::disableQueryLog();
 
         $this->assertTrue($exists);
-        
+
         // Verify only one query was executed
         $this->assertCount(1, $queries);
-        
+
         // The query should use the index
         $query = $queries[0]['query'];
         $this->assertStringContainsString('email', $query);
@@ -124,7 +124,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
         // Create multiple user details to test index performance
         $users = User::factory()->count(1000)->create();
         $company = Company::factory()->create();
-        
+
         foreach ($users as $user) {
             Detail::factory()->create([
                 'user_id' => $user->id,
@@ -152,10 +152,10 @@ class PartnerRegistrationPerformanceTest extends TestCase
 
         $this->assertNotNull($detail);
         $this->assertEquals('12.345.678-9', $detail->document_id);
-        
+
         // Verify only one query was executed
         $this->assertCount(1, $queries);
-        
+
         // The query should use the index
         $query = $queries[0]['query'];
         $this->assertStringContainsString('document_id', $query);
@@ -165,7 +165,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
     {
         // Test that all required indexes exist in the database
         $schema = DB::getSchemaBuilder();
-        
+
         // Get index information for each table
         $companiesIndexes = $this->getTableIndexes('companies');
         $userDetailsIndexes = $this->getTableIndexes('user_details');
@@ -173,11 +173,11 @@ class PartnerRegistrationPerformanceTest extends TestCase
 
         // Verify partner_code index exists
         $this->assertContains('idx_companies_partner_code', array_keys($companiesIndexes));
-        
+
         // Verify user_details indexes exist
         $this->assertContains('idx_user_details_tax_id', array_keys($userDetailsIndexes));
         $this->assertContains('idx_user_details_document_id', array_keys($userDetailsIndexes));
-        
+
         // Verify users email index exists
         $this->assertContains('idx_users_email', array_keys($usersIndexes));
     }
@@ -188,23 +188,23 @@ class PartnerRegistrationPerformanceTest extends TestCase
         Company::factory()->create(['partner_code' => 'PERF123']);
 
         $startTime = microtime(true);
-        
+
         // Simulate multiple concurrent registrations
         $registrationData = [];
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 100; ++$i) {
             $registrationData[] = [
                 'name' => "Test User {$i}",
                 'email' => "test{$i}@example.com",
-                'cpf' => sprintf('%03d.%03d.%03d-%02d', 
-                    rand(100, 999), 
-                    rand(100, 999), 
-                    rand(100, 999), 
+                'cpf' => sprintf('%03d.%03d.%03d-%02d',
+                    rand(100, 999),
+                    rand(100, 999),
+                    rand(100, 999),
                     rand(10, 99)
                 ),
-                'rg' => sprintf('%02d.%03d.%03d-%d', 
-                    rand(10, 99), 
-                    rand(100, 999), 
-                    rand(100, 999), 
+                'rg' => sprintf('%02d.%03d.%03d-%d',
+                    rand(10, 99),
+                    rand(100, 999),
+                    rand(100, 999),
                     rand(0, 9)
                 ),
                 'partner_code' => 'PERF123',
@@ -215,10 +215,10 @@ class PartnerRegistrationPerformanceTest extends TestCase
         foreach ($registrationData as $data) {
             // Check email uniqueness
             User::where('email', $data['email'])->exists();
-            
+
             // Check CPF uniqueness
             Detail::where('tax_id', $data['cpf'])->exists();
-            
+
             // Check partner code validity
             Company::whereRaw('LOWER(partner_code) = LOWER(?)', [$data['partner_code']])->exists();
         }
@@ -227,7 +227,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
         $executionTime = $endTime - $startTime;
 
         // Performance should be reasonable (less than 2 seconds for 100 checks)
-        $this->assertLessThan(2.0, $executionTime, 
+        $this->assertLessThan(2.0, $executionTime,
             "Performance test failed: took {$executionTime} seconds for 100 validation checks");
     }
 
@@ -237,7 +237,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
     private function getTableIndexes(string $tableName): array
     {
         $indexes = [];
-        
+
         try {
             // For SQLite, we need to use a different approach
             if (DB::getDriverName() === 'sqlite') {
@@ -254,7 +254,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
             // If we can't get indexes, at least verify the table exists
             $this->assertTrue(DB::getSchemaBuilder()->hasTable($tableName));
         }
-        
+
         return $indexes;
     }
 
@@ -264,26 +264,26 @@ class PartnerRegistrationPerformanceTest extends TestCase
         $companies = Company::factory()->count(50)->sequence(
             fn ($sequence) => ['slug' => 'perf-company-' . $sequence->index]
         )->create();
-        
+
         $users = User::factory()->count(100)->sequence(
             fn ($sequence) => ['email' => 'perfuser' . $sequence->index . '@example.com']
         )->create();
-        
+
         // Create user details for all users
         foreach ($users as $index => $user) {
             Detail::factory()->create([
                 'user_id' => $user->id,
                 'company_id' => $companies->random()->id,
-                'tax_id' => sprintf('%03d.%03d.%03d-%02d', 
-                    100 + $index, 
-                    200 + $index, 
-                    300 + $index, 
+                'tax_id' => sprintf('%03d.%03d.%03d-%02d',
+                    100 + $index,
+                    200 + $index,
+                    300 + $index,
                     $index % 100
                 ),
-                'document_id' => sprintf('%02d.%03d.%03d-%d', 
-                    10 + ($index % 90), 
-                    100 + $index, 
-                    200 + $index, 
+                'document_id' => sprintf('%02d.%03d.%03d-%d',
+                    10 + ($index % 90),
+                    100 + $index,
+                    200 + $index,
                     $index % 10
                 ),
             ]);
@@ -291,7 +291,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
 
         // Test partner code lookup performance
         $startTime = microtime(true);
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 20; ++$i) {
             $randomCompany = $companies->random();
             Company::whereRaw('LOWER(partner_code) = LOWER(?)', [$randomCompany->partner_code])->first();
         }
@@ -299,7 +299,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
 
         // Test CPF lookup performance
         $startTime = microtime(true);
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 20; ++$i) {
             $randomDetail = Detail::inRandomOrder()->first();
             Detail::where('tax_id', $randomDetail->tax_id)->exists();
         }
@@ -307,7 +307,7 @@ class PartnerRegistrationPerformanceTest extends TestCase
 
         // Test email lookup performance
         $startTime = microtime(true);
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 20; ++$i) {
             $randomUser = $users->random();
             User::where('email', $randomUser->email)->exists();
         }

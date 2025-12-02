@@ -15,7 +15,7 @@ return new class extends Migration
             // Add index for tax_id (CPF) for faster lookups during validation
             // Note: unique constraint already exists, but adding explicit index for performance
             $table->index('tax_id', 'idx_user_details_tax_id');
-            
+
             // Add index for document_id (RG) for faster lookups
             $table->index('document_id', 'idx_user_details_document_id');
         });

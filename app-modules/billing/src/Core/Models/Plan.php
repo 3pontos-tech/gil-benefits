@@ -2,13 +2,16 @@
 
 namespace TresPontosTech\Billing\Core\Models;
 
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Policies\PlanPolicy;
 
+#[UsePolicy(PlanPolicy::class)]
 class Plan extends Model
 {
     use HasFactory;
@@ -41,6 +44,14 @@ class Plan extends Model
             'allow_promotion_codes' => 'boolean',
             'collect_tax_ids' => 'boolean',
         ];
+    }
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): \TresPontosTech\Billing\Database\Factories\PlanFactory
+    {
+        return \TresPontosTech\Billing\Database\Factories\PlanFactory::new();
     }
 
     public function prices(): HasMany

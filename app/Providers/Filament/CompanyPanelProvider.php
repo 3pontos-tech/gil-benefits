@@ -75,6 +75,7 @@ class CompanyPanelProvider extends PanelProvider
 
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\AuthorizePanelAccess::class,
             ]);
     }
 }

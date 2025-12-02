@@ -7,10 +7,14 @@ class CpfValidator
     /**
      * Validate a Brazilian CPF number
      */
-    public static function validate(string $cpf): bool
+    public static function validate(?string $cpf): bool
     {
+        if ($cpf === null) {
+            return false;
+        }
+
         // Remove any non-numeric characters
-        $cpf = preg_replace('/[^0-9]/', '', $cpf);
+        $cpf = preg_replace('/[^0-9]/', '', $cpf) ?? '';
 
         // Check if CPF has 11 digits
         if (strlen($cpf) !== 11) {
@@ -24,7 +28,7 @@ class CpfValidator
 
         // Calculate first verification digit
         $sum = 0;
-        for ($i = 0; $i < 9; $i++) {
+        for ($i = 0; $i < 9; ++$i) {
             $sum += intval($cpf[$i]) * (10 - $i);
         }
         $remainder = $sum % 11;
@@ -37,7 +41,7 @@ class CpfValidator
 
         // Calculate second verification digit
         $sum = 0;
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $sum += intval($cpf[$i]) * (11 - $i);
         }
         $remainder = $sum % 11;
@@ -50,25 +54,33 @@ class CpfValidator
     /**
      * Format CPF with mask (000.000.000-00)
      */
-    public static function format(string $cpf): string
+    public static function format(?string $cpf): string
     {
-        $cpf = preg_replace('/[^0-9]/', '', $cpf);
-        
+        if ($cpf === null) {
+            return '';
+        }
+
+        $cpf = preg_replace('/[^0-9]/', '', $cpf) ?? '';
+
         if (strlen($cpf) !== 11) {
             return $cpf;
         }
 
-        return substr($cpf, 0, 3) . '.' . 
-               substr($cpf, 3, 3) . '.' . 
-               substr($cpf, 6, 3) . '-' . 
+        return substr($cpf, 0, 3) . '.' .
+               substr($cpf, 3, 3) . '.' .
+               substr($cpf, 6, 3) . '-' .
                substr($cpf, 9, 2);
     }
 
     /**
      * Remove CPF formatting
      */
-    public static function clean(string $cpf): string
+    public static function clean(?string $cpf): string
     {
-        return preg_replace('/[^0-9]/', '', $cpf);
+        if ($cpf === null) {
+            return '';
+        }
+
+        return preg_replace('/[^0-9]/', '', $cpf) ?? '';
     }
 }

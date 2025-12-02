@@ -91,7 +91,7 @@ describe('Advanced Validation Scenarios', function () {
                     'partner_code' => 'VALID123',
                 ])
                 ->call('submit');
-                
+
             // Check if there are any validation errors for email
             $errors = $component->instance()->getErrorBag();
             expect($errors->has('data.email'))->toBeTrue("Email '{$email}' should be invalid but passed validation");

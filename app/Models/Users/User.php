@@ -2,11 +2,13 @@
 
 namespace App\Models\Users;
 
+use App\Models\Concerns\HasOptimizedQueries;
 use App\Policies\Users\UserPolicy;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -30,6 +32,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 {
     use Billable;
     use HasFactory;
+    use HasOptimizedQueries;
     use HasTenant;
     use Notifiable;
     use SoftDeletes;
@@ -86,7 +89,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
      */
     public function getPartnerCompany(): ?Company
     {
-        if (!$this->isPartnerCollaborator()) {
+        if (! $this->isPartnerCollaborator()) {
             return null;
         }
 
@@ -104,6 +107,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     {
         if ($this->isPartnerCollaborator()) {
             $partnerCompany = $this->getPartnerCompany();
+
             return $partnerCompany ? collect([$partnerCompany]) : collect();
         }
 
@@ -119,11 +123,51 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     {
         if ($this->isPartnerCollaborator()) {
             $partnerCompany = $this->getPartnerCompany();
+
             return $partnerCompany && $partnerCompany->is($tenant);
         }
 
         // For non-partner collaborators, check if they are associated with the company
         return $this->companies->contains($tenant);
+    }
+
+    /**
+     * Scope to eager load common relationships to prevent N+1 queries.
+     */
+    public function scopeWithCommonRelations(Builder $query): void
+    {
+        $query->with([
+            'detail',
+            'companies:id,name,slug,partner_code',
+            'activeSubscription.price:id,billing_plan_id,monthly_appointments,active',
+        ]);
+    }
+
+    /**
+     * Scope to load relationships needed for partner collaborator checks.
+     */
+    public function scopeWithPartnerRelations(Builder $query): void
+    {
+        $query->with([
+            'companies' => function ($query) {
+                $query->select('id', 'name', 'partner_code')
+                    ->whereNotNull('partner_code');
+            },
+        ]);
+    }
+
+    /**
+     * Scope to load appointment-related data efficiently.
+     */
+    public function scopeWithAppointmentData(Builder $query): void
+    {
+        $query->with([
+            'appointments' => function ($query) {
+                $query->select('id', 'user_id', 'status', 'appointment_at', 'created_at')
+                    ->latest('appointment_at');
+            },
+            'activeSubscription.price:id,billing_plan_id,monthly_appointments',
+        ]);
     }
 
     public function companies(): BelongsToMany

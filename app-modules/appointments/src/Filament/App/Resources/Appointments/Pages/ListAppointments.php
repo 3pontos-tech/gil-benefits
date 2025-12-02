@@ -14,7 +14,7 @@ class ListAppointments extends ListRecords
     {
         return [
             CreateAction::make()
-                ->disabled(!auth()->user()->canCreateAppointment()),
+                ->disabled(! auth()->user()->canCreateAppointment()),
         ];
     }
 }

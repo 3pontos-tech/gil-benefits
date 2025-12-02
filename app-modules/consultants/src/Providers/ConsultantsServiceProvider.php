@@ -8,13 +8,32 @@ use Illuminate\Support\ServiceProvider;
 
 class ConsultantsServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        // Register any bindings or singletons here
+    }
 
     public function boot(): void
     {
+        $this->loadTranslations();
+        $this->registerFilamentResources();
+    }
+
+    private function loadTranslations(): void
+    {
+        // Consultants module doesn't have translations yet, but structure is ready
+        // $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'consultants');
+    }
+
+    private function registerFilamentResources(): void
+    {
         Panel::configureUsing(function (Panel $panel): void {
-            if ($panel->getId() === 'admin') {
+            if ($panel->getId() === FilamentPanel::Admin->value) {
                 $panel->discoverResourcesForPanel('consultants', FilamentPanel::Admin);
+            }
+
+            if ($panel->getId() === FilamentPanel::Consultant->value) {
+                $panel->discoverResourcesForPanel('consultants', FilamentPanel::Consultant);
             }
         });
     }

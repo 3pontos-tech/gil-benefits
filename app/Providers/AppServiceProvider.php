@@ -35,12 +35,12 @@ class AppServiceProvider extends ServiceProvider
                 // 20 attempts per hour per IP (prevents sustained attacks)
                 Limit::perHour(20)->by($request->ip()),
             ];
-            
+
             // Additional limit by email if provided (prevents email enumeration)
             if ($request->filled('email')) {
                 $limits[] = Limit::perHour(3)->by($request->input('email'));
             }
-            
+
             return $limits;
         });
     }
@@ -50,6 +50,13 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'user' => config('auth.providers.users.model'),
         ]);
+
+        // Register performance optimization services
+        $this->app->singleton(\App\Services\CacheService::class);
+        $this->app->singleton(\App\Services\ViewCacheService::class);
+        $this->app->singleton(\App\Services\RouteCacheService::class);
+        $this->app->singleton(\App\Services\AssetOptimizationService::class);
+        $this->app->singleton(\App\Services\PerformanceOptimizationService::class);
 
         Panel::macro('discoverResourcesForPanel', function (string $module, FilamentPanel $panel): void {
             $studlyPanel = str($panel->value)->studly();

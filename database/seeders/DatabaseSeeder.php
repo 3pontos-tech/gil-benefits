@@ -14,11 +14,33 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         if (app()->isProduction()) {
+            $this->command->warn('Skipping database seeding in production environment');
             return;
         }
 
-        $this->generateUsers();
+        $this->command->info('Starting database seeding...');
 
+        // Run the original seeding logic for backward compatibility
+        $this->runLegacySeeding();
+
+        // Run comprehensive module-based seeding
+        $this->call([
+            ComprehensiveTestDataSeeder::class,
+            ModuleTestDataSeeder::class,
+            Laravel12OptimizedSeeder::class,
+        ]);
+
+        $this->command->info('Database seeding completed successfully!');
+    }
+
+    /**
+     * Run the original seeding logic for backward compatibility
+     */
+    private function runLegacySeeding(): void
+    {
+        $this->command->info('Running legacy seeding for backward compatibility...');
+
+        $this->generateUsers();
         $this->getConsultants();
         $this->generateCompanies();
 

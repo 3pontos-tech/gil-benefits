@@ -7,18 +7,18 @@ use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
 
 describe('PartnerCollaboratorPolicy', function () {
-    
+
     beforeEach(function () {
-        $this->policy = new PartnerCollaboratorPolicy();
+        $this->policy = new PartnerCollaboratorPolicy;
     });
 
     test('accessAdminPanel denies access for partner collaborators', function () {
         $company = Company::factory()->create(['partner_code' => 'PARTNER123']);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessAdminPanel($user);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->denied())->toBeTrue();
         expect($response->message())->toBe('Partner collaborators cannot access the admin panel.');
@@ -28,9 +28,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $company = Company::factory()->create(['partner_code' => null]);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessAdminPanel($user);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->allowed())->toBeTrue();
     });
@@ -39,9 +39,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $company = Company::factory()->create(['partner_code' => 'PARTNER123']);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessCompanyPanel($user);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->denied())->toBeTrue();
         expect($response->message())->toBe('Partner collaborators cannot access the company panel.');
@@ -51,9 +51,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $company = Company::factory()->create(['partner_code' => null]);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessCompanyPanel($user);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->allowed())->toBeTrue();
     });
@@ -62,9 +62,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $company = Company::factory()->create(['partner_code' => 'PARTNER123']);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessConsultantPanel($user);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->denied())->toBeTrue();
         expect($response->message())->toBe('Partner collaborators cannot access the consultant panel.');
@@ -74,9 +74,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $company = Company::factory()->create(['partner_code' => null]);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessConsultantPanel($user);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->allowed())->toBeTrue();
     });
@@ -85,9 +85,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $company = Company::factory()->create(['partner_code' => 'PARTNER123']);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessGuestPanel($user);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->denied())->toBeTrue();
         expect($response->message())->toBe('Partner collaborators cannot access the guest panel.');
@@ -97,9 +97,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $company = Company::factory()->create(['partner_code' => null]);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessGuestPanel($user);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->allowed())->toBeTrue();
     });
@@ -108,9 +108,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $company = Company::factory()->create(['partner_code' => 'PARTNER123']);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessUserPanel($user);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->allowed())->toBeTrue();
     });
@@ -120,9 +120,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $otherCompany = Company::factory()->create(['partner_code' => 'OTHER456']);
         $user = User::factory()->create();
         $user->companies()->attach($partnerCompany, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessTenantData($user, $otherCompany);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->denied())->toBeTrue();
         expect($response->message())->toBe('Partner collaborators can only access their own company data.');
@@ -132,9 +132,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $partnerCompany = Company::factory()->create(['partner_code' => 'PARTNER123']);
         $user = User::factory()->create();
         $user->companies()->attach($partnerCompany, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessTenantData($user, $partnerCompany);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->allowed())->toBeTrue();
     });
@@ -143,9 +143,9 @@ describe('PartnerCollaboratorPolicy', function () {
         $company = Company::factory()->create(['partner_code' => null]);
         $user = User::factory()->create();
         $user->companies()->attach($company, ['role' => CompanyRoleEnum::Employee]);
-        
+
         $response = $this->policy->accessTenantData($user, $company);
-        
+
         expect($response)->toBeInstanceOf(Response::class);
         expect($response->allowed())->toBeTrue();
     });

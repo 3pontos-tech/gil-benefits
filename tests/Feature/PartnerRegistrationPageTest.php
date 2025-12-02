@@ -19,7 +19,7 @@ beforeEach(function () {
 
 test('partner registration page class exists and has correct properties', function () {
     expect(class_exists(PartnerRegistrationPage::class))->toBeTrue();
-    
+
     $reflection = new ReflectionClass(PartnerRegistrationPage::class);
     expect($reflection->hasProperty('view'))->toBeTrue();
     expect($reflection->hasMethod('form'))->toBeTrue();
@@ -28,17 +28,17 @@ test('partner registration page class exists and has correct properties', functi
 });
 
 test('partner code validation works', function () {
-    $page = new PartnerRegistrationPage();
-    
+    $page = new PartnerRegistrationPage;
+
     // Test valid partner code
     expect($page->validatePartnerCode('TEST123'))->toBeTrue();
-    
+
     // Test invalid partner code
     expect($page->validatePartnerCode('INVALID'))->toBeFalse();
-    
+
     // Test case insensitive validation
     expect($page->validatePartnerCode('test123'))->toBeTrue();
-    
+
     // Test empty partner code
     expect($page->validatePartnerCode(''))->toBeFalse();
 });
@@ -282,7 +282,7 @@ describe('Error Messages', function () {
 
         // Check that Portuguese error messages are displayed
         $errors = $component->instance()->getErrorBag()->getMessages();
-        
+
         // CPF error should be in Portuguese
         expect(collect($errors)->flatten()->some(function ($message) {
             return str_contains($message, 'CPF') && str_contains($message, 'inválido');
@@ -303,10 +303,10 @@ describe('Error Messages', function () {
 describe('Success Handling and User Feedback', function () {
     test('shows loading state during form submission', function () {
         $component = Livewire::test(PartnerRegistrationPage::class);
-        
+
         // Initially not submitting
         expect($component->get('isSubmitting'))->toBeFalse();
-        
+
         // Fill form with valid data
         $formData = [
             'name' => 'João Silva',
@@ -317,9 +317,9 @@ describe('Success Handling and User Feedback', function () {
             'password_confirmation' => 'SecurePass123!',
             'partner_code' => 'TEST123',
         ];
-        
+
         $component->fillForm($formData);
-        
+
         // Mock the action to simulate processing time
         $this->mock(RegisterPartnerCollaboratorAction::class, function ($mock) {
             $user = User::factory()->make(['name' => 'João Silva', 'email' => 'joao@example.com']);
@@ -327,9 +327,9 @@ describe('Success Handling and User Feedback', function () {
                 \App\DTO\RegistrationResult::success($user, $this->company)
             );
         });
-        
+
         $component->call('submit');
-        
+
         // Should show success state
         expect($component->get('registrationSuccess'))->toBeTrue();
         expect($component->get('successMessage'))->toContain('João Silva');
@@ -355,7 +355,7 @@ describe('Success Handling and User Feedback', function () {
         expect($component->get('registrationSuccess'))->toBeTrue();
         expect($component->get('successMessage'))->not()->toBeNull();
         expect($component->get('redirectUrl'))->toBe('/app/login');
-        
+
         // Success message should contain user details
         $successMessage = $component->get('successMessage');
         expect($successMessage)->toContain('Maria Santos');
@@ -365,13 +365,13 @@ describe('Success Handling and User Feedback', function () {
 
     test('form actions show loading state during submission', function () {
         $component = Livewire::test(PartnerRegistrationPage::class);
-        
+
         // Set submitting state
         $component->set('isSubmitting', true);
-        
+
         $actions = $component->instance()->getFormActions();
         $submitAction = $actions[0];
-        
+
         // Check that action shows loading state
         expect($submitAction->getLabel())->toBe('Processando...');
         expect($submitAction->isDisabled())->toBeTrue();
@@ -379,20 +379,20 @@ describe('Success Handling and User Feedback', function () {
 
     test('form actions are disabled after successful registration', function () {
         $component = Livewire::test(PartnerRegistrationPage::class);
-        
+
         // Set success state
         $component->set('registrationSuccess', true);
-        
+
         $actions = $component->instance()->getFormActions();
         $submitAction = $actions[0];
-        
+
         // Check that action is disabled after success
         expect($submitAction->isDisabled())->toBeTrue();
     });
 
     test('redirect to login functionality works', function () {
         $component = Livewire::test(PartnerRegistrationPage::class);
-        
+
         $component->call('redirectToLogin')
             ->assertRedirect('/app/login');
     });
@@ -414,14 +414,14 @@ describe('Success Handling and User Feedback', function () {
 
         // Should have validation errors
         $component->assertHasErrors(['data.partner_code']);
-        
+
         // Form data should be preserved (except passwords)
         expect($component->get('data.name'))->toBe('João Silva');
         expect($component->get('data.rg'))->toBe('12.345.678-9');
         expect($component->get('data.cpf'))->toBe('111.444.777-35');
         expect($component->get('data.email'))->toBe('joao@example.com');
         expect($component->get('data.partner_code'))->toBe('INVALID_CODE');
-        
+
         // Should not be in success state
         expect($component->get('registrationSuccess'))->toBeFalse();
         expect($component->get('isSubmitting'))->toBeFalse();
@@ -464,7 +464,7 @@ describe('Success Handling and User Feedback', function () {
 
         // Should have validation errors for partner code
         $component->assertHasErrors(['data.partner_code']);
-        
+
         // Should not be in success state
         expect($component->get('registrationSuccess'))->toBeFalse();
     });
@@ -524,7 +524,7 @@ describe('Success Handling and User Feedback', function () {
             ->call('submit');
 
         $successMessage = $component->get('successMessage');
-        
+
         // Success message should contain user name, company name, and email
         expect($successMessage)->toContain('Ana Costa');
         expect($successMessage)->toContain('ana@example.com');

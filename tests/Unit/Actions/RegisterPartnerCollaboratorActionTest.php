@@ -20,7 +20,7 @@ class RegisterPartnerCollaboratorActionTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->action = new RegisterPartnerCollaboratorAction();
+        $this->action = new RegisterPartnerCollaboratorAction;
     }
 
     public function test_successful_registration(): void
@@ -220,7 +220,7 @@ class RegisterPartnerCollaboratorActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result->isSuccess());
-        
+
         $user = User::find($result->user->id);
         $this->assertNotEquals('password123', $user->password);
         $this->assertTrue(\Hash::check('password123', $user->password));
@@ -247,7 +247,7 @@ class RegisterPartnerCollaboratorActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result->isSuccess());
-        
+
         $detail = Detail::where('user_id', $result->user->id)->first();
         $this->assertEquals('11144477735', $detail->tax_id); // Stored without formatting
     }
@@ -303,10 +303,10 @@ class RegisterPartnerCollaboratorActionTest extends TestCase
 
         // Assert
         $this->assertTrue($result->isSuccess());
-        
+
         $user = $result->user;
         $companyEmployee = $company->employees()->where('user_id', $user->id)->first();
-        
+
         $this->assertNotNull($companyEmployee);
         $this->assertEquals(CompanyRoleEnum::Employee, $companyEmployee->pivot->role);
         $this->assertTrue($companyEmployee->pivot->active);

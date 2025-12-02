@@ -13,14 +13,32 @@
 
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature', 'E2E', '../app-modules/*/tests');
+    ->in('Feature', 'E2E', 'Browser', '../app-modules/*/tests');
 
 pest()->group('browser')
-    ->in('E2E');
+    ->in('E2E', 'Browser');
 
 pest()
     ->in('E2E/Admin')
     ->beforeEach(fn () => filament()->setCurrentPanel('admin'));
+
+pest()
+    ->in('Browser')
+    ->beforeEach(function () {
+        // Set up browser testing environment
+        config(['app.url' => 'http://localhost:8000']);
+
+        // Configure Filament panels for browser testing
+        if (str_contains($this->name(), 'admin')) {
+            filament()->setCurrentPanel('admin');
+        } elseif (str_contains($this->name(), 'company')) {
+            filament()->setCurrentPanel('company');
+        } elseif (str_contains($this->name(), 'consultant')) {
+            filament()->setCurrentPanel('consultant');
+        } else {
+            filament()->setCurrentPanel('app');
+        }
+    });
 
 /*
 |--------------------------------------------------------------------------

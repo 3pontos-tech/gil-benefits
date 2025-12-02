@@ -4,7 +4,7 @@ use App\Rules\RgRule;
 
 describe('RgRule', function () {
     beforeEach(function () {
-        $this->rule = new RgRule();
+        $this->rule = new RgRule;
         $this->failMessages = [];
         $this->fail = function (string $message) {
             $this->failMessages[] = $message;

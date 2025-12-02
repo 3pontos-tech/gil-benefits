@@ -4,7 +4,7 @@ use App\Rules\CpfRule;
 
 describe('CpfRule', function () {
     beforeEach(function () {
-        $this->rule = new CpfRule();
+        $this->rule = new CpfRule;
         $this->failMessages = [];
         $this->fail = function (string $message) {
             $this->failMessages[] = $message;

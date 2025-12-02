@@ -1,25 +1,22 @@
-<?php
+ <?php
 
 namespace App\Filament\Guest\Pages;
 
 use App\Actions\RegisterPartnerCollaboratorAction;
 use App\DTO\PartnerRegistrationDTO;
-use App\Models\Users\Detail;
 use App\Rules\CpfRule;
 use App\Rules\RgRule;
 use App\Rules\UniqueCpfRule;
 use App\Rules\ValidPartnerCodeRule;
-use App\Utils\CpfValidator;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Section;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Schemas\Schema;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use TresPontosTech\Company\Models\Company;
@@ -75,7 +72,7 @@ class PartnerRegistrationPage extends Page implements HasForms
                             ->maxLength(20)
                             ->placeholder('Digite o RG (ex: 12.345.678-9)')
                             ->live(onBlur: true)
-                            ->rules(['required', new RgRule()])
+                            ->rules(['required', new RgRule])
                             ->validationMessages([
                                 'required' => 'O RG é obrigatório.',
                                 'max' => 'O RG não pode ter mais de 20 caracteres.',
@@ -90,8 +87,8 @@ class PartnerRegistrationPage extends Page implements HasForms
                             ->rules([
                                 'required',
                                 'string',
-                                new CpfRule(),
-                                new UniqueCpfRule(),
+                                new CpfRule,
+                                new UniqueCpfRule,
                             ])
                             ->validationMessages([
                                 'required' => 'O CPF é obrigatório.',
@@ -128,7 +125,7 @@ class PartnerRegistrationPage extends Page implements HasForms
                                     ->letters()
                                     ->numbers()
                                     ->mixedCase()
-                                    ->symbols()
+                                    ->symbols(),
                             ])
                             ->validationMessages([
                                 'required' => 'A senha é obrigatória.',
@@ -161,7 +158,7 @@ class PartnerRegistrationPage extends Page implements HasForms
                                 'required',
                                 'string',
                                 'max:50',
-                                new ValidPartnerCodeRule(),
+                                new ValidPartnerCodeRule,
                             ])
                             ->validationMessages([
                                 'required' => 'O código do parceiro é obrigatório.',
@@ -193,7 +190,7 @@ class PartnerRegistrationPage extends Page implements HasForms
             $dto = PartnerRegistrationDTO::fromArray($data);
 
             // Execute registration action
-            $action = new RegisterPartnerCollaboratorAction();
+            $action = new RegisterPartnerCollaboratorAction;
             $result = $action->execute($dto);
 
             if ($result->isSuccess()) {
@@ -248,7 +245,7 @@ class PartnerRegistrationPage extends Page implements HasForms
             $this->logRegistrationAttempt($this->data ?? [], 'validation_error', [
                 'errors' => $e->errors(),
             ]);
-            
+
             throw $e;
         } catch (\Exception $e) {
             // Log unexpected errors
@@ -323,7 +320,7 @@ class PartnerRegistrationPage extends Page implements HasForms
     protected function logRegistrationAttempt(array $data, string $status, array $additionalData = []): void
     {
         $request = request();
-        
+
         $logData = [
             'status' => $status,
             'email' => $data['email'] ?? 'unknown',
@@ -341,7 +338,7 @@ class PartnerRegistrationPage extends Page implements HasForms
 
         // Detect potential security threats
         $securityFlags = $this->detectSecurityThreats($request, $data);
-        if (!empty($securityFlags)) {
+        if (! empty($securityFlags)) {
             $logData['security_flags'] = $securityFlags;
         }
 
@@ -354,7 +351,7 @@ class PartnerRegistrationPage extends Page implements HasForms
         };
 
         // Additional security monitoring for suspicious activity
-        if (!empty($securityFlags)) {
+        if (! empty($securityFlags)) {
             Log::channel('security')->warning('Suspicious partner registration activity detected', $logData);
         }
     }
@@ -391,7 +388,7 @@ class PartnerRegistrationPage extends Page implements HasForms
 
         // Check for rapid successive attempts (would need Redis/cache to implement properly)
         // This is a placeholder for future implementation
-        
+
         return $flags;
     }
 

@@ -2,8 +2,10 @@
 
 namespace TresPontosTech\Company\Models;
 
+use App\Models\Concerns\HasOptimizedQueries;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +23,7 @@ class Company extends Model
 {
     use Billable;
     use HasFactory;
+    use HasOptimizedQueries;
     use SoftDeletes;
 
     protected $fillable = [
@@ -39,6 +42,39 @@ class Company extends Model
     public function hasActivePlan(): bool
     {
         return $this->plans()->wherePivot('status', 'active')->exists();
+    }
+
+    /**
+     * Scope to eager load common relationships to prevent N+1 queries.
+     */
+    public function scopeWithCommonRelations(Builder $query): void
+    {
+        $query->with([
+            'owner:id,name,email',
+            'employees:id,name,email',
+            'subscriptions' => function ($query) {
+                $query->where('stripe_status', 'active')
+                    ->latest();
+            },
+        ]);
+    }
+
+    /**
+     * Scope to load only partner companies.
+     */
+    public function scopePartners(Builder $query): void
+    {
+        $query->whereNotNull('partner_code');
+    }
+
+    /**
+     * Scope to load companies with active subscriptions.
+     */
+    public function scopeWithActiveSubscriptions(Builder $query): void
+    {
+        $query->whereHas('subscriptions', function ($query) {
+            $query->where('stripe_status', 'active');
+        });
     }
 
     public static function findByPartnerCode(string $code): ?self

@@ -16,7 +16,7 @@ describe('UniqueCpfRule', function () {
     });
 
     it('passes validation for unique CPF', function () {
-        $rule = new UniqueCpfRule();
+        $rule = new UniqueCpfRule;
         $rule->validate('cpf', '11144477735', $this->fail);
         expect($this->failMessages)->toBeEmpty();
     });
@@ -29,7 +29,7 @@ describe('UniqueCpfRule', function () {
             'tax_id' => '11144477735',
         ]);
 
-        $rule = new UniqueCpfRule();
+        $rule = new UniqueCpfRule;
         $rule->validate('cpf', '111.444.777-35', $this->fail);
         expect($this->failMessages)->toContain('Este CPF já está cadastrado no sistema.');
     });
@@ -60,14 +60,14 @@ describe('UniqueCpfRule', function () {
 
         foreach ($nonStringValues as $value) {
             $this->failMessages = [];
-            $rule = new UniqueCpfRule();
+            $rule = new UniqueCpfRule;
             $rule->validate('cpf', $value, $this->fail);
             expect($this->failMessages)->toContain('O CPF deve ser uma string válida.');
         }
     });
 
     it('fails validation for empty CPF', function () {
-        $rule = new UniqueCpfRule();
+        $rule = new UniqueCpfRule;
         $rule->validate('cpf', '', $this->fail);
         expect($this->failMessages)->toContain('O CPF não pode estar vazio.');
     });
@@ -81,7 +81,7 @@ describe('UniqueCpfRule', function () {
         ]);
 
         // Test with formatted CPF
-        $rule = new UniqueCpfRule();
+        $rule = new UniqueCpfRule;
         $rule->validate('cpf', '111.444.777-35', $this->fail);
         expect($this->failMessages)->toContain('Este CPF já está cadastrado no sistema.');
     });
