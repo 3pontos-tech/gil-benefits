@@ -25,11 +25,11 @@ class ViewAppointment extends ViewRecord
                     Select::make('status')
                         ->optionsLimit(100)
                         ->native(false)
-                        ->options(fn () => app(FetchOpportunityPipelines::class)->populateAction()),
+                        ->options(fn () => resolve(FetchOpportunityPipelines::class)->populateAction()),
                     Select::make('consultant_selected')
                         ->searchable()
                         ->native(false)
-                        ->options(fn () => app(FetchConsultants::class)->populateAction()),
+                        ->options(fn () => resolve(FetchConsultants::class)->populateAction()),
                 ])->action(function (array $data): void {
                     dd($data);
                 }),

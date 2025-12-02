@@ -16,7 +16,7 @@ final readonly class FetchOpportunityPipelines
         );
 
         return Cache::flexible($cacheKey, [$baseTtl, $baseTtl * 2], function (): array {
-            $payload = app(HighLevelClient::class)->getLocationPipelines();
+            $payload = resolve(HighLevelClient::class)->getLocationPipelines();
 
             $response = [];
             foreach ($payload['pipelines'] as $pipeline) {

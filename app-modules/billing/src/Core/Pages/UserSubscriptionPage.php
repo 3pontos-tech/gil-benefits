@@ -39,7 +39,7 @@ class UserSubscriptionPage extends Page
     #[Computed]
     public function planRepository(string $type): Collection
     {
-        return app(PlanRepository::class)->getPlansFor($type);
+        return resolve(PlanRepository::class)->getPlansFor($type);
     }
 
     public function checkout(): void
@@ -47,7 +47,7 @@ class UserSubscriptionPage extends Page
         $user = auth()->user();
         Cashier::useCustomerModel(User::class);
 
-        $plan = app(PlanRepository::class)->get($this->selectedPlan);
+        $plan = resolve(PlanRepository::class)->get($this->selectedPlan);
         $price = $plan->prices->first();
 
         $sessionCheckout = $user
