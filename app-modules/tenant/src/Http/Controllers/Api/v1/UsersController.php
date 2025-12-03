@@ -25,7 +25,7 @@ class UsersController extends Controller
 
         resolve(CreateExternalUserAction::class)->execute($userDTO);
 
-        return response()->noContent(Response::HTTP_CREATED);
+        return response()->json([], Response::HTTP_CREATED);
     }
 
     public function destroy(string $tenant, string $user): Response

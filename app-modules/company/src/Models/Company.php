@@ -16,6 +16,13 @@ use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
 
+/**
+ * @property int $user_id
+ * @property string $panel
+ * @property string $slug
+ * @property string $tax_id
+ * @property string $integration_access_key
+ */
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model
 {
