@@ -19,6 +19,7 @@ use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Filament\Actions\CreateAndAttachAction;
 use TresPontosTech\Tenant\Filament\Actions\TenantSeatsCounterAction;
+use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
 
 class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 {
@@ -41,6 +42,9 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     }),
                 TextInput::make('tax_id')
                     ->mask('99.999.999/9999-99'),
+                TextInput::make('integration_access_key')
+                    ->readOnly()
+                    ->live(),
             ]);
     }
 
@@ -91,6 +95,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
         return $schema
             ->components([
                 $this->getFormContentComponent(),
+                TenantSecretKeyRotationPanelAction::make(),
                 EmbeddedTable::make(),
             ]);
     }

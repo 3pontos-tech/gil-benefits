@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Cashier\Billable;
+use Ramsey\Uuid\Uuid;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Models\TenantMember;
@@ -69,5 +70,10 @@ class Company extends Model
     public function subscriptions(): MorphMany
     {
         return $this->morphMany(Subscription::class, 'subscriptionable');
+    }
+
+    public function generateToken(Uuid|string $key): void
+    {
+        $this->update(['integration_access_key' => $key]);
     }
 }
