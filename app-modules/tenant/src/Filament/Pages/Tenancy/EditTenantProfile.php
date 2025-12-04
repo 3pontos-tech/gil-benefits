@@ -102,7 +102,6 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
         return $schema
             ->components([
                 $this->getFormContentComponent(),
-                //                TenantSecretKeyRotationPanelAction::make(),
                 EmbeddedTable::make(),
             ]);
     }

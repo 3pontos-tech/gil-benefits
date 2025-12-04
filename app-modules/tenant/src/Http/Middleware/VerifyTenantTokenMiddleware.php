@@ -21,7 +21,9 @@ class VerifyTenantTokenMiddleware
         }
 
         $token = $request->header(config('tenant.header'));
-        Company::query()->where('integration_access_key', $token)->firstOrFail();
+        $company = Company::query()->where('integration_access_key', $token)->first();
+
+        abort_if(! $company, Response::HTTP_FORBIDDEN);
 
         return $next($request);
     }

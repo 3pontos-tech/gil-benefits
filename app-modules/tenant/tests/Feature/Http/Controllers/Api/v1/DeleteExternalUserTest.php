@@ -39,8 +39,8 @@ test('should return unauthorized status when header is wrong', function (): void
 
 it('should fail when company does not exists', function (): void {
     $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => 123, 'user' => $this->user->getKey()]), [], [
-        config('tenant.header') => $this->company->integration_access_key,
+        config('tenant.header') => 123,
     ]);
 
-    $response->assertStatus(Response::HTTP_NOT_FOUND);
+    $response->assertStatus(Response::HTTP_FORBIDDEN);
 });

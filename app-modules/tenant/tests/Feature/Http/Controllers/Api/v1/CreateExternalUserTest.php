@@ -55,8 +55,8 @@ it('should fail when company does not exists', function (): void {
         'email' => 'fulaninho@gmail.com',
         'external_id' => '123456',
     ], [
-        config('tenant.header') => $this->company->integration_access_key,
+        config('tenant.header') => 123,
     ]);
 
-    $response->assertStatus(Response::HTTP_NOT_FOUND);
+    $response->assertStatus(Response::HTTP_FORBIDDEN);
 });
