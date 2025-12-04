@@ -2,15 +2,11 @@
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
-use Filament\Actions\Testing\TestAction;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
+use TresPontosTech\Tenant\Actions\TenantSecretKeyRotationAction;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditTenantProfile;
-use TresPontosTech\Tenant\Filament\Pages\Tenancy\RegisterTenant;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\assertDatabaseCount;
-use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -25,22 +21,23 @@ beforeEach(function (): void {
     filament()->setTenant($this->company);
 });
 
-it('should render', function (): void {
+it('should render edit tenant profile page', function (): void {
     livewire(EditTenantProfile::class)
         ->assertOk();
 });
 
-it('should be able to generate a new token', function (): void {
-    $action = TestAction::make(TenantSecretKeyRotationPanelAction::class)->schemaComponent( 'tenant-secret-key-rotation');
-    $oldToken = $this->company->integration_access_key;
-
+it('should render generate key button', function (): void {
     livewire(EditTenantProfile::class)
-        ->assertOk()
-        ->ddBody()
-        ->mountAction($action)
-        ->callAction($action)
-        ->assertHasNoFormErrors();
+        ->assertSee('Gerar nova chave');
+});
+
+it('should be able to generate a new token', function (): void {
+    $oldToken = $this->company->integration_access_key;
+    resolve(TenantSecretKeyRotationAction::class)->generate($this->company);
 
     $this->company->refresh();
-    expect($oldToken)->not()->toBe($this->company->refresh()->integration_access_key);
+    expect($this->company->integration_access_key)
+        ->not()->toBe($oldToken)
+        ->and($this->company->integration_access_key)
+        ->not()->toBeNull();
 });

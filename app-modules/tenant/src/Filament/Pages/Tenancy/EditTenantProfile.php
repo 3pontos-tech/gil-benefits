@@ -90,12 +90,19 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
             ]);
     }
 
+    protected function getActions(): array
+    {
+        return [
+            TenantSecretKeyRotationPanelAction::make(),
+        ];
+    }
+
     public function content(Schema $schema): Schema
     {
         return $schema
             ->components([
                 $this->getFormContentComponent(),
-                TenantSecretKeyRotationPanelAction::make(),
+                //                TenantSecretKeyRotationPanelAction::make(),
                 EmbeddedTable::make(),
             ]);
     }
