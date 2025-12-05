@@ -60,7 +60,7 @@ class CreateAppointment extends CreateRecord
         $appointmentDTO = BookAppointmentDTO::make(auth()->user()->getKey(), $this->form->getRawState());
 
         try {
-            app(BookAppointmentAction::class)->handle($appointmentDTO);
+            resolve(BookAppointmentAction::class)->handle($appointmentDTO);
             Notification::make()
                 ->title('Appointment booked successfully')
                 ->success()

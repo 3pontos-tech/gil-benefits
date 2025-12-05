@@ -33,7 +33,7 @@ class LatestTenantAdoptorsTableWidget extends TableWidget
                     ->label('Email verificado em')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('external_id')
+                TextColumn::make('crm_id')
                     ->label('ID externo')
                     ->searchable(),
                 TextColumn::make('deleted_at')

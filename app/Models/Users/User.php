@@ -44,6 +44,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         'name',
         'email',
         'password',
+        'crm_id',
         'external_id',
     ];
 

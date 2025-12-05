@@ -39,7 +39,7 @@ class TenantSubscriptionPage extends Page
     #[Computed]
     public function getActiveTenantPlan(): PlanEntity
     {
-        return app(PlanRepository::class)->getActiveTenantPlan();
+        return resolve(PlanRepository::class)->getActiveTenantPlan();
     }
 
     public function checkout(): void

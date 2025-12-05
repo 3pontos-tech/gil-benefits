@@ -17,6 +17,7 @@ class CompanyFactory extends Factory
             'name' => $this->faker->company(),
             'slug' => $this->faker->slug(),
             'tax_id' => $this->faker->cnpj(),
+            'integration_access_key' => $this->faker->uuid(),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
 
