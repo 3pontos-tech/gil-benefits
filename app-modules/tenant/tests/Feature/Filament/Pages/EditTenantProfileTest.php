@@ -29,7 +29,7 @@ it('should render edit tenant profile page', function (): void {
 });
 
 describe('change tenant secret action tests', function (): void {
-    it('', function (): void {
+    it('should be able to generate a new token through filament action', function (): void {
         $action = TestAction::make(TenantSecretKeyRotationPanelAction::class);
         $oldKey = $this->company->integration_access_key;
         livewire(EditTenantProfile::class)

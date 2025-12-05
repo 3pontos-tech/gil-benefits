@@ -11,8 +11,8 @@ class DeleteExternalUserAction
         $company = Company::query()->findOrFail($tenant);
         $user = $company->employees()->where('user_id', $userId)->firstOrFail();
 
-        $user->delete();
         $company->employees()->detach($user);
+        $user->delete();
 
     }
 }
