@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\Appointments\Enums;
 
-use BackedEnum;
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasDescription;
@@ -14,12 +13,19 @@ use Illuminate\Contracts\Support\Htmlable;
 enum AppointmentCategoryEnum: string implements HasColor, HasDescription, HasIcon, HasLabel
 {
     case PersonalFinance = 'personal_finance';
+
     case InvestmentAdvisory = 'investment_advisory';
+
     case RetirementAndEstatePlanning = 'retirement_and_estate_planning';
+
     case BusinessFinancialManagement = 'business_financial_management';
+
     case TaxPlanning = 'tax_planning';
+
     case FundraisingAndCredit = 'fundraising_and_credit';
+
     case MergersAndAcquisitions = 'mergers_and_acquisitions';
+
     case RiskAndCompliance = 'risk_and_compliance';
 
     public function getDescription(): string|Htmlable|null
@@ -27,7 +33,7 @@ enum AppointmentCategoryEnum: string implements HasColor, HasDescription, HasIco
         return __('appointments::categories.' . $this->value . '.description');
     }
 
-    public function getIcon(): BackedEnum
+    public function getIcon(): Heroicon
     {
         return match ($this) {
             self::PersonalFinance => Heroicon::CurrencyDollar,

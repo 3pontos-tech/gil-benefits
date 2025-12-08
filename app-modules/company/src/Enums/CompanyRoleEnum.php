@@ -11,6 +11,7 @@ enum CompanyRoleEnum: string implements HasColor, HasLabel
     case Owner = 'owner';
 
     case Manager = 'manager';
+
     case Employee = 'employee';
 
     public function getColor(): string|array|null
