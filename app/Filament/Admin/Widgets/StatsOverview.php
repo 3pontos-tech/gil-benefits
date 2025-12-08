@@ -3,11 +3,13 @@
 namespace App\Filament\Admin\Widgets;
 
 use App\Models\Users\User;
+use Filament\Support\Colors\Color;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 
 class StatsOverview extends StatsOverviewWidget
@@ -20,8 +22,10 @@ class StatsOverview extends StatsOverviewWidget
 
         return [
             //            $this->mountActivePlansStat(),
-            //            $this->mountNewUsersStat(),
-            //            $this->mountTotalCompaniesStat(),
+            $this->mountNewUsersStat(),
+            $this->mountTotalCompaniesStat(),
+            $this->mountTotalAppointmentsStat(),
+
         ];
     }
 
@@ -80,7 +84,25 @@ class StatsOverview extends StatsOverviewWidget
 
         return Stat::make('Total Companies', $totalCompanies)
             ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
-            ->color('danger')
+            ->color(Color::Teal)
+            ->description('Overall');
+    }
+
+    private function mountTotalAppointmentsStat(): Stat
+    {
+        $totalAppointments = Appointment::query()->count();
+
+        $data = Trend::model(Appointment::class)
+            ->between(
+                start: now()->startOfCentury(),
+                end: now()->endOfCentury(),
+            )
+            ->perYear()
+            ->count();
+
+        return Stat::make('Total Appointments', $totalAppointments)
+            ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
+            ->color(Color::Fuchsia)
             ->description('Overall');
     }
 }
