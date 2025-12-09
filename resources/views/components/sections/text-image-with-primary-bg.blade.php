@@ -5,5 +5,6 @@
         button-variant="white"
         title="Plano personalizado"
         description="Analisamos caso a caso, empresa por empresa para entender as necessidades e possibilidades que cabem perfeitamente em cada situação. "
+        img-path="img/man-happy-inside-screen.webp"
     />
 </section>

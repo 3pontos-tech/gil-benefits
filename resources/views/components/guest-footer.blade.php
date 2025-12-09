@@ -54,13 +54,13 @@
                 </ul>
             </div>
 
-            
+
 
             <div class="flex flex-col gap-y-3 sm:gap-y-4 col-span-1">
                 <h4 class="text-lg sm:text-xl font-semibold ">Contato e endereço</h4>
                 <p class="font-medium  text-sm sm:text-base">contato@firece.com.br</p>
                 <div class="flex items-center gap-2">
-                    <img src="{{ asset('img/brasil-flag.png') }}" alt="Phone"
+                    <img src="{{ asset('img/brasil-flag.webp') }}" alt="Phone"
                          class="w-6 sm:w-7 h-4 sm:h-5 object-contain rounded-sm">
                     <p class=" text-sm sm:text-base">(11) 98720-1303</p>
                 </div>

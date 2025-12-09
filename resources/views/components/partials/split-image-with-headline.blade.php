@@ -5,7 +5,8 @@
     'title' => '',
     'description' => '',
     'icon' => '',
-    'iconColor' => 'white'
+    'iconColor' => 'white',
+    'imgPath' => 'img/man-look-confused.webp'
 ])
 
 @php
@@ -19,10 +20,10 @@
     }}>
     <div class="relative overflow-hidden h-[25vh] lg:h-auto rounded-lg">
         <img
-            src="{{ asset('img/woman-bg.png') }}"
+            src="{{ asset($imgPath) }}"
             alt=""
             class="absolute inset-0 w-full h-full object-cover object-center"
-            loading="eager"
+            loading="lazy"
             decoding="async"
         />
     </div>

@@ -37,10 +37,11 @@
         </div>
         <div class="relative overflow-hidden lg:col-span-2 lg:order-3 h-[25vh] lg:h-[40vh] rounded-lg">
             <img
-                src="{{ asset('img/woman-bg.png') }}"
+                src="{{ asset('img/hero-image.webp') }}"
                 alt=""
                 class="w-full h-full object-cover object-center"
                 loading="eager"
+                fetchpriority="high"
                 decoding="async"
             />
             <div class="absolute z-2 inset-0 bg-gradient-to-br from-brand-primary/32 to-brand-secondary/16"></div>
