@@ -31,7 +31,7 @@
     <x-headline class="{{ $textLight }} max-w-full!" align="left">
         @if($icon === 'flamma-icon')
             <x-slot:badge>
-                <x-logo class="w-28 h-fit" :color="$iconColor" />
+                <x-logo :color="$iconColor" />
             </x-slot:badge>
         @elseif($icon)
             <x-slot:badge>
