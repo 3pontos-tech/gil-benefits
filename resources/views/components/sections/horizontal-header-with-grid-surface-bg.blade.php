@@ -59,7 +59,7 @@
                 </x-card>
 
                 @foreach (array_slice($cards, 1) as $card)
-                    <x-card variant="white" density="compact">
+                    <x-card variant="light" density="compact">
                         <x-slot:icon>
                             <x-badge color="primary">
                                 {{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}
