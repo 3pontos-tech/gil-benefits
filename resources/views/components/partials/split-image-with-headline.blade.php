@@ -46,7 +46,7 @@
             {{ $description }}
         </x-slot:description>
         <x-slot:actions>
-            <x-button :variant="$buttonVariant">
+            <x-button :variant="$buttonVariant" rel="noopener noreferrer" target="_blank" href="https://w.app/wjijp2">
                 Entrar em contato
             </x-button>
         </x-slot:actions>

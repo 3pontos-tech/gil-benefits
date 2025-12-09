@@ -42,7 +42,7 @@
                 {{ $description }}
             </x-slot:description>
             <x-slot:actions>
-                <x-button>
+                <x-button rel="noopener noreferrer" target="_blank" href="https://w.app/wjijp2">
                     Entre em contato
                 </x-button>
             </x-slot:actions>
