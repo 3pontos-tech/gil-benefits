@@ -17,7 +17,7 @@
 
 <footer class="{{ $baseClasses }} py-8 sm:py-12 lg:py-16">
     <div class="mx-auto container px-4 sm:px-6 lg:px-8 space-y-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-8 sm:gap-10 lg:gap-12 animate-fade-in items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-8 sm:gap-10 lg:gap-12 animate-fade-in items-start">
             <div class="col-span-1">
                 <h4 class="text-lg sm:text-xl font-semibold  mb-3 sm:mb-4">Links de Serviços</h4>
                 <ul class="space-y-1 sm:space-y-2  text-sm sm:text-base">
@@ -66,7 +66,7 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-y-3 sm:gap-y-4 col-span-1 lg:col-span-2 xl:col-span-3">
+            <div class="flex flex-col gap-y-3 sm:gap-y-4 col-span-1 lg:col-span-2 xl:col-span-2">
                 <h4 class="text-lg sm:text-xl font-semibold ">Nossa Newsletter</h4>
                 <p class=" text-sm sm:text-base">
                     Envie nos o seu email e receba as melhores notícias e textos sobre o que
@@ -93,6 +93,9 @@
                 </div>
             </a>
             <div class="flex flex-col gap-y-2 sm:gap-y-3">
+                <div>
+                    <x-logo />
+                </div>
                 <h3 class=" text-lg sm:text-xl font-semibold">Nosso Endereço</h3>
                 <p class=" font-medium text-sm sm:text-base">Dr. Cardoso de Mello, 1666, Cj, 92 Vila Olímpia, São Paulo
                 </p>
