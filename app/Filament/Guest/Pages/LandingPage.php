@@ -13,7 +13,7 @@ class LandingPage extends Dashboard
 
     protected static bool $shouldRegisterNavigation = false;
 
-    protected static ?string $title = 'Clube de Beneficios';
+    protected static ?string $title = 'Clube de Benefícios';
 
     protected Width|string|null $maxContentWidth = Width::ScreenTwoExtraLarge;
 
