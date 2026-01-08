@@ -61,9 +61,10 @@ class UserSubscriptionPage extends Page
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->allowPromotionCodes(),
             )
             ->when(
-                value: $plan->collectTaxIds === true,
+                value: $plan->collectTaxIds === false,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
             )
+
             ->withMetadata([
                 'model' => Relation::getMorphAlias(User::class),
             ])
