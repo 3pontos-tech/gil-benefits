@@ -61,7 +61,7 @@ class UserSubscriptionPage extends Page
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->allowPromotionCodes(),
             )
             ->when(
-                value: $plan->collectTaxIds === false,
+                value: $plan->collectTaxIds === true,
                 callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
             )
 
