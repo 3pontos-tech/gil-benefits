@@ -33,7 +33,7 @@ class TestCommand extends Command
 
         dd($proPlan);
 
-        //        //        $upsertDTO = UpsertContactDTO::make(
+        //        //        $udd($proPlan);psertDTO = UpsertContactDTO::make(
         //        //            tenantName: '5pontos',
         //        //            fullName: 'Thales Popokas',
         //        //            email: 'popokas@5pontos.com',
