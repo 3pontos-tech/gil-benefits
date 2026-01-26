@@ -29,7 +29,7 @@
                 'base' => 'bg-elevation-01dp border border-outline-light',
                 'title' => 'bg-gradient-to-br from-brand-primary to-brand-secondary w-fit bg-clip-text text-transparent',
                 'description' => 'text-medium font-medium',
-                'hover' => 'hover:border-brand-primary hover:bg-brand-primary transition-all duration-500 hover:scale-105',
+                'hover' => 'hover:border-0 hover:bg-gradient-to-br hover:from-brand-primary hover:to-brand-secondary transition-all duration-500 hover:scale-105',
                 'titleHover' => 'group-hover/card:text-light',
                 'descriptionHover' => 'group-hover/card:text-light',
             ],

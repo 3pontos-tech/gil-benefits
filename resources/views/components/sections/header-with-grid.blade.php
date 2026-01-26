@@ -7,19 +7,19 @@
 
     $cards = [
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'A empresa define o pacote ideal de horas e inicia o acompanhamento personalizado pela Flamma.'
+            'title' => 'Contratação',
+            'description' => 'Contratação de pacotes de horas mensais, semestrais ou anuais que vai ficar disponível para seus colaboradores.'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Os colaboradores agendam seus atendimentos diretamente pela plataforma Flamma.'
+            'title' => 'Agendamento',
+            'description' => 'As horas podem ser utilizadas por qualquer colaborador, mediante agendamento prévio na plataforma Flamma'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Atendimentos individuais com até 60 minutos, online ou presenciais.'
+            'title' => 'Reuniões',
+            'description' => 'A Flamma disponibiliza um time de consultores especializados para atender online ou presencialmente com duração de 60 minutos.'
         ],
         [
-            'title' => 'Lorem Ipsum',
+            'title' => 'Acompanhamento',
             'description' => 'Relatórios consolidados de uso para acompanhamento da adesão e impacto.'
         ],
     ];

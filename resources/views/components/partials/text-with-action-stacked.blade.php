@@ -6,7 +6,7 @@
     <p class="text-medium font-medium delay-200 max-w-full text-sm md:text-md lg:text-base text-center">
         {{ $text }}
     </p>
-    <x-button>
-        Lorem Ipsum
+    <x-button rel="noopener noreferrer" target="_blank" href="https://w.app/wjijp2">
+        Entrar em contato
     </x-button>
 </div>

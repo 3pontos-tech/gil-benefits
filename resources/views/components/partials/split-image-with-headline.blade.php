@@ -5,7 +5,8 @@
     'title' => '',
     'description' => '',
     'icon' => '',
-    'iconColor' => 'white'
+    'iconColor' => 'white',
+    'imgPath' => 'img/man-look-confused.webp'
 ])
 
 @php
@@ -19,10 +20,10 @@
     }}>
     <div class="relative overflow-hidden h-[25vh] lg:h-auto rounded-lg">
         <img
-            src="{{ asset('img/woman-bg.png') }}"
+            src="{{ asset($imgPath) }}"
             alt=""
             class="absolute inset-0 w-full h-full object-cover object-center"
-            loading="eager"
+            loading="lazy"
             decoding="async"
         />
     </div>
@@ -30,7 +31,7 @@
     <x-headline class="{{ $textLight }} max-w-full!" align="left">
         @if($icon === 'flamma-icon')
             <x-slot:badge>
-                <x-logo class="w-28 h-fit" :color="$iconColor" />
+                <x-logo :color="$iconColor" />
             </x-slot:badge>
         @elseif($icon)
             <x-slot:badge>
@@ -46,8 +47,8 @@
             {{ $description }}
         </x-slot:description>
         <x-slot:actions>
-            <x-button :variant="$buttonVariant">
-                Saiba mais
+            <x-button :variant="$buttonVariant" rel="noopener noreferrer" target="_blank" href="https://w.app/wjijp2">
+                Entrar em contato
             </x-button>
         </x-slot:actions>
     </x-headline>

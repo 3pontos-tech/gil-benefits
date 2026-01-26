@@ -20,15 +20,15 @@
                 {{ $description }}
             </x-slot:description>
             <x-slot:actions>
-                <x-button>
-                    Saiba mais
+                <x-button rel="noopener noreferrer" target="_blank" href="https://w.app/wjijp2">
+                    Cotação gratuita
                 </x-button>
             </x-slot:actions>
         </x-headline>
         <div class="flex flex-col h-full overflow-hidden order-3 lg:order-2 p-2">
             <x-card class="h-full flex flex-col justify-between p-8">
                 <x-slot:icon>
-                    <x-badge size="md" icon="heroicon-o-check-circle"/>
+                    <x-badge size="md" icon="fas-fire-flame-curved"/>
                 </x-slot:icon>
                 <x-slot:title>
                     {{ $cardTitle }}
@@ -37,10 +37,11 @@
         </div>
         <div class="relative overflow-hidden lg:col-span-2 lg:order-3 h-[25vh] lg:h-[40vh] rounded-lg">
             <img
-                src="{{ asset('img/woman-bg.png') }}"
+                src="{{ asset('img/hero-image.webp') }}"
                 alt=""
                 class="w-full h-full object-cover object-center"
                 loading="eager"
+                fetchpriority="high"
                 decoding="async"
             />
             <div class="absolute z-2 inset-0 bg-gradient-to-br from-brand-primary/32 to-brand-secondary/16"></div>

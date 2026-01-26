@@ -44,6 +44,7 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "maartenpaauw/filament-cashier-billing-provider": "^3.0",
+        "mallardduck/blade-lucide-icons": "^1.24",
         "owenvoke/blade-fontawesome": "^2.9",
         "spatie/laravel-medialibrary": "^11.13",
         "spatie/laravel-permission": "^6.20",

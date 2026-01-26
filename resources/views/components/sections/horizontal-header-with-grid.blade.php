@@ -1,35 +1,32 @@
 @php
     $title = 'A consultoria financeira que transforma vidas e impulsiona sua empresa';
     $keywords = ['impulsiona', 'sua', 'empresa'];
-    $description = 'A empresa contrata um pacote de horas de atendimento (mensal, semestral ou anual). Os colaboradores
-        agendam seus atendimentos diretamente pela plataforma Flamma. Você tem acesso à atendimentos individuais com
-        até 60 minutos, online ou presenciais.  Relatórios consolidados de uso para acompanhamento da adesão e
-        impacto.';
+    $description = '';
 
     $cards = [
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'A empresa define o pacote ideal de horas e inicia o acompanhamento personalizado pela Flamma.',
+            'title' => 'Para o RH e a Empresa',
+            'description' => 'Mudanças visíveis na vida dos seus colaboradores:',
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Os colaboradores agendam seus atendimentos diretamente pela plataforma Flamma.'
+            'title' => 'Aumento da Produtividade',
+            'description' => 'Colaboradores com finanças organizadas são mais focados, engajados e produtivos.'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Atendimentos individuais com até 60 minutos, online ou presenciais.'
+            'title' => 'Redução do Absenteísmo e Turnover',
+            'description' => 'Diminua as faltas e a rotatividade, criando um ambiente de trabalho mais estável e motivador.'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Relatórios consolidados de uso para acompanhamento da adesão e impacto.'
+            'title' => 'Melhora do Clima Organizacional',
+            'description' => 'Funcionários mais seguros financeiramente contribuem para um ambiente de trabalho positivo e colaborativo.'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'Relatórios consolidados de uso para acompanhamento da adesão e impacto.'
+            'title' => 'Atração e Retenção de Talentos',
+            'description' => 'Ofereça um diferencial competitivo que valoriza o bem-estar integral dos seus colaboradores, atraindo e mantendo os melhores profissionais.'
         ],
         [
-            'title' => 'Lorem Ipsum',
-            'description' => 'A empresa define o pacote ideal de horas e inicia o acompanhamento personalizado pela Flamma.',
+            'title' => 'Inovação e Responsabilidade Social',
+            'description' => 'Posicione sua empresa como líder em benefícios e engajada com o desenvolvimento pessoal de sua equipe.',
         ],
     ];
 @endphp
@@ -37,16 +34,13 @@
 <section class="flex flex-col mx-auto mb-28 sm:mb-44 space-y-8 lg:space-y-16 items-center justify-center scroll-mt-28" id="assessment">
     <x-headline
         class="max-w-full!"
-        align="left"
-        contentLayout="grid grid-cols-1 lg:grid-cols-[1.5fr_2fr] gap-4 lg:gap-12 items-center"
+        align="center"
+        contentLayout="grid grid-cols-1 justify-items-center text-center gap-4"
         :keywords="$keywords"
     >
         <x-slot:title>
             {{ $title }}
         </x-slot:title>
-        <x-slot:description>
-            {{ $description }}
-        </x-slot:description>
     </x-headline>
 
     <x-partials.card-grid class="lg:grid-cols-3!">
@@ -77,8 +71,6 @@
     </x-partials.card-grid>
 
     <x-partials.text-with-action-stacked
-        text="Nosso propósito é disseminar conhecimento e ferramentas para que seus
-        funcionários alcancem a tão desejada liberdade financeira,
-        refletindo diretamente no sucesso da sua organização"
+        text="Nosso propósito é disseminar conhecimento e ferramentas para que seus funcionários alcancem a tão desejada liberdade financeira, refletindo diretamente no sucesso da sua organização."
     />
 </section>

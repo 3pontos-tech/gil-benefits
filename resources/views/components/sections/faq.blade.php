@@ -6,8 +6,7 @@
 @php
     $title = 'Perguntas frequentes';
     $keywords = ['educação', 'financeira', 'benefício', 'corporativo'];
-    $description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In efficitur velit vitae enim sodales
-        sodales. Donec lectus nisi, aliquam eu ante at, blandit laoreet ligula. ';
+    $description = 'Se houver alguma dúvida, nossas perguntas e respostas podem ajudar. Se não achar o que precisa, pode entrar em contato. ';
 
     $solutions = [
         [
@@ -57,8 +56,8 @@
                 {{ $description }}
             </x-slot:description>
             <x-slot:actions>
-                <x-button>
-                    Saiba mais
+                <x-button rel="noopener noreferrer" target="_blank" href="https://w.app/wjijp2">
+                    Entre em contato
                 </x-button>
             </x-slot:actions>
         </x-headline>

@@ -128,7 +128,7 @@
 
     <div class="flex items-center justify-center w-full mt-8">
         <x-button class="rounded-xl">
-            Solicitar proposta
+            Solicitar orçamento
         </x-button>
     </div>
 </div>

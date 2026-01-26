@@ -1,7 +1,7 @@
 @php
-    $title = 'Conheça nossos planos';
-    $description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In efficitur velit vitae enim sodales
-        sodales. Donec lectus nisi, aliquam eu ante at, blandit laoret...';
+    $title = 'Conheça nosso plano empresarial';
+    $keywords = ['plano', 'empresarial'];
+    $description = 'Entenda como funciona para contratar o Flamma e se houver alguma dúvida, entre em contato.  Faça a diferença na vida dos seus colaboradores e na sua empresa.';
 
     $benefitTitles = [
         'titulo beneficio 1',

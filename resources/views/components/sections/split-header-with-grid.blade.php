@@ -31,9 +31,7 @@
         title="O Desafio do RH: Como o Estresse Financeiro Afeta Sua Empresa"
         description="A Flamma surge como um benefício corporativo inovador, desenhado para empoderar seus colaboradores
         com educação financeira de alta qualidade. Somos pioneiros em oferecer uma consultoria financeira personalizada,
-        que vai além do básico, promovendo uma verdadeira evolução na relação das pessoas com o dinheiro. Nosso
-        propósito é disseminar conhecimento e ferramentas para que seus funcionários alcancem a tão desejada liberdade
-        financeira, refletindo diretamente no sucesso da sua organização."
+        que vai além do básico, promovendo uma verdadeira evolução na relação das pessoas com o dinheiro."
     />
 
     <x-partials.card-grid class="sm:grid-cols-1! lg:grid-cols-4! lg:col-span-2">
