@@ -5,10 +5,12 @@ namespace TresPontosTech\Tenant\Filament\Actions;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Cashier\Subscription;
 use TresPontosTech\Company\Models\Company;
+use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class CreateAndAttachAction extends CreateAction
 {
@@ -34,19 +36,32 @@ class CreateAndAttachAction extends CreateAction
     {
         return [
             Hidden::make('company_id')->default(filament()->getTenant()->getKey()),
-            TextInput::make('name'),
-            TextInput::make('email')
-                ->rules(['email', 'unique:users,email']),
-            TextInput::make('password')
-                ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                ->password(),
-            Grid::make(1)
+            Grid::make(2)
+                ->schema([
+                    TextInput::make('name')
+                        ->label('Nome'),
+                    TextInput::make('email')
+                        ->rules(['email', 'unique:users,email']),
+                    TextInput::make('password')
+                        ->label('Senha')
+                        ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                        ->password(),
+                ]),
+            Grid::make(2),
+            Fieldset::make('Detalhes')
                 ->relationship('detail')
                 ->schema([
                     Hidden::make('company_id')->default(filament()->getTenant()->getKey()),
-                    TextInput::make('tax_id'),
-                    TextInput::make('document_id'),
-                    TextInput::make('phone_number'),
+                    TextInput::make('tax_id')
+                        ->label('CPF')
+                        ->mask('999.999.999-99'),
+                    TextInput::make('document_id')
+                        ->label('RG')
+                        ->mask('99.999.999-9'),
+                    PhoneInput::make('phone_number')
+                        ->label('Telefone')
+                        ->defaultCountry('BR')
+                        ->strictMode(),
                 ]),
         ];
     }

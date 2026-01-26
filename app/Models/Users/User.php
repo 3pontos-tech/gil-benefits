@@ -19,6 +19,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Cashier\Billable;
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
@@ -43,6 +44,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         'name',
         'email',
         'password',
+        'crm_id',
         'external_id',
     ];
 
@@ -107,8 +109,8 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     {
         return $this->appointments()
             ->whereNotIn('status', [
-                \TresPontosTech\Appointments\Enums\AppointmentStatus::Completed->value,
-                \TresPontosTech\Appointments\Enums\AppointmentStatus::Cancelled->value,
+                AppointmentStatus::Completed->value,
+                AppointmentStatus::Cancelled->value,
             ])
             ->exists();
     }

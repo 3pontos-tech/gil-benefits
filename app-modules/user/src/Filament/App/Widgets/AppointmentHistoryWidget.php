@@ -10,7 +10,7 @@ class AppointmentHistoryWidget extends TableWidget
 {
     protected static ?string $heading = 'Últimos Atendimentos';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {

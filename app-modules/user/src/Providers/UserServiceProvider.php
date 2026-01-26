@@ -5,7 +5,6 @@ namespace TresPontosTech\User\Providers;
 use App\Filament\FilamentPanel;
 use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
-use TresPontosTech\User\Filament\App\Pages\UserDashboard;
 
 class UserServiceProvider extends ServiceProvider
 {

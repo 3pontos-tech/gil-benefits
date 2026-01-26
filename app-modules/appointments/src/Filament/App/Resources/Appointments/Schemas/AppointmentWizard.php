@@ -94,7 +94,7 @@ class AppointmentWizard
     private static function getAvailableTimeSlots(Carbon $startDate): array
     {
         $endDate = $startDate->clone()->endOfDay();
-        $response = app(HighLevelClient::class)
+        $response = resolve(HighLevelClient::class)
             ->getCalendarFreeSlots(FetchCalendarSlotsDTO::make($startDate, $endDate));
 
         $formattedDate = $startDate->format('Y-m-d');

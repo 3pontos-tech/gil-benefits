@@ -6,7 +6,11 @@ use Illuminate\Support\ServiceProvider;
 
 class TenantServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->mergeConfigFrom(
+            __DIR__ . '/../../config/tenant_integration.php', 'tenant');
+    }
 
     public function boot(): void {}
 }

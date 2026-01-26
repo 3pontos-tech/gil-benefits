@@ -19,9 +19,7 @@ class LatestTenantAdoptorsTableWidget extends TableWidget
             ->heading('Últimos 5 membros')
             ->query(fn (): Builder => Filament::getTenant()
                 ->employees()
-                ->latest('created_at')
                 ->take(5)
-                ->orderByDesc('email_verified_at')
                 ->getQuery())
             ->paginated(false)
             ->columns([
@@ -35,7 +33,7 @@ class LatestTenantAdoptorsTableWidget extends TableWidget
                     ->label('Email verificado em')
                     ->dateTime()
                     ->sortable(),
-                TextColumn::make('external_id')
+                TextColumn::make('crm_id')
                     ->label('ID externo')
                     ->searchable(),
                 TextColumn::make('deleted_at')

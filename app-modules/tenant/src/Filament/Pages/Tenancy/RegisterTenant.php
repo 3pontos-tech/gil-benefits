@@ -7,6 +7,7 @@ use Filament\Pages\Tenancy\RegisterTenant as BaseRegisterTenant;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Ramsey\Uuid\Uuid;
 use TresPontosTech\Company\Models\Company;
 
 class RegisterTenant extends BaseRegisterTenant
@@ -44,6 +45,7 @@ class RegisterTenant extends BaseRegisterTenant
 
     protected function handleRegistration(array $data): Company
     {
+        $data['integration_access_key'] = Uuid::uuid4();
         $user = auth()->user();
         $company = $user->ownedCompanies()->create($data);
         $user->companies()->attach($company);

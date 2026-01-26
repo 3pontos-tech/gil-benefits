@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
@@ -25,7 +26,7 @@ class EssentialsSeeder extends Seeder
             ->create([
                 'email' => 'daniel@5pontos.com',
                 'name' => 'Daniel Reis (ADMIN TESTE)',
-                'password' => \Hash::make('admin'),
+                'password' => Hash::make('admin'),
             ]);
 
         $company = Company::factory()->create([

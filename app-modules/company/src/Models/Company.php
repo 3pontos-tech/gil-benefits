@@ -11,11 +11,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Cashier\Billable;
+use Ramsey\Uuid\Uuid;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
 
+/**
+ * @property int $user_id
+ * @property string $panel
+ * @property string $slug
+ * @property string $tax_id
+ * @property string $integration_access_key
+ */
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model
 {
@@ -28,6 +36,7 @@ class Company extends Model
         'name',
         'slug',
         'tax_id',
+        'integration_access_key',
     ];
 
     public function getRouteKeyName(): string
@@ -61,5 +70,10 @@ class Company extends Model
     public function subscriptions(): MorphMany
     {
         return $this->morphMany(Subscription::class, 'subscriptionable');
+    }
+
+    public function generateToken(Uuid|string $key): void
+    {
+        $this->update(['integration_access_key' => $key]);
     }
 }

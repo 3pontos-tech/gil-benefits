@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Appointments\Filament\App\Resources\Appointments\Pages;
 
+use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
@@ -25,7 +26,7 @@ class CreateAppointment extends CreateRecord
     {
         parent::mount();
 
-        /** @var \App\Models\Users\User $user */
+        /** @var User $user */
         $user = auth()->user();
         if ($user && ! $user->canCreateAppointment()) {
             Notification::make()
@@ -59,7 +60,7 @@ class CreateAppointment extends CreateRecord
         $appointmentDTO = BookAppointmentDTO::make(auth()->user()->getKey(), $this->form->getRawState());
 
         try {
-            app(BookAppointmentAction::class)->handle($appointmentDTO);
+            resolve(BookAppointmentAction::class)->handle($appointmentDTO);
             Notification::make()
                 ->title('Appointment booked successfully')
                 ->success()
