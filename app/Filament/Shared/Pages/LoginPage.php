@@ -6,14 +6,4 @@ use Filament\Auth\Pages\Login;
 
 class LoginPage extends Login
 {
-    public function mount(): void
-    {
-        parent::mount();
-        if (! app()->isLocal()) {
-            $this->form->fill([
-                'email' => 'admin@5pontos.com',
-                'password' => 'password',
-            ]);
-        }
-    }
 }
