@@ -12,11 +12,13 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
 use TresPontosTech\Consultants\Policies\ConsultantPolicy;
+use Zap\Models\Concerns\HasSchedules;
 
 #[UsePolicy(ConsultantPolicy::class)]
 class Consultant extends Model implements HasMedia
 {
     use HasFactory;
+    use HasSchedules;
     use HasTags;
     use InteractsWithMedia;
     use SoftDeletes;

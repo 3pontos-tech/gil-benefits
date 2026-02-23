@@ -24,6 +24,7 @@ class Appointment extends Model
         'company_id',
         'appointment_at',
         'status',
+        'meeting_url',
     ];
 
     protected function casts(): array

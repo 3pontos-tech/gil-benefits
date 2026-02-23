@@ -22,14 +22,18 @@ return [
             ],
         ],
 
+        'form' => [
+            'meeting_url' => 'Meeting URL',
+        ],
+
         'wizard' => [
             'steps' => [
-                'consultant' => 'Consultant',
+                'category_type' => 'Consulting Category',
                 'pick_datetime' => 'Pick Date & Time',
                 'review_confirm' => 'Review & Confirm',
             ],
             'labels' => [
-                'choose_consultant' => 'Choose your consultant',
+                'category_type' => 'Select the consulting category',
                 'date' => 'Date',
                 'available_times' => 'Available Times',
                 'duration' => 'Duration',

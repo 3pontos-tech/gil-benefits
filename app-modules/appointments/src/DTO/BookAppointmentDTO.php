@@ -31,7 +31,7 @@ class BookAppointmentDTO implements JsonSerializable
         return [
             'userId' => $this->userId,
             'category_type' => $this->categoryType->value,
-            'appointment_at' => $this->appointmentAt->getTimestampMs(),
+            'appointment_at' => $this->appointmentAt->toDateTimeString(),
             'notes' => $this->notes,
         ];
     }
