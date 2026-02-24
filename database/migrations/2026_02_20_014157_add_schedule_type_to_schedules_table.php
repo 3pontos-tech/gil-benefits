@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('schedules', function (Blueprint $table) {
+        Schema::table('schedules', function (Blueprint $table): void {
             $table->enum('schedule_type', ScheduleTypes::values())
                 ->default(ScheduleTypes::CUSTOM)
                 ->after('description');
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('schedules', function (Blueprint $table) {
+        Schema::table('schedules', function (Blueprint $table): void {
             $table->dropIndex('schedules_type_index');
             $table->dropIndex('schedules_schedulable_type_index');
             $table->dropColumn('schedule_type');

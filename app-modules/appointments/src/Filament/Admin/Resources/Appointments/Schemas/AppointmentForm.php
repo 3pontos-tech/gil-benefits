@@ -2,12 +2,12 @@
 
 namespace TresPontosTech\Appointments\Filament\Admin\Resources\Appointments\Schemas;
 
+use Illuminate\Support\Facades\Date;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Carbon;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Consultants\Models\Consultant;
 
@@ -35,14 +35,13 @@ class AppointmentForm
                             return [];
                         }
 
-                        $date = Carbon::parse($appointmentAt);
+                        $date = Date::parse($appointmentAt);
 
                         return Consultant::all()
-                            ->filter(fn (Consultant $c) => $c->isBookableAtTime(
+                            ->filter(fn (Consultant $c): bool => $c->isBookableAtTime(
                                 $date->format('Y-m-d'),
                                 $date->format('H:i'),
                                 $date->copy()->addHour()->format('H:i'),
-                                null,
                             ))
                             ->pluck('name', 'id');
                     })
@@ -52,7 +51,7 @@ class AppointmentForm
                     ->options(AppointmentStatus::class)
                     ->required(),
                 TextInput::make('meeting_url')
-                    ->label(__('appointments::resources.appointments.form.meeting_url'))
+                    ->label(__('appointments::resources.appointments.form.meeting_url')),
             ]);
     }
 }

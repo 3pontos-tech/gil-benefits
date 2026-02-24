@@ -67,8 +67,8 @@ class CreateAppointment extends CreateRecord
                 ->send();
 
             $this->redirectIntended(AppointmentResource::getUrl('index'));
-        } catch (Throwable $e) {
-            dd($e);
+        } catch (Throwable $throwable) {
+            dd($throwable);
             Notification::make()
                 ->title('Failed to book appointment')
                 ->danger()

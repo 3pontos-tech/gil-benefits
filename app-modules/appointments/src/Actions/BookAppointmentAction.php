@@ -22,7 +22,7 @@ readonly class BookAppointmentAction
     ): void {
         $user = User::query()->find($payload->userId);
 
-        $opportunityResponse = $this->client->upsertOpportunity(UpsertOpportunityDTO::make(
+        $this->client->upsertOpportunity(UpsertOpportunityDTO::make(
             $user->crm_id,
             $user->name . ' - ' . $payload->categoryType->value
         ));
@@ -34,7 +34,7 @@ readonly class BookAppointmentAction
             $payload->appointmentAt->addHour()->toIso8601ZuluString(),
         );
 
-        $schedule = $this->client->scheduleAppointment($dto);
+        $this->client->scheduleAppointment($dto);
 
         $user->appointments()->create([
             ...$payload->jsonSerialize(),

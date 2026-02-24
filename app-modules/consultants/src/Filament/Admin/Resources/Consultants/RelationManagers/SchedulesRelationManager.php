@@ -60,15 +60,15 @@ class SchedulesRelationManager extends RelationManager
                     ->boolean(),
             ])
             ->headerActions([
-                self::createAvailabilityAction(),
-                self::createBlockedAction(),
+                $this->createAvailabilityAction(),
+                $this->createBlockedAction(),
             ])
             ->recordActions([
                 DeleteAction::make(),
             ]);
     }
 
-    private static function createAvailabilityAction(): CreateAction
+    private function createAvailabilityAction(): CreateAction
     {
         return CreateAction::make('create_availability')
             ->label(__('consultants::resources.schedules.actions.add_availability'))
@@ -127,7 +127,7 @@ class SchedulesRelationManager extends RelationManager
             });
     }
 
-    private static function createBlockedAction(): CreateAction
+    private function createBlockedAction(): CreateAction
     {
         return CreateAction::make('create_blocked')
             ->label(__('consultants::resources.schedules.actions.add_blocked'))

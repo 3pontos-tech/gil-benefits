@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('schedules', function (Blueprint $table) {
+        Schema::create('schedules', function (Blueprint $table): void {
             $table->id();
             $table->morphs('schedulable'); // User, Resource, etc.
             $table->string('name')->nullable();
