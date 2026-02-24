@@ -61,7 +61,7 @@ class CompanyForm
                                             ->mapWithKeys(fn ($item): array => [
                                                 $item['id'] => [
                                                     'role' => $item['role'],
-                                                    'active' => true
+                                                    'active' => true,
                                                 ],
                                             ])->all();
                                         $record->employees()->sync($syncData);
