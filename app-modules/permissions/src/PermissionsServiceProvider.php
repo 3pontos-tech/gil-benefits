@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Permissions;
 
-use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Tiptap\Nodes\Details;
+use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Commands\SyncPermissions\SyncPermissionsCommand;
 
 class PermissionsServiceProvider extends ServiceProvider
@@ -30,6 +33,10 @@ class PermissionsServiceProvider extends ServiceProvider
             'roles' => Role::class,
             'permissions' => Permission::class,
             'users' => User::class,
+            'consultants' => Consultant::class,
+            'appointments' => Appointment::class,
+            'company' => Company::class,
+            'details' => Details::class,
         ]);
 
         Gate::policy(Role::class, RolePolicy::class);
@@ -40,5 +47,4 @@ class PermissionsServiceProvider extends ServiceProvider
             }
         });
     }
-
 }

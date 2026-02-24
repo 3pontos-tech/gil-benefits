@@ -18,7 +18,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use TresPontosTech\Permissions\Filament\Admin\Resources\Permissions\RoleResource;
 
 class AdminPanelProvider extends PanelProvider
 {

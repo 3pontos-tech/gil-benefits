@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Contracts\Cache\Factory;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,9 +21,9 @@ return new class extends Migration
         throw_if($teams && empty($columnNames['team_foreign_key'] ?? null), Exception::class, 'Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.');
 
         Schema::table($tableNames['permissions'], static function (Blueprint $table): void {
-          $table->addColumn('string','resource')->index();
-          $table->addColumn('string','resource_group')->index();
-          $table->addColumn('string','action');
+            $table->addColumn('string', 'resource')->index();
+            $table->addColumn('string', 'resource_group')->index();
+            $table->addColumn('string', 'action');
         });
 
     }

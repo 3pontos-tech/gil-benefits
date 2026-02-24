@@ -8,7 +8,6 @@ use App\Models\Users\User;
 use TresPontosTech\Permissions\Permission;
 use TresPontosTech\Permissions\Role;
 
-
 it('role model uses correct table', function (): void {
     $role = new Role;
     expect($role->getTable())->toBe('rbac_roles');

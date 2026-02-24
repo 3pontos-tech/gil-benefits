@@ -27,18 +27,18 @@ class RoleResource extends Resource
 
     protected static ?string $slug = 'roles';
 
-
     protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::ShieldCheck;
+
     protected static ?string $cluster = ManagementCluster::class;
 
     protected static ?int $navigationSort = 4;
 
-//    public static function can(string $action, ?Model $record = null): bool
-//    {
-//        return auth()->check() && auth()->user()->hasRole(Roles::SuperAdmin);
-//    }
+    //    public static function can(string $action, ?Model $record = null): bool
+    //    {
+    //        return auth()->check() && auth()->user()->hasRole(Roles::SuperAdmin);
+    //    }
 
     public static function getModelLabel(): string
     {

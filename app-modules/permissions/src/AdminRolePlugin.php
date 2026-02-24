@@ -8,18 +8,17 @@ use TresPontosTech\Permissions\Filament\Admin\Resources\Permissions\RoleResource
 
 class AdminRolePlugin implements Plugin
 {
-
     public function getId(): string
     {
-       return 'role-admin';
+        return 'role-admin';
     }
 
     public function register(Panel $panel): void
     {
-       $panel->resources([
-           RoleResource::class
-       ]);
+        $panel->resources([
+            RoleResource::class,
+        ]);
     }
 
-    public function boot(Panel $panel): void{}
+    public function boot(Panel $panel): void {}
 }

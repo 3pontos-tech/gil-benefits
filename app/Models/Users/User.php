@@ -34,8 +34,8 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     use Billable;
     use HasFactory;
     use HasRoles;
-    use HasUuids;
     use HasTenant;
+    use HasUuids;
     use Notifiable;
     use SoftDeletes;
 
