@@ -9,16 +9,20 @@ use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
 use TresPontosTech\IntegrationHighlevel\Requests\UpsertOpportunityDTO;
 
+// use TresPontosTech\IntegrationMonday\Jobs\CreateMondayItemJob;
+
 readonly class BookAppointmentAction
 {
-    public function __construct(private HighLevelClient $client) {}
+    public function __construct(
+        private HighLevelClient $client,
+    ) {}
 
     public function handle(
         BookAppointmentDTO $payload
     ): void {
         $user = User::query()->find($payload->userId);
 
-        $opportunityResponse = $this->client->upsertOpportunity(UpsertOpportunityDTO::make(
+        $this->client->upsertOpportunity(UpsertOpportunityDTO::make(
             $user->crm_id,
             $user->name . ' - ' . $payload->categoryType->value
         ));
@@ -30,14 +34,11 @@ readonly class BookAppointmentAction
             $payload->appointmentAt->addHour()->toIso8601ZuluString(),
         );
 
-        $schedule = $this->client->scheduleAppointment($dto);
+        $this->client->scheduleAppointment($dto);
 
         $user->appointments()->create([
             ...$payload->jsonSerialize(),
             'status' => AppointmentStatus::Pending,
-            'external_opportunity_id' => $opportunityResponse->opportunity->id,
-            'external_appointment_id' => $schedule->id,
         ]);
-
     }
 }

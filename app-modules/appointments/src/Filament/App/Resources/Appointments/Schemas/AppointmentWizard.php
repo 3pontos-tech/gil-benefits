@@ -14,19 +14,21 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
-use TresPontosTech\IntegrationHighlevel\HighLevelClient;
-use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
+use TresPontosTech\Appointments\Actions\GetAvailableSlotsAction;
+
+// use TresPontosTech\IntegrationHighlevel\HighLevelClient;
+// use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
 
 class AppointmentWizard
 {
     public static function make(): Wizard
     {
         return Wizard::make([
-            Step::make(__('appointments::resources.appointments.wizard.steps.consultant'))
+            Step::make(__('appointments::resources.appointments.wizard.steps.category_type'))
                 ->icon(Heroicon::User)
                 ->schema([
                     AppointmentCategorySelector::make('category_type')
-                        ->label(__('appointments::resources.appointments.wizard.labels.choose_consultant'))
+                        ->label(__('appointments::resources.appointments.wizard.labels.category_type'))
                         ->required(),
                 ]),
             Step::make(__('appointments::resources.appointments.wizard.steps.pick_datetime'))
@@ -80,30 +82,29 @@ class AppointmentWizard
 
         $startDate = Date::parse($date);
 
-        if ($startDate->diffInDays(now()) > 0) {
-
+        if ($startDate->startOfDay()->isPast()) {
             return [];
         }
 
-        sprintf('available_slots_for_%s_%s', $date, auth()->user()->id);
-
         return self::getAvailableTimeSlots($startDate);
-
     }
 
     private static function getAvailableTimeSlots(Carbon $startDate): array
     {
-        $endDate = $startDate->clone()->endOfDay();
-        $response = resolve(HighLevelClient::class)
-            ->getCalendarFreeSlots(FetchCalendarSlotsDTO::make($startDate, $endDate));
+        return resolve(GetAvailableSlotsAction::class)->handle($startDate);
 
-        $formattedDate = $startDate->format('Y-m-d');
-
-        $response = $response[$formattedDate]['slots'];
-
-        return collect($response)
-            ->mapWithKeys(fn ($slot): array => [
-                $slot => Date::parse($slot)->format('H:i'),
-            ])->all();
+        // HighLevel integration (commented for Laravel Zap migration)
+        // $endDate = $startDate->clone()->endOfDay();
+        // $response = resolve(HighLevelClient::class)
+        //     ->getCalendarFreeSlots(FetchCalendarSlotsDTO::make($startDate, $endDate));
+        //
+        // $formattedDate = $startDate->format('Y-m-d');
+        //
+        // $response = $response[$formattedDate]['slots'];
+        //
+        // return collect($response)
+        //     ->mapWithKeys(fn ($slot): array => [
+        //         $slot => Date::parse($slot)->format('H:i'),
+        //     ])->all();
     }
 }

@@ -22,14 +22,18 @@ return [
             ],
         ],
 
+        'form' => [
+            'meeting_url' => 'Link da Reunião',
+        ],
+
         'wizard' => [
             'steps' => [
-                'consultant' => 'Consultor',
+                'category_type' => 'Categoria de consultoria',
                 'pick_datetime' => 'Escolher Data e Hora',
                 'review_confirm' => 'Revisar e Confirmar',
             ],
             'labels' => [
-                'choose_consultant' => 'Escolha seu consultor',
+                'category_type' => 'Selecione a categoria de consultoria',
                 'date' => 'Data',
                 'available_times' => 'Horários Disponíveis',
                 'duration' => 'Duração',

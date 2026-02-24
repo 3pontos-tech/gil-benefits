@@ -4,7 +4,7 @@ namespace TresPontosTech\User\Filament\App\Pages;
 
 use Filament\Pages\Dashboard;
 use TresPontosTech\User\Filament\App\Widgets\AppointmentHistoryWidget;
-use TresPontosTech\User\Filament\App\Widgets\UserAccountWidget;
+use TresPontosTech\User\Filament\App\Widgets\LatestAppointmentWidget;
 use TresPontosTech\User\Filament\App\Widgets\UserCurrentPlanWidget;
 
 class UserDashboard extends Dashboard
@@ -18,7 +18,7 @@ class UserDashboard extends Dashboard
     {
         return [
             UserCurrentPlanWidget::make(),
-            UserAccountWidget::make(),
+            LatestAppointmentWidget::make(),
             AppointmentHistoryWidget::make(),
         ];
     }

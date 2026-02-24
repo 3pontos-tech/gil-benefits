@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Pages\CreateConsultant;
 use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Pages\EditConsultant;
 use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Pages\ListConsultants;
+use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\RelationManagers\SchedulesRelationManager;
 use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Schemas\ConsultantForm;
 use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Tables\ConsultantsTable;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -35,7 +36,7 @@ class ConsultantResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SchedulesRelationManager::class,
         ];
     }
 

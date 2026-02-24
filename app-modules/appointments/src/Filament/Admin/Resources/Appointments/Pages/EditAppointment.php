@@ -5,7 +5,9 @@ namespace TresPontosTech\Appointments\Filament\Admin\Resources\Appointments\Page
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Filament\Admin\Resources\Appointments\AppointmentResource;
+use TresPontosTech\Appointments\Models\Appointment;
 
 class EditAppointment extends EditRecord
 {
@@ -17,5 +19,15 @@ class EditAppointment extends EditRecord
             ViewAction::make(),
             DeleteAction::make(),
         ];
+    }
+
+    protected function afterSave(): void
+    {
+        /** @var Appointment $appointment */
+        $appointment = $this->record;
+
+        if ($appointment->wasChanged('consultant_id')) {
+            resolve(AssignConsultantAction::class)->handle($appointment);
+        }
     }
 }
