@@ -56,12 +56,12 @@ class CompanyForm
                                             ->options(CompanyRoleEnum::class)
                                             ->required(),
                                     ])
-                                    ->saveRelationshipsUsing(function ($record, $state) {
+                                    ->saveRelationshipsUsing(function ($record, $state): void {
                                         $syncData = collect($state)
-                                            ->mapWithKeys(fn ($item) => [
+                                            ->mapWithKeys(fn ($item): array => [
                                                 $item['id'] => ['role' => $item['role'],
                                                 ],
-                                            ])->toArray();
+                                            ])->all();
                                         $record->employees()->sync($syncData);
                                     }),
                             ]),
