@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Schemas;
 
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -10,6 +11,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use TresPontosTech\Company\Enums\CompanyRoleEnum;
 
 class CompanyForm
 {
@@ -42,6 +44,7 @@ class CompanyForm
                             ]),
                         Tab::make('Members')
                             ->schema([
+                                Hidden::make('id'),
                                 Repeater::make('employees')
                                     ->relationship()
                                     ->columns(2)
@@ -50,13 +53,17 @@ class CompanyForm
                                             ->disabled()
                                             ->required(),
                                         Select::make('role')
-                                            ->options([
-                                                'admin' => 'Admin',
-                                                'employee' => 'Employee',
-                                                'owner' => 'Owner',
-                                            ]),
-
-                                    ]),
+                                            ->options(CompanyRoleEnum::class)
+                                            ->required(),
+                                    ])
+                                    ->saveRelationshipsUsing(function ($record, $state) {
+                                        $syncData = collect($state)
+                                            ->mapWithKeys(fn ($item) => [
+                                                $item['id'] => ['role' => $item['role'],
+                                                ],
+                                            ])->toArray();
+                                        $record->employees()->sync($syncData);
+                                    }),
                             ]),
                     ]),
 

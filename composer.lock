@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dcf0919d321c9adf38279255e1ee94a2",
+    "content-hash": "9f84756626d868061de448a911a20326",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -4058,16 +4058,16 @@
         },
         {
             "name": "laraveljutsu/zap",
-            "version": "v1.13.1",
+            "version": "v1.14.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ludoguenet/laravel-zap.git",
-                "reference": "5a449cb4aac28ddd41978b0584bfeb51745120dc"
+                "reference": "a00b533b55842f07bc6e3490a0eac4fa9886b625"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ludoguenet/laravel-zap/zipball/5a449cb4aac28ddd41978b0584bfeb51745120dc",
-                "reference": "5a449cb4aac28ddd41978b0584bfeb51745120dc",
+                "url": "https://api.github.com/repos/ludoguenet/laravel-zap/zipball/a00b533b55842f07bc6e3490a0eac4fa9886b625",
+                "reference": "a00b533b55842f07bc6e3490a0eac4fa9886b625",
                 "shasum": ""
             },
             "require": {
@@ -4077,7 +4077,7 @@
             "require-dev": {
                 "larastan/larastan": "^3.0",
                 "laravel/pint": "^1.20",
-                "orchestra/testbench": "^10.0",
+                "orchestra/testbench": "^10.0|^11.0",
                 "pestphp/pest": "^4.0"
             },
             "type": "library",
@@ -4117,9 +4117,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ludoguenet/laravel-zap/issues",
-                "source": "https://github.com/ludoguenet/laravel-zap/tree/v1.13.1"
+                "source": "https://github.com/ludoguenet/laravel-zap/tree/v1.14.0"
             },
-            "time": "2026-02-15T21:59:46+00:00"
+            "time": "2026-02-23T22:41:32+00:00"
         },
         {
             "name": "league/commonmark",
@@ -17441,5 +17441,5 @@
         "php": "^8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
