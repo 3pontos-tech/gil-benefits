@@ -59,7 +59,9 @@ class CompanyForm
                                     ->saveRelationshipsUsing(function ($record, $state): void {
                                         $syncData = collect($state)
                                             ->mapWithKeys(fn ($item): array => [
-                                                $item['id'] => ['role' => $item['role'],
+                                                $item['id'] => [
+                                                    'role' => $item['role'],
+                                                    'active' => true
                                                 ],
                                             ])->all();
                                         $record->employees()->sync($syncData);
