@@ -11,8 +11,16 @@
 |
 */
 
+use App\Filament\FilamentPanel;
+use App\Models\Users\User;
+use TresPontosTech\Permissions\Roles;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\artisan;
+
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->beforeEach(fn () => artisan('sync:permissions'))
     ->in('Feature', 'E2E', '../app-modules/*/tests');
 
 pest()->group('browser')
@@ -51,4 +59,16 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+function actingAsAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    Artisan::call('sync:permissions');
+
+    $user = User::factory()->admin()->create();
+    $user->assignRole(Roles::Admin->value);
+
+    filament()->setCurrentPanel($panel->value);
+    actingAs($user);
+
+    return $user;
 }

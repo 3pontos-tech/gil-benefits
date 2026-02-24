@@ -24,17 +24,17 @@ it('synchronizes roles and permissions', function (): void {
     $permissionCount = Permission::query()->count();
 
     foreach (Roles::cases() as $role) {
-        assertDatabaseHas('roles', [
+        assertDatabaseHas('rbac_roles', [
             'name' => $role->value,
             'guard_name' => 'web',
         ]);
     }
 
-    assertDatabaseCount('permissions', $permissionCount);
+    assertDatabaseCount('rbac_permissions', $permissionCount);
 
     $superAdmin = Role::findByName(Roles::SuperAdmin->value);
     expect($superAdmin->permissions)->toHaveCount($permissionCount);
 
-    $user = User::query()->where('email', 'admin@3pontos.com')->first();
+    $user = User::query()->where('email', 'admin@5pontos.com')->first();
     expect($user->hasRole(Roles::SuperAdmin->value))->toBeTrue();
 });
