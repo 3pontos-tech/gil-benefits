@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9f84756626d868061de448a911a20326",
+    "content-hash": "05bbbb6f65abaefc549a275ab79cece1",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -156,6 +156,42 @@
                     "TresPontosTech\\IntegrationHighlevel\\Tests\\": "tests/",
                     "TresPontosTech\\IntegrationHighlevel\\Database\\Factories\\": "database/factories/",
                     "TresPontosTech\\IntegrationHighlevel\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/permissions",
+            "version": "1.0.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/permissions",
+                "reference": "abd3381c5b06a162879feb958ea977279adac5b7"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\Permissions\\PermissionsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\Permissions\\": "src/",
+                    "TresPontosTech\\Permissions\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\Permissions\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "TresPontosTech\\Permissions\\Tests\\": "tests/"
                 }
             },
             "license": [

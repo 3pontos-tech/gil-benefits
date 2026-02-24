@@ -12,6 +12,7 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use TresPontosTech\Permissions\Filament\Admin\Resources\Permissions\Actions\AssignRoleAction;
 
 class UsersTable
 {
@@ -47,6 +48,7 @@ class UsersTable
                 EditAction::make(),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
+                AssignRoleAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

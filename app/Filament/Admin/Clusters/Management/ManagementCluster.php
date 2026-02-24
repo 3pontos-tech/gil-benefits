@@ -15,7 +15,7 @@ class ManagementCluster extends Cluster
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Adiministration';
+        return 'Administration';
     }
 
     public static function getNavigationLabel(): string
