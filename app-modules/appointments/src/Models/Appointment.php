@@ -24,6 +24,7 @@ class Appointment extends Model
         'company_id',
         'appointment_at',
         'status',
+        'monday_item_id',
         'meeting_url',
     ];
 

@@ -9,9 +9,13 @@ use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
 use TresPontosTech\IntegrationHighlevel\Requests\UpsertOpportunityDTO;
 
+// use TresPontosTech\IntegrationMonday\Jobs\CreateMondayItemJob;
+
 readonly class BookAppointmentAction
 {
-    public function __construct(private HighLevelClient $client) {}
+    public function __construct(
+        private HighLevelClient $client,
+    ) {}
 
     public function handle(
         BookAppointmentDTO $payload
@@ -35,9 +39,6 @@ readonly class BookAppointmentAction
         $user->appointments()->create([
             ...$payload->jsonSerialize(),
             'status' => AppointmentStatus::Pending,
-            'external_opportunity_id' => $opportunityResponse->opportunity->id,
-            'external_appointment_id' => $schedule->id,
         ]);
-
     }
 }
