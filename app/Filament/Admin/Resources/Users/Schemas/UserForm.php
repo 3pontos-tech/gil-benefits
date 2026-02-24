@@ -20,6 +20,7 @@ class UserForm
                             ->required(),
                         TextInput::make('email')
                             ->email()
+                            ->unique()
                             ->required(),
                         TextInput::make('password')
                             ->password()
@@ -30,9 +31,11 @@ class UserForm
                     ->relationship('detail')
                     ->schema([
                         TextInput::make('tax_id')
-                            ->mask('999.999.999-99'),
+                            ->mask('999.999.999-99')
+                            ->unique(),
                         TextInput::make('document_id')
-                            ->mask('99.999.999-9'),
+                            ->mask('99.999.999-9')
+                            ->unique(),
                         Select::make('company_id')
                             ->options(Company::query()->pluck('name', 'id')),
                     ])

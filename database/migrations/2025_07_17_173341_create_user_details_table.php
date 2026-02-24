@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('phone_number', 20)->nullable();
             $table->string('integration_id')->nullable();
             $table->string('document_id', 50);
+            $table->unique(['document_id', 'deleted_at']);
             $table->string('tax_id', 15)->unique();
             $table->softDeletes();
             $table->timestamps();
