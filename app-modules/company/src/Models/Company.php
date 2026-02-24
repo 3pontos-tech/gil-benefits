@@ -18,7 +18,7 @@ use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
 
 /**
- * @property int $user_id
+ * @property string $user_id
  * @property string $panel
  * @property string $slug
  * @property string $tax_id

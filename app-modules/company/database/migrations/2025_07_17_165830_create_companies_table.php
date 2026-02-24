@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
             $table->string('name');
             $table->uuid('integration_access_key');
             $table->string('slug')->unique();

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Users;
 
+use App\Filament\Admin\Clusters\Management\ManagementCluster;
 use App\Filament\Admin\Resources\Users\Pages\CreateUser;
 use App\Filament\Admin\Resources\Users\Pages\EditUser;
 use App\Filament\Admin\Resources\Users\Pages\ListUsers;
@@ -23,6 +24,7 @@ class UserResource extends Resource
     protected static string|null|\UnitEnum $navigationGroup = 'Administration';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserCircle;
+    protected static ?string $cluster = ManagementCluster::class;
 
     public static function form(Schema $schema): Schema
     {

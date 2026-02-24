@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('consultant_id')->nullable()->constrained('consultants');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignUuid('user_id')->constrained('users');
             $table->string('external_opportunity_id');
             $table->string('external_appointment_id');
 

@@ -39,7 +39,7 @@ test-pest: ## Run Pest tests
 
 .PHONY: test
 test: ## Run Pest tests without browser tests
-	@$(CURDIR)/vendor/bin/pest --exclude-group=browser
+	@$(CURDIR)/vendor/bin/pest --exclude-group=browser --parallel
 
 .PHONY: test-rector
 test-rector: ## Run Rector in test mode
@@ -58,6 +58,9 @@ essentials-seeder: ## Run the essentials seeder
 	@echo "Running Essentials Seeder..."
 	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Essentials Seeder completed."
+	@echo "Syncing permissions."
+	@php artisan sync:permissions
+	@echo "Permissions synced successfully"
 
 .PHONY: stripe-listen
 stripe-listen:
