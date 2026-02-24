@@ -20,7 +20,12 @@ class SchedulesRelationManager extends RelationManager
 {
     protected static string $relationship = 'schedules';
 
-    protected static ?string $title = 'Schedules';
+    protected static ?string $title = null;
+
+    public static function getTitle($ownerRecord, string $pageClass): string
+    {
+        return __('consultants::resources.schedules.title');
+    }
 
     public function table(Table $table): Table
     {
@@ -28,10 +33,10 @@ class SchedulesRelationManager extends RelationManager
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name')
-                    ->label('Name')
+                    ->label(__('consultants::resources.schedules.table.columns.name'))
                     ->searchable(),
                 TextColumn::make('schedule_type')
-                    ->label('Type')
+                    ->label(__('consultants::resources.schedules.table.columns.type'))
                     ->badge()
                     ->color(fn (ScheduleTypes $state): string => match ($state) {
                         ScheduleTypes::AVAILABILITY => 'success',
@@ -39,19 +44,19 @@ class SchedulesRelationManager extends RelationManager
                         default => 'gray',
                     }),
                 TextColumn::make('frequency_config')
-                    ->label('Days')
+                    ->label(__('consultants::resources.schedules.table.columns.days'))
                     ->state(fn (Schedule $record): string => collect($record->frequency_config?->days ?? [])
-                        ->map(fn (string $day): string => ucfirst(substr($day, 0, 3)))
+                        ->map(fn (string $day): string => __('consultants::resources.schedules.days.' . $day))
                         ->join(', ')
                     ),
                 TextColumn::make('periods_summary')
-                    ->label('Periods')
+                    ->label(__('consultants::resources.schedules.table.columns.periods'))
                     ->state(fn (Schedule $record): string => $record->periods
                         ->map(fn ($p): string => $p->start_time . ' - ' . $p->end_time)
                         ->join(', ')
                     ),
                 IconColumn::make('is_active')
-                    ->label('Active')
+                    ->label(__('consultants::resources.schedules.table.columns.active'))
                     ->boolean(),
             ])
             ->headerActions([
@@ -66,36 +71,30 @@ class SchedulesRelationManager extends RelationManager
     private static function createAvailabilityAction(): CreateAction
     {
         return CreateAction::make('create_availability')
-            ->label('Add Availability')
+            ->label(__('consultants::resources.schedules.actions.add_availability'))
             ->form([
                 TextInput::make('name')
-                    ->label('Name')
+                    ->label(__('consultants::resources.schedules.form.name'))
                     ->required()
-                    ->placeholder('e.g. Office Hours'),
+                    ->placeholder(__('consultants::resources.schedules.form.placeholder_name_availability')),
 
                 CheckboxList::make('frequency_config.days')
-                    ->label('Days of Week')
-                    ->options([
-                        'monday' => 'Monday',
-                        'tuesday' => 'Tuesday',
-                        'wednesday' => 'Wednesday',
-                        'thursday' => 'Thursday',
-                        'friday' => 'Friday',
-                        'saturday' => 'Saturday',
-                        'sunday' => 'Sunday',
-                    ])
+                    ->label(__('consultants::resources.schedules.form.days_of_week'))
+                    ->options(collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
+                        ->mapWithKeys(fn (string $day): array => [$day => __('consultants::resources.schedules.days.' . $day)])
+                        ->all())
                     ->required()
                     ->columns(4),
 
                 Repeater::make('periods')
-                    ->label('Time Periods')
+                    ->label(__('consultants::resources.schedules.form.time_periods'))
                     ->schema([
                         TextInput::make('start_time')
-                            ->label('Start')
+                            ->label(__('consultants::resources.schedules.form.start'))
                             ->type('time')
                             ->required(),
                         TextInput::make('end_time')
-                            ->label('End')
+                            ->label(__('consultants::resources.schedules.form.end'))
                             ->type('time')
                             ->required(),
                     ])
@@ -131,32 +130,32 @@ class SchedulesRelationManager extends RelationManager
     private static function createBlockedAction(): CreateAction
     {
         return CreateAction::make('create_blocked')
-            ->label('Add Blocked Time')
+            ->label(__('consultants::resources.schedules.actions.add_blocked'))
             ->form([
                 TextInput::make('name')
-                    ->label('Name')
+                    ->label(__('consultants::resources.schedules.form.name'))
                     ->required()
-                    ->placeholder('e.g. Vacation, Holiday'),
+                    ->placeholder(__('consultants::resources.schedules.form.placeholder_name_blocked')),
 
                 DatePicker::make('start_date')
-                    ->label('Start Date')
+                    ->label(__('consultants::resources.schedules.form.start_date'))
                     ->required()
                     ->native(false),
 
                 DatePicker::make('end_date')
-                    ->label('End Date')
+                    ->label(__('consultants::resources.schedules.form.end_date'))
                     ->native(false)
-                    ->placeholder('Leave empty for single day'),
+                    ->placeholder(__('consultants::resources.schedules.form.placeholder_end_date')),
 
                 Repeater::make('periods')
-                    ->label('Time Periods (leave empty to block full day)')
+                    ->label(__('consultants::resources.schedules.form.time_periods_blocked'))
                     ->schema([
                         TextInput::make('start_time')
-                            ->label('Start')
+                            ->label(__('consultants::resources.schedules.form.start'))
                             ->type('time')
                             ->required(),
                         TextInput::make('end_time')
-                            ->label('End')
+                            ->label(__('consultants::resources.schedules.form.end'))
                             ->type('time')
                             ->required(),
                     ])

@@ -12,6 +12,8 @@ class ConsultantsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'consultants');
+
         Panel::configureUsing(function (Panel $panel): void {
             if ($panel->getId() === 'admin') {
                 $panel->discoverResourcesForPanel('consultants', FilamentPanel::Admin);
