@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        foreach (RoleEnum::cases() as $role) {
-            Role::create(['name' => $role->value]);
-        }
+//        foreach (RoleEnum::cases() as $role) {
+//            Role::create(['name' => $role->value]);
+//        }
     }
 };
