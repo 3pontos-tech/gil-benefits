@@ -63,7 +63,7 @@ essentials-seeder: ## Run the essentials seeder
 	@echo "Permissions synced successfully"
 
 .PHONY: stripe-listen
-stripe-listen:
+stripe-listen: ## Listen Stripe webhooks
 	stripe listen --forward-to localhost:8000/stripe/webhook
 
 .PHONY: stripe-fresh

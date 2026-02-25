@@ -1,11 +1,16 @@
 {
     "agents": [
+        "opencode",
         "phpstorm"
     ],
     "editors": [
+        "opencode",
         "phpstorm"
     ],
     "guidelines": [
-        "filament/filament"
+        "filament/filament",
+        "internachi/modular",
+        "spatie/laravel-medialibrary",
+        "3pontos-tech/permissions"
     ]
 }

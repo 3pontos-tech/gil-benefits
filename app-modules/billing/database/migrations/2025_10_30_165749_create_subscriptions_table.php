@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('billing_subscriptions', function (Blueprint $table): void {
             $table->id();
-            $table->morphs('subscriptionable');
+            $table->uuidMorphs('subscriptionable');
             $table->string('type');
             $table->string('stripe_id')->unique();
             $table->string('stripe_status');

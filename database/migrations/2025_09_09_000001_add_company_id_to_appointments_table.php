@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('appointments', function (Blueprint $table): void {
             if (! Schema::hasColumn('appointments', 'company_id')) {
-                $table->foreignId('company_id')
+                $table->foreignUuid('company_id')
                     ->nullable()
                     ->constrained('companies')
                     ->cascadeOnDelete();
@@ -22,7 +22,7 @@ return new class extends Migration
     {
         Schema::table('appointments', function (Blueprint $table): void {
             if (Schema::hasColumn('appointments', 'company_id')) {
-                $table->dropConstrainedForeignId('company_id');
+                $table->foreignUuid('company_id');
             }
         });
     }
