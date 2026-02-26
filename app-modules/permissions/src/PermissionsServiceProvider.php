@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Permissions;
 
+use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use Tiptap\Nodes\Details;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -36,7 +36,7 @@ class PermissionsServiceProvider extends ServiceProvider
             'consultants' => Consultant::class,
             'appointments' => Appointment::class,
             'company' => Company::class,
-            'details' => Details::class,
+            'details' => Detail::class,
         ]);
 
         Gate::policy(Role::class, RolePolicy::class);

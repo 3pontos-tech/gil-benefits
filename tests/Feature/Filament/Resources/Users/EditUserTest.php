@@ -12,8 +12,7 @@ use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
 beforeEach(function () {
-    actingAs(User::factory()->admin()->create());
-    Filament::setCurrentPanel(FilamentPanel::Admin->value);
+    actingAsAdmin();
     $this->user = User::factory()->create();
 });
 
