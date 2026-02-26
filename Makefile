@@ -61,6 +61,7 @@ essentials-seeder: ## Run the essentials seeder
 	@echo "Syncing permissions."
 	@php artisan sync:permissions
 	@echo "Permissions synced successfully"
+	@php artisan billing:sync-stripe
 
 .PHONY: stripe-listen
 stripe-listen: ## Listen Stripe webhooks

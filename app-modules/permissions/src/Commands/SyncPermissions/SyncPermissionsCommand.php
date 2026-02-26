@@ -105,7 +105,7 @@ class SyncPermissionsCommand extends Command
     {
         return spin(
             callback: fn (): Collection => collect(Relation::morphMap())
-                ->map(fn (string $modelPath, string|int $morphKey) => new ModelPayload(
+                ->map(fn (string $modelPath, string|int $morphKey): ModelPayload => new ModelPayload(
                     name: $morphKey,
                     resource: $modelPath,
                     resourceGroup: (string) str($modelPath)->explode('\\')->offsetGet(1)
@@ -226,7 +226,7 @@ class SyncPermissionsCommand extends Command
         note('Models and RBAC Status:');
         table(['Name', 'Resource', 'Group', 'Has RBAC'], $tableData);
 
-        return collect($rbacConfigs)->map(fn (array $resources, string $role) => new RolePermissions(
+        return collect($rbacConfigs)->map(fn (array $resources, string $role): RolePermissions => new RolePermissions(
             role: $role,
             resources: $resources
         ))->values();

@@ -41,7 +41,7 @@ class PermissionsServiceProvider extends ServiceProvider
 
         Gate::policy(Role::class, RolePolicy::class);
 
-        Panel::configureUsing(function (Panel $panel) {
+        Panel::configureUsing(function (Panel $panel): void {
             if ($panel->getId() === 'admin') {
                 $panel->plugin(new AdminRolePlugin);
             }

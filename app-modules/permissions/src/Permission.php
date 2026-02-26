@@ -35,7 +35,7 @@ class Permission extends BasePermission
     protected function formattedName(): Attribute
     {
         return Attribute::make(
-            get: fn () => sprintf(
+            get: fn (): string => sprintf(
                 '%s-%s-%s-%s', $this->resource_group, $this->resource_model, $this->action, $this->name
             )
         );

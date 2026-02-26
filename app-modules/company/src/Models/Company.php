@@ -30,8 +30,8 @@ class Company extends Model
 {
     use Billable;
     use HasFactory;
-    use SoftDeletes;
     use HasUuids;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
