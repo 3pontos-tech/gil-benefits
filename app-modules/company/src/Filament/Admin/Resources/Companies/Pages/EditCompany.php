@@ -18,6 +18,13 @@ class EditCompany extends EditRecord
         ];
     }
 
+    protected function afterSave(): void
+    {
+        $this->redirect($this->getResource()::getUrl('edit', [
+            'record' => $this->record,
+        ]));
+    }
+
     protected function getHeaderActions(): array
     {
         return [
