@@ -23,7 +23,9 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
     case Pending = 'pending';
 
     case Scheduling = 'scheduling';
+
     case Active = 'active';
+
     case Completed = 'completed';
 
     case Cancelled = 'cancelled';

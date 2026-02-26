@@ -45,7 +45,8 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                 TextInput::make('integration_access_key')
                     ->readOnly()
                     ->live(),
-            ]);
+            ])
+            ->columns(3);
     }
 
     public function table(Table $table): Table
