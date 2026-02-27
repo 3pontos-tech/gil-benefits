@@ -1,12 +1,14 @@
 <?php
 
 use App\Filament\FilamentPanel;
+use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Actions\TenantSecretKeyRotationAction;
 use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditTenantProfile;
 
+use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -54,4 +56,45 @@ describe('change tenant secret action tests', function (): void {
             ->not()->toBeNull();
     });
 
+});
+
+describe('authorization', function (): void {
+
+    test('only company owner or admin can see the page', function (): void {
+        $invalidUser = User::factory()->employee()->create();
+        $this->company->employees()->attach($invalidUser);
+        actingAs($invalidUser);
+
+        livewire(EditTenantProfile::class)
+            ->assertNotFound();
+    });
+
+    test('another company owner can not see the page', function (): void {
+
+        $anotherCompanyOwner = User::factory()->companyOwner()->create();
+        Company::factory()->for($anotherCompanyOwner, 'owner')->create();
+
+        actingAs($anotherCompanyOwner);
+
+        livewire(EditTenantProfile::class)
+            ->assertForbidden();
+    });
+
+    test('company owner can see the page', function (): void {
+
+        $companyOwner = User::factory()->companyOwner()->create();
+        $anotherCompany = Company::factory()->for($companyOwner, 'owner')->create();
+        $anotherCompany->subscriptions()->create([
+            'type' => 'company',
+            'stripe_id' => '1234568',
+            'stripe_status' => 'active',
+        ]);
+
+        filament()->setTenant($anotherCompany);
+
+        actingAs($companyOwner);
+
+        livewire(EditTenantProfile::class)
+            ->assertOk();
+    });
 });

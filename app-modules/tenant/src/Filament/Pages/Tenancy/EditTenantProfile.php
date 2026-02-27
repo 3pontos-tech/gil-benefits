@@ -31,7 +31,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
             return true;
         }
 
-        return auth()->user()->isCompanyOwner();
+        return auth()->user()->isCompanyOwner() && auth()->user()->ownedCompanies()->where('slug', filament()->getTenant()->slug)->exists();
     }
 
     public static function getLabel(): string
