@@ -39,7 +39,7 @@ class UserFactory extends Factory
         return $this->state([
             'name' => 'Dev Admin',
             'email' => 'admin@5pontos.com',
-        ]);
+        ])->afterCreating(fn (User $user) => $user->assignRole(Roles::Admin));
     }
 
     public function companyOwner(): Factory|UserFactory
@@ -61,7 +61,7 @@ class UserFactory extends Factory
         return $this->state([
             'name' => $this->faker->randomElement($names),
             'email' => $this->faker->userName() . '@5pontos.com',
-        ]);
+        ])->afterCreating(fn (User $user) => $user->assignRole(Roles::Employee));
     }
 
     public function employee(): Factory|UserFactory

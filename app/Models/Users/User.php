@@ -183,12 +183,12 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     public function isAdmin(): bool
     {
-        return auth()->user()->hasAnyRole([Roles::SuperAdmin, Roles::Admin]);
+        return $this->hasAnyRole([Roles::SuperAdmin, Roles::Admin]);
     }
 
     public function isCompanyOwner(): bool
     {
-        return auth()->user()->hasRole([Roles::CompanyOwner]);
+        return $this->hasRole([Roles::CompanyOwner]);
     }
 
     public function isEmployee()

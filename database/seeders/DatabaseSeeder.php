@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->generateCompanies();
 
         $admin = User::factory()->admin()->create();
-        Company::all()->each(fn ($company) => $company->employees()->attach($admin, ['role' => Roles::CompanyOwner->value]));
+        Company::all()->each(fn ($company) => $company->employees()->attach($admin));
         Company::query()->inRandomOrder()->first()->update(['slug' => 'my-company']);
     }
 
@@ -56,22 +56,18 @@ class DatabaseSeeder extends Seeder
     private function generateUsers(): void
     {
         $ownedCompany = User::factory()->companyOwner()->create();
-        $ownedCompany->assignRole(Roles::CompanyOwner);
+
 
         $employee = User::factory()->employee()->create();
-        $employee->assignRole(Roles::Employee);
+
 
         $company = Company::factory()
             ->create([
                 'user_id' => $ownedCompany->id,
             ]);
 
-        $company->employees()->attach($employee, [
-            'role' => Roles::Employee->value,
-        ]);
+        $company->employees()->attach($employee);
 
-        $ownedCompany->companies()->attach($company, [
-            'role' => Roles::CompanyOwner->value,
-        ]);
+        $ownedCompany->companies()->attach($company);
     }
 }

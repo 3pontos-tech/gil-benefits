@@ -62,5 +62,7 @@ test('user should be the owner after registering the company', function () {
 
     expect($company->integration_access_key)->not()->toBeNull();
     expect($company->owner()->first()->getKey())->toBe(auth()->user()->getKey())
-        ->and(auth()->user()->hasRole([Roles::CompanyOwner]));
+        ->and(auth()->user()->hasRole([Roles::CompanyOwner]))
+        ->and($company->employees()->where('user_id', auth()->user()->getKey())->exists())
+    ;
 });

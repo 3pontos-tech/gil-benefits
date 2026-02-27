@@ -18,11 +18,11 @@ class EssentialsSeeder extends Seeder
      */
     public function run(): void
     {
+        Artisan::call('sync:permissions');
         $admin = User::factory()
             ->admin()
             ->createQuietly();
 
-        Artisan::call('sync:permissions');
         $admin->assignRole(Roles::CompanyOwner);
 
         $appUser = User::factory()
