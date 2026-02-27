@@ -42,7 +42,7 @@ it('should be able to register a tenant (company)', function (): void {
     expect($company->integration_access_key)->not()->toBeNull();
 });
 
-test('user should be the owner after registering the company', function () {
+test('user should be the owner after registering the company', function (): void {
     livewire(RegisterTenant::class)
         ->assertOk()
         ->fillForm([
@@ -63,6 +63,5 @@ test('user should be the owner after registering the company', function () {
     expect($company->integration_access_key)->not()->toBeNull();
     expect($company->owner()->first()->getKey())->toBe(auth()->user()->getKey())
         ->and(auth()->user()->hasRole([Roles::CompanyOwner]))
-        ->and($company->employees()->where('user_id', auth()->user()->getKey())->exists())
-    ;
+        ->and($company->employees()->where('user_id', auth()->user()->getKey())->exists());
 });

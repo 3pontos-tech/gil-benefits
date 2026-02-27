@@ -191,7 +191,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->hasRole([Roles::CompanyOwner]);
     }
 
-    public function isEmployee()
+    public function isEmployee(): bool
     {
         return $this->hasRole(Roles::Employee);
     }

@@ -57,9 +57,7 @@ class DatabaseSeeder extends Seeder
     {
         $ownedCompany = User::factory()->companyOwner()->create();
 
-
         $employee = User::factory()->employee()->create();
-
 
         $company = Company::factory()
             ->create([
