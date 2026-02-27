@@ -27,7 +27,10 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 
     public static function canAccess(): bool
     {
-        return auth()->user()->isAdmin() or auth()->user()->isCompanyOwner();
+        if (auth()->user()->isAdmin()) {
+            return true;
+        }
+        return auth()->user()->isCompanyOwner();
     }
 
     public static function getLabel(): string

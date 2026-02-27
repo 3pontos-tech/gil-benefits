@@ -28,7 +28,7 @@ class CreateAndAttachAction extends CreateAction
         $this->disabled(fn (): bool => $this->isSubscriptionCapacityExceeded());
 
         $this->after(
-            function (User $record) {
+            function (User $record): void {
                 filament()->getTenant()->employees()->attach($record);
                 $record->assignRole(Roles::Employee);
             }
