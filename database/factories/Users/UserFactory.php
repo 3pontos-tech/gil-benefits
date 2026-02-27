@@ -42,6 +42,14 @@ class UserFactory extends Factory
         ])->afterCreating(fn (User $user) => $user->assignRole(Roles::Admin));
     }
 
+    public function superAdmin(): Factory|UserFactory
+    {
+        return $this->state([
+            'name' => 'Dev Admin',
+            'email' => 'admin@5pontos.com',
+        ])->afterCreating(fn (User $user) => $user->assignRole(Roles::SuperAdmin));
+    }
+
     public function companyOwner(): Factory|UserFactory
     {
         return $this->state([

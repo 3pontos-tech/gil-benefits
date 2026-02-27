@@ -48,14 +48,21 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->live(onBlur: true, debounce: 500)
                     ->afterStateUpdated(function (Set $set, $state): void {
                         $set('slug', Str::slug($state));
-                    }),
+                    })
+                    ->readOnly(),
                 TextInput::make('tax_id')
-                    ->mask('99.999.999/9999-99'),
+                    ->mask('99.999.999/9999-99')
+                    ->readOnly(),
                 TextInput::make('integration_access_key')
                     ->readOnly()
                     ->live(),
             ])
             ->columns(3);
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()->hidden();
     }
 
     public function table(Table $table): Table
@@ -81,7 +88,6 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                         ]);
                     }),
                 DetachAction::make()
-
                     ->action(fn ($record) => filament()->getTenant()->employees()->detach($record)),
             ])
             ->columns([

@@ -20,7 +20,7 @@ class EssentialsSeeder extends Seeder
     {
         Artisan::call('sync:permissions');
         $admin = User::factory()
-            ->admin()
+            ->superAdmin()
             ->createQuietly();
 
         $admin->assignRole(Roles::CompanyOwner);
