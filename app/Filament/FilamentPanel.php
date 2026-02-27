@@ -26,7 +26,7 @@ enum FilamentPanel: string
         $isEmployee = $user->hasAnyRole([Roles::Employee->value]);
 
         return match ($panel) {
-            self::User => $isEmployee,
+            self::User => $isEmployee || $isAdmin,
             self::Admin => ($user->hasVerifiedEmail() && $isAdmin),
             self::Company => $isAdmin || $isCompanyOwner,
             self::Consultant => $isAdmin,
