@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Tenant\Filament\Actions;
 
+use App\Models\Users\User;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
@@ -10,6 +11,7 @@ use Filament\Schemas\Components\Grid;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Cashier\Subscription;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class CreateAndAttachAction extends CreateAction
@@ -26,7 +28,10 @@ class CreateAndAttachAction extends CreateAction
         $this->disabled(fn (): bool => $this->isSubscriptionCapacityExceeded());
 
         $this->after(
-            fn ($record) => filament()->getTenant()->employees()->attach($record, ['role' => 'employee'])
+            function (User $record) {
+                filament()->getTenant()->employees()->attach($record);
+                $record->assignRole(Roles::Employee);
+            }
         );
 
         $this->schema($this->buildFormSchema());

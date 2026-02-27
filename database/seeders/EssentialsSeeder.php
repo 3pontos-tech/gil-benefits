@@ -5,10 +5,11 @@ namespace Database\Seeders;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 
 class EssentialsSeeder extends Seeder
 {
@@ -21,6 +22,9 @@ class EssentialsSeeder extends Seeder
             ->admin()
             ->create();
 
+        Artisan::call('sync:permissions');
+        $admin->assignRole(Roles::CompanyOwner);
+
         $appUser = User::factory()
             ->has(Detail::factory())
             ->create([
@@ -29,13 +33,15 @@ class EssentialsSeeder extends Seeder
                 'password' => Hash::make('admin'),
             ]);
 
+        $appUser->assignRole(Roles::Employee->value);
+
         $company = Company::factory()->create([
             'name' => '5Pontos',
             'slug' => '5pontos',
             'user_id' => $admin->id,
         ]);
 
-        $company->employees()->attach($appUser, ['role' => CompanyRoleEnum::Employee->value]);
+        $company->employees()->attach($appUser);
 
         Appointment::factory()
             ->count(5)
@@ -44,12 +50,8 @@ class EssentialsSeeder extends Seeder
                 'company_id' => $company->getKey(),
             ]);
 
-        $company->employees()->attach($admin, [
-            'role' => CompanyRoleEnum::Owner->value,
-        ]);
+        $company->employees()->attach($admin);
 
-        $company->employees()->attach(User::factory()->adminCompanyEmployee()->create(), [
-            'role' => CompanyRoleEnum::Employee->value,
-        ]);
+        $company->employees()->attach(User::factory()->adminCompanyEmployee()->create());
     }
 }

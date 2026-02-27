@@ -15,8 +15,8 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
-use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Filament\Actions\CreateAndAttachAction;
 use TresPontosTech\Tenant\Filament\Actions\TenantSeatsCounterAction;
 use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
@@ -24,6 +24,11 @@ use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
 class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 {
     use InteractsWithTable;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()->isAdmin() or auth()->user()->isCompanyOwner();
+    }
 
     public static function getLabel(): string
     {
@@ -84,9 +89,9 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('role')
-                    ->color(fn ($state) => CompanyRoleEnum::from($state)->getColor())
-                    ->formatStateUsing(fn ($state) => CompanyRoleEnum::from($state)->getLabel())
+                TextColumn::make('roles.name')
+                    ->color(fn ($state) => Roles::from($state)->getColor())
+                    ->formatStateUsing(fn ($state) => Roles::from($state)->getLabel())
                     ->badge(),
             ]);
     }

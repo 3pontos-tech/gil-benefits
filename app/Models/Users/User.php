@@ -25,6 +25,7 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
 
@@ -168,6 +169,16 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                 });
             }
         )->shouldCache();
+    }
+
+    public function isAdmin(): bool
+    {
+        return auth()->user()->hasAnyRole([Roles::SuperAdmin, Roles::Admin]);
+    }
+
+    public function isCompanyOwner(): bool
+    {
+        return auth()->user()->hasRole([Roles::CompanyOwner]);
     }
 
     public function forgetMonthlyAppointmentsLeftCache(): void

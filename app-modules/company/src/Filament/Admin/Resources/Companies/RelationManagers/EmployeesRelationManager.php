@@ -3,12 +3,11 @@
 namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\RelationManagers;
 
 use App\Filament\Admin\Resources\Users\UserResource;
-use Filament\Actions\AttachAction;
-use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use TresPontosTech\Company\Enums\CompanyRoleEnum;
+use TresPontosTech\Permissions\Filament\Admin\Resources\Permissions\Actions\AssignRoleAction;
+use TresPontosTech\Permissions\Roles;
 
 class EmployeesRelationManager extends RelationManager
 {
@@ -25,23 +24,14 @@ class EmployeesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('name'),
                 TextColumn::make('email'),
-                TextColumn::make('pivot.role')
+                TextColumn::make('roles.name')
                     ->label('Role')
+                    ->formatStateUsing(fn ($state): string => Roles::from($state)->getLabel())
+                    ->color(fn ($state): array => Roles::from($state)->getColor())
                     ->badge(),
             ])
             ->headerActions([
-                AttachAction::make()
-                    ->recordTitleAttribute('name')
-                    ->recordSelectOptionsQuery(fn ($query) => $query->orderBy('name'))
-                    ->preloadRecordSelect()
-                    ->schema(fn (AttachAction $action): array => [
-                        $action->getRecordSelect(),
-                        Select::make('role')
-                            ->label('Company Role')
-                            ->options(CompanyRoleEnum::class)
-                            ->required()
-                            ->default(CompanyRoleEnum::Employee->value),
-                    ]),
+                AssignRoleAction::make(),
             ]);
     }
 }

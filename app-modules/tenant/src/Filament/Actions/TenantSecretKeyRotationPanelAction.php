@@ -20,6 +20,7 @@ class TenantSecretKeyRotationPanelAction extends Action
         parent::setUp();
         $this->label('Gerar nova chave');
         $this->icon(Heroicon::ArrowPath);
+        $this->visible(fn () => auth()->user()->isAdmin() or auth()->user()->isCompanyOwner());
         $this->action(fn () => $this->rotateKey());
     }
 

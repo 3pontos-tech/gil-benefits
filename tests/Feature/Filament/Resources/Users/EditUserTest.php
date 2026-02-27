@@ -1,13 +1,10 @@
 <?php
 
 use App\Filament\Admin\Resources\Users\Pages\EditUser;
-use App\Filament\FilamentPanel;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
-use Filament\Facades\Filament;
 use TresPontosTech\Company\Models\Company;
 
-use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 

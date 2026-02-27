@@ -1,14 +1,12 @@
 <?php
 
 use App\Filament\FilamentPanel;
-use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Actions\TenantSecretKeyRotationAction;
 use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
 use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditTenantProfile;
 
-use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -18,8 +16,7 @@ beforeEach(function (): void {
         'stripe_id' => '12345',
         'stripe_status' => 'active',
     ]);
-    actingAs(User::factory()->create());
-    filament()->setCurrentPanel(FilamentPanel::Company->value);
+    actingAsAdmin(FilamentPanel::Company);
     filament()->setTenant($this->company);
 });
 
