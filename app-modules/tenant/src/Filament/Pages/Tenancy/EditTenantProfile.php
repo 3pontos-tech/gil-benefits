@@ -30,6 +30,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
         if (auth()->user()->isAdmin()) {
             return true;
         }
+
         return auth()->user()->isCompanyOwner();
     }
 

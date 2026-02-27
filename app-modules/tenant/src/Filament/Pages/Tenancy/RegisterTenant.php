@@ -18,6 +18,10 @@ class RegisterTenant extends BaseRegisterTenant
         /** @var Company $tenant */
         $tenant = filament()->getTenant();
 
+        if (is_null($tenant)) {
+            return true;
+        }
+
         return ! $tenant->subscribed('company');
     }
 

@@ -35,7 +35,7 @@ enum Roles: string implements HasColor, HasLabel
     public function getLabel(): string
     {
         return match ($this) {
-            self::CompanyOwner => 'Administrador',
+            self::CompanyOwner => 'Dono da Empresa',
             self::CompanyManager => 'Gerente',
             self::Employee => 'Funcionário',
             self::SuperAdmin => 'Super Admin',
