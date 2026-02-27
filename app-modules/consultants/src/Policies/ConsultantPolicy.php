@@ -18,7 +18,7 @@ class ConsultantPolicy
 
     public function view(User $user, Consultant $consultant): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::ViewAny->buildPermissionFor(Consultant::class));
+        return $user->hasPermissionTo(PermissionsEnum::View->buildPermissionFor(Consultant::class));
     }
 
     public function create(User $user): bool

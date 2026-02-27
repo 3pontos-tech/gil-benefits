@@ -58,9 +58,11 @@ essentials-seeder: ## Run the essentials seeder
 	@echo "Running Essentials Seeder..."
 	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Essentials Seeder completed."
+	@echo "Seeding Stripe"
+	@php artisan billing:sync-stripe
 
 .PHONY: stripe-listen
-stripe-listen:
+stripe-listen: ##Run Stripe Webhook
 	stripe listen --forward-to localhost:8000/stripe/webhook
 
 .PHONY: stripe-fresh
