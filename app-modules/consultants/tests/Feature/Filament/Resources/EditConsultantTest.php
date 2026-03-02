@@ -1,16 +1,14 @@
 <?php
 
 use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\EditConsultant;
-use App\Models\Users\User;
 use Filament\Facades\Filament;
 use TresPontosTech\Consultants\Models\Consultant;
 
-use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
     Filament::setCurrentPanel('admin');
-    actingAs(User::factory()->admin()->create());
+    actingAsAdmin();
     $this->consultant = Consultant::factory()->createOne();
 });
 

@@ -5,8 +5,8 @@ namespace TresPontosTech\Tenant\Models;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 
 class TenantMember extends Pivot
 {
@@ -18,7 +18,7 @@ class TenantMember extends Pivot
     ];
 
     protected $casts = [
-        'role' => CompanyRoleEnum::class,
+        'role' => Roles::class,
         'active' => 'boolean',
     ];
 

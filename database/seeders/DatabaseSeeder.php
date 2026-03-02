@@ -5,9 +5,9 @@ namespace Database\Seeders;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
-use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Permissions\Roles;
 
 class DatabaseSeeder extends Seeder
 {
@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->generateCompanies();
 
         $admin = User::factory()->admin()->create();
-        Company::all()->each(fn ($company) => $company->employees()->attach($admin, ['role' => CompanyRoleEnum::Owner->value]));
+        Company::all()->each(fn ($company) => $company->employees()->attach($admin));
         Company::query()->inRandomOrder()->first()->update(['slug' => 'my-company']);
     }
 
@@ -38,9 +38,9 @@ class DatabaseSeeder extends Seeder
             ->count(3)
             ->afterCreating(function (Company $company): void {
                 $roles = [
-                    ['role' => CompanyRoleEnum::Owner->value],
-                    ['role' => CompanyRoleEnum::Manager->value],
-                    ['role' => CompanyRoleEnum::Employee->value],
+                    ['role' => Roles::CompanyOwner->value],
+                    ['role' => Roles::CompanyManager->value],
+                    ['role' => Roles::Employee->value],
                 ];
                 foreach ($roles as $role) {
                     $company->employees()->attach(
@@ -56,6 +56,7 @@ class DatabaseSeeder extends Seeder
     private function generateUsers(): void
     {
         $ownedCompany = User::factory()->companyOwner()->create();
+
         $employee = User::factory()->employee()->create();
 
         $company = Company::factory()
@@ -63,12 +64,8 @@ class DatabaseSeeder extends Seeder
                 'user_id' => $ownedCompany->id,
             ]);
 
-        $company->employees()->attach($employee, [
-            'role' => CompanyRoleEnum::Employee->value,
-        ]);
+        $company->employees()->attach($employee);
 
-        $ownedCompany->companies()->attach($company, [
-            'role' => CompanyRoleEnum::Owner->value,
-        ]);
+        $ownedCompany->companies()->attach($company);
     }
 }

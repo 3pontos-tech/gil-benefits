@@ -2,13 +2,18 @@
 
 namespace App\Models\Users;
 
+use App\Filament\FilamentPanel;
+use App\Observers\UserObserver;
 use App\Policies\Users\UserPolicy;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -19,19 +24,24 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Cashier\Billable;
+use Spatie\Permission\Traits\HasRoles;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
 
 #[UsePolicy(UserPolicy::class)]
+#[ObservedBy(UserObserver::class)]
 class User extends Authenticatable implements FilamentUser, HasTenants
 {
     use Billable;
     use HasFactory;
+    use HasRoles;
     use HasTenant;
+    use HasUuids;
     use Notifiable;
     use SoftDeletes;
 
@@ -60,7 +70,12 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        return FilamentPanel::canAccessPanel($panel, $this);
+    }
+
+    public function canAccessTenant(Model $tenant): bool
+    {
+        return $this->companies()->whereKey($tenant)->exists();
     }
 
     public function companies(): BelongsToMany
@@ -164,6 +179,21 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                 });
             }
         )->shouldCache();
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasAnyRole([Roles::SuperAdmin, Roles::Admin]);
+    }
+
+    public function isCompanyOwner(): bool
+    {
+        return $this->hasRole([Roles::CompanyOwner]);
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->hasRole(Roles::Employee);
     }
 
     public function forgetMonthlyAppointmentsLeftCache(): void

@@ -9,6 +9,7 @@ use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 use Ramsey\Uuid\Uuid;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 
 class RegisterTenant extends BaseRegisterTenant
 {
@@ -16,6 +17,10 @@ class RegisterTenant extends BaseRegisterTenant
     {
         /** @var Company $tenant */
         $tenant = filament()->getTenant();
+
+        if (is_null($tenant)) {
+            return true;
+        }
 
         return ! $tenant->subscribed('company');
     }
@@ -49,6 +54,7 @@ class RegisterTenant extends BaseRegisterTenant
         $user = auth()->user();
         $company = $user->ownedCompanies()->create($data);
         $user->companies()->attach($company);
+        $user->assignRole(Roles::CompanyOwner);
 
         return $company;
     }

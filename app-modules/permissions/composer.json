@@ -1,0 +1,27 @@
+ {
+    "name": "3pontos-tech/permissions",
+    "description": "",
+    "type": "library",
+    "version": "1.0.0",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "TresPontosTech\\Permissions\\": "src/",
+            "TresPontosTech\\Permissions\\Database\\Factories\\": "database/factories/",
+            "TresPontosTech\\Permissions\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TresPontosTech\\Permissions\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TresPontosTech\\Permissions\\PermissionsServiceProvider"
+            ]
+        }
+    }
+}

@@ -15,8 +15,8 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
-use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Filament\Actions\CreateAndAttachAction;
 use TresPontosTech\Tenant\Filament\Actions\TenantSeatsCounterAction;
 use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
@@ -24,6 +24,15 @@ use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
 class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 {
     use InteractsWithTable;
+
+    public static function canAccess(): bool
+    {
+        if (auth()->user()->isAdmin()) {
+            return true;
+        }
+
+        return auth()->user()->isCompanyOwner() && auth()->user()->ownedCompanies()->where('slug', filament()->getTenant()->slug)->exists();
+    }
 
     public static function getLabel(): string
     {
@@ -39,14 +48,21 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->live(onBlur: true, debounce: 500)
                     ->afterStateUpdated(function (Set $set, $state): void {
                         $set('slug', Str::slug($state));
-                    }),
+                    })
+                    ->readOnly(),
                 TextInput::make('tax_id')
-                    ->mask('99.999.999/9999-99'),
+                    ->mask('99.999.999/9999-99')
+                    ->readOnly(),
                 TextInput::make('integration_access_key')
                     ->readOnly()
                     ->live(),
             ])
             ->columns(3);
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()->hidden();
     }
 
     public function table(Table $table): Table
@@ -72,7 +88,6 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                         ]);
                     }),
                 DetachAction::make()
-
                     ->action(fn ($record) => filament()->getTenant()->employees()->detach($record)),
             ])
             ->columns([
@@ -84,9 +99,9 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->searchable(),
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('role')
-                    ->color(fn ($state) => CompanyRoleEnum::from($state)->getColor())
-                    ->formatStateUsing(fn ($state) => CompanyRoleEnum::from($state)->getLabel())
+                TextColumn::make('roles.name')
+                    ->color(fn ($state) => Roles::from($state)->getColor())
+                    ->formatStateUsing(fn ($state) => Roles::from($state)->getLabel())
                     ->badge(),
             ]);
     }
