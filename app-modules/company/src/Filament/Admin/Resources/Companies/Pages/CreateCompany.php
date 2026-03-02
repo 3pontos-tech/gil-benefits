@@ -2,10 +2,11 @@
 
 namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages;
 
+use App\Models\Users\User;
 use Filament\Resources\Pages\CreateRecord;
 use Ramsey\Uuid\Uuid;
-use TresPontosTech\Company\Enums\CompanyRoleEnum;
 use TresPontosTech\Company\Filament\Admin\Resources\Companies\CompanyResource;
+use TresPontosTech\Permissions\Roles;
 
 class CreateCompany extends CreateRecord
 {
@@ -15,10 +16,12 @@ class CreateCompany extends CreateRecord
     {
         $this->record->employees()->sync([
             $this->record->user_id => [
-                'role' => CompanyRoleEnum::Owner->value,
                 'active' => true,
             ],
         ]);
+        $owner = User::query()->find($this->record->user_id);
+
+        $owner->assignRole(Roles::CompanyOwner);
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
