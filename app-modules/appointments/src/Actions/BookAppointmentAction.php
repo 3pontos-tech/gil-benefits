@@ -3,7 +3,6 @@
 namespace TresPontosTech\Appointments\Actions;
 
 use App\Models\Users\User;
-use Ramsey\Uuid\Uuid;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 

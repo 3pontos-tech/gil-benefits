@@ -65,7 +65,7 @@ class SchedulesRelationManager extends RelationManager
                         $data['periods'] = $record->periods
                             ->map(fn ($p): array => [
                                 'start_time' => $p->start_time,
-                                'end_time'   => $p->end_time,
+                                'end_time' => $p->end_time,
                             ])
                             ->values()
                             ->all();
@@ -82,9 +82,9 @@ class SchedulesRelationManager extends RelationManager
 
                         foreach ($periods as $period) {
                             $record->periods()->create([
-                                'start_time'   => $period['start_time'],
-                                'end_time'     => $period['end_time'],
-                                'date'         => $record->start_date,
+                                'start_time' => $period['start_time'],
+                                'end_time' => $period['end_time'],
+                                'date' => $record->start_date,
                                 'is_available' => true,
                             ]);
                         }
