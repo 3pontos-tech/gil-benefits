@@ -30,4 +30,22 @@ class AppointmentFactory extends Factory
             'updated_at' => Date::now(),
         ];
     }
+
+    public function withoutConsultant(): self
+    {
+        return $this->state(function (array $attributes): array {
+            return [
+                'consultant_id' => null,
+            ];
+        });
+    }
+
+    public function draft(): self
+    {
+        return $this->state(function (array $attributes): array {
+            return [
+                'status' => AppointmentStatus::Draft,
+            ];
+        });
+    }
 }

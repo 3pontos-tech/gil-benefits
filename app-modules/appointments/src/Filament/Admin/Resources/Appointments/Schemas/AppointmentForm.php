@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Consultant;
 
 class AppointmentForm
@@ -28,7 +29,7 @@ class AppointmentForm
                     ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
                 Select::make('consultant_id')
                     ->label(__('appointments::resources.appointments.table.columns.consultant'))
-                    ->options(function (Get $get) {
+                    ->options(function (Get $get, Appointment $record) {
                         $appointmentAt = $get('appointment_at');
 
                         if (! $appointmentAt) {
@@ -38,11 +39,18 @@ class AppointmentForm
                         $date = Date::parse($appointmentAt);
 
                         return Consultant::all()
-                            ->filter(fn (Consultant $c): bool => $c->isBookableAtTime(
-                                $date->format('Y-m-d'),
-                                $date->format('H:i'),
-                                $date->copy()->addHour()->format('H:i'),
-                            ))
+                            ->filter(function (Consultant $c) use ($date, $record): bool {
+
+                                if ($record->consultant_id === $c->getKey()) {
+                                    return true;
+                                }
+
+                                return $c->isBookableAtTime(
+                                    $date->format('Y-m-d'),
+                                    $date->format('H:i'),
+                                    $date->copy()->addHour()->format('H:i'),
+                                );
+                            })
                             ->pluck('name', 'id');
                     })
                     ->reactive()
