@@ -3,6 +3,7 @@
 namespace TresPontosTech\Appointments\Filament\Admin\Resources\Appointments\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class AppointmentInfolist
@@ -20,6 +21,10 @@ class AppointmentInfolist
                     ->dateTime(),
                 TextEntry::make('updated_at')
                     ->dateTime(),
+                TextEntry::make('notes')
+                    ->label(__('appointments::resources.appointments.wizard.labels.notes'))
+                    ->placeholder('-')
+                    ->columnSpanFull(),
             ]);
     }
 }

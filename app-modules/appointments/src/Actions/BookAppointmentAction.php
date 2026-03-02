@@ -17,8 +17,6 @@ readonly class BookAppointmentAction
         $user->appointments()->create([
             ...$payload->jsonSerialize(),
             'status' => AppointmentStatus::Pending,
-            'external_opportunity_id' => Uuid::uuid4()->toString(),
-            'external_appointment_id' => Uuid::uuid4()->toString(),
         ]);
     }
 }

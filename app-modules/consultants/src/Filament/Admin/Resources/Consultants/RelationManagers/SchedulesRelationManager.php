@@ -4,6 +4,7 @@ namespace TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Relati
 
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
@@ -12,6 +13,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Zap\Enums\Frequency;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
@@ -31,18 +33,11 @@ class SchedulesRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('name')
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('schedule_type', ScheduleTypes::AVAILABILITY->value))
             ->columns([
                 TextColumn::make('name')
                     ->label(__('consultants::resources.schedules.table.columns.name'))
                     ->searchable(),
-                TextColumn::make('schedule_type')
-                    ->label(__('consultants::resources.schedules.table.columns.type'))
-                    ->badge()
-                    ->color(fn (ScheduleTypes $state): string => match ($state) {
-                        ScheduleTypes::AVAILABILITY => 'success',
-                        ScheduleTypes::BLOCKED => 'danger',
-                        default => 'gray',
-                    }),
                 TextColumn::make('frequency_config')
                     ->label(__('consultants::resources.schedules.table.columns.days'))
                     ->state(fn (Schedule $record): string => collect($record->frequency_config?->days ?? [])
@@ -64,45 +59,80 @@ class SchedulesRelationManager extends RelationManager
                 $this->createBlockedAction(),
             ])
             ->recordActions([
+                EditAction::make()
+                    ->form($this->availabilityFormSchema())
+                    ->mutateRecordDataUsing(function (array $data, Schedule $record): array {
+                        $data['periods'] = $record->periods
+                            ->map(fn ($p): array => [
+                                'start_time' => $p->start_time,
+                                'end_time'   => $p->end_time,
+                            ])
+                            ->values()
+                            ->all();
+
+                        return $data;
+                    })
+                    ->using(function (Schedule $record, array $data): void {
+                        $periods = $data['periods'] ?? [];
+                        unset($data['periods']);
+
+                        $record->update($data);
+
+                        $record->periods()->delete();
+
+                        foreach ($periods as $period) {
+                            $record->periods()->create([
+                                'start_time'   => $period['start_time'],
+                                'end_time'     => $period['end_time'],
+                                'date'         => $record->start_date,
+                                'is_available' => true,
+                            ]);
+                        }
+                    }),
                 DeleteAction::make(),
             ]);
+    }
+
+    private function availabilityFormSchema(): array
+    {
+        return [
+            TextInput::make('name')
+                ->label(__('consultants::resources.schedules.form.name'))
+                ->required()
+                ->placeholder(__('consultants::resources.schedules.form.placeholder_name_availability')),
+
+            CheckboxList::make('frequency_config.days')
+                ->label(__('consultants::resources.schedules.form.days_of_week'))
+                ->options(collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
+                    ->mapWithKeys(fn (string $day): array => [$day => __('consultants::resources.schedules.days.' . $day)])
+                    ->all())
+                ->required()
+                ->columns(4),
+
+            Repeater::make('periods')
+                ->label(__('consultants::resources.schedules.form.time_periods'))
+                ->schema([
+                    TextInput::make('start_time')
+                        ->label(__('consultants::resources.schedules.form.start'))
+                        ->type('time')
+                        ->required(),
+                    TextInput::make('end_time')
+                        ->label(__('consultants::resources.schedules.form.end'))
+                        ->type('time')
+                        ->required(),
+                ])
+                ->columns(2)
+                ->defaultItems(1)
+                ->minItems(1)
+                ->required(),
+        ];
     }
 
     private function createAvailabilityAction(): CreateAction
     {
         return CreateAction::make('create_availability')
             ->label(__('consultants::resources.schedules.actions.add_availability'))
-            ->form([
-                TextInput::make('name')
-                    ->label(__('consultants::resources.schedules.form.name'))
-                    ->required()
-                    ->placeholder(__('consultants::resources.schedules.form.placeholder_name_availability')),
-
-                CheckboxList::make('frequency_config.days')
-                    ->label(__('consultants::resources.schedules.form.days_of_week'))
-                    ->options(collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
-                        ->mapWithKeys(fn (string $day): array => [$day => __('consultants::resources.schedules.days.' . $day)])
-                        ->all())
-                    ->required()
-                    ->columns(4),
-
-                Repeater::make('periods')
-                    ->label(__('consultants::resources.schedules.form.time_periods'))
-                    ->schema([
-                        TextInput::make('start_time')
-                            ->label(__('consultants::resources.schedules.form.start'))
-                            ->type('time')
-                            ->required(),
-                        TextInput::make('end_time')
-                            ->label(__('consultants::resources.schedules.form.end'))
-                            ->type('time')
-                            ->required(),
-                    ])
-                    ->columns(2)
-                    ->defaultItems(1)
-                    ->minItems(1)
-                    ->required(),
-            ])
+            ->form($this->availabilityFormSchema())
             ->mutateFormDataUsing(function (array $data): array {
                 $data['_periods'] = $data['periods'] ?? [];
                 unset($data['periods']);
