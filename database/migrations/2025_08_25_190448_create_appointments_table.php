@@ -12,12 +12,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('consultant_id')->nullable()->constrained('consultants');
             $table->foreignUuid('user_id')->constrained('users');
-            $table->string('external_opportunity_id');
-            $table->string('external_appointment_id');
 
             $table->string('category_type');
             $table->timestamp('appointment_at');
             $table->string('status');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }

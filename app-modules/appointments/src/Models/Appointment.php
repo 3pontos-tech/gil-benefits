@@ -26,6 +26,7 @@ class Appointment extends Model
         'status',
         'monday_item_id',
         'meeting_url',
+        'notes',
     ];
 
     protected function casts(): array

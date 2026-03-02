@@ -63,7 +63,7 @@ class AppointmentWizard
                     ViewField::make('summary')
                         ->label(__('appointments::resources.appointments.wizard.labels.summary'))
                         ->view('forms.fields.appointment-summary'),
-                    Textarea::make('note')->label(__('appointments::resources.appointments.wizard.labels.notes'))->rows(3),
+                    Textarea::make('notes')->label(__('appointments::resources.appointments.wizard.labels.notes'))->rows(3),
                 ]),
         ])
             ->columnSpanFull()

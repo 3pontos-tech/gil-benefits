@@ -20,6 +20,10 @@ class AppointmentInfolist
                     ->dateTime(),
                 TextEntry::make('updated_at')
                     ->dateTime(),
+                TextEntry::make('notes')
+                    ->label(__('appointments::resources.appointments.wizard.labels.notes'))
+                    ->placeholder('-')
+                    ->columnSpanFull(),
             ]);
     }
 }

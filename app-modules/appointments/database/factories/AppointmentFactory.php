@@ -22,9 +22,6 @@ class AppointmentFactory extends Factory
             'user_id' => User::factory(),
             'company_id' => Company::factory(),
 
-            'external_opportunity_id' => $this->faker->word(),
-            'external_appointment_id' => $this->faker->word(),
-
             'status' => $this->faker->randomElement(AppointmentStatus::cases()),
             'category_type' => $this->faker->randomElement(AppointmentCategoryEnum::cases()),
 
