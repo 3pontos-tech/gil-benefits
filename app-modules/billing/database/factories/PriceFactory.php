@@ -22,7 +22,7 @@ class PriceFactory extends Factory
             'unit_amount_decimal' => $this->faker->randomNumber(),
             'active' => $this->faker->boolean(),
             'provider_price_id' => $this->faker->word(),
-            'metadata' => $this->faker->words(),
+            'metadata' => json_encode($this->faker->words()),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
             'billing_plan_id' => Plan::factory(),

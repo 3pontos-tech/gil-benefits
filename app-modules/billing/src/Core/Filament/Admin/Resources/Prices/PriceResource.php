@@ -111,7 +111,7 @@ class PriceResource extends Resource
                             ->key('section-provider')
                             ->schema([
                                 TextInput::make('provider_price_id')
-                                    ->disabled()
+                                    ->readOnly()
                                     ->label('Provider Price ID')
                                     ->helperText('Identifier of this price on the payment provider (e.g., Stripe).')
                                     ->required(),
