@@ -3,6 +3,7 @@
 namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\RelationManagers;
 
 use App\Filament\Admin\Resources\Users\UserResource;
+use Filament\Actions\AttachAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -31,6 +32,9 @@ class EmployeesRelationManager extends RelationManager
                     ->badge(),
             ])
             ->headerActions([
+                AttachAction::make(),
+            ])
+            ->recordActions([
                 AssignRoleAction::make(),
             ]);
     }

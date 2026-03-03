@@ -21,12 +21,15 @@ class CompanyForm
                 TextInput::make('name')
                     ->maxLength(255)
                     ->live(onBlur: true, debounce: 500)
-                    ->afterStateUpdated(function (Set $set, $state): void {
-                        $set('slug', Str::slug($state));
+                    ->afterStateUpdated(function (Set $set, string $state): void {
+                        $slug = sprintf('%s-%s', $state, Str::random(4));
+                        $set('slug', str($slug)->slug());
                     }),
                 TextInput::make('slug')
                     ->required()
-                    ->maxLength(255),
+                    ->readOnly()
+                    ->maxLength(255)
+                    ->unique('companies', 'slug'),
                 TextInput::make('tax_id')
                     ->mask('99.999.999/9999-99')
                     ->required(),
