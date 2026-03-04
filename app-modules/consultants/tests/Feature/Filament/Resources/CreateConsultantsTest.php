@@ -1,10 +1,10 @@
 <?php
 
 use App\Enums\AvailableTagsEnum;
-use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\CreateConsultant;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Pages\CreateConsultant;
 use TresPontosTech\Consultants\Models\Consultant;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -19,7 +19,7 @@ it('should render', function (): void {
         ->assertOk();
 });
 
-it('should be able to register an consultant', function (): void {
+it('should be able to register a consultant', function (): void {
 
     Storage::fake('public');
     $image = UploadedFile::fake()->image('image.jpg');
