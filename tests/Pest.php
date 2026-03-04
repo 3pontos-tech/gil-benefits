@@ -72,3 +72,15 @@ function actingAsAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
 
     return $user;
 }
+function actingAsSuperAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    Artisan::call('sync:permissions');
+
+    $user = User::factory()->admin()->create();
+    $user->assignRole(Roles::SuperAdmin->value);
+
+    filament()->setCurrentPanel($panel->value);
+    actingAs($user);
+
+    return $user;
+}
