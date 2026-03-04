@@ -21,11 +21,11 @@ class AppointmentPendingStep extends AbstractAppointmentStep
             ->sendToDatabase($this->appointment->user)
             ->send();
 
-        Notification::make()
-            ->title('New Appointment')
-            ->body('A new appointment has been created. Please check and confirm.')
-            ->success()
-            ->sendToDatabase($this->appointment->consultant)
-            ->send();
+        //        Notification::make()
+        //            ->title('New Appointment')
+        //            ->body('A new appointment has been created. Please check and confirm.')
+        //            ->success()
+        //            ->sendToDatabase($this->appointment->consultant)
+        //            ->send();
     }
 }

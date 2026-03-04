@@ -48,4 +48,13 @@ class AppointmentFactory extends Factory
             ];
         });
     }
+
+    public function withStatus(AppointmentStatus $status = AppointmentStatus::Draft): self
+    {
+        return $this->state(function () use ($status): array {
+            return [
+                'status' => $status,
+            ];
+        });
+    }
 }
