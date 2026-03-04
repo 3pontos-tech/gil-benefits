@@ -14,12 +14,34 @@ readonly class UpsertBlockedScheduleAction
         $startDate = $event->start->toDateString();
         $startTime = $event->start->format('H:i');
 
+        $endIsNextMidnight = $event->end->format('H:i') === '00:00'
+            && $event->end->isSameDay($event->start->copy()->addDay());
+
+        $isSameDay = $event->start->isSameDay($event->end) || $endIsNextMidnight;
+
+        // Normalize effective time range for overlap detection
+        if ($event->isAllDay || ! $isSameDay) {
+            $checkStartTime = '00:00';
+            $checkEndTime = '23:59';
+            $checkEndDate = $event->isAllDay
+                ? $event->end->toDateString()
+                : $event->end->copy()->addDay()->toDateString();
+        } else {
+            $checkStartTime = $startTime;
+            $checkEndTime = $endIsNextMidnight ? '23:59' : $event->end->format('H:i');
+            $checkEndDate = $event->start->copy()->addDay()->toDateString();
+        }
+
         $existingAppointment = Schedule::query()
             ->where('schedulable_type', $consultant->getMorphClass())
             ->where('schedulable_id', $consultant->getKey())
             ->where('schedule_type', 'appointment')
-            ->whereHas('periods', fn ($q) => $q->where('start_time', $startTime))
-            ->where('start_date', $startDate)
+            ->where('start_date', '<', $checkEndDate)
+            ->where('end_date', '>', $startDate)
+            ->whereHas('periods', fn ($q) => $q
+                ->where('start_time', '<', $checkEndTime)
+                ->where('end_time', '>', $checkStartTime)
+            )
             ->exists();
 
         if ($existingAppointment) {
@@ -48,16 +70,17 @@ readonly class UpsertBlockedScheduleAction
             return;
         }
 
-        $isSameDay = $event->start->toDateString() === $event->end->toDateString();
-
         if ($isSameDay) {
+            // If event ends exactly at midnight, cap at 23:59 (Zap requires end_time > start_time)
+            $endTime = $endIsNextMidnight ? '23:59' : $event->end->format('H:i');
+
             Zap::for($consultant)
                 ->named($event->summary)
                 ->blocked()
                 ->allowOverlap()
                 ->from($startDate)
                 ->to($event->start->copy()->addDay()->toDateString())
-                ->addPeriod($startTime, $event->end->format('H:i'))
+                ->addPeriod($startTime, $endTime)
                 ->withMetadata(['google_event_id' => $event->eventId, 'source' => 'google-calendar'])
                 ->save();
 

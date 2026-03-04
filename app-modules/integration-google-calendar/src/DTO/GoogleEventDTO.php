@@ -2,8 +2,8 @@
 
 namespace TresPontosTech\IntegrationGoogleCalendar\DTO;
 
-use Illuminate\Support\Facades\Date;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 
 readonly class GoogleEventDTO
 {
