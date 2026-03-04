@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "05bbbb6f65abaefc549a275ab79cece1",
+    "content-hash": "2e4db3cfe4e6c6011ae73ec2614e7f27",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -124,6 +124,38 @@
                     "TresPontosTech\\Consultants\\Tests\\": "tests/",
                     "TresPontosTech\\Consultants\\Database\\Factories\\": "database/factories/",
                     "TresPontosTech\\Consultants\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/integration-google-calendar",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/integration-google-calendar",
+                "reference": "9c4286243a45527221d9685d889a4ba6306e9e23"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\IntegrationGoogleCalendar\\Providers\\IntegrationGoogleCalendarServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\IntegrationGoogleCalendar\\": "src/",
+                    "TresPontosTech\\IntegrationGoogleCalendar\\Tests\\": "tests/",
+                    "TresPontosTech\\IntegrationGoogleCalendar\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\IntegrationGoogleCalendar\\Database\\Seeders\\": "database/seeders/"
                 }
             },
             "license": [
@@ -17480,5 +17512,5 @@
         "php": "^8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

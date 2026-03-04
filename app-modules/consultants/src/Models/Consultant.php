@@ -33,10 +33,12 @@ class Consultant extends Model implements HasMedia
         'readme',
         'socials_urls',
         'crm_id',
+        'google_calendar_synced_at',
     ];
 
     protected $casts = [
         'socials_urls' => 'array',
+        'google_calendar_synced_at' => 'datetime',
     ];
 
     public function languages(): MorphToMany
