@@ -25,20 +25,20 @@ class SyncConsultantCalendarJob implements ShouldQueue
     {
         try {
             $action->handle($this->consultant);
-        } catch (GoogleCalendarApiException $e) {
-            if (! $e->retryable) {
-                Log::warning("Google Calendar sync skipped for consultant {$this->consultant->id}: {$e->getMessage()}");
+        } catch (GoogleCalendarApiException $googleCalendarApiException) {
+            if (! $googleCalendarApiException->retryable) {
+                Log::warning(sprintf('Google Calendar sync skipped for consultant %d: %s', $this->consultant->id, $googleCalendarApiException->getMessage()));
 
                 return;
             }
 
-            throw $e;
+            throw $googleCalendarApiException;
         }
     }
 
     public function failed(\Throwable $exception): void
     {
-        Log::error("Google Calendar sync failed for consultant {$this->consultant->id}", [
+        Log::error('Google Calendar sync failed for consultant ' . $this->consultant->id, [
             'consultant_id' => $this->consultant->id,
             'consultant_email' => $this->consultant->email,
             'error' => $exception->getMessage(),

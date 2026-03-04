@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\IntegrationGoogleCalendar\Console\Commands;
 
+use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Console\Command;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\SyncConsultantCalendarJob;
@@ -14,7 +15,7 @@ class SyncGoogleCalendarsCommand extends Command
 
     public function handle(): void
     {
-        Consultant::whereNotNull('email')
-            ->each(fn ($consultant) => SyncConsultantCalendarJob::dispatch($consultant));
+        Consultant::query()->whereNotNull('email')
+            ->each(fn ($consultant): PendingDispatch => dispatch(new SyncConsultantCalendarJob($consultant)));
     }
 }

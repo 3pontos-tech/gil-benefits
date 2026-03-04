@@ -2,7 +2,7 @@
 
 namespace TresPontosTech\IntegrationGoogleCalendar\Actions;
 
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\GoogleCalendarClient;
 
@@ -19,7 +19,7 @@ readonly class SyncConsultantCalendarAction
     {
         $accessToken = $this->client->getAccessToken($consultant->email);
 
-        $now     = Carbon::now();
+        $now = Date::now();
         $timeMin = $now->copy()->startOfDay()->toRfc3339String();
         $timeMax = $now->copy()->addDays(config('google-calendar.sync_days_ahead'))->endOfDay()->toRfc3339String();
 

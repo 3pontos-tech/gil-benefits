@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\IntegrationGoogleCalendar\DTO;
 
+use Illuminate\Support\Facades\Date;
 use Carbon\Carbon;
 
 readonly class GoogleEventDTO
@@ -23,11 +24,11 @@ readonly class GoogleEventDTO
         $appTimezone = config('app.timezone');
 
         if ($isAllDay) {
-            $start = Carbon::parse($event['start']['date'])->startOfDay();
-            $end = Carbon::parse($event['end']['date'])->startOfDay();
+            $start = Date::parse($event['start']['date'])->startOfDay();
+            $end = Date::parse($event['end']['date'])->startOfDay();
         } else {
-            $start = Carbon::parse($event['start']['dateTime'] ?? now())->setTimezone($appTimezone);
-            $end = Carbon::parse($event['end']['dateTime'] ?? now())->setTimezone($appTimezone);
+            $start = Date::parse($event['start']['dateTime'] ?? now())->setTimezone($appTimezone);
+            $end = Date::parse($event['end']['dateTime'] ?? now())->setTimezone($appTimezone);
         }
 
         return new self(

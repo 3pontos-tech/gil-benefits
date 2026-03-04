@@ -15,7 +15,7 @@ readonly class RemoveStaleBlockedSchedulesAction
             ->where('schedule_type', 'blocked')
             ->whereJsonContains('metadata->source', 'google-calendar')
             ->get()
-            ->each(function (Schedule $schedule) use ($syncedEventIds) {
+            ->each(function (Schedule $schedule) use ($syncedEventIds): void {
                 $eventId = $schedule->metadata['google_event_id'] ?? null;
 
                 if ($eventId && ! in_array($eventId, $syncedEventIds)) {

@@ -15,7 +15,7 @@ readonly class CalendarEventsResponse
     public static function make(array $payload): self
     {
         $events = collect($payload['items'] ?? [])
-            ->map(fn (array $item) => GoogleEventDTO::fromApiPayload($item));
+            ->map(fn (array $item): GoogleEventDTO => GoogleEventDTO::fromApiPayload($item));
 
         return new self(
             events: $events,

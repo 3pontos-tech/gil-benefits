@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\IntegrationGoogleCalendar;
 
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
 use TresPontosTech\IntegrationGoogleCalendar\Responses\CalendarEventsResponse;
@@ -19,7 +20,7 @@ class GoogleCalendarClient
     {
         $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
             'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion'  => $this->buildJwt($email),
+            'assertion' => $this->buildJwt($email),
         ]);
 
         $error = $response->json('error');
@@ -49,10 +50,10 @@ class GoogleCalendarClient
     ): CalendarEventsResponse {
         $params = [
             'singleEvents' => 'true',
-            'orderBy'      => 'startTime',
-            'maxResults'   => 250,
-            'timeMin'      => $timeMin,
-            'timeMax'      => $timeMax,
+            'orderBy' => 'startTime',
+            'maxResults' => 250,
+            'timeMin' => $timeMin,
+            'timeMax' => $timeMax,
         ];
 
         if (filled($pageToken)) {
@@ -78,16 +79,16 @@ class GoogleCalendarClient
 
     private function buildJwt(string $email): string
     {
-        $now = time();
+        $now = Date::now()->getTimestamp();
 
-        $header   = $this->base64url(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
+        $header = $this->base64url(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
         $claimSet = $this->base64url(json_encode([
-            'iss'   => $this->credentials['client_email'],
-            'sub'   => $email,
+            'iss' => $this->credentials['client_email'],
+            'sub' => $email,
             'scope' => 'https://www.googleapis.com/auth/calendar.readonly',
-            'aud'   => 'https://oauth2.googleapis.com/token',
-            'iat'   => $now,
-            'exp'   => $now + 3600,
+            'aud' => 'https://oauth2.googleapis.com/token',
+            'iat' => $now,
+            'exp' => $now + 3600,
         ]));
 
         $signatureInput = sprintf('%s.%s', $header, $claimSet);
@@ -114,19 +115,9 @@ class GoogleCalendarClient
 
         $credentials = json_decode(file_get_contents($credentialsPath), true);
 
-        if (! is_array($credentials)) {
-            throw new GoogleCalendarApiException(
-                'Google service account credentials file contains invalid JSON',
-                retryable: false,
-            );
-        }
+        throw_unless(is_array($credentials), GoogleCalendarApiException::class, 'Google service account credentials file contains invalid JSON', retryable: false);
 
-        if (blank($credentials['client_email'] ?? null) || blank($credentials['private_key'] ?? null)) {
-            throw new GoogleCalendarApiException(
-                'Google service account credentials file is missing required fields (client_email, private_key)',
-                retryable: false,
-            );
-        }
+        throw_if(blank($credentials['client_email'] ?? null) || blank($credentials['private_key'] ?? null), GoogleCalendarApiException::class, 'Google service account credentials file is missing required fields (client_email, private_key)', retryable: false);
 
         $this->credentials = $credentials;
     }

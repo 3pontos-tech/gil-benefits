@@ -10,18 +10,18 @@ class IntegrationGoogleCalendarServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../../config/google-calendar.php', 'google-calendar');
+        $this->mergeConfigFrom(__DIR__ . '/../../config/google-calendar.php', 'google-calendar');
     }
 
     public function boot(): void
     {
-        $this->loadMigrationsFrom(__DIR__.'/../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
         $this->commands([
             SyncGoogleCalendarsCommand::class,
         ]);
 
-        $this->app->booted(function () {
+        $this->app->booted(function (): void {
             $schedule = $this->app->make(Schedule::class);
             $schedule->command('google-calendar:sync')->everyThirtyMinutes();
         });
