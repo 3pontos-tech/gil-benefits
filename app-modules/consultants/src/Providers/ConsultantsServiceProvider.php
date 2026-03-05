@@ -2,8 +2,6 @@
 
 namespace TresPontosTech\Consultants\Providers;
 
-use App\Filament\FilamentPanel;
-use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
 
 class ConsultantsServiceProvider extends ServiceProvider
@@ -14,10 +12,5 @@ class ConsultantsServiceProvider extends ServiceProvider
     {
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'consultants');
 
-        Panel::configureUsing(function (Panel $panel): void {
-            if ($panel->getId() === 'admin') {
-                $panel->discoverResourcesForPanel('consultants', FilamentPanel::Admin);
-            }
-        });
     }
 }

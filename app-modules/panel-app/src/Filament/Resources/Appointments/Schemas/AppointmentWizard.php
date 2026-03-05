@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Appointments\Filament\App\Resources\Appointments\Schemas;
+namespace TresPontosTech\App\Filament\Resources\Appointments\Schemas;
 
 use App\Filament\Shared\Fields\AppointmentCategorySelector;
 use Filament\Actions\Action;

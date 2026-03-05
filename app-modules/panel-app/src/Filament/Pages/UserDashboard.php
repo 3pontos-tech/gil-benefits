@@ -1,11 +1,11 @@
 <?php
 
-namespace TresPontosTech\User\Filament\App\Pages;
+namespace TresPontosTech\App\Filament\Pages;
 
 use Filament\Pages\Dashboard;
-use TresPontosTech\User\Filament\App\Widgets\AppointmentHistoryWidget;
-use TresPontosTech\User\Filament\App\Widgets\LatestAppointmentWidget;
-use TresPontosTech\User\Filament\App\Widgets\UserCurrentPlanWidget;
+use TresPontosTech\App\Filament\Widgets\AppointmentHistoryWidget;
+use TresPontosTech\App\Filament\Widgets\LatestAppointmentWidget;
+use TresPontosTech\App\Filament\Widgets\UserCurrentPlanWidget;
 
 class UserDashboard extends Dashboard
 {

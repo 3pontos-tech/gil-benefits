@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Billing\Core\Pages;
+namespace TresPontosTech\App\Filament\Pages;
 
 use App\Models\Users\User;
 use Filament\Pages\Page;
@@ -11,7 +11,6 @@ use Laravel\Cashier\Cashier;
 use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
-use TresPontosTech\User\Filament\App\Pages\UserDashboard;
 
 class UserSubscriptionPage extends Page
 {

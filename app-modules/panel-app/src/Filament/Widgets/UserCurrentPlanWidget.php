@@ -1,11 +1,11 @@
 <?php
 
-namespace TresPontosTech\User\Filament\App\Widgets;
+namespace TresPontosTech\App\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
-use TresPontosTech\Appointments\Filament\App\Resources\Appointments\AppointmentResource;
+use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
 class UserCurrentPlanWidget extends Widget

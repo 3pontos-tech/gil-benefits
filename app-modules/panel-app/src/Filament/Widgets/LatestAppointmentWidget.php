@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\User\Filament\App\Widgets;
+namespace TresPontosTech\App\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Widgets\Widget;

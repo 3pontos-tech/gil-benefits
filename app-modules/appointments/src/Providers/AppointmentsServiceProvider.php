@@ -2,8 +2,6 @@
 
 namespace TresPontosTech\Appointments\Providers;
 
-use App\Filament\FilamentPanel;
-use Filament\Panel;
 use Illuminate\Support\ServiceProvider;
 
 class AppointmentsServiceProvider extends ServiceProvider
@@ -15,14 +13,5 @@ class AppointmentsServiceProvider extends ServiceProvider
         // Load package translations for the appointments module
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'appointments');
 
-        Panel::configureUsing(function (Panel $panel): void {
-            if ($panel->getId() === 'admin') {
-                $panel->discoverResourcesForPanel('appointments', FilamentPanel::Admin);
-            }
-
-            if ($panel->getId() === 'app') {
-                $panel->discoverResourcesForPanel('appointments', FilamentPanel::User);
-            }
-        });
     }
 }

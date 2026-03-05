@@ -1,10 +1,10 @@
 <?php
 
-namespace TresPontosTech\Appointments\Filament\App\Resources\Appointments\Pages;
+namespace TresPontosTech\App\Filament\Resources\Appointments\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Appointments\Filament\App\Resources\Appointments\AppointmentResource;
+use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 
 class ListAppointments extends ListRecords
 {

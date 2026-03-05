@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/panel-app",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\App\\": "src/",
+			"TresPontosTech\\App\\Tests\\": "tests/",
+			"TresPontosTech\\App\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\App\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\App\\Providers\\PanelAppServiceProvider"
+			]
+		}
+	}
+}

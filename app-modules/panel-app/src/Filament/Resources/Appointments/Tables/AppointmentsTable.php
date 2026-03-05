@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Appointments\Filament\App\Resources\Appointments\Tables;
+namespace TresPontosTech\App\Filament\Resources\Appointments\Tables;
 
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
