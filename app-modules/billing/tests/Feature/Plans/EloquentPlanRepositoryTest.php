@@ -1,10 +1,10 @@
 <?php
 
-use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Repositories\EloquentPlanRepository;
+use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 
 it('should return an array with plan entities', function (): void {
     $plans = Plan::factory()->active()->count(5)->create();
