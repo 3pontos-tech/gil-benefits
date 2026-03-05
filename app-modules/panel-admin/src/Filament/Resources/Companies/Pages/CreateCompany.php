@@ -1,11 +1,11 @@
 <?php
 
-namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages;
+namespace TresPontosTech\Admin\Filament\Resources\Companies\Pages;
 
 use App\Models\Users\User;
 use Filament\Resources\Pages\CreateRecord;
 use Ramsey\Uuid\Uuid;
-use TresPontosTech\Company\Filament\Admin\Resources\Companies\CompanyResource;
+use TresPontosTech\Admin\Filament\Resources\Companies\CompanyResource;
 use TresPontosTech\Permissions\Roles;
 
 class CreateCompany extends CreateRecord

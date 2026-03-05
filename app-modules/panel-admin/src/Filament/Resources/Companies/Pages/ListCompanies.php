@@ -1,10 +1,10 @@
 <?php
 
-namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages;
+namespace TresPontosTech\Admin\Filament\Resources\Companies\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Company\Filament\Admin\Resources\Companies\CompanyResource;
+use TresPontosTech\Admin\Filament\Resources\Companies\CompanyResource;
 
 class ListCompanies extends ListRecords
 {

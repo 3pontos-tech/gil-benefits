@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\ListCompanies;
+use TresPontosTech\Admin\Filament\Resources\Companies\Pages\ListCompanies;
 use TresPontosTech\Company\Models\Company;
-
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {

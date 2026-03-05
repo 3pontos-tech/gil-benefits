@@ -1,10 +1,10 @@
 <?php
 
-namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages;
+namespace TresPontosTech\Admin\Filament\Resources\Companies\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
-use TresPontosTech\Company\Filament\Admin\Resources\Companies\CompanyResource;
+use TresPontosTech\Admin\Filament\Resources\Companies\CompanyResource;
 use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
 
 class EditCompany extends EditRecord

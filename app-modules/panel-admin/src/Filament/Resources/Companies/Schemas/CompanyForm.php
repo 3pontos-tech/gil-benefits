@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\Schemas;
+namespace TresPontosTech\Admin\Filament\Resources\Companies\Schemas;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;

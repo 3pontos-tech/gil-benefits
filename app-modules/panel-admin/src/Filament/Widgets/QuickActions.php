@@ -4,9 +4,9 @@ namespace TresPontosTech\Admin\Filament\Widgets;
 
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
+use TresPontosTech\Admin\Filament\Resources\Companies\Pages\CreateCompany;
 use TresPontosTech\Admin\Filament\Resources\Users\Pages\CreateUser;
 use TresPontosTech\Admin\Filament\Resources\Users\Pages\ListUsers;
-use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\CreateCompany;
 
 class QuickActions extends Widget
 {

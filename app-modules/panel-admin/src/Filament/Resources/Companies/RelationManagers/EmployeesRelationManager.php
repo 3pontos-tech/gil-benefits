@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\RelationManagers;
+namespace TresPontosTech\Admin\Filament\Resources\Companies\RelationManagers;
 
 use Filament\Actions\AttachAction;
 use Filament\Resources\RelationManagers\RelationManager;
