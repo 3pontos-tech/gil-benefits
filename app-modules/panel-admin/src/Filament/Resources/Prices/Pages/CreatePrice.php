@@ -1,9 +1,9 @@
 <?php
 
-namespace TresPontosTech\Billing\Core\Filament\Admin\Resources\Prices\Pages;
+namespace TresPontosTech\Admin\Filament\Resources\Prices\Pages;
 
 use Filament\Resources\Pages\CreateRecord;
-use TresPontosTech\Billing\Core\Filament\Admin\Resources\Prices\PriceResource;
+use TresPontosTech\Admin\Filament\Resources\Prices\PriceResource;
 
 class CreatePrice extends CreateRecord
 {

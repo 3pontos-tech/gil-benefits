@@ -1,6 +1,6 @@
 <?php
 
-use TresPontosTech\Billing\Core\Filament\Admin\Resources\Prices\Pages\ListPrices;
+use TresPontosTech\Admin\Filament\Resources\Prices\Pages\ListPrices;
 use TresPontosTech\Billing\Core\Models\Price;
 
 use function Pest\Livewire\livewire;

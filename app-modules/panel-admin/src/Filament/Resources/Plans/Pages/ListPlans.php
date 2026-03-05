@@ -1,10 +1,10 @@
 <?php
 
-namespace TresPontosTech\Billing\Core\Filament\Admin\Resources\Plans\Pages;
+namespace TresPontosTech\Admin\Filament\Resources\Plans\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Billing\Core\Filament\Admin\Resources\Plans\PlanResource;
+use TresPontosTech\Admin\Filament\Resources\Plans\PlanResource;
 
 class ListPlans extends ListRecords
 {

@@ -1,16 +1,16 @@
 <?php
 
-namespace TresPontosTech\Billing\Core\Filament\Admin\Resources\Plans\Pages;
+namespace TresPontosTech\Admin\Filament\Resources\Prices\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
-use TresPontosTech\Billing\Core\Filament\Admin\Resources\Plans\PlanResource;
+use TresPontosTech\Admin\Filament\Resources\Prices\PriceResource;
 
-class EditPlan extends EditRecord
+class EditPrice extends EditRecord
 {
-    protected static string $resource = PlanResource::class;
+    protected static string $resource = PriceResource::class;
 
     protected function getHeaderActions(): array
     {
