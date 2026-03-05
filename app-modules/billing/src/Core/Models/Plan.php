@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Database\Factories\PlanFactory;
 
 class Plan extends Model
 {
@@ -46,5 +47,10 @@ class Plan extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'billing_plan_id');
+    }
+
+    protected static function newFactory(): PlanFactory
+    {
+        return PlanFactory::new();
     }
 }

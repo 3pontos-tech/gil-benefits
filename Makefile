@@ -62,7 +62,7 @@ essentials-seeder: ## Run the essentials seeder
 	@php artisan billing:sync-stripe
 
 .PHONY: stripe-listen
-stripe-listen: ##Run Stripe Webhook
+stripe-listen: ## Run Stripe Webhook
 	stripe listen --forward-to localhost:8000/stripe/webhook
 
 .PHONY: stripe-fresh

@@ -1,7 +1,8 @@
 <?php
 
-use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\EditConsultant;
 use Filament\Facades\Filament;
+use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Pages\EditConsultant;
+use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\RelationManagers\SchedulesRelationManager;
 use TresPontosTech\Consultants\Models\Consultant;
 
 use function Pest\Livewire\livewire;
@@ -25,6 +26,13 @@ it('should be able to update the consultant', function (): void {
             'email' => 'joe@doe.com',
             'short_description' => 'updated short description',
             'readme' => 'updated readme',
+            'socials_urls' => [
+                'linkedin' => 'https://www.linkedin.com/in/',
+                'instagram' => 'https://www.instagram.com/',
+                'facebook' => 'https://www.facebook.com/',
+                'twitter' => 'https://www.twitter.com/',
+                'youtube' => 'https://www.youtube.com/',
+            ],
         ])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -35,4 +43,12 @@ it('should be able to update the consultant', function (): void {
         ->and($this->consultant->email)->toBe('joe@doe.com')
         ->and($this->consultant->short_description)->toBe('updated short description')
         ->and($this->consultant->readme)->toBe('updated readme');
+});
+
+test('schedules relation manager', function (): void {
+    livewire(SchedulesRelationManager::class, [
+        'ownerRecord' => $this->consultant,
+        'pageClass' => EditConsultant::class,
+    ])
+        ->assertOk();
 });

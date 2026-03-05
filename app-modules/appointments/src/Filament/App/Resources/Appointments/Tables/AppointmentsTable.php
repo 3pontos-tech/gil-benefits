@@ -4,12 +4,14 @@ namespace TresPontosTech\Appointments\Filament\App\Resources\Appointments\Tables
 
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class AppointmentsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('user_id', auth()->user()->getKey()))
             ->columns([
                 TextColumn::make('consultant.name')
                     ->label(__('appointments::resources.appointments.table.columns.consultant'))

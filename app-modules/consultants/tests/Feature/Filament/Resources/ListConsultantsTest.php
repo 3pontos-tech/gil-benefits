@@ -1,7 +1,7 @@
 <?php
 
-use App\Filament\Admin\Clusters\Partners\Resources\Consultants\Pages\ListConsultants;
 use Filament\Facades\Filament;
+use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Pages\ListConsultants;
 use TresPontosTech\Consultants\Models\Consultant;
 
 use function Pest\Livewire\livewire;

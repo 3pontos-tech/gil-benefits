@@ -33,7 +33,7 @@ class AppointmentFactory extends Factory
 
     public function withoutConsultant(): self
     {
-        return $this->state(function (array $attributes): array {
+        return $this->state(function (): array {
             return [
                 'consultant_id' => null,
             ];
@@ -42,9 +42,18 @@ class AppointmentFactory extends Factory
 
     public function draft(): self
     {
-        return $this->state(function (array $attributes): array {
+        return $this->state(function (): array {
             return [
                 'status' => AppointmentStatus::Draft,
+            ];
+        });
+    }
+
+    public function withStatus(AppointmentStatus $status = AppointmentStatus::Draft): self
+    {
+        return $this->state(function () use ($status): array {
+            return [
+                'status' => $status,
             ];
         });
     }

@@ -16,8 +16,11 @@
     <source>
         <include>
             <directory>app</directory>
-            <directory>app-modules</directory>
+            <directory>app-modules/*/src</directory>
         </include>
+        <exclude>
+            <directory>app-modules/integration-highlevel/</directory>
+        </exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
