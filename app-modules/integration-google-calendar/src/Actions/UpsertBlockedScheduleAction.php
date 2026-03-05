@@ -4,6 +4,7 @@ namespace TresPontosTech\IntegrationGoogleCalendar\Actions;
 
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\DTO\GoogleEventDTO;
+use Zap\Enums\ScheduleTypes;
 use Zap\Facades\Zap;
 use Zap\Models\Schedule;
 
@@ -35,7 +36,7 @@ readonly class UpsertBlockedScheduleAction
         $existingAppointment = Schedule::query()
             ->where('schedulable_type', $consultant->getMorphClass())
             ->where('schedulable_id', $consultant->getKey())
-            ->where('schedule_type', 'appointment')
+            ->where('schedule_type', ScheduleTypes::APPOINTMENT)
             ->where('start_date', '<', $checkEndDate)
             ->where('end_date', '>', $startDate)
             ->whereHas('periods', fn ($q) => $q
@@ -51,7 +52,7 @@ readonly class UpsertBlockedScheduleAction
         Schedule::query()
             ->where('schedulable_type', $consultant->getMorphClass())
             ->where('schedulable_id', $consultant->getKey())
-            ->where('schedule_type', 'blocked')
+            ->where('schedule_type', ScheduleTypes::BLOCKED)
             ->whereJsonContains('metadata->google_event_id', $event->eventId)
             ->delete();
 

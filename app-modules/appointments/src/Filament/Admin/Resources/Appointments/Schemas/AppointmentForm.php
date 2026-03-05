@@ -29,7 +29,7 @@ class AppointmentForm
                     ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
                 Select::make('consultant_id')
                     ->label(__('appointments::resources.appointments.table.columns.consultant'))
-                    ->options(function (Get $get, Appointment $record) {
+                    ->options(function (Get $get, ?Appointment $record) {
                         $appointmentAt = $get('appointment_at');
 
                         if (! $appointmentAt) {
@@ -41,7 +41,7 @@ class AppointmentForm
                         return Consultant::all()
                             ->filter(function (Consultant $c) use ($date, $record): bool {
 
-                                if ($record->consultant_id === $c->getKey()) {
+                                if ($record?->consultant_id === $c->getKey()) {
                                     return true;
                                 }
 

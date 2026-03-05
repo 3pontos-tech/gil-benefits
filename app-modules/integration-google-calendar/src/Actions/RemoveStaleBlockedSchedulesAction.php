@@ -3,6 +3,7 @@
 namespace TresPontosTech\IntegrationGoogleCalendar\Actions;
 
 use TresPontosTech\Consultants\Models\Consultant;
+use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
 
 readonly class RemoveStaleBlockedSchedulesAction
@@ -12,7 +13,7 @@ readonly class RemoveStaleBlockedSchedulesAction
         Schedule::query()
             ->where('schedulable_type', $consultant->getMorphClass())
             ->where('schedulable_id', $consultant->getKey())
-            ->where('schedule_type', 'blocked')
+            ->where('schedule_type', ScheduleTypes::BLOCKED)
             ->whereJsonContains('metadata->source', 'google-calendar')
             ->get()
             ->each(function (Schedule $schedule) use ($syncedEventIds): void {
