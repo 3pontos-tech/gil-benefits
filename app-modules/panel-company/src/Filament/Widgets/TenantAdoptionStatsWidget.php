@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Tenant\Filament\Widgets;
+namespace TresPontosTech\PanelCompany\Filament\Widgets;
 
 use Filament\Facades\Filament;
 use Filament\Support\Colors\Color;

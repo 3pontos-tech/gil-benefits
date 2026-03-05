@@ -35,6 +35,7 @@
         "3pontos-tech/integration-highlevel": "*",
         "3pontos-tech/panel-admin": "*",
         "3pontos-tech/panel-app": "*",
+        "3pontos-tech/panel-company": "*",
         "3pontos-tech/permissions": "^1.0",
         "3pontos-tech/tenant": "*",
         "3pontos-tech/user": "*",

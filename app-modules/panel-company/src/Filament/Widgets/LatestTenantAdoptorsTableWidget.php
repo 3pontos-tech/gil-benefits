@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Tenant\Filament\Widgets;
+namespace TresPontosTech\PanelCompany\Filament\Widgets;
 
 use Filament\Facades\Filament;
 use Filament\Tables\Columns\TextColumn;
@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Builder;
 class LatestTenantAdoptorsTableWidget extends TableWidget
 {
     protected int|string|array $columnSpan = 'full';
+
+    protected static ?int $sort = 19;
 
     public function table(Table $table): Table
     {

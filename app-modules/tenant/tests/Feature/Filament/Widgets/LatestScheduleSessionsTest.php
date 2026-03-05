@@ -1,7 +1,7 @@
 <?php
 
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Tenant\Filament\Widgets\LatestScheduledSessionsTableWidget;
+use TresPontosTech\PanelCompany\Filament\Widgets\LatestScheduledSessionsTableWidget;
 
 use function Pest\Livewire\livewire;
 

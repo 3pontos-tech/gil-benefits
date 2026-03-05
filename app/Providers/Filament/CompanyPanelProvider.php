@@ -20,11 +20,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\Billing\Stripe\Subscription\Company\CompanyBillingProvider;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditTenantProfile;
-use TresPontosTech\Tenant\Filament\Widgets\LatestScheduledSessionsTableWidget;
-use TresPontosTech\Tenant\Filament\Widgets\LatestTenantAdoptorsTableWidget;
-use TresPontosTech\Tenant\Filament\Widgets\TenantAdoptionStatsWidget;
-use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
+use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 
 class CompanyPanelProvider extends PanelProvider
 {
@@ -41,8 +37,10 @@ class CompanyPanelProvider extends PanelProvider
                 'gray' => Color::Zinc,
             ])
             ->viteTheme('resources/css/filament/guest/theme.css')
-            ->discoverResources(in: app_path('Filament/Company/Resources'), for: 'App\\Filament\\Company\\Resources')
-            ->discoverPages(in: app_path('Filament/Company/Pages'), for: 'App\\Filament\\Company\\Pages')
+            ->discoverResources(in: base_path('app-modules/panel-company/src/Filament/Resources'), for: 'TresPontosTech\\PanelCompany\\Filament\\Resources')
+            ->discoverPages(in: base_path('app-modules/panel-company/src/Filament/Pages'), for: 'TresPontosTech\\PanelCompany\\Filament\\Pages')
+            ->discoverWidgets(in: base_path('app-modules/panel-company/src/Filament/Widgets'), for: 'TresPontosTech\\PanelCompany\\Filament\\Widgets')
+            ->discoverClusters(in: base_path('app-modules/panel-company/src/Filament/Clusters'), for: 'TresPontosTech\\PanelCompany\\Filament\\Clusters')
             ->pages([
                 Dashboard::class,
                 TenantSubscriptionPage::class,
@@ -52,12 +50,7 @@ class CompanyPanelProvider extends PanelProvider
             ->tenantProfile(EditTenantProfile::class)
             ->registration()
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
-            ->widgets([
-                TenantPlanStatusStats::class,
-                TenantAdoptionStatsWidget::class,
-                LatestTenantAdoptorsTableWidget::class,
-                LatestScheduledSessionsTableWidget::class,
-            ])
+
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

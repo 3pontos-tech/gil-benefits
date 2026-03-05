@@ -1,7 +1,7 @@
 <?php
 
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
+use TresPontosTech\PanelCompany\Filament\Widgets\TenantPlanStatusStats;
 
 use function Pest\Livewire\livewire;
 

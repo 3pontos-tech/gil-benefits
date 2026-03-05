@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/panel-company",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\PanelCompany\\": "src/",
+			"TresPontosTech\\PanelCompany\\Tests\\": "tests/",
+			"TresPontosTech\\PanelCompany\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\PanelCompany\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\PanelCompany\\Providers\\PanelCompanyServiceProvider"
+			]
+		}
+	}
+}

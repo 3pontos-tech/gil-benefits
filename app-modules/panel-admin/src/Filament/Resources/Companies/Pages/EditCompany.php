@@ -5,7 +5,7 @@ namespace TresPontosTech\Admin\Filament\Resources\Companies\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use TresPontosTech\Admin\Filament\Resources\Companies\CompanyResource;
-use TresPontosTech\Tenant\Filament\Widgets\TenantPlanStatusStats;
+use TresPontosTech\PanelCompany\Filament\Widgets\TenantPlanStatusStats;
 
 class EditCompany extends EditRecord
 {

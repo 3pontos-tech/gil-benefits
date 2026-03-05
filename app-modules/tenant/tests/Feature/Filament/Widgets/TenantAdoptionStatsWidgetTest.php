@@ -1,7 +1,7 @@
 <?php
 
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Tenant\Filament\Widgets\TenantAdoptionStatsWidget;
+use TresPontosTech\PanelCompany\Filament\Widgets\TenantAdoptionStatsWidget;
 
 use function Pest\Livewire\livewire;
 

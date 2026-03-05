@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Tenant\Filament\Widgets;
+namespace TresPontosTech\PanelCompany\Filament\Widgets;
 
 use Filament\Facades\Filament;
 use Filament\Tables\Columns\TextColumn;
@@ -12,6 +12,8 @@ use TresPontosTech\Appointments\Models\Appointment;
 class LatestScheduledSessionsTableWidget extends TableWidget
 {
     protected int|string|array $columnSpan = 'full';
+
+    protected static ?int $sort = 20;
 
     public function table(Table $table): Table
     {

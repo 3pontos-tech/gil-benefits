@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Tenant\Filament\Pages\Tenancy;
+namespace TresPontosTech\PanelCompany\Filament\Pages\Tenancy;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;
@@ -16,10 +16,10 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Actions\CreateAndAttachAction;
+use TresPontosTech\PanelCompany\Filament\Actions\TenantSeatsCounterAction;
+use TresPontosTech\PanelCompany\Filament\Actions\TenantSecretKeyRotationPanelAction;
 use TresPontosTech\Permissions\Roles;
-use TresPontosTech\Tenant\Filament\Actions\CreateAndAttachAction;
-use TresPontosTech\Tenant\Filament\Actions\TenantSeatsCounterAction;
-use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
 
 class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 {
