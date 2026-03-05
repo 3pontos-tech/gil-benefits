@@ -33,4 +33,13 @@ class PlanFactory extends Factory
             'updated_at' => Date::now(),
         ];
     }
+
+    public function active(): self
+    {
+        return $this->state(function (array $attributes): array {
+            return [
+                'active' => true,
+            ];
+        });
+    }
 }

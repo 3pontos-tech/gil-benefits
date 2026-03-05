@@ -30,3 +30,12 @@ it('should notify user', function (): void {
     expect($this->appointment->status)->toBe(AppointmentStatus::Pending);
     Notification::assertNotified('Appointment Drafted');
 });
+
+it('should cancel', function (): void {
+    $sut = new AppointmentDraftStep($this->appointment);
+    $sut->cancel();
+
+    $this->appointment->refresh();
+    expect($this->appointment->status)->toBe(AppointmentStatus::Cancelled);
+    Notification::assertNotified('Appointment Finished!');
+});
