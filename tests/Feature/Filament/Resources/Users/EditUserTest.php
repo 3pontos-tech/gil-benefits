@@ -1,9 +1,9 @@
 <?php
 
-use App\Filament\Admin\Resources\Users\Pages\EditUser;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\EditUser;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;

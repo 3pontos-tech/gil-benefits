@@ -1,6 +1,6 @@
 <?php
 
-use TresPontosTech\Appointments\Filament\Admin\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\Appointments\Models\Appointment;
 
 use function Pest\Livewire\livewire;

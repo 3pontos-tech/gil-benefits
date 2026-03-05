@@ -1,7 +1,7 @@
 <?php
 
-use App\Filament\Admin\Resources\Users\Pages\ListUsers;
 use App\Models\Users\User;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\ListUsers;
 
 use function Pest\Livewire\livewire;
 

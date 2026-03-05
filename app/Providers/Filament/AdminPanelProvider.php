@@ -33,10 +33,10 @@ class AdminPanelProvider extends PanelProvider
                 'zinc' => Color::Zinc,
                 'slate' => Color::Slate,
             ])
-            ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
-            ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
-            ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
-            ->discoverClusters(in: app_path('Filament/Admin/Clusters'), for: 'App\\Filament\\Admin\\Clusters')
+            ->discoverClusters(in: base_path('app-modules/panel-admin/src/Filament/Clusters'), for: 'TresPontosTech\\Admin\\Filament\\Clusters')
+            ->discoverPages(in: base_path('app-modules/panel-admin/src/Filament/Pages'), for: 'TresPontosTech\\Admin\\Filament\\Pages')
+            ->discoverResources(in: base_path('app-modules/panel-admin/src/Filament/Resources'), for: 'TresPontosTech\\Admin\\Filament\\Resources')
+            ->discoverWidgets(in: base_path('app-modules/panel-admin/src/Filament/Widgets'), for: 'TresPontosTech\\Admin\\Filament\\Widgets')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->plugins([
                 FilamentWebhookPlugin::make(),

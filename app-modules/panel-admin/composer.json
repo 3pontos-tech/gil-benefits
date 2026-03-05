@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/panel-admin",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\Admin\\": "src/",
+			"TresPontosTech\\Admin\\Tests\\": "tests/",
+			"TresPontosTech\\Admin\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\Admin\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\Admin\\Providers\\PanelAdminServiceProvider"
+			]
+		}
+	}
+}

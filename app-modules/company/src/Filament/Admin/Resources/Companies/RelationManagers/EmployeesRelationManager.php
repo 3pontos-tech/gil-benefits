@@ -2,11 +2,11 @@
 
 namespace TresPontosTech\Company\Filament\Admin\Resources\Companies\RelationManagers;
 
-use App\Filament\Admin\Resources\Users\UserResource;
 use Filament\Actions\AttachAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use TresPontosTech\Admin\Filament\Resources\Users\UserResource;
 use TresPontosTech\Permissions\Filament\Admin\Resources\Permissions\Actions\AssignRoleAction;
 use TresPontosTech\Permissions\Roles;
 

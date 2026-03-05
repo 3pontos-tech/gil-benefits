@@ -4,7 +4,7 @@ use App\Enums\AvailableTagsEnum;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use TresPontosTech\Consultants\Filament\Admin\Resources\Consultants\Pages\CreateConsultant;
+use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\CreateConsultant;
 use TresPontosTech\Consultants\Models\Consultant;
 
 use function Pest\Laravel\assertDatabaseHas;

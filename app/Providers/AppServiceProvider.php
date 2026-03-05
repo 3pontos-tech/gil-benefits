@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
         Panel::macro('discoverResourcesForPanel', function (string $module, FilamentPanel $panel): void {
             $studlyPanel = str($panel->value)->studly();
 
-            $filamentModulePath = module_path($module, sprintf('src/Filament/%s', $studlyPanel));
+            $filamentModulePath = modules_path($module, sprintf('src/Filament/%s', $studlyPanel));
             $filamentModuleNamespace = sprintf('TresPontosTech\\%s\\Filament\\%s', str($module)->studly(), $studlyPanel);
 
             $in = $filamentModulePath . '/Resources';
