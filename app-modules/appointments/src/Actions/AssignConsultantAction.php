@@ -3,6 +3,7 @@
 namespace TresPontosTech\Appointments\Actions;
 
 use TresPontosTech\Appointments\Models\Appointment;
+use Zap\Enums\ScheduleTypes;
 use Zap\Facades\Zap;
 use Zap\Models\Schedule;
 
@@ -15,7 +16,7 @@ readonly class AssignConsultantAction
         }
 
         Schedule::query()
-            ->where('schedule_type', 'appointment')
+            ->where('schedule_type', ScheduleTypes::APPOINTMENT)
             ->whereJsonContains('metadata->appointment_id', $appointment->id)
             ->delete();
 
