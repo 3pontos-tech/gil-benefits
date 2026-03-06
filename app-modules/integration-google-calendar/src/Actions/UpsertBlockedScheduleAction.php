@@ -41,9 +41,6 @@ readonly class UpsertBlockedScheduleAction
             ->delete();
 
         if ($event->isAllDay) {
-            // Google all-day end.date is exclusive (e.g. Jun/15 event → end: Jun/16).
-            // Zap's forDate uses end_date as inclusive, so we convert to inclusive by subtracting one day.
-            // For a 1-day all-day event the effective end equals start, so we use null (forDate matches start_date only).
             $effectiveEnd = $event->end->copy()->subDay();
             $endDate = $effectiveEnd->isSameDay($event->start)
                 ? null
@@ -63,10 +60,8 @@ readonly class UpsertBlockedScheduleAction
         }
 
         if ($this->isSameDay($event)) {
-            // If event ends exactly at midnight, cap at 23:59 (Zap requires end_time > start_time)
             $endTime = $this->endsAtNextMidnight($event) ? '23:59' : $event->end->format('H:i');
 
-            // Use null end_date so forDate matches only the exact start_date (avoids off-by-one from inclusive end_date)
             Zap::for($consultant)
                 ->named($event->summary)
                 ->blocked()
@@ -80,8 +75,6 @@ readonly class UpsertBlockedScheduleAction
             return;
         }
 
-        // Multi-day timed event: end.dateTime is the actual end moment (not exclusive like all-day).
-        // Zap's forDate treats end_date inclusively, so we use the end date as-is without addDay().
         Zap::for($consultant)
             ->named($event->summary)
             ->blocked()
@@ -122,6 +115,7 @@ readonly class UpsertBlockedScheduleAction
         if ($event->start->isSameDay($event->end)) {
             return true;
         }
+
         return $this->endsAtNextMidnight($event);
     }
 }
