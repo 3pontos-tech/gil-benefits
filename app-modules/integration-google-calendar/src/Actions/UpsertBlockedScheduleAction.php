@@ -29,16 +29,16 @@ readonly class UpsertBlockedScheduleAction
             )
             ->exists();
 
-        if ($existingAppointment) {
-            return;
-        }
-
         Schedule::query()
             ->where('schedulable_type', $consultant->getMorphClass())
             ->where('schedulable_id', $consultant->getKey())
             ->where('schedule_type', ScheduleTypes::BLOCKED)
             ->whereJsonContains('metadata->google_event_id', $event->eventId)
             ->delete();
+
+        if ($existingAppointment) {
+            return;
+        }
 
         if ($event->isAllDay) {
             $effectiveEnd = $event->end->copy()->subDay();
