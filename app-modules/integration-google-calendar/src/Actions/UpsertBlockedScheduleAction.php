@@ -119,6 +119,9 @@ readonly class UpsertBlockedScheduleAction
 
     private function isSameDay(GoogleEventDTO $event): bool
     {
-        return $event->start->isSameDay($event->end) || $this->endsAtNextMidnight($event);
+        if ($event->start->isSameDay($event->end)) {
+            return true;
+        }
+        return $this->endsAtNextMidnight($event);
     }
 }
