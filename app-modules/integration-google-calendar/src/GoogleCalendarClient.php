@@ -92,7 +92,14 @@ class GoogleCalendarClient
         ]));
 
         $signatureInput = sprintf('%s.%s', $header, $claimSet);
-        openssl_sign($signatureInput, $signature, $this->credentials['private_key'], 'SHA256');
+        $signed = openssl_sign($signatureInput, $signature, $this->credentials['private_key'], 'SHA256');
+
+        if (! $signed) {
+            throw new GoogleCalendarApiException(
+                'Failed to sign JWT: ' . openssl_error_string(),
+                retryable: false,
+            );
+        }
 
         return sprintf('%s.%s', $signatureInput, $this->base64url($signature));
     }
