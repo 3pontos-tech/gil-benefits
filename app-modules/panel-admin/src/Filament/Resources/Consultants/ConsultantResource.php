@@ -16,12 +16,15 @@ use TresPontosTech\Admin\Filament\Resources\Consultants\RelationManagers\Schedul
 use TresPontosTech\Admin\Filament\Resources\Consultants\Schemas\ConsultantForm;
 use TresPontosTech\Admin\Filament\Resources\Consultants\Tables\ConsultantsTable;
 use TresPontosTech\Consultants\Models\Consultant;
+use UnitEnum;
 
 class ConsultantResource extends Resource
 {
     protected static ?string $model = Consultant::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Appointments';
 
     public static function form(Schema $schema): Schema
     {

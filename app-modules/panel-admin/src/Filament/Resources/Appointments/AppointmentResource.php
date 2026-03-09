@@ -15,12 +15,15 @@ use TresPontosTech\Admin\Filament\Resources\Appointments\Schemas\AppointmentForm
 use TresPontosTech\Admin\Filament\Resources\Appointments\Schemas\AppointmentInfolist;
 use TresPontosTech\Admin\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use TresPontosTech\Appointments\Models\Appointment;
+use UnitEnum;
 
 class AppointmentResource extends Resource
 {
     protected static ?string $model = Appointment::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDateRange;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Appointments';
 
     public static function form(Schema $schema): Schema
     {

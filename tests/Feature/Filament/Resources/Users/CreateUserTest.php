@@ -17,7 +17,7 @@ it('should render', function (): void {
         ->assertOk();
 });
 
-it('should be able to register an user', function () {
+it('should be able to register a user', function () {
     $company = Company::factory()->createOne();
 
     livewire(CreateUser::class)
@@ -85,5 +85,29 @@ describe('validation tests', function () {
             ->assertHasFormErrors(['password' => $rule]);
     })->with([
         'required' => ['', 'required'],
+    ]);
+
+    test('tax_id field', function ($value, $rule): void {
+        Detail::factory()->state(['tax_id' => '268.717.480-75'])->createOne();
+        livewire(CreateUser::class)
+            ->assertOk()
+            ->set('data.detail.tax_id', $value)
+            ->call('create')
+            ->assertHasFormErrors(['detail.tax_id' => $rule]);
+    })->with([
+        'required' => [null, 'required'],
+        'unique' => ['268.717.480-75', 'unique'],
+    ]);
+
+    test('document_id field', function ($value, $rule): void {
+        Detail::factory()->state(['document_id' => '268.717.480-75'])->createOne();
+        livewire(CreateUser::class)
+            ->assertOk()
+            ->set('data.detail.document_id', $value)
+            ->call('create')
+            ->assertHasFormErrors(['detail.document_id' => $rule]);
+    })->with([
+        'required' => [null, 'required'],
+        'unique' => ['268.717.480-75', 'unique'],
     ]);
 });
