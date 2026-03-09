@@ -6,6 +6,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -59,7 +60,11 @@ class AppointmentForm
                     ->options(AppointmentStatus::class)
                     ->required(),
                 TextInput::make('meeting_url')
-                    ->label(__('appointments::resources.appointments.form.meeting_url')),
+                    ->label(__('appointments::resources.appointments.form.meeting_url'))
+                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) && ! str_starts_with($state, 'http')
+                        ? 'https://' . $state
+                        : $state
+                    ),
             ]);
     }
 }
