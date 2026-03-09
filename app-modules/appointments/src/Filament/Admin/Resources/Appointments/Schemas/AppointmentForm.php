@@ -59,7 +59,18 @@ class AppointmentForm
                     ->options(AppointmentStatus::class)
                     ->required(),
                 TextInput::make('meeting_url')
-                    ->label(__('appointments::resources.appointments.form.meeting_url')),
+                    ->label(__('appointments::resources.appointments.form.meeting_url'))
+                    ->dehydrateStateUsing(function (?string $state): ?string {
+                        if (blank($state)) {
+                            return $state;
+                        }
+
+                        $trimmed = trim($state);
+
+                        return str_starts_with(strtolower($trimmed), 'http')
+                            ? $trimmed
+                            : sprintf('https://%s', $trimmed);
+                    }),
             ]);
     }
 }
