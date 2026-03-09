@@ -60,10 +60,17 @@ class AppointmentForm
                     ->required(),
                 TextInput::make('meeting_url')
                     ->label(__('appointments::resources.appointments.form.meeting_url'))
-                    ->dehydrateStateUsing(fn (?string $state): ?string => filled($state) && ! str_starts_with($state, 'http')
-                        ? 'https://' . $state
-                        : $state
-                    ),
+                    ->dehydrateStateUsing(function (?string $state): ?string {
+                        if (blank($state)) {
+                            return $state;
+                        }
+
+                        $trimmed = trim($state);
+
+                        return str_starts_with(strtolower($trimmed), 'http')
+                            ? $trimmed
+                            : sprintf('https://%s', $trimmed);
+                    }),
             ]);
     }
 }
