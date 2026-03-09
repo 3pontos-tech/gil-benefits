@@ -2,9 +2,9 @@
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
+use TresPontosTech\App\Filament\Resources\Appointments\Pages\CreateAppointment;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\Appointments\Filament\App\Resources\Appointments\Pages\CreateAppointment;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Models\Price;

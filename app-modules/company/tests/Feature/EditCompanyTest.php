@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
-use TresPontosTech\Company\Filament\Admin\Resources\Companies\Pages\EditCompany;
-use TresPontosTech\Company\Filament\Admin\Resources\Companies\RelationManagers\EmployeesRelationManager;
+use TresPontosTech\Admin\Filament\Resources\Companies\Pages\EditCompany;
+use TresPontosTech\Admin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
 use TresPontosTech\Company\Models\Company;
 
 use function Pest\Laravel\assertDatabaseHas;

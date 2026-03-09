@@ -1,10 +1,10 @@
 <?php
 
-use App\Filament\Admin\Clusters\Partners\Resources\Tags\Pages\CreateTag;
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Facades\Filament;
 use Spatie\Tags\Tag;
+use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Pages\CreateTag;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;

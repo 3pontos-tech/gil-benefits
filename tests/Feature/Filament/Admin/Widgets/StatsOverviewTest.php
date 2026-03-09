@@ -1,6 +1,6 @@
 <?php
 
-use App\Filament\Admin\Widgets\StatsOverview;
+use TresPontosTech\Admin\Filament\Widgets\StatsOverview;
 
 use function Pest\Livewire\livewire;
 

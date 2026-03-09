@@ -1,6 +1,6 @@
 <?php
 
-use App\Filament\Admin\Pages\Dashboard;
+use TresPontosTech\Admin\Filament\Pages\Dashboard;
 
 use function Pest\Livewire\livewire;
 

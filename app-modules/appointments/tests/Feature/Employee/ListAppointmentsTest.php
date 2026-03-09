@@ -2,7 +2,7 @@
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
-use TresPontosTech\Appointments\Filament\App\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\App\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 

@@ -5,7 +5,7 @@ namespace TresPontosTech\Billing\Stripe\Subscription\User;
 use App\Models\Users\User;
 use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
-use TresPontosTech\User\Filament\App\Pages\UserDashboard;
+use TresPontosTech\App\Filament\Pages\UserDashboard;
 
 class UserBillingProvider implements BillingProvider
 {

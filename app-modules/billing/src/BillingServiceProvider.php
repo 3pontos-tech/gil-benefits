@@ -33,10 +33,6 @@ class BillingServiceProvider extends ServiceProvider
 
         Panel::configureUsing(function (Panel $panel): void {
 
-            if ($panel->getId() === 'admin') {
-                $panel->plugin(new AdminBillingPluginProvider);
-            }
-
             if ($panel->getId() === 'company') {
                 Cashier::useCustomerModel(Company::class);
             }

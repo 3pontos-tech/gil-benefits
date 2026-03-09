@@ -6,7 +6,6 @@ namespace TresPontosTech\Permissions;
 
 use App\Models\Users\Detail;
 use App\Models\Users\User;
-use Filament\Panel;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -41,10 +40,5 @@ class PermissionsServiceProvider extends ServiceProvider
 
         Gate::policy(Role::class, RolePolicy::class);
 
-        Panel::configureUsing(function (Panel $panel): void {
-            if ($panel->getId() === 'admin') {
-                $panel->plugin(new AdminRolePlugin);
-            }
-        });
     }
 }

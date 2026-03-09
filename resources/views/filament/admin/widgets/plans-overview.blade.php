@@ -7,8 +7,7 @@
 ])
 
 @php
-    use Filament\Support\Icons\Heroicon;use TresPontosTech\Appointments\Filament\App\Resources\Appointments\AppointmentResource;
-@endphp
+    @endphp
 <x-filament-widgets::widget>
     <x-filament::section icon="heroicon-o-cube">
         <x-slot name="heading">
@@ -63,7 +62,7 @@
                 <div class="mt-2 text-sm text-danger-600 dark:text-danger-400">
                     @foreach($blockReasons as $reason)
                         <div class="flex items-start gap-2">
-                            <x-filament::icon icon="heroicon-o-exclamation-triangle" class="h-4 w-4 shrink-0" />
+                            <x-filament::icon icon="heroicon-o-exclamation-triangle" class="h-4 w-4 shrink-0"/>
                             <span>{{ $reason }}</span>
                         </div>
                     @endforeach

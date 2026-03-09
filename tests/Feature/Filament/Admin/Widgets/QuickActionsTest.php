@@ -1,6 +1,6 @@
 <?php
 
-use App\Filament\Admin\Widgets\QuickActions;
+use TresPontosTech\Admin\Filament\Widgets\QuickActions;
 
 use function Pest\Livewire\livewire;
 

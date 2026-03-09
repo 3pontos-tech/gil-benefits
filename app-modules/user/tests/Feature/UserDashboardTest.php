@@ -4,13 +4,13 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use TresPontosTech\App\Filament\Pages\UserDashboard;
+use TresPontosTech\App\Filament\Widgets\AppointmentHistoryWidget;
+use TresPontosTech\App\Filament\Widgets\LatestAppointmentWidget;
+use TresPontosTech\App\Filament\Widgets\UserCurrentPlanWidget;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Stripe\Subscription\User\RedirectUserIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\User\Filament\App\Pages\UserDashboard;
-use TresPontosTech\User\Filament\App\Widgets\AppointmentHistoryWidget;
-use TresPontosTech\User\Filament\App\Widgets\LatestAppointmentWidget;
-use TresPontosTech\User\Filament\App\Widgets\UserCurrentPlanWidget;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;

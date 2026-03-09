@@ -1,6 +1,6 @@
 <?php
 
-use TresPontosTech\Permissions\Filament\Admin\Resources\Permissions\Pages\ListRoles;
+use TresPontosTech\Admin\Filament\Resources\Permissions\Pages\ListRoles;
 
 use function Pest\Livewire\livewire;
 

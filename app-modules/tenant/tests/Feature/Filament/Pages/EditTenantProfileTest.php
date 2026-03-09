@@ -4,9 +4,9 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Actions\TenantSecretKeyRotationPanelAction;
+use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\Tenant\Actions\TenantSecretKeyRotationAction;
-use TresPontosTech\Tenant\Filament\Actions\TenantSecretKeyRotationPanelAction;
-use TresPontosTech\Tenant\Filament\Pages\Tenancy\EditTenantProfile;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;

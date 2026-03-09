@@ -1,6 +1,6 @@
 <?php
 
-use TresPontosTech\Billing\Core\Filament\Admin\Resources\Prices\Pages\CreatePrice;
+use TresPontosTech\Admin\Filament\Resources\Prices\Pages\CreatePrice;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 
