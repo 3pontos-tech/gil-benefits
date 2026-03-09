@@ -32,7 +32,8 @@ class EmployeesRelationManager extends RelationManager
                     ->badge(),
             ])
             ->headerActions([
-                AttachAction::make(),
+                AttachAction::make()
+                    ->recordTitleAttribute('name'),
             ])
             ->recordActions([
                 AssignRoleAction::make(),
