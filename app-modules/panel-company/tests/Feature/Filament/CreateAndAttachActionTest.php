@@ -9,7 +9,7 @@ use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
 use function Pest\Livewire\livewire;
 
-it('should register an employee ', function () {
+it('should register an employee ', function (): void {
     actingAsCompanyOwner();
 
     livewire(EditTenantProfile::class)
@@ -40,8 +40,8 @@ it('should register an employee ', function () {
     ]);
 });
 
-describe('validation tests', function () {
-    test('name::field ', function ($value, $rule) {
+describe('validation tests', function (): void {
+    test('name::field ', function ($value, $rule): void {
         actingAsCompanyOwner();
 
         livewire(EditTenantProfile::class)
@@ -67,7 +67,7 @@ describe('validation tests', function () {
         'required' => ['', 'required'],
     ]);
 
-    test('email::field', function ($value, $rule) {
+    test('email::field', function ($value, $rule): void {
         actingAsCompanyOwner();
 
         livewire(EditTenantProfile::class)
@@ -85,7 +85,7 @@ describe('validation tests', function () {
         'email' => ['notanemail', 'email'],
         'unique' => [fn () => auth()->user()->email, 'unique:users,email'],
     ]);
-    test('password::field', function ($value, $rule) {
+    test('password::field', function ($value, $rule): void {
         actingAsCompanyOwner();
 
         livewire(EditTenantProfile::class)
@@ -102,7 +102,7 @@ describe('validation tests', function () {
         'required' => ['', 'required'],
     ]);
 
-    test('tax_id::field', function ($value, $rule) {
+    test('tax_id::field', function ($value, $rule): void {
         actingAsCompanyOwner();
 
         livewire(EditTenantProfile::class)
@@ -119,7 +119,7 @@ describe('validation tests', function () {
     })->with([
         'required' => [null, 'required'],
     ]);
-    test('tax_id::field unique at company', function () {
+    test('tax_id::field unique at company', function (): void {
         actingAsCompanyOwner();
 
         livewire(EditTenantProfile::class)
@@ -134,7 +134,7 @@ describe('validation tests', function () {
             ->assertHasFormErrors(['detail.tax_id' => __('panel-company::validation.unique_at_company')]);
     });
 
-    test('document_id::field ', function ($value, $rule) {
+    test('document_id::field ', function ($value, $rule): void {
         actingAsCompanyOwner();
         livewire(EditTenantProfile::class)
             ->assertOk()
@@ -151,7 +151,7 @@ describe('validation tests', function () {
         'required' => [null, 'required'],
     ]);
 
-    test('document_id::unique at company ', function () {
+    test('document_id::unique at company ', function (): void {
         actingAsCompanyOwner();
 
         livewire(EditTenantProfile::class)

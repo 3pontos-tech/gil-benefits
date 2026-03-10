@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\PanelCompany\Rules;
 
+use Illuminate\Translation\PotentiallyTranslatedString;
 use App\Models\Users\Detail;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -13,7 +14,7 @@ class UniqueAtCompany implements ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param  \Closure(string, ?string=): \Illuminate\Translation\PotentiallyTranslatedString  $fail
+     * @param \Closure(string, ?string=):PotentiallyTranslatedString $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
@@ -27,6 +28,7 @@ class UniqueAtCompany implements ValidationRule
         if (is_null($employee)) {
             return;
         }
+
         $exists = $company->employees()->where('user_id', $employee->user_id)->exists();
 
         if ($exists) {
