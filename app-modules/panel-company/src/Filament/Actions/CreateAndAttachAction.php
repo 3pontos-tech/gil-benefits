@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Grid;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Cashier\Subscription;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Rules\UniqueAtCompany;
 use TresPontosTech\Permissions\Roles;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
@@ -44,13 +45,17 @@ class CreateAndAttachAction extends CreateAction
             Grid::make(2)
                 ->schema([
                     TextInput::make('name')
-                        ->label('Nome'),
+                        ->label('Nome')
+                        ->required(),
                     TextInput::make('email')
-                        ->rules(['email', 'unique:users,email']),
+                        ->rules(['email', 'unique:users,email'])
+                        ->email()
+                        ->required(),
                     TextInput::make('password')
                         ->label('Senha')
                         ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                        ->password(),
+                        ->password()
+                        ->required(),
                 ]),
             Grid::make(2),
             Fieldset::make('Detalhes')
@@ -59,14 +64,19 @@ class CreateAndAttachAction extends CreateAction
                     Hidden::make('company_id')->default(filament()->getTenant()->getKey()),
                     TextInput::make('tax_id')
                         ->label('CPF')
-                        ->mask('999.999.999-99'),
+                        ->mask('999.999.999-99')
+                        ->rule(new UniqueAtCompany)
+                        ->required(),
                     TextInput::make('document_id')
                         ->label('RG')
-                        ->mask('99.999.999-9'),
+                        ->mask('99.999.999-9')
+                        ->rule(new UniqueAtCompany)
+                        ->required(),
                     PhoneInput::make('phone_number')
                         ->label('Telefone')
                         ->defaultCountry('BR')
-                        ->strictMode(),
+                        ->strictMode()
+                        ->required(),
                 ]),
         ];
     }

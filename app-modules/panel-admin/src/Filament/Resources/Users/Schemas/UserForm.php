@@ -32,9 +32,11 @@ class UserForm
                     ->schema([
                         TextInput::make('tax_id')
                             ->mask('999.999.999-99')
+                            ->required()
                             ->unique(),
                         TextInput::make('document_id')
                             ->mask('99.999.999-9')
+                            ->required()
                             ->unique(),
                         Select::make('company_id')
                             ->options(Company::query()->pluck('name', 'id')),
