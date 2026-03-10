@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use Basement\Webhooks\Models\InboundWebhook;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use TresPontosTech\Admin\Policies\InboundWebhookPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,29 +17,5 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'user' => config('auth.providers.users.model'),
         ]);
-
-        //        Panel::macro('discoverResourcesForPanel', function (string $module, FilamentPanel $panel): void {
-        //            $studlyPanel = str($panel->value)->studly();
-        //
-        //            $filamentModulePath = modules_path($module, sprintf('src/Filament/%s', $studlyPanel));
-        //            $filamentModuleNamespace = sprintf('TresPontosTech\\%s\\Filament\\%s', str($module)->studly(), $studlyPanel);
-        //
-        //            $in = $filamentModulePath . '/Resources';
-        //            $for = $filamentModuleNamespace . '\\Resources';
-        //
-        //            $this
-        //                ->discoverResources(
-        //                    in: $in,
-        //                    for: $for,
-        //                )
-        //                ->discoverWidgets(
-        //                    in: $filamentModulePath . '/Widgets',
-        //                    for: $filamentModuleNamespace . '\\Widgets',
-        //                )
-        //                ->discoverPages(
-        //                    in: $filamentModulePath . '/Pages',
-        //                    for: $filamentModuleNamespace . '\\Pages',
-        //                );
-        //        });
     }
 }

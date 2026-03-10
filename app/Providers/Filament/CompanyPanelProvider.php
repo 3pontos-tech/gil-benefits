@@ -45,12 +45,10 @@ class CompanyPanelProvider extends PanelProvider
                 Dashboard::class,
                 TenantSubscriptionPage::class,
             ])
+            ->passwordReset()
             ->tenant(Company::class)
-//            ->tenantRegistration(RegisterTenant::class)
             ->tenantProfile(EditTenantProfile::class)
-            ->registration()
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
-
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
