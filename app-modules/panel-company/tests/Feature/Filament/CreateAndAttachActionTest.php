@@ -67,7 +67,7 @@ describe('validation tests', function () {
         'required' => ['', 'required'],
     ]);
 
-    test('email::field ', function ($value, $rule) {
+    test('email::field', function ($value, $rule) {
         actingAsCompanyOwner();
 
         livewire(EditTenantProfile::class)
@@ -85,7 +85,7 @@ describe('validation tests', function () {
         'email' => ['notanemail', 'email'],
         'unique' => [fn () => auth()->user()->email, 'unique:users,email'],
     ]);
-    test('password::field ', function ($value, $rule) {
+    test('password::field', function ($value, $rule) {
         actingAsCompanyOwner();
 
         livewire(EditTenantProfile::class)
@@ -102,7 +102,7 @@ describe('validation tests', function () {
         'required' => ['', 'required'],
     ]);
 
-    test('tax_id::field ', function ($value, $rule) {
+    test('tax_id::field', function ($value, $rule) {
         actingAsCompanyOwner();
 
         livewire(EditTenantProfile::class)
@@ -118,11 +118,24 @@ describe('validation tests', function () {
 
     })->with([
         'required' => [null, 'required'],
-        'unique at company' => [fn () => (string) auth()->user()->detail->tax_id, '(tax_id) already registered at this company'],
     ]);
-    test('document_id::field ', function ($value, $rule) {
+    test('tax_id::field unique at company', function () {
         actingAsCompanyOwner();
 
+        livewire(EditTenantProfile::class)
+            ->assertOk()
+            ->callAction(
+                TestAction::make('Invite Member')->table(),
+                data: [
+                    'detail' => [
+                        'tax_id' => auth()->user()->detail->tax_id,
+                    ]]
+            )
+            ->assertHasFormErrors(['detail.tax_id' => __('panel-company::validation.unique_at_company')]);
+    });
+
+    test('document_id::field ', function ($value, $rule) {
+        actingAsCompanyOwner();
         livewire(EditTenantProfile::class)
             ->assertOk()
             ->callAction(
@@ -136,6 +149,20 @@ describe('validation tests', function () {
 
     })->with([
         'required' => [null, 'required'],
-        'unique at company' => [fn () => (string) auth()->user()->detail->document_id, '(document_id) already registered at this company'],
     ]);
+
+    test('document_id::unique at company ', function () {
+        actingAsCompanyOwner();
+
+        livewire(EditTenantProfile::class)
+            ->assertOk()
+            ->callAction(
+                TestAction::make('Invite Member')->table(),
+                data: [
+                    'detail' => [
+                        'document_id' => auth()->user()->detail->document_id,
+                    ]]
+            )
+            ->assertHasFormErrors(['detail.document_id' => __('panel-company::validation.unique_at_company')]);
+    });
 });

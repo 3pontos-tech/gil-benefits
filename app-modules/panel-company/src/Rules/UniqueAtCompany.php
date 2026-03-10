@@ -30,8 +30,7 @@ class UniqueAtCompany implements ValidationRule
         $exists = $company->employees()->where('user_id', $employee->user_id)->exists();
 
         if ($exists) {
-
-            $fail("({$column}) already registered at this company");
+            $fail(__('panel-company::validation.unique_at_company'));
         }
     }
 }
