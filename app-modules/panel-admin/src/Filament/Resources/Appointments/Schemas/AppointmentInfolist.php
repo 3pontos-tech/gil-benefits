@@ -7,6 +7,7 @@ use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
+use Filament\Support\Icons\Heroicon;
 
 class AppointmentInfolist
 {
@@ -15,7 +16,7 @@ class AppointmentInfolist
         return $schema
             ->components([
                 Section::make(__('appointments::resources.appointments.infolist.appointment_info'))
-                    ->icon('heroicon-o-user')
+                    ->icon(Heroicon::User)
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -33,7 +34,7 @@ class AppointmentInfolist
                     ]),
 
                 Section::make(__('appointments::resources.appointments.plural'))
-                    ->icon('heroicon-o-calendar')
+                    ->icon(Heroicon::Calendar)
                     ->schema([
                         Grid::make(2)
                             ->schema([
@@ -60,7 +61,7 @@ class AppointmentInfolist
                     ]),
 
                 Section::make(__('appointments::resources.appointments.wizard.labels.notes'))
-                    ->icon('heroicon-o-document-text')
+                    ->icon(Heroicon::DocumentText)
                     ->schema([
                         TextEntry::make('notes')
                             ->label('ㅤㅤ')
