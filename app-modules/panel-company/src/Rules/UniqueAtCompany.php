@@ -2,11 +2,11 @@
 
 namespace TresPontosTech\PanelCompany\Rules;
 
-use Illuminate\Translation\PotentiallyTranslatedString;
 use App\Models\Users\Detail;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Str;
+use Illuminate\Translation\PotentiallyTranslatedString;
 use TresPontosTech\Company\Models\Company;
 
 class UniqueAtCompany implements ValidationRule
@@ -14,7 +14,7 @@ class UniqueAtCompany implements ValidationRule
     /**
      * Run the validation rule.
      *
-     * @param \Closure(string, ?string=):PotentiallyTranslatedString $fail
+     * @param  \Closure(string, ?string=):PotentiallyTranslatedString  $fail
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
