@@ -22,6 +22,11 @@ return [
             ],
         ],
 
+        'infolist' => [
+            'metadata' => 'Metadados',
+            'appointment_info' => 'Informações da Consultoria',
+        ],
+
         'form' => [
             'meeting_url' => 'Link da Reunião',
         ],

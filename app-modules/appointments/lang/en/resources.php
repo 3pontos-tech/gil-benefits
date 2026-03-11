@@ -22,6 +22,11 @@ return [
             ],
         ],
 
+        'infolist' => [
+            'metadata' => 'Metadata',
+            'appointment_info' => 'Appointment Info',
+        ],
+
         'form' => [
             'meeting_url' => 'Meeting URL',
         ],
