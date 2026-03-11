@@ -27,7 +27,7 @@ class ConsultantForm
                     ->activeTab(1)
                     ->tabs([
                         Tab::make('Preview')
-                            ->hidden(fn ($operation): bool => $operation === 'create')
+                            ->hidden(fn ($operation): bool => ($operation === 'create' || ! auth()->user()->isSuperAdmin()))
                             ->icon(Heroicon::OutlinedUser)
                             ->childComponents([
                                 View::make('filament.shared.consultants.profile'),
@@ -71,30 +71,34 @@ class ConsultantForm
                                 TextInput::make('short_description')
                                     ->maxLength(255)
                                     ->hint('Senior Consultant blablabla')
+                                    ->default('short description default')
                                     ->required(),
+
                                 MarkdownEditor::make('biography')
                                     ->required()
+                                    ->default('biography default')
                                     ->columnSpanFull(),
 
                                 MarkdownEditor::make('readme')
                                     ->required()
+                                    ->default('readme default')
                                     ->columnSpanFull(),
 
-                            ]),
+                            ])->visible(fn () => auth()->user()->isSuperAdmin()),
 
                         Tab::make('Fotos')
                             ->icon(Heroicon::OutlinedPhoto)
                             ->schema([
                                 SpatieMediaLibraryFileUpload::make('avatar')
                                     ->collection('avatars'),
-                            ]),
+                            ])->visible(fn () => auth()->user()->isSuperAdmin()),
 
                         Tab::make('Tags')
                             ->icon(Heroicon::OutlinedTag)
                             ->schema(
                                 collect(AvailableTagsEnum::cases())
                                     ->map(fn ($tag): SpatieTagsInput => SpatieTagsInput::make($tag->value)->type($tag->value))
-                                    ->toArray()),
+                                    ->toArray())->visible(fn () => auth()->user()->isSuperAdmin()),
                     ]),
             ]);
     }

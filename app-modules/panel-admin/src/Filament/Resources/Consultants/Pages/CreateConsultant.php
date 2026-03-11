@@ -8,4 +8,15 @@ use TresPontosTech\Admin\Filament\Resources\Consultants\ConsultantResource;
 class CreateConsultant extends CreateRecord
 {
     protected static string $resource = ConsultantResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['short_description'] ??= 'short description default';
+
+        $data['readme'] ??= 'readme default';
+
+        $data['biography'] ??= 'biography default';
+
+        return $data;
+    }
 }

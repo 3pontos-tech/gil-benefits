@@ -2,11 +2,8 @@
 
 namespace App\Providers;
 
-use Basement\Webhooks\Models\InboundWebhook;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use TresPontosTech\Admin\Policies\InboundWebhookPolicy;
 
 class AppServiceProvider extends ServiceProvider
 {

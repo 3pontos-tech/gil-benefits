@@ -6,9 +6,8 @@ use App\Models\Users\User;
 
 class BetterMailPolicy
 {
-
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        $user->isSuperAdmin();
+        return $user->isSuperAdmin();
     }
 }

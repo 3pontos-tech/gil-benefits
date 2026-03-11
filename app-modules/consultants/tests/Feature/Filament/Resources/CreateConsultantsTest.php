@@ -6,12 +6,13 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\CreateConsultant;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
-    actingAsAdmin();
+    actingAsSuperAdmin();
 });
 
 it('should render', function (): void {
@@ -64,6 +65,42 @@ it('should be able to register a consultant', function (): void {
     ]);
 });
 
+it('should save with default values if was not provided', function (): void {
+    auth()->user()->removeRole(Roles::SuperAdmin->value);
+    livewire(CreateConsultant::class)
+        ->assertOk()
+        ->fillForm([
+            'name' => 'John Doe da silva',
+            'phone' => '119999999999',
+            'email' => 'joe@doe.com',
+            'socials_urls' => [
+                'linkedin' => 'https://www.linkedin.com/in/',
+                'instagram' => 'https://www.instagram.com/',
+                'facebook' => 'https://www.facebook.com/',
+                'twitter' => 'https://www.twitter.com/',
+                'youtube' => 'https://www.youtube.com/',
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertOk();
+
+    assertDatabaseHas(Consultant::class, [
+        'name' => 'John Doe da silva',
+        'phone' => '119999999999',
+        'email' => 'joe@doe.com',
+        'socials_urls' => json_encode([
+            'linkedin' => 'https://www.linkedin.com/in/',
+            'instagram' => 'https://www.instagram.com/',
+            'facebook' => 'https://www.facebook.com/',
+            'twitter' => 'https://www.twitter.com/',
+            'youtube' => 'https://www.youtube.com/',
+        ]),
+        'short_description' => 'short description default',
+        'biography' => 'biography default',
+        'readme' => 'readme default',
+    ]);
+});
 it('sets the slug after name field is set', function (): void {
     livewire(CreateConsultant::class)
         ->assertOk()

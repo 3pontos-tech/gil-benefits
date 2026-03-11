@@ -10,7 +10,8 @@ use TresPontosTech\Admin\Filament\Resources\Users\UserResource;
 class ListUsers extends ListRecords
 {
     protected static string $resource = UserResource::class;
-    protected Width | string | null $maxContentWidth = 'full';
+
+    protected Width|string|null $maxContentWidth = 'full';
 
     protected function getHeaderActions(): array
     {
