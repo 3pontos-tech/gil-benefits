@@ -75,6 +75,8 @@ class CreateAndAttachAction extends CreateAction
                     PhoneInput::make('phone_number')
                         ->label('Telefone')
                         ->defaultCountry('BR')
+                        ->initialCountry('BR')
+                        ->disableLookup()
                         ->strictMode()
                         ->required(),
                 ]),
