@@ -15,5 +15,8 @@ class CompanyServiceProvider extends ServiceProvider
         ]);
     }
 
-    public function boot(): void {}
+    public function boot(): void
+    {
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'companies');
+    }
 }
