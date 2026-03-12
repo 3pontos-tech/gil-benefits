@@ -96,9 +96,9 @@ it('should save with default values if was not provided', function (): void {
             'twitter' => 'https://www.twitter.com/',
             'youtube' => 'https://www.youtube.com/',
         ]),
-        'short_description' => 'short description default',
-        'biography' => 'biography default',
-        'readme' => 'readme default',
+        'short_description' => '',
+        'biography' => '',
+        'readme' => '',
     ]);
 });
 it('sets the slug after name field is set', function (): void {

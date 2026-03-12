@@ -9,7 +9,7 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
     Filament::setCurrentPanel('admin');
-    actingAsAdmin();
+    actingAsSuperAdmin();
     $this->consultant = Consultant::factory()->createOne();
 });
 

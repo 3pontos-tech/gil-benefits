@@ -71,17 +71,17 @@ class ConsultantForm
                                 TextInput::make('short_description')
                                     ->maxLength(255)
                                     ->hint('Senior Consultant blablabla')
-                                    ->default('short description default')
+                                    ->default(' ')
                                     ->required(),
 
                                 MarkdownEditor::make('biography')
                                     ->required()
-                                    ->default('biography default')
+                                    ->default(' ')
                                     ->columnSpanFull(),
 
                                 MarkdownEditor::make('readme')
                                     ->required()
-                                    ->default('readme default')
+                                    ->default(' ')
                                     ->columnSpanFull(),
 
                             ])->visible(fn () => auth()->user()->isSuperAdmin()),

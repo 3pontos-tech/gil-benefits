@@ -11,11 +11,11 @@ class CreateConsultant extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['short_description'] ??= 'short description default';
+        $data['short_description'] ??= '';
 
-        $data['readme'] ??= 'readme default';
+        $data['readme'] ??= '';
 
-        $data['biography'] ??= 'biography default';
+        $data['biography'] ??= '';
 
         return $data;
     }

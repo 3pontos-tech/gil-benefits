@@ -49,18 +49,14 @@ class CompanyPanelProvider extends PanelProvider
                 Dashboard::class,
                 TenantSubscriptionPage::class,
             ])
-<<<<<<< feat/some-small-changes
             ->passwordReset()
             ->tenant(Company::class)
             ->tenantProfile(EditTenantProfile::class)
-=======
-//            ->tenantRegistration(RegisterTenant::class)
             ->tenantProfile(EditTenantProfile::class)
             ->tenantMenuItems([
                 'profile' => MenuItem::make()->hidden(),
                 'billing' => MenuItem::make()->hidden(),
             ])
-            ->registration()
             ->navigationItems([
                 NavigationItem::make(__('companies::resources.companies.company_settings'))
                     ->icon(Heroicon::Cog6Tooth)
@@ -69,7 +65,6 @@ class CompanyPanelProvider extends PanelProvider
                     ->icon(Heroicon::CreditCard)
                     ->url(fn (): string => route('filament.company.tenant.billing', ['tenant' => Filament::getTenant()])),
             ])
->>>>>>> develop
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->middleware([
                 EncryptCookies::class,

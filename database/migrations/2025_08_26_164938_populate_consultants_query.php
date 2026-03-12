@@ -152,9 +152,9 @@ return new class extends Migration
                 $consultant->attachTags($case->getDefault(), $case->value);
             }
 
-            $consultant->addMediaFromUrl('https://github.com/danielhe4rt.png')
-                ->preservingOriginal()
-                ->toMediaCollection('avatars');
+            //            $consultant->addMediaFromUrl('https://github.com/danielhe4rt.png')
+            //                ->preservingOriginal()
+            //                ->toMediaCollection('avatars');
         }
     }
 };

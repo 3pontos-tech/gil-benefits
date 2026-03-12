@@ -14,11 +14,12 @@ class EditConsultant extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $data['short_description'] ??= 'short description default';
 
-        $data['readme'] ??= 'readme default';
+        $data['short_description'] ??= '';
 
-        $data['biography'] ??= 'biography default';
+        $data['readme'] ??= '';
+
+        $data['biography'] ??= '';
 
         return $data;
     }
