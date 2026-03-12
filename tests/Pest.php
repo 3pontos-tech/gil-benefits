@@ -14,14 +14,16 @@
 use App\Filament\FilamentPanel;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\artisan;
 
-pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
     ->beforeEach(fn () => artisan('sync:permissions'))
     ->in('Feature', 'E2E', '../app-modules/*/tests');
 
