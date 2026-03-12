@@ -35,7 +35,6 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
         $totalEmployees = $tenant->employees()->count();
 
         $employeesWithAccess = $tenant->employees()
-            ->whereNotNull('email_verified_at')
             ->count();
 
         $percentage = $totalEmployees > 0
@@ -57,7 +56,6 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
             ->count();
 
         $employeesWithPlans = $tenant->employees()
-            ->whereNotNull('email_verified_at')
             ->whereHas('subscriptions')
             ->count();
 
@@ -77,7 +75,6 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
         $totalEmployees = $tenant->employees()->count();
 
         $employeesWithPlans = $tenant->employees()
-            ->whereNotNull('email_verified_at')
             ->whereHas('subscriptions')
             ->count();
 
