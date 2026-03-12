@@ -50,7 +50,6 @@ class CompanyPanelProvider extends PanelProvider
                 TenantSubscriptionPage::class,
             ])
             ->passwordReset()
-            ->tenant(Company::class)
             ->tenantProfile(EditTenantProfile::class)
             ->tenantProfile(EditTenantProfile::class)
             ->tenantMenuItems([
