@@ -21,7 +21,7 @@ readonly class SyncConsultantCalendarAction
 
         $now = Date::now();
         $timeMin = $now->copy()->startOfDay()->toRfc3339String();
-        $timeMax = $now->copy()->addDays(config('google-calendar.sync_days_ahead'))->endOfDay()->toRfc3339String();
+        $timeMax = $now->copy()->addDays((int) config('google-calendar.sync_days_ahead'))->endOfDay()->toRfc3339String();
 
         $syncedEventIds = [];
         $pageToken = null;
