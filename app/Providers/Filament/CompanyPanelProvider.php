@@ -49,13 +49,13 @@ class CompanyPanelProvider extends PanelProvider
                 Dashboard::class,
                 TenantSubscriptionPage::class,
             ])
-//            ->tenantRegistration(RegisterTenant::class)
+            ->passwordReset()
+            ->tenantProfile(EditTenantProfile::class)
             ->tenantProfile(EditTenantProfile::class)
             ->tenantMenuItems([
                 'profile' => MenuItem::make()->hidden(),
                 'billing' => MenuItem::make()->hidden(),
             ])
-            ->registration()
             ->navigationItems([
                 NavigationItem::make(__('companies::resources.companies.company_settings'))
                     ->icon(Heroicon::Cog6Tooth)

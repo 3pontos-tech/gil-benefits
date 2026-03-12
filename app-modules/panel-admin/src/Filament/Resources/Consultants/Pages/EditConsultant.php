@@ -12,6 +12,18 @@ class EditConsultant extends EditRecord
 {
     protected static string $resource = ConsultantResource::class;
 
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+
+        $data['short_description'] ??= '';
+
+        $data['readme'] ??= '';
+
+        $data['biography'] ??= '';
+
+        return $data;
+    }
+
     protected function getHeaderActions(): array
     {
         return [

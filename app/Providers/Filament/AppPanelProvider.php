@@ -30,11 +30,11 @@ class AppPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#F1785A'),
             ])
+            ->passwordReset()
             ->topbar(false)
             ->sidebarFullyCollapsibleOnDesktop()
             ->globalSearch()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
-            ->registration()
             ->discoverResources(in: base_path('app-modules/panel-app/src/Filament/Resources'), for: 'TresPontosTech\\App\\Filament\\Resources')
             ->discoverPages(in: base_path('app-modules/panel-app/src/Filament/Pages'), for: 'TresPontosTech\\App\\Filament\\Pages')
             ->discoverWidgets(in: base_path('app-modules/panel-app/src/Filament/Widgets'), for: 'TresPontosTech\\App\\Filament\\Widgets')
