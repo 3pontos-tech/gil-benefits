@@ -51,7 +51,6 @@ class CompanyPanelProvider extends PanelProvider
             ])
             ->passwordReset()
             ->tenantProfile(EditTenantProfile::class)
-            ->tenantProfile(EditTenantProfile::class)
             ->tenantMenuItems([
                 'profile' => MenuItem::make()->hidden(),
                 'billing' => MenuItem::make()->hidden(),
