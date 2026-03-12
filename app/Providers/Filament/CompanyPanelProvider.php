@@ -3,14 +3,18 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Shared\Pages\LoginPage;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -45,9 +49,27 @@ class CompanyPanelProvider extends PanelProvider
                 Dashboard::class,
                 TenantSubscriptionPage::class,
             ])
+<<<<<<< feat/some-small-changes
             ->passwordReset()
             ->tenant(Company::class)
             ->tenantProfile(EditTenantProfile::class)
+=======
+//            ->tenantRegistration(RegisterTenant::class)
+            ->tenantProfile(EditTenantProfile::class)
+            ->tenantMenuItems([
+                'profile' => MenuItem::make()->hidden(),
+                'billing' => MenuItem::make()->hidden(),
+            ])
+            ->registration()
+            ->navigationItems([
+                NavigationItem::make(__('companies::resources.companies.company_settings'))
+                    ->icon(Heroicon::Cog6Tooth)
+                    ->url(fn (): string => EditTenantProfile::getUrl()),
+                NavigationItem::make(__('companies::resources.companies.billing_settings'))
+                    ->icon(Heroicon::CreditCard)
+                    ->url(fn (): string => route('filament.company.tenant.billing', ['tenant' => Filament::getTenant()])),
+            ])
+>>>>>>> develop
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->middleware([
                 EncryptCookies::class,
@@ -62,7 +84,6 @@ class CompanyPanelProvider extends PanelProvider
             ])
             ->tenantBillingProvider(new CompanyBillingProvider)
             ->requiresTenantSubscription()
-
             ->authMiddleware([
                 Authenticate::class,
             ]);
