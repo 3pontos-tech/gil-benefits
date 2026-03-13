@@ -9,15 +9,18 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TresPontosTech\Admin\Filament\Pages\EditUserProfile;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -28,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(LoginPage::class)
+            ->profile(EditUserProfile::class)
             ->colors([
                 'primary' => Color::Blue,
                 'zinc' => Color::Zinc,
@@ -43,6 +47,12 @@ class AdminPanelProvider extends PanelProvider
                 FilamentBetterEmailPlugin::make(),
             ])
             ->sidebarCollapsibleOnDesktop()
+            ->navigationItems([
+                NavigationItem::make('Meu Perfil')
+                    ->sort(5)
+                    ->icon(Heroicon::UserCircle)
+                    ->url(fn (): string => EditUserProfile::getUrl()),
+            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Shared\Pages\EditUserProfile;
 use App\Filament\Shared\Pages\LoginPage;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -30,6 +31,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login(LoginPage::class)
+            ->profile(EditUserProfile::class)
             ->colors([
                 'primary' => Color::hex('#F1785A'),
             ])
@@ -38,6 +40,13 @@ class AppPanelProvider extends PanelProvider
             ->sidebarFullyCollapsibleOnDesktop()
             ->globalSearch()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->registration()
+            ->navigationItems([
+                NavigationItem::make('Meu Perfil')
+                    ->sort(5)
+                    ->icon(Heroicon::UserCircle)
+                    ->url(fn (): string => EditUserProfile::getUrl()),
+            ])
             ->discoverResources(in: base_path('app-modules/panel-app/src/Filament/Resources'), for: 'TresPontosTech\\App\\Filament\\Resources')
             ->discoverPages(in: base_path('app-modules/panel-app/src/Filament/Pages'), for: 'TresPontosTech\\App\\Filament\\Pages')
             ->discoverWidgets(in: base_path('app-modules/panel-app/src/Filament/Widgets'), for: 'TresPontosTech\\App\\Filament\\Widgets')

@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Shared\Pages\EditUserProfile;
 use App\Filament\Shared\Pages\LoginPage;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -35,6 +36,7 @@ class CompanyPanelProvider extends PanelProvider
             ->path('company')
             ->tenant(Company::class, slugAttribute: 'slug')
             ->login(LoginPage::class)
+            ->profile(EditUserProfile::class)
             ->colors([
                 'primary' => Color::hex('#F1785A'),
                 ...Color::all(),
@@ -58,10 +60,15 @@ class CompanyPanelProvider extends PanelProvider
             ->navigationItems([
                 NavigationItem::make(__('companies::resources.companies.company_settings'))
                     ->icon(Heroicon::Cog6Tooth)
+                    ->group('Configurações')
                     ->url(fn (): string => EditTenantProfile::getUrl()),
                 NavigationItem::make(__('companies::resources.companies.billing_settings'))
                     ->icon(Heroicon::CreditCard)
+                    ->group('Configurações')
                     ->url(fn (): string => route('filament.company.tenant.billing', ['tenant' => Filament::getTenant()])),
+                NavigationItem::make('Meu Perfil')
+                    ->icon(Heroicon::UserCircle)
+                    ->url(fn (): string => EditUserProfile::getUrl()),
             ])
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->middleware([
