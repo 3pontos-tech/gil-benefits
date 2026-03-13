@@ -16,9 +16,11 @@ class EditUserProfile extends BaseEditUserProfile
         return [
             TextInput::make('tax_id')
                 ->label('CPF')
+                ->required()
                 ->mask('999.999.999-99'),
             TextInput::make('document_id')
                 ->label('RG')
+                ->required()
                 ->mask('99.999.999-9'),
         ];
     }

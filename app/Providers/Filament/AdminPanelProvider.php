@@ -48,7 +48,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->sidebarCollapsibleOnDesktop()
             ->navigationItems([
-                NavigationItem::make('Meu Perfil')
+                NavigationItem::make(__('all.my_profile'))
                     ->sort(5)
                     ->icon(Heroicon::UserCircle)
                     ->url(fn (): string => EditUserProfile::getUrl()),

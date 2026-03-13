@@ -42,10 +42,13 @@ class AppPanelProvider extends PanelProvider
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->registration()
             ->navigationItems([
-                NavigationItem::make('Meu Perfil')
-                    ->sort(5)
+                NavigationItem::make(__('all.my_profile'))
                     ->icon(Heroicon::UserCircle)
                     ->url(fn (): string => EditUserProfile::getUrl()),
+                NavigationItem::make(__('all.my_subscription'))
+                    ->icon(Heroicon::CreditCard)
+                    ->group(__('all.billing'))
+                    ->url(fn (): string => route('filament.app.tenant.billing', ['tenant' => Filament::getTenant()])),
             ])
             ->discoverResources(in: base_path('app-modules/panel-app/src/Filament/Resources'), for: 'TresPontosTech\\App\\Filament\\Resources')
             ->discoverPages(in: base_path('app-modules/panel-app/src/Filament/Pages'), for: 'TresPontosTech\\App\\Filament\\Pages')
@@ -65,12 +68,6 @@ class AppPanelProvider extends PanelProvider
             ->searchableTenantMenu(false)
             ->tenantMenu(false)
             ->tenantBillingProvider(new UserBillingProvider)
-
-            ->navigationItems([
-                NavigationItem::make(__('all.my_subscription'))
-                    ->icon(Heroicon::CreditCard)
-                    ->url(fn (): string => route('filament.app.tenant.billing', ['tenant' => Filament::getTenant()])),
-            ])
             ->tenant(Company::class, slugAttribute: 'slug')
             ->requiresTenantSubscription()
             ->authMiddleware([

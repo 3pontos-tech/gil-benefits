@@ -60,13 +60,13 @@ class CompanyPanelProvider extends PanelProvider
             ->navigationItems([
                 NavigationItem::make(__('companies::resources.companies.company_settings'))
                     ->icon(Heroicon::Cog6Tooth)
-                    ->group('Configurações')
+                    ->group(__('all.settings'))
                     ->url(fn (): string => EditTenantProfile::getUrl()),
                 NavigationItem::make(__('companies::resources.companies.billing_settings'))
                     ->icon(Heroicon::CreditCard)
-                    ->group('Configurações')
+                    ->group(__('all.settings'))
                     ->url(fn (): string => route('filament.company.tenant.billing', ['tenant' => Filament::getTenant()])),
-                NavigationItem::make('Meu Perfil')
+                NavigationItem::make(__('all.my_profile'))
                     ->icon(Heroicon::UserCircle)
                     ->url(fn (): string => EditUserProfile::getUrl()),
             ])
