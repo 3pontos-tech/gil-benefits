@@ -58,7 +58,7 @@ class AppPanelProvider extends PanelProvider
             ->tenantBillingProvider(new UserBillingProvider)
 
             ->navigationItems([
-                NavigationItem::make('Minha Assinatura')
+                NavigationItem::make(__('all.my_subscription'))
                     ->icon(Heroicon::CreditCard)
                     ->url(fn (): string => route('filament.app.tenant.billing', ['tenant' => Filament::getTenant()])),
             ])
