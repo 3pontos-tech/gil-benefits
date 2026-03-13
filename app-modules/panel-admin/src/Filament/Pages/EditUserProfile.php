@@ -5,6 +5,7 @@ namespace TresPontosTech\Admin\Filament\Pages;
 use App\Filament\Shared\Pages\EditUserProfile as BaseEditUserProfile;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
+use Filament\Support\RawJs;
 
 class EditUserProfile extends BaseEditUserProfile
 {
@@ -19,9 +20,15 @@ class EditUserProfile extends BaseEditUserProfile
                 ->required()
                 ->mask('999.999.999-99'),
             TextInput::make('document_id')
-                ->label('RG')
+                ->mask(RawJs::make(<<<'JS'
+                    $input.replace(/\D/g, '').length > 9
+                        ? '999.999.999-99'
+                        : '99.999.999-9'
+                    JS))
+                ->minLength(7)
+                ->maxLength(14)
                 ->required()
-                ->mask('99.999.999-9'),
+                ->unique(),
         ];
     }
 
