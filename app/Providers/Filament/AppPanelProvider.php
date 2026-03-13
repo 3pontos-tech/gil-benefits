@@ -3,13 +3,16 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Shared\Pages\LoginPage;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -51,7 +54,14 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->searchableTenantMenu(false)
+            ->tenantMenu(false)
             ->tenantBillingProvider(new UserBillingProvider)
+
+            ->navigationItems([
+                NavigationItem::make('Minha Assinatura')
+                    ->icon(Heroicon::CreditCard)
+                    ->url(fn (): string => route('filament.app.tenant.billing', ['tenant' => Filament::getTenant()])),
+            ])
             ->tenant(Company::class, slugAttribute: 'slug')
             ->requiresTenantSubscription()
             ->authMiddleware([
