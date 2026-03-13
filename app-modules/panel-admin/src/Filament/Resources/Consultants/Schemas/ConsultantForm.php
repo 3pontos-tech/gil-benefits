@@ -37,7 +37,7 @@ class ConsultantForm
                             ->schema([
                                 Grid::make(2)->schema([
                                     TextInput::make('name')
-                                        ->live(debounce: 300)
+                                        ->live(debounce: 500)
                                         ->afterStateUpdated(function ($set, $state): void {
                                             $set('slug', str($state ?? '')->slug());
                                         })
