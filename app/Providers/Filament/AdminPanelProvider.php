@@ -32,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login(LoginPage::class)
             ->profile(EditUserProfile::class)
+            ->passwordReset()
             ->colors([
                 'primary' => Color::Blue,
                 'zinc' => Color::Zinc,
