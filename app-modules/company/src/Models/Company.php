@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Cashier\Billable;
 use Ramsey\Uuid\Uuid;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Models\TenantMember;
@@ -48,7 +51,28 @@ class Company extends Model
 
     public function hasActivePlan(): bool
     {
-        return $this->plans()->wherePivot('status', 'active')->exists();
+        return $this->plans()->wherePivot('status', CompanyPlanStatusEnum::Active->value)->exists();
+    }
+
+    public function activeContractualPlan(): ?CompanyPlan
+    {
+        return CompanyPlan::where('company_id', $this->id)
+            ->where('status', CompanyPlanStatusEnum::Active->value)
+            ->whereNull('deleted_at')
+            ->first();
+    }
+
+    public function companyPlans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CompanyPlan::class);
+    }
+
+    public function plans(): BelongsToMany
+    {
+        return $this->belongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')
+            ->withTimestamps()
+            ->withPivot(['seats', 'monthly_appointments_per_employee', 'status', 'starts_at', 'ends_at', 'notes'])
+            ->using(CompanyPlan::class);
     }
 
     public function owner(): BelongsTo

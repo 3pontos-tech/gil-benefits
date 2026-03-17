@@ -4,6 +4,7 @@ namespace TresPontosTech\PanelCompany\Filament\Actions;
 
 use Filament\Actions\Action;
 use Laravel\Cashier\Subscription;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 
 class TenantSeatsCounterAction extends Action
@@ -28,10 +29,17 @@ class TenantSeatsCounterAction extends Action
         /** @var Company $tenant */
         $tenant = filament()->getTenant();
 
+        $employeesCount = $tenant->employees()->wherePivot('active', true)->count();
+
+        /** @var CompanyPlan|null $contractualPlan */
+        $contractualPlan = $tenant->activeContractualPlan();
+
+        if ($contractualPlan !== null) {
+            return sprintf('Assentos: %s/%s', $employeesCount, $contractualPlan->seats);
+        }
+
         /** @var Subscription $activeSubscription */
         $activeSubscription = $tenant->subscriptions()->where('stripe_status', '=', 'active')->first();
-
-        $employeesCount = $tenant->employees()->wherePivot('active', true)->count();
 
         return sprintf('Assentos: %s/%s', $employeesCount, $activeSubscription->quantity);
     }

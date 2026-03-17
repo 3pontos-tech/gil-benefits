@@ -15,6 +15,10 @@ class RedirectCompanyIfNotSubscribed
         /** @var Company|Filament $tenant */
         $tenant = Filament::getTenant();
 
+        if ($tenant->hasActivePlan()) {
+            return $next($request);
+        }
+
         if ($tenant->hasStripeId() === false) {
             $tenant->createAsStripeCustomer([
                 'metadata' => [

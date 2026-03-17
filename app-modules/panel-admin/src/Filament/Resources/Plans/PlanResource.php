@@ -30,6 +30,7 @@ use TresPontosTech\Admin\Filament\Resources\Plans\Pages\CreatePlan;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\EditPlan;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\ListPlans;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use UnitEnum;
 
@@ -47,24 +48,29 @@ class PlanResource extends Resource
     {
         return $schema
             ->components([
-                TextInput::make('provider')
-                    ->disabled()
-                    ->required(),
+                Select::make('provider')
+                    ->options(BillingProviderEnum::class)
+                    ->required()
+                    ->live()
+                    ->disabled(fn (?Plan $record): bool => $record !== null && $record->provider !== BillingProviderEnum::Contractual),
+
                 TextInput::make('provider_product_id')
-                    ->disabled()
-                    ->required(),
+                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value)
+                    ->disabled(fn (?Plan $record): bool => $record !== null && $record->provider !== BillingProviderEnum::Contractual),
+
                 TextInput::make('name')
                     ->required()
-                    ->disabled()
-                    ->reactive()
+                    ->live(onBlur: true)
+                    ->disabled(fn (?Plan $record): bool => $record !== null && $record->provider !== BillingProviderEnum::Contractual)
                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
                 TextInput::make('slug')
                     ->disabled()
                     ->required()
                     ->unique(Plan::class, 'slug', fn ($record) => $record),
+
                 TextInput::make('description')
-                    ->disabled()
+                    ->disabled(fn (?Plan $record): bool => $record !== null && $record->provider !== BillingProviderEnum::Contractual)
                     ->required(),
 
                 Select::make('type')
@@ -75,6 +81,7 @@ class PlanResource extends Resource
                 Section::make('Behavior')
                     ->columnSpanFull()
                     ->columns(3)
+                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value)
                     ->schema([
                         CheckboxList::make('has_generic_trial')
                             ->label('Has a generic trial period')
@@ -111,13 +118,14 @@ class PlanResource extends Resource
                     ]),
 
                 TextInput::make('trial_days')
-                    ->integer(),
+                    ->integer()
+                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value),
 
                 TextInput::make('unit_label')
-                    ->required(),
+                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value),
 
                 TextInput::make('statement_descriptor')
-                    ->required(),
+                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value),
 
                 TextEntry::make('created_at')
                     ->label('Created Date')

@@ -161,7 +161,25 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                         ->first();
 
                     if ($subscription === null || $subscription->price === null) {
-                        return 0;
+                        $contractualPlan = $this->companies()
+                            ->get()
+                            ->map(fn ($company) => $company->activeContractualPlan())
+                            ->filter()
+                            ->first();
+
+                        if ($contractualPlan === null) {
+                            return 0;
+                        }
+
+                        $monthlyLimit = (int) $contractualPlan->monthly_appointments_per_employee;
+                        if ($monthlyLimit <= 0) {
+                            return 0;
+                        }
+
+                        $since = now()->subDays(30);
+                        $used = (int) $this->appointments()->where('created_at', '>=', $since)->count();
+
+                        return max($monthlyLimit - $used, 0);
                     }
 
                     $monthlyLimit = (int) ($subscription->price->monthly_appointments ?? 0);

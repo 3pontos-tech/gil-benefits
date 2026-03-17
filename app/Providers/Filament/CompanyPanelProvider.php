@@ -65,6 +65,7 @@ class CompanyPanelProvider extends PanelProvider
                 NavigationItem::make(__('companies::resources.companies.billing_settings'))
                     ->icon(Heroicon::CreditCard)
                     ->group(__('all.settings'))
+                    ->visible(fn (): bool => ! filament()->getTenant()?->hasActivePlan())
                     ->url(fn (): string => route('filament.company.tenant.billing', ['tenant' => Filament::getTenant()])),
                 NavigationItem::make(__('all.my_profile'))
                     ->icon(Heroicon::UserCircle)
