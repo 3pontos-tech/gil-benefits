@@ -6,6 +6,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 use TresPontosTech\Company\Models\Company;
 
 class UserForm
@@ -35,7 +36,13 @@ class UserForm
                             ->required()
                             ->unique(),
                         TextInput::make('document_id')
-                            ->mask('99.999.999-9')
+                            ->mask(RawJs::make(<<<'JS'
+                                $input.replace(/\D/g, '').length > 9
+                                    ? '999.999.999-99'
+                                    : '99.999.999-9'
+                            JS))
+                            ->minLength(7)
+                            ->maxLength(14)
                             ->required()
                             ->unique(),
                         Select::make('company_id')

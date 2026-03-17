@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Shared\Pages\EditUserProfile;
 use App\Filament\Shared\Pages\LoginPage;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -30,6 +31,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login(LoginPage::class)
+            ->profile(EditUserProfile::class)
             ->colors([
                 'primary' => Color::hex('#F1785A'),
             ])
@@ -38,6 +40,16 @@ class AppPanelProvider extends PanelProvider
             ->sidebarFullyCollapsibleOnDesktop()
             ->globalSearch()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->registration()
+            ->navigationItems([
+                NavigationItem::make(__('all.my_profile'))
+                    ->icon(Heroicon::UserCircle)
+                    ->url(fn (): string => EditUserProfile::getUrl()),
+                NavigationItem::make(__('all.my_subscription'))
+                    ->icon(Heroicon::CreditCard)
+                    ->group(__('all.billing'))
+                    ->url(fn (): string => route('filament.app.tenant.billing', ['tenant' => Filament::getTenant()])),
+            ])
             ->discoverResources(in: base_path('app-modules/panel-app/src/Filament/Resources'), for: 'TresPontosTech\\App\\Filament\\Resources')
             ->discoverPages(in: base_path('app-modules/panel-app/src/Filament/Pages'), for: 'TresPontosTech\\App\\Filament\\Pages')
             ->discoverWidgets(in: base_path('app-modules/panel-app/src/Filament/Widgets'), for: 'TresPontosTech\\App\\Filament\\Widgets')
@@ -56,12 +68,6 @@ class AppPanelProvider extends PanelProvider
             ->searchableTenantMenu(false)
             ->tenantMenu(false)
             ->tenantBillingProvider(new UserBillingProvider)
-
-            ->navigationItems([
-                NavigationItem::make(__('all.my_subscription'))
-                    ->icon(Heroicon::CreditCard)
-                    ->url(fn (): string => route('filament.app.tenant.billing', ['tenant' => Filament::getTenant()])),
-            ])
             ->tenant(Company::class, slugAttribute: 'slug')
             ->requiresTenantSubscription()
             ->authMiddleware([
