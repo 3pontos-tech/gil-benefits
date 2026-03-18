@@ -16,5 +16,4 @@ return new class extends Migration
             $table->boolean('collect_tax_ids')->nullable()->change();
         });
     }
-
 };
