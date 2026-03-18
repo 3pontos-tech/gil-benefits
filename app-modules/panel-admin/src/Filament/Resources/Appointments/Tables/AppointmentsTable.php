@@ -95,6 +95,28 @@ class AppointmentsTable
                             : null;
                     }),
 
+                Filter::make('consultant_name')
+                    ->label(__('appointments::resources.appointments.table.columns.consultant'))
+                    ->schema([
+                        TextInput::make('consultant_name')
+                            ->label(__('appointments::resources.appointments.table.columns.consultant'))
+                            ->live(debounce: 500),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['consultant_name'] ?? null,
+                            fn (Builder $q, string $name) => $q->whereHas(
+                                'consultant',
+                                fn (Builder $q) => $q->where('name', 'like', sprintf('%%%s%%', $name))
+                            )
+                        );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        return isset($data['consultant_name']) && $data['consultant_name']
+                            ? __('appointments::resources.appointments.table.columns.consultant') . ': ' . $data['consultant_name']
+                            : null;
+                    }),
+
                 SelectFilter::make('status')
                     ->label('Status')
                     ->options(AppointmentStatus::class)
