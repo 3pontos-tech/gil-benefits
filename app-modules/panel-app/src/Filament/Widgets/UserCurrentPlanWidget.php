@@ -5,8 +5,11 @@ namespace TresPontosTech\App\Filament\Widgets;
 use App\Models\Users\User;
 use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
 class UserCurrentPlanWidget extends Widget
@@ -20,10 +23,12 @@ class UserCurrentPlanWidget extends Widget
         /** @var User $user */
         $user = auth()->user();
 
-        $contractualPlan = $user->companies()
-            ->get()
-            ->map(fn ($company) => $company->activeContractualPlan())
-            ->filter()
+        $contractualPlan = CompanyPlan::query()
+            ->whereIn('company_id', $user->companies()->select('companies.id'))
+            ->where('status', CompanyPlanStatusEnum::Active)
+            ->where(fn (Builder $query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
+            ->with('plan')
             ->first();
 
         if (filled($contractualPlan)) {
