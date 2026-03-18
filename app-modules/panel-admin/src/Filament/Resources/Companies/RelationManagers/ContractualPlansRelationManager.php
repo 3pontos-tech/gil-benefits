@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Admin\Filament\Resources\Companies\RelationManagers;
 
+use Closure;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -9,8 +10,8 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -58,26 +59,19 @@ class ContractualPlansRelationManager extends RelationManager
                     ->label('Status')
                     ->options(CompanyPlanStatusEnum::class)
                     ->default(CompanyPlanStatusEnum::Active)
-                    ->required(),
-
-                DatePicker::make('starts_at')
-                    ->label('Início da vigência')
-                    ->displayFormat('d/m/Y'),
-
-                DatePicker::make('ends_at')
-                    ->label('Fim da vigência')
-                    ->displayFormat('d/m/Y')
-                    ->afterOrEqual(fn (Get $get): ?string => $get('starts_at'))
+                    ->required()
                     ->rules([
-                        fn (Get $get) => function (string $attribute, mixed $value, \Closure $fail) use ($get): void {
-                            if ($get('status') !== CompanyPlanStatusEnum::Active->value) {
+                        fn (Get $get): Closure => function (string $attribute, mixed $value, Closure $fail) use ($get): void {
+                            $statusValue = $value instanceof CompanyPlanStatusEnum ? $value->value : $value;
+
+                            if ($statusValue !== CompanyPlanStatusEnum::Active->value) {
                                 return;
                             }
 
                             $companyId = $this->getOwnerRecord()->getKey();
-                            $recordId = $this->getMountedTableActionRecord()?->getKey();
+                            $recordId = $this->getMountedAction()?->getRecord()?->getKey();
                             $startsAt = $get('starts_at') ?? now()->toDateString();
-                            $endsAt = $value ?? '9999-12-31';
+                            $endsAt = $get('ends_at') ?? '9999-12-31';
 
                             $overlap = CompanyPlan::query()
                                 ->where('company_id', $companyId)
@@ -98,6 +92,15 @@ class ContractualPlansRelationManager extends RelationManager
                             }
                         },
                     ]),
+
+                DatePicker::make('starts_at')
+                    ->label('Início da vigência')
+                    ->displayFormat('d/m/Y'),
+
+                DatePicker::make('ends_at')
+                    ->label('Fim da vigência')
+                    ->displayFormat('d/m/Y')
+                    ->afterOrEqual(fn (Get $get): ?string => $get('starts_at')),
 
                 Textarea::make('notes')
                     ->label('Observações')
