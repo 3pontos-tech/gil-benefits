@@ -47,7 +47,7 @@ class PlanFactory extends Factory
     {
         return $this->state([
             'provider' => BillingProviderEnum::Stripe,
-            'trial_days' => false,
+            'trial_days' => null,
             'has_generic_trial' => false,
             'allow_promotion_codes' => false,
             'collect_tax_ids' => false,
@@ -60,7 +60,7 @@ class PlanFactory extends Factory
             'provider' => BillingProviderEnum::Contractual,
             'provider_product_id' => null,
             'statement_descriptor' => null,
-            'trial_days' => false,
+            'trial_days' => null,
             'has_generic_trial' => false,
             'allow_promotion_codes' => false,
             'collect_tax_ids' => false,
