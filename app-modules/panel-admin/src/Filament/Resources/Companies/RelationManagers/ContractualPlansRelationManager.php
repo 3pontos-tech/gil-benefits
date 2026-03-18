@@ -11,9 +11,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -29,9 +29,10 @@ class ContractualPlansRelationManager extends RelationManager
         return $schema
             ->components([
                 Select::make('plan_id')
-                    ->label('Plano')
+                    ->label('Plano da Empresa')
                     ->options(
                         Plan::where('provider', BillingProviderEnum::Contractual)
+                            ->where('type', BillableTypeEnum::Company)
                             ->where('active', true)
                             ->pluck('name', 'id')
                     )

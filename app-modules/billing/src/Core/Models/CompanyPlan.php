@@ -3,14 +3,17 @@
 namespace TresPontosTech\Billing\Core\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use TresPontosTech\Billing\Database\Factories\CompanyPlanFactory;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Company\Models\Company;
 
 class CompanyPlan extends Model
 {
+    use HasFactory;
     use HasUuids;
     use SoftDeletes;
 
@@ -44,5 +47,10 @@ class CompanyPlan extends Model
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class, 'plan_id');
+    }
+
+    protected static function newFactory(): CompanyPlanFactory
+    {
+        return CompanyPlanFactory::new();
     }
 }

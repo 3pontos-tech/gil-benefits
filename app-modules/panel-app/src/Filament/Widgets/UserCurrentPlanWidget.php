@@ -5,6 +5,7 @@ namespace TresPontosTech\App\Filament\Widgets;
 use App\Models\Users\User;
 use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
+use Illuminate\Http\RedirectResponse;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
@@ -18,6 +19,26 @@ class UserCurrentPlanWidget extends Widget
     {
         /** @var User $user */
         $user = auth()->user();
+
+        $contractualPlan = $user->companies()
+            ->get()
+            ->map(fn ($company) => $company->activeContractualPlan())
+            ->filter()
+            ->first();
+
+        if (filled($contractualPlan)) {
+            return [
+                'planName' => $contractualPlan->plan->name,
+                'description' => $contractualPlan->plan->description,
+                'status' => 'active',
+                'features' => [
+                    'appointments' => $contractualPlan->monthly_appointments_per_employee,
+                ],
+                'availableAppointments' => $user->monthly_appointments_left,
+                'canCreateAppointment' => $user->canCreateAppointment(),
+                'hasOngoingAppointment' => $user->hasOngoingAppointment(),
+            ];
+        }
 
         /** @var Subscription $subscription */
         $subscription = $user
@@ -43,7 +64,7 @@ class UserCurrentPlanWidget extends Widget
         ];
     }
 
-    public function redirectToAppointmentCreation()
+    public function redirectToAppointmentCreation(): ?RedirectResponse
     {
         /** @var User $user */
         $user = auth()->user();

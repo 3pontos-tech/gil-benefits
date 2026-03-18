@@ -25,12 +25,12 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use Illuminate\Support\Str;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\CreatePlan;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\EditPlan;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\ListPlans;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
-use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use UnitEnum;
 
@@ -48,29 +48,24 @@ class PlanResource extends Resource
     {
         return $schema
             ->components([
-                Select::make('provider')
-                    ->options(BillingProviderEnum::class)
-                    ->required()
-                    ->live()
-                    ->disabled(fn (?Plan $record): bool => $record !== null && $record->provider !== BillingProviderEnum::Contractual),
-
+                TextInput::make('provider')
+                    ->disabled()
+                    ->required(),
                 TextInput::make('provider_product_id')
-                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value)
-                    ->disabled(fn (?Plan $record): bool => $record !== null && $record->provider !== BillingProviderEnum::Contractual),
-
+                    ->disabled()
+                    ->required(),
                 TextInput::make('name')
                     ->required()
-                    ->live(onBlur: true)
-                    ->disabled(fn (?Plan $record): bool => $record !== null && $record->provider !== BillingProviderEnum::Contractual)
+                    ->disabled()
+                    ->reactive()
                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
                 TextInput::make('slug')
                     ->disabled()
                     ->required()
                     ->unique(Plan::class, 'slug', fn ($record) => $record),
-
                 TextInput::make('description')
-                    ->disabled(fn (?Plan $record): bool => $record !== null && $record->provider !== BillingProviderEnum::Contractual)
+                    ->disabled()
                     ->required(),
 
                 Select::make('type')
@@ -81,7 +76,6 @@ class PlanResource extends Resource
                 Section::make('Behavior')
                     ->columnSpanFull()
                     ->columns(3)
-                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value)
                     ->schema([
                         CheckboxList::make('has_generic_trial')
                             ->label('Has a generic trial period')
@@ -118,14 +112,13 @@ class PlanResource extends Resource
                     ]),
 
                 TextInput::make('trial_days')
-                    ->integer()
-                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value),
+                    ->integer(),
 
                 TextInput::make('unit_label')
-                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value),
+                    ->required(),
 
                 TextInput::make('statement_descriptor')
-                    ->hidden(fn (\Filament\Schemas\Components\Utilities\Get $get): bool => $get('provider') === BillingProviderEnum::Contractual->value),
+                    ->required(),
 
                 TextEntry::make('created_at')
                     ->label('Created Date')
@@ -187,7 +180,8 @@ class PlanResource extends Resource
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            ->where('provider', BillingProviderEnum::Stripe);
     }
 
     public static function getGloballySearchableAttributes(): array

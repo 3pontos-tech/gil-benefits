@@ -171,7 +171,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                             return 0;
                         }
 
-                        $monthlyLimit = (int) $contractualPlan->monthly_appointments_per_employee;
+                        $monthlyLimit = (int) ($contractualPlan->monthly_appointments_per_employee ?? 0);
                         if ($monthlyLimit <= 0) {
                             return 0;
                         }

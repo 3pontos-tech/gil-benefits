@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignUuid('company_id')->constrained('companies')->cascadeOnDelete();
             $table->foreignId('plan_id')->constrained('billing_plans')->cascadeOnDelete();
             $table->unsignedInteger('seats');
-            $table->tinyInteger('monthly_appointments_per_employee')->default(1);
+            $table->unsignedTinyInteger('monthly_appointments_per_employee')->default(1);
             $table->string('status');
             $table->date('starts_at')->nullable();
             $table->date('ends_at')->nullable();

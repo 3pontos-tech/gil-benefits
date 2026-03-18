@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -51,7 +52,7 @@ class Company extends Model
 
     public function hasActivePlan(): bool
     {
-        return $this->plans()->wherePivot('status', CompanyPlanStatusEnum::Active->value)->exists();
+        return filled($this->activeContractualPlan());
     }
 
     public function activeContractualPlan(): ?CompanyPlan
@@ -59,6 +60,8 @@ class Company extends Model
         return CompanyPlan::where('company_id', $this->id)
             ->where('status', CompanyPlanStatusEnum::Active->value)
             ->whereNull('deleted_at')
+            ->where(fn (Builder $query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
             ->first();
     }
 
@@ -71,8 +74,7 @@ class Company extends Model
     {
         return $this->belongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')
             ->withTimestamps()
-            ->withPivot(['seats', 'monthly_appointments_per_employee', 'status', 'starts_at', 'ends_at', 'notes'])
-            ->using(CompanyPlan::class);
+            ->withPivot(['seats', 'monthly_appointments_per_employee', 'status', 'starts_at', 'ends_at', 'notes']);
     }
 
     public function owner(): BelongsTo
