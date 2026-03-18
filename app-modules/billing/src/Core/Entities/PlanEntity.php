@@ -36,6 +36,12 @@ final readonly class PlanEntity
 
     public static function fromEloquent(Plan $plan): self
     {
+        throw_if(
+            $plan->provider_product_id === null,
+            InvalidArgumentException::class,
+            message: 'PlanEntity requires a provider_product_id.'
+        );
+
         return new self(
             name: $plan->name,
             slug: $plan->slug,
