@@ -3,7 +3,6 @@
 namespace TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages;
 
 use Filament\Resources\Pages\CreateRecord;
-use Illuminate\Support\Str;
 use TresPontosTech\Admin\Filament\Resources\ContractualPlans\ContractualPlanResource;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 

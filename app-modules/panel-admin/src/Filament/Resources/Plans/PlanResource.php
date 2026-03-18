@@ -25,12 +25,12 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use Illuminate\Support\Str;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\CreatePlan;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\EditPlan;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\ListPlans;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use UnitEnum;
 

@@ -31,7 +31,7 @@ class ContractualPlansRelationManager extends RelationManager
                 Select::make('plan_id')
                     ->label('Plano da Empresa')
                     ->options(
-                        Plan::where('provider', BillingProviderEnum::Contractual)
+                        Plan::query()->where('provider', BillingProviderEnum::Contractual)
                             ->where('type', BillableTypeEnum::Company)
                             ->where('active', true)
                             ->pluck('name', 'id')

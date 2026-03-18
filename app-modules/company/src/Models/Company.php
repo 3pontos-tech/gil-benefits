@@ -4,12 +4,13 @@ namespace TresPontosTech\Company\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Cashier\Billable;
@@ -57,7 +58,7 @@ class Company extends Model
 
     public function activeContractualPlan(): ?CompanyPlan
     {
-        return CompanyPlan::where('company_id', $this->id)
+        return CompanyPlan::query()->where('company_id', $this->id)
             ->where('status', CompanyPlanStatusEnum::Active->value)
             ->whereNull('deleted_at')
             ->where(fn (Builder $query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
@@ -65,7 +66,7 @@ class Company extends Model
             ->first();
     }
 
-    public function companyPlans(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function companyPlans(): HasMany
     {
         return $this->hasMany(CompanyPlan::class);
     }

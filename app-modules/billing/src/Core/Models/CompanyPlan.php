@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use TresPontosTech\Billing\Database\Factories\CompanyPlanFactory;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Database\Factories\CompanyPlanFactory;
 use TresPontosTech\Company\Models\Company;
 
 class CompanyPlan extends Model

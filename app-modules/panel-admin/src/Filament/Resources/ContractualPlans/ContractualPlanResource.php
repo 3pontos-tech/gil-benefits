@@ -15,6 +15,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 use TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages\CreateContractualPlan;
 use TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages\EditContractualPlan;
 use TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages\ListContractualPlans;
@@ -47,7 +48,7 @@ class ContractualPlanResource extends Resource
                     ->label('Nome')
                     ->required()
                     ->reactive()
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
+                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
                 TextInput::make('slug')
                     ->label('Slug')
