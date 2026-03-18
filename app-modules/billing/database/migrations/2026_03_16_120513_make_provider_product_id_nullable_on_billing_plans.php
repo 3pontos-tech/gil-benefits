@@ -17,14 +17,4 @@ return new class extends Migration
         });
     }
 
-    public function down(): void
-    {
-        Schema::table('billing_plans', function (Blueprint $table): void {
-            $table->string('provider_product_id')->nullable(false)->change();
-            $table->string('statement_descriptor')->nullable(false)->change();
-            $table->boolean('has_generic_trial')->nullable(false)->change();
-            $table->boolean('allow_promotion_codes')->nullable(false)->change();
-            $table->boolean('collect_tax_ids')->nullable(false)->change();
-        });
-    }
 };
