@@ -9,6 +9,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -16,6 +17,7 @@ use Filament\Tables\Table;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 
 class ContractualPlansRelationManager extends RelationManager
@@ -64,7 +66,38 @@ class ContractualPlansRelationManager extends RelationManager
 
                 DatePicker::make('ends_at')
                     ->label('Fim da vigência')
-                    ->displayFormat('d/m/Y'),
+                    ->displayFormat('d/m/Y')
+                    ->afterOrEqual(fn (Get $get): ?string => $get('starts_at'))
+                    ->rules([
+                        fn (Get $get) => function (string $attribute, mixed $value, \Closure $fail) use ($get): void {
+                            if ($get('status') !== CompanyPlanStatusEnum::Active->value) {
+                                return;
+                            }
+
+                            $companyId = $this->getOwnerRecord()->getKey();
+                            $recordId = $this->getMountedTableActionRecord()?->getKey();
+                            $startsAt = $get('starts_at') ?? now()->toDateString();
+                            $endsAt = $value ?? '9999-12-31';
+
+                            $overlap = CompanyPlan::query()
+                                ->where('company_id', $companyId)
+                                ->where('status', CompanyPlanStatusEnum::Active)
+                                ->when($recordId, fn ($q) => $q->where('id', '!=', $recordId))
+                                ->where(fn ($q) => $q
+                                    ->whereNull('ends_at')
+                                    ->orWhere('ends_at', '>=', $startsAt)
+                                )
+                                ->where(fn ($q) => $q
+                                    ->whereNull('starts_at')
+                                    ->orWhere('starts_at', '<=', $endsAt)
+                                )
+                                ->exists();
+
+                            if ($overlap) {
+                                $fail('Já existe um plano ativo com vigência sobreposta para esta empresa.');
+                            }
+                        },
+                    ]),
 
                 Textarea::make('notes')
                     ->label('Observações')
