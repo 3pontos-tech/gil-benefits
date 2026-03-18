@@ -14,6 +14,8 @@ return [
                 'status' => 'Status',
                 'created_at' => 'Created at',
                 'updated_at' => 'Updated at',
+                'from' => 'From',
+                'until' => 'Until',
             ],
             'actions' => [
                 'view' => 'View',

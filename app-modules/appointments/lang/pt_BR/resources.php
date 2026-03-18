@@ -14,6 +14,8 @@ return [
                 'status' => 'Status',
                 'created_at' => 'Criado em',
                 'updated_at' => 'Atualizado em',
+                'from' => 'De',
+                'until' => 'Até',
             ],
             'actions' => [
                 'view' => 'Ver',
