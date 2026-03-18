@@ -75,7 +75,8 @@ class Company extends Model
     {
         return $this->belongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')
             ->withTimestamps()
-            ->withPivot(['seats', 'monthly_appointments_per_employee', 'status', 'starts_at', 'ends_at', 'notes']);
+            ->withPivot(['seats', 'monthly_appointments_per_employee', 'status', 'starts_at', 'ends_at', 'notes'])
+            ->wherePivotNull('deleted_at');
     }
 
     public function owner(): BelongsTo
