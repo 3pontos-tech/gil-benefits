@@ -16,19 +16,25 @@ class AppointmentsTable
         return $table
             ->columns([
                 TextColumn::make('consultant.name')
+                    ->label(__('appointments::resources.appointments.table.columns.consultant'))
                     ->searchable(),
                 TextColumn::make('user.name')
+                    ->label(__('appointments::resources.appointments.table.columns.user'))
                     ->searchable(),
-                TextColumn::make('date')
-                    ->dateTime()
+                TextColumn::make('appointment_at')
+                    ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('status')
+                    ->label(__('appointments::resources.appointments.table.columns.status'))
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label(__('appointments::resources.appointments.table.columns.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label(__('appointments::resources.appointments.table.columns.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
