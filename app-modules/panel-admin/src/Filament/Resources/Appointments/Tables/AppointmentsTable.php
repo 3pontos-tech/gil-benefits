@@ -16,7 +16,7 @@ class AppointmentsTable
         return $table
             ->columns([
                 TextColumn::make('consultant.name')
-                    ->label(__('appointments::resources.appointments.table.columns.consultant'))
+                    ->label(__('appointments::resources.appointments.table.columns.user'))
                     ->searchable(),
                 TextColumn::make('user.name')
                     ->label(__('appointments::resources.appointments.table.columns.consultant'))
