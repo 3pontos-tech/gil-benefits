@@ -21,7 +21,7 @@ abstract class AbstractAppointmentStep
 
     abstract public function processStep(): void;
 
-    abstract public function notify();
+    abstract public function notify(): void;
 
     public function cancel(): void
     {

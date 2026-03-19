@@ -26,8 +26,6 @@ class UserSubscriptionPage extends Page
 
     public string $selectedPlan = 'user';
 
-    public int $seatsAmount = 5;
-
     protected function getViewData(): array
     {
         return [
