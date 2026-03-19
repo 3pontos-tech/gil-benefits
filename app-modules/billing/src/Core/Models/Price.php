@@ -48,6 +48,8 @@ class Price extends Model
             'whatsapp_enabled' => 'boolean',
             'materials_enabled' => 'boolean',
             'unit_amount_decimal' => 'integer',
+            'monthly_appointments' => 'integer',
+            'metadata' => 'array',
         ];
     }
 }
