@@ -44,3 +44,16 @@ it('should fail when company does not exists', function (): void {
 
     $response->assertStatus(Response::HTTP_FORBIDDEN);
 });
+
+it('should not allow deleting a user from another tenant using a valid token from a different company', function (): void {
+    $otherCompany = Company::factory()->create();
+    $otherCompany->employees()->save($this->user);
+
+    $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => $otherCompany->getKey(), 'user' => $this->user->getKey()]), [], [
+        config('tenant.header') => $this->company->integration_access_key,
+    ]);
+
+    $response->assertStatus(Response::HTTP_FORBIDDEN);
+
+    expect($otherCompany->employees()->count())->toBe(1);
+});

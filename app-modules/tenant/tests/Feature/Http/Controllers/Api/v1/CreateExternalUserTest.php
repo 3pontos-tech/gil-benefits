@@ -60,3 +60,19 @@ it('should fail when company does not exists', function (): void {
 
     $response->assertStatus(Response::HTTP_FORBIDDEN);
 });
+
+it('should not allow creating a user in another tenant using a valid token from a different company', function (): void {
+    $otherCompany = Company::factory()->create();
+
+    $response = postJson(route('api.v1.company.users.store', ['tenant' => $otherCompany->getKey()]), [
+        'name' => 'Fulaninho',
+        'email' => 'fulaninho@gmail.com',
+        'external_id' => '123456',
+    ], [
+        config('tenant.header') => $this->company->integration_access_key,
+    ]);
+
+    $response->assertStatus(Response::HTTP_FORBIDDEN);
+
+    expect($otherCompany->employees()->count())->toBe(0);
+});
