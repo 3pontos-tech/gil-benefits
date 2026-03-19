@@ -18,7 +18,7 @@ class TenantSecretKeyRotationPanelAction extends Action
     protected function setUp(): void
     {
         parent::setUp();
-        $this->label('Gerar nova chave');
+        $this->label(__('panel-company::resources.actions.secret_key_rotation.label'));
         $this->icon(Heroicon::ArrowPath);
         $this->visible(fn (): bool => auth()->user()->isAdmin() || auth()->user()->isCompanyOwner());
         $this->action(fn () => $this->rotateKey());
@@ -34,7 +34,7 @@ class TenantSecretKeyRotationPanelAction extends Action
 
         Notification::make('rotateKey')
             ->success()
-            ->body('Nova chave gerada: ' . $key)
+            ->body(__('panel-company::resources.actions.secret_key_rotation.new_key_generated') . $key)
             ->send();
     }
 }

@@ -16,7 +16,7 @@ class EditUserProfile extends BaseEditUserProfile
     {
         return [
             TextInput::make('tax_id')
-                ->label('CPF')
+                ->label(__('panel-admin::resources.pages.edit_profile.cpf'))
                 ->required()
                 ->mask('999.999.999-99'),
             TextInput::make('document_id')

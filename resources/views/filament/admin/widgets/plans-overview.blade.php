@@ -14,7 +14,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h2 class="text-xl font-semibold text-gray-900 dark:text-white leading-tight">
-                        Plano {{ $planName }}
+                        {{ __('panel-app::widgets.plans_overview.plan_heading', ['name' => $planName]) }}
                     </h2>
                     <p class="text-sm text-gray-600 dark:text-gray-300">
                         {{ $description }}
@@ -43,10 +43,10 @@
             @php
                 $blockReasons = [];
                 if (($availableAppointments ?? 0) <= 0) {
-                    $blockReasons[] = __('Você não possui agendamentos disponíveis neste mês.');
+                    $blockReasons[] = __('panel-app::widgets.plans_overview.no_appointments_available');
                 }
                 if (($hasOngoingAppointment ?? false) === true) {
-                    $blockReasons[] = __('Você possui uma consultoria em andamento. Finalize a anterior para agendar outra.');
+                    $blockReasons[] = __('panel-app::widgets.plans_overview.ongoing_appointment');
                 }
             @endphp
 
@@ -55,7 +55,7 @@
                 icon="heroicon-o-calendar"
                 :disabled="isset($canCreateAppointment) && ! $canCreateAppointment"
             >
-                Agendar Consultoria
+                {{ __('panel-app::widgets.plans_overview.schedule_appointment') }}
             </x-filament::button>
 
             @if(isset($canCreateAppointment) && ! $canCreateAppointment && count($blockReasons) > 0)

@@ -36,7 +36,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 
     public static function getLabel(): string
     {
-        return 'Company Settings';
+        return __('panel-company::resources.pages.edit_tenant.label');
     }
 
     public function form(Schema $schema): Schema
@@ -69,15 +69,18 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
     {
         return $table
             ->query(filament()->getTenant()->employees()->getQuery())
-            ->heading('Lista de Membros ativos')
+            ->heading(__('panel-company::resources.pages.edit_tenant.members_heading'))
             ->headerActions([
                 TenantSeatsCounterAction::make(),
                 CreateAndAttachAction::make('Invite Member')
+                    ->label(__('panel-company::resources.pages.edit_tenant.invite_member'))
                     ->model(User::class),
             ])
             ->recordActions([
                 Action::make('toggle-active')
-                    ->label(fn ($record): string => $record->active ? 'Desativar' : 'Ativar')
+                    ->label(fn ($record): string => $record->active
+                        ? __('panel-company::resources.pages.edit_tenant.deactivate')
+                        : __('panel-company::resources.pages.edit_tenant.activate'))
                     ->action(function (User $record): void {
                         /** @var Company $company */
                         $company = filament()->getTenant();
@@ -93,8 +96,10 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
             ->columns([
                 TextColumn::make('active')
                     ->badge()
-                    ->label('Status')
-                    ->formatStateUsing(fn ($state): string => $state ? 'Ativo' : 'Inativo')
+                    ->label(__('panel-company::resources.pages.edit_tenant.status'))
+                    ->formatStateUsing(fn ($state): string => $state
+                        ? __('panel-company::resources.pages.edit_tenant.active')
+                        : __('panel-company::resources.pages.edit_tenant.inactive'))
                     ->color(fn ($state): string => $state ? 'success' : 'danger')
                     ->searchable(),
                 TextColumn::make('name')

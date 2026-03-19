@@ -8,9 +8,12 @@ use Filament\Widgets\TableWidget;
 
 class AppointmentHistoryWidget extends TableWidget
 {
-    protected static ?string $heading = 'Últimos Atendimentos';
-
     protected int|string|array $columnSpan = 'full';
+
+    public function getHeading(): ?string
+    {
+        return __('panel-app::widgets.appointment_history.heading');
+    }
 
     public function table(Table $table): Table
     {
@@ -25,19 +28,19 @@ class AppointmentHistoryWidget extends TableWidget
             )
             ->columns([
                 TextColumn::make('consultant.name')
-                    ->label('Consultor')
+                    ->label(__('panel-app::widgets.appointment_history.consultant'))
                     ->placeholder('—'),
 
                 TextColumn::make('category_type')
                     ->badge()
-                    ->label('Categoria'),
+                    ->label(__('panel-app::widgets.appointment_history.category')),
 
                 TextColumn::make('status')
                     ->badge()
-                    ->label('Status'),
+                    ->label(__('panel-app::widgets.appointment_history.status')),
 
                 TextColumn::make('appointment_at')
-                    ->label('Data')
+                    ->label(__('panel-app::widgets.appointment_history.date'))
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
             ])

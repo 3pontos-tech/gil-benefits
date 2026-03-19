@@ -22,7 +22,6 @@ use TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages\ListContractu
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
-use UnitEnum;
 
 class ContractualPlanResource extends Resource
 {
@@ -30,42 +29,54 @@ class ContractualPlanResource extends Resource
 
     protected static ?string $slug = 'contractual-plans';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Billing';
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::DocumentText;
 
-    protected static ?string $navigationLabel = 'Planos Contratuais';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('panel-admin::resources.navigation_group.billing');
+    }
 
-    protected static ?string $modelLabel = 'Plano Contratual';
+    public static function getNavigationLabel(): string
+    {
+        return __('panel-admin::resources.contractual_plans.navigation_label');
+    }
 
-    protected static ?string $pluralModelLabel = 'Planos Contratuais';
+    public static function getModelLabel(): string
+    {
+        return __('panel-admin::resources.contractual_plans.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('panel-admin::resources.contractual_plans.plural_model_label');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Nome')
+                    ->label(__('panel-admin::resources.contractual_plans.form.name'))
                     ->required()
                     ->reactive()
                     ->afterStateUpdated(fn ($state, callable $set) => $set('slug', Str::slug($state))),
 
                 TextInput::make('slug')
-                    ->label('Slug')
+                    ->label(__('panel-admin::resources.contractual_plans.form.slug'))
                     ->readOnly(),
 
                 TextInput::make('description')
-                    ->label('Descrição')
+                    ->label(__('panel-admin::resources.contractual_plans.form.description'))
                     ->required(),
 
                 Select::make('type')
-                    ->label('Tipo')
+                    ->label(__('panel-admin::resources.contractual_plans.form.type'))
                     ->enum(BillableTypeEnum::class)
                     ->options(BillableTypeEnum::class)
                     ->required(),
 
                 Toggle::make('active')
-                    ->label('Ativo')
+                    ->label(__('panel-admin::resources.contractual_plans.form.active'))
                     ->default(true),
             ]);
     }
@@ -75,17 +86,17 @@ class ContractualPlanResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('type')
-                    ->label('Tipo')
+                    ->label(__('panel-admin::resources.contractual_plans.table.type'))
                     ->badge(),
                 TextColumn::make('name')
-                    ->label('Nome')
+                    ->label(__('panel-admin::resources.contractual_plans.table.name'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('description')
-                    ->label('Descrição')
+                    ->label(__('panel-admin::resources.contractual_plans.table.description'))
                     ->limit(50),
                 ToggleColumn::make('active')
-                    ->label('Ativo'),
+                    ->label(__('panel-admin::resources.contractual_plans.table.active')),
             ])
             ->recordActions([
                 EditAction::make(),

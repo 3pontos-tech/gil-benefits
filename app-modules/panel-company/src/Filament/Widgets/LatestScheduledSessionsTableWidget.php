@@ -19,46 +19,46 @@ class LatestScheduledSessionsTableWidget extends TableWidget
     {
         return $table
             ->searchable(true)
-            ->heading('Últimas consultorias agendadas')
+            ->heading(__('panel-company::widgets.latest_sessions.heading'))
             ->query(fn (): Builder => Appointment::query()
                 ->where('company_id', Filament::getTenant()->id)->latest())
             ->columns([
                 TextColumn::make('consultant.name')
-                    ->label('Consultor')
+                    ->label(__('panel-company::widgets.latest_sessions.consultant'))
                     ->searchable(),
                 TextColumn::make('user.name')
-                    ->label('Funcionário')
+                    ->label(__('panel-company::widgets.latest_sessions.employee'))
                     ->searchable(),
                 TextColumn::make('category_type')
-                    ->label('Categoria')
+                    ->label(__('panel-company::widgets.latest_sessions.category'))
                     ->badge()
                     ->searchable(),
                 TextColumn::make('appointment_at')
-                    ->label('Data da consultoria')
+                    ->label(__('panel-company::widgets.latest_sessions.appointment_date'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->label('Criado em')
+                    ->label(__('panel-company::widgets.latest_sessions.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Atualizado em')
+                    ->label(__('panel-company::widgets.latest_sessions.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('company.name')
-                    ->label('Empresa')
+                    ->label(__('panel-company::widgets.latest_sessions.company'))
                     ->searchable(),
                 TextColumn::make('external_opportunity_id')
-                    ->label('ID da oportunidade externa')
+                    ->label(__('panel-company::widgets.latest_sessions.external_opportunity_id'))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('external_appointment_id')
-                    ->label('ID da consultoria externa')
+                    ->label(__('panel-company::widgets.latest_sessions.external_appointment_id'))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ]);

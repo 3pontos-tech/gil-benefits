@@ -14,7 +14,7 @@ class AssignRoleAction extends Action
     protected function setUp(): void
     {
         parent::setUp();
-        $this->label('Assign Role');
+        $this->label(__('panel-admin::resources.permissions.assign_role'));
         $this->icon(Heroicon::OutlinedShieldCheck);
         $this->visible(fn () => auth()->user()->hasRole(Roles::SuperAdmin));
         $this->schema($this->roleSchema());
@@ -43,7 +43,7 @@ class AssignRoleAction extends Action
         if ($record->hasRole($role)) {
             return Notification::make()
                 ->info()
-                ->body('User already has this role')
+                ->body(__('panel-admin::resources.permissions.user_already_has_role'))
                 ->send();
         }
 
@@ -51,7 +51,7 @@ class AssignRoleAction extends Action
 
         return Notification::make()
             ->success()
-            ->body(sprintf('User has been assigned to %s role', $role->name))
+            ->body(sprintf(__('panel-admin::resources.permissions.user_assigned_to_role'), $role->name))
             ->send();
     }
 }

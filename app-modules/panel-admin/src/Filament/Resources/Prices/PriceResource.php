@@ -33,7 +33,6 @@ use TresPontosTech\Admin\Filament\Resources\Prices\Pages\CreatePrice;
 use TresPontosTech\Admin\Filament\Resources\Prices\Pages\EditPrice;
 use TresPontosTech\Admin\Filament\Resources\Prices\Pages\ListPrices;
 use TresPontosTech\Billing\Core\Models\Price;
-use UnitEnum;
 
 class PriceResource extends Resource
 {
@@ -41,9 +40,12 @@ class PriceResource extends Resource
 
     protected static ?string $slug = 'prices';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Billing';
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('panel-admin::resources.navigation_group.billing');
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -51,74 +53,74 @@ class PriceResource extends Resource
             ->components([
                 Grid::make(2)
                     ->schema([
-                        Section::make('Plan & Type')
-                            ->description('Select the plan and define how this price should be billed.')
+                        Section::make(__('panel-admin::resources.prices.sections.plan_type.title'))
+                            ->description(__('panel-admin::resources.prices.sections.plan_type.description'))
                             ->key('section-plan-type')
                             ->schema([
                                 Select::make('billing_plan_id')
-                                    ->label('Plan')
+                                    ->label(__('panel-admin::resources.prices.form.plan'))
                                     ->relationship('plan', 'name')
                                     ->searchable()
                                     ->required(),
 
                                 TextInput::make('type')
-                                    ->helperText('e.g. recurring, one_time')
+                                    ->helperText(__('panel-admin::resources.prices.form.type_helper'))
                                     ->required(),
 
                                 TextInput::make('billing_scheme')
-                                    ->helperText('How the billing is calculated (per_unit, tiered, etc).')
+                                    ->helperText(__('panel-admin::resources.prices.form.billing_scheme_helper'))
                                     ->required(),
 
                                 TextInput::make('tiers_mode')
-                                    ->helperText('If billing is tiered, choose the mode (graduated, volume).')
+                                    ->helperText(__('panel-admin::resources.prices.form.tiers_mode_helper'))
                                     ->required(),
                             ])->columns(2),
 
-                        Section::make('Pricing')
-                            ->description('Set the price amount and included usage.')
+                        Section::make(__('panel-admin::resources.prices.sections.pricing.title'))
+                            ->description(__('panel-admin::resources.prices.sections.pricing.description'))
                             ->key('section-pricing')
                             ->schema([
                                 TextInput::make('unit_amount_decimal')
-                                    ->label('Unit Amount (cents)')
+                                    ->label(__('panel-admin::resources.prices.form.unit_amount'))
                                     ->suffix('¢')
                                     ->required()
                                     ->integer(),
 
                                 TextInput::make('monthly_appointments')
-                                    ->label('Monthly Appointments')
+                                    ->label(__('panel-admin::resources.prices.form.monthly_appointments'))
                                     ->numeric()
-                                    ->helperText('How many appointments are included per month.')
+                                    ->helperText(__('panel-admin::resources.prices.form.monthly_appointments_helper'))
                                     ->required(),
                             ])->columns(2),
 
-                        Section::make('Features')
-                            ->description('Toggle which features are included for this price.')
+                        Section::make(__('panel-admin::resources.prices.sections.features.title'))
+                            ->description(__('panel-admin::resources.prices.sections.features.description'))
                             ->key('section-features')
                             ->schema([
                                 Toggle::make('active')
-                                    ->helperText('Whether this price can be purchased.')
+                                    ->helperText(__('panel-admin::resources.prices.form.active_helper'))
                                     ->required(),
                                 Toggle::make('whatsapp_enabled')
-                                    ->label('WhatsApp Enabled')
+                                    ->label(__('panel-admin::resources.prices.form.whatsapp_enabled'))
                                     ->required(),
                                 Toggle::make('materials_enabled')
-                                    ->label('Materials Enabled')
+                                    ->label(__('panel-admin::resources.prices.form.materials_enabled'))
                                     ->required(),
                             ])->columns(3),
 
-                        Section::make('Provider')
-                            ->description('External payment provider references.')
+                        Section::make(__('panel-admin::resources.prices.sections.provider.title'))
+                            ->description(__('panel-admin::resources.prices.sections.provider.description'))
                             ->key('section-provider')
                             ->schema([
                                 TextInput::make('provider_price_id')
                                     ->readOnly()
-                                    ->label('Provider Price ID')
-                                    ->helperText('Identifier of this price on the payment provider (e.g., Stripe).')
+                                    ->label(__('panel-admin::resources.prices.form.provider_price_id'))
+                                    ->helperText(__('panel-admin::resources.prices.form.provider_price_id_helper'))
                                     ->required(),
                             ]),
 
-                        Section::make('Metadata')
-                            ->description('Structured JSON metadata associated with this price.')
+                        Section::make(__('panel-admin::resources.prices.sections.metadata.title'))
+                            ->description(__('panel-admin::resources.prices.sections.metadata.description'))
                             ->key('section-metadata')
                             ->schema([
                                 CodeEditor::make('metadata')
@@ -128,16 +130,16 @@ class PriceResource extends Resource
                             ])
                             ->columnSpanFull(),
 
-                        Section::make('Auditing')
-                            ->description('Automatically tracked timestamps.')
+                        Section::make(__('panel-admin::resources.prices.sections.auditing.title'))
+                            ->description(__('panel-admin::resources.prices.sections.auditing.description'))
                             ->key('section-auditing')
                             ->schema([
                                 TextEntry::make('created_at')
-                                    ->label('Created Date')
+                                    ->label(__('panel-admin::resources.prices.created_date'))
                                     ->state(fn (?Price $record): string => $record?->created_at?->diffForHumans() ?? '-'),
 
                                 TextEntry::make('updated_at')
-                                    ->label('Last Modified Date')
+                                    ->label(__('panel-admin::resources.prices.last_modified_date'))
                                     ->state(fn (?Price $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
                             ])
                             ->columns(2)

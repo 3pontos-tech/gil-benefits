@@ -32,7 +32,6 @@ use TresPontosTech\Admin\Filament\Resources\Plans\Pages\ListPlans;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
-use UnitEnum;
 
 class PlanResource extends Resource
 {
@@ -40,9 +39,12 @@ class PlanResource extends Resource
 
     protected static ?string $slug = 'plans';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Billing';
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CircleStack;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('panel-admin::resources.navigation_group.billing');
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -73,41 +75,41 @@ class PlanResource extends Resource
                     ->options(BillableTypeEnum::class)
                     ->required(),
 
-                Section::make('Behavior')
+                Section::make(__('panel-admin::resources.plans.behavior.title'))
                     ->columnSpanFull()
                     ->columns(3)
                     ->schema([
                         CheckboxList::make('has_generic_trial')
-                            ->label('Has a generic trial period')
+                            ->label(__('panel-admin::resources.plans.behavior.has_generic_trial'))
                             ->options([
-                                'yes' => 'Yes',
-                                'no' => 'No',
+                                'yes' => __('panel-admin::resources.plans.behavior.yes'),
+                                'no' => __('panel-admin::resources.plans.behavior.no'),
                             ])
                             ->descriptions([
-                                'yes' => 'The trial period will be the same for all users.',
-                                'no' => 'The trial period will be unique for each user.',
+                                'yes' => __('panel-admin::resources.plans.behavior.trial_same_for_all'),
+                                'no' => __('panel-admin::resources.plans.behavior.trial_unique_per_user'),
                             ]),
 
                         CheckboxList::make('allow_promotion_codes')
-                            ->label('Allow Promotion Codes')
+                            ->label(__('panel-admin::resources.plans.behavior.allow_promotion_codes'))
                             ->options([
-                                'yes' => 'Yes',
-                                'no' => 'No',
+                                'yes' => __('panel-admin::resources.plans.behavior.yes'),
+                                'no' => __('panel-admin::resources.plans.behavior.no'),
                             ])
                             ->descriptions([
-                                'yes' => 'Promotion codes can be applied to this plan.',
-                                'no' => 'No promotion codes can be applied to this plan.',
+                                'yes' => __('panel-admin::resources.plans.behavior.promotion_can_be_applied'),
+                                'no' => __('panel-admin::resources.plans.behavior.no_promotion_codes'),
                             ]),
 
                         CheckboxList::make('collect_tax_ids')
-                            ->label('Collect Tax IDs')
+                            ->label(__('panel-admin::resources.plans.behavior.collect_tax_ids'))
                             ->options([
-                                'yes' => 'Yes',
-                                'no' => 'No',
+                                'yes' => __('panel-admin::resources.plans.behavior.yes'),
+                                'no' => __('panel-admin::resources.plans.behavior.no'),
                             ])
                             ->descriptions([
-                                'yes' => 'Tax IDs will be collected for this plan.',
-                                'no' => 'Tax IDs will not be collected for this plan.',
+                                'yes' => __('panel-admin::resources.plans.behavior.tax_ids_collected'),
+                                'no' => __('panel-admin::resources.plans.behavior.tax_ids_not_collected'),
                             ]),
                     ]),
 
@@ -121,11 +123,11 @@ class PlanResource extends Resource
                     ->required(),
 
                 TextEntry::make('created_at')
-                    ->label('Created Date')
+                    ->label(__('panel-admin::resources.plans.created_date'))
                     ->state(fn (?Plan $record): string => $record?->created_at?->diffForHumans() ?? '-'),
 
                 TextEntry::make('updated_at')
-                    ->label('Last Modified Date')
+                    ->label(__('panel-admin::resources.plans.last_modified_date'))
                     ->state(fn (?Plan $record): string => $record?->updated_at?->diffForHumans() ?? '-'),
             ]);
     }

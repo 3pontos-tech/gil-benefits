@@ -20,14 +20,14 @@ class CompaniesTable
         return $table
             ->columns([
                 TextColumn::make('owner.name')
-                    ->label('Owner')
+                    ->label(__('panel-admin::resources.companies.table.owner'))
                     ->sortable(),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('tax_id')
                     ->searchable(),
                 TextColumn::make('plans.name')
-                    ->label('PlanEntity'),
+                    ->label(__('panel-admin::resources.companies.table.plan')),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -15,7 +15,7 @@ class CompanyForm
         return $schema
             ->components([
                 Select::make('user_id')
-                    ->label('Owner')
+                    ->label(__('panel-admin::resources.companies.form.owner'))
                     ->relationship('owner', 'name')
                     ->required(),
                 TextInput::make('name')

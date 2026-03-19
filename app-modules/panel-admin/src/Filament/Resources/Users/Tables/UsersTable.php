@@ -25,11 +25,11 @@ class UsersTable
                 TextColumn::make('email')
                     ->searchable(),
                 TextColumn::make('detail.tax_id')
-                    ->label('Tax ID')
+                    ->label(__('panel-admin::resources.users.table.tax_id'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('detail.document_id')
-                    ->label('Document ID')
+                    ->label(__('panel-admin::resources.users.table.document_id'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('created_at')
