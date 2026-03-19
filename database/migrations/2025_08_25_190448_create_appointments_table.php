@@ -17,6 +17,7 @@ return new class extends Migration
             $table->timestamp('appointment_at');
             $table->string('status');
             $table->text('notes')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
