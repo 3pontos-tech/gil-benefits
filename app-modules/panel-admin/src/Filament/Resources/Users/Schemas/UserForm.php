@@ -15,27 +15,32 @@ class UserForm
     {
         return $schema
             ->components([
-                Fieldset::make('User')
+                Fieldset::make(__('panel-admin::resources.users.form.fieldset_user'))
                     ->schema([
                         TextInput::make('name')
+                            ->label(__('panel-admin::resources.users.form.name'))
                             ->required(),
                         TextInput::make('email')
+                            ->label(__('panel-admin::resources.users.form.email'))
                             ->email()
                             ->unique()
                             ->required(),
                         TextInput::make('password')
+                            ->label(__('panel-admin::resources.users.form.password'))
                             ->password()
                             ->required(),
                     ])
                     ->columns(1),
-                Fieldset::make('Details')
+                Fieldset::make(__('panel-admin::resources.users.form.fieldset_details'))
                     ->relationship('detail')
                     ->schema([
                         TextInput::make('tax_id')
+                            ->label(__('panel-admin::resources.users.form.tax_id'))
                             ->mask('999.999.999-99')
                             ->required()
                             ->unique(),
                         TextInput::make('document_id')
+                            ->label(__('panel-admin::resources.users.form.document_id'))
                             ->mask(RawJs::make(<<<'JS'
                                 $input.replace(/\D/g, '').length > 9
                                     ? '999.999.999-99'
@@ -46,6 +51,7 @@ class UserForm
                             ->required()
                             ->unique(),
                         Select::make('company_id')
+                            ->label(__('panel-admin::resources.users.form.company'))
                             ->options(Company::query()->pluck('name', 'id')),
                     ])
                     ->columns(1),

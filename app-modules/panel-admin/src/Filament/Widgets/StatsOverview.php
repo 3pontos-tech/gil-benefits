@@ -47,10 +47,10 @@ class StatsOverview extends StatsOverviewWidget
             ->perWeek()
             ->count();
 
-        return Stat::make('Active Plans', $activePlans)
+        return Stat::make(__('panel-admin::widgets.stats_overview.active_plans'), $activePlans)
             ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
             ->color('success')
-            ->description('Current active plans');
+            ->description(__('panel-admin::widgets.stats_overview.active_plans_description'));
     }
 
     private function mountNewUsersStat(): Stat
@@ -63,10 +63,10 @@ class StatsOverview extends StatsOverviewWidget
             ->perWeek()
             ->count();
 
-        return Stat::make('New Users', $data->sum('aggregate'))
+        return Stat::make(__('panel-admin::widgets.stats_overview.new_users'), $data->sum('aggregate'))
             ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
             ->color('info')
-            ->description('This week');
+            ->description(__('panel-admin::widgets.stats_overview.new_users_description'));
     }
 
     private function mountTotalCompaniesStat(): Stat
@@ -81,10 +81,10 @@ class StatsOverview extends StatsOverviewWidget
             ->perYear()
             ->count();
 
-        return Stat::make('Total Companies', $totalCompanies)
+        return Stat::make(__('panel-admin::widgets.stats_overview.total_companies'), $totalCompanies)
             ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
             ->color(Color::Teal)
-            ->description('Overall');
+            ->description(__('panel-admin::widgets.stats_overview.overall'));
     }
 
     private function mountTotalAppointmentsStat(): Stat
@@ -99,9 +99,9 @@ class StatsOverview extends StatsOverviewWidget
             ->perYear()
             ->count();
 
-        return Stat::make('Total Appointments', $totalAppointments)
+        return Stat::make(__('panel-admin::widgets.stats_overview.total_appointments'), $totalAppointments)
             ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
             ->color(Color::Fuchsia)
-            ->description('Overall');
+            ->description(__('panel-admin::widgets.stats_overview.overall'));
     }
 }

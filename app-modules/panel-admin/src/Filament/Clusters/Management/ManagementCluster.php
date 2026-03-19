@@ -15,11 +15,11 @@ class ManagementCluster extends Cluster
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return 'Administration';
+        return __('panel-admin::resources.navigation_group.administration');
     }
 
     public static function getNavigationLabel(): string
     {
-        return 'Users Management';
+        return __('panel-admin::resources.management_cluster.navigation_label');
     }
 }

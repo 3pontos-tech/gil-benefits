@@ -20,17 +20,17 @@
     class=" py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl ">
         <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-balance mb-2">Escolha seu plano</h1>
+            <h1 class="text-4xl font-bold text-balance mb-2">{{ __('views.subscriptions.choose_plan') }}</h1>
             <p class="text-muted-foreground text-lg">
-                Nosso sistema é feito baseado na sua demanda.</br>
-                Escolha o que mais faz sentido pro seu momento atual!
+                {{ __('views.subscriptions.description_line1') }}</br>
+                {{ __('views.subscriptions.description_line2') }}
             </p>
         </div>
         <div class="grid lg:grid-cols-3 gap-8 ">
             <div class="lg:col-span-3 space-y-6 space-x-10">
                 <x-filament::section
-                    heading="Detalhes do Produto"
-                    description="Selecione o número de colaboradores para sua avaliação financeira">
+                    :heading="__('views.subscriptions.product_details')"
+                    :description="__('views.subscriptions.select_employees')">
                     <div class="grid sm:grid-cols-1 lg:grid-cols-3 gap-3 mb-10">
                         @foreach($sortedPlans as $plan)
                             @php
@@ -86,7 +86,7 @@
                                             @if(is_bool($feature))
                                                 @if($feature)
                                                     <span class="ml-auto dark:text-white font-bold text-gray-950">
-                                                        Sim
+                                                        {{ __('views.subscriptions.yes') }}
                                                     </span>
                                                 @else
                                                     <span class="ml-auto dark:text-gray-400 font-bold text-gray-950">
@@ -103,11 +103,11 @@
                                     @endforeach
                                 </x-slot>
                                 <x-slot name="footer" class="flex justify-between">
-                                    <span>Subtotal</span>
+                                    <span>{{ __('views.subscriptions.subtotal') }}</span>
                                     <div class="flex">
                                         <span class="flex items-center font-bold text-high text-xl gap-1">
                                             {{ $formatted }}
-                                            <span class="text-medium font-medium text-xs">/mês</span>
+                                            <span class="text-medium font-medium text-xs">{{ __('views.subscriptions.per_month') }}</span>
                                         </span>
                                     </div>
                                 </x-slot>
@@ -119,7 +119,7 @@
                         <x-filament::button
                             wire:click="checkout()" icon="fab-stripe" color="primary" size="xl"
                             class="w-full text-base">
-                            Finalizar Assinatura
+                            {{ __('views.subscriptions.complete_subscription') }}
                         </x-filament::button>
                     </x-slot>
                 </x-filament::section>

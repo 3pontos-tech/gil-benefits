@@ -10,7 +10,7 @@ return [
     ],
     'fields' => [
         'name' => 'Nome',
-        'guard_name' => 'Guard Name',
+        'guard_name' => 'Nome do Guard',
         'permissions' => 'Permissões',
         'created_at' => 'Data de Criação',
         'updated_at' => 'Atualizado em',

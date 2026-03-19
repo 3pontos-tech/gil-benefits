@@ -5,6 +5,7 @@ namespace TresPontosTech\Admin\Filament\Widgets;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Company\Models\Company;
 
@@ -13,6 +14,11 @@ class LatestCompanies extends TableWidget
     protected int|string|array $columnSpan = 'full';
 
     protected static ?int $sort = 2;
+
+    public function getHeading(): string|Htmlable
+    {
+        return __('panel-admin::widgets.latest_companies.heading');
+    }
 
     public function table(Table $table): Table
     {
@@ -26,7 +32,7 @@ class LatestCompanies extends TableWidget
                 TextColumn::make('plans.name')
                     ->badge()
                     ->default(fn (): string => 'N/A')
-                    ->label('PlanEntity'),
+                    ->label(__('panel-admin::widgets.latest_companies.plan')),
                 TextColumn::make('tax_id')
                     ->badge()
                     ->searchable(),

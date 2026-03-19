@@ -15,6 +15,8 @@ class PanelAdminServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'panel-admin');
+
         Gate::policy(InboundWebhook::class, InboundWebhookPolicy::class);
         Gate::policy(BetterEmail::class, BetterMailPolicy::class);
     }

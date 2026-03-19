@@ -30,8 +30,8 @@ class CreateAppointment extends CreateRecord
         $user = auth()->user();
         if ($user && ! $user->canCreateAppointment()) {
             Notification::make()
-                ->title(__('Não é possível agendar agora'))
-                ->body(__('Você não possui agendamentos disponíveis neste mês ou já possui uma consultoria em andamento. Finalize a anterior para agendar outra.'))
+                ->title(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+                ->body(__('panel-app::resources.appointments.pages.create.no_appointments_available'))
                 ->danger()
                 ->send();
 
@@ -50,7 +50,7 @@ class CreateAppointment extends CreateRecord
             ->schema([
                 AppointmentWizard::make()
                     ->submitAction(Action::make('appointment-submit')
-                        ->label('Book Appointment')
+                        ->label(__('panel-app::resources.appointments.pages.create.book_appointment'))
                         ->action('submit')),
             ]);
     }
@@ -62,7 +62,7 @@ class CreateAppointment extends CreateRecord
         try {
             resolve(BookAppointmentAction::class)->handle($appointmentDTO);
             Notification::make()
-                ->title('Appointment booked successfully')
+                ->title(__('panel-app::resources.appointments.pages.create.booked_successfully'))
                 ->success()
                 ->send();
 
@@ -70,7 +70,7 @@ class CreateAppointment extends CreateRecord
         } catch (Throwable $throwable) {
 
             Notification::make()
-                ->title('Failed to book appointment')
+                ->title(__('panel-app::resources.appointments.pages.create.booking_failed'))
                 ->danger()
                 ->send();
         }

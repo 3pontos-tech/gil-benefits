@@ -15,6 +15,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
@@ -25,14 +26,17 @@ class ContractualPlansRelationManager extends RelationManager
 {
     protected static string $relationship = 'companyPlans';
 
-    protected static ?string $title = 'Planos Contratuais';
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('panel-admin::resources.companies.relation_managers.contractual_plans.title');
+    }
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('plan_id')
-                    ->label('Plano da Empresa')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.plan'))
                     ->options(
                         Plan::query()->where('provider', BillingProviderEnum::Contractual)
                             ->where('type', BillableTypeEnum::Company)
@@ -43,20 +47,20 @@ class ContractualPlansRelationManager extends RelationManager
                     ->searchable(),
 
                 TextInput::make('seats')
-                    ->label('Cadeiras')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.seats'))
                     ->integer()
                     ->minValue(1)
                     ->required(),
 
                 TextInput::make('monthly_appointments_per_employee')
-                    ->label('Consultas/mês por funcionário')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.monthly_appointments'))
                     ->integer()
                     ->minValue(1)
                     ->default(1)
                     ->required(),
 
                 Select::make('status')
-                    ->label('Status')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.status'))
                     ->options(CompanyPlanStatusEnum::class)
                     ->default(CompanyPlanStatusEnum::Active)
                     ->required()
@@ -88,22 +92,22 @@ class ContractualPlansRelationManager extends RelationManager
                                 ->exists();
 
                             if ($overlap) {
-                                $fail('Já existe um plano ativo com vigência sobreposta para esta empresa.');
+                                $fail(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.overlap_error'));
                             }
                         },
                     ]),
 
                 DatePicker::make('starts_at')
-                    ->label('Início da vigência')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.starts_at'))
                     ->displayFormat('d/m/Y'),
 
                 DatePicker::make('ends_at')
-                    ->label('Fim da vigência')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.ends_at'))
                     ->displayFormat('d/m/Y')
                     ->afterOrEqual(fn (Get $get): ?string => $get('starts_at')),
 
                 Textarea::make('notes')
-                    ->label('Observações')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.notes'))
                     ->columnSpanFull(),
             ]);
     }
@@ -114,26 +118,26 @@ class ContractualPlansRelationManager extends RelationManager
             ->recordTitleAttribute('plan.name')
             ->columns([
                 TextColumn::make('plan.name')
-                    ->label('Plano')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.plan'))
                     ->searchable(),
 
                 TextColumn::make('seats')
-                    ->label('Cadeiras'),
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.seats')),
 
                 TextColumn::make('monthly_appointments_per_employee')
-                    ->label('Consultas/mês'),
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.monthly_appointments')),
 
                 TextColumn::make('status')
-                    ->label('Status')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.status'))
                     ->badge()
                     ->color(fn (CompanyPlanStatusEnum $state): string|array => $state->getColor()),
 
                 TextColumn::make('starts_at')
-                    ->label('Início')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.starts_at'))
                     ->date('d/m/Y'),
 
                 TextColumn::make('ends_at')
-                    ->label('Fim')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.ends_at'))
                     ->date('d/m/Y'),
             ])
             ->headerActions([

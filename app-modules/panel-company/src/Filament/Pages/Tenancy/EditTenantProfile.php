@@ -36,7 +36,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 
     public static function getLabel(): string
     {
-        return 'Company Settings';
+        return __('panel-company::resources.pages.edit_tenant.label');
     }
 
     public function form(Schema $schema): Schema
@@ -44,6 +44,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label(__('panel-company::resources.pages.edit_tenant.form_name'))
                     ->maxLength(255)
                     ->live(onBlur: true, debounce: 500)
                     ->afterStateUpdated(function (Set $set, $state): void {
@@ -51,9 +52,11 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     })
                     ->readOnly(),
                 TextInput::make('tax_id')
+                    ->label(__('panel-company::resources.pages.edit_tenant.form_tax_id'))
                     ->mask('99.999.999/9999-99')
                     ->readOnly(),
                 TextInput::make('integration_access_key')
+                    ->label(__('panel-company::resources.pages.edit_tenant.form_integration_access_key'))
                     ->readOnly()
                     ->live(),
             ])
@@ -69,15 +72,18 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
     {
         return $table
             ->query(filament()->getTenant()->employees()->getQuery())
-            ->heading('Lista de Membros ativos')
+            ->heading(__('panel-company::resources.pages.edit_tenant.members_heading'))
             ->headerActions([
                 TenantSeatsCounterAction::make(),
                 CreateAndAttachAction::make('Invite Member')
+                    ->label(__('panel-company::resources.pages.edit_tenant.invite_member'))
                     ->model(User::class),
             ])
             ->recordActions([
                 Action::make('toggle-active')
-                    ->label(fn ($record): string => $record->active ? 'Desativar' : 'Ativar')
+                    ->label(fn ($record): string => $record->active
+                        ? __('panel-company::resources.pages.edit_tenant.deactivate')
+                        : __('panel-company::resources.pages.edit_tenant.activate'))
                     ->action(function (User $record): void {
                         /** @var Company $company */
                         $company = filament()->getTenant();
@@ -93,13 +99,17 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
             ->columns([
                 TextColumn::make('active')
                     ->badge()
-                    ->label('Status')
-                    ->formatStateUsing(fn ($state): string => $state ? 'Ativo' : 'Inativo')
+                    ->label(__('panel-company::resources.pages.edit_tenant.status'))
+                    ->formatStateUsing(fn ($state): string => $state
+                        ? __('panel-company::resources.pages.edit_tenant.active')
+                        : __('panel-company::resources.pages.edit_tenant.inactive'))
                     ->color(fn ($state): string => $state ? 'success' : 'danger')
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label(__('panel-company::resources.pages.edit_tenant.member_name'))
                     ->searchable(),
                 TextColumn::make('roles.name')
+                    ->label(__('panel-company::resources.pages.edit_tenant.member_role'))
                     ->color(fn ($state) => Roles::from($state)->getColor())
                     ->formatStateUsing(fn ($state) => Roles::from($state)->getLabel())
                     ->badge(),

@@ -46,35 +46,35 @@ class CreateAndAttachAction extends CreateAction
             Grid::make(2)
                 ->schema([
                     TextInput::make('name')
-                        ->label('Nome')
+                        ->label(__('panel-company::resources.actions.create_and_attach.name'))
                         ->required(),
                     TextInput::make('email')
                         ->rules(['email', 'unique:users,email'])
                         ->email()
                         ->required(),
                     TextInput::make('password')
-                        ->label('Senha')
+                        ->label(__('panel-company::resources.actions.create_and_attach.password'))
                         ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                         ->password()
                         ->required(),
                 ]),
             Grid::make(2),
-            Fieldset::make('Detalhes')
+            Fieldset::make(__('panel-company::resources.actions.create_and_attach.details'))
                 ->relationship('detail')
                 ->schema([
                     Hidden::make('company_id')->default(filament()->getTenant()->getKey()),
                     TextInput::make('tax_id')
-                        ->label('CPF')
+                        ->label(__('panel-company::resources.actions.create_and_attach.cpf'))
                         ->mask('999.999.999-99')
                         ->rule(new UniqueAtCompany)
                         ->required(),
                     TextInput::make('document_id')
-                        ->label('RG')
+                        ->label(__('panel-company::resources.actions.create_and_attach.rg'))
                         ->mask('99.999.999-9')
                         ->rule(new UniqueAtCompany)
                         ->required(),
                     PhoneInput::make('phone_number')
-                        ->label('Telefone')
+                        ->label(__('panel-company::resources.actions.create_and_attach.phone'))
                         ->defaultCountry('BR')
                         ->initialCountry('BR')
                         ->disableLookup()

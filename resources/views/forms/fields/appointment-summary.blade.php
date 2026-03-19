@@ -6,14 +6,14 @@
     $date = $get('date') ? Carbon::parse($get('date'))->translatedFormat('l, F d, Y') : null;
     $time = $get('appointment_at') ? Carbon::parse($get('appointment_at'))->format('H:i') : null;
 
-    $duration = '60 minutes';
+    $duration = __('views.appointment_summary.duration_minutes');
 @endphp
 
 <div class="space-y-6">
     <div class="space-y-4">
         <div class="border-px rounded-lg shadow-sm">
             <div class="px-4 py-2">
-                <h3 class="text-lg font-semibold">Appointment Summary</h3>
+                <h3 class="text-lg font-semibold">{{ __('views.appointment_summary.title') }}</h3>
             </div>
             <div class="p-4 space-y-4">
                 {{-- Category --}}
@@ -39,7 +39,7 @@
                     <x-heroicon-o-clock class="h-5 w-5 text-gray-400"/>
                     <div>
                         <p class="font-medium">{{ $duration }}</p>
-                        <p class="text-sm text-gray-500">Meeting duration</p>
+                        <p class="text-sm text-gray-500">{{ __('views.appointment_summary.meeting_duration') }}</p>
                     </div>
                 </div>
 

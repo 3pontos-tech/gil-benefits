@@ -18,7 +18,7 @@ class AppointmentsTable
                     ->placeholder('—')
                     ->searchable(),
                 TextColumn::make('category_type')
-                    ->label('Tipo de Atendimento')
+                    ->label(__('panel-app::resources.appointments.table.category_type'))
                     ->badge()
                     ->searchable(),
                 TextColumn::make('appointment_at')

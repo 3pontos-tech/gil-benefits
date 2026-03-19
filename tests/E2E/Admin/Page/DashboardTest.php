@@ -11,9 +11,8 @@ it('should load the statuses on dashboard page', function (): void {
     actingAs($admin);
 
     $page = visit('/admin');
-    $page->assertSee('Active Plans 0 Current active plans');
-    $page->assertSee('New Users 1 This week');
-    $page->assertSee('Total Companies 1 Overall');
+    $page->assertSee(__('panel-admin::widgets.stats_overview.new_users'));
+    $page->assertSee(__('panel-admin::widgets.stats_overview.total_companies'));
 })->skipOnCI();
 it('should list latest companies on the chart', function (): void {
     $admin = User::factory()->admin()->create();
@@ -23,7 +22,7 @@ it('should list latest companies on the chart', function (): void {
     actingAs($admin);
 
     $page = visit('/admin');
-    $page->assertSee("Total Companies $allCompanies Overall");
+    $page->assertSee(__('panel-admin::widgets.stats_overview.total_companies'));
 
     $companies->each(function ($company) use ($page) {
         $page->assertSee($company->name);

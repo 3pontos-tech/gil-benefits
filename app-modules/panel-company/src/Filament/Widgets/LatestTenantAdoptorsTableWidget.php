@@ -18,7 +18,7 @@ class LatestTenantAdoptorsTableWidget extends TableWidget
     {
         return $table
             ->searchable(false)
-            ->heading('Últimos 5 membros')
+            ->heading(__('panel-company::widgets.latest_adoptors.heading'))
             ->query(fn (): Builder => Filament::getTenant()
                 ->employees()
                 ->take(5)
@@ -26,17 +26,17 @@ class LatestTenantAdoptorsTableWidget extends TableWidget
             ->paginated(false)
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nome')
+                    ->label(__('panel-company::widgets.latest_adoptors.name'))
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('Email')
+                    ->label(__('panel-company::widgets.latest_adoptors.email'))
                     ->searchable(),
                 TextColumn::make('email_verified_at')
-                    ->label('Email verificado em')
+                    ->label(__('panel-company::widgets.latest_adoptors.email_verified_at'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('crm_id')
-                    ->label('ID externo')
+                    ->label(__('panel-company::widgets.latest_adoptors.external_id'))
                     ->searchable(),
                 TextColumn::make('deleted_at')
                     ->dateTime()
@@ -54,14 +54,14 @@ class LatestTenantAdoptorsTableWidget extends TableWidget
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('pm_type')
-                    ->label('Método de pagamento')
+                    ->label(__('panel-company::widgets.latest_adoptors.payment_method'))
                     ->searchable(),
                 TextColumn::make('pm_last_four')
-                    ->label('Últimos 4 dígitos do cartão')
+                    ->label(__('panel-company::widgets.latest_adoptors.last_four_digits'))
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('trial_ends_at')
-                    ->label('Período de teste termina em')
+                    ->label(__('panel-company::widgets.latest_adoptors.trial_ends_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

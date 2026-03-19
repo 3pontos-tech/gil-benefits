@@ -20,26 +20,20 @@ class QuickActions extends Widget
     {
         $shortcuts = [
             [
-                'title' => 'Criar Usuário',
-                'description' => 'Adicionar novo usuário ao sistema',
+                'title' => __('panel-admin::widgets.quick_actions.create_user'),
+                'description' => __('panel-admin::widgets.quick_actions.create_user_description'),
                 'icon' => Heroicon::UserPlus,
                 'href' => CreateUser::getUrl(),
             ],
             [
-                'title' => 'Criar Empresa',
-                'description' => 'Cadastrar nova empresa na plataforma',
+                'title' => __('panel-admin::widgets.quick_actions.create_company'),
+                'description' => __('panel-admin::widgets.quick_actions.create_company_description'),
                 'icon' => 'heroicon-o-building-office',
                 'href' => CreateCompany::getUrl(),
             ],
-            //            [
-            //                'title' => 'Criar Plano',
-            //                'description' => 'Configurar novo plano de assinatura',
-            //                'icon' => 'heroicon-o-credit-card',
-            //                'href' => CreatePlan::getUrl(),
-            //            ],
             [
-                'title' => 'Gerenciar Usuários',
-                'description' => 'Visualizar e editar usuários existentes',
+                'title' => __('panel-admin::widgets.quick_actions.manage_users'),
+                'description' => __('panel-admin::widgets.quick_actions.manage_users_description'),
                 'icon' => 'heroicon-o-users',
                 'href' => ListUsers::getUrl(),
             ],

@@ -35,12 +35,12 @@ class TenantSeatsCounterAction extends Action
         $contractualPlan = $tenant->activeContractualPlan();
 
         if ($contractualPlan !== null) {
-            return sprintf('Assentos: %s/%s', $employeesCount, $contractualPlan->seats);
+            return sprintf(__('panel-company::resources.actions.seats_counter.label'), $employeesCount, $contractualPlan->seats);
         }
 
         /** @var Subscription $activeSubscription */
         $activeSubscription = $tenant->subscriptions()->where('stripe_status', '=', 'active')->first();
 
-        return sprintf('Assentos: %s/%s', $employeesCount, $activeSubscription->quantity);
+        return sprintf(__('panel-company::resources.actions.seats_counter.label'), $employeesCount, $activeSubscription->quantity);
     }
 }

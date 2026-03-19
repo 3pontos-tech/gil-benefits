@@ -21,15 +21,17 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('panel-admin::resources.users.table.name'))
                     ->searchable(),
                 TextColumn::make('email')
+                    ->label(__('panel-admin::resources.users.table.email'))
                     ->searchable(),
                 TextColumn::make('detail.tax_id')
-                    ->label('Tax ID')
+                    ->label(__('panel-admin::resources.users.table.tax_id'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('detail.document_id')
-                    ->label('Document ID')
+                    ->label(__('panel-admin::resources.users.table.document_id'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('created_at')

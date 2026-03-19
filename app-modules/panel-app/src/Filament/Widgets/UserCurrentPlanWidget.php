@@ -76,8 +76,8 @@ class UserCurrentPlanWidget extends Widget
 
         if (! $user->canCreateAppointment()) {
             Notification::make()
-                ->title(__('Não é possível agendar agora'))
-                ->body(__('Você não possui agendamentos disponíveis neste mês ou já possui uma consultoria em andamento. Finalize a anterior para agendar outra.'))
+                ->title(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+                ->body(__('panel-app::resources.appointments.pages.create.no_appointments_available'))
                 ->danger()
                 ->send();
 
