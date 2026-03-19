@@ -101,11 +101,6 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->hasMany(Appointment::class);
     }
 
-    public function scheduledAppointments(): HasMany
-    {
-        return $this->hasMany(Appointment::class);
-    }
-
     public function subscriptions(): MorphMany
     {
         return $this->morphMany(Subscription::class, 'subscriptionable');
