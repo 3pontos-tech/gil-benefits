@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Tenant\Actions;
 
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\Company\Models\Company;
 
 class DeleteExternalUserAction
@@ -11,8 +12,9 @@ class DeleteExternalUserAction
         $company = Company::query()->findOrFail($tenant);
         $user = $company->employees()->where('user_id', $userId)->firstOrFail();
 
-        $company->employees()->detach($user);
-        $user->delete();
-
+        DB::transaction(function () use ($company, $user): void {
+            $company->employees()->detach($user);
+            $user->delete();
+        });
     }
 }
