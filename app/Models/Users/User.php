@@ -27,6 +27,9 @@ use Laravel\Cashier\Billable;
 use Spatie\Permission\Traits\HasRoles;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
@@ -161,10 +164,12 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                         ->first();
 
                     if ($subscription === null || $subscription->price === null) {
-                        $contractualPlan = $this->companies()
-                            ->get()
-                            ->map(fn ($company) => $company->activeContractualPlan())
-                            ->filter()
+                        $contractualPlan = CompanyPlan::query()
+                            ->whereIn('company_id', $this->companies()->select('companies.id'))
+                            ->where('status', CompanyPlanStatusEnum::Active->value)
+                            ->whereNull('deleted_at')
+                            ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+                            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
                             ->first();
 
                         if ($contractualPlan === null) {
