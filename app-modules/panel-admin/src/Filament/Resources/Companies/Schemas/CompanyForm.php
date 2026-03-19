@@ -22,6 +22,7 @@ class CompanyForm
                     ->label(__('panel-admin::resources.companies.form.name'))
                     ->maxLength(255)
                     ->live(onBlur: true, debounce: 500)
+                    ->required()
                     ->afterStateUpdated(function (Set $set, string $state): void {
                         $slug = sprintf('%s-%s', $state, Str::random(4));
                         $set('slug', str($slug)->slug());

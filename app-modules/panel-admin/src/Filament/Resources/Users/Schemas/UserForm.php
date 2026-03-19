@@ -28,7 +28,8 @@ class UserForm
                         TextInput::make('password')
                             ->label(__('panel-admin::resources.users.form.password'))
                             ->password()
-                            ->required(),
+                            ->required(fn ($operation): bool => $operation === 'create')
+                            ->dehydrated(fn ($state): bool => filled($state)),
                     ])
                     ->columns(1),
                 Fieldset::make(__('panel-admin::resources.users.form.fieldset_details'))

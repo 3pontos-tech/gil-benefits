@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Illuminate\Support\Facades\Hash;
@@ -29,14 +30,26 @@ class CreateAndAttachAction extends CreateAction
 
         $this->disabled(fn (): bool => $this->isSubscriptionCapacityExceeded());
 
+        $this->before(function (): void {
+            if ($this->isSubscriptionCapacityExceeded()) {
+                Notification::make()
+                    ->danger()
+                    ->title('Limite atingido')
+                    ->body('Não há mais assentos disponíveis no seu plano.')
+                    ->send();
+
+                $this->halt();
+            }
+        });
         $this->after(
             function (User $record): void {
-                filament()->getTenant()->employees()->attach($record);
+                filament()->getTenant()->employees()->syncWithoutDetaching($record);
                 $record->assignRole(Roles::Employee);
             }
         );
 
         $this->schema($this->buildFormSchema());
+
     }
 
     private function buildFormSchema(): array
