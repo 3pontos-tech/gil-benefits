@@ -19,6 +19,7 @@ class CompanyForm
                     ->relationship('owner', 'name')
                     ->required(),
                 TextInput::make('name')
+                    ->label(__('panel-admin::resources.companies.form.name'))
                     ->maxLength(255)
                     ->live(onBlur: true, debounce: 500)
                     ->afterStateUpdated(function (Set $set, string $state): void {
@@ -26,11 +27,13 @@ class CompanyForm
                         $set('slug', str($slug)->slug());
                     }),
                 TextInput::make('slug')
+                    ->label(__('panel-admin::resources.companies.form.slug'))
                     ->required()
                     ->readOnly()
                     ->maxLength(255)
                     ->unique('companies', 'slug'),
                 TextInput::make('tax_id')
+                    ->label(__('panel-admin::resources.companies.form.tax_id'))
                     ->mask('99.999.999/9999-99')
                     ->required(),
             ]);

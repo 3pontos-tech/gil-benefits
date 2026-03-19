@@ -13,6 +13,7 @@ return [
         'overall' => 'Overall',
     ],
     'latest_companies' => [
+        'heading' => 'Latest Companies',
         'plan' => 'Plan',
     ],
     'quick_actions' => [

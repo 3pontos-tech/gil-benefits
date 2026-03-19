@@ -21,8 +21,10 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('panel-admin::resources.users.table.name'))
                     ->searchable(),
                 TextColumn::make('email')
+                    ->label(__('panel-admin::resources.users.table.email'))
                     ->searchable(),
                 TextColumn::make('detail.tax_id')
                     ->label(__('panel-admin::resources.users.table.tax_id'))

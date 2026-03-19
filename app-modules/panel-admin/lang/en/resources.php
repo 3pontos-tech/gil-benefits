@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'navigation_group' => [
         'billing' => 'Billing',
+        'administration' => 'Administration',
     ],
     'contractual_plans' => [
         'navigation_label' => 'Contractual Plans',
@@ -87,11 +88,19 @@ return [
         'last_modified_date' => 'Last Modified Date',
     ],
     'companies' => [
+        'navigation_label' => 'Companies',
+        'model_label' => 'Company',
+        'plural_model_label' => 'Companies',
         'form' => [
             'owner' => 'Owner',
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'tax_id' => 'Tax ID',
         ],
         'table' => [
             'owner' => 'Owner',
+            'name' => 'Name',
+            'tax_id' => 'Tax ID',
             'plan' => 'Plan',
         ],
         'relation_managers' => [
@@ -123,10 +132,28 @@ return [
         ],
     ],
     'users' => [
+        'navigation_label' => 'Users',
+        'model_label' => 'User',
+        'plural_model_label' => 'Users',
+        'form' => [
+            'fieldset_user' => 'User',
+            'fieldset_details' => 'Details',
+            'name' => 'Name',
+            'email' => 'Email',
+            'password' => 'Password',
+            'tax_id' => 'CPF',
+            'document_id' => 'RG',
+            'company' => 'Company',
+        ],
         'table' => [
+            'name' => 'Name',
+            'email' => 'Email',
             'tax_id' => 'Tax ID',
             'document_id' => 'Document ID',
         ],
+    ],
+    'management_cluster' => [
+        'navigation_label' => 'Users Management',
     ],
     'permissions' => [
         'assign_role' => 'Assign Role',

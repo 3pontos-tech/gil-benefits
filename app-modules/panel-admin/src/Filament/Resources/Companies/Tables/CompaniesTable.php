@@ -23,8 +23,10 @@ class CompaniesTable
                     ->label(__('panel-admin::resources.companies.table.owner'))
                     ->sortable(),
                 TextColumn::make('name')
+                    ->label(__('panel-admin::resources.companies.table.name'))
                     ->searchable(),
                 TextColumn::make('tax_id')
+                    ->label(__('panel-admin::resources.companies.table.tax_id'))
                     ->searchable(),
                 TextColumn::make('plans.name')
                     ->label(__('panel-admin::resources.companies.table.plan')),

@@ -13,6 +13,7 @@ return [
         'overall' => 'Geral',
     ],
     'latest_companies' => [
+        'heading' => 'Últimas Empresas',
         'plan' => 'Plano',
     ],
     'quick_actions' => [

@@ -22,9 +22,27 @@ class CompanyResource extends Resource
 {
     protected static ?string $model = Company::class;
 
-    protected static string|null|\UnitEnum $navigationGroup = 'Administration';
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingOffice2;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('panel-admin::resources.navigation_group.administration');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('panel-admin::resources.companies.navigation_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('panel-admin::resources.companies.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('panel-admin::resources.companies.plural_model_label');
+    }
 
     public static function form(Schema $schema): Schema
     {

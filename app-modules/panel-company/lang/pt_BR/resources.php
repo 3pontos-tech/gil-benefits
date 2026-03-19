@@ -13,6 +13,11 @@ return [
             'status' => 'Status',
             'active' => 'Ativo',
             'inactive' => 'Inativo',
+            'member_name' => 'Nome',
+            'member_role' => 'Função',
+            'form_name' => 'Nome da Empresa',
+            'form_tax_id' => 'CNPJ',
+            'form_integration_access_key' => 'Chave de Acesso de Integração',
         ],
     ],
     'actions' => [
@@ -27,6 +32,9 @@ return [
         'secret_key_rotation' => [
             'label' => 'Gerar nova chave',
             'new_key_generated' => 'Nova chave gerada: ',
+        ],
+        'seats_counter' => [
+            'label' => 'Assentos: %s/%s',
         ],
     ],
 ];

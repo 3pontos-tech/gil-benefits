@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'navigation_group' => [
         'billing' => 'Faturamento',
+        'administration' => 'Administração',
     ],
     'contractual_plans' => [
         'navigation_label' => 'Planos Contratuais',
@@ -87,11 +88,19 @@ return [
         'last_modified_date' => 'Última Modificação',
     ],
     'companies' => [
+        'navigation_label' => 'Empresas',
+        'model_label' => 'Empresa',
+        'plural_model_label' => 'Empresas',
         'form' => [
             'owner' => 'Proprietário',
+            'name' => 'Nome',
+            'slug' => 'Slug',
+            'tax_id' => 'CNPJ',
         ],
         'table' => [
             'owner' => 'Proprietário',
+            'name' => 'Nome',
+            'tax_id' => 'CNPJ',
             'plan' => 'Plano',
         ],
         'relation_managers' => [
@@ -123,10 +132,28 @@ return [
         ],
     ],
     'users' => [
+        'navigation_label' => 'Usuários',
+        'model_label' => 'Usuário',
+        'plural_model_label' => 'Usuários',
+        'form' => [
+            'fieldset_user' => 'Usuário',
+            'fieldset_details' => 'Detalhes',
+            'name' => 'Nome',
+            'email' => 'E-mail',
+            'password' => 'Senha',
+            'tax_id' => 'CPF',
+            'document_id' => 'RG',
+            'company' => 'Empresa',
+        ],
         'table' => [
+            'name' => 'Nome',
+            'email' => 'E-mail',
             'tax_id' => 'CPF',
             'document_id' => 'RG',
         ],
+    ],
+    'management_cluster' => [
+        'navigation_label' => 'Gestão de Usuários',
     ],
     'permissions' => [
         'assign_role' => 'Atribuir Função',
