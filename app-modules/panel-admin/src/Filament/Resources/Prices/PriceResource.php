@@ -125,6 +125,7 @@ class PriceResource extends Resource
                             ->schema([
                                 CodeEditor::make('metadata')
                                     ->formatStateUsing(fn (?string $state): string => $state ? json_encode(json_decode($state), JSON_PRETTY_PRINT) : '')
+                                    ->dehydrateStateUsing(fn (?string $state): ?array => $state ? json_decode($state, true) : null)
                                     ->language(Language::Json)
                                     ->required(),
                             ])
