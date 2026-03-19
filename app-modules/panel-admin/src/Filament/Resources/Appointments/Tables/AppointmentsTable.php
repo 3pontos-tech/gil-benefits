@@ -129,6 +129,8 @@ class AppointmentsTable
                     ->multiple(),
             ])
             ->persistFiltersInSession()
+            ->defaultSort('appointment_at', 'desc')
+            ->persistSortInSession()
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
