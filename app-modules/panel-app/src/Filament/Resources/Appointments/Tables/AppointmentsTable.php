@@ -40,6 +40,7 @@ class AppointmentsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('appointment_at', 'desc')
             ->filters([
                 //
             ])
