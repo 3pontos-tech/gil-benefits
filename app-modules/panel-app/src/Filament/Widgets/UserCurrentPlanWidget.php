@@ -5,7 +5,11 @@ namespace TresPontosTech\App\Filament\Widgets;
 use App\Models\Users\User;
 use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
 class UserCurrentPlanWidget extends Widget
@@ -18,6 +22,28 @@ class UserCurrentPlanWidget extends Widget
     {
         /** @var User $user */
         $user = auth()->user();
+
+        $contractualPlan = CompanyPlan::query()
+            ->whereIn('company_id', $user->companies()->select('companies.id'))
+            ->where('status', CompanyPlanStatusEnum::Active)
+            ->where(fn (Builder $query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
+            ->with('plan')
+            ->first();
+
+        if (filled($contractualPlan)) {
+            return [
+                'planName' => $contractualPlan->plan->name,
+                'description' => $contractualPlan->plan->description,
+                'status' => 'active',
+                'features' => [
+                    'appointments' => $contractualPlan->monthly_appointments_per_employee,
+                ],
+                'availableAppointments' => $user->monthly_appointments_left,
+                'canCreateAppointment' => $user->canCreateAppointment(),
+                'hasOngoingAppointment' => $user->hasOngoingAppointment(),
+            ];
+        }
 
         /** @var Subscription $subscription */
         $subscription = $user
@@ -43,7 +69,7 @@ class UserCurrentPlanWidget extends Widget
         ];
     }
 
-    public function redirectToAppointmentCreation()
+    public function redirectToAppointmentCreation(): ?RedirectResponse
     {
         /** @var User $user */
         $user = auth()->user();

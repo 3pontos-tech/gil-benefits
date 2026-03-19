@@ -30,6 +30,7 @@ use TresPontosTech\Admin\Filament\Resources\Plans\Pages\CreatePlan;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\EditPlan;
 use TresPontosTech\Admin\Filament\Resources\Plans\Pages\ListPlans;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use UnitEnum;
 
@@ -179,7 +180,8 @@ class PlanResource extends Resource
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            ->where('provider', BillingProviderEnum::Stripe);
     }
 
     public static function getGloballySearchableAttributes(): array

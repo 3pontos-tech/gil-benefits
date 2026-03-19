@@ -10,6 +10,7 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Cashier\Subscription;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Rules\UniqueAtCompany;
 use TresPontosTech\Permissions\Roles;
@@ -85,14 +86,20 @@ class CreateAndAttachAction extends CreateAction
 
     private function isSubscriptionCapacityExceeded(): bool
     {
-
         /** @var Company $tenant */
         $tenant = filament()->getTenant();
 
+        $employeesCount = $tenant->employees()->wherePivot('active', true)->count();
+
+        /** @var CompanyPlan|null $contractualPlan */
+        $contractualPlan = $tenant->activeContractualPlan();
+
+        if ($contractualPlan !== null) {
+            return $contractualPlan->seats <= $employeesCount;
+        }
+
         /** @var Subscription $activeSubscription */
         $activeSubscription = $tenant->subscriptions()->where('stripe_status', '=', 'active')->first();
-
-        $employeesCount = $tenant->employees()->wherePivot('active', true)->count();
 
         return $activeSubscription->quantity <= $employeesCount;
     }

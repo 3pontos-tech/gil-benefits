@@ -8,6 +8,7 @@ use TresPontosTech\App\Filament\Pages\UserDashboard;
 use TresPontosTech\App\Filament\Widgets\AppointmentHistoryWidget;
 use TresPontosTech\App\Filament\Widgets\LatestAppointmentWidget;
 use TresPontosTech\App\Filament\Widgets\UserCurrentPlanWidget;
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Stripe\Subscription\User\RedirectUserIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
@@ -79,11 +80,13 @@ it('should receive forbidden if tenant is not subscribed in any plan', function 
 describe('testing widgets that are on user dashboard', function (): void {
 
     test('latest appointment', function (): void {
-        $appointments = Appointment::factory()->for($this->employee, 'user')->count(5)->create();
+        Appointment::factory()->for($this->employee, 'user')->count(4)->create(['created_at' => now()->subMinutes(5)]);
+        $latest = Appointment::factory()->for($this->employee, 'user')->withStatus(AppointmentStatus::Pending)->create();
+
         livewire(LatestAppointmentWidget::class)
             ->assertOk()
             ->assertSeeText('Próxima consultoria')
-            ->assertSeeText($appointments->first()->status->getLabel());
+            ->assertSeeText($latest->status->getLabel());
     });
     test('latest appointment, zero appointments', function (): void {
         livewire(LatestAppointmentWidget::class)

@@ -12,11 +12,13 @@ use Illuminate\Contracts\Support\Htmlable;
 enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
 {
     case Stripe = 'stripe';
+    case Contractual = 'contractual';
 
     public function getColor(): string|array|null
     {
         return match ($this) {
             self::Stripe => Color::Indigo,
+            self::Contractual => Color::Emerald,
         };
     }
 
@@ -24,6 +26,7 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
     {
         return match ($this) {
             self::Stripe => 'heroicon-o-credit-card',
+            self::Contractual => 'heroicon-o-document-text',
         };
     }
 

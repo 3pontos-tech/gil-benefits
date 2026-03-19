@@ -4,15 +4,20 @@ namespace TresPontosTech\Company\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Cashier\Billable;
 use Ramsey\Uuid\Uuid;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Models\TenantMember;
@@ -48,7 +53,30 @@ class Company extends Model
 
     public function hasActivePlan(): bool
     {
-        return $this->plans()->wherePivot('status', 'active')->exists();
+        return filled($this->activeContractualPlan());
+    }
+
+    public function activeContractualPlan(): ?CompanyPlan
+    {
+        return CompanyPlan::query()->where('company_id', $this->id)
+            ->where('status', CompanyPlanStatusEnum::Active->value)
+            ->whereNull('deleted_at')
+            ->where(fn (Builder $query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
+            ->first();
+    }
+
+    public function companyPlans(): HasMany
+    {
+        return $this->hasMany(CompanyPlan::class);
+    }
+
+    public function plans(): BelongsToMany
+    {
+        return $this->belongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')
+            ->withTimestamps()
+            ->withPivot(['seats', 'monthly_appointments_per_employee', 'status', 'starts_at', 'ends_at', 'notes'])
+            ->wherePivotNull('deleted_at');
     }
 
     public function owner(): BelongsTo

@@ -20,6 +20,11 @@ class RedirectUserIfNotSubscribed
     {
         /** @var Company|Filament $tenant */
         $tenant = Filament::getTenant();
+
+        if ($tenant->hasActivePlan()) {
+            return $next($request);
+        }
+
         Cashier::useCustomerModel(User::class);
 
         if ($tenant->hasStripeId() === false) {

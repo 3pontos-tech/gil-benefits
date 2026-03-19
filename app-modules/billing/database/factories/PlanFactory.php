@@ -42,4 +42,28 @@ class PlanFactory extends Factory
             ];
         });
     }
+
+    public function stripe(): self
+    {
+        return $this->state([
+            'provider' => BillingProviderEnum::Stripe,
+            'trial_days' => null,
+            'has_generic_trial' => false,
+            'allow_promotion_codes' => false,
+            'collect_tax_ids' => false,
+        ]);
+    }
+
+    public function contractual(): self
+    {
+        return $this->state([
+            'provider' => BillingProviderEnum::Contractual,
+            'provider_product_id' => null,
+            'statement_descriptor' => null,
+            'trial_days' => null,
+            'has_generic_trial' => false,
+            'allow_promotion_codes' => false,
+            'collect_tax_ids' => false,
+        ]);
+    }
 }
