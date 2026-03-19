@@ -11,7 +11,7 @@ readonly class RemoveStaleBlockedSchedulesAction
 {
     public function handle(Consultant $consultant, array $syncedEventIds): void
     {
-        if (empty($syncedEventIds)) {
+        if ($syncedEventIds === []) {
             return;
         }
 
