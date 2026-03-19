@@ -28,10 +28,8 @@ class EditCompany extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
-            //            AttachPlanAction::make()
-            //                ->disabled($this->record->hasActivePlan())
-            //                ->after(fn () => $this->redirect($this->getResource()::getUrl('edit', ['record' => $this->record]))),
+            DeleteAction::make()
+                ->requiresConfirmation(),
         ];
     }
 }
