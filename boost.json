@@ -1,16 +1,24 @@
 {
     "agents": [
         "opencode",
-        "phpstorm"
+        "claude_code"
     ],
-    "editors": [
-        "opencode",
-        "phpstorm"
-    ],
-    "guidelines": [
-        "filament/filament",
+    "guidelines": true,
+    "herd_mcp": false,
+    "mcp": true,
+    "nightwatch_mcp": false,
+    "packages": [
         "internachi/modular",
+        "filament/filament",
+        "3pontos-tech/permissions",
         "spatie/laravel-medialibrary",
-        "3pontos-tech/permissions"
+        "laraveljutsu/zap"
+    ],
+    "sail": false,
+    "skills": [
+        "pest-testing",
+        "tailwindcss-development",
+        "modular",
+        "medialibrary-development"
     ]
 }

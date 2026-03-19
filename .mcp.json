@@ -1,9 +1,9 @@
 {
     "mcpServers": {
         "laravel-boost": {
-            "command": "/usr/bin/php8.4",
+            "command": "php",
             "args": [
-                "/home/richard/dev/work/gil-benefits/artisan",
+                "artisan",
                 "boost:mcp"
             ]
         }

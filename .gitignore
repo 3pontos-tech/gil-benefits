@@ -29,3 +29,8 @@ Thumbs.db
 /.rector.cache
 _ide_helper_models.php
 .output.txt
+CLAUDE.md
+.claude
+.mcp.json
+AGENTS.md
+.agents
