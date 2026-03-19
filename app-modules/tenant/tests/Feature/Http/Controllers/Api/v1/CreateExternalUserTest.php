@@ -13,7 +13,7 @@ beforeEach(function (): void {
 });
 
 it('should be able to create an external user', function (): void {
-    $response = postJson(route('api.v1.company.users.store', ['tenant' => $this->company->getKey()]), [
+    $response = postJson(route('api.v1.company.users.store', ['tenant' => $this->company->slug]), [
         'name' => 'Fulaninho',
         'email' => 'fulaninho@gmail.com',
         'external_id' => '123456',
@@ -38,7 +38,7 @@ it('should be able to create an external user', function (): void {
 });
 
 test('should return unauthorized status when header is wrong', function (): void {
-    $response = postJson(route('api.v1.company.users.store', ['tenant' => $this->company->getKey()]), [
+    $response = postJson(route('api.v1.company.users.store', ['tenant' => $this->company->slug]), [
         'name' => 'Fulaninho',
         'email' => 'fulaninho@gmail.com',
         'external_id' => '123456',
@@ -64,7 +64,7 @@ it('should fail when company does not exists', function (): void {
 it('should not allow creating a user in another tenant using a valid token from a different company', function (): void {
     $otherCompany = Company::factory()->create();
 
-    $response = postJson(route('api.v1.company.users.store', ['tenant' => $otherCompany->getKey()]), [
+    $response = postJson(route('api.v1.company.users.store', ['tenant' => $otherCompany->slug]), [
         'name' => 'Fulaninho',
         'email' => 'fulaninho@gmail.com',
         'external_id' => '123456',

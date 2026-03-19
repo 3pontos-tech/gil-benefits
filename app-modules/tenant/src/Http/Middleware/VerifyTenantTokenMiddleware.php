@@ -24,7 +24,7 @@ class VerifyTenantTokenMiddleware
         $company = Company::query()->where('integration_access_key', $token)->first();
 
         abort_if(! $company, Response::HTTP_FORBIDDEN);
-        abort_if((string) $company->getKey() !== (string) $request->route('tenant'), Response::HTTP_FORBIDDEN);
+        abort_if((string) $company->getRouteKey() !== (string) $request->route('tenant'), Response::HTTP_FORBIDDEN);
 
         return $next($request);
     }

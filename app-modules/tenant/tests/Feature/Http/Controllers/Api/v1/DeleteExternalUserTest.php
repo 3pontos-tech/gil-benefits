@@ -14,7 +14,7 @@ beforeEach(function (): void {
 });
 
 it('should be able to delete an user and detach for company', function (): void {
-    $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => $this->company->getKey(), 'user' => $this->user->getKey()]), [], [
+    $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => $this->company->slug, 'user' => $this->user->getKey()]), [], [
         config('tenant.header') => $this->company->integration_access_key,
     ]);
 
@@ -30,7 +30,7 @@ it('should be able to delete an user and detach for company', function (): void 
 });
 
 test('should return unauthorized status when header is wrong', function (): void {
-    $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => $this->company->getKey(), 'user' => $this->user->getKey()]), [], [
+    $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => $this->company->slug, 'user' => $this->user->getKey()]), [], [
         'Fuedase' => 123,
     ]);
 
@@ -49,7 +49,7 @@ it('should not allow deleting a user from another tenant using a valid token fro
     $otherCompany = Company::factory()->create();
     $otherCompany->employees()->save($this->user);
 
-    $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => $otherCompany->getKey(), 'user' => $this->user->getKey()]), [], [
+    $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => $otherCompany->slug, 'user' => $this->user->getKey()]), [], [
         config('tenant.header') => $this->company->integration_access_key,
     ]);
 
