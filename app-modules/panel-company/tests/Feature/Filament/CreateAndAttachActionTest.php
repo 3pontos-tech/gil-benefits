@@ -3,6 +3,7 @@
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -38,6 +39,32 @@ it('should register an employee ', function (): void {
         'document_id' => '12.345.678-9',
         'phone_number' => '+5511999999999',
     ]);
+});
+
+test('race condition when registering an employee', function (): void {
+    actingAsCompanyOwner();
+
+    for ($i = 1; $i <= 4; ++$i) {
+        livewire(EditTenantProfile::class)
+            ->assertOk()
+            ->callAction(
+                TestAction::make('Invite Member')->table(),
+                data: [
+                    'name' => 'Funcionário Teste',
+                    'email' => 'teste@empresa.com',
+                    'password' => 'password123',
+                    'detail' => [
+                        'tax_id' => '123.456.789-00',
+                        'document_id' => '12.345.678-9',
+                        'phone_number' => '+5511999999999',
+                    ],
+                ]
+            );
+    }
+
+    /** @var Company $company */
+    $company = filament()->getTenant();
+    expect($company->employees()->count())->toBe(2);
 });
 
 describe('validation tests', function (): void {

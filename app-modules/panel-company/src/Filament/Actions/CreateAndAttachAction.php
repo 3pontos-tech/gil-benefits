@@ -31,7 +31,7 @@ class CreateAndAttachAction extends CreateAction
 
         $this->after(
             function (User $record): void {
-                filament()->getTenant()->employees()->attach($record);
+                filament()->getTenant()->employees()->syncWithoutDetaching($record);
                 $record->assignRole(Roles::Employee);
             }
         );
