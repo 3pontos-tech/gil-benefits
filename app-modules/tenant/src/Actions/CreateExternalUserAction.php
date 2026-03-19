@@ -11,7 +11,7 @@ class CreateExternalUserAction
 {
     public function execute(UserDTO $userDTO): void
     {
-        $company = Company::query()->findOrFail($userDTO->tenant_id);
+        $company = Company::query()->where('slug', $userDTO->tenant_id)->firstOrFail();
 
         DB::transaction(function () use ($company, $userDTO): void {
             $user = User::query()->create([

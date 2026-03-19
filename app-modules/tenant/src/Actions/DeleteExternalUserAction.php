@@ -9,7 +9,7 @@ class DeleteExternalUserAction
 {
     public function execute(string $tenant, string $userId): void
     {
-        $company = Company::query()->findOrFail($tenant);
+        $company = Company::query()->where('slug', $tenant)->firstOrFail();
         $user = $company->employees()->where('user_id', $userId)->firstOrFail();
 
         DB::transaction(function () use ($company, $user): void {
