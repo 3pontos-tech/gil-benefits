@@ -11,10 +11,6 @@ readonly class RemoveStaleBlockedSchedulesAction
 {
     public function handle(Consultant $consultant, array $syncedEventIds): void
     {
-        if ($syncedEventIds === []) {
-            return;
-        }
-
         Schedule::query()
             ->where('schedulable_type', $consultant->getMorphClass())
             ->where('schedulable_id', $consultant->getKey())
