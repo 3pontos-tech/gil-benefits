@@ -15,8 +15,8 @@ class AppointmentDraftStep extends AbstractAppointmentStep
     public function notify(): void
     {
         Notification::make()
-            ->title('Appointment Drafted')
-            ->body('Your appointment has been drafted. Soon we will contact you to confirm your appointment.')
+            ->title(__('appointments::resources.appointments.notifications.drafted.title'))
+            ->body(__('appointments::resources.appointments.notifications.drafted.body'))
             ->success()
             ->sendToDatabase($this->appointment->user)
             ->send();

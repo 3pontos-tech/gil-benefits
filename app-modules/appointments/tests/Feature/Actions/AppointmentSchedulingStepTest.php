@@ -28,5 +28,5 @@ it('should notify user', function (): void {
 
     $this->appointment->refresh();
     expect($this->appointment->status)->toBe(AppointmentStatus::Active);
-    Notification::assertNotified('Appointment Scheduled!');
+    Notification::assertNotified(__('appointments::resources.appointments.notifications.scheduled.title'));
 });

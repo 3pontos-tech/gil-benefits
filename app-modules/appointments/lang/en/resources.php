@@ -33,6 +33,29 @@ return [
             'meeting_url' => 'Meeting URL',
         ],
 
+        'notifications' => [
+            'cancelled' => [
+                'title' => 'Appointment Cancelled!',
+                'body' => 'Your appointment has been cancelled. Please check your dashboard for details.',
+            ],
+            'drafted' => [
+                'title' => 'Appointment Drafted',
+                'body' => 'Your appointment has been drafted. Soon we will contact you to confirm your appointment.',
+            ],
+            'pending' => [
+                'title' => 'Appointment under Scheduling',
+                'body' => 'We found a match for your appointment. We will contact you soon.',
+            ],
+            'scheduled' => [
+                'title' => 'Appointment Scheduled!',
+                'body' => 'Your appointment has been scheduled. Please check your dashboard for details.',
+            ],
+            'completed' => [
+                'title' => 'Appointment Finished!',
+                'body' => 'Your appointment has been completed. Please check your dashboard for details.',
+            ],
+        ],
+
         'wizard' => [
             'steps' => [
                 'category_type' => 'Consulting Category',

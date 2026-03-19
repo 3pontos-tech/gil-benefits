@@ -15,8 +15,8 @@ class AppointmentActiveStep extends AbstractAppointmentStep
     public function notify(): void
     {
         Notification::make()
-            ->title('Appointment Finished!')
-            ->body('Your appointment has been completed. Please check your dashboard for details.')
+            ->title(__('appointments::resources.appointments.notifications.completed.title'))
+            ->body(__('appointments::resources.appointments.notifications.completed.body'))
             ->success()
             ->sendToDatabase($this->appointment->user)
             ->send();

@@ -15,8 +15,8 @@ class AppointmentSchedulingStep extends AbstractAppointmentStep
     public function notify(): void
     {
         Notification::make()
-            ->title('Appointment Scheduled!')
-            ->body('Your appointment has been scheduled. Please check your dashboard for details.')
+            ->title(__('appointments::resources.appointments.notifications.scheduled.title'))
+            ->body(__('appointments::resources.appointments.notifications.scheduled.body'))
             ->success()
             ->sendToDatabase($this->appointment->user)
             ->send();

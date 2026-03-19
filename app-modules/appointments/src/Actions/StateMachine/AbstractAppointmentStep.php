@@ -26,9 +26,9 @@ abstract class AbstractAppointmentStep
     public function cancel(): void
     {
         Notification::make()
-            ->title('Appointment Finished!')
-            ->body('Your appointment has been completed. Please check your dashboard for details.')
-            ->success()
+            ->title(__('appointments::resources.appointments.notifications.cancelled.title'))
+            ->body(__('appointments::resources.appointments.notifications.cancelled.body'))
+            ->warning()
             ->sendToDatabase($this->appointment->user)
             ->send();
 
