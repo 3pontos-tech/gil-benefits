@@ -1,0 +1,28 @@
+{
+  "name": "3pontos-tech/tenant",
+  "description": "",
+  "type": "library",
+  "version": "1.0",
+  "license": "proprietary",
+  "require": {},
+  "autoload": {
+    "psr-4": {
+      "TresPontosTech\\Tenant\\": "src/",
+      "TresPontosTech\\Tenant\\Database\\Factories\\": "database/factories/",
+      "TresPontosTech\\Tenant\\Database\\Seeders\\": "database/seeders/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "TresPontosTech\\Tenant\\Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "stable",
+  "extra": {
+    "laravel": {
+      "providers": [
+        "TresPontosTech\\Tenant\\Providers\\TenantServiceProvider"
+      ]
+    }
+  }
+}

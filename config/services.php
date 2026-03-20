@@ -28,6 +28,16 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'highlevel' => [
+        'key' => env('HIGHLEVEL_ACCESS_KEY_ID'),
+        'secret' => env('HIGHLEVEL_SECRET_ACCESS_KEY'),
+        'location' => env('HIGHLEVEL_DEFAULT_LOCATION', 'EWmwbQiyuqttgLJ8CUMk'),
+        'pipeline' => env('HIGHLEVEL_DEFAULT_PIPELINE', 'miSaf2ppCkOQd6icQu9e'),
+        'version' => env('HIGHLEVEL_API_VERSION', '2021-07-28'),
+        'calendar' => env('HIGHLEVEL_CALENDAR_ID', 'lAwKkZ3QFKKGSrFPTXNf'),
+        'company' => env('HIGHLEVEL_COMPANY_ID', 'qaCJB3XmO2nXwz6GeQbk'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

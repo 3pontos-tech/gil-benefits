@@ -1,0 +1,11 @@
+<?php
+
+use TresPontosTech\Admin\Filament\Resources\Permissions\Pages\ListRoles;
+
+use function Pest\Livewire\livewire;
+
+it('should render', function (): void {
+    actingAsSuperAdmin();
+    livewire(ListRoles::class)
+        ->assertOk();
+});

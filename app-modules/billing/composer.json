@@ -1,0 +1,25 @@
+{
+	"name": "3pontos-tech/billing",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {
+    },
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\Billing\\": "src/",
+			"TresPontosTech\\Billing\\Tests\\": "tests/",
+			"TresPontosTech\\Billing\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\Billing\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\Billing\\BillingServiceProvider"
+			]
+		}
+	}
+}

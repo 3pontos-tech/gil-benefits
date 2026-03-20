@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/integration-google-calendar",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\IntegrationGoogleCalendar\\": "src/",
+			"TresPontosTech\\IntegrationGoogleCalendar\\Tests\\": "tests/",
+			"TresPontosTech\\IntegrationGoogleCalendar\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\IntegrationGoogleCalendar\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\IntegrationGoogleCalendar\\Providers\\IntegrationGoogleCalendarServiceProvider"
+			]
+		}
+	}
+}

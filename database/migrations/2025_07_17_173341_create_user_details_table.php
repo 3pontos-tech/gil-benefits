@@ -1,0 +1,24 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('user_details', function (Blueprint $table): void {
+            $table->id();
+            $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignUuid('company_id')->constrained('companies')->onDelete('cascade');
+            $table->string('phone_number', 20)->nullable();
+            $table->string('integration_id')->nullable();
+            $table->string('document_id', 50);
+            $table->unique(['document_id', 'deleted_at']);
+            $table->string('tax_id', 15)->unique();
+            $table->softDeletes();
+            $table->timestamps();
+        });
+    }
+};

@@ -1,0 +1,67 @@
+<?php
+
+namespace TresPontosTech\Consultants\Models;
+
+use App\Enums\AvailableTagsEnum;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Tags\HasTags;
+use TresPontosTech\Consultants\Policies\ConsultantPolicy;
+use Zap\Models\Concerns\HasSchedules;
+
+#[UsePolicy(ConsultantPolicy::class)]
+class Consultant extends Model implements HasMedia
+{
+    use HasFactory;
+    use HasSchedules;
+    use HasTags;
+    use InteractsWithMedia;
+    use SoftDeletes;
+
+    protected $fillable = [
+        'name',
+        'phone',
+        'email',
+        'short_description',
+        'slug',
+        'biography',
+        'readme',
+        'socials_urls',
+        'crm_id',
+        'google_calendar_synced_at',
+    ];
+
+    protected $casts = [
+        'socials_urls' => 'array',
+        'google_calendar_synced_at' => 'datetime',
+    ];
+
+    public function languages(): MorphToMany
+    {
+        return $this->tags()
+            ->where('type', AvailableTagsEnum::Language->value);
+    }
+
+    public function degrees(): MorphToMany
+    {
+        return $this->tags()
+            ->where('type', AvailableTagsEnum::Education->value);
+    }
+
+    public function expertises(): MorphToMany
+    {
+        return $this->tags()
+            ->where('type', AvailableTagsEnum::Expertise->value);
+    }
+
+    public function specializations(): MorphToMany
+    {
+        return $this->tags()
+            ->where('type', AvailableTagsEnum::Specialization->value);
+    }
+}

@@ -2,22 +2,25 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Shared\Pages\LoginPage;
+use Basement\BetterMails\Filament\FilamentBetterEmailPlugin;
+use Basement\Webhooks\FilamentWebhookPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TresPontosTech\Admin\Filament\Pages\EditUserProfile;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -27,19 +30,29 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(LoginPage::class)
+            ->profile(EditUserProfile::class)
+            ->passwordReset()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Blue,
+                'zinc' => Color::Zinc,
+                'slate' => Color::Slate,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([
-                Dashboard::class,
+            ->discoverClusters(in: base_path('app-modules/panel-admin/src/Filament/Clusters'), for: 'TresPontosTech\\Admin\\Filament\\Clusters')
+            ->discoverPages(in: base_path('app-modules/panel-admin/src/Filament/Pages'), for: 'TresPontosTech\\Admin\\Filament\\Pages')
+            ->discoverResources(in: base_path('app-modules/panel-admin/src/Filament/Resources'), for: 'TresPontosTech\\Admin\\Filament\\Resources')
+            ->discoverWidgets(in: base_path('app-modules/panel-admin/src/Filament/Widgets'), for: 'TresPontosTech\\Admin\\Filament\\Widgets')
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->plugins([
+                FilamentWebhookPlugin::make(),
+                FilamentBetterEmailPlugin::make(),
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+            ->sidebarCollapsibleOnDesktop()
+            ->navigationItems([
+                NavigationItem::make(__('all.my_profile'))
+                    ->sort(5)
+                    ->icon(Heroicon::UserCircle)
+                    ->url(fn (): string => EditUserProfile::getUrl()),
             ])
             ->middleware([
                 EncryptCookies::class,

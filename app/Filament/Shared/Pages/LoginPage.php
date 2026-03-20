@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Filament\Shared\Pages;
+
+use Filament\Auth\Pages\Login;
+
+class LoginPage extends Login
+{
+    public function mount(): void
+    {
+        parent::mount();
+
+        if (app()->environment(['local', 'staging'])) {
+            $this->form->fill([
+                'email' => 'admin@5pontos.com',
+                'password' => 'password',
+                'remember' => true,
+            ]);
+        }
+    }
+}

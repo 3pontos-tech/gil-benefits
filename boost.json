@@ -1,0 +1,24 @@
+{
+    "agents": [
+        "opencode",
+        "claude_code"
+    ],
+    "guidelines": true,
+    "herd_mcp": false,
+    "mcp": true,
+    "nightwatch_mcp": false,
+    "packages": [
+        "internachi/modular",
+        "filament/filament",
+        "3pontos-tech/permissions",
+        "spatie/laravel-medialibrary",
+        "laraveljutsu/zap"
+    ],
+    "sail": false,
+    "skills": [
+        "pest-testing",
+        "tailwindcss-development",
+        "modular",
+        "medialibrary-development"
+    ]
+}

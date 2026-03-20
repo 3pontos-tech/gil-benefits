@@ -11,9 +11,28 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
- // ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
-    ->in('Feature');
+use App\Filament\FilamentPanel;
+use App\Models\Users\Detail;
+use App\Models\Users\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\artisan;
+
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
+    ->beforeEach(fn () => artisan('sync:permissions'))
+    ->in('Feature', 'E2E', '../app-modules/*/tests');
+
+pest()->group('browser')
+    ->in('E2E');
+
+pest()
+    ->in('E2E/Admin')
+    ->beforeEach(fn () => filament()->setCurrentPanel('admin'));
 
 /*
 |--------------------------------------------------------------------------
@@ -44,4 +63,52 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+function actingAsAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    Artisan::call('sync:permissions');
+
+    $user = User::factory()->admin()->create();
+    $user->assignRole(Roles::Admin->value);
+
+    filament()->setCurrentPanel($panel->value);
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsSuperAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    Artisan::call('sync:permissions');
+
+    $user = User::factory()->admin()->create();
+    $user->assignRole(Roles::SuperAdmin->value);
+
+    filament()->setCurrentPanel($panel->value);
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsCompanyOwner(): User
+{
+    Artisan::call('sync:permissions');
+
+    $user = User::factory()->companyOwner()->create();
+    $user->assignRole(Roles::CompanyOwner->value);
+    Detail::factory()->recycle($user)->create();
+    $company = Company::factory()->recycle($user)->create();
+    $company->employees()->attach($user->getKey());
+    $company->subscriptions()->create([
+        'type' => 'company',
+        'stripe_id' => '12345',
+        'stripe_status' => 'active',
+        'quantity' => 10,
+    ]);
+    filament()->setCurrentPanel(FilamentPanel::Company->value);
+    actingAs($user);
+    filament()->setTenant($company);
+
+    return $user;
 }

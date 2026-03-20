@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/integration-highlevel",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\IntegrationHighlevel\\": "src/",
+			"TresPontosTech\\IntegrationHighlevel\\Tests\\": "tests/",
+			"TresPontosTech\\IntegrationHighlevel\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\IntegrationHighlevel\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\IntegrationHighlevel\\IntegrationHighlevelServiceProvider"
+			]
+		}
+	}
+}
