@@ -33,6 +33,29 @@ return [
             'meeting_url' => 'Link da Reunião',
         ],
 
+        'notifications' => [
+            'cancelled' => [
+                'title' => 'Agendamento Cancelado!',
+                'body' => 'Seu agendamento foi cancelado. Verifique seu painel para mais detalhes.',
+            ],
+            'drafted' => [
+                'title' => 'Agendamento em Rascunho',
+                'body' => 'Seu agendamento foi salvo como rascunho. Em breve entraremos em contato para confirmar.',
+            ],
+            'pending' => [
+                'title' => 'Agendamento em Andamento',
+                'body' => 'Encontramos uma disponibilidade para o seu agendamento. Entraremos em contato em breve.',
+            ],
+            'scheduled' => [
+                'title' => 'Agendamento Confirmado!',
+                'body' => 'Seu agendamento foi confirmado. Verifique seu painel para mais detalhes.',
+            ],
+            'completed' => [
+                'title' => 'Agendamento Concluído!',
+                'body' => 'Seu agendamento foi concluído. Verifique seu painel para mais detalhes.',
+            ],
+        ],
+
         'wizard' => [
             'steps' => [
                 'category_type' => 'Categoria de consultoria',

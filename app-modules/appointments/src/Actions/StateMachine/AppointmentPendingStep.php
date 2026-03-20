@@ -15,8 +15,8 @@ class AppointmentPendingStep extends AbstractAppointmentStep
     public function notify(): void
     {
         Notification::make()
-            ->title('Appointment under Scheduling')
-            ->body('We found a match for your appointment. We will contact you soon.')
+            ->title(__('appointments::resources.appointments.notifications.pending.title'))
+            ->body(__('appointments::resources.appointments.notifications.pending.body'))
             ->success()
             ->sendToDatabase($this->appointment->user)
             ->send();

@@ -28,5 +28,5 @@ it('should notify user', function (): void {
 
     $this->appointment->fresh();
     expect($this->appointment->status)->toBe(AppointmentStatus::Completed);
-    Notification::assertNotified('Appointment Finished!');
+    Notification::assertNotified(__('appointments::resources.appointments.notifications.completed.title'));
 });

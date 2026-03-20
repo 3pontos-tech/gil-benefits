@@ -28,7 +28,7 @@ it('should notify user', function (): void {
 
     $this->appointment->refresh();
     expect($this->appointment->status)->toBe(AppointmentStatus::Pending);
-    Notification::assertNotified('Appointment Drafted');
+    Notification::assertNotified(__('appointments::resources.appointments.notifications.drafted.title'));
 });
 
 it('should cancel', function (): void {
@@ -37,5 +37,5 @@ it('should cancel', function (): void {
 
     $this->appointment->refresh();
     expect($this->appointment->status)->toBe(AppointmentStatus::Cancelled);
-    Notification::assertNotified('Appointment Finished!');
+    Notification::assertNotified(__('appointments::resources.appointments.notifications.cancelled.title'));
 });

@@ -31,7 +31,7 @@ it('should be able to register a price', function (): void {
             'active' => true,
             'whatsapp_enabled' => false,
             'materials_enabled' => false,
-            'metadata' => 'metadata',
+            'metadata' => '{"key":"value"}',
         ])
         ->set('data.provider_price_id', '123786')
         ->call('create')
@@ -48,6 +48,6 @@ it('should be able to register a price', function (): void {
         'active' => true,
         'whatsapp_enabled' => false,
         'materials_enabled' => false,
-        'metadata' => 'metadata',
+        'metadata' => '{"key":"value"}',
     ]);
 });
