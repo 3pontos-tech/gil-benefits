@@ -109,6 +109,6 @@ describe('validation tests', function () {
     })->with([
         'required' => [null, 'required'],
         'unique' => ['268.717.480-75', 'unique'],
-        'min_length' => ['AB', 'min_length'],
+        'min_length' => ['AB', 'min'],
     ]);
 });
