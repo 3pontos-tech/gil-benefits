@@ -43,11 +43,11 @@ class UserForm
                         TextInput::make('document_id')
                             ->label(__('panel-admin::resources.users.form.document_id'))
                             ->mask(RawJs::make(<<<'JS'
-                                $input.replace(/\D/g, '').length > 9
-                                    ? '999.999.999-99'
-                                    : '99.999.999-9'
+                                $input.replace(/[^a-zA-Z0-9]/g, '').length > 9
+                                    ? '***.***.***-**'
+                                    : '**.***.***-*'
                             JS))
-                            ->minLength(7)
+                            ->minLength(5)
                             ->maxLength(14)
                             ->required()
                             ->unique(),
