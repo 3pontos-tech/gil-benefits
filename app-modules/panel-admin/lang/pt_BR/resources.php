@@ -6,6 +6,17 @@ return [
     'navigation_group' => [
         'billing' => 'Faturamento',
         'administration' => 'Administração',
+        'appointments' => 'Agendamentos',
+    ],
+    'appointments' => [
+        'navigation_label' => 'Agendamentos',
+        'model_label' => 'Agendamento',
+        'plural_model_label' => 'Agendamentos',
+    ],
+    'consultants' => [
+        'navigation_label' => 'Consultores',
+        'model_label' => 'Consultor',
+        'plural_model_label' => 'Consultores',
     ],
     'contractual_plans' => [
         'navigation_label' => 'Planos Contratuais',
@@ -26,6 +37,9 @@ return [
         ],
     ],
     'plans' => [
+        'navigation_label' => 'Planos',
+        'model_label' => 'Plano',
+        'plural_model_label' => 'Planos',
         'behavior' => [
             'title' => 'Comportamento',
             'has_generic_trial' => 'Possui período de teste genérico',
@@ -44,6 +58,9 @@ return [
         'last_modified_date' => 'Última Modificação',
     ],
     'prices' => [
+        'navigation_label' => 'Preços',
+        'model_label' => 'Preço',
+        'plural_model_label' => 'Preços',
         'sections' => [
             'plan_type' => [
                 'title' => 'Plano e Tipo',
@@ -163,6 +180,7 @@ return [
     'pages' => [
         'edit_profile' => [
             'cpf' => 'CPF',
+            'rg' => 'RG',
         ],
     ],
 ];

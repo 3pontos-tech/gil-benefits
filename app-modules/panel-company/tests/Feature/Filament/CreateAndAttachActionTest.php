@@ -149,6 +149,7 @@ describe('validation tests', function (): void {
 
     })->with([
         'required' => [null, 'required'],
+        'min_length' => ['AB', 'min_length'],
     ]);
 
     test('document_id::unique at company ', function (): void {

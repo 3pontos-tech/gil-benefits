@@ -15,7 +15,6 @@ use TresPontosTech\Admin\Filament\Resources\Appointments\Schemas\AppointmentForm
 use TresPontosTech\Admin\Filament\Resources\Appointments\Schemas\AppointmentInfolist;
 use TresPontosTech\Admin\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use TresPontosTech\Appointments\Models\Appointment;
-use UnitEnum;
 
 class AppointmentResource extends Resource
 {
@@ -23,7 +22,25 @@ class AppointmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDateRange;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Appointments';
+    public static function getNavigationLabel(): string
+    {
+        return __('panel-admin::resources.appointments.navigation_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('panel-admin::resources.appointments.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('panel-admin::resources.appointments.plural_model_label');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('panel-admin::resources.navigation_group.appointments');
+    }
 
     public static function form(Schema $schema): Schema
     {
