@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
+use Filament\Support\RawJs;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Cashier\Subscription;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -83,7 +84,13 @@ class CreateAndAttachAction extends CreateAction
                         ->required(),
                     TextInput::make('document_id')
                         ->label(__('panel-company::resources.actions.create_and_attach.rg'))
-                        ->mask('99.999.999-9')
+                        ->mask(RawJs::make(<<<'JS'
+                            $input.replace(/[^a-zA-Z0-9]/g, '').length > 9
+                                ? '***.***.***-**'
+                                : '**.***.***-*'
+                        JS))
+                        ->minLength(5)
+                        ->maxLength(14)
                         ->rule(new UniqueAtCompany)
                         ->required(),
                     PhoneInput::make('phone_number')
