@@ -29,7 +29,7 @@ enum FilamentPanel: string
             self::User => $isEmployee || $isAdmin,
             self::Admin => ($user->hasVerifiedEmail() && $isAdmin),
             self::Company => $isAdmin || $isCompanyOwner,
-            self::Consultant => $isAdmin,
+            self::Consultant => true,
             self::Guest => true,
         };
     }

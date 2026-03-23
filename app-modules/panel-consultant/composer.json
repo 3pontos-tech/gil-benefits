@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/panel-consultant",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\PanelConsultant\\": "src/",
+			"TresPontosTech\\PanelConsultant\\Tests\\": "tests/",
+			"TresPontosTech\\PanelConsultant\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\PanelConsultant\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\PanelConsultant\\Providers\\PanelConsultantServiceProvider"
+			]
+		}
+	}
+}
