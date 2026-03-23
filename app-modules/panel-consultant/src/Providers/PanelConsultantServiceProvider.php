@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\PanelConsultant\Providers;
+namespace TresPontosTech\Consultants\Providers;
 
 use Illuminate\Support\ServiceProvider;
 

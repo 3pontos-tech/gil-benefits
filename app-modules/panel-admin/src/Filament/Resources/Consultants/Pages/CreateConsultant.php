@@ -22,9 +22,8 @@ class CreateConsultant extends CreateRecord
         return $data;
     }
 
-    protected function afterCreate()
+    protected function afterCreate(): void
     {
-
         $user = User::query()->create([
             'name' => $this->data['name'],
             'email' => $this->data['email'],

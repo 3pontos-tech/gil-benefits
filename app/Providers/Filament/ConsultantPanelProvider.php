@@ -11,8 +11,6 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -31,16 +29,13 @@ class ConsultantPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->login(LoginPage::class)
-            ->discoverResources(in: app_path('Filament/Consultant/Resources'), for: 'App\\Filament\\Consultant\\Resources')
-            ->discoverPages(in: app_path('Filament/Consultant/Pages'), for: 'App\\Filament\\Consultant\\Pages')
             ->pages([
                 Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Consultant/Widgets'), for: 'App\\Filament\\Consultant\\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
-            ])
+            ->discoverResources(in: base_path('app-modules/panel-consultant/src/Filament/Resources'), for: 'TresPontosTech\\Consultants\\Filament\\Resources')
+            ->discoverPages(in: base_path('app-modules/panel-consultant/src/Filament/Pages'), for: 'TresPontosTech\\Consultants\\Filament\\Pages')
+            ->discoverWidgets(in: base_path('app-modules/panel-consultant/src/Filament/Widgets'), for: 'TresPontosTech\\Consultants\\Filament\\Widgets')
+            ->discoverClusters(in: base_path('app-modules/panel-consultant/src/Filament/Clusters'), for: 'TresPontosTech\\Consultants\\Filament\\Clusters')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
