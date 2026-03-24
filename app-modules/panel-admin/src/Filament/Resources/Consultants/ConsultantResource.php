@@ -16,7 +16,6 @@ use TresPontosTech\Admin\Filament\Resources\Consultants\RelationManagers\Schedul
 use TresPontosTech\Admin\Filament\Resources\Consultants\Schemas\ConsultantForm;
 use TresPontosTech\Admin\Filament\Resources\Consultants\Tables\ConsultantsTable;
 use TresPontosTech\Consultants\Models\Consultant;
-use UnitEnum;
 
 class ConsultantResource extends Resource
 {
@@ -24,7 +23,25 @@ class ConsultantResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Appointments';
+    public static function getNavigationLabel(): string
+    {
+        return __('panel-admin::resources.consultants.navigation_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('panel-admin::resources.consultants.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('panel-admin::resources.consultants.plural_model_label');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('panel-admin::resources.navigation_group.appointments');
+    }
 
     public static function form(Schema $schema): Schema
     {
