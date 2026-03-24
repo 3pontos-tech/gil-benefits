@@ -6,7 +6,6 @@ use App\Models\Users\User;
 use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Builder;
-use Livewire\Features\SupportRedirects\Redirector;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -69,7 +68,7 @@ class UserCurrentPlanWidget extends Widget
         ];
     }
 
-    public function redirectToAppointmentCreation(): ?Redirector
+    public function redirectToAppointmentCreation(): void
     {
         /** @var User $user */
         $user = auth()->user();
@@ -81,9 +80,9 @@ class UserCurrentPlanWidget extends Widget
                 ->danger()
                 ->send();
 
-            return null;
+            return;
         }
 
-        return redirect()->intended(AppointmentResource::getUrl('create'));
+        redirect()->intended(AppointmentResource::getUrl('create'));
     }
 }
