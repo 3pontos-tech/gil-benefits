@@ -26,9 +26,9 @@ it("should render only consultant's appointments", function (): void {
         ->assertCanNotSeeTableRecords($anotherAppointments);
 });
 
-it('normal users can not see consultant dashboard', function () {
+test('normal users can not see consultant dashboard', function () {
     actingAs(User::factory()->createOne());
 
-    get(route('filament.consultant.pages.dashboard'))
+    get(route('filament.consultant.pages.consultant-dashboard'))
         ->assertForbidden();
 });

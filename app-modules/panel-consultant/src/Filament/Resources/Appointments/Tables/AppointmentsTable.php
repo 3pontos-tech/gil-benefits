@@ -15,34 +15,7 @@ class AppointmentsTable
 
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->where('consultant_id', $consultant->getKey()))
-            ->columns([
-                TextColumn::make('user.name')
-                    ->label(__('appointments::resources.appointments.table.columns.user'))
-                    ->placeholder('—')
-                    ->searchable(),
-                TextColumn::make('category_type')
-                    ->label(__('panel-app::resources.appointments.table.category_type'))
-                    ->badge()
-                    ->searchable(),
-                TextColumn::make('appointment_at')
-                    ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('status')
-                    ->label(__('appointments::resources.appointments.table.columns.status'))
-                    ->badge()
-                    ->searchable(),
-                TextColumn::make('created_at')
-                    ->label(__('appointments::resources.appointments.table.columns.created_at'))
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->label(__('appointments::resources.appointments.table.columns.updated_at'))
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
+            ->columns(self::columns())
             ->defaultSort('appointment_at', 'desc')
             ->filters([
                 //
@@ -51,5 +24,37 @@ class AppointmentsTable
 
             ]);
 
+    }
+
+    public static function columns(): array
+    {
+        return [
+            TextColumn::make('user.name')
+                ->label(__('appointments::resources.appointments.table.columns.user'))
+                ->placeholder('—')
+                ->searchable(),
+            TextColumn::make('category_type')
+                ->label(__('panel-app::resources.appointments.table.category_type'))
+                ->badge()
+                ->searchable(),
+            TextColumn::make('appointment_at')
+                ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
+                ->dateTime()
+                ->sortable(),
+            TextColumn::make('status')
+                ->label(__('appointments::resources.appointments.table.columns.status'))
+                ->badge()
+                ->searchable(),
+            TextColumn::make('created_at')
+                ->label(__('appointments::resources.appointments.table.columns.created_at'))
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+            TextColumn::make('updated_at')
+                ->label(__('appointments::resources.appointments.table.columns.updated_at'))
+                ->dateTime()
+                ->sortable()
+                ->toggleable(isToggledHiddenByDefault: true),
+        ];
     }
 }
