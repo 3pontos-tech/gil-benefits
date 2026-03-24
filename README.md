@@ -1,6 +1,6 @@
 # Gil Benefits
 
-Multi-tenant financial consultancy management platform. Manages consultants, appointments, billing subscriptions, and company hierarchies through three distinct Filament-powered panels.
+Multi-tenant financial consultancy management platform. Manages consultants, appointments, billing subscriptions, and company hierarchies through four distinct Filament-powered panels.
 
 ---
 
@@ -80,7 +80,7 @@ make stripe-listen
 | `STRIPE_KEY` | Stripe publishable key |
 | `STRIPE_SECRET` | Stripe secret key |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
-| `FLAMMA_STRIPE_*_PRODUCT_ID` / `*_PRICE_ID` | Product & price IDs for each plan tier (Gold, Platinum, Black, Enterprise) |
+| `FLAMMA_STRIPE_*_PRODUCT_ID` / `*_PRICE_ID` | Product & price IDs for each plan tier (Gold, Black, Enterprise) |
 | `FLAMMA_STRIPE_*_PORTAL_ID` | Billing portal IDs (enterprise and user) |
 | `RESEND_API_KEY` | Resend transactional email |
 | `RESEND_WEBHOOK_SECRET` | Resend webhook verification |
