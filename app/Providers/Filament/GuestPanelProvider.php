@@ -43,7 +43,7 @@ class GuestPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::FOOTER, fn (): Factory|View => view('components.guest-footer'))
             ->renderHook(PanelsRenderHook::TOPBAR_END, fn () => Blade::render(<<<'BLADE'
                @guest
-                    <x-button class="w-fit!" variant="outline" tag='a' href='/app/login'>Acessar Plataforma</x-button>
+                    <x-button class="w-fit!" variant="outline" tag='a' href='/app/login'>Acesso Colaborador</x-button>
                @endguest
             BLADE
             ))
