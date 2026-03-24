@@ -16,7 +16,9 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;
@@ -111,4 +113,17 @@ function actingAsCompanyOwner(): User
     filament()->setTenant($company);
 
     return $user;
+}
+function actingAsConsultant(): Consultant
+{
+    Artisan::call('sync:permissions');
+
+    $consultant = Consultant::factory()->createOne();
+
+    filament()->setCurrentPanel(FilamentPanel::Consultant->value);
+    actingAs($consultant->user);
+
+    Appointment::factory()->recycle($consultant)->count(10)->create();
+
+    return $consultant;
 }

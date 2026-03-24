@@ -4,6 +4,7 @@ namespace TresPontosTech\Consultants\Observers;
 
 use App\Models\Users\User;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Permissions\Roles;
 
 class ConsultantObserver
 {
@@ -16,5 +17,6 @@ class ConsultantObserver
         ]);
 
         $consultant->user()->associate($user)->save();
+        $user->assignRole(Roles::Consultant);
     }
 }
