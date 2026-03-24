@@ -28,7 +28,12 @@ class EditUserProfile extends BaseEditUserProfile
                 ->minLength(7)
                 ->maxLength(14)
                 ->required()
-                ->unique(),
+                ->unique(
+                    table: 'user_details',
+                    column: 'document_id',
+                    ignorable: $this->getUser()->detail,
+                    ignoreRecord: false
+                ),
         ];
     }
 

@@ -19,7 +19,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use TresPontosTech\Consultants\Filament\Pages\ConsultantDashboard;
-use TresPontosTech\Consultants\Filament\Pages\EditUserProfile;
+use TresPontosTech\Consultants\Filament\Pages\EditConsultantProfile;
 
 class ConsultantPanelProvider extends PanelProvider
 {
@@ -32,7 +32,7 @@ class ConsultantPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->login(LoginPage::class)
-            ->profile(EditUserProfile::class)
+            ->profile(EditConsultantProfile::class)
             ->pages([
                 ConsultantDashboard::class,
             ])
@@ -46,7 +46,7 @@ class ConsultantPanelProvider extends PanelProvider
                 NavigationItem::make(__('all.my_profile'))
                     ->sort(5)
                     ->icon(Heroicon::UserCircle)
-                    ->url(fn (): string => EditUserProfile::getUrl()),
+                    ->url(fn (): string => EditConsultantProfile::getUrl()),
             ])
             ->middleware([
                 EncryptCookies::class,

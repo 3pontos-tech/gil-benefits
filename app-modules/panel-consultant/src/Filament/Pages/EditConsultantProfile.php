@@ -7,7 +7,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Filament\Support\RawJs;
 
-class EditUserProfile extends BaseEditUserProfile
+class EditConsultantProfile extends BaseEditUserProfile
 {
     /**
      * @return array<Component>
