@@ -4,6 +4,7 @@ namespace TresPontosTech\Consultants\Models;
 
 use App\Enums\AvailableTagsEnum;
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Consultants\Observers\ConsultantObserver;
 use TresPontosTech\Consultants\Policies\ConsultantPolicy;
 use Zap\Models\Concerns\HasSchedules;
 
@@ -30,6 +32,7 @@ use Zap\Models\Concerns\HasSchedules;
  * @property Carbon|null google_calendar_synced_at
  * @property-read User $user
  */
+#[ObservedBy(ConsultantObserver::class)]
 #[UsePolicy(ConsultantPolicy::class)]
 class Consultant extends Model implements HasMedia
 {
