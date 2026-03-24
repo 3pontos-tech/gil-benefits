@@ -32,6 +32,7 @@ class ConsultantPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
             ])
+            ->passwordReset()
             ->discoverResources(in: base_path('app-modules/panel-consultant/src/Filament/Resources'), for: 'TresPontosTech\\Consultants\\Filament\\Resources')
             ->discoverPages(in: base_path('app-modules/panel-consultant/src/Filament/Pages'), for: 'TresPontosTech\\Consultants\\Filament\\Pages')
             ->discoverWidgets(in: base_path('app-modules/panel-consultant/src/Filament/Widgets'), for: 'TresPontosTech\\Consultants\\Filament\\Widgets')
