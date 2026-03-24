@@ -59,12 +59,19 @@ class GuestPanelProvider extends PanelProvider
                     ->label('Acessar Plataforma')
                     ->url('/app')
                     ->icon('heroicon-o-user-group')
-                    ->visible(fn () => auth()->check()),
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin', 'employee'])),
+
+                Action::make('admin_panel')
+                    ->label('Painel Administrativo')
+                    ->url('/admin')
+                    ->icon('heroicon-o-shield-check')
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin'])),
+
                 Action::make('company_panel')
                     ->label('Administrativo da Empresa')
                     ->url('/company')
                     ->icon(Heroicon::BuildingOffice)
-                    ->visible(fn (): bool => auth()->check() && auth()->user()->ownedCompanies()->exists()),
+                    ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin', 'company_owner'])),
             ])
             ->navigationItems([
                 NavigationItem::make('Inicio')
