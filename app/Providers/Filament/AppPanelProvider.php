@@ -40,7 +40,6 @@ class AppPanelProvider extends PanelProvider
             ->sidebarFullyCollapsibleOnDesktop()
             ->globalSearch()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
-            ->registration()
             ->navigationItems([
                 NavigationItem::make(__('all.my_profile'))
                     ->icon(Heroicon::UserCircle)
