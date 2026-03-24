@@ -16,6 +16,8 @@ class AppointmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDateRange;
 
+    protected static string|null|\UnitEnum $navigationGroup = 'Appointments';
+
     public static function getModelLabel(): string
     {
         return __('appointments::resources.appointments.label');
