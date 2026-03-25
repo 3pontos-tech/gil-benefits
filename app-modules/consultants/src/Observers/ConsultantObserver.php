@@ -10,9 +10,10 @@ class ConsultantObserver
 {
     public function created(Consultant $consultant): void
     {
-        $user = User::query()->create([
-            'name' => $consultant->name,
+        $user = User::query()->firstOrCreate([
             'email' => $consultant->email,
+        ], [
+            'name' => $consultant->name,
             'password' => $consultant->email,
         ]);
 
