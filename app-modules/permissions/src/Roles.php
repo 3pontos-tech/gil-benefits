@@ -20,6 +20,8 @@ enum Roles: string implements HasColor, HasLabel
 
     case CompanyManager = 'company_manager';
 
+    case Consultant = 'consultant';
+
     public function getColor(): string|array|null
     {
         return match ($this) {
@@ -29,6 +31,7 @@ enum Roles: string implements HasColor, HasLabel
             self::SuperAdmin => Color::Fuchsia,
             self::Admin => Color::Cyan,
             self::User => Color::Indigo,
+            self::Consultant => Color::Purple,
         };
     }
 
@@ -41,6 +44,7 @@ enum Roles: string implements HasColor, HasLabel
             self::SuperAdmin => 'Super Admin',
             self::Admin => 'Admin',
             self::User => 'Usuario',
+            self::Consultant => 'Consultor',
         };
     }
 }

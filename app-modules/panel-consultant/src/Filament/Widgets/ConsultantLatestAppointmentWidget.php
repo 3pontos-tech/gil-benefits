@@ -1,23 +1,27 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\Consultants\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Widgets\Widget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Consultants\Models\Consultant;
 
-class LatestAppointmentWidget extends Widget
+class ConsultantLatestAppointmentWidget extends Widget
 {
     protected string $view = 'filament.admin.widgets.latest-appointment';
 
-    protected int|string|array $columnSpan = 2;
+    protected int|string|array $columnSpan = 3;
 
     protected function getViewData(): array
     {
         /** @var User $user */
         $user = auth()->user();
 
-        $appointment = $user->appointments()->latest()->first();
+        /** @var Consultant $consultant */
+        $consultant = Consultant::query()->where('consultants.user_id', $user->getKey())->first();
+
+        $appointment = $consultant->appointments()->latest()->first();
 
         if (! $appointment) {
             return [
@@ -41,7 +45,7 @@ class LatestAppointmentWidget extends Widget
             'status' => $appointment->status,
             'appointmentAt' => $appointment->appointment_at,
             'meetingUrl' => $appointment->meeting_url,
-            'consultantName' => $appointment->consultant,
+            'consultantName' => $appointment->user,
             'hasConfirmedStatus' => $hasConfirmedStatus,
         ];
     }

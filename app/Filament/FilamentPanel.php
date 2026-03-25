@@ -24,12 +24,13 @@ enum FilamentPanel: string
         $isAdmin = $user->hasAnyRole([Roles::SuperAdmin->value, Roles::Admin->value]);
         $isCompanyOwner = $user->hasAnyRole([Roles::CompanyOwner->value]);
         $isEmployee = $user->hasAnyRole([Roles::Employee->value]);
+        $isConsultant = $user->hasAnyRole([Roles::Consultant->value]);
 
         return match ($panel) {
             self::User => $isEmployee || $isAdmin,
             self::Admin => ($user->hasVerifiedEmail() && $isAdmin),
             self::Company => $isAdmin || $isCompanyOwner,
-            self::Consultant => $isAdmin,
+            self::Consultant => $isConsultant || $isAdmin,
             self::Guest => true,
         };
     }

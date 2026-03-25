@@ -22,7 +22,9 @@ use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;
@@ -198,4 +200,18 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
     filament()->setTenant($company);
 
     return $user;
+}
+
+function actingAsConsultant(): Consultant
+{
+    Artisan::call('sync:permissions');
+
+    $consultant = Consultant::factory()->createOne();
+
+    filament()->setCurrentPanel(FilamentPanel::Consultant->value);
+    actingAs($consultant->user);
+
+    Appointment::factory()->recycle($consultant)->count(10)->create();
+
+    return $consultant;
 }
