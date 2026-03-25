@@ -1,11 +1,12 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\Enums\AvailableTagsEnum;
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Seeder;
 use TresPontosTech\Consultants\Models\Consultant;
 
-return new class extends Migration
+class ConsultantSeeder extends Seeder
 {
     private array $consultants = [
         [
@@ -52,26 +53,26 @@ return new class extends Migration
             'email' => 'mariana.costa@financeinsights.com',
             'short_description' => 'Analista de investimentos com foco em renda variável e valuation de empresas',
             'biography' => <<<'MARKDOWN'
-        Meu nome é Mariana Costa, sou analista de investimentos há mais de 8 anos, especializada em **renda variável, valuation de empresas e análise setorial**.
+            Meu nome é Mariana Costa, sou analista de investimentos há mais de 8 anos, especializada em **renda variável, valuation de empresas e análise setorial**.
 
-        Ao longo da minha carreira, trabalhei em corretoras independentes, em bancos de investimento e como consultora autônoma, sempre com foco em conectar teoria financeira a estratégias práticas. Minha missão é ajudar investidores a entender o mercado de ações de forma simples e fundamentada, sem cair em modismos.
+            Ao longo da minha carreira, trabalhei em corretoras independentes, em bancos de investimento e como consultora autônoma, sempre com foco em conectar teoria financeira a estratégias práticas. Minha missão é ajudar investidores a entender o mercado de ações de forma simples e fundamentada, sem cair em modismos.
 
-        ### Curiosidades sobre mim
-        * Já analisei mais de 200 empresas brasileiras e estrangeiras para relatórios de recomendação;
-        * Sou certificada **CNPI** e apaixonada por ensinar conceitos de valuation;
-        * Tenho uma coluna mensal em um portal de economia comentando resultados trimestrais de grandes companhias;
-        * No tempo livre, gosto de correr maratonas e usar a disciplina dos treinos como paralelo ao mundo dos investimentos.
-        MARKDOWN,
+            ### Curiosidades sobre mim
+            * Já analisei mais de 200 empresas brasileiras e estrangeiras para relatórios de recomendação;
+            * Sou certificada **CNPI** e apaixonada por ensinar conceitos de valuation;
+            * Tenho uma coluna mensal em um portal de economia comentando resultados trimestrais de grandes companhias;
+            * No tempo livre, gosto de correr maratonas e usar a disciplina dos treinos como paralelo ao mundo dos investimentos.
+            MARKDOWN,
             'readme' => <<<'MARKDOWN'
-        # Como trabalhar comigo?
+            # Como trabalhar comigo?
 
-        Gosto de objetividade: se tiver dúvidas sobre valuation, fundamentos de uma empresa ou tese de investimento, traga os dados que já possui.
+            Gosto de objetividade: se tiver dúvidas sobre valuation, fundamentos de uma empresa ou tese de investimento, traga os dados que já possui.
 
-        Minhas contribuições incluem:
-        - Relatórios de análise fundamentalista
-        - Consultoria para carteiras de longo prazo
-        - Workshops e mentorias sobre valuation
-        MARKDOWN,
+            Minhas contribuições incluem:
+            - Relatórios de análise fundamentalista
+            - Consultoria para carteiras de longo prazo
+            - Workshops e mentorias sobre valuation
+            MARKDOWN,
         ],
         [
             'name' => 'Ricardo Almeida',
@@ -80,26 +81,26 @@ return new class extends Migration
             'email' => 'ricardo.almeida@quantstrat.com',
             'short_description' => 'Especialista em estratégias quantitativas e trading algorítmico',
             'biography' => <<<'MARKDOWN'
-        Meu nome é Ricardo Almeida, sou gestor quantitativo e desenvolvedor de **estratégias algorítmicas** no mercado financeiro há mais de 12 anos.
+            Meu nome é Ricardo Almeida, sou gestor quantitativo e desenvolvedor de **estratégias algorítmicas** no mercado financeiro há mais de 12 anos.
 
-        Minha trajetória começou como programador, e acabei unindo a paixão por tecnologia com o universo das finanças, desenvolvendo **robôs de negociação, backtests e modelos estatísticos** que ajudam a operar com disciplina e sem vieses emocionais.
+            Minha trajetória começou como programador, e acabei unindo a paixão por tecnologia com o universo das finanças, desenvolvendo **robôs de negociação, backtests e modelos estatísticos** que ajudam a operar com disciplina e sem vieses emocionais.
 
-        ### Curiosidades sobre mim
-        * Criei meus primeiros algoritmos de trading em **Python** e **R** em 2010, quando esse tema ainda era pouco explorado no Brasil;
-        * Trabalhei em fundos quantitativos e hoje atuo de forma independente atendendo traders e gestoras;
-        * Sou apaixonado por xadrez, e aplico muitos conceitos estratégicos do jogo em minhas análises de risco;
-        * Acredito que transparência e controle são mais importantes que promessas de retorno.
-        MARKDOWN,
+            ### Curiosidades sobre mim
+            * Criei meus primeiros algoritmos de trading em **Python** e **R** em 2010, quando esse tema ainda era pouco explorado no Brasil;
+            * Trabalhei em fundos quantitativos e hoje atuo de forma independente atendendo traders e gestoras;
+            * Sou apaixonado por xadrez, e aplico muitos conceitos estratégicos do jogo em minhas análises de risco;
+            * Acredito que transparência e controle são mais importantes que promessas de retorno.
+            MARKDOWN,
             'readme' => <<<'MARKDOWN'
-        # Como trabalhar comigo?
+            # Como trabalhar comigo?
 
-        Não espere milagres do mercado, mas sim consistência baseada em dados.
+            Não espere milagres do mercado, mas sim consistência baseada em dados.
 
-        Contribuições típicas:
-        - Desenvolvimento de modelos de trading sistemático
-        - Estruturação de backtests robustos
-        - Treinamento sobre estatística aplicada ao mercado
-        MARKDOWN,
+            Contribuições típicas:
+            - Desenvolvimento de modelos de trading sistemático
+            - Estruturação de backtests robustos
+            - Treinamento sobre estatística aplicada ao mercado
+            MARKDOWN,
         ],
         [
             'name' => 'Fernanda Oliveira',
@@ -108,53 +109,47 @@ return new class extends Migration
             'email' => 'fernanda.oliveira@fintechadvisor.com',
             'short_description' => 'Consultora financeira pessoal com foco em planejamento e independência financeira',
             'biography' => <<<'MARKDOWN'
-        Meu nome é Fernanda Oliveira e trabalho como consultora financeira há mais de 6 anos.
-        Minha missão é **ajudar pessoas comuns a organizarem suas finanças pessoais**, construírem reservas e investirem com segurança para alcançar a independência financeira.
+            Meu nome é Fernanda Oliveira e trabalho como consultora financeira há mais de 6 anos.
+            Minha missão é **ajudar pessoas comuns a organizarem suas finanças pessoais**, construírem reservas e investirem com segurança para alcançar a independência financeira.
 
-        Diferente do mercado institucional, meu foco sempre foi o investidor pessoa física, especialmente aqueles que querem sair das dívidas e criar um futuro sustentável.
+            Diferente do mercado institucional, meu foco sempre foi o investidor pessoa física, especialmente aqueles que querem sair das dívidas e criar um futuro sustentável.
 
-        ### Curiosidades sobre mim
-        * Ajudei mais de 500 famílias a estruturarem seus planejamentos financeiros pessoais;
-        * Tenho certificação **CEA (ANBIMA)** e formação em coaching financeiro;
-        * Costumo fazer paralelos entre finanças pessoais e hábitos de vida saudável;
-        * Adoro viajar e mostrar como o planejamento financeiro pode tornar sonhos possíveis.
-        MARKDOWN,
+            ### Curiosidades sobre mim
+            * Ajudei mais de 500 famílias a estruturarem seus planejamentos financeiros pessoais;
+            * Tenho certificação **CEA (ANBIMA)** e formação em coaching financeiro;
+            * Costumo fazer paralelos entre finanças pessoais e hábitos de vida saudável;
+            * Adoro viajar e mostrar como o planejamento financeiro pode tornar sonhos possíveis.
+            MARKDOWN,
             'readme' => <<<'MARKDOWN'
-        # Como trabalhar comigo?
+            # Como trabalhar comigo?
 
-        Transparência e empatia são as palavras-chave.
+            Transparência e empatia são as palavras-chave.
 
-        Contribuições:
-        - Planejamento financeiro pessoal detalhado
-        - Estratégias de investimentos para iniciantes
-        - Workshops de organização financeira
-        MARKDOWN,
+            Contribuições:
+            - Planejamento financeiro pessoal detalhado
+            - Estratégias de investimentos para iniciantes
+            - Workshops de organização financeira
+            MARKDOWN,
         ],
     ];
 
-    public function up(): void
+    public function run(): void
     {
-        DB::table('consultants')->truncate();
-        foreach ($this->consultants as $consultant) {
-
-            $consultant['socials_urls'] = json_encode([
+        foreach ($this->consultants as $data) {
+            $consultantData = $data;
+            $consultantData['socials_urls'] = [
                 'linkedin' => 'https://www.linkedin.com/in/',
                 'instagram' => 'https://www.instagram.com/',
                 'facebook' => 'https://www.facebook.com/',
                 'twitter' => 'https://www.twitter.com/',
                 'youtube' => 'https://www.youtube.com/',
-            ]);
+            ];
 
-            $userId = DB::table('consultants')->insertGetId($consultant);
+            $consultant = Consultant::query()->create($consultantData);
 
-            $consultant = Consultant::query()->find($userId);
             foreach (AvailableTagsEnum::cases() as $case) {
                 $consultant->attachTags($case->getDefault(), $case->value);
             }
-
-            //            $consultant->addMediaFromUrl('https://github.com/danielhe4rt.png')
-            //                ->preservingOriginal()
-            //                ->toMediaCollection('avatars');
         }
     }
-};
+}

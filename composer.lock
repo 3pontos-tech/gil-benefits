@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "24fe278f01b530edd658610f6acb0a89",
+    "content-hash": "3bd2229f9bc4b8c206801e49afd605b5",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -284,6 +284,38 @@
                     "TresPontosTech\\PanelCompany\\Tests\\": "tests/",
                     "TresPontosTech\\PanelCompany\\Database\\Factories\\": "database/factories/",
                     "TresPontosTech\\PanelCompany\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/panel-consultant",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/panel-consultant",
+                "reference": "b4951f304c53ba097208b1bb4fe1642af17aa850"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\Consultants\\Providers\\PanelConsultantServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\Consultants\\": "src/",
+                    "TresPontosTech\\Consultants\\Tests\\": "tests/",
+                    "TresPontosTech\\Consultants\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\Consultants\\Database\\Seeders\\": "database/seeders/"
                 }
             },
             "license": [
