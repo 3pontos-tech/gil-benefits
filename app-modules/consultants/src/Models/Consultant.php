@@ -29,7 +29,7 @@ use Zap\Models\Concerns\HasSchedules;
  * @property string $readme
  * @property string $socials_urls
  * @property string|null $crm_id
- * @property Carbon|null google_calendar_synced_at
+ * @property Carbon|null $google_calendar_synced_at
  * @property-read User $user
  */
 #[ObservedBy(ConsultantObserver::class)]
