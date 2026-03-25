@@ -91,8 +91,7 @@ class CreateAndAttachAction extends CreateAction
                         JS))
                         ->minLength(5)
                         ->maxLength(14)
-                        ->rule(new UniqueAtCompany)
-                        ->required(),
+                        ->rule(new UniqueAtCompany),
                     PhoneInput::make('phone_number')
                         ->label(__('panel-company::resources.actions.create_and_attach.phone'))
                         ->defaultCountry('BR')

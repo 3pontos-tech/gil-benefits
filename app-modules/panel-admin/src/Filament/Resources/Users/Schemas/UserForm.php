@@ -49,7 +49,6 @@ class UserForm
                             JS))
                             ->minLength(5)
                             ->maxLength(14)
-                            ->required()
                             ->unique(),
                         Select::make('company_id')
                             ->label(__('panel-admin::resources.users.form.company'))
