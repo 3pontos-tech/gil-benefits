@@ -16,6 +16,12 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 
@@ -107,6 +113,87 @@ function actingAsCompanyOwner(): User
         'quantity' => 10,
     ]);
     filament()->setCurrentPanel(FilamentPanel::Company->value);
+    actingAs($user);
+    filament()->setTenant($company);
+
+    return $user;
+}
+
+function actingAsEmployee(): User
+{
+    Artisan::call('sync:permissions');
+
+    $companyOwner = User::factory()->companyOwner()->create();
+    $employee = User::factory()->employee()->create();
+
+    $company = Company::factory()->recycle($companyOwner)->create();
+    $company->employees()->attach([$companyOwner->getKey(), $employee->getKey()]);
+
+    $plan = Plan::factory()->createOne([
+        'provider' => BillingProviderEnum::Stripe->value,
+        'type' => BillableTypeEnum::User->value,
+        'provider_product_id' => 'prod_test',
+        'has_generic_trial' => false,
+        'allow_promotion_codes' => false,
+        'collect_tax_ids' => false,
+        'active' => true,
+        'slug' => 'plano-teste',
+        'statement_descriptor' => 'PLANO TESTE',
+    ]);
+
+    CompanyPlan::create([
+        'company_id' => $company->id,
+        'plan_id' => $plan->id,
+        'status' => CompanyPlanStatusEnum::Active->value,
+        'monthly_appointments_per_employee' => 1,
+        'starts_at' => now()->subDay(),
+        'seats' => 10,
+    ]);
+
+    filament()->setCurrentPanel(FilamentPanel::User->value);
+    actingAs($employee);
+    filament()->setTenant($company);
+
+    return $employee;
+}
+
+function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
+{
+    Artisan::call('sync:permissions');
+
+    $user = User::factory()->create();
+    $company = Company::factory()->create();
+    $company->employees()->attach($user->getKey());
+
+    $plan = Plan::factory()->createOne([
+        'type' => BillableTypeEnum::User->value,
+        'active' => true,
+    ]);
+
+    $price = Price::create([
+        'billing_plan_id' => $plan->id,
+        'billing_scheme' => 'per_unit',
+        'tiers_mode' => 'volume',
+        'type' => 'recurring',
+        'unit_amount_decimal' => 5000,
+        'active' => true,
+        'provider_price_id' => 'price_user_test',
+        'monthly_appointments' => $monthlyLimit,
+        'whatsapp_enabled' => true,
+        'materials_enabled' => true,
+    ]);
+
+    $user->subscriptions()->create([
+        'type' => 'default',
+        'stripe_id' => 'sub_user_123',
+        'stripe_status' => 'active',
+        'stripe_price' => $price->provider_price_id,
+        'quantity' => 1,
+    ]);
+
+    CompanyPlan::where('company_id', $company->id)->delete();
+
+    filament()->setCurrentPanel('user');
     actingAs($user);
     filament()->setTenant($company);
 

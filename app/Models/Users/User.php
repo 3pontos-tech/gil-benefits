@@ -153,7 +153,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
                 $cacheKey = $this->getMonthlyAppointmentsLeftCacheKey();
 
-                return Cache::remember($cacheKey, now()->addMinutes(5), function (): int {
+                return Cache::remember($cacheKey, now()->addMinute(), function (): int {
                     $subscription = $this->activeSubscription()
                         ->with('price')
                         ->first();
@@ -177,7 +177,10 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                         }
 
                         $since = now()->subDays(30);
-                        $used = (int) $this->appointments()->where('created_at', '>=', $since)->count();
+                        $used = (int) $this->appointments()
+                            ->where('created_at', '>=', $since)
+                            ->where('status', '!=', AppointmentStatus::Cancelled->value)
+                            ->count();
 
                         return max($monthlyLimit - $used, 0);
                     }
@@ -191,6 +194,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
                     $used = (int) $this->appointments()
                         ->where('created_at', '>=', $since)
+                        ->where('status', '!=', AppointmentStatus::Cancelled->value)
                         ->count();
 
                     return max($monthlyLimit - $used, 0);
