@@ -148,7 +148,6 @@ describe('validation tests', function (): void {
             ->assertHasFormErrors(['detail.document_id' => $rule]);
 
     })->with([
-        'required' => [null, 'required'],
         'min_length' => ['AB', 'min'],
     ]);
 

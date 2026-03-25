@@ -28,7 +28,6 @@ class EditUserProfile extends BaseEditUserProfile
                     JS))
                 ->minLength(5)
                 ->maxLength(14)
-                ->required()
                 ->unique(
                     table: 'user_details',
                     column: 'document_id',
