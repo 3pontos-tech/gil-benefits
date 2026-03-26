@@ -1,0 +1,32 @@
+<?php
+
+namespace TresPontosTech\Consultants\Filament\Resources\Documents\Schemas;
+
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+
+class DocumentForm
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Hidden::make('consultant_id')
+                    ->default(fn () => auth()->user()->consultant->getKey()),
+
+                TextInput::make('title')
+                    ->required(),
+
+                SpatieMediaLibraryFileUpload::make('documents')
+                    ->label('Arquivo(s)')
+                    ->collection('documents')
+                    ->disk('public')
+//                    ->visibility('private')
+                    ->maxSize(20480)
+                    ->required(),
+
+            ]);
+    }
+}

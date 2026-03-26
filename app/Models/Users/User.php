@@ -32,6 +32,7 @@ use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
@@ -97,6 +98,11 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function detail(): HasOne
     {
         return $this->hasOne(Detail::class);
+    }
+
+    public function consultant(): HasOne
+    {
+        return $this->hasOne(Consultant::class);
     }
 
     public function appointments(): HasMany
