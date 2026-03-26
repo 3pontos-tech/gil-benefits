@@ -2,10 +2,11 @@
 
 namespace TresPontosTech\Consultants\Database\Factories;
 
-use Illuminate\Support\Facades\Date;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use TresPontosTech\Consultants\Document;
+use Illuminate\Support\Facades\Date;
+use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Consultants\Models\Document;
 
 class DocumentFactory extends Factory
 {
@@ -15,6 +16,8 @@ class DocumentFactory extends Factory
     {
         return [
             'title' => $this->faker->word(),
+            'type' => $this->faker->randomElement(DocumentExtensionTypeEnum::cases()),
+            'active' => $this->faker->boolean(),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
 

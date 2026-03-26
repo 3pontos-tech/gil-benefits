@@ -2,9 +2,6 @@
 
 namespace TresPontosTech\Consultants\Filament\Resources\Documents;
 
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\ListDocuments;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\CreateDocument;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\EditDocument;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -13,9 +10,13 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Consultants\Document;
+use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\CreateDocument;
+use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\EditDocument;
+use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\ListDocuments;
+use TresPontosTech\Consultants\Filament\Resources\Documents\RelationManagers\SharedDocumentRelationManager;
 use TresPontosTech\Consultants\Filament\Resources\Documents\Schemas\DocumentForm;
 use TresPontosTech\Consultants\Filament\Resources\Documents\Tables\DocumentsTable;
+use TresPontosTech\Consultants\Models\Document;
 
 class DocumentResource extends Resource
 {
@@ -46,10 +47,13 @@ class DocumentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
+        $consultantId = auth()->user()->consultant->id;
+
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            ->where('consultant_id', $consultantId);
     }
 
     /**
@@ -77,5 +81,12 @@ class DocumentResource extends Resource
         }
 
         return $details;
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            SharedDocumentRelationManager::class,
+        ];
     }
 }

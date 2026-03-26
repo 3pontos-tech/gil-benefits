@@ -1,15 +1,14 @@
 <?php
 
-namespace TresPontosTech\Consultants;
+namespace TresPontosTech\Consultants\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use TresPontosTech\Consultants\Models\Consultant;
 
-class DocumentShare extends Pivot
+class DocumentShare extends Model
 {
     use HasFactory;
     use SoftDeletes;
@@ -20,7 +19,30 @@ class DocumentShare extends Pivot
         'document_id',
         'consultant_id',
         'employee_id',
+        'active',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'active' => 'bool',
+        ];
+    }
+
+    public function isActive(): bool
+    {
+        return (bool) $this->active;
+    }
+
+    public function activate(): void
+    {
+        $this->update(['active' => true]);
+    }
+
+    public function deactivate(): void
+    {
+        $this->update(['active' => false]);
+    }
 
     public function consultant(): BelongsTo
     {

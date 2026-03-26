@@ -13,6 +13,8 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Consultant::class)->constrained('consultants');
             $table->string('title');
+            $table->string('type')->nullable();
+            $table->boolean('active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

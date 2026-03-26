@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Consultants;
+namespace TresPontosTech\Consultants\Models;
 
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Policies\DocumentPolicy;
 
 #[UsePolicy(DocumentPolicy::class)]
@@ -23,8 +23,21 @@ class Document extends Model implements HasMedia
     protected $fillable = [
         'consultant_id',
         'title',
+        'type',
+        'active',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'active' => 'bool',
+            'type' => DocumentExtensionTypeEnum::class,
+        ];
+    }
+
+    /**
+     * @return BelongsTo<Consultant, $this>
+     */
     public function consultant(): BelongsTo
     {
         return $this->belongsTo(Consultant::class);

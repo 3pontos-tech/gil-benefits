@@ -4,7 +4,7 @@ namespace TresPontosTech\Consultants\Policies;
 
 use App\Models\Users\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use TresPontosTech\Consultants\Document;
+use TresPontosTech\Consultants\Models\Document;
 
 class DocumentPolicy
 {

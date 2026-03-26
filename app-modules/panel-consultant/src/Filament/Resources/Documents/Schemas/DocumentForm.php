@@ -5,6 +5,7 @@ namespace TresPontosTech\Consultants\Filament\Resources\Documents\Schemas;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
 class DocumentForm
@@ -17,6 +18,9 @@ class DocumentForm
                     ->default(fn () => auth()->user()->consultant->getKey()),
 
                 TextInput::make('title')
+                    ->required(),
+                Toggle::make('active')
+                    ->default(true)
                     ->required(),
 
                 SpatieMediaLibraryFileUpload::make('documents')
