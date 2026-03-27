@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\CreateDocument;
 use TresPontosTech\Consultants\Models\Document;

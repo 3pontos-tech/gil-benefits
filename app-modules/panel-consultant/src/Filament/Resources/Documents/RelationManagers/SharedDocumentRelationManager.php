@@ -11,8 +11,6 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
@@ -22,10 +20,7 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Consultants\Actions\UpsertDocumentShareAction;
-use TresPontosTech\Consultants\DTOs\DocumentShareDTO;
 use TresPontosTech\Consultants\Filament\Actions\ShareDocumentFilamentAction;
-use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\DocumentShare;
 
 class SharedDocumentRelationManager extends RelationManager
@@ -79,50 +74,5 @@ class SharedDocumentRelationManager extends RelationManager
             ->modifyQueryUsing(fn (Builder $query) => $query->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]));
-    }
-
-    private function contentSchema(): array
-    {
-        return [
-            Select::make('employee_id')
-                ->label('Cliente')
-                ->options(function () {
-                    /** @var Consultant $consultant */
-                    $consultant = auth()->user()->consultant;
-
-                    return $consultant->clients()
-                        ->whereNotSharedWith($this->getOwnerRecord()->getKey())
-                        ->pluck('users.name', 'users.id')->toArray();
-                })
-                ->searchable()
-                ->required(),
-        ];
-    }
-
-    private function updateOrCreateAction(array $data, Action $action): void
-    {
-        $exists = DocumentShare::query()
-            ->where('employee_id', $data['employee_id'])
-            ->where('document_id', $this->getOwnerRecord()->getKey())
-            ->where('consultant_id', auth()->user()->consultant->getKey())
-            ->exists();
-
-        if ($exists) {
-            Notification::make('already-sent')
-                ->title('Enviado Anteriormente')
-                ->body('Documento já enviado anteriormente para este cliente')
-                ->warning()
-                ->send();
-
-            $action->halt();
-        }
-
-        resolve(UpsertDocumentShareAction::class)->execute(
-            DocumentShareDTO::make([
-                'document_id' => $this->getOwnerRecord()->getKey(),
-                'employee_id' => $data['employee_id'],
-                'consultant_id' => auth()->user()->consultant->getKey(),
-            ])
-        );
     }
 }

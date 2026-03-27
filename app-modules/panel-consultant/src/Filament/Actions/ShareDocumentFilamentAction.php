@@ -37,11 +37,17 @@ class ShareDocumentFilamentAction extends Action
         return [
             Select::make('employee_id')
                 ->label('Cliente')
-                ->options(fn (Document $record) => auth()->user()->consultant?->clients()
-                    ->whereNotSharedWith($record->getKey())
-                    ->pluck('users.name', 'users.id')
-                    ->toArray()
-                )
+                ->options(function (Document|DocumentShare $record) {
+
+                    if ($record instanceof DocumentShare) {
+                        $record = Document::query()->where('documents.id', $record->document_id)->firstOrFail();
+                    }
+
+                    return auth()->user()->consultant?->clients()
+                        ->whereNotSharedWith($record->getKey())
+                        ->pluck('users.name', 'users.id')
+                        ->toArray();
+                })
                 ->searchable()
                 ->required(),
         ];
@@ -72,6 +78,6 @@ class ShareDocumentFilamentAction extends Action
             ])
         );
 
-        Notification::make()->success()->title('Sucesso')->send();
+        Notification::make()->success()->title('Documento compartilhado com sucesso')->send();
     }
 }
