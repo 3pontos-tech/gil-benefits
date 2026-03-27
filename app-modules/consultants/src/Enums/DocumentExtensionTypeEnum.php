@@ -39,4 +39,15 @@ enum DocumentExtensionTypeEnum: string implements HasColor, HasIcon, HasLabel
     {
         return $this->name;
     }
+
+    public function getMimeType(): string
+    {
+        return match ($this) {
+            self::JPG => 'image/jpeg',
+            self::PNG => 'image/png',
+            self::SVG => 'image/svg+xml',
+            self::PDF => 'application/pdf',
+            self::Docx => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        };
+    }
 }

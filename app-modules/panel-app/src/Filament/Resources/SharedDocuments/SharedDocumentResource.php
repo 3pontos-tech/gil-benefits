@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\App\Filament\Resources\SharedDocuments;
 
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
@@ -10,6 +9,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
 use TresPontosTech\Consultants\Models\Document;
 
