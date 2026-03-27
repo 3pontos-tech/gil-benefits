@@ -71,13 +71,13 @@ class ImportUsersAction extends Action
                 Notification::make()
                     ->success()
                     ->title('Importação concluída')
-                    ->body("{$result['imported']} usuário(s) importado(s) com sucesso.")
+                    ->body($result['imported'] . ' usuário(s) importado(s) com sucesso.')
                     ->send();
             }
 
             if (! empty($result['errors'])) {
                 $errorBody = collect($result['errors'])
-                    ->map(fn (array $e): string => "Linha {$e['row']} ({$e['email']}): {$e['message']}")
+                    ->map(fn (array $e): string => sprintf('Linha %d (%s): %s', $e['row'], $e['email'], $e['message']))
                     ->join("\n");
 
                 Notification::make()

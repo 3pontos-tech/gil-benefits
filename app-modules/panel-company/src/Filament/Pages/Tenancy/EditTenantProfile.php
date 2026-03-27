@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\PanelCompany\Filament\Pages\Tenancy;
 
+use Illuminate\Database\Eloquent\Model;
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\DetachAction;
@@ -80,7 +81,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->label(__('panel-company::resources.pages.edit_tenant.invite_member'))
                     ->model(User::class),
                 ImportUsersAction::make()
-                    ->company(fn () => filament()->getTenant()),
+                    ->company(fn (): ?Model => filament()->getTenant()),
             ])
             ->recordActions([
                 Action::make('toggle-active')

@@ -19,6 +19,7 @@ function makeCsvFile(array $rows, array $headers = ['name', 'email', 'phone_numb
     foreach ($rows as $row) {
         fputcsv($handle, $row);
     }
+
     fclose($handle);
 
     return $path;

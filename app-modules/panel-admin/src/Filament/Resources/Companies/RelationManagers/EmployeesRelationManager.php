@@ -40,7 +40,7 @@ class EmployeesRelationManager extends RelationManager
                 AttachAction::make()
                     ->recordTitleAttribute('name'),
                 ImportUsersAction::make()
-                    ->company(fn () => $this->getOwnerRecord()),
+                    ->company(fn (): Model => $this->getOwnerRecord()),
             ])
             ->recordActions([
                 AssignRoleAction::make(),

@@ -84,11 +84,11 @@ class ImportUsersFromFileAction
                     });
 
                     ++$imported;
-                } catch (\Throwable $e) {
+                } catch (\Throwable $throwable) {
                     $errors[] = [
                         'row' => $rowNumber,
                         'email' => $email,
-                        'message' => 'Erro ao criar usuário: ' . $e->getMessage(),
+                        'message' => 'Erro ao criar usuário: ' . $throwable->getMessage(),
                     ];
                 }
             });
