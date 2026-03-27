@@ -2,22 +2,24 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Shared\Pages\LoginPage;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TresPontosTech\Consultants\Filament\Pages\ConsultantDashboard;
+use TresPontosTech\Consultants\Filament\Pages\EditConsultantProfile;
 
 class ConsultantPanelProvider extends PanelProvider
 {
@@ -29,15 +31,22 @@ class ConsultantPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->discoverResources(in: app_path('Filament/Consultant/Resources'), for: 'App\\Filament\\Consultant\\Resources')
-            ->discoverPages(in: app_path('Filament/Consultant/Pages'), for: 'App\\Filament\\Consultant\\Pages')
+            ->login(LoginPage::class)
+            ->profile(EditConsultantProfile::class)
             ->pages([
-                Dashboard::class,
+                ConsultantDashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Consultant/Widgets'), for: 'App\\Filament\\Consultant\\Widgets')
-            ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+            ->passwordReset()
+            ->discoverResources(in: base_path('app-modules/panel-consultant/src/Filament/Resources'), for: 'TresPontosTech\\Consultants\\Filament\\Resources')
+            ->discoverPages(in: base_path('app-modules/panel-consultant/src/Filament/Pages'), for: 'TresPontosTech\\Consultants\\Filament\\Pages')
+            ->discoverWidgets(in: base_path('app-modules/panel-consultant/src/Filament/Widgets'), for: 'TresPontosTech\\Consultants\\Filament\\Widgets')
+            ->discoverClusters(in: base_path('app-modules/panel-consultant/src/Filament/Clusters'), for: 'TresPontosTech\\Consultants\\Filament\\Clusters')
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->navigationItems([
+                NavigationItem::make(__('all.my_profile'))
+                    ->sort(5)
+                    ->icon(Heroicon::UserCircle)
+                    ->url(fn (): string => EditConsultantProfile::getUrl()),
             ])
             ->middleware([
                 EncryptCookies::class,

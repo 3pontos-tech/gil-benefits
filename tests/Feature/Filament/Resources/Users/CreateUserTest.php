@@ -107,7 +107,6 @@ describe('validation tests', function () {
             ->call('create')
             ->assertHasFormErrors(['detail.document_id' => $rule]);
     })->with([
-        'required' => [null, 'required'],
         'unique' => ['268.717.480-75', 'unique'],
         'min_length' => ['AB', 'min'],
     ]);

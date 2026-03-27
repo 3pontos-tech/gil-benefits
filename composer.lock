@@ -295,6 +295,38 @@
             }
         },
         {
+            "name": "3pontos-tech/panel-consultant",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/panel-consultant",
+                "reference": "b4951f304c53ba097208b1bb4fe1642af17aa850"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\Consultants\\Providers\\PanelConsultantServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\Consultants\\": "src/",
+                    "TresPontosTech\\Consultants\\Tests\\": "tests/",
+                    "TresPontosTech\\Consultants\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\Consultants\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
             "name": "3pontos-tech/permissions",
             "version": "1.0.0",
             "dist": {
