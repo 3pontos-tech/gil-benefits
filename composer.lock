@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "481a30619ed8eaa825163af649f9efd5",
+    "content-hash": "9024f944e24b22370950c28a4f175bf8",
     "packages": [
         {
             "name": "3pontos-tech/appointments",

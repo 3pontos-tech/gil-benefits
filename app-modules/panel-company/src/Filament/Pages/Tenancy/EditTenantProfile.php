@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\PanelCompany\Filament\Pages\Tenancy;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\DetachAction;
@@ -15,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Actions\CreateAndAttachAction;
