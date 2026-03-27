@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use TresPontosTech\Admin\Filament\Resources\Permissions\Actions\AssignRoleAction;
 use TresPontosTech\Admin\Filament\Resources\Users\UserResource;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Filament\Actions\ImportUsersAction;
 
 class EmployeesRelationManager extends RelationManager
 {
@@ -38,6 +39,8 @@ class EmployeesRelationManager extends RelationManager
             ->headerActions([
                 AttachAction::make()
                     ->recordTitleAttribute('name'),
+                ImportUsersAction::make()
+                    ->company(fn () => $this->getOwnerRecord()),
             ])
             ->recordActions([
                 AssignRoleAction::make(),
