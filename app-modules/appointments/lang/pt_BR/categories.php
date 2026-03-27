@@ -3,34 +3,26 @@
 return [
     'personal_finance' => [
         'label' => 'Finanças Pessoais',
-        'description' => 'Assistência com orçamento, poupança e gestão das finanças pessoais.',
+        'description' => 'Construa uma relação saudável com o dinheiro por meio da organização financeira, do controle consciente dos gastos e mudanças de hábitos.',
     ],
     'investment_advisory' => [
-        'label' => 'Assessoria de Investimentos',
-        'description' => 'Orientação sobre estratégias de investimento e gestão de portfólio.',
+        'label' => 'Investimentos',
+        'description' => 'Entenda como funciona o universo dos investimentos e descubra a importância de fazer o dinheiro trabalhar para você, ampliando gradualmente seu patrimônio.',
     ],
     'retirement_and_estate_planning' => [
-        'label' => 'Planejamento de Aposentadoria e Sucessão',
-        'description' => 'Planejamento para a aposentadoria e gestão de questões sucessórias.',
-    ],
-    'business_financial_management' => [
-        'label' => 'Gestão Financeira Empresarial',
-        'description' => 'Suporte para operações financeiras e estratégia do negócio.',
-    ],
-    'tax_planning' => [
-        'label' => 'Planejamento Tributário',
-        'description' => 'Assessoria sobre estratégias tributárias e conformidade.',
+        'label' => 'Aposentadoria',
+        'description' => 'Planeje o futuro com antecedência, construindo reservas e investimentos de longo prazo que garantam tranquilidade e manutenção do padrão de vida.',
     ],
     'fundraising_and_credit' => [
-        'label' => 'Captação de Recursos e Crédito',
-        'description' => 'Apoio em captação de recursos e gestão de crédito.',
+        'label' => 'Gestão de dívidas e créditos',
+        'description' => 'Estratégias eficazes para resolver problemas com dívidas, renegociar condições e usar o crédito de forma inteligente, evitando armadilhas financeiras',
     ],
     'mergers_and_acquisitions' => [
-        'label' => 'Fusões e Aquisições',
-        'description' => 'Consultoria em fusões, aquisições e crescimento empresarial.',
+        'label' => 'Planejamento para aquisição de bens',
+        'description' => 'Estratégias para adquirir bens no momento certo, equilibrando desejo e necessidade sem comprometer sua saúde financeira.',
     ],
     'risk_and_compliance' => [
-        'label' => 'Riscos e Compliance',
-        'description' => 'Garantia de conformidade regulatória e gestão de riscos financeiros.',
+        'label' => 'Proteção patrimonial e mitigação de riscos',
+        'description' => 'Adote medidas para proteger seu patrimônio contra imprevistos, diversificando investimentos, contratando seguros adequados e reduzindo riscos ao longo do tempo.',
     ],
 ];
