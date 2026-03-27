@@ -4,7 +4,6 @@ namespace TresPontosTech\Consultants\Filament\Resources\Documents\RelationManage
 
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -25,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use TresPontosTech\Consultants\Actions\UpsertDocumentShareAction;
 use TresPontosTech\Consultants\DTOs\DocumentShareDTO;
+use TresPontosTech\Consultants\Filament\Actions\ShareDocumentFilamentAction;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\DocumentShare;
 
@@ -53,16 +53,13 @@ class SharedDocumentRelationManager extends RelationManager
                 TrashedFilter::make(),
             ])
             ->headerActions([
-                CreateAction::make()
-                    ->label('Share')
-                    ->icon(Heroicon::Share)
-                    ->schema($this->contentSchema())
-                    ->action(fn (array $data, Action $action) => $this->updateOrCreateAction($data, $action)),
+                ShareDocumentFilamentAction::make()
+                    ->record($this->getOwnerRecord()),
             ])
             ->recordActions([
                 EditAction::make()
-                    ->schema($this->contentSchema())
-                    ->action(fn (array $data, Action $action) => $this->updateOrCreateAction($data, $action)),
+                    ->schema(ShareDocumentFilamentAction::getCustomForm())
+                    ->action(fn (DocumentShare $record, array $data, Action $action) => ShareDocumentFilamentAction::handleExecution($record->document, $data, $action)),
                 Action::make('active')
                     ->label(fn (DocumentShare $record): string => $record->isActive() ? 'Desativar' : 'Ativar')
                     ->icon(fn (DocumentShare $record): Heroicon => $record->isActive() ? Heroicon::XCircle : Heroicon::CheckCircle)

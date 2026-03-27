@@ -64,7 +64,7 @@ it('should render only active documents', function (): void {
         ->assertCanNotSeeTableRecords([$notActiveDocument]);
 });
 
-test('user can not see not active document for him, but other users can see', function () {
+test('user can not see not active document for him, but other users can see', function (): void {
     $document = Document::factory()->active()->create();
 
     DocumentShare::factory()
@@ -93,7 +93,7 @@ test('user can not see not active document for him, but other users can see', fu
         ->assertCanSeeTableRecords([$document]);
 });
 
-test('no one can se a not active document', function () {
+test('no one can se a not active document', function (): void {
     $document = Document::factory()->notActive()->create();
 
     DocumentShare::factory()

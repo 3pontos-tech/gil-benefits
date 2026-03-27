@@ -31,7 +31,7 @@ class DocumentShare extends Model
 
     public function isActive(): bool
     {
-        return (bool)$this->active;
+        return (bool) $this->active;
     }
 
     public function activate(): void

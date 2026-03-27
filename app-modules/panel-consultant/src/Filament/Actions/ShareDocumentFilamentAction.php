@@ -9,6 +9,7 @@ use Filament\Support\Icons\Heroicon;
 use TresPontosTech\Consultants\Actions\UpsertDocumentShareAction;
 use TresPontosTech\Consultants\DTOs\DocumentShareDTO;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\Consultants\Models\DocumentShare;
 
 class ShareDocumentFilamentAction extends Action
 {
@@ -20,26 +21,57 @@ class ShareDocumentFilamentAction extends Action
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->icon(Heroicon::Share)
             ->label('Compartilhar Documento')
-            ->schema([
-                Select::make('employee_id')
-                    ->label('Cliente')
-                    ->options(fn () => auth()->user()->consultant?->clients()->pluck('users.name', 'users.id')->toArray())
-                    ->searchable()
-                    ->required(),
-            ])->action(function (Document $record, array $data): void {
-
-                resolve(UpsertDocumentShareAction::class)->execute(
-                    DocumentShareDTO::make([
-                        'document_id' => $record->getKey(),
-                        'employee_id' => $data['employee_id'],
-                        'consultant_id' => auth()->user()->consultant->getKey(),
-                    ]));
-
-                Notification::make()
-                    ->title('Documento Compartilhado com sucesso')
-                    ->send();
+            ->schema(self::getCustomForm())
+            ->modalHeading('Compartilhar Documento')
+            ->modalDescription('Apenas clientes que ainda não possuem acesso a este documento serão listados.')
+            ->action(function (Document $record, array $data, Action $action): void {
+                self::handleExecution($record, $data, $action);
             });
+    }
+
+    public static function getCustomForm(): array
+    {
+        return [
+            Select::make('employee_id')
+                ->label('Cliente')
+                ->options(fn (Document $record) => auth()->user()->consultant?->clients()
+                    ->whereNotSharedWith($record->getKey())
+                    ->pluck('users.name', 'users.id')
+                    ->toArray()
+                )
+                ->searchable()
+                ->required(),
+        ];
+    }
+
+    public static function handleExecution(Document $record, array $data, $action): void
+    {
+        $consultantId = auth()->user()->consultant->getKey();
+
+        $exists = DocumentShare::query()
+            ->where('employee_id', $data['employee_id'])
+            ->where('document_id', $record->getKey())
+            ->where('consultant_id', $consultantId)
+            ->exists();
+
+        if ($exists) {
+            Notification::make()->title('Enviado Anteriormente')->warning()->send();
+            $action->halt();
+
+            return;
+        }
+
+        resolve(UpsertDocumentShareAction::class)->execute(
+            DocumentShareDTO::make([
+                'document_id' => $record->getKey(),
+                'employee_id' => $data['employee_id'],
+                'consultant_id' => $consultantId,
+            ])
+        );
+
+        Notification::make()->success()->title('Sucesso')->send();
     }
 }
