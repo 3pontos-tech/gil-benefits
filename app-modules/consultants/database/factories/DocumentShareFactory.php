@@ -24,4 +24,18 @@ class DocumentShareFactory extends Factory
             'employee_id' => User::factory(),
         ];
     }
+
+    public function active(): self
+    {
+        return $this->state([
+            'active' => true,
+        ]);
+    }
+
+    public function notActive()
+    {
+        return $this->state([
+            'active' => false,
+        ]);
+    }
 }

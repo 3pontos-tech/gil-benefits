@@ -31,7 +31,7 @@ class DocumentShare extends Model
 
     public function isActive(): bool
     {
-        return (bool) $this->active;
+        return (bool)$this->active;
     }
 
     public function activate(): void
@@ -47,6 +47,11 @@ class DocumentShare extends Model
     public function consultant(): BelongsTo
     {
         return $this->belongsTo(Consultant::class);
+    }
+
+    public function document(): BelongsTo
+    {
+        return $this->belongsTo(Document::class);
     }
 
     public function employee(): BelongsTo

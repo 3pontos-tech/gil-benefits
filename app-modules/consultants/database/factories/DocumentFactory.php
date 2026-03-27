@@ -24,4 +24,18 @@ class DocumentFactory extends Factory
             'consultant_id' => Consultant::factory(),
         ];
     }
+
+    public function active(): self
+    {
+        return $this->state([
+            'active' => true,
+        ]);
+    }
+
+    public function notActive(): self
+    {
+        return $this->state([
+            'active' => false,
+        ]);
+    }
 }

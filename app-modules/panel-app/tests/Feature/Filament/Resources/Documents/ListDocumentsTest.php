@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Models\Users\User;
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
 
+use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -18,16 +20,104 @@ it('should render', function (): void {
 });
 
 it('should render only shared documents', function (): void {
-    $document = Document::factory()->create(['active' => true]);
-    $sharedDocument = DocumentShare::factory(3)
-        ->create([
-            'document_id' => $document->id,
-            'employee_id' => $this->employee->id,
-            'consultant_id' => $document->consultant_id,
-            'active' => true,
-        ]);
+    $document = Document::factory()->active()->create();
+    DocumentShare::factory()
+        ->for($document)
+        ->for($this->employee, 'employee')
+        ->for($document->consultant, 'consultant')
+        ->active()
+        ->create();
+
+    $anotherDocument = Document::factory()->active()->create();
+    DocumentShare::factory()
+        ->for($anotherDocument)
+        ->for($anotherDocument->consultant, 'consultant')
+        ->active()
+        ->create();
 
     livewire(ListSharedDocuments::class)
         ->assertOk()
-        ->assertCanSeeTableRecords($sharedDocument);
-})->todo();
+        ->assertCanSeeTableRecords([$document])
+        ->assertCanNotSeeTableRecords([$anotherDocument]);
+});
+
+it('should render only active documents', function (): void {
+    $activeDocument = Document::factory()->active()->create();
+    DocumentShare::factory()
+        ->for($activeDocument)
+        ->for($this->employee, 'employee')
+        ->for($activeDocument->consultant, 'consultant')
+        ->active()
+        ->create();
+
+    $notActiveDocument = Document::factory()->notActive()->create();
+    DocumentShare::factory()
+        ->for($notActiveDocument)
+        ->for($this->employee, 'employee')
+        ->for($notActiveDocument->consultant, 'consultant')
+        ->notActive()
+        ->create();
+
+    livewire(ListSharedDocuments::class)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$activeDocument])
+        ->assertCanNotSeeTableRecords([$notActiveDocument]);
+});
+
+test('user can not see not active document for him, but other users can see', function () {
+    $document = Document::factory()->active()->create();
+
+    DocumentShare::factory()
+        ->for($document)
+        ->for($this->employee, 'employee')
+        ->for($document->consultant, 'consultant')
+        ->notActive()
+        ->create();
+
+    $anotherUser = User::factory()->create();
+    DocumentShare::factory()
+        ->for($document)
+        ->for($anotherUser, 'employee')
+        ->for($document->consultant, 'consultant')
+        ->active()
+        ->create();
+
+    livewire(ListSharedDocuments::class)
+        ->assertOk()
+        ->assertCanNotSeeTableRecords([$document]);
+
+    actingAs($anotherUser);
+
+    livewire(ListSharedDocuments::class)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$document]);
+});
+
+test('no one can se a not active document', function () {
+    $document = Document::factory()->notActive()->create();
+
+    DocumentShare::factory()
+        ->for($document)
+        ->for($this->employee, 'employee')
+        ->for($document->consultant, 'consultant')
+        ->active()
+        ->create();
+
+    $anotherUser = User::factory()->create();
+    DocumentShare::factory()
+        ->for($document)
+        ->for($anotherUser, 'employee')
+        ->for($document->consultant, 'consultant')
+        ->active()
+        ->create();
+
+    livewire(ListSharedDocuments::class)
+        ->assertOk()
+        ->assertCanNotSeeTableRecords([$document]);
+
+    actingAs($anotherUser);
+
+    livewire(ListSharedDocuments::class)
+        ->assertOk()
+        ->assertCanNotSeeTableRecords([$document]);
+});
