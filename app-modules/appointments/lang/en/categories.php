@@ -3,34 +3,26 @@
 return [
     'personal_finance' => [
         'label' => 'Personal Finance',
-        'description' => 'Assistance with budgeting, saving, and managing personal finances.',
+        'description' => 'Organize your finances, control spending, and develop healthy money habits.',
     ],
     'investment_advisory' => [
-        'label' => 'Investment Advisory',
-        'description' => 'Guidance on investment strategies and portfolio management.',
+        'label' => 'Investments',
+        'description' => 'Learn to invest and make your money grow over time.',
     ],
     'retirement_and_estate_planning' => [
-        'label' => 'Retirement and Estate Planning',
-        'description' => 'Planning for retirement and managing estate affairs.',
-    ],
-    'business_financial_management' => [
-        'label' => 'Business Financial Management',
-        'description' => 'Support for business financial operations and strategy.',
-    ],
-    'tax_planning' => [
-        'label' => 'Tax Planning',
-        'description' => 'Advice on tax strategies and compliance.',
+        'label' => 'Retirement',
+        'description' => 'Build your financial security for the future today.',
     ],
     'fundraising_and_credit' => [
-        'label' => 'Fundraising and Credit',
-        'description' => 'Help with fundraising efforts and credit management.',
+        'label' => 'Debt and Credit Management',
+        'description' => 'Pay off debts, renegotiate better terms, and use credit wisely.',
     ],
     'mergers_and_acquisitions' => [
-        'label' => 'Mergers and Acquisitions',
-        'description' => 'Consultation on mergers, acquisitions, and business growth.',
+        'label' => 'Planning for Asset Acquisition',
+        'description' => 'Buy strategically, balancing desire and need without compromising your budget.',
     ],
     'risk_and_compliance' => [
-        'label' => 'Risk and Compliance',
-        'description' => 'Ensuring adherence to regulations and managing financial risks.',
+        'label' => 'Asset Protection and Risk Mitigation',
+        'description' => 'Protect your assets with diversification, insurance, and risk management.',
     ],
 ];
