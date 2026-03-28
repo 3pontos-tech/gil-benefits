@@ -2,35 +2,27 @@
 
 return [
     'personal_finance' => [
-        'label' => 'Finanças Pessoais',
-        'description' => 'Assistência com orçamento, poupança e gestão das finanças pessoais.',
+        'label' => 'Finanças pessoais',
+        'description' => 'Organize suas finanças, controle gastos e desenvolva hábitos saudáveis com o dinheiro.',
     ],
     'investment_advisory' => [
-        'label' => 'Assessoria de Investimentos',
-        'description' => 'Orientação sobre estratégias de investimento e gestão de portfólio.',
+        'label' => 'Investimentos',
+        'description' => 'Aprenda a investir e faça seu dinheiro crescer ao longo do tempo.',
     ],
     'retirement_and_estate_planning' => [
-        'label' => 'Planejamento de Aposentadoria e Sucessão',
-        'description' => 'Planejamento para a aposentadoria e gestão de questões sucessórias.',
-    ],
-    'business_financial_management' => [
-        'label' => 'Gestão Financeira Empresarial',
-        'description' => 'Suporte para operações financeiras e estratégia do negócio.',
-    ],
-    'tax_planning' => [
-        'label' => 'Planejamento Tributário',
-        'description' => 'Assessoria sobre estratégias tributárias e conformidade.',
+        'label' => 'Aposentadoria',
+        'description' => 'Construa hoje a segurança financeira do seu futuro.',
     ],
     'fundraising_and_credit' => [
-        'label' => 'Captação de Recursos e Crédito',
-        'description' => 'Apoio em captação de recursos e gestão de crédito.',
+        'label' => 'Gestão de dívidas e crédito',
+        'description' => 'Quite dívidas, renegocie melhor e use o crédito com inteligência.',
     ],
     'mergers_and_acquisitions' => [
-        'label' => 'Fusões e Aquisições',
-        'description' => 'Consultoria em fusões, aquisições e crescimento empresarial.',
+        'label' => 'Planejamento para aquisição de bens',
+        'description' => 'Compre com estratégia, equilibrando desejo e necessidade sem comprometer seu orçamento.',
     ],
     'risk_and_compliance' => [
-        'label' => 'Riscos e Compliance',
-        'description' => 'Garantia de conformidade regulatória e gestão de riscos financeiros.',
+        'label' => 'Proteção patrimonial e mitigação de riscos',
+        'description' => 'Proteja seu patrimônio com diversificação, seguros e gestão de riscos.',
     ],
 ];

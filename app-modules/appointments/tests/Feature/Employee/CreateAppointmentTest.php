@@ -59,7 +59,7 @@ it('should be able to appointment', function (): void {
         ->assertOk()
         ->assertWizardCurrentStep(1)
         ->fillForm([
-            'category_type' => AppointmentCategoryEnum::BusinessFinancialManagement->value,
+            'category_type' => AppointmentCategoryEnum::PersonalFinance->value,
         ])
         ->goToNextWizardStep()
         ->assertOk()
@@ -77,7 +77,7 @@ it('should be able to appointment', function (): void {
     assertDatabaseHas(Appointment::class, [
         'user_id' => $this->employee->getKey(),
         'consultant_id' => null,
-        'category_type' => AppointmentCategoryEnum::BusinessFinancialManagement->value,
+        'category_type' => AppointmentCategoryEnum::PersonalFinance->value,
         'status' => AppointmentStatus::Pending->value,
         'notes' => 'notes',
     ]);
