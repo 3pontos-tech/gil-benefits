@@ -45,6 +45,12 @@ class ImportUsersAction extends Action
             FileUpload::make('file')
                 ->label('Planilha (CSV ou XLSX)')
                 ->helperText('Colunas obrigatórias: name, email, document_id, tax_id. Opcional: phone_number.')
+                ->hintAction(
+                    Action::make('download_template')
+                        ->label('Baixar Modelo')
+                        ->url(route('users.import-template.download'))
+                        ->openUrlInNewTab()
+                )
                 ->acceptedFileTypes([
                     'text/csv',
                     'text/plain',
