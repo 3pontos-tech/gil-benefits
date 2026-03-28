@@ -5,7 +5,7 @@
 
 <x-dynamic-component :component="$getFieldWrapperView()" :field="$field">
     <x-filament::button></x-filament::button>
-    <div class="h-[500px] overflow-y-auto">
+    <div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             @foreach (AppointmentCategoryEnum::cases() as $case)
                 @php
