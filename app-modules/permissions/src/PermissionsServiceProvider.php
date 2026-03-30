@@ -12,6 +12,8 @@ use Illuminate\Support\ServiceProvider;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\Consultants\Models\DocumentShare;
 use TresPontosTech\Permissions\Commands\SyncPermissions\SyncPermissionsCommand;
 
 class PermissionsServiceProvider extends ServiceProvider
@@ -36,6 +38,8 @@ class PermissionsServiceProvider extends ServiceProvider
             'appointments' => Appointment::class,
             'company' => Company::class,
             'details' => Detail::class,
+            'documents' => Document::class,
+            'document_share' => DocumentShare::class,
         ]);
 
         Gate::policy(Role::class, RolePolicy::class);

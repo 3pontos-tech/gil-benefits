@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
@@ -75,6 +76,7 @@ test('user can not see not active document for him, but other users can see', fu
         ->create();
 
     $anotherUser = User::factory()->create();
+    $anotherUser->assignRole(Roles::Employee);
     DocumentShare::factory()
         ->for($document)
         ->for($anotherUser, 'employee')
@@ -104,6 +106,7 @@ test('no one can se a not active document', function (): void {
         ->create();
 
     $anotherUser = User::factory()->create();
+    $anotherUser->assignRole(Roles::Employee);
     DocumentShare::factory()
         ->for($document)
         ->for($anotherUser, 'employee')
