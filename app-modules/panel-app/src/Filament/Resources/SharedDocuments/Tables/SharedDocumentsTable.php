@@ -3,14 +3,10 @@
 namespace TresPontosTech\App\Filament\Resources\SharedDocuments\Tables;
 
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Consultants\Models\Document;
 
 class SharedDocumentsTable
@@ -25,6 +21,7 @@ class SharedDocumentsTable
                 ))
             ->columns([
                 TextColumn::make('consultant.name')
+                    ->label('Consultor')
                     ->searchable()
                     ->sortable(),
 
@@ -36,37 +33,26 @@ class SharedDocumentsTable
                     ->label('Extension Type')
                     ->searchable()
                     ->sortable(),
-            ])
-            ->filters([
-                TrashedFilter::make(),
+
+                TextColumn::make('created_at')
+                    ->label('Enviado Em')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->recordActions([
                 Action::make('download')
                     ->label('Download')
                     ->icon(Heroicon::ArrowDown)
-                    ->action(function (Document $record) {
+                    ->url(function (Document $record): string {
                         $media = $record->getFirstMedia('documents');
 
-                        return response()->streamDownload(
-                            function () use ($media): void {
-                                $stream = $media->stream();
-                                fpassthru($stream);
-
-                                if (is_resource($stream)) {
-                                    fclose($stream);
-                                }
-                            },
-                            $media->file_name,
-                            ['Content-Type' => $media->mime_type]
+                        return Storage::temporaryUrl(
+                            $media->getPath(),
+                            now()->addMinutes(5),
+                            ['ResponseContentDisposition' => 'attachment; filename="' . $media->file_name . '"'],
                         );
-                    }),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                ]),
+                    })
+                    ->openUrlInNewTab(),
             ]);
     }
 }

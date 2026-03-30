@@ -40,7 +40,7 @@ class Document extends Model implements HasMedia
      */
     public function consultant(): BelongsTo
     {
-        return $this->belongsTo(Consultant::class);
+        return $this->belongsTo(Consultant::class)->withTrashed();
     }
 
     /**
@@ -53,6 +53,6 @@ class Document extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('documents')->useDisk('public');
+        $this->addMediaCollection('documents');
     }
 }

@@ -27,7 +27,6 @@ class DocumentForm
                 SpatieMediaLibraryFileUpload::make('documents')
                     ->label('Arquivo(s)')
                     ->collection('documents')
-                    ->disk('public')
                     ->acceptedFileTypes(
                         collect(DocumentExtensionTypeEnum::cases())
                             ->map(fn (DocumentExtensionTypeEnum $type): string => $type->getMimeType())

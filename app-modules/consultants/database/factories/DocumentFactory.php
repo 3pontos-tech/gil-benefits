@@ -3,7 +3,9 @@
 namespace TresPontosTech\Consultants\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
@@ -37,5 +39,14 @@ class DocumentFactory extends Factory
         return $this->state([
             'active' => false,
         ]);
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Document $document): void {
+            Storage::fake('public');
+            $document->addMedia(UploadedFile::fake()->create('documento_teste.pdf', 100))
+                ->toMediaCollection('documents');
+        });
     }
 }

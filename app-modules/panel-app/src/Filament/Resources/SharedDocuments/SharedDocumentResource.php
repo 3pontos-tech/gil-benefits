@@ -8,16 +8,20 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
 use TresPontosTech\Consultants\Models\Document;
+use UnitEnum;
 
 class SharedDocumentResource extends Resource
 {
     protected static ?string $model = Document::class;
 
     protected static ?string $slug = 'shared-documents';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Consultorias';
+
+    protected static ?string $label = 'Materiais';
 
     protected static bool $isScopedToTenant = false;
 
@@ -33,14 +37,6 @@ class SharedDocumentResource extends Resource
         return [
             'index' => ListSharedDocuments::route('/'),
         ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
     }
 
     /**

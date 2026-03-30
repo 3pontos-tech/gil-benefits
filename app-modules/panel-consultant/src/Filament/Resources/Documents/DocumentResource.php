@@ -17,6 +17,7 @@ use TresPontosTech\Consultants\Filament\Resources\Documents\RelationManagers\Sha
 use TresPontosTech\Consultants\Filament\Resources\Documents\Schemas\DocumentForm;
 use TresPontosTech\Consultants\Filament\Resources\Documents\Tables\DocumentsTable;
 use TresPontosTech\Consultants\Models\Document;
+use UnitEnum;
 
 class DocumentResource extends Resource
 {
@@ -24,7 +25,9 @@ class DocumentResource extends Resource
 
     protected static ?string $slug = 'documents';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Document;
+
+    protected static string|UnitEnum|null $navigationGroup = 'Appointments';
 
     public static function form(Schema $schema): Schema
     {

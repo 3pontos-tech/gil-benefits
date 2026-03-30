@@ -46,7 +46,7 @@ class DocumentShare extends Model
 
     public function consultant(): BelongsTo
     {
-        return $this->belongsTo(Consultant::class);
+        return $this->belongsTo(Consultant::class)->withTrashed();
     }
 
     public function document(): BelongsTo
