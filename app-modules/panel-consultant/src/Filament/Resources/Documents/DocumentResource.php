@@ -27,8 +27,6 @@ class DocumentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Document;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Appointments';
-
     public static function form(Schema $schema): Schema
     {
         return DocumentForm::configure($schema);
@@ -37,6 +35,16 @@ class DocumentResource extends Resource
     public static function table(Table $table): Table
     {
         return DocumentsTable::table($table);
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('panel-admin::resources.navigation_group.appointments');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('panel-consultant::resources.documents.model_label');
     }
 
     public static function getPages(): array

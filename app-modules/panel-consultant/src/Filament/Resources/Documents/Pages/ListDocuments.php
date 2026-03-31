@@ -13,7 +13,8 @@ class ListDocuments extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label(__('panel-consultant::resources.documents.form.heading')),
         ];
     }
 }

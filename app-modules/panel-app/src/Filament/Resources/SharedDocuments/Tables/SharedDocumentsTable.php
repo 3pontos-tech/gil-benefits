@@ -21,21 +21,23 @@ class SharedDocumentsTable
                 ))
             ->columns([
                 TextColumn::make('consultant.name')
-                    ->label('Consultor')
+                    ->label(__('panel-app::resources.documents.table.consultant'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('title')
+                    ->label(__('panel-app::resources.documents.table.active'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('type')
-                    ->label('Extension Type')
+                    ->label(__('panel-app::resources.documents.table.extension_type'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('created_at')
-                    ->label('Enviado Em')
+                    ->label(__('panel-app::resources.documents.table.created_at'))
+                    ->dateTime('d/m/Y')
                     ->searchable()
                     ->sortable(),
             ])

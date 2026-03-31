@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\Consultants\Filament\Resources\Appointments\Tables\AppointmentsTable;
+use UnitEnum;
 
 class AppointmentResource extends Resource
 {
@@ -16,11 +17,14 @@ class AppointmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDateRange;
 
-    protected static string|null|\UnitEnum $navigationGroup = 'Appointments';
-
     public static function getModelLabel(): string
     {
         return __('appointments::resources.appointments.label');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('panel-admin::resources.navigation_group.appointments');
     }
 
     public static function getPluralModelLabel(): string

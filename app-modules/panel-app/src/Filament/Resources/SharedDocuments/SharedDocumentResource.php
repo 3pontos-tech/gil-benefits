@@ -19,8 +19,6 @@ class SharedDocumentResource extends Resource
 
     protected static ?string $slug = 'shared-documents';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Consultorias';
-
     protected static ?string $label = 'Materiais';
 
     protected static bool $isScopedToTenant = false;
@@ -30,6 +28,11 @@ class SharedDocumentResource extends Resource
     public static function table(Table $table): Table
     {
         return SharedDocumentsTable::table($table);
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('panel-admin::resources.navigation_group.appointments');
     }
 
     public static function getPages(): array

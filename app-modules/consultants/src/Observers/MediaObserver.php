@@ -10,7 +10,7 @@ class MediaObserver
 {
     public function created(Media $media): void
     {
-        if ($media->model_type !== Document::class) {
+        if ($media->model_type !== 'documents') {
             return;
         }
 

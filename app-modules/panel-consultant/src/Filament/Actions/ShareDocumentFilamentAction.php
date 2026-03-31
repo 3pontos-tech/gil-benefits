@@ -23,10 +23,10 @@ class ShareDocumentFilamentAction extends Action
         parent::setUp();
 
         $this->icon(Heroicon::Share)
-            ->label('Compartilhar Documento')
+            ->label(__('panel-consultant::resources.share_documents.action.label'))
             ->schema(self::getCustomForm())
-            ->modalHeading('Compartilhar Documento')
-            ->modalDescription('Apenas clientes que ainda não possuem acesso a este documento serão listados.')
+            ->modalHeading(__('panel-consultant::resources.share_documents.action.heading'))
+            ->modalDescription(__('panel-consultant::resources.share_documents.action.modal_description'))
             ->action(function (Document $record, array $data, Action $action): void {
                 self::handleExecution($record, $data, $action);
             });
@@ -36,7 +36,7 @@ class ShareDocumentFilamentAction extends Action
     {
         return [
             Select::make('employee_id')
-                ->label('Cliente')
+                ->label(__('panel-consultant::resources.share_documents.action.form.customer'))
                 ->options(function (Document|DocumentShare $record) {
 
                     if ($record instanceof DocumentShare) {

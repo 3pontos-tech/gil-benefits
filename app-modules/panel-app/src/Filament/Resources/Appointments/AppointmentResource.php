@@ -18,11 +18,14 @@ class AppointmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Consultorias';
-
     public static function getModelLabel(): string
     {
         return __('appointments::resources.appointments.label');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('panel-admin::resources.navigation_group.appointments');
     }
 
     public static function getPluralModelLabel(): string

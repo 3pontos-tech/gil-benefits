@@ -24,15 +24,15 @@ class DocumentsTable
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->label('Title')
+                    ->label(__('panel-consultant::resources.documents.table.title'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('type')
-                    ->label('Extension Type')
+                    ->label(__('panel-consultant::resources.documents.table.extension_type'))
                     ->searchable()
                     ->sortable(),
                 IconColumn::make('active')
-                    ->label('Active')
+                    ->label(__('panel-consultant::resources.documents.table.active'))
                     ->boolean()
                     ->searchable()
                     ->sortable(),
