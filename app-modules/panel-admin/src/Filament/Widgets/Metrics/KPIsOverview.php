@@ -6,7 +6,7 @@ use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Consultants\Models\Consultant;
 
 class KPIsOverview extends StatsOverviewWidget
@@ -20,124 +20,98 @@ class KPIsOverview extends StatsOverviewWidget
     protected function getStats(): array
     {
         return [
-            $this->conclusionRateStat(),
-            $this->cancellationRateStat(),
-            $this->pendingAppointmentsStat(),
-            $this->avgAppointmentsPerConsultantStat(),
-            $this->appointmentsLastSevenDaysStat(),
+            $this->avgRatingStat(),
+            $this->avgFeedbacksPerConsultantStat(),
+            $this->featuredConsultantStat(),
         ];
     }
 
     private function dateRange(): array
     {
+        $startDate = data_get($this->filters, 'startDate');
+        $endDate = data_get($this->filters, 'endDate');
+
         return [
-            'start' => $this->filters['startDate'] ? now()->parse($this->filters['startDate'])->startOfDay() : now()->subDays(30)->startOfDay(),
-            'end' => $this->filters['endDate'] ? now()->parse($this->filters['endDate'])->endOfDay() : now()->endOfDay(),
+            'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
+            'end' => filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay(),
         ];
     }
 
-    private function conclusionRateStat(): Stat
+    private function avgRatingStat(): Stat
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $result = Appointment::query()
+        $result = AppointmentFeedback::query()
             ->whereBetween('created_at', [$start, $end])
-            ->selectRaw('count(*) as total, count(*) filter (where status = ?) as completed', [
-                AppointmentStatus::Completed->value,
-            ])
+            ->selectRaw('COUNT(*) as total, COALESCE(AVG(rating), 0) as avg_rating')
+            ->toBase()
             ->first();
 
-        $total = (int) $result->total;
-        $completed = (int) $result->completed;
-        $rate = $total > 0 ? round(($completed / $total) * 100, 1) : 0;
+        $avg = round((float) ($result?->avg_rating ?? 0), 1);
+        $total = (int) ($result?->total ?? 0);
 
-        return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.conclusion_rate'), "{$rate}%")
-            ->description(__('panel-admin::widgets.metrics.kpis_overview.conclusion_rate_description', [
-                'completed' => $completed,
-                'total' => $total,
-            ]))
-            ->color($rate >= 70 ? 'success' : ($rate >= 40 ? 'warning' : 'danger'));
+        return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.avg_rating'), $avg . '/5')
+            ->description(__('panel-admin::widgets.metrics.kpis_overview.avg_rating_description', ['total' => $total]))
+            ->color($avg >= 4 ? 'success' : ($avg >= 3 ? 'warning' : 'danger'));
     }
 
-    private function cancellationRateStat(): Stat
+    private function avgFeedbacksPerConsultantStat(): Stat
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $result = Appointment::query()
-            ->whereBetween('created_at', [$start, $end])
-            ->whereNotIn('status', [AppointmentStatus::Draft])
-            ->selectRaw('count(*) as total, count(*) filter (where status = ?) as cancelled', [
-                AppointmentStatus::Cancelled->value,
-            ])
+        $result = AppointmentFeedback::query()
+            ->join('appointments', 'appointments.id', '=', 'appointment_feedbacks.appointment_id')
+            ->whereNotNull('appointments.consultant_id')
+            ->whereBetween('appointment_feedbacks.created_at', [$start, $end])
+            ->selectRaw('COUNT(*) as total, COUNT(DISTINCT appointments.consultant_id) as consultant_count')
+            ->toBase()
             ->first();
 
-        $total = (int) $result->total;
-        $cancelled = (int) $result->cancelled;
-        $rate = $total > 0 ? round(($cancelled / $total) * 100, 1) : 0;
+        $consultantCount = (int) ($result?->consultant_count ?? 0);
+        $total = (int) ($result?->total ?? 0);
 
-        return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.cancellation_rate'), "{$rate}%")
-            ->description(__('panel-admin::widgets.metrics.kpis_overview.cancellation_rate_description', [
-                'cancelled' => $cancelled,
-                'total' => $total,
-            ]))
-            ->color($rate >= 30 ? 'danger' : ($rate >= 15 ? 'warning' : 'success'));
-    }
+        $avg = $consultantCount > 0
+            ? round($total / $consultantCount, 1)
+            : 0;
 
-    private function pendingAppointmentsStat(): Stat
-    {
-        $pending = Appointment::query()
-            ->whereIn('status', [
-                AppointmentStatus::Pending,
-                AppointmentStatus::Scheduling,
-                AppointmentStatus::Active,
-            ])
-            ->count();
-
-        return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.pending'), $pending)
-            ->description(__('panel-admin::widgets.metrics.kpis_overview.pending_description'))
-            ->color('warning');
-    }
-
-    private function avgAppointmentsPerConsultantStat(): Stat
-    {
-        ['start' => $start, 'end' => $end] = $this->dateRange();
-
-        $activeAppointments = Appointment::query()
-            ->whereNotNull('consultant_id')
-            ->whereNotIn('status', [
-                AppointmentStatus::Completed,
-                AppointmentStatus::Cancelled,
-            ])
-            ->whereBetween('created_at', [$start, $end])
-            ->count();
-
-        $totalConsultants = Consultant::query()
-            ->whereHas('appointments', fn ($query) => $query
-                ->whereNotIn('status', [
-                    AppointmentStatus::Completed,
-                    AppointmentStatus::Cancelled,
-                ])
-                ->whereBetween('created_at', [$start, $end])
-            )
-            ->count();
-
-        $avg = $totalConsultants > 0 ? round($activeAppointments / $totalConsultants, 1) : 0;
-
-        return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.avg_per_consultant'), $avg)
-            ->description(__('panel-admin::widgets.metrics.kpis_overview.avg_per_consultant_description'))
+        return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.avg_feedbacks_per_consultant'), $avg)
+            ->description(__('panel-admin::widgets.metrics.kpis_overview.avg_feedbacks_per_consultant_description', ['total' => $total]))
             ->color('info');
     }
 
-    private function appointmentsLastSevenDaysStat(): Stat
+    private function featuredConsultantStat(): Stat
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $count = Appointment::query()
-            ->whereBetween('created_at', [$start, $end])
-            ->count();
+        $consultant = Consultant::query()
+            ->withCount(['appointments as completed_count' => fn ($query) => $query
+                ->where('status', AppointmentStatus::Completed)
+                ->whereBetween('created_at', [$start, $end]),
+            ])
+            ->withAvg('feedbacks', 'rating')
+            ->whereHas('appointments', fn ($query) => $query
+                ->where('status', AppointmentStatus::Completed)
+                ->whereBetween('created_at', [$start, $end])
+            )
+            ->whereHas('feedbacks')
+            ->get()
+            ->sortByDesc(fn (Consultant $consultant): float => $consultant->completed_count * ($consultant->feedbacks_avg_rating ?? 0))
+            ->first();
 
-        return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.last_seven_days'), $count)
-            ->description(__('panel-admin::widgets.metrics.kpis_overview.last_seven_days_description'))
+        if (! $consultant) {
+            return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.featured_consultant'), '—')
+                ->description(__('panel-admin::widgets.metrics.kpis_overview.no_featured_consultant'))
+                ->color('gray');
+        }
+
+        $avgRating = round((float) ($consultant->feedbacks_avg_rating ?? 0), 1);
+        $completedCount = (int) $consultant->completed_count;
+
+        return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.featured_consultant'), $consultant->name)
+            ->description(__('panel-admin::widgets.metrics.kpis_overview.featured_consultant_description', [
+                'completed' => $completedCount,
+                'rating' => $avgRating,
+            ]))
             ->color('success');
     }
 }

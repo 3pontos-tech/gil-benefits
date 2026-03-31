@@ -2,11 +2,13 @@
 
 namespace TresPontosTech\Admin\Filament\Widgets\Metrics;
 
+use Carbon\CarbonInterface;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget;
+use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -29,40 +31,18 @@ class RankingsWidget extends TableWidget
 
     public function table(Table $table): Table
     {
-        $start = $this->filters['startDate'] ? now()->parse($this->filters['startDate'])->startOfDay() : now()->subDays(30)->startOfDay();
-        $end = $this->filters['endDate'] ? now()->parse($this->filters['endDate'])->endOfDay() : now()->endOfDay();
+        $startDate = data_get($this->filters, 'startDate');
+        $endDate = data_get($this->filters, 'endDate');
 
-        $query = match ($this->activeTab) {
-            'companies' => Company::query()
-                ->withCount([
-                    'appointments as total_appointments' => fn ($q) => $q->whereBetween('created_at', [$start, $end]),
-                    'appointments as completed_appointments' => fn ($q) => $q->where('status', AppointmentStatus::Completed)->whereBetween('created_at', [$start, $end]),
-                    'appointments as pending_appointments' => fn ($q) => $q->whereIn('status', [
-                        AppointmentStatus::Pending,
-                        AppointmentStatus::Scheduling,
-                        AppointmentStatus::Active,
-                    ])->whereBetween('created_at', [$start, $end]),
-                ])
-                ->whereHas('appointments', fn ($q) => $q->whereBetween('created_at', [$start, $end]))
-                ->orderByDesc('total_appointments'),
-            default => Consultant::query()
-                ->withCount([
-                    'appointments as total_appointments' => fn ($q) => $q->whereBetween('created_at', [$start, $end]),
-                    'appointments as completed_appointments' => fn ($q) => $q->where('status', AppointmentStatus::Completed)->whereBetween('created_at', [$start, $end]),
-                    'appointments as pending_appointments' => fn ($q) => $q->whereIn('status', [
-                        AppointmentStatus::Pending,
-                        AppointmentStatus::Scheduling,
-                        AppointmentStatus::Active,
-                    ])->whereBetween('created_at', [$start, $end]),
-                ])
-                ->whereHas('appointments', fn ($q) => $q->whereBetween('created_at', [$start, $end]))
-                ->orderByDesc('total_appointments'),
-        };
+        $start = filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay();
+        $end = filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay();
+
+        $model = $this->activeTab === 'companies' ? Company::class : Consultant::class;
 
         return $table
             ->heading(__('panel-admin::widgets.metrics.rankings.heading'))
             ->searchable(false)
-            ->query($query)
+            ->query($this->rankingQuery($model, $start, $end))
             ->headerActions([
                 Action::make('tab_consultants')
                     ->label(__('panel-admin::widgets.metrics.rankings.tab_consultants'))
@@ -93,6 +73,34 @@ class RankingsWidget extends TableWidget
                     ->state(fn ($record): string => $record->total_appointments > 0
                         ? round(($record->completed_appointments / $record->total_appointments) * 100, 1) . '%'
                         : '0%'),
+                TextColumn::make('feedbacks_avg_rating')
+                    ->label(__('panel-admin::widgets.metrics.rankings.column_avg_rating'))
+                    ->state(fn ($record): string => filled($record->feedbacks_avg_rating)
+                        ? round((float) $record->feedbacks_avg_rating, 1) . '/5'
+                        : '—'
+                    )
+                    ->sortable(),
             ]);
+    }
+
+    /**
+     * @param  class-string<Company|Consultant>  $model
+     */
+    private function rankingQuery(string $model, CarbonInterface $start, CarbonInterface $end): Builder
+    {
+        return $model::query()
+            ->withCount([
+                'appointments as total_appointments' => fn ($query) => $query->whereBetween('created_at', [$start, $end]),
+                'appointments as completed_appointments' => fn ($query) => $query->where('status', AppointmentStatus::Completed)->whereBetween('created_at', [$start, $end]),
+                'appointments as pending_appointments' => fn ($query) => $query->whereIn('status', [
+                    AppointmentStatus::Pending,
+                    AppointmentStatus::Scheduling,
+                    AppointmentStatus::Active,
+                ])->whereBetween('created_at', [$start, $end]),
+            ])
+            ->withAvg('feedbacks', 'rating')
+            ->whereHas('appointments', fn ($query) => $query->whereBetween('created_at', [$start, $end]))
+            ->orderByRaw('feedbacks_avg_rating DESC NULLS LAST')
+            ->orderByDesc('completed_appointments');
     }
 }

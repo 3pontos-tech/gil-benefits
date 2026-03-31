@@ -32,14 +32,14 @@ class AppointmentVolume extends ChartWidget
     protected function getData(): array
     {
         [$start, $end, $period] = match ($this->filter ?? 'month') {
-            'day' => [now()->startOfDay(), now()->endOfDay(), 'perHour'],
+            'day' => [today(), now()->endOfDay(), 'perHour'],
             'week' => [now()->startOfWeek(), now()->endOfWeek(), 'perDay'],
             default => [now()->startOfMonth(), now()->endOfMonth(), 'perDay'],
         };
 
-        $cacheKey = "metrics.appointment_volume.{$this->filter}.{$start}.{$end}";
+        $cacheKey = sprintf('metrics.appointment_volume.%s.%s.%s', $this->filter, $start, $end);
 
-        [$totalData, $completedData] = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($start, $end, $period) {
+        [$totalData, $completedData] = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($start, $end, $period): array {
             return [
                 Trend::model(Appointment::class)
                     ->between(start: $start, end: $end)
@@ -73,7 +73,7 @@ class AppointmentVolume extends ChartWidget
                     'fill' => true,
                 ],
             ],
-            'labels' => $totalData->map(fn (TrendValue $value): string => $value->date)->toArray(),
+            'labels' => $totalData->map(fn (TrendValue $value): string => $value->date)->all(),
         ];
     }
 

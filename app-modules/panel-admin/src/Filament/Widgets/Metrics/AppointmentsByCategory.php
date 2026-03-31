@@ -55,7 +55,7 @@ class AppointmentsByCategory extends ChartWidget
             ],
             'labels' => $counts->keys()
                 ->map(fn (string $value): string => AppointmentCategoryEnum::from($value)->getLabel())
-                ->toArray(),
+                ->all(),
         ];
     }
 

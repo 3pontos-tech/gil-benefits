@@ -52,7 +52,7 @@ class AppointmentsByStatus extends ChartWidget
             ],
             'labels' => $counts->keys()
                 ->map(fn (string $value): string => AppointmentStatus::from($value)->getLabel())
-                ->toArray(),
+                ->all(),
         ];
     }
 

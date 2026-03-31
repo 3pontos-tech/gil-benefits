@@ -28,7 +28,7 @@ class MarkAppointmentsAsCompleted implements ShouldQueue
                 }
             });
 
-        Log::info("appointments:mark-completed: {$count} appointment(s) marked as completed.");
+        Log::info(sprintf('appointments:mark-completed: %d appointment(s) marked as completed.', $count));
     }
 
     public function failed(Throwable $exception): void

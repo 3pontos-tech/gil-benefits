@@ -17,7 +17,7 @@ class LatestAppointmentWidget extends Widget
         /** @var User $user */
         $user = auth()->user();
 
-        $appointment = $user->appointments()->latest()->first();
+        $appointment = $user->appointments()->with('consultant')->latest()->first();
 
         if (! $appointment) {
             return [
