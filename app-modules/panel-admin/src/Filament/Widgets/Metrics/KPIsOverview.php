@@ -88,12 +88,12 @@ class KPIsOverview extends StatsOverviewWidget
                 ->where('status', AppointmentStatus::Completed)
                 ->whereBetween('created_at', [$start, $end]),
             ])
-            ->withAvg('feedbacks', 'rating')
+            ->withAvg(['feedbacks as feedbacks_avg_rating' => fn ($query) => $query->whereBetween('appointment_feedbacks.created_at', [$start, $end])], 'rating')
             ->whereHas('appointments', fn ($query) => $query
                 ->where('status', AppointmentStatus::Completed)
                 ->whereBetween('created_at', [$start, $end])
             )
-            ->whereHas('feedbacks')
+            ->whereHas('feedbacks', fn ($query) => $query->whereBetween('appointment_feedbacks.created_at', [$start, $end]))
             ->get()
             ->sortByDesc(fn (Consultant $consultant): float => $consultant->completed_count * ($consultant->feedbacks_avg_rating ?? 0))
             ->first();

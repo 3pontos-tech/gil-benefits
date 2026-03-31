@@ -98,7 +98,7 @@ class RankingsWidget extends TableWidget
                     AppointmentStatus::Active,
                 ])->whereBetween('created_at', [$start, $end]),
             ])
-            ->withAvg('feedbacks', 'rating')
+            ->withAvg(['feedbacks' => fn ($query) => $query->whereBetween('appointment_feedbacks.created_at', [$start, $end])], 'rating')
             ->whereHas('appointments', fn ($query) => $query->whereBetween('created_at', [$start, $end]))
             ->orderByRaw('feedbacks_avg_rating DESC NULLS LAST')
             ->orderByDesc('completed_appointments');
