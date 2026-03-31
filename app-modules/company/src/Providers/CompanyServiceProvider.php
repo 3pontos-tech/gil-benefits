@@ -17,6 +17,7 @@ class CompanyServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->mergeConfigFrom(__DIR__ . '/../../config/flamma.php', 'company');
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'companies');
     }
 }
