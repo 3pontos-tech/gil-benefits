@@ -5,6 +5,7 @@ namespace TresPontosTech\Admin\Filament\Resources\Appointments\Pages;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\Admin\Filament\Widgets\AppointmentsStatsOverview;
 
 class ListAppointments extends ListRecords
 {
@@ -14,6 +15,13 @@ class ListAppointments extends ListRecords
     {
         return [
             CreateAction::make(),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            AppointmentsStatsOverview::class,
         ];
     }
 }

@@ -80,8 +80,8 @@ it('should receive forbidden if tenant is not subscribed in any plan', function 
 describe('testing widgets that are on user dashboard', function (): void {
 
     test('latest appointment', function (): void {
-        Appointment::factory()->for($this->employee, 'user')->count(4)->create(['created_at' => now()->subMinutes(5)]);
-        $latest = Appointment::factory()->for($this->employee, 'user')->withStatus(AppointmentStatus::Pending)->create();
+        Appointment::factory()->for($this->employee, 'user')->count(4)->create(['appointment_at' => now()->subDays(5)]);
+        $latest = Appointment::factory()->for($this->employee, 'user')->withStatus(AppointmentStatus::Pending)->create(['appointment_at' => now()->addDay()]);
 
         livewire(LatestAppointmentWidget::class)
             ->assertOk()

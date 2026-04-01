@@ -7,6 +7,7 @@ return [
         'billing' => 'Billing',
         'administration' => 'Administration',
         'appointments' => 'Appointments',
+        'reports' => 'Reports',
     ],
     'appointments' => [
         'navigation_label' => 'Appointments',
@@ -178,6 +179,12 @@ return [
         'user_assigned_to_role' => 'User has been assigned to %s role',
     ],
     'pages' => [
+        'metrics' => [
+            'title' => 'Metrics',
+            'navigation_label' => 'Metrics',
+            'filter_start_date' => 'Start date',
+            'filter_end_date' => 'End date',
+        ],
         'edit_profile' => [
             'cpf' => 'CPF',
             'rg' => 'Document ID',

@@ -7,6 +7,15 @@ return [
         'table' => [
             'category_type' => 'Tipo de Atendimento',
         ],
+        'feedback' => [
+            'action_label' => 'Avaliar',
+            'modal_heading' => 'Avalie sua consultoria',
+            'modal_description' => 'Sua avaliação nos ajuda a melhorar o serviço.',
+            'rating' => 'Nota',
+            'comment' => 'Comentário (opcional)',
+            'submit' => 'Enviar avaliação',
+            'submitted' => 'Avaliação enviada com sucesso!',
+        ],
         'pages' => [
             'create' => [
                 'cannot_book_now' => 'Não é possível agendar agora',
