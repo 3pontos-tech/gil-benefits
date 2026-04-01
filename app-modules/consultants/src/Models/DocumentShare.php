@@ -13,7 +13,7 @@ class DocumentShare extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'document_share';
+    protected $table = 'document_shares';
 
     protected $fillable = [
         'document_id',

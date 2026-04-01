@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('document_share', function (Blueprint $table): void {
+        Schema::create('document_shares', function (Blueprint $table): void {
             $table->id();
             $table->foreignIdFor(Document::class, 'document_id')->constrained('documents');
             $table->foreignIdFor(Consultant::class, 'consultant_id')->constrained('consultants');
@@ -19,11 +19,13 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->unique(['document_id', 'consultant_id', 'employee_id'], 'document_shares_unique');
+
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('document_share');
+        Schema::dropIfExists('document_shares');
     }
 };
