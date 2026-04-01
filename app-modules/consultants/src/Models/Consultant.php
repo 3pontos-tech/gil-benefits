@@ -11,12 +11,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Tags\HasTags;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Consultants\Observers\ConsultantObserver;
 use TresPontosTech\Consultants\Policies\ConsultantPolicy;
 use Zap\Models\Concerns\HasSchedules;
@@ -70,12 +72,30 @@ class Consultant extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
     /**
      * @return HasMany<Appointment, $this>
      */
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function clients(): HasManyThrough
+    {
+        return $this->hasManyThrough(User::class, Appointment::class, 'consultant_id', 'id', 'id', 'user_id');
+    }
+
+    /**
+     * @return HasManyThrough<AppointmentFeedback, Appointment, $this>
+     */
+    public function feedbacks(): HasManyThrough
+    {
+        return $this->hasManyThrough(AppointmentFeedback::class, Appointment::class);
     }
 
     public function languages(): MorphToMany

@@ -21,6 +21,7 @@ class ConsultantAppointmentHistoryWidget extends TableWidget
         $consultant = Consultant::query()->where('consultants.user_id', auth()->user()->getKey())->first();
 
         return $table
+            ->heading(__('panel-app::widgets.appointment_history.heading'))
             ->query(
                 $consultant->appointments()
                     ->latest('appointment_at')

@@ -163,7 +163,7 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
 {
     Artisan::call('sync:permissions');
 
-    $user = User::factory()->create();
+    $user = User::factory()->employee()->create();
     $company = Company::factory()->create();
     $company->employees()->attach($user->getKey());
 
@@ -195,7 +195,7 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
 
     CompanyPlan::where('company_id', $company->id)->delete();
 
-    filament()->setCurrentPanel('user');
+    filament()->setCurrentPanel(FilamentPanel::User->value);
     actingAs($user);
     filament()->setTenant($company);
 
