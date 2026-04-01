@@ -44,7 +44,7 @@ class DocumentFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (Document $document): void {
-            Storage::fake('public');
+            Storage::fake('r2');
             $document->addMedia(UploadedFile::fake()->create('documento_teste.pdf', 100))
                 ->toMediaCollection('documents');
         });
