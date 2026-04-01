@@ -72,12 +72,22 @@ class Consultant extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
     /**
      * @return HasMany<Appointment, $this>
      */
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function clients(): HasManyThrough
+    {
+        return $this->hasManyThrough(User::class, Appointment::class, 'consultant_id', 'id', 'id', 'user_id');
     }
 
     /**

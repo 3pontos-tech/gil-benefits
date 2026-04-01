@@ -26,4 +26,13 @@ return [
             ],
         ],
     ],
+    'documents' => [
+        'table' => [
+            'title' => 'Nome do Documento',
+            'extension_type' => 'Tipo',
+            'active' => 'Ativo',
+            'consultant' => 'Consultor',
+            'created_at' => 'Data de Envio',
+        ],
+    ],
 ];
