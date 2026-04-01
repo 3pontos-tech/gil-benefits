@@ -88,6 +88,8 @@ class Consultant extends Model implements HasMedia
     public function clients(): HasManyThrough
     {
         return $this->hasManyThrough(User::class, Appointment::class, 'consultant_id', 'id', 'id', 'user_id');
+    }
+
     /**
      * @return HasManyThrough<AppointmentFeedback, Appointment, $this>
      */
