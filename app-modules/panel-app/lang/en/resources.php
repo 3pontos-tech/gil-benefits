@@ -7,6 +7,15 @@ return [
         'table' => [
             'category_type' => 'Appointment Type',
         ],
+        'feedback' => [
+            'action_label' => 'Rate',
+            'modal_heading' => 'Rate your consultation',
+            'modal_description' => 'Your feedback helps us improve our service.',
+            'rating' => 'Rating',
+            'comment' => 'Comment (optional)',
+            'submit' => 'Submit feedback',
+            'submitted' => 'Feedback submitted successfully!',
+        ],
         'pages' => [
             'create' => [
                 'cannot_book_now' => 'Cannot book now',

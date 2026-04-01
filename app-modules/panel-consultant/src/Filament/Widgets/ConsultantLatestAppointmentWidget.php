@@ -21,7 +21,7 @@ class ConsultantLatestAppointmentWidget extends Widget
         /** @var Consultant $consultant */
         $consultant = Consultant::query()->where('consultants.user_id', $user->getKey())->first();
 
-        $appointment = $consultant->appointments()->latest()->first();
+        $appointment = $consultant->appointments()->latest('appointment_at')->first();
 
         if (! $appointment) {
             return [
