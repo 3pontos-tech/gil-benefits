@@ -1,72 +1,147 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Gil Benefits
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Multi-tenant financial consultancy management platform. Manages consultants, appointments, billing subscriptions, and company hierarchies through four distinct Filament-powered panels.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and
-creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in
-many web projects, such as:
+## Core Concepts
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache)
-  storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Multi-tenancy** — companies act as tenants; users belong to one or more companies
+- **Four panels** — Admin, App (user-facing), Consultants and Company each expose different capabilities via Filament
+- **Modular domain architecture** — business logic is split into self-contained app-modules with their own models, migrations, tests, and service providers
+- **Action pattern** — complex operations are encapsulated in single-responsibility Action classes
+- **Stripe subscriptions** — tiered billing plans (Gold, Black, Enterprise) with portal management
+- **Google Calendar sync** — appointments are synchronised to/from Google Calendar via a service account
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Modules
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all
-modern web application frameworks, making it a breeze to get started with the framework.
+| Module | Responsibility |
+|---|---|
+| `appointments` | Scheduling, state machine lifecycle, calendar sync |
+| `billing` | Stripe subscriptions, plans, pricing tiers, portals |
+| `company` | Company/organisation management and hierarchy |
+| `consultants` | Consultant profiles and assignment |
+| `permissions` | RBAC via Spatie Permission |
+| `tenant` | Multi-tenancy scaffolding |
+| `user` | User profiles and authentication |
+| `panel-admin` | Filament admin panel |
+| `panel-app` | Filament user-facing panel |
+| `panel-company` | Filament company management panel |
+| `integration-google-calendar` | Google Calendar API integration |
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a
-modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video
-tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging
-into our comprehensive video library.
+## Architecture Overview
 
-## Laravel Sponsors
+```
+app/                        # Shared providers, middleware, base models
+app-modules/
+  <module>/
+    src/                    # Domain logic (Actions, DTOs, Enums, Models, Repositories)
+    database/               # Module-specific migrations and seeders
+    tests/                  # Module-scoped Pest tests
+    composer.json           # Module namespace (TresPontosTech\<Module>)
+config/                     # Application configuration
+database/                   # Core migrations and seeders
+routes/                     # Route definitions
+tests/                      # Feature, Unit, and E2E test suites
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in
-becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Panels are built with **Filament v5** and organised into Clusters and Resources per panel. Static analysis runs at **PHPStan level max** via Larastan.
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Quick Start
 
-## Contributing
+```bash
+# First-time setup
+cp .env.example .env
+composer install && npm install
+php artisan key:generate
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in
-the [Laravel documentation](https://laravel.com/docs/contributions).
+# Database
+make migrate-fresh          # fresh migrations + seed
 
-## Code of Conduct
+# Dev server (serves, queue, logs, vite — all at once)
+composer dev
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by
-the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Stripe webhooks (separate terminal)
+make stripe-listen
+```
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell
-via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Required Keys
 
-## License
+| Key | Description |
+|---|---|
+| `STRIPE_KEY` | Stripe publishable key |
+| `STRIPE_SECRET` | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
+| `FLAMMA_STRIPE_*_PRODUCT_ID` / `*_PRICE_ID` | Product & price IDs for each plan tier (Gold, Black, Enterprise) |
+| `FLAMMA_STRIPE_*_PORTAL_ID` | Billing portal IDs (enterprise and user) |
+| `RESEND_API_KEY` | Resend transactional email |
+| `RESEND_WEBHOOK_SECRET` | Resend webhook verification |
+| `GOOGLE_SERVICE_ACCOUNT_CREDENTIALS` | JSON credentials for Calendar sync |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+See `.env.example` for the full list.
+
+---
+
+## Development
+
+### Module Structure
+
+```
+app-modules/<module>/src/
+  Actions/        # Single-responsibility business operations
+  DTOs/           # Data transfer objects
+  Enums/          # Domain enumerations
+  Models/         # Eloquent models
+  Repositories/   # (where applicable) data access abstraction
+  Filament/       # Resources, Pages, Clusters (panel modules only)
+  Providers/      # Module service provider
+```
+
+### Conventions
+
+| Area | Convention |
+|---|---|
+| Namespace | `TresPontosTech\<ModuleName>` |
+| Code style | Laravel preset via **Pint** (`pint.json`) |
+| Static analysis | **PHPStan** level max via Larastan (`phpstan.neon`) |
+| Refactoring | **Rector** with Laravel + quality sets (`rector.php`) |
+| Testing | **Pest v4** — Unit, Feature, and E2E suites |
+| Locale | `pt_BR` |
+
+### Key Commands
+
+```bash
+make pint           # Fix code style
+make phpstan        # Run static analysis
+make rector         # Apply automated refactors
+make refacto        # rector + pint
+make test           # Run all tests (parallel, no browser)
+make test-pest      # Run full test suite
+make check          # rector + pint + pest (CI equivalent)
+
+make stripe-fresh   # Fresh DB + essentials seeder + Stripe sync
+make stripe-listen  # Forward Stripe webhooks to localhost:8000
+```
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Language | PHP 8.4 |
+| Framework | Laravel 12 |
+| Admin UI | Filament 5 |
+| Frontend | Vite 6, Tailwind CSS 4, Axios |
+| Billing | Stripe (Laravel Cashier) |
+| Media | Spatie Laravel MediaLibrary |
+| Mail | Resend |
+| Queue / Cache / Session | Database driver (default) |

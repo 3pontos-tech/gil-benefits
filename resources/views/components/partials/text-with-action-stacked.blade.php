@@ -6,7 +6,7 @@
     <p class="text-medium font-medium delay-200 max-w-full text-sm md:text-md lg:text-base text-center">
         {{ $text }}
     </p>
-    <x-button rel="noopener noreferrer" target="_blank" href="https://w.app/wjijp2">
+    <x-button rel="noopener noreferrer" target="_blank" href="https://wa.me/5511976205711?text=Flamma">
         Entrar em contato
     </x-button>
 </div>
