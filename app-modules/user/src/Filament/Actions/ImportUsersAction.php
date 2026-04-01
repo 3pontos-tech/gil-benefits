@@ -10,6 +10,8 @@ use Filament\Support\Icons\Heroicon;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Actions\ImportUsersFromFileAction;
+use TresPontosTech\User\DTOs\ImportErrorDTO;
+use TresPontosTech\User\DTOs\ImportUsersResultDTO;
 
 class ImportUsersAction extends Action
 {
@@ -65,36 +67,36 @@ class ImportUsersAction extends Action
         $this->action(function (array $data): void {
             /** @var TemporaryUploadedFile $file */
             $file = $data['file'];
-            $company = $this->resolveCompany();
 
+            /** @var ImportUsersResultDTO $result */
             $result = resolve(ImportUsersFromFileAction::class)->execute(
                 filePath: $file->getRealPath(),
                 fileExtension: $file->getClientOriginalExtension(),
-                company: $company,
+                company: $this->resolveCompany(),
             );
 
-            if ($result['imported'] > 0) {
+            if ($result->imported > 0) {
                 Notification::make()
                     ->success()
                     ->title('Importação concluída')
-                    ->body($result['imported'] . ' usuário(s) importado(s) com sucesso.')
+                    ->body($result->imported . ' usuário(s) importado(s) com sucesso.')
                     ->send();
             }
 
-            if (! empty($result['errors'])) {
-                $errorBody = collect($result['errors'])
-                    ->map(fn (array $e): string => sprintf('Linha %d (%s): %s', $e['row'], $e['email'], $e['message']))
+            if ($result->hasErrors()) {
+                $errorBody = collect($result->errors)
+                    ->map(fn (ImportErrorDTO $e): string => sprintf('Linha %d (%s): %s', $e->row, $e->email, $e->message))
                     ->join("\n");
 
                 Notification::make()
                     ->warning()
-                    ->title('Algumas linhas não foram importadas')
+                    ->title('Importação falhou')
                     ->body($errorBody)
                     ->persistent()
                     ->send();
             }
 
-            if ($result['imported'] === 0 && empty($result['errors'])) {
+            if ($result->isEmpty()) {
                 Notification::make()
                     ->info()
                     ->title('Nenhum usuário importado')

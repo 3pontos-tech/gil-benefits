@@ -1,9 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use TresPontosTech\User\Http\Controllers\DownloadImportTemplateController;
 
-Route::get('/users/import-template', function () {
-    return response()->streamDownload(function (): void {
-        echo implode(',', ['name', 'email', 'phone_number', 'document_id', 'tax_id']) . "\n";
-    }, 'template-import-users.csv');
-})->name('users.import-template.download');
+Route::get('/users/import-template', DownloadImportTemplateController::class)
+    ->name('users.import-template.download');
