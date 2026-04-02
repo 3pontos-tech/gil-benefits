@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('appointment_feedbacks', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('appointment_id')->unique()->constrained()->cascadeOnDelete();
+            $table->foreignUuid('appointment_id')->unique()->constrained()->cascadeOnDelete();
             $table->foreignUuid('user_id')->index()->constrained()->cascadeOnDelete();
             $table->tinyInteger('rating');
             $table->text('comment')->nullable();

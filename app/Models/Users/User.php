@@ -118,7 +118,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     }
 
     #[Scope]
-    public function whereNotSharedWith(Builder $query, int $documentId)
+    public function whereNotSharedWith(Builder $query, string $documentId)
     {
         return $query->whereDoesntHave('sharedDocuments', function (Builder $subquery) use ($documentId): void {
             $subquery->where('document_id', $documentId);
