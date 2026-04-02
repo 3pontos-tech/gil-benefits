@@ -234,7 +234,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     protected function getMonthlyAppointmentsLeftCacheKey(): string
     {
-        return sprintf('user:%d:monthly_appointments_left', $this->getKey());
+        return sprintf('user:%s:monthly_appointments_left', $this->getKey());
     }
 
     /**

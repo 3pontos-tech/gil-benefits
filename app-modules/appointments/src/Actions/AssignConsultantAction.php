@@ -25,7 +25,7 @@ readonly class AssignConsultantAction
             $consultant = $appointment->consultant;
 
             Zap::for($consultant)
-                ->named(sprintf('Appointment #%d - %s', $appointment->id, $appointment->user->name))
+                ->named(sprintf('Appointment #%s - %s', $appointment->id, $appointment->user->name))
                 ->appointment()
                 ->from($appointment->appointment_at->toDateString())
                 ->to($appointment->appointment_at->copy()->addDay()->toDateString())
