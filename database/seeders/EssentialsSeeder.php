@@ -53,5 +53,9 @@ class EssentialsSeeder extends Seeder
         $company->employees()->attach($admin);
 
         $company->employees()->attach(User::factory()->adminCompanyEmployee()->create());
+
+        $this->call([
+            ConsultantSeeder::class,
+        ]);
     }
 }

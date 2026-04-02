@@ -7,6 +7,15 @@ return [
         'table' => [
             'category_type' => 'Appointment Type',
         ],
+        'feedback' => [
+            'action_label' => 'Rate',
+            'modal_heading' => 'Rate your consultation',
+            'modal_description' => 'Your feedback helps us improve our service.',
+            'rating' => 'Rating',
+            'comment' => 'Comment (optional)',
+            'submit' => 'Submit feedback',
+            'submitted' => 'Feedback submitted successfully!',
+        ],
         'pages' => [
             'create' => [
                 'cannot_book_now' => 'Cannot book now',
@@ -15,6 +24,15 @@ return [
                 'booked_successfully' => 'Appointment booked successfully',
                 'booking_failed' => 'Failed to book appointment',
             ],
+        ],
+    ],
+    'documents' => [
+        'table' => [
+            'title' => 'Document Type',
+            'extension_type' => 'Extension Type',
+            'active' => 'Is Active',
+            'consultant' => 'Consultant',
+            'created_at' => 'Sent At',
         ],
     ],
 ];

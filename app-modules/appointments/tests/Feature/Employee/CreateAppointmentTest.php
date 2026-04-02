@@ -38,7 +38,7 @@ it('should redirect if user has an incoming appoitment', function (): void {
         'stripe_status' => 'active',
         'type' => BillableTypeEnum::User,
     ]);
-    Appointment::factory()->state(['user_id' => $this->employee->getKey()])->create();
+    Appointment::factory()->state(['user_id' => $this->employee->getKey()])->withStatus(AppointmentStatus::Pending)->create();
 
     livewire(CreateAppointment::class)
         ->assertStatus(302)

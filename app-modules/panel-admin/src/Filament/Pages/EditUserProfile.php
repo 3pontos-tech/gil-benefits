@@ -31,7 +31,8 @@ class EditUserProfile extends BaseEditUserProfile
                 ->unique(
                     table: 'user_details',
                     column: 'document_id',
-                    ignorable: fn () => auth()->user()?->detail,
+                    ignorable: $this->getUser()->detail,
+                    ignoreRecord: false
                 ),
         ];
     }
