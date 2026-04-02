@@ -44,8 +44,8 @@ it('imports all users and creates details and roles', function (): void {
     assertDatabaseHas(User::class, ['email' => 'joao@empresa.com']);
     assertDatabaseHas(User::class, ['email' => 'maria@empresa.com']);
 
-    assertDatabaseHas(Detail::class, ['document_id' => '12345678', 'tax_id' => '123.456.789-00', 'phone_number' => '11999999999']);
-    assertDatabaseHas(Detail::class, ['document_id' => '87654321', 'tax_id' => '987.654.321-00', 'phone_number' => '21988887777']);
+    assertDatabaseHas(Detail::class, ['document_id' => '12345678', 'tax_id' => '12345678900', 'phone_number' => '11999999999']);
+    assertDatabaseHas(Detail::class, ['document_id' => '87654321', 'tax_id' => '98765432100', 'phone_number' => '21988887777']);
 
     $user = User::query()->where('email', 'joao@empresa.com')->first();
     expect($company->employees()->where('user_id', $user->getKey())->exists())->toBeTrue();
@@ -189,7 +189,7 @@ it('fails entire import when duplicate tax_ids exist within the file', function 
 it('fails entire import when any tax_id is already registered in the system', function (): void {
     $company = Company::factory()->create();
     $existingUser = User::factory()->create();
-    Detail::factory()->create(['user_id' => $existingUser->getKey(), 'tax_id' => '111.222.333-44']);
+    Detail::factory()->create(['user_id' => $existingUser->getKey(), 'tax_id' => '11122233344']);
 
     $csv = makeCsvFile([
         ['Novo', 'novo@empresa.com', '12345678', '111.222.333-44', '11999999999'],

@@ -13,6 +13,18 @@ class ParseUsersFromFileAction
             ->getRows()
             ->collect()
             ->reject(fn (array $row): bool => collect($row)->every(fn (mixed $value): bool => trim((string) $value) === ''))
+            ->map(fn (array $row): array => $this->sanitizeRow($row))
             ->values();
+    }
+
+    private function sanitizeRow(array $row): array
+    {
+        foreach (['phone_number', 'tax_id', 'document_id'] as $field) {
+            if (isset($row[$field]) && $row[$field] !== '') {
+                $row[$field] = preg_replace('/\D/', '', (string) $row[$field]);
+            }
+        }
+
+        return $row;
     }
 }
