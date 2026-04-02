@@ -33,7 +33,7 @@ it('imports all users and creates details and roles', function (): void {
 
     $csv = makeCsvFile([
         ['João Silva', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
-        ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', ''],
+        ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -45,18 +45,18 @@ it('imports all users and creates details and roles', function (): void {
     assertDatabaseHas(User::class, ['email' => 'maria@empresa.com']);
 
     assertDatabaseHas(Detail::class, ['document_id' => '12345678', 'tax_id' => '123.456.789-00', 'phone_number' => '11999999999']);
-    assertDatabaseHas(Detail::class, ['document_id' => '87654321', 'tax_id' => '987.654.321-00', 'phone_number' => null]);
+    assertDatabaseHas(Detail::class, ['document_id' => '87654321', 'tax_id' => '987.654.321-00', 'phone_number' => '21988887777']);
 
     $user = User::query()->where('email', 'joao@empresa.com')->first();
     expect($company->employees()->where('user_id', $user->getKey())->exists())->toBeTrue();
     expect($user->hasRole(Roles::Employee))->toBeTrue();
 });
 
-it('imports users without phone_number', function (): void {
+it('imports users without document_id', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['Pedro Souza', 'pedro@empresa.com', '99887766', '111.222.333-44', ''],
+        ['Pedro Souza', 'pedro@empresa.com', '', '111.222.333-44', '11999999999'],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -92,9 +92,9 @@ it('ignores empty rows and still imports valid ones', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['João Silva', 'joao@empresa.com', '12345678', '123.456.789-00', ''],
+        ['João Silva', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
         ['', '', '', '', ''],
-        ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', ''],
+        ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -105,12 +105,12 @@ it('ignores empty rows and still imports valid ones', function (): void {
 
 // --- Validation failures abort the entire import ---
 
-it('fails entire import when any row has missing required fields', function (): void {
+it('fails entire import when any row is missing phone_number', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['Válido', 'valido@empresa.com', '12345678', '123.456.789-00', ''],
-        ['Sem Document', 'semdoc@empresa.com', '', '123.456.789-00', ''],
+        ['Válido', 'valido@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Sem Telefone', 'semtelefone@empresa.com', '87654321', '987.654.321-00', ''],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -125,8 +125,8 @@ it('fails entire import when any row has an invalid email', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['Válido', 'valido@empresa.com', '12345678', '123.456.789-00', ''],
-        ['Inválido', 'nao-é-um-email', '87654321', '987.654.321-00', ''],
+        ['Válido', 'valido@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Inválido', 'nao-é-um-email', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -142,8 +142,8 @@ it('fails entire import when duplicate emails exist within the file', function (
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['João', 'joao@empresa.com', '12345678', '123.456.789-00', ''],
-        ['João Dup', 'joao@empresa.com', '87654321', '987.654.321-00', ''],
+        ['João', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['João Dup', 'joao@empresa.com', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -158,8 +158,8 @@ it('fails entire import when any email is already registered in the system', fun
     User::factory()->create(['email' => 'existing@empresa.com']);
 
     $csv = makeCsvFile([
-        ['Existing', 'existing@empresa.com', '12345678', '123.456.789-00', ''],
-        ['Novo', 'novo@empresa.com', '87654321', '987.654.321-00', ''],
+        ['Existing', 'existing@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Novo', 'novo@empresa.com', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -167,6 +167,39 @@ it('fails entire import when any email is already registered in the system', fun
     expect($result->imported)->toBe(0);
     expect($result->errors)->toHaveCount(1);
     expect($result->errors[0]->email)->toBe('existing@empresa.com');
+
+    assertDatabaseMissing(User::class, ['email' => 'novo@empresa.com']);
+});
+
+it('fails entire import when duplicate tax_ids exist within the file', function (): void {
+    $company = Company::factory()->create();
+
+    $csv = makeCsvFile([
+        ['João', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['João Dup', 'joaodup@empresa.com', '87654321', '123.456.789-00', '21988887777'],
+    ]);
+
+    $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
+
+    expect($result->imported)->toBe(0);
+    expect($result->errors)->toHaveCount(1);
+    expect($result->errors[0]->message)->toContain('duplicado');
+});
+
+it('fails entire import when any tax_id is already registered in the system', function (): void {
+    $company = Company::factory()->create();
+    $existingUser = User::factory()->create();
+    Detail::factory()->create(['user_id' => $existingUser->getKey(), 'tax_id' => '111.222.333-44']);
+
+    $csv = makeCsvFile([
+        ['Novo', 'novo@empresa.com', '12345678', '111.222.333-44', '11999999999'],
+    ]);
+
+    $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
+
+    expect($result->imported)->toBe(0);
+    expect($result->errors)->toHaveCount(1);
+    expect($result->errors[0]->message)->toContain('já cadastrado');
 
     assertDatabaseMissing(User::class, ['email' => 'novo@empresa.com']);
 });

@@ -46,7 +46,7 @@ class ImportUsersAction extends Action
         $this->schema([
             FileUpload::make('file')
                 ->label('Planilha (CSV ou XLSX)')
-                ->helperText('Colunas obrigatórias: name, email, document_id, tax_id. Opcional: phone_number.')
+                ->helperText('Colunas obrigatórias: name, email, tax_id, phone_number. Opcional: document_id.')
                 ->hintAction(
                     Action::make('download_template')
                         ->label('Baixar Modelo')
