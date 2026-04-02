@@ -4,6 +4,7 @@ namespace TresPontosTech\Consultants\Models;
 
 use App\Enums\AvailableTagsEnum;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -20,6 +21,7 @@ class Consultant extends Model implements HasMedia
     use HasFactory;
     use HasSchedules;
     use HasTags;
+    use HasUuids;
     use InteractsWithMedia;
     use SoftDeletes;
 

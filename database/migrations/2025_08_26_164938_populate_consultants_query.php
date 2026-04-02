@@ -3,6 +3,7 @@
 use App\Enums\AvailableTagsEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use TresPontosTech\Consultants\Models\Consultant;
 
 return new class extends Migration
@@ -145,9 +146,11 @@ return new class extends Migration
                 'youtube' => 'https://www.youtube.com/',
             ]);
 
-            $userId = DB::table('consultants')->insertGetId($consultant);
+            $id = (string) Str::uuid();
+            $consultant['id'] = $id;
+            DB::table('consultants')->insert($consultant);
 
-            $consultant = Consultant::query()->find($userId);
+            $consultant = Consultant::query()->find($id);
             foreach (AvailableTagsEnum::cases() as $case) {
                 $consultant->attachTags($case->getDefault(), $case->value);
             }
