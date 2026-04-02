@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignUuid('employee_id')->constrained('users');
             $table->boolean('active')->default(true);
             $table->timestamps();
-            $table->softDeletes();
 
             $table->unique(['document_id', 'consultant_id', 'employee_id'], 'document_shares_unique');
 

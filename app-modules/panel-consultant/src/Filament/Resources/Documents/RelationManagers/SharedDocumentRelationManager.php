@@ -6,8 +6,6 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
@@ -16,7 +14,6 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -44,17 +41,11 @@ class SharedDocumentRelationManager extends RelationManager
                     ->searchable()
                     ->sortable(),
             ])
-            ->filters([
-                TrashedFilter::make(),
-            ])
             ->headerActions([
                 ShareDocumentFilamentAction::make()
                     ->record($this->getOwnerRecord()),
             ])
             ->recordActions([
-                EditAction::make()
-                    ->schema(ShareDocumentFilamentAction::getCustomForm())
-                    ->action(fn (DocumentShare $record, array $data, Action $action) => ShareDocumentFilamentAction::handleExecution($record->document, $data, $action)),
                 Action::make('active')
                     ->label(fn (DocumentShare $record): string => $record->isActive() ? 'Desativar' : 'Ativar')
                     ->icon(fn (DocumentShare $record): Heroicon => $record->isActive() ? Heroicon::XCircle : Heroicon::CheckCircle)
@@ -62,7 +53,6 @@ class SharedDocumentRelationManager extends RelationManager
                     ->action(fn (DocumentShare $record) => $record->isActive() ? $record->deactivate() : $record->activate()),
                 DeleteAction::make(),
                 RestoreAction::make(),
-                ForceDeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
