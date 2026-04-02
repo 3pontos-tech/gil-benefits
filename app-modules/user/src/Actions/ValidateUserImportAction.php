@@ -35,7 +35,7 @@ class ValidateUserImportAction
             $taxId = trim((string) ($row['tax_id'] ?? '')) ?: null;
             $phoneNumber = trim((string) ($row['phone_number'] ?? '')) ?: null;
 
-            if ($name === '' || $email === '' || $taxId === null || $phoneNumber === null) {
+            if (blank($name) || blank($email) || blank($taxId) || blank($phoneNumber)) {
                 $errors[] = new ImportErrorDTO(
                     row: $rowNumber,
                     email: $email ?: 'N/A',
@@ -96,7 +96,7 @@ class ValidateUserImportAction
                 );
             });
 
-        if ($errors !== []) {
+        if (filled($errors)) {
             return $errors;
         }
 
