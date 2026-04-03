@@ -21,11 +21,13 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\Billing\Stripe\Subscription\Company\CompanyBillingProvider;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
+use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\RegisterTenant;
 
 class CompanyPanelProvider extends PanelProvider
 {
@@ -52,7 +54,35 @@ class CompanyPanelProvider extends PanelProvider
                 TenantSubscriptionPage::class,
             ])
             ->passwordReset()
+            ->registration()
+            ->tenantRegistration(RegisterTenant::class)
             ->tenantProfile(EditTenantProfile::class)
+            ->brandLogo(function (): ?HtmlString {
+                /** @var Company $company */
+                $company = filament()->getTenant();
+
+                if (! $company) {
+                    return null;
+                }
+
+                $media = $company->getFirstMedia('company_logo');
+
+                if (! $media) {
+                    return null;
+                }
+
+                $signedUrl = $media->getTemporaryUrl(
+                    now()->addMinutes(60),
+                );
+
+                return new HtmlString("
+                <img src='{$signedUrl}'
+                     alt='Logo'
+                     style='height: 3.5rem; width: auto; object-fit: contain;'
+                     class='fi-logo'>
+        ");
+            })
+            ->brandLogoHeight('3rem')
             ->tenantMenuItems([
                 'profile' => MenuItem::make()->hidden(),
                 'billing' => MenuItem::make()->hidden(),

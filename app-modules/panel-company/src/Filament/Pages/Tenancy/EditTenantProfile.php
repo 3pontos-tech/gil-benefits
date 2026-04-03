@@ -2,14 +2,19 @@
 
 namespace TresPontosTech\PanelCompany\Filament\Pages\Tenancy;
 
+use Illuminate\Routing\Redirector;
+use Illuminate\Http\RedirectResponse;
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\DetachAction;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Pages\Tenancy\EditTenantProfile as BaseEditTenantProfile;
 use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -120,6 +125,24 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
     {
         return [
             TenantSecretKeyRotationPanelAction::make(),
+            Action::make('company_logo')
+                ->label('Company Logo')
+                ->icon(Heroicon::OutlinedCamera)
+                ->schema([
+                    SpatieMediaLibraryFileUpload::make('company_logo')
+                        ->label('Company Logo')
+                        ->model(filament()->getTenant())
+                        ->collection('company_logo')
+                        ->maxFiles(1)
+                        ->required(),
+                ])->after(function (): Redirector|RedirectResponse {
+                    Notification::make('success')
+                        ->title('Logo alterado com sucesso')
+                        ->success()
+                        ->send();
+
+                    return redirect(request()->header('Referer'));
+                }),
         ];
     }
 
