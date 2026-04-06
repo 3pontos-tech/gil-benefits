@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Str;
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
+use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\RegisterTenant;
 
