@@ -84,16 +84,16 @@ class ImportUsersAction extends Action
             }
 
             if ($result->hasErrors()) {
-                $errorBody = collect($result->errors)
-                    ->map(fn (ImportErrorDTO $e): string => sprintf('Linha %d (%s): %s', $e->row, $e->email, $e->message))
-                    ->join("\n");
+                $errors = collect($result->errors)
+                    ->map(fn (ImportErrorDTO $e): array => [
+                        'row' => $e->row,
+                        'email' => $e->email,
+                        'message' => $e->message,
+                    ])
+                    ->values()
+                    ->all();
 
-                Notification::make()
-                    ->warning()
-                    ->title('Importação falhou')
-                    ->body($errorBody)
-                    ->persistent()
-                    ->send();
+                $this->getLivewire()->dispatch('import-errors', errors: $errors);
             }
 
             if ($result->isEmpty()) {

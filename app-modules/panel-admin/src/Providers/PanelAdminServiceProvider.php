@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Admin\Providers;
 
 use Basement\BetterMails\Core\Models\BetterEmail;

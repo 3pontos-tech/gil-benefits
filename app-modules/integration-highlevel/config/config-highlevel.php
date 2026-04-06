@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'key' => env('HIGHLEVEL_ACCESS_KEY_ID'),
     'secret' => env('HIGHLEVEL_SECRET_ACCESS_KEY'),

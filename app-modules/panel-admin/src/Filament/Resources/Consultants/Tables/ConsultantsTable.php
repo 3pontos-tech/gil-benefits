@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Admin\Filament\Resources\Consultants\Tables;
 
 use Filament\Actions\BulkActionGroup;

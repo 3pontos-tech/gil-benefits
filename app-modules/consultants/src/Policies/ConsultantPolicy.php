@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Consultants\Policies;
 
 use App\Models\Users\User;

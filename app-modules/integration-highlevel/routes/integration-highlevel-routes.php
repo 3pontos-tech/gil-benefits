@@ -1,7 +1,8 @@
 <?php
 
-// use TresPontosTech\IntegrationHighlevel\Http\Controllers\IntegrationHighlevelController;
+declare(strict_types=1);
 
+// use TresPontosTech\IntegrationHighlevel\Http\Controllers\IntegrationHighlevelController;
 // Route::get('/integration-highlevels', [IntegrationHighlevelController::class, 'index'])->name('integration-highlevels.index');
 // Route::get('/integration-highlevels/create', [IntegrationHighlevelController::class, 'create'])->name('integration-highlevels.create');
 // Route::post('/integration-highlevels', [IntegrationHighlevelController::class, 'store'])->name('integration-highlevels.store');

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use TresPontosTech\Tenant\Http\Controllers\Api\v1\UsersController;
 use TresPontosTech\Tenant\Http\Middleware\VerifyTenantTokenMiddleware;

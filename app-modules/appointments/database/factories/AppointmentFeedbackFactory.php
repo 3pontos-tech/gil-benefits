@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Appointments\Database\Factories;
 
 use App\Models\Users\User;
