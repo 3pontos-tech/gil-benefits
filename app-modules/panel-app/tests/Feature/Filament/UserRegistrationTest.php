@@ -9,12 +9,12 @@ use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
-it('should render', function () {
+it('should render', function (): void {
     livewire(UserRegistration::class)
         ->assertOk();
 });
 
-it('should register user to flamma company', function () {
+it('should register user to flamma company', function (): void {
     livewire(UserRegistration::class)
         ->assertOk()
         ->fillForm([
@@ -32,7 +32,7 @@ it('should register user to flamma company', function () {
         'email' => 'joe@doe.com',
     ]);
 
-    $user = User::first();
+    $user = User::query()->first();
     $flammaCompany = Company::query()->where('slug', 'flamma-company')->first();
 
     assertAuthenticatedAs($user);
