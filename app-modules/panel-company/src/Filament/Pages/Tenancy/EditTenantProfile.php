@@ -126,18 +126,18 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
         return [
             TenantSecretKeyRotationPanelAction::make(),
             Action::make('company_logo')
-                ->label('Company Logo')
+                ->label(__('panel-company::resources.actions.logo.label'))
                 ->icon(Heroicon::OutlinedCamera)
                 ->schema([
                     SpatieMediaLibraryFileUpload::make('company_logo')
-                        ->label('Company Logo')
+                        ->label(__('panel-company::resources.actions.logo.label'))
                         ->model(filament()->getTenant())
                         ->collection('company_logo')
                         ->maxFiles(1)
                         ->required(),
                 ])->after(function (): Redirector|RedirectResponse {
                     Notification::make('success')
-                        ->title('Logo alterado com sucesso')
+                        ->title(__('panel-company::resources.actions.logo.notification'))
                         ->success()
                         ->send();
 
