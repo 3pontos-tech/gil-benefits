@@ -22,7 +22,7 @@ it('should be able to register a company without a user', function (): void {
         ->assertOk()
         ->fillForm([
             'name' => 'companyname',
-            'tax_id' => '99.999.999/9999-99',
+            'tax_id' => '57.181.164/0001-80',
         ])
         ->call('register')
         ->assertHasNoFormErrors();
@@ -30,7 +30,7 @@ it('should be able to register a company without a user', function (): void {
     assertDatabaseHas(Company::class, [
         'name' => 'companyname',
         'slug' => Str::slug('companyname'),
-        'tax_id' => '99999999999999',
+        'tax_id' => '57181164000180',
     ]);
 });
 
@@ -39,7 +39,7 @@ it('should assign the authenticated user as the company owner', function (): voi
         ->assertOk()
         ->fillForm([
             'name' => 'companyname',
-            'tax_id' => '99.999.999/9999-99',
+            'tax_id' => '57.181.164/0001-80',
         ])
         ->call('register')
         ->assertHasNoFormErrors();
@@ -47,7 +47,7 @@ it('should assign the authenticated user as the company owner', function (): voi
     assertDatabaseHas(Company::class, [
         'name' => 'companyname',
         'slug' => Str::slug('companyname'),
-        'tax_id' => '99999999999999',
+        'tax_id' => '57181164000180',
     ]);
     assertDatabaseCount(Company::class, 1);
 

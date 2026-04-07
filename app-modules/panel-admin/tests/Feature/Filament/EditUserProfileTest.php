@@ -20,7 +20,7 @@ it('should be able to edit profile', function (): void {
         ->fillForm([
             'name' => 'updated user',
             'email' => 'updated@doe.com',
-            'tax_id' => '999.111.111-11',
+            'tax_id' => '97692325057',
             'document_id' => '22.333.444-5',
             'password' => 'corinthians',
             'currentPassword' => 'password',
@@ -38,7 +38,7 @@ it('should be able to edit profile', function (): void {
 
     assertDatabaseHas(Detail::class, [
         'user_id' => auth()->user()->getKey(),
-        'tax_id' => '99911111111',
+        'tax_id' => '97692325057',
         'document_id' => '223334445',
     ]);
 

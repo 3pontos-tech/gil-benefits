@@ -2,12 +2,12 @@
 
 namespace TresPontosTech\PanelCompany\Filament\Pages\Tenancy;
 
-use App\Filament\Shared\Fields\TaxIdInput;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\RegisterTenant as BaseRegisterTenant;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Leandrocfe\FilamentPtbrFormFields\Document;
 use Ramsey\Uuid\Uuid;
 use TresPontosTech\Company\Actions\CreateCompanyAction;
 use TresPontosTech\Company\DTOs\CompanyDTO;
@@ -40,8 +40,12 @@ class RegisterTenant extends BaseRegisterTenant
                     ->maxLength(255)
                     ->required(),
                 Hidden::make('slug'),
-                TaxIdInput::make()
-                    ->unique('companies', 'tax_id'),
+                Document::make('tax_id')
+                    ->dehydrateMask()
+                    ->label(__('panel-admin::resources.companies.form.tax_id'))
+                    ->cnpj()
+                    ->unique('companies', 'tax_id')
+                    ->required(),
             ]);
     }
 

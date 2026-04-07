@@ -2,12 +2,12 @@
 
 namespace TresPontosTech\Admin\Filament\Resources\Companies\Schemas;
 
-use App\Filament\Shared\Fields\TaxIdInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Leandrocfe\FilamentPtbrFormFields\Document;
 
 class CompanyForm
 {
@@ -34,8 +34,13 @@ class CompanyForm
                     ->readOnly()
                     ->maxLength(255)
                     ->unique('companies', 'slug'),
-                TaxIdInput::make()
-                    ->label(__('panel-admin::resources.companies.form.tax_id')),
+
+                Document::make('tax_id')
+                    ->dehydrateMask()
+                    ->label(__('panel-admin::resources.companies.form.tax_id'))
+                    ->cnpj()
+                    ->unique('companies', 'tax_id')
+                    ->required(),
             ]);
     }
 }
