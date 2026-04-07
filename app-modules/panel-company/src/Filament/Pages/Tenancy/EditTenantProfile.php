@@ -134,6 +134,11 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                         ->model(filament()->getTenant())
                         ->collection('company_logo')
                         ->maxFiles(1)
+                        ->acceptedFileTypes([
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                        ])
                         ->required(),
                 ])->after(function (): Redirector|RedirectResponse {
                     Notification::make('success')

@@ -26,7 +26,7 @@ it('can create a new company', function (): void {
         ->fillForm([
             'user_id' => auth()->user()->getKey(),
             'name' => 'my company',
-            'tax_id' => '99.999.999/9999-99',
+            'tax_id' => '99999999999999',
         ])
         ->call('create')
         ->assertHasNoFormErrors();

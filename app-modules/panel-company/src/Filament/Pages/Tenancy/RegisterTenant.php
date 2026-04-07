@@ -48,6 +48,14 @@ class RegisterTenant extends BaseRegisterTenant
 
     protected function handleRegistration(array $data): Company
     {
+        if (isset($data['tax_id'])) {
+            $cleanTaxId = preg_replace('/\D/', '', $data['tax_id']);
+
+            if (strlen($cleanTaxId) === 14) {
+                $data['tax_id'] = vsprintf('%s%s.%s%s%s.%s%s%s/%s%s%s%s-%s%s', str_split($cleanTaxId));
+            }
+        }
+
         $data['integration_access_key'] = Uuid::uuid4();
         $data['slug'] = Str::slug($data['name']);
         $data['user_id'] = auth()->user()->getKey();

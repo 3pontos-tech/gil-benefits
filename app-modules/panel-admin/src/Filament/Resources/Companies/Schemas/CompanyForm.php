@@ -36,7 +36,20 @@ class CompanyForm
                 TextInput::make('tax_id')
                     ->label(__('panel-admin::resources.companies.form.tax_id'))
                     ->mask('99.999.999/9999-99')
-                    ->required(),
+                    ->required()
+                    ->dehydrateStateUsing(function ($state) {
+                        if (! $state) {
+                            return $state;
+                        }
+
+                        $clean = preg_replace('/\D/', '', $state);
+
+                        if (strlen($clean) === 14) {
+                            return preg_replace("/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/", '$1.$2.$3/$4-$5', $clean);
+                        }
+
+                        return $state;
+                    }),
             ]);
     }
 }

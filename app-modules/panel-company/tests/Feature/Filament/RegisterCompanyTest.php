@@ -22,7 +22,7 @@ it('should be able to register a company without a user', function (): void {
         ->assertOk()
         ->fillForm([
             'name' => 'companyname',
-            'tax_id' => '99.999.999/9999-99',
+            'tax_id' => '99999999999999',
         ])
         ->call('register')
         ->assertHasNoFormErrors();
