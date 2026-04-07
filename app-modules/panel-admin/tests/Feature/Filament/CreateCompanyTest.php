@@ -26,7 +26,7 @@ it('can create a new company', function (): void {
         ->fillForm([
             'user_id' => auth()->user()->getKey(),
             'name' => 'my company',
-            'tax_id' => '99999999999999',
+            'tax_id' => '99.999.999/9999-99',
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -34,7 +34,7 @@ it('can create a new company', function (): void {
     assertDatabaseHas(Company::class, [
         'user_id' => auth()->user()->getKey(),
         'name' => 'my company',
-        'tax_id' => '99.999.999/9999-99',
+        'tax_id' => '99999999999999',
     ]);
 });
 it('company slug should be unique', function (): void {
@@ -74,7 +74,7 @@ test('after creating should assign company owner role to the owner', function ()
     assertDatabaseHas(Company::class, [
         'user_id' => $companyOwner->getKey(),
         'name' => 'my company',
-        'tax_id' => '99.999.999/9999-99',
+        'tax_id' => '99999999999999',
     ]);
 
     $companyOwner->refresh();
@@ -96,11 +96,11 @@ test('should attach owner after creating', function (): void {
     assertDatabaseHas(Company::class, [
         'user_id' => auth()->user()->getKey(),
         'name' => 'my company',
-        'tax_id' => '99.999.999/9999-99',
+        'tax_id' => '99999999999999',
     ]);
 
     auth()->user()->refresh();
     assertTrue(auth()->user()->hasRole(Roles::CompanyOwner));
-    $company = Company::query()->where('tax_id', '99.999.999/9999-99')->first();
+    $company = Company::query()->where('tax_id', '99999999999999')->first();
     assertTrue($company->employees()->where('user_id', auth()->user()->getKey())->exists());
 });

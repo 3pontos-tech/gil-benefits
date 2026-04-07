@@ -42,20 +42,13 @@ class RegisterTenant extends BaseRegisterTenant
                 TextInput::make('tax_id')
                     ->mask('99.999.999/9999-99')
                     ->unique('companies', 'tax_id')
+                    ->dehydrateStateUsing(fn ($state): string|array|null => preg_replace('/\D/', '', $state))
                     ->required(),
             ]);
     }
 
     protected function handleRegistration(array $data): Company
     {
-        if (isset($data['tax_id'])) {
-            $cleanTaxId = preg_replace('/\D/', '', $data['tax_id']);
-
-            if (strlen($cleanTaxId) === 14) {
-                $data['tax_id'] = vsprintf('%s%s.%s%s%s.%s%s%s/%s%s%s%s-%s%s', str_split($cleanTaxId));
-            }
-        }
-
         $data['integration_access_key'] = Uuid::uuid4();
         $data['slug'] = Str::slug($data['name']);
         $data['user_id'] = auth()->user()->getKey();

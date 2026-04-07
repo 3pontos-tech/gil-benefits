@@ -33,7 +33,7 @@ it('can edit a company', function (): void {
     assertDatabaseHas(Company::class, [
         'id' => $this->company->getKey(),
         'name' => 'updated company name',
-        'tax_id' => '94.190.305/0001-57',
+        'tax_id' => '94190305000157',
     ]);
 });
 
