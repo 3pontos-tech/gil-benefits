@@ -29,20 +29,98 @@ class ValidateUserImportAction
         $errors = [];
 
         $rows->each(function (array $row, int $index) use (&$errors): void {
-            $rowNumber = $index + 2;
+            $rowNumber = $row['__row_number'];
             $name = trim((string) ($row['name'] ?? ''));
             $email = strtolower(trim((string) ($row['email'] ?? '')));
             $taxId = trim((string) ($row['tax_id'] ?? '')) ?: null;
             $phoneNumber = trim((string) ($row['phone_number'] ?? '')) ?: null;
+            $documentId = trim((string) ($row['document_id'] ?? '')) ?: null;
 
-            if (blank($name) || blank($email) || blank($taxId) || blank($phoneNumber)) {
+            if ($documentId !== null) {
+                $documentIdDigits = strlen(preg_replace('/[^a-zA-Z0-9]/', '', $documentId));
+
+                if ($documentIdDigits < 5) {
+                    $errors[] = new ImportErrorDTO(
+                        row: $rowNumber,
+                        email: $email ?: 'N/A',
+                        message: 'O campo document_id deve ter no mínimo 5 caracteres.',
+                    );
+                } elseif ($documentIdDigits > 12) {
+                    $errors[] = new ImportErrorDTO(
+                        row: $rowNumber,
+                        email: $email ?: 'N/A',
+                        message: 'O campo document_id deve ter no máximo 12 caracteres.',
+                    );
+                }
+            }
+
+            if ($taxId !== null) {
+                $taxIdDigits = strlen(preg_replace('/\D/', '', $taxId));
+
+                if ($taxIdDigits < 11) {
+                    $errors[] = new ImportErrorDTO(
+                        row: $rowNumber,
+                        email: $email ?: 'N/A',
+                        message: 'O campo tax_id deve ter no mínimo 11 dígitos.',
+                    );
+                } elseif ($taxIdDigits > 12) {
+                    $errors[] = new ImportErrorDTO(
+                        row: $rowNumber,
+                        email: $email ?: 'N/A',
+                        message: 'O campo tax_id deve ter no máximo 12 dígitos.',
+                    );
+                }
+            }
+
+            if ($phoneNumber !== null) {
+                $phoneDigits = strlen(preg_replace('/\D/', '', $phoneNumber));
+
+                if ($phoneDigits < 10) {
+                    $errors[] = new ImportErrorDTO(
+                        row: $rowNumber,
+                        email: $email ?: 'N/A',
+                        message: 'O campo phone_number deve ter no mínimo 10 dígitos.',
+                    );
+                } elseif ($phoneDigits > 11) {
+                    $errors[] = new ImportErrorDTO(
+                        row: $rowNumber,
+                        email: $email ?: 'N/A',
+                        message: 'O campo phone_number deve ter no máximo 11 dígitos.',
+                    );
+                }
+            }
+
+            $missingFields = array_keys(array_filter([
+                'name' => blank($name),
+                'email' => blank($email),
+                'tax_id' => blank($taxId),
+                'phone_number' => blank($phoneNumber),
+            ]));
+
+            if ($missingFields !== []) {
                 $errors[] = new ImportErrorDTO(
                     row: $rowNumber,
                     email: $email ?: 'N/A',
-                    message: 'Campos obrigatórios ausentes: name, email, tax_id e phone_number são obrigatórios.',
+                    message: 'Campos obrigatórios ausentes: ' . implode(', ', $missingFields) . '.',
                 );
 
                 return;
+            }
+
+            if (mb_strlen($name) > 255) {
+                $errors[] = new ImportErrorDTO(
+                    row: $rowNumber,
+                    email: $email,
+                    message: 'O campo name deve ter no máximo 255 caracteres.',
+                );
+            }
+
+            if (mb_strlen($email) > 255) {
+                $errors[] = new ImportErrorDTO(
+                    row: $rowNumber,
+                    email: $email,
+                    message: 'O campo email deve ter no máximo 255 caracteres.',
+                );
             }
 
             if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -52,13 +130,14 @@ class ValidateUserImportAction
                     message: 'Email inválido.',
                 );
             }
+
         });
 
         $emails = $rows->map(fn (array $row): string => strtolower(trim((string) ($row['email'] ?? ''))));
 
-        $emails->duplicates()->each(function (string $email, int $index) use (&$errors): void {
+        $emails->filter(fn (string $email): bool => filled($email))->duplicates()->each(function (string $email, int $index) use (&$errors, $rows): void {
             $errors[] = new ImportErrorDTO(
-                row: $index + 2,
+                row: $rows[$index]['__row_number'],
                 email: $email,
                 message: 'Email duplicado na planilha.',
             );
@@ -77,9 +156,9 @@ class ValidateUserImportAction
 
         $taxIds = $rows->map(fn (array $row): string => trim((string) ($row['tax_id'] ?? '')));
 
-        $taxIds->duplicates()->each(function (string $taxId, int $index) use (&$errors): void {
+        $taxIds->filter(fn (string $taxId): bool => filled($taxId))->duplicates()->each(function (string $taxId, int $index) use (&$errors, $rows): void {
             $errors[] = new ImportErrorDTO(
-                row: $index + 2,
+                row: $rows[$index]['__row_number'],
                 email: 'N/A',
                 message: sprintf("tax_id '%s' duplicado na planilha.", $taxId),
             );
@@ -96,7 +175,19 @@ class ValidateUserImportAction
                 );
             });
 
+        $phoneNumbers = $rows->map(fn (array $row): string => trim((string) ($row['phone_number'] ?? '')));
+
+        $phoneNumbers->filter(fn (string $phone): bool => filled($phone))->duplicates()->each(function (string $phone, int $index) use (&$errors, $rows): void {
+            $errors[] = new ImportErrorDTO(
+                row: $rows[$index]['__row_number'],
+                email: 'N/A',
+                message: sprintf("phone_number '%s' duplicado na planilha.", $phone),
+            );
+        });
+
         if (filled($errors)) {
+            usort($errors, fn (ImportErrorDTO $a, ImportErrorDTO $b): int => $a->row <=> $b->row);
+
             return $errors;
         }
 

@@ -2,8 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
 use App\Filament\Shared\Pages\LoginPage;
 use Basement\BetterMails\Filament\FilamentBetterEmailPlugin;
 use Basement\Webhooks\FilamentWebhookPlugin;
@@ -17,6 +15,8 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;

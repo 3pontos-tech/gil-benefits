@@ -48,7 +48,7 @@
             <div class="overflow-y-auto px-6 py-4 flex-1 space-y-2">
                 <template x-for="(error, index) in errors" :key="index">
                     <div class="flex items-start gap-3 p-3 rounded-lg bg-warning-50 dark:bg-warning-950/20 border border-warning-200 dark:border-warning-800">
-                        <span class="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-full bg-warning-100 dark:bg-warning-900 text-warning-700 dark:text-warning-400 text-xs font-semibold" x-text="error.row > 0 ? error.row : '—'"></span>
+                        <span class="shrink-0 inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-warning-100 dark:bg-warning-900 text-warning-700 dark:text-warning-400 text-xs font-semibold whitespace-nowrap" x-text="error.row > 0 ? `Linha ${error.row}` : '—'"></span>
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-medium text-gray-700 dark:text-gray-300" x-text="error.email !== 'N/A' ? error.email : '—'"></p>
                             <p class="text-sm text-gray-600 dark:text-gray-400" x-text="error.message"></p>
