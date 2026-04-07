@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Admin\Filament\Widgets;
 
+use App\Filament\Tables\Columns\CnpjColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
@@ -33,7 +34,7 @@ class LatestCompanies extends TableWidget
                     ->badge()
                     ->default(fn (): string => 'N/A')
                     ->label(__('panel-admin::widgets.latest_companies.plan')),
-                TextColumn::make('tax_id')
+                CnpjColumn::make('tax_id')
                     ->badge()
                     ->searchable(),
                 TextColumn::make('created_at')
