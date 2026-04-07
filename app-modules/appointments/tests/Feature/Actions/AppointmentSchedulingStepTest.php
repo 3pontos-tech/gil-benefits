@@ -1,6 +1,7 @@
 <?php
 
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Notification as LaravelNotification;
 use TresPontosTech\Appointments\Actions\StateMachine\AppointmentSchedulingStep;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -10,6 +11,7 @@ use function Pest\Laravel\actingAs;
 
 beforeEach(function (): void {
     LaravelNotification::fake();
+    Bus::fake();
     $this->appointment = Appointment::factory()->withStatus(AppointmentStatus::Scheduling)->create();
     actingAs($this->appointment->user);
 });

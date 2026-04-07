@@ -4,9 +4,11 @@ namespace TresPontosTech\Admin\Filament\Resources\Appointments\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
+use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 
 class EditAppointment extends EditRecord
@@ -28,7 +30,16 @@ class EditAppointment extends EditRecord
         $appointment = $this->record;
 
         if ($appointment->wasChanged('consultant_id')) {
-            resolve(AssignConsultantAction::class)->handle($appointment);
+            try {
+                resolve(AssignConsultantAction::class)->handle($appointment);
+            } catch (SlotUnavailableException $exception) {
+                Notification::make()
+                    ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))
+                    ->danger()
+                    ->send();
+
+                $this->halt();
+            }
         }
     }
 }

@@ -33,6 +33,11 @@ return [
             'meeting_url' => 'Link da Reunião',
         ],
 
+        'exceptions' => [
+            'slot_unavailable' => 'Este horário não está mais disponível. Por favor, selecione outro.',
+            'consultant_unavailable' => 'Este consultor não está disponível para o horário selecionado.',
+        ],
+
         'notifications' => [
             'cancelled' => [
                 'title' => 'Agendamento Cancelado!',

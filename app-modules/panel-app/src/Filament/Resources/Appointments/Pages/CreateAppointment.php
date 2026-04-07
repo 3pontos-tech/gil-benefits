@@ -13,6 +13,7 @@ use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\App\Filament\Resources\Appointments\Schemas\AppointmentWizard;
 use TresPontosTech\Appointments\Actions\BookAppointmentAction;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
+use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 
 class CreateAppointment extends CreateRecord
 {
@@ -67,8 +68,12 @@ class CreateAppointment extends CreateRecord
                 ->send();
 
             $this->redirectIntended(AppointmentResource::getUrl('index'));
+        } catch (SlotUnavailableException $exception) {
+            Notification::make()
+                ->title($exception->getMessage())
+                ->danger()
+                ->send();
         } catch (Throwable $throwable) {
-
             Notification::make()
                 ->title(__('panel-app::resources.appointments.pages.create.booking_failed'))
                 ->danger()

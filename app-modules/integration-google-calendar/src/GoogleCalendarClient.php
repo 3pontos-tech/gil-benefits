@@ -77,6 +77,47 @@ class GoogleCalendarClient
         return CalendarEventsResponse::make($response->json());
     }
 
+    /**
+     * @param  array<string, mixed>  $eventData
+     * @return array<string, mixed>
+     */
+    public function createEvent(string $accessToken, string $calendarId, array $eventData): array
+    {
+        $url = sprintf(
+            'https://www.googleapis.com/calendar/v3/calendars/%s/events?conferenceDataVersion=1',
+            urlencode($calendarId)
+        );
+
+        $response = Http::withToken($accessToken)->post($url, $eventData);
+
+        if ($response->failed()) {
+            throw new GoogleCalendarApiException(
+                sprintf('Failed to create event for %s: %s', $calendarId, $response->body()),
+                $response->status(),
+            );
+        }
+
+        return $response->json();
+    }
+
+    public function deleteEvent(string $accessToken, string $calendarId, string $eventId): void
+    {
+        $url = sprintf(
+            'https://www.googleapis.com/calendar/v3/calendars/%s/events/%s',
+            urlencode($calendarId),
+            urlencode($eventId)
+        );
+
+        $response = Http::withToken($accessToken)->delete($url);
+
+        if ($response->failed() && $response->status() !== 410) {
+            throw new GoogleCalendarApiException(
+                sprintf('Failed to delete event %s for %s: %s', $eventId, $calendarId, $response->body()),
+                $response->status(),
+            );
+        }
+    }
+
     private function buildJwt(string $email): string
     {
         $now = Date::now()->getTimestamp();
@@ -85,7 +126,7 @@ class GoogleCalendarClient
         $claimSet = $this->base64url(json_encode([
             'iss' => $this->credentials['client_email'],
             'sub' => $email,
-            'scope' => 'https://www.googleapis.com/auth/calendar.readonly',
+            'scope' => 'https://www.googleapis.com/auth/calendar',
             'aud' => 'https://oauth2.googleapis.com/token',
             'iat' => $now,
             'exp' => $now + 3600,
