@@ -2,6 +2,8 @@
 
 namespace TresPontosTech\PanelCompany\Filament\Actions;
 
+use App\Filament\Shared\Fields\DocumentIdInput;
+use App\Filament\Shared\Fields\TaxIdInput;
 use App\Models\Users\User;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Hidden;
@@ -9,7 +11,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
-use Filament\Support\RawJs;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Cashier\Subscription;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -77,20 +78,10 @@ class CreateAndAttachAction extends CreateAction
                 ->relationship('detail')
                 ->schema([
                     Hidden::make('company_id')->default(filament()->getTenant()->getKey()),
-                    TextInput::make('tax_id')
+                    TaxIdInput::make()
                         ->label(__('panel-company::resources.actions.create_and_attach.cpf'))
-                        ->mask('999.999.999-99')
-                        ->rule(new UniqueAtCompany)
-                        ->required(),
-                    TextInput::make('document_id')
-                        ->label(__('panel-company::resources.actions.create_and_attach.rg'))
-                        ->mask(RawJs::make(<<<'JS'
-                            $input.replace(/[^a-zA-Z0-9]/g, '').length > 9
-                                ? '***.***.***-**'
-                                : '**.***.***-*'
-                        JS))
-                        ->minLength(5)
-                        ->maxLength(14)
+                        ->rule(new UniqueAtCompany),
+                    DocumentIdInput::make()
                         ->rule(new UniqueAtCompany),
                     PhoneInput::make('phone_number')
                         ->label(__('panel-company::resources.actions.create_and_attach.phone'))

@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Admin\Filament\Resources\Companies\Schemas;
 
+use App\Filament\Shared\Fields\TaxIdInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Set;
@@ -33,11 +34,8 @@ class CompanyForm
                     ->readOnly()
                     ->maxLength(255)
                     ->unique('companies', 'slug'),
-                TextInput::make('tax_id')
-                    ->label(__('panel-admin::resources.companies.form.tax_id'))
-                    ->mask('99.999.999/9999-99')
-                    ->required()
-                    ->dehydrateStateUsing(fn ($state): string|array|null => preg_replace('/\D/', '', $state)),
+                TaxIdInput::make()
+                    ->label(__('panel-admin::resources.companies.form.tax_id')),
             ]);
     }
 }

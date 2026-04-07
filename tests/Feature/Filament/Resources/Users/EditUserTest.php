@@ -44,8 +44,8 @@ it('should be able to register an user', function () {
 
     assertDatabaseHas(Detail::class, [
         'user_id' => $this->user->getKey(),
-        'tax_id' => '999.111.111-11',
-        'document_id' => '22.333.444-5',
+        'tax_id' => '99911111111',
+        'document_id' => '223334445',
         'company_id' => $company->getKey(),
     ]);
 });

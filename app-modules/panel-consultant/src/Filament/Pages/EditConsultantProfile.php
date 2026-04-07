@@ -2,10 +2,10 @@
 
 namespace TresPontosTech\Consultants\Filament\Pages;
 
+use App\Filament\Shared\Fields\DocumentIdInput;
+use App\Filament\Shared\Fields\TaxIdInput;
 use App\Filament\Shared\Pages\EditUserProfile as BaseEditUserProfile;
-use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
-use Filament\Support\RawJs;
 
 class EditConsultantProfile extends BaseEditUserProfile
 {
@@ -15,17 +15,9 @@ class EditConsultantProfile extends BaseEditUserProfile
     protected function getExtraDetailFormComponents(): array
     {
         return [
-            TextInput::make('tax_id')
-                ->label(__('panel-admin::resources.pages.edit_profile.cpf'))
-                ->required()
-                ->mask('999.999.999-99'),
-            TextInput::make('document_id')
-                ->mask(RawJs::make(<<<'JS'
-                    $input.replace(/\D/g, '').length > 9
-                        ? '999.999.999-99'
-                        : '99.999.999-9'
-                    JS
-                ))
+            TaxIdInput::make()
+                ->label(__('panel-admin::resources.pages.edit_profile.cpf')),
+            DocumentIdInput::make()
                 ->minLength(7)
                 ->maxLength(14)
                 ->required()

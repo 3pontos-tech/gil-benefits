@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\PanelCompany\Filament\Pages\Tenancy;
 
+use App\Filament\Shared\Fields\TaxIdInput;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\RegisterTenant as BaseRegisterTenant;
@@ -39,11 +40,8 @@ class RegisterTenant extends BaseRegisterTenant
                     ->maxLength(255)
                     ->required(),
                 Hidden::make('slug'),
-                TextInput::make('tax_id')
-                    ->mask('99.999.999/9999-99')
-                    ->unique('companies', 'tax_id')
-                    ->dehydrateStateUsing(fn ($state): string|array|null => preg_replace('/\D/', '', $state))
-                    ->required(),
+                TaxIdInput::make()
+                    ->unique('companies', 'tax_id'),
             ]);
     }
 
