@@ -143,12 +143,17 @@ class ValidateUserImportAction
             );
         });
 
+        $emailToRow = $rows
+            ->filter(fn (array $row): bool => filled(strtolower(trim((string) ($row['email'] ?? '')))))
+            ->keyBy(fn (array $row): string => strtolower(trim((string) $row['email'])))
+            ->map(fn (array $row): int => $row['__row_number']);
+
         User::query()
             ->whereIn('email', $emails->filter()->unique()->all())
             ->pluck('email')
-            ->each(function (string $email) use (&$errors): void {
+            ->each(function (string $email) use (&$errors, $emailToRow): void {
                 $errors[] = new ImportErrorDTO(
-                    row: 0,
+                    row: $emailToRow->get($email, 0),   // <-- linha correta
                     email: $email,
                     message: 'Email já cadastrado no sistema.',
                 );
@@ -164,12 +169,17 @@ class ValidateUserImportAction
             );
         });
 
+        $taxIdToRow = $rows
+            ->filter(fn (array $row): bool => filled(trim((string) ($row['tax_id'] ?? ''))))
+            ->keyBy(fn (array $row): string => trim((string) $row['tax_id']))
+            ->map(fn (array $row): int => $row['__row_number']);
+
         Detail::query()
             ->whereIn('tax_id', $taxIds->filter()->unique()->all())
             ->pluck('tax_id')
-            ->each(function (string $taxId) use (&$errors): void {
+            ->each(function (string $taxId) use (&$errors, $taxIdToRow): void {
                 $errors[] = new ImportErrorDTO(
-                    row: 0,
+                    row: $taxIdToRow->get($taxId, 0),
                     email: 'N/A',
                     message: sprintf("tax_id '%s' já cadastrado no sistema.", $taxId),
                 );
