@@ -26,7 +26,7 @@ it('can create a new company', function (): void {
         ->fillForm([
             'user_id' => auth()->user()->getKey(),
             'name' => 'my company',
-            'tax_id' => '99.999.999/9999-99',
+            'tax_id' => '57.181.164/0001-80',
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -34,14 +34,14 @@ it('can create a new company', function (): void {
     assertDatabaseHas(Company::class, [
         'user_id' => auth()->user()->getKey(),
         'name' => 'my company',
-        'tax_id' => '99.999.999/9999-99',
+        'tax_id' => '57181164000180',
     ]);
 });
 it('company slug should be unique', function (): void {
     Company::factory()->create([
         'user_id' => auth()->user()->getKey(),
         'name' => 'my company',
-        'tax_id' => '99.999.999/9999-99',
+        'tax_id' => '57.181.164/0001-80',
         'slug' => Str::slug('my company'),
     ]);
 
@@ -66,7 +66,7 @@ test('after creating should assign company owner role to the owner', function ()
         ->fillForm([
             'user_id' => $companyOwner->getKey(),
             'name' => 'my company',
-            'tax_id' => '99.999.999/9999-99',
+            'tax_id' => '57.181.164/0001-80',
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -74,7 +74,7 @@ test('after creating should assign company owner role to the owner', function ()
     assertDatabaseHas(Company::class, [
         'user_id' => $companyOwner->getKey(),
         'name' => 'my company',
-        'tax_id' => '99.999.999/9999-99',
+        'tax_id' => '57181164000180',
     ]);
 
     $companyOwner->refresh();
@@ -88,7 +88,7 @@ test('should attach owner after creating', function (): void {
         ->fillForm([
             'user_id' => auth()->user()->getKey(),
             'name' => 'my company',
-            'tax_id' => '99.999.999/9999-99',
+            'tax_id' => '57.181.164/0001-80',
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -96,11 +96,11 @@ test('should attach owner after creating', function (): void {
     assertDatabaseHas(Company::class, [
         'user_id' => auth()->user()->getKey(),
         'name' => 'my company',
-        'tax_id' => '99.999.999/9999-99',
+        'tax_id' => '57181164000180',
     ]);
 
     auth()->user()->refresh();
     assertTrue(auth()->user()->hasRole(Roles::CompanyOwner));
-    $company = Company::query()->where('tax_id', '99.999.999/9999-99')->first();
+    $company = Company::query()->where('tax_id', '57181164000180')->first();
     assertTrue($company->employees()->where('user_id', auth()->user()->getKey())->exists());
 });

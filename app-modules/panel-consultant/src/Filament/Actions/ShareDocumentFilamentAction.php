@@ -48,6 +48,7 @@ class ShareDocumentFilamentAction extends Action
                         ->pluck('users.name', 'users.id')
                         ->toArray();
                 })
+                ->getOptionLabelUsing(fn ($value) => auth()->user()->consultant?->clients()->where('users.id', $value)->first()?->name)
                 ->searchable()
                 ->required(),
         ];

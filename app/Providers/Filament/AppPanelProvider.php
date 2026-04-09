@@ -20,6 +20,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TresPontosTech\App\Filament\Pages\UserRegistration;
 use TresPontosTech\Billing\Stripe\Subscription\User\UserBillingProvider;
 use TresPontosTech\Company\Models\Company;
 
@@ -35,6 +36,7 @@ class AppPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#F1785A'),
             ])
+            ->registration(UserRegistration::class)
             ->passwordReset()
             ->topbar(false)
             ->sidebarFullyCollapsibleOnDesktop()

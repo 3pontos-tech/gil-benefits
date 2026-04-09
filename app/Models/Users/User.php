@@ -118,7 +118,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     }
 
     #[Scope]
-    public function whereNotSharedWith(Builder $query, int $documentId)
+    public function whereNotSharedWith(Builder $query, string $documentId)
     {
         return $query->whereDoesntHave('sharedDocuments', function (Builder $subquery) use ($documentId): void {
             $subquery->where('document_id', $documentId);
@@ -255,7 +255,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     protected function getMonthlyAppointmentsLeftCacheKey(): string
     {
-        return sprintf('user:%d:monthly_appointments_left', $this->getKey());
+        return sprintf('user:%s:monthly_appointments_left', $this->getKey());
     }
 
     /**

@@ -28,11 +28,9 @@ use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\artisan;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
-    ->beforeEach(fn () => artisan('sync:permissions'))
     ->in('Feature', 'E2E', '../app-modules/*/tests');
 
 pest()->group('browser')
@@ -75,8 +73,6 @@ function something()
 
 function actingAsAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
 {
-    Artisan::call('sync:permissions');
-
     $user = User::factory()->admin()->create();
     $user->assignRole(Roles::Admin->value);
 
@@ -88,8 +84,6 @@ function actingAsAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
 
 function actingAsSuperAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
 {
-    Artisan::call('sync:permissions');
-
     $user = User::factory()->admin()->create();
     $user->assignRole(Roles::SuperAdmin->value);
 
@@ -101,8 +95,6 @@ function actingAsSuperAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
 
 function actingAsCompanyOwner(): User
 {
-    Artisan::call('sync:permissions');
-
     $user = User::factory()->companyOwner()->create();
     $user->assignRole(Roles::CompanyOwner->value);
     Detail::factory()->recycle($user)->create();
@@ -123,8 +115,6 @@ function actingAsCompanyOwner(): User
 
 function actingAsEmployee(): User
 {
-    Artisan::call('sync:permissions');
-
     $companyOwner = User::factory()->companyOwner()->create();
     $employee = User::factory()->employee()->create();
 
@@ -161,8 +151,6 @@ function actingAsEmployee(): User
 
 function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
 {
-    Artisan::call('sync:permissions');
-
     $user = User::factory()->employee()->create();
     $company = Company::factory()->create();
     $company->employees()->attach($user->getKey());
@@ -204,8 +192,6 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
 
 function actingAsConsultant(): Consultant
 {
-    Artisan::call('sync:permissions');
-
     $consultant = Consultant::factory()->createOne();
 
     filament()->setCurrentPanel(FilamentPanel::Consultant->value);

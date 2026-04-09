@@ -27,6 +27,8 @@ use Spatie\MediaLibrary\Support\FileRemover\DefaultFileRemover;
 use Spatie\MediaLibrary\Support\PathGenerator\DefaultPathGenerator;
 use Spatie\MediaLibrary\Support\UrlGenerator\DefaultUrlGenerator;
 use Spatie\MediaLibraryPro\Models\TemporaryUpload;
+use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Support\CompanyLogoPathGenerator;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Support\DocumentPathGenerator;
 
@@ -126,6 +128,7 @@ return [
         // or
         // 'model_morph_alias' => PathGenerator::class
         Document::class => DocumentPathGenerator::class,
+        Company::class => CompanyLogoPathGenerator::class,
     ],
 
     /*

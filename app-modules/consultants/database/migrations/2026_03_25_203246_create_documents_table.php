@@ -10,7 +10,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('documents', function (Blueprint $table): void {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->foreignIdFor(Consultant::class)->constrained('consultants');
             $table->string('title');
             $table->string('type')->nullable();

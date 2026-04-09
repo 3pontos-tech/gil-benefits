@@ -9,8 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('appointments', function (Blueprint $table): void {
-            $table->id();
-            $table->foreignId('consultant_id')->nullable()->constrained('consultants');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('consultant_id')->nullable()->constrained('consultants');
             $table->foreignUuid('user_id')->constrained('users');
 
             $table->string('category_type');

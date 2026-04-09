@@ -3,6 +3,7 @@
 namespace TresPontosTech\Appointments\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,7 @@ use TresPontosTech\Consultants\Models\Consultant;
 class Appointment extends Model
 {
     use HasFactory;
+    use HasUuids;
     use SoftDeletes;
 
     protected $fillable = [

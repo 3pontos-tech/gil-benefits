@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class ConsultantForm
 {
@@ -44,8 +45,11 @@ class ConsultantForm
                                         ->required(),
                                     TextInput::make('slug')
                                         ->formatStateUsing(fn ($get) => str($get('name'))->slug),
-                                    TextInput::make('phone')
-                                        ->mask('(99) 99999-9999')
+                                    PhoneInput::make('phone')
+                                        ->defaultCountry('BR')
+                                        ->initialCountry('BR')
+                                        ->disableLookup()
+                                        ->strictMode()
                                         ->required(),
                                     TextInput::make('email')
                                         ->email()
