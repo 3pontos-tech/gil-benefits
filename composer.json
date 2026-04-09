@@ -48,6 +48,7 @@
         "flowframe/laravel-trend": "^0.4.0",
         "internachi/modular": "*",
         "laravel/framework": "^12.0",
+        "laravel/nightwatch": "^1.26",
         "laravel/tinker": "^2.10.1",
         "laraveljutsu/zap": "^1.13",
         "league/flysystem-aws-s3-v3": "^3.0",
