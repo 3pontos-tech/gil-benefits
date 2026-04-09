@@ -7,13 +7,17 @@ use TresPontosTech\IntegrationGoogleCalendar\Actions\CreateCalendarEventAction;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
 use TresPontosTech\IntegrationGoogleCalendar\GoogleCalendarClient;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
+use TresPontosTech\IntegrationGoogleCalendar\Responses\CreateEventResponse;
 
 it('calls CreateCalendarEventAction', function (): void {
     $appointment = Appointment::factory()->create(['status' => AppointmentStatus::Active]);
 
     $mockClient = Mockery::mock(GoogleCalendarClient::class);
     $mockClient->shouldReceive('getAccessToken')->andReturn('fake-token');
-    $mockClient->shouldReceive('createEvent')->once()->andReturn(['id' => 'event-123']);
+    $mockClient->shouldReceive('createEvent')->once()->andReturn(new CreateEventResponse(
+        eventId: 'event-123',
+        meetLink: null,
+    ));
 
     $action = new CreateCalendarEventAction($mockClient);
     $job = new CreateAppointmentCalendarEventJob($appointment);

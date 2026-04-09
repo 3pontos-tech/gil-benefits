@@ -24,13 +24,11 @@ readonly class CreateCalendarEventAction
         $response = $this->client->createEvent($accessToken, $consultant->email, $dto->toGooglePayload());
 
         $updateData = [
-            'google_event_id' => $response['id'],
+            'google_event_id' => $response->eventId,
         ];
 
-        $meetLink = $response['conferenceData']['entryPoints'][0]['uri'] ?? null;
-
-        if (filled($meetLink)) {
-            $updateData['meeting_url'] = $meetLink;
+        if (filled($response->meetLink)) {
+            $updateData['meeting_url'] = $response->meetLink;
         }
 
         $appointment->update($updateData);

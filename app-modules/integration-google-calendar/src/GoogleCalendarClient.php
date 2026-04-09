@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
 use TresPontosTech\IntegrationGoogleCalendar\Responses\CalendarEventsResponse;
+use TresPontosTech\IntegrationGoogleCalendar\Responses\CreateEventResponse;
 
 class GoogleCalendarClient
 {
@@ -79,9 +80,8 @@ class GoogleCalendarClient
 
     /**
      * @param  array<string, mixed>  $eventData
-     * @return array<string, mixed>
      */
-    public function createEvent(string $accessToken, string $calendarId, array $eventData): array
+    public function createEvent(string $accessToken, string $calendarId, array $eventData): CreateEventResponse
     {
         $url = sprintf(
             'https://www.googleapis.com/calendar/v3/calendars/%s/events?conferenceDataVersion=1&sendUpdates=all',
@@ -97,7 +97,7 @@ class GoogleCalendarClient
             );
         }
 
-        return $response->json();
+        return CreateEventResponse::make($response->json());
     }
 
     public function deleteEvent(string $accessToken, string $calendarId, string $eventId): void

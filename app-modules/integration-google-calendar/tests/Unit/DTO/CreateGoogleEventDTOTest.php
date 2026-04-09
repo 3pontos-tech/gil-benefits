@@ -26,7 +26,9 @@ it('creates DTO from appointment with correct fields', function (): void {
 
     expect($dto->summary)->toBe('Consulta - João Silva')
         ->and($dto->attendees)->toBe(['joao@test.com'])
-        ->and($dto->appointmentId)->toBe($appointment->id);
+        ->and($dto->appointmentId)->toBe($appointment->id)
+        ->and($dto->description)->toContain('Categoria:')
+        ->and($dto->description)->toContain('Test notes');
 });
 
 it('generates correct Google payload structure', function (): void {

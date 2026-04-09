@@ -6,6 +6,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Throwable;
 use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -72,7 +73,17 @@ class EditAppointment extends EditRecord
             $consultant = $appointment->consultant;
 
             if (filled($consultant) && filled($consultant->email) && blank($appointment->google_event_id)) {
-                CreateAppointmentCalendarEventJob::dispatch($appointment);
+                try {
+                    CreateAppointmentCalendarEventJob::dispatchSync($appointment);
+
+                    $appointment->refresh();
+                    $this->refreshFormData(['meeting_url', 'google_event_id']);
+                } catch (Throwable) {
+                    Notification::make()
+                        ->title(__('appointments::resources.appointments.exceptions.calendar_event_failed'))
+                        ->danger()
+                        ->send();
+                }
             }
         }
 
