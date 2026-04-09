@@ -38,12 +38,13 @@ it('should be able to upload a document', function (): void {
     assertDatabaseHas(Document::class, [
         'title' => 'document_title',
         'active' => true,
-        'consultant_id' => $this->consultant->getKey(),
+        'documentable_id' => $this->consultant->getKey(),
+        'documentable_type' => 'consultants',
     ]);
 
     assertDatabaseCount(Media::class, 1);
     $document = Document::query()
-        ->where('documents.consultant_id', $this->consultant->getKey())
+        ->where('documents.documentable_id', $this->consultant->getKey())
         ->first();
 
     $media = $document->getFirstMedia('documents');

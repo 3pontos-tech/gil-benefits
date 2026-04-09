@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -23,10 +23,11 @@ class Document extends Model implements HasMedia
     use SoftDeletes;
 
     protected $fillable = [
-        'consultant_id',
         'title',
         'type',
         'active',
+        'documentable_type',
+        'documentable_id',
     ];
 
     protected function casts(): array
@@ -37,12 +38,9 @@ class Document extends Model implements HasMedia
         ];
     }
 
-    /**
-     * @return BelongsTo<Consultant, $this>
-     */
-    public function consultant(): BelongsTo
+    public function documentable(): MorphTo
     {
-        return $this->belongsTo(Consultant::class)->withTrashed();
+        return $this->morphTo();
     }
 
     /**

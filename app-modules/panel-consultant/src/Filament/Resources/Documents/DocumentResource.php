@@ -16,6 +16,7 @@ use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\ListDocuments;
 use TresPontosTech\Consultants\Filament\Resources\Documents\RelationManagers\SharedDocumentRelationManager;
 use TresPontosTech\Consultants\Filament\Resources\Documents\Schemas\DocumentForm;
 use TresPontosTech\Consultants\Filament\Resources\Documents\Tables\DocumentsTable;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
 use UnitEnum;
 
@@ -64,7 +65,8 @@ class DocumentResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            ->where('consultant_id', $consultantId);
+            ->where('documentable_id', $consultantId)
+            ->where('documentable_type', (new Consultant)->getMorphClass());
     }
 
     /**
@@ -72,12 +74,12 @@ class DocumentResource extends Resource
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['consultant']);
+        return parent::getGlobalSearchEloquentQuery()->with(['documentable']);
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['title', 'consultant.name'];
+        return ['title'];
     }
 
     /**
@@ -85,13 +87,7 @@ class DocumentResource extends Resource
      */
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        $details = [];
-
-        if ($record->consultant) {
-            $details['Consultant'] = $record->consultant->name;
-        }
-
-        return $details;
+        return [];
     }
 
     public static function getRelations(): array

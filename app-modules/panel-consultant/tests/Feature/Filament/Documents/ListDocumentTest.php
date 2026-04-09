@@ -16,7 +16,7 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
     $this->consultant = actingAsConsultant();
-    $this->documents = Document::factory()->recycle($this->consultant)->count(5)->create();
+    $this->documents = Document::factory()->forConsultant($this->consultant)->count(5)->create();
 });
 
 it('should render', function (): void {

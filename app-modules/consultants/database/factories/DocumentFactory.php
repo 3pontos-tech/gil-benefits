@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Consultants\Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
@@ -21,8 +22,9 @@ class DocumentFactory extends Factory
             'active' => $this->faker->boolean(),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
+            'documentable_id' => null,
+            'documentable_type' => null,
 
-            'consultant_id' => Consultant::factory(),
         ];
     }
 
@@ -45,6 +47,29 @@ class DocumentFactory extends Factory
         return $this->afterCreating(function (Document $document): void {
             $document->addMedia(UploadedFile::fake()->create('documento_teste.pdf', 100))
                 ->toMediaCollection('documents');
+        });
+    }
+
+    public function forConsultant(?Consultant $consultant = null): self
+    {
+        return $this->state(function (array $attributes) use ($consultant): array {
+
+            return [
+                'documentable_id' => $consultant instanceof Consultant ? $consultant->getKey() : Consultant::factory(),
+                'documentable_type' => $consultant instanceof Consultant ? $consultant->getMorphClass() : (new Consultant)->getMorphClass(),
+            ];
+        });
+    }
+
+    public function forUser(?User $user = null): self
+    {
+        return $this->state(function (array $attributes) use ($user): array {
+            $user = $user ?? User::factory()->create();
+
+            return [
+                'documentable_id' => $user->id,
+                'documentable_type' => $user->getMorphClass(),
+            ];
         });
     }
 }

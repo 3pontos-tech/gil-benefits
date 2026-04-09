@@ -11,12 +11,20 @@ class DocumentPathGenerator implements PathGenerator
 {
     public function getPath(Media $media): string
     {
-        /** @var Consultant $consultant */
-        $consultant = $media->model?->consultant;
 
-        $folderName = Str::slug($consultant->name ?? $consultant->user->name);
+        $owner = $media->model->documentable;
 
-        return sprintf('consultores/%s/%s/', $folderName, $media->id);
+        if (! $owner) {
+            $owner = auth()->user()?->consultant ?? auth()->user();
+        }
+
+        $folderName = Str::slug($owner->name ?? $owner->user->name);
+
+        if ($owner instanceof Consultant) {
+            return sprintf('consultores/%s/%s/', $folderName, $media->id);
+        }
+
+        return sprintf('cliente/%s/%s/', $folderName, $media->id);
     }
 
     public function getPathForConversions(Media $media): string
