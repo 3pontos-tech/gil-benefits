@@ -7,8 +7,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Actions\ParseUsersFromFileAction;
@@ -103,13 +101,12 @@ class ImportUsersAction extends Action
                 return;
             }
 
-            $storagePath = Storage::disk('local')->putFileAs(
-                'imports',
-                $file,
-                Str::uuid() . '.' . $file->getClientOriginalExtension(),
-            );
-
-            dispatch(new ImportUsersJob(storagePath: $storagePath, fileExtension: $file->getClientOriginalExtension(), companyId: $company->getKey(), userId: auth()->id()));
+            dispatch(new ImportUsersJob(
+                rows: $rows,
+                companyId: $company->getKey(),
+                userId: auth()->id()
+            ))
+                ->onQueue('users-import');
 
             $this->getLivewire()->dispatch('import-started');
 
