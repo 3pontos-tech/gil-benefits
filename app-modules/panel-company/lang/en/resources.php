@@ -36,5 +36,9 @@ return [
         'seats_counter' => [
             'label' => 'Seats: %s/%s',
         ],
+        'logo' => [
+            'label' => 'Company Logo',
+            'notification' => 'Company logo changed succesfully.',
+        ],
     ],
 ];

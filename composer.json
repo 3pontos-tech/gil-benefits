@@ -51,6 +51,7 @@
         "laravel/tinker": "^2.10.1",
         "laraveljutsu/zap": "^1.13",
         "league/flysystem-aws-s3-v3": "^3.0",
+        "leandrocfe/filament-ptbr-form-fields": "^5.0",
         "maartenpaauw/filament-cashier-billing-provider": "^3.0",
         "mallardduck/blade-lucide-icons": "^1.24",
         "owenvoke/blade-fontawesome": "^2.9",

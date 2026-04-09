@@ -35,5 +35,13 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+
+        <env name="FILESYSTEM_DISK" value="local"/>
+        <env name="CLOUDFLARE_R2_DRIVER" value="local"/>
+        <env name="CLOUDFLARE_R2_ACCESS_KEY_ID" value="fake"/>
+        <env name="CLOUDFLARE_R2_SECRET_ACCESS_KEY" value="fake"/>
+        <env name="CLOUDFLARE_R2_BUCKET" value="fake-bucket"/>
+        <env name="CLOUDFLARE_R2_URL" value="http://localhost"/>
+        <env name="CLOUDFLARE_R2_ENDPOINT" value="http://localhost"/>
     </php>
 </phpunit>

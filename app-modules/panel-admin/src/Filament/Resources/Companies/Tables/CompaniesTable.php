@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Admin\Filament\Resources\Companies\Tables;
 
+use App\Filament\Tables\Columns\CnpjColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -25,7 +26,7 @@ class CompaniesTable
                 TextColumn::make('name')
                     ->label(__('panel-admin::resources.companies.table.name'))
                     ->searchable(),
-                TextColumn::make('tax_id')
+                CnpjColumn::make('tax_id')
                     ->label(__('panel-admin::resources.companies.table.tax_id'))
                     ->searchable(),
                 TextColumn::make('plans.name')

@@ -27,7 +27,7 @@ it('should be able to register an user', function () {
             'name' => 'updated user',
             'email' => 'updated@doe.com',
             'password' => $this->user->password,
-            'detail.tax_id' => '999.111.111-11',
+            'detail.tax_id' => '97692325057',
             'detail.document_id' => '22.333.444-5',
             'detail.company_id' => $company->getKey(),
 
@@ -44,8 +44,8 @@ it('should be able to register an user', function () {
 
     assertDatabaseHas(Detail::class, [
         'user_id' => $this->user->getKey(),
-        'tax_id' => '999.111.111-11',
-        'document_id' => '22.333.444-5',
+        'tax_id' => '97692325057',
+        'document_id' => '223334445',
         'company_id' => $company->getKey(),
     ]);
 });
