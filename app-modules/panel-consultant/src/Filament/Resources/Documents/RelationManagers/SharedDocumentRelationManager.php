@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Consultants\Filament\Resources\Documents\RelationManagers;
 
 use Filament\Actions\Action;
