@@ -20,14 +20,15 @@ class PersistImportedUsersAction
     {
         $imported = 0;
         $now = now();
+        $temporaryPassword = bcrypt(Str::password(12));
         $roleId = Role::findByName(Roles::Employee->value)->id;
         $userMorphClass = (new User)->getMorphClass();
         $roleTable = config('permission.table_names.model_has_roles');
 
         $rows->chunk(self::CHUNK_SIZE)->each(
-            function (Collection $chunk) use ($company, &$imported, $now, $roleId, $userMorphClass, $roleTable): void {
+            function (Collection $chunk) use ($company, &$imported, $now, $temporaryPassword, $roleId, $userMorphClass, $roleTable): void {
                 DB::transaction(
-                    function () use ($chunk, $company, &$imported, $now, $roleId, $userMorphClass, $roleTable): void {
+                    function () use ($chunk, $company, &$imported, $now, $temporaryPassword, $roleId, $userMorphClass, $roleTable): void {
                         $items = $chunk->values()->map(fn (array $row): array => [
                             'id' => (string) Str::uuid(),
                             'row' => $row,
@@ -37,7 +38,7 @@ class PersistImportedUsersAction
                             'id' => $item['id'],
                             'name' => trim($item['row']['name']),
                             'email' => strtolower(trim($item['row']['email'])),
-                            'password' => bcrypt(Str::password(12)),
+                            'password' => $temporaryPassword,
                             'created_at' => $now,
                             'updated_at' => $now,
                         ])->all());

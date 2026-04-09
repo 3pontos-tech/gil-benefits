@@ -7,11 +7,14 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\User\Actions\ImportUsersFromFileAction;
+use TresPontosTech\User\Actions\ParseUsersFromFileAction;
+use TresPontosTech\User\Actions\ValidateUserImportAction;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
-use TresPontosTech\User\DTOs\ImportUsersResultDTO;
+use TresPontosTech\User\Jobs\ImportUsersJob;
 
 class ImportUsersAction extends Action
 {
@@ -67,42 +70,55 @@ class ImportUsersAction extends Action
         $this->action(function (array $data): void {
             /** @var TemporaryUploadedFile $file */
             $file = $data['file'];
+            $company = $this->resolveCompany();
 
-            /** @var ImportUsersResultDTO $result */
-            $result = resolve(ImportUsersFromFileAction::class)->execute(
-                filePath: $file->getRealPath(),
-                fileExtension: $file->getClientOriginalExtension(),
-                company: $this->resolveCompany(),
+            $rows = resolve(ParseUsersFromFileAction::class)->execute(
+                $file->getRealPath(),
+                $file->getClientOriginalExtension(),
             );
 
-            if ($result->imported > 0) {
+            if ($rows->isEmpty()) {
                 Notification::make()
-                    ->success()
-                    ->title('Importação concluída')
-                    ->body($result->imported . ' usuário(s) importado(s) com sucesso.')
+                    ->info()
+                    ->title('Nenhum usuário importado')
+                    ->body('A planilha está vazia ou todas as linhas foram ignoradas.')
                     ->send();
+
+                return;
             }
 
-            if ($result->hasErrors()) {
-                $errors = collect($result->errors)
+            $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+            if ($errors !== []) {
+                $this->getLivewire()->dispatch('import-errors', errors: collect($errors)
                     ->map(fn (ImportErrorDTO $e): array => [
                         'row' => $e->row,
                         'email' => $e->email,
                         'message' => $e->message,
                     ])
                     ->values()
-                    ->all();
+                    ->all()
+                );
 
-                $this->getLivewire()->dispatch('import-errors', errors: $errors);
+                return;
             }
 
-            if ($result->isEmpty()) {
-                Notification::make()
-                    ->info()
-                    ->title('Nenhum usuário importado')
-                    ->body('A planilha está vazia ou todas as linhas foram ignoradas.')
-                    ->send();
-            }
+            $storagePath = Storage::disk('local')->putFileAs(
+                'imports',
+                $file,
+                Str::uuid() . '.' . $file->getClientOriginalExtension(),
+            );
+
+            dispatch(new ImportUsersJob(storagePath: $storagePath, fileExtension: $file->getClientOriginalExtension(), companyId: $company->getKey(), userId: auth()->id()));
+
+            $this->getLivewire()->dispatch('import-started');
+
+            Notification::make()
+                ->info()
+                ->title('Importação em andamento')
+                ->body('Você receberá uma notificação quando o processo for concluído.')
+                ->persistent()
+                ->send();
         });
     }
 }

@@ -26,10 +26,12 @@ use TresPontosTech\PanelCompany\Filament\Actions\CreateAndAttachAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSeatsCounterAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSecretKeyRotationPanelAction;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Concerns\ChecksImportCompletion;
 use TresPontosTech\User\Filament\Actions\ImportUsersAction;
 
 class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 {
+    use ChecksImportCompletion;
     use InteractsWithTable;
 
     public static function canAccess(): bool

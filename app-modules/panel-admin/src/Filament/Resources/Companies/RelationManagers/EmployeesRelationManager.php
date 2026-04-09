@@ -10,10 +10,13 @@ use Illuminate\Database\Eloquent\Model;
 use TresPontosTech\Admin\Filament\Resources\Permissions\Actions\AssignRoleAction;
 use TresPontosTech\Admin\Filament\Resources\Users\UserResource;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Concerns\ChecksImportCompletion;
 use TresPontosTech\User\Filament\Actions\ImportUsersAction;
 
 class EmployeesRelationManager extends RelationManager
 {
+    use ChecksImportCompletion;
+
     protected static string $relationship = 'employees';
 
     protected static ?string $relatedResource = UserResource::class;
