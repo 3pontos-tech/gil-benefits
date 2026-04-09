@@ -62,6 +62,10 @@ class SchedulesRelationManager extends RelationManager
                 EditAction::make()
                     ->form($this->availabilityFormSchema())
                     ->mutateRecordDataUsing(function (array $data, Schedule $record): array {
+                        $data['frequency_config'] = [
+                            'days' => $record->frequency_config?->days ?? [],
+                        ];
+
                         $data['periods'] = $record->periods
                             ->map(fn ($p): array => [
                                 'start_time' => $p->start_time,
@@ -75,6 +79,9 @@ class SchedulesRelationManager extends RelationManager
                     ->using(function (Schedule $record, array $data): void {
                         $periods = $data['periods'] ?? [];
                         unset($data['periods']);
+
+                        $data['is_recurring'] = true;
+                        $data['frequency'] = Frequency::WEEKLY->value;
 
                         $record->update($data);
 

@@ -84,7 +84,7 @@ class GoogleCalendarClient
     public function createEvent(string $accessToken, string $calendarId, array $eventData): array
     {
         $url = sprintf(
-            'https://www.googleapis.com/calendar/v3/calendars/%s/events?conferenceDataVersion=1',
+            'https://www.googleapis.com/calendar/v3/calendars/%s/events?conferenceDataVersion=1&sendUpdates=all',
             urlencode($calendarId)
         );
 
