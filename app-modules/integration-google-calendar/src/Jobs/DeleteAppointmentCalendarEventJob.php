@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\IntegrationGoogleCalendar\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -27,20 +29,20 @@ class DeleteAppointmentCalendarEventJob implements ShouldQueue
     {
         try {
             $action->handle($this->appointment);
-        } catch (GoogleCalendarApiException $exception) {
-            if (! $exception->retryable) {
+        } catch (GoogleCalendarApiException $googleCalendarApiException) {
+            if (! $googleCalendarApiException->retryable) {
                 Log::warning('Google Calendar event deletion skipped', [
                     'appointment_id' => $this->appointment->id,
-                    'exception' => $exception::class,
-                    'error_code' => $exception->getCode(),
+                    'exception' => $googleCalendarApiException::class,
+                    'error_code' => $googleCalendarApiException->getCode(),
                     'retryable' => false,
-                    'reason' => LogSanitizer::sanitize($exception->getMessage()),
+                    'reason' => LogSanitizer::sanitize($googleCalendarApiException->getMessage()),
                 ]);
 
                 return;
             }
 
-            throw $exception;
+            throw $googleCalendarApiException;
         }
     }
 

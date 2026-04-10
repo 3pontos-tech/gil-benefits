@@ -20,7 +20,7 @@ class SharedDocumentsTable
                     ->where('active', 1)
                 ))
             ->columns([
-                TextColumn::make('consultant.name')
+                TextColumn::make('documentable.name')
                     ->label(__('panel-app::resources.documents.table.consultant'))
                     ->searchable()
                     ->sortable(),

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use TresPontosTech\IntegrationGoogleCalendar\Support\LogSanitizer;
 
 it('scrubs email addresses from messages', function (): void {

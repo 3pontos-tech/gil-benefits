@@ -74,7 +74,7 @@ class EditAppointment extends EditRecord
 
             if (filled($consultant) && filled($consultant->email) && blank($appointment->google_event_id)) {
                 try {
-                    CreateAppointmentCalendarEventJob::dispatchSync($appointment);
+                    dispatch_sync(new CreateAppointmentCalendarEventJob($appointment));
 
                     $appointment->refresh();
                     $this->refreshFormData(['meeting_url', 'google_event_id']);
@@ -94,7 +94,7 @@ class EditAppointment extends EditRecord
                 ->delete();
 
             if (filled($appointment->google_event_id)) {
-                DeleteAppointmentCalendarEventJob::dispatch($appointment);
+                dispatch(new DeleteAppointmentCalendarEventJob($appointment));
             }
         }
     }

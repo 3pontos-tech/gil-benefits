@@ -39,9 +39,7 @@ readonly class AssignConsultantAction
                 $appointment->appointment_at->copy()->addHour()->format('H:i'),
             );
 
-            if (! $isAvailable) {
-                throw new SlotUnavailableException;
-            }
+            throw_unless($isAvailable, SlotUnavailableException::class);
 
             Zap::for($consultant)
                 ->named(sprintf('Appointment #%s - %s', $appointment->id, $appointment->user->name))
