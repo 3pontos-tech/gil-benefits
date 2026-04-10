@@ -5,6 +5,7 @@ namespace TresPontosTech\App\Filament\Widgets;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
+use TresPontosTech\App\Filament\Actions\FeedbackAction;
 
 class AppointmentHistoryWidget extends TableWidget
 {
@@ -22,6 +23,7 @@ class AppointmentHistoryWidget extends TableWidget
                 auth()
                     ->user()
                     ->appointments()
+                    ->with('feedback')
                     ->latest('appointment_at')
                     ->limit(5)
                     ->getQuery()
@@ -43,6 +45,9 @@ class AppointmentHistoryWidget extends TableWidget
                     ->label(__('panel-app::widgets.appointment_history.date'))
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
+            ])
+            ->recordActions([
+                FeedbackAction::make(),
             ])
             ->paginated(false);
     }

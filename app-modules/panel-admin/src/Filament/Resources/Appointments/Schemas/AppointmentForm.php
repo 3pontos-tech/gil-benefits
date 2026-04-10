@@ -8,9 +8,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Date;
+use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Consultants\Models\Consultant;
 
 class AppointmentForm
 {
@@ -29,29 +29,20 @@ class AppointmentForm
                     ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
                 Select::make('consultant_id')
                     ->label(__('appointments::resources.appointments.table.columns.consultant'))
-                    ->options(function (Get $get, ?Appointment $record) {
+                    ->options(function (Get $get, ?Appointment $record): array {
                         $appointmentAt = $get('appointment_at');
 
                         if (! $appointmentAt) {
                             return [];
                         }
 
-                        $date = Date::parse($appointmentAt);
-
-                        return Consultant::all()
-                            ->filter(function (Consultant $c) use ($date, $record): bool {
-
-                                if ($record?->consultant_id === $c->getKey()) {
-                                    return true;
-                                }
-
-                                return $c->isBookableAtTime(
-                                    $date->format('Y-m-d'),
-                                    $date->format('H:i'),
-                                    $date->copy()->addHour()->format('H:i'),
-                                );
-                            })
-                            ->pluck('name', 'id');
+                        return resolve(GetAvailableConsultantsAction::class)
+                            ->handle(
+                                appointmentAt: Date::parse($appointmentAt),
+                                alwaysIncludeConsultantId: $record?->consultant_id,
+                            )
+                            ->pluck('name', 'id')
+                            ->all();
                     })
                     ->reactive()
                     ->required(),

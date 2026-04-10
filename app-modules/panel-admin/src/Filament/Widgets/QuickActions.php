@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Admin\Filament\Widgets;
 
 use Filament\Support\Icons\Heroicon;

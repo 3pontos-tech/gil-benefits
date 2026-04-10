@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'appointments' => [
         'label' => 'Appointment',
@@ -31,6 +33,12 @@ return [
 
         'form' => [
             'meeting_url' => 'Meeting URL',
+        ],
+
+        'exceptions' => [
+            'slot_unavailable' => 'This time slot is no longer available. Please select another.',
+            'consultant_unavailable' => 'This consultant is not available for the selected time slot.',
+            'calendar_event_failed' => 'Failed to create the Google Calendar event. Try saving again or check the integration.',
         ],
 
         'notifications' => [

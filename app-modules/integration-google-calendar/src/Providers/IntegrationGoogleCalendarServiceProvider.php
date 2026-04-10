@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\IntegrationGoogleCalendar\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
@@ -23,7 +25,7 @@ class IntegrationGoogleCalendarServiceProvider extends ServiceProvider
 
         $this->app->booted(function (): void {
             $schedule = $this->app->make(Schedule::class);
-            $schedule->command('google-calendar:sync')->everyThirtyMinutes();
+            $schedule->command('google-calendar:sync')->everyTenMinutes();
         });
     }
 }

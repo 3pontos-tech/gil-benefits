@@ -4,12 +4,28 @@ namespace TresPontosTech\Appointments\Actions\StateMachine;
 
 use Filament\Notifications\Notification;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 
 class AppointmentSchedulingStep extends AbstractAppointmentStep
 {
     public function processStep(): void
     {
         $this->appointment->update(['status' => AppointmentStatus::Active]);
+
+        $this->dispatchCalendarEvent();
+    }
+
+    private function dispatchCalendarEvent(): void
+    {
+        $this->appointment->loadMissing('consultant');
+
+        $consultant = $this->appointment->consultant;
+
+        if (blank($consultant) || blank($consultant->email)) {
+            return;
+        }
+
+        dispatch(new CreateAppointmentCalendarEventJob($this->appointment));
     }
 
     public function notify(): void

@@ -7,6 +7,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
+use Leandrocfe\FilamentPtbrFormFields\Document;
 
 class CompanyForm
 {
@@ -33,9 +34,12 @@ class CompanyForm
                     ->readOnly()
                     ->maxLength(255)
                     ->unique('companies', 'slug'),
-                TextInput::make('tax_id')
+
+                Document::make('tax_id')
+                    ->dehydrateMask()
                     ->label(__('panel-admin::resources.companies.form.tax_id'))
-                    ->mask('99.999.999/9999-99')
+                    ->cnpj()
+                    ->unique('companies', 'tax_id')
                     ->required(),
             ]);
     }

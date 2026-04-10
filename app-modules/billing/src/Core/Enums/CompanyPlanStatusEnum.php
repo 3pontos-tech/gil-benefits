@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Billing\Core\Enums;
 
 use BackedEnum;

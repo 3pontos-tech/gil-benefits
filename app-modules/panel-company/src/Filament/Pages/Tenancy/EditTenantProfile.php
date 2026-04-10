@@ -5,24 +5,33 @@ namespace TresPontosTech\PanelCompany\Filament\Pages\Tenancy;
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\DetachAction;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Pages\Tenancy\EditTenantProfile as BaseEditTenantProfile;
 use Filament\Schemas\Components\EmbeddedTable;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Actions\CreateAndAttachAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSeatsCounterAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSecretKeyRotationPanelAction;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Concerns\ChecksImportCompletion;
+use TresPontosTech\User\Filament\Actions\ImportUsersAction;
 
 class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 {
+    use ChecksImportCompletion;
     use InteractsWithTable;
 
     public static function canAccess(): bool
@@ -78,6 +87,8 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                 CreateAndAttachAction::make('Invite Member')
                     ->label(__('panel-company::resources.pages.edit_tenant.invite_member'))
                     ->model(User::class),
+                ImportUsersAction::make()
+                    ->company(fn (): ?Model => filament()->getTenant()),
             ])
             ->recordActions([
                 Action::make('toggle-active')
@@ -120,6 +131,29 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
     {
         return [
             TenantSecretKeyRotationPanelAction::make(),
+            Action::make('company_logo')
+                ->label(__('panel-company::resources.actions.logo.label'))
+                ->icon(Heroicon::OutlinedCamera)
+                ->schema([
+                    SpatieMediaLibraryFileUpload::make('company_logo')
+                        ->label(__('panel-company::resources.actions.logo.label'))
+                        ->model(filament()->getTenant())
+                        ->collection('company_logo')
+                        ->maxFiles(1)
+                        ->acceptedFileTypes([
+                            'image/jpeg',
+                            'image/png',
+                            'image/webp',
+                        ])
+                        ->required(),
+                ])->after(function (): Redirector|RedirectResponse {
+                    Notification::make('success')
+                        ->title(__('panel-company::resources.actions.logo.notification'))
+                        ->success()
+                        ->send();
+
+                    return redirect(request()->header('Referer'));
+                }),
         ];
     }
 

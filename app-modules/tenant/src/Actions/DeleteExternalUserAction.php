@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Tenant\Actions;
 
 use Illuminate\Support\Facades\DB;

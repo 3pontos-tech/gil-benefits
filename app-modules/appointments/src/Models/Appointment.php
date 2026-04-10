@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -30,6 +31,7 @@ class Appointment extends Model
         'status',
         'monday_item_id',
         'meeting_url',
+        'google_event_id',
         'notes',
     ];
 
@@ -55,5 +57,10 @@ class Appointment extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function feedback(): HasOne
+    {
+        return $this->hasOne(AppointmentFeedback::class);
     }
 }

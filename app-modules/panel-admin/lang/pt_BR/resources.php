@@ -7,6 +7,7 @@ return [
         'billing' => 'Faturamento',
         'administration' => 'Administração',
         'appointments' => 'Agendamentos',
+        'reports' => 'Relatórios',
     ],
     'appointments' => [
         'navigation_label' => 'Agendamentos',
@@ -178,6 +179,12 @@ return [
         'user_assigned_to_role' => 'Usuário foi atribuído à função %s',
     ],
     'pages' => [
+        'metrics' => [
+            'title' => 'Métricas',
+            'navigation_label' => 'Métricas',
+            'filter_start_date' => 'Data inicial',
+            'filter_end_date' => 'Data final',
+        ],
         'edit_profile' => [
             'cpf' => 'CPF',
             'rg' => 'RG',

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\AvailableTagsEnum;
+use App\Models\Users\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -100,6 +101,41 @@ it('should save with default values if was not provided', function (): void {
         'biography' => '',
         'readme' => '',
     ]);
+});
+
+it('should assign an user to the consultant after creating', function (): void {
+    auth()->user()->removeRole(Roles::SuperAdmin->value);
+    livewire(CreateConsultant::class)
+        ->assertOk()
+        ->fillForm([
+            'name' => 'John Doe da silva',
+            'phone' => '119999999999',
+            'email' => 'joe@doe.com',
+            'socials_urls' => [
+                'linkedin' => 'https://www.linkedin.com/in/',
+                'instagram' => 'https://www.instagram.com/',
+                'facebook' => 'https://www.facebook.com/',
+                'twitter' => 'https://www.twitter.com/',
+                'youtube' => 'https://www.youtube.com/',
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertOk();
+
+    assertDatabaseHas(Consultant::class, [
+        'name' => 'John Doe da silva',
+        'phone' => '119999999999',
+        'email' => 'joe@doe.com',
+    ]);
+
+    $lastUser = User::query()->where('email', 'joe@doe.com')->first();
+    $consultant = Consultant::query()->where('consultants.user_id', $lastUser->getKey())->first();
+
+    expect($consultant)->toBeInstanceOf(Consultant::class)
+        ->and($consultant->email)->toBe('joe@doe.com')
+        ->and($consultant->user->email)->toBe('joe@doe.com');
+
 });
 it('sets the slug after name field is set', function (): void {
     livewire(CreateConsultant::class)

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Consultants\Database\Factories;
 
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -15,6 +18,7 @@ class ConsultantFactory extends Factory
         $name = $this->faker->firstName() . ' ' . $this->faker->lastName();
 
         return [
+            'user_id' => User::factory(),
             'name' => $name,
             'phone' => $this->faker->phoneNumber(),
             'email' => $this->faker->unique()->safeEmail(),

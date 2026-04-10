@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'appointments' => [
         'label' => 'Agendamento',
@@ -31,6 +33,12 @@ return [
 
         'form' => [
             'meeting_url' => 'Link da Reunião',
+        ],
+
+        'exceptions' => [
+            'slot_unavailable' => 'Este horário não está mais disponível. Por favor, selecione outro.',
+            'consultant_unavailable' => 'Este consultor não está disponível para o horário selecionado.',
+            'calendar_event_failed' => 'Falha ao criar o evento no Google Calendar. Tente salvar novamente ou verifique a integração.',
         ],
 
         'notifications' => [

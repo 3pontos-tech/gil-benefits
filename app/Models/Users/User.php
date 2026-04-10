@@ -9,6 +9,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -32,6 +33,9 @@ use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\Consultants\Models\DocumentShare;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
@@ -99,9 +103,32 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->hasOne(Detail::class);
     }
 
+    public function consultant(): HasOne
+    {
+        return $this->hasOne(Consultant::class);
+    }
+
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function documents(): MorphMany
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function sharedDocuments(): HasMany
+    {
+        return $this->hasMany(DocumentShare::class, 'employee_id');
+    }
+
+    #[Scope]
+    public function whereNotSharedWith(Builder $query, string $documentId)
+    {
+        return $query->whereDoesntHave('sharedDocuments', function (Builder $subquery) use ($documentId): void {
+            $subquery->where('document_id', $documentId);
+        });
     }
 
     public function subscriptions(): MorphMany

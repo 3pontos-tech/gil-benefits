@@ -32,5 +32,6 @@ _ide_helper_models.php
 CLAUDE.md
 .claude
 .mcp.json
+opencode.json
 AGENTS.md
 .agents

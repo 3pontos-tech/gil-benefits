@@ -26,7 +26,7 @@ it('should be able to register a user', function () {
             'name' => 'John Doe',
             'email' => 'joe@doe.com',
             'password' => 'password',
-            'detail.tax_id' => '999.999.999-99',
+            'detail.tax_id' => '97692325057',
             'detail.document_id' => '99.999.999-9',
             'detail.company_id' => $company->getKey(),
 
@@ -42,8 +42,8 @@ it('should be able to register a user', function () {
 
     assertDatabaseHas(Detail::class, [
         'user_id' => $user->getKey(),
-        'tax_id' => '999.999.999-99',
-        'document_id' => '99.999.999-9',
+        'tax_id' => '97692325057',
+        'document_id' => '999999999',
         'company_id' => $company->getKey(),
     ]);
 });
@@ -88,7 +88,7 @@ describe('validation tests', function () {
     ]);
 
     test('tax_id field', function ($value, $rule): void {
-        Detail::factory()->state(['tax_id' => '268.717.480-75'])->createOne();
+        Detail::factory()->state(['tax_id' => '26871748075'])->createOne();
         livewire(CreateUser::class)
             ->assertOk()
             ->set('data.detail.tax_id', $value)
@@ -96,18 +96,18 @@ describe('validation tests', function () {
             ->assertHasFormErrors(['detail.tax_id' => $rule]);
     })->with([
         'required' => [null, 'required'],
-        'unique' => ['268.717.480-75', 'unique'],
+        'unique' => ['26871748075', 'unique'],
     ]);
 
     test('document_id field', function ($value, $rule): void {
-        Detail::factory()->state(['document_id' => '268.717.480-75'])->createOne();
+        Detail::factory()->state(['document_id' => '26871748075'])->createOne();
         livewire(CreateUser::class)
             ->assertOk()
             ->set('data.detail.document_id', $value)
             ->call('create')
             ->assertHasFormErrors(['detail.document_id' => $rule]);
     })->with([
-        'unique' => ['268.717.480-75', 'unique'],
+        'unique' => ['26871748075', 'unique'],
         'min_length' => ['AB', 'min'],
     ]);
 });

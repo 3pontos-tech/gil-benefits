@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Admin\Filament\Resources\Companies\Pages;
 
 use Filament\Actions\CreateAction;

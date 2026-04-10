@@ -2,6 +2,8 @@
 
 namespace TresPontosTech\Admin\Filament\Resources\Users\Tables;
 
+use App\Filament\Tables\Columns\CPFColumn;
+use App\Filament\Tables\Columns\RGColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -26,11 +28,11 @@ class UsersTable
                 TextColumn::make('email')
                     ->label(__('panel-admin::resources.users.table.email'))
                     ->searchable(),
-                TextColumn::make('detail.tax_id')
+                CPFColumn::make('detail.tax_id')
                     ->label(__('panel-admin::resources.users.table.tax_id'))
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('detail.document_id')
+                RGColumn::make('detail.document_id')
                     ->label(__('panel-admin::resources.users.table.document_id'))
                     ->sortable()
                     ->searchable(),

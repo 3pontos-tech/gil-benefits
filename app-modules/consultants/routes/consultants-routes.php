@@ -1,7 +1,8 @@
 <?php
 
-// use TresPontosTech\Consultants\Http\Controllers\ConsultantsController;
+declare(strict_types=1);
 
+// use TresPontosTech\Consultants\Http\Controllers\ConsultantsController;
 // Route::get('/consultants', [ConsultantsController::class, 'index'])->name('consultants.index');
 // Route::get('/consultants/create', [ConsultantsController::class, 'create'])->name('consultants.create');
 // Route::post('/consultants', [ConsultantsController::class, 'store'])->name('consultants.store');

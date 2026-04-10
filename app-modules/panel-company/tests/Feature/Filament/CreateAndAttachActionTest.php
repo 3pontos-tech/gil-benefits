@@ -21,7 +21,7 @@ it('should register an employee ', function (): void {
                 'email' => 'teste@empresa.com',
                 'password' => 'password123',
                 'detail' => [
-                    'tax_id' => '123.456.789-00',
+                    'tax_id' => '976.923.250-57',
                     'document_id' => '12.345.678-9',
                     'phone_number' => '+5511999999999',
                 ],
@@ -34,8 +34,8 @@ it('should register an employee ', function (): void {
         'email' => 'teste@empresa.com',
     ]);
     assertDatabaseHas(Detail::class, [
-        'tax_id' => '123.456.789-00',
-        'document_id' => '12.345.678-9',
+        'tax_id' => '97692325057',
+        'document_id' => '123456789',
         'phone_number' => '+5511999999999',
     ]);
 });
@@ -59,8 +59,8 @@ describe('validation tests', function (): void {
             'email' => 'teste@empresa.com',
         ]);
         assertDatabaseMissing(Detail::class, [
-            'tax_id' => '123.456.789-00',
-            'document_id' => '12.345.678-9',
+            'tax_id' => '12345678900',
+            'document_id' => '123456789',
             'phone_number' => '+5511999999999',
         ]);
     })->with([

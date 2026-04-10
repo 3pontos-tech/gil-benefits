@@ -16,6 +16,7 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
@@ -23,14 +24,13 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\artisan;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
-    ->beforeEach(fn () => artisan('sync:permissions'))
     ->in('Feature', 'E2E', '../app-modules/*/tests');
 
 pest()->group('browser')
@@ -73,8 +73,6 @@ function something()
 
 function actingAsAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
 {
-    Artisan::call('sync:permissions');
-
     $user = User::factory()->admin()->create();
     $user->assignRole(Roles::Admin->value);
 
@@ -86,8 +84,6 @@ function actingAsAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
 
 function actingAsSuperAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
 {
-    Artisan::call('sync:permissions');
-
     $user = User::factory()->admin()->create();
     $user->assignRole(Roles::SuperAdmin->value);
 
@@ -99,8 +95,6 @@ function actingAsSuperAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
 
 function actingAsCompanyOwner(): User
 {
-    Artisan::call('sync:permissions');
-
     $user = User::factory()->companyOwner()->create();
     $user->assignRole(Roles::CompanyOwner->value);
     Detail::factory()->recycle($user)->create();
@@ -121,8 +115,6 @@ function actingAsCompanyOwner(): User
 
 function actingAsEmployee(): User
 {
-    Artisan::call('sync:permissions');
-
     $companyOwner = User::factory()->companyOwner()->create();
     $employee = User::factory()->employee()->create();
 
@@ -159,9 +151,7 @@ function actingAsEmployee(): User
 
 function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
 {
-    Artisan::call('sync:permissions');
-
-    $user = User::factory()->create();
+    $user = User::factory()->employee()->create();
     $company = Company::factory()->create();
     $company->employees()->attach($user->getKey());
 
@@ -193,9 +183,21 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
 
     CompanyPlan::where('company_id', $company->id)->delete();
 
-    filament()->setCurrentPanel('user');
+    filament()->setCurrentPanel(FilamentPanel::User->value);
     actingAs($user);
     filament()->setTenant($company);
 
     return $user;
+}
+
+function actingAsConsultant(): Consultant
+{
+    $consultant = Consultant::factory()->createOne();
+
+    filament()->setCurrentPanel(FilamentPanel::Consultant->value);
+    actingAs($consultant->user);
+
+    Appointment::factory()->recycle($consultant)->count(10)->create();
+
+    return $consultant;
 }
