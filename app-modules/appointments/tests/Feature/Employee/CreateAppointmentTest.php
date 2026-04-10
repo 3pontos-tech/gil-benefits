@@ -9,6 +9,8 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Consultants\Models\Consultant;
+use Zap\Facades\Zap;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
@@ -22,6 +24,14 @@ beforeEach(function (): void {
     filament()->setTenant($company);
     filament()->setCurrentPanel(FilamentPanel::User->value);
 
+    $consultant = Consultant::factory()->create();
+    Zap::for($consultant)
+        ->named('Availability')
+        ->availability()
+        ->from(today()->toDateString())
+        ->to(today()->copy()->addMonth()->toDateString())
+        ->addPeriod('00:00', '23:59')
+        ->save();
 });
 
 it('should redirect if user has not a valid subscription', function (): void {

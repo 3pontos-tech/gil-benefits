@@ -31,6 +31,7 @@ class Appointment extends Model
         'status',
         'monday_item_id',
         'meeting_url',
+        'google_event_id',
         'notes',
     ];
 

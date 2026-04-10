@@ -5,6 +5,9 @@ namespace TresPontosTech\Appointments\Actions\StateMachine;
 use Filament\Notifications\Notification;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
+use Zap\Enums\ScheduleTypes;
+use Zap\Models\Schedule;
 
 abstract class AbstractAppointmentStep
 {
@@ -35,5 +38,14 @@ abstract class AbstractAppointmentStep
         $this->appointment->update([
             'status' => AppointmentStatus::Cancelled,
         ]);
+
+        Schedule::query()
+            ->where('schedule_type', ScheduleTypes::APPOINTMENT)
+            ->whereJsonContains('metadata->appointment_id', $this->appointment->id)
+            ->delete();
+
+        if (filled($this->appointment->google_event_id)) {
+            DeleteAppointmentCalendarEventJob::dispatch($this->appointment);
+        }
     }
 }

@@ -8,9 +8,8 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 
 readonly class BookAppointmentAction
 {
-    public function handle(
-        BookAppointmentDTO $payload
-    ): void {
+    public function handle(BookAppointmentDTO $payload): void
+    {
         $user = User::query()->find($payload->userId);
 
         $user->appointments()->create([
