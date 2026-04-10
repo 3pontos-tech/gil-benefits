@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use TresPontosTech\IntegrationGoogleCalendar\Responses\CreateEventResponse;
 
 it('parses eventId and meet link from full payload', function (): void {

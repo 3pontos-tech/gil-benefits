@@ -25,7 +25,7 @@ class AppointmentSchedulingStep extends AbstractAppointmentStep
             return;
         }
 
-        CreateAppointmentCalendarEventJob::dispatch($this->appointment);
+        dispatch(new CreateAppointmentCalendarEventJob($this->appointment));
     }
 
     public function notify(): void

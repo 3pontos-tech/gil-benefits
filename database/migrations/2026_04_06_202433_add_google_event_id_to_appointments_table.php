@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('appointments', function (Blueprint $table) {
+        Schema::table('appointments', function (Blueprint $table): void {
             $table->string('google_event_id')->nullable()->after('meeting_url');
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('appointments', function (Blueprint $table) {
+        Schema::table('appointments', function (Blueprint $table): void {
             $table->dropColumn('google_event_id');
         });
     }

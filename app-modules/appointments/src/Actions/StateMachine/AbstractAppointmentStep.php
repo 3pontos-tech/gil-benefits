@@ -45,7 +45,7 @@ abstract class AbstractAppointmentStep
             ->delete();
 
         if (filled($this->appointment->google_event_id)) {
-            DeleteAppointmentCalendarEventJob::dispatch($this->appointment);
+            dispatch(new DeleteAppointmentCalendarEventJob($this->appointment));
         }
     }
 }

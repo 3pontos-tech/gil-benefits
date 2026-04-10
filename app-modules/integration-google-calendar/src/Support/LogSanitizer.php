@@ -15,7 +15,7 @@ class LogSanitizer
         $scrubbed = preg_replace(self::EMAIL_PATTERN, self::EMAIL_REPLACEMENT, $message);
 
         if (mb_strlen($scrubbed) > self::MAX_LENGTH) {
-            $scrubbed = mb_substr($scrubbed, 0, self::MAX_LENGTH) . '...[truncated]';
+            return mb_substr($scrubbed, 0, self::MAX_LENGTH) . '...[truncated]';
         }
 
         return $scrubbed;
