@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\IntegrationGoogleCalendar\Actions;
 
 use TresPontosTech\Consultants\Models\Consultant;

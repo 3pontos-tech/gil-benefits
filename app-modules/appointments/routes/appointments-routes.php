@@ -1,7 +1,8 @@
 <?php
 
-// use TresPontosTech\Appointments\Http\Controllers\AppointmentsController;
+declare(strict_types=1);
 
+// use TresPontosTech\Appointments\Http\Controllers\AppointmentsController;
 // Route::get('/appointments', [AppointmentsController::class, 'index'])->name('appointments.index');
 // Route::get('/appointments/create', [AppointmentsController::class, 'create'])->name('appointments.create');
 // Route::post('/appointments', [AppointmentsController::class, 'store'])->name('appointments.store');

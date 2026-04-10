@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\App\Filament\Resources\SharedDocuments\Pages;
 
 use Filament\Resources\Pages\ListRecords;

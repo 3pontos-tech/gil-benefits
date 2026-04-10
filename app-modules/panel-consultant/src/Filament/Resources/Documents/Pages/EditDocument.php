@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Consultants\Filament\Resources\Documents\Pages;
 
 use Filament\Actions\DeleteAction;

@@ -14,6 +14,9 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -47,6 +50,10 @@ class AdminPanelProvider extends PanelProvider
                 FilamentWebhookPlugin::make(),
                 FilamentBetterEmailPlugin::make(),
             ])
+            ->renderHook(
+                PanelsRenderHook::BODY_START,
+                fn (): Factory|View => view('filament.shared.import-errors-modal'),
+            )
             ->sidebarCollapsibleOnDesktop()
             ->navigationItems([
                 NavigationItem::make(__('all.my_profile'))

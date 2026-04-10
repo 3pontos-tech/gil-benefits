@@ -1,7 +1,8 @@
 <?php
 
-// use TresPontosTech\Billing\Http\Controllers\BillingController;
+declare(strict_types=1);
 
+// use TresPontosTech\Billing\Http\Controllers\BillingController;
 // Route::get('/billings', [BillingController::class, 'index'])->name('billings.index');
 // Route::get('/billings/create', [BillingController::class, 'create'])->name('billings.create');
 // Route::post('/billings', [BillingController::class, 'store'])->name('billings.store');

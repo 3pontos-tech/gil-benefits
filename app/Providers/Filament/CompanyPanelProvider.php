@@ -16,6 +16,9 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -101,6 +104,10 @@ class CompanyPanelProvider extends PanelProvider
                     ->icon(Heroicon::UserCircle)
                     ->url(fn (): string => EditUserProfile::getUrl()),
             ])
+            ->renderHook(
+                PanelsRenderHook::BODY_START,
+                fn (): Factory|View => view('filament.shared.import-errors-modal'),
+            )
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->middleware([
                 EncryptCookies::class,

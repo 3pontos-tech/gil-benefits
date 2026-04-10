@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Basement\Webhooks\Enums\InboundWebhookSource;
 use Basement\Webhooks\Models\InboundWebhook;
 use Filament\Support\Icons\Heroicon;

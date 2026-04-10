@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 // config for Basement/BetterMails
 use Basement\BetterMails\Core\Models\BetterEmail;
 use Basement\BetterMails\Core\Models\BetterEmailAttachment;

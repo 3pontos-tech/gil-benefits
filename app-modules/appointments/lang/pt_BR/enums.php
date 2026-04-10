@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'appointment_status' => [
         'draft' => 'Rascunho',

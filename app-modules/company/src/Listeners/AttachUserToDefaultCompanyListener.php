@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Company\Listeners;
 
 use TresPontosTech\Company\Actions\AttachToDefaultCompany;
