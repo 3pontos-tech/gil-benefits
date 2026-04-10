@@ -21,18 +21,18 @@ it('should render', function (): void {
 });
 
 it('should render only shared documents', function (): void {
-    $document = Document::factory()->active()->create();
+    $document = Document::factory()->forConsultant()->active()->create();
     DocumentShare::factory()
         ->for($document)
         ->for($this->employee, 'employee')
-        ->for($document->consultant, 'consultant')
+        ->for($document->documentable, 'consultant')
         ->active()
         ->create();
 
-    $anotherDocument = Document::factory()->active()->create();
+    $anotherDocument = Document::factory()->forConsultant()->active()->create();
     DocumentShare::factory()
         ->for($anotherDocument)
-        ->for($anotherDocument->consultant, 'consultant')
+        ->for($anotherDocument->documentable, 'consultant')
         ->active()
         ->create();
 
@@ -42,36 +42,13 @@ it('should render only shared documents', function (): void {
         ->assertCanNotSeeTableRecords([$anotherDocument]);
 });
 
-it('should render only active documents', function (): void {
-    $activeDocument = Document::factory()->active()->create();
-    DocumentShare::factory()
-        ->for($activeDocument)
-        ->for($this->employee, 'employee')
-        ->for($activeDocument->consultant, 'consultant')
-        ->active()
-        ->create();
-
-    $notActiveDocument = Document::factory()->notActive()->create();
-    DocumentShare::factory()
-        ->for($notActiveDocument)
-        ->for($this->employee, 'employee')
-        ->for($notActiveDocument->consultant, 'consultant')
-        ->notActive()
-        ->create();
-
-    livewire(ListSharedDocuments::class)
-        ->assertOk()
-        ->assertCanSeeTableRecords([$activeDocument])
-        ->assertCanNotSeeTableRecords([$notActiveDocument]);
-});
-
 test('user can not see not active document for him, but other users can see', function (): void {
-    $document = Document::factory()->active()->create();
+    $document = Document::factory()->forConsultant()->active()->create();
 
     DocumentShare::factory()
         ->for($document)
         ->for($this->employee, 'employee')
-        ->for($document->consultant, 'consultant')
+        ->for($document->documentable, 'consultant')
         ->notActive()
         ->create();
 
@@ -80,7 +57,7 @@ test('user can not see not active document for him, but other users can see', fu
     DocumentShare::factory()
         ->for($document)
         ->for($anotherUser, 'employee')
-        ->for($document->consultant, 'consultant')
+        ->for($document->documentable, 'consultant')
         ->active()
         ->create();
 
@@ -96,12 +73,12 @@ test('user can not see not active document for him, but other users can see', fu
 });
 
 test('no one can se a not active document', function (): void {
-    $document = Document::factory()->notActive()->create();
+    $document = Document::factory()->forConsultant()->notActive()->create();
 
     DocumentShare::factory()
         ->for($document)
         ->for($this->employee, 'employee')
-        ->for($document->consultant, 'consultant')
+        ->for($document->documentable, 'consultant')
         ->active()
         ->create();
 
@@ -110,7 +87,7 @@ test('no one can se a not active document', function (): void {
     DocumentShare::factory()
         ->for($document)
         ->for($anotherUser, 'employee')
-        ->for($document->consultant, 'consultant')
+        ->for($document->documentable, 'consultant')
         ->active()
         ->create();
 

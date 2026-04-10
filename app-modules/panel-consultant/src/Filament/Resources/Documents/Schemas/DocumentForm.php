@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\Consultants\Filament\Resources\Documents\Schemas;
 
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -21,9 +20,6 @@ class DocumentForm
                     ->heading(__('panel-consultant::resources.documents.form.heading'))
                     ->compact()
                     ->schema([
-                        Hidden::make('consultant_id')
-                            ->default(fn () => auth()->user()->consultant->getKey()),
-
                         Grid::make(4)
                             ->schema([
                                 TextInput::make('title')
