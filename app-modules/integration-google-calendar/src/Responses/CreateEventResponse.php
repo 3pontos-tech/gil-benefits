@@ -16,7 +16,21 @@ readonly class CreateEventResponse
     {
         return new self(
             eventId: $payload['id'],
-            meetLink: $payload['conferenceData']['entryPoints'][0]['uri'] ?? null,
+            meetLink: self::extractMeetLink($payload['conferenceData']['entryPoints'] ?? []),
         );
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>  $entryPoints
+     */
+    private static function extractMeetLink(array $entryPoints): ?string
+    {
+        foreach ($entryPoints as $entryPoint) {
+            if (($entryPoint['entryPointType'] ?? null) === 'video') {
+                return $entryPoint['uri'] ?? null;
+            }
+        }
+
+        return null;
     }
 }

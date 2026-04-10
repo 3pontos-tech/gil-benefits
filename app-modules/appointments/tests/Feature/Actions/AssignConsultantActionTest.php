@@ -75,8 +75,9 @@ it('does nothing when consultant_id is blank', function (): void {
 
     expect(Schedule::query()
         ->where('schedule_type', ScheduleTypes::APPOINTMENT)
-        ->count()
-    )->toBe(0);
+        ->whereJsonContains('metadata->appointment_id', $appointment->id)
+        ->exists()
+    )->toBeFalse();
 });
 
 it('throws SlotUnavailableException on partial overlaps', function (int $newHour, int $newMinute): void {

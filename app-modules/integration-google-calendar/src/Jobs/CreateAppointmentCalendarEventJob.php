@@ -5,9 +5,11 @@ namespace TresPontosTech\IntegrationGoogleCalendar\Jobs;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\IntegrationGoogleCalendar\Actions\CreateCalendarEventAction;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
+use TresPontosTech\IntegrationGoogleCalendar\Support\LogSanitizer;
 
 class CreateAppointmentCalendarEventJob implements ShouldQueue
 {
@@ -27,11 +29,13 @@ class CreateAppointmentCalendarEventJob implements ShouldQueue
             $action->handle($this->appointment);
         } catch (GoogleCalendarApiException $exception) {
             if (! $exception->retryable) {
-                Log::warning(sprintf(
-                    'Google Calendar event creation skipped for appointment %s: %s',
-                    $this->appointment->id,
-                    $exception->getMessage()
-                ));
+                Log::warning('Google Calendar event creation skipped', [
+                    'appointment_id' => $this->appointment->id,
+                    'exception' => $exception::class,
+                    'error_code' => $exception->getCode(),
+                    'retryable' => false,
+                    'reason' => LogSanitizer::sanitize($exception->getMessage()),
+                ]);
 
                 return;
             }
@@ -40,11 +44,13 @@ class CreateAppointmentCalendarEventJob implements ShouldQueue
         }
     }
 
-    public function failed(\Throwable $exception): void
+    public function failed(Throwable $exception): void
     {
-        Log::error('Google Calendar event creation failed for appointment ' . $this->appointment->id, [
+        Log::error('Google Calendar event creation failed', [
             'appointment_id' => $this->appointment->id,
-            'error' => $exception->getMessage(),
+            'exception' => $exception::class,
+            'error_code' => $exception->getCode(),
+            'reason' => LogSanitizer::sanitize($exception->getMessage()),
         ]);
     }
 }
