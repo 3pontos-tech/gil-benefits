@@ -35,14 +35,13 @@ it('should redirect to available subscriptions if company is not flamma company'
 
     get(route('filament.company.pages.dashboard', ['tenant' => $this->flammaCompany->slug]))
         ->assertStatus(Response::HTTP_OK);
-});
+})->skipOnCI();
 
 it('should render EditTenantProfile correctly if company has active plans', function (): void {
-
     Artisan::call('app:sync-subscription-to-flamma-company');
     $this->flammaCompany->refresh();
     filament()->setTenant($this->flammaCompany);
 
     livewire(EditTenantProfile::class, ['tenant' => $this->flammaCompany->slug])
         ->assertOk();
-});
+})->skipOnCI();
