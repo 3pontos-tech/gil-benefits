@@ -3,6 +3,8 @@
 namespace TresPontosTech\App\Filament\Resources\SharedDocuments\Tables;
 
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -15,10 +17,6 @@ class SharedDocumentsTable
     {
 
         return $table
-            ->modifyQueryUsing(fn ($query) => $query?->where('active', 1)
-                ->whereHas('shares', fn ($subquery) => $subquery?->where('employee_id', auth()->user()->getKey())
-                    ->where('active', 1)
-                ))
             ->columns([
                 TextColumn::make('documentable.name')
                     ->label(__('panel-app::resources.documents.table.consultant'))
@@ -55,6 +53,10 @@ class SharedDocumentsTable
                         );
                     })
                     ->openUrlInNewTab(),
+
+                EditAction::make(),
+
+                DeleteAction::make(),
             ]);
     }
 }
