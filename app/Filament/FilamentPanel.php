@@ -32,7 +32,7 @@ enum FilamentPanel: string
         return match ($panel) {
             self::User => $isEmployee || $isAdmin,
             self::Admin => ($user->hasVerifiedEmail() && $isAdmin),
-            self::Company => Gate::allows('register_company', $user),
+            self::Company => Gate::forUser($user)->allows('register_company'),
             self::Consultant => $isConsultant || $isAdmin,
             self::Guest => true,
         };
