@@ -77,10 +77,12 @@ class AppointmentInfolist
                 Section::make(__('appointments::resources.appointments.infolist.employee_documents'))
                     ->icon(Heroicon::Document)
                     ->schema([
-                        RepeatableEntry::make(__('appointments::resources.appointments.infolist.employee_documents'))
+                        RepeatableEntry::make('repeater')
+                            ->label(__('appointments::resources.appointments.infolist.employee_documents'))
                             ->getStateUsing(function (Appointment $record): Collection {
                                 return Document::query()
                                     ->where('documents.documentable_id', $record->user_id)
+                                    ->where('documents.documentable_type', '=', 'users')
                                     ->get();
                             })
                             ->schema([
