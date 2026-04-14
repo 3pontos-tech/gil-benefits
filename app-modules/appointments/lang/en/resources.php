@@ -29,6 +29,12 @@ return [
         'infolist' => [
             'metadata' => 'Metadata',
             'appointment_info' => 'Appointment Info',
+            'employee_documents' => 'Employee Documents',
+            'documents' => [
+                'title' => 'Document Name',
+                'type' => 'Type',
+                'empty' => 'No documents shared with this employee.',
+            ],
         ],
 
         'form' => [

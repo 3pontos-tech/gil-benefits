@@ -29,6 +29,12 @@ return [
         'infolist' => [
             'metadata' => 'Metadados',
             'appointment_info' => 'Informações da Consultoria',
+            'employee_documents' => 'Materiais do Colaborador',
+            'documents' => [
+                'title' => 'Nome do Documento',
+                'type' => 'Tipo',
+                'empty' => 'Nenhum material compartilhado com este colaborador.',
+            ],
         ],
 
         'form' => [

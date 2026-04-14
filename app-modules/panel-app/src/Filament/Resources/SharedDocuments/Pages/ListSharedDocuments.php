@@ -19,7 +19,7 @@ class ListSharedDocuments extends ListRecords
         return [
             CreateAction::make()
                 ->label(__('panel-app::resources.documents.form.heading'))
-                ->visible(fn(): bool => $this->activeTab === 'mine'),
+                ->visible(fn (): bool => $this->activeTab === 'mine'),
         ];
     }
 
@@ -27,13 +27,13 @@ class ListSharedDocuments extends ListRecords
     {
         return [
             'shared' => Tab::make(__('panel-app::resources.documents.tabs.shared'))
-                ->modifyQueryUsing(fn($query) => $query?->where('active', 1)
-                    ->whereHas('shares', fn($subquery) => $subquery?->where('employee_id', auth()->user()->getKey())
+                ->modifyQueryUsing(fn ($query) => $query?->where('active', 1)
+                    ->whereHas('shares', fn ($subquery) => $subquery?->where('employee_id', auth()->user()->getKey())
                         ->where('active', 1)
                     )),
 
             'mine' => Tab::make(__('panel-app::resources.documents.tabs.mine'))
-                ->modifyQueryUsing(fn(Builder $query) => $query
+                ->modifyQueryUsing(fn (Builder $query) => $query
                     ->where('documentable_type', auth()->user()->getMorphClass())
                     ->where('documentable_id', auth()->user()->getKey())
                 ),

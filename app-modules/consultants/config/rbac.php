@@ -47,6 +47,9 @@ return [
             Document::class => [
                 PermissionsEnum::View,
                 PermissionsEnum::ViewAny,
+                PermissionsEnum::Create,
+                PermissionsEnum::Update,
+                PermissionsEnum::Delete,
             ],
             DocumentShare::class => [
                 PermissionsEnum::View,
