@@ -71,7 +71,7 @@ class AppointmentInfolist
                                     ->hintAction(DownloadDocumentFilamentAction::make()),
                             ])
                             ->columns(2)
-                            ->contained(false)
+
                             ->placeholder(__('appointments::resources.appointments.infolist.documents.empty'))
                             ->columnSpanFull(),
                     ]),
