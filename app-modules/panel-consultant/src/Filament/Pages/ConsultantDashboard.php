@@ -13,7 +13,7 @@ class ConsultantDashboard extends Dashboard
 {
     public function getColumns(): int|array
     {
-        return 6;
+        return 8;
     }
 
     public function getWidgets(): array
