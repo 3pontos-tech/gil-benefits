@@ -7,6 +7,13 @@ return [
         'table' => [
             'category_type' => 'Tipo de Atendimento',
         ],
+        'records' => [
+            'view' => [
+                'label' => 'Ver Ata',
+                'modal_heading' => 'Ata do atendimento',
+                'close' => 'Fechar',
+            ],
+        ],
         'feedback' => [
             'action_label' => 'Avaliar',
             'modal_heading' => 'Avalie sua consultoria',
