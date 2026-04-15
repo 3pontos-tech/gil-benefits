@@ -2,6 +2,7 @@
 
 namespace App\Filament\Shared\Pages;
 
+use Filament\Actions\Action;
 use Filament\Auth\Pages\EditProfile;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
@@ -53,6 +54,11 @@ class EditUserProfile extends EditProfile
     protected function getDetailFields(): array
     {
         return ['phone_number'];
+    }
+
+    protected function getCancelFormAction(): Action
+    {
+        return parent::getCancelFormAction()->label(__('all.back'));
     }
 
     protected function mutateFormDataBeforeFill(array $data): array

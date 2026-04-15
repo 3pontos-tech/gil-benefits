@@ -4,6 +4,7 @@ namespace TresPontosTech\Consultants\Filament\Resources\Appointments\Schemas;
 
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
@@ -49,6 +50,28 @@ class AppointmentInfolist
                         TextEntry::make('notes')
                             ->label('ㅤㅤ')
                             ->placeholder('-')
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make(__('panel-consultant::resources.appointments.infolist.financial_profile'))
+                    ->icon(Heroicon::ClipboardDocumentList)
+                    ->description(__('panel-consultant::resources.appointments.infolist.financial_profile_description'))
+                    ->collapsible()
+                    ->visible(fn ($record): bool => $record->user?->anamnese !== null)
+                    ->schema([
+                        ViewEntry::make('anamnese')
+                            ->label('')
+                            ->view('panel-consultant::infolists.entries.client-anamnese')
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make(__('panel-consultant::resources.appointments.infolist.financial_profile'))
+                    ->icon(Heroicon::ExclamationTriangle)
+                    ->visible(fn ($record): bool => $record->user?->anamnese === null)
+                    ->schema([
+                        TextEntry::make('no_anamnese')
+                            ->label(__('panel-consultant::resources.appointments.infolist.no_anamnese'))
+                            ->state(__('panel-consultant::resources.appointments.infolist.no_anamnese_description'))
                             ->columnSpanFull(),
                     ]),
 

@@ -29,6 +29,7 @@ return [
         'infolist' => [
             'metadata' => 'Metadata',
             'appointment_info' => 'Appointment Info',
+            'anamnese' => 'User Profile',
             'employee_documents' => 'Employee Documents',
             'documents' => [
                 'title' => 'Document Name',

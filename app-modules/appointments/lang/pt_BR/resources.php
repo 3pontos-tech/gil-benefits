@@ -29,6 +29,7 @@ return [
         'infolist' => [
             'metadata' => 'Metadados',
             'appointment_info' => 'Informações da Consultoria',
+            'anamnese' => 'Perfil do Usuário',
             'employee_documents' => 'Materiais do Colaborador',
             'documents' => [
                 'title' => 'Nome do Documento',
