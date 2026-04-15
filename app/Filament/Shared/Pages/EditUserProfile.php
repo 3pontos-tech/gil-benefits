@@ -2,6 +2,7 @@
 
 namespace App\Filament\Shared\Pages;
 
+use App\Models\Users\User;
 use Filament\Auth\Pages\EditProfile;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
@@ -55,20 +56,32 @@ class EditUserProfile extends EditProfile
         return ['phone_number'];
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $detail = $this->getUser()->detail;
+        /** @var User $user */
+        $user = $this->getUser();
+        $detail = $user->detail;
 
         foreach ($this->getDetailFields() as $field) {
-            $data[$field] = $detail?->$field;
+            $data[$field] = $detail?->{$field};
         }
 
         return $data;
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
+        /** @var User $record */
+        /** @var array<string, mixed> $detailData */
         $detailData = Arr::only($data, $this->getDetailFields());
+        /** @var array<string, mixed> $userData */
         $userData = Arr::except($data, $this->getDetailFields());
 
         parent::handleRecordUpdate($record, $userData);

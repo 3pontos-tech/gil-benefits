@@ -14,6 +14,9 @@ class ProcessPlanDTO
         public DateTimeInterface $subscriptionStartingAt,
     ) {}
 
+    /**
+     * @param  array{item_id: int, status: string, subscription_starting_at: string}  $data
+     */
     public static function make(string|int $companyId, array $data): self
     {
         return new self(

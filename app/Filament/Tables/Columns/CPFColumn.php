@@ -10,8 +10,12 @@ class CPFColumn extends TextColumn
     {
         parent::setUp();
 
-        $this->formatStateUsing(function (string $state): ?string {
-            $cpf = preg_replace('/[^0-9]/', '', $state);
+        $this->formatStateUsing(static function (mixed $state): ?string {
+            if (! is_string($state) || $state === '') {
+                return null;
+            }
+
+            $cpf = preg_replace('/[^0-9]/', '', $state) ?? '';
 
             if (strlen($cpf) === 11) {
                 return preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cpf);
