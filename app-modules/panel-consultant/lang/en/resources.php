@@ -29,5 +29,17 @@ return [
                 'customer' => 'Customer',
             ],
         ],
+        'relation_manager' => [
+            'title' => 'Shared With',
+            'table' => [
+                'employee' => 'Employee',
+                'shared_at' => 'Shared At',
+                'active' => 'Active',
+            ],
+            'actions' => [
+                'deactivate' => 'Deactivate',
+                'activate' => 'Activate',
+            ],
+        ],
     ],
 ];

@@ -27,12 +27,22 @@ return [
         ],
     ],
     'documents' => [
+        'tabs' => [
+            'shared' => 'Shared with me',
+            'mine' => 'My Documents',
+        ],
         'table' => [
             'title' => 'Document Type',
             'extension_type' => 'Extension Type',
             'active' => 'Is Active',
             'consultant' => 'Consultant',
             'created_at' => 'Sent At',
+        ],
+        'form' => [
+            'heading' => 'New Document',
+            'title' => 'Document Name',
+            'active' => 'Active',
+            'files' => 'File',
         ],
     ],
 ];

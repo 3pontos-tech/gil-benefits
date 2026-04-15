@@ -4,10 +4,13 @@ namespace TresPontosTech\Consultants\Filament\Resources\Appointments;
 
 use BackedEnum;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ViewAppointment;
+use TresPontosTech\Consultants\Filament\Resources\Appointments\Schemas\AppointmentInfolist;
 use TresPontosTech\Consultants\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use UnitEnum;
 
@@ -37,6 +40,11 @@ class AppointmentResource extends Resource
         return __('appointments::resources.appointments.navigation');
     }
 
+    public static function infolist(Schema $schema): Schema
+    {
+        return AppointmentInfolist::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return AppointmentsTable::configure($table);
@@ -51,6 +59,7 @@ class AppointmentResource extends Resource
     {
         return [
             'index' => ListAppointments::route('/'),
+            'view' => ViewAppointment::route('/{record}'),
         ];
     }
 }
