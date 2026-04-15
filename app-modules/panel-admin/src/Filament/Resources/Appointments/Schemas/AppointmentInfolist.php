@@ -68,6 +68,51 @@ class AppointmentInfolist
                             ->placeholder('-')
                             ->columnSpanFull(),
                     ]),
+
+                Section::make(__('appointments::resources.appointments.infolist.ai_generation'))
+                    ->icon(Heroicon::Sparkles)
+                    ->collapsible()
+                    ->collapsed()
+                    ->visible(fn ($record): bool => $record->record !== null)
+                    ->columnSpanFull()
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                TextEntry::make('record.model_used')
+                                    ->label(__('appointments::resources.appointments.infolist.ai.model_used'))
+                                    ->placeholder('—')
+                                    ->badge(),
+                                TextEntry::make('record.published_at')
+                                    ->label(__('appointments::resources.appointments.infolist.ai.published_at'))
+                                    ->placeholder(__('appointments::resources.appointments.infolist.ai.draft'))
+                                    ->dateTime('d/m/Y \à\s H:i'),
+                                TextEntry::make('record.input_tokens')
+                                    ->label(__('appointments::resources.appointments.infolist.ai.input_tokens'))
+                                    ->placeholder('—')
+                                    ->numeric(),
+                                TextEntry::make('record.output_tokens')
+                                    ->label(__('appointments::resources.appointments.infolist.ai.output_tokens'))
+                                    ->placeholder('—')
+                                    ->numeric(),
+                                TextEntry::make('record.total_tokens')
+                                    ->label(__('appointments::resources.appointments.infolist.ai.total_tokens'))
+                                    ->placeholder('—')
+                                    ->state(fn ($record): ?int => $record->record?->input_tokens === null
+                                        ? null
+                                        : ($record->record->input_tokens + ($record->record->output_tokens ?? 0)))
+                                    ->numeric(),
+                            ]),
+                        TextEntry::make('record.content')
+                            ->label(__('appointments::resources.appointments.infolist.ai.content'))
+                            ->placeholder('—')
+                            ->markdown()
+                            ->columnSpanFull(),
+                        TextEntry::make('record.internal_summary')
+                            ->label(__('appointments::resources.appointments.infolist.ai.internal_summary'))
+                            ->placeholder('—')
+                            ->markdown()
+                            ->columnSpanFull(),
+                    ]),
             ]);
     }
 }
