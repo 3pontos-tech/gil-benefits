@@ -63,4 +63,9 @@ class Appointment extends Model
     {
         return $this->hasOne(AppointmentFeedback::class);
     }
+
+    public function record(): HasOne
+    {
+        return $this->hasOne(AppointmentRecord::class);
+    }
 }

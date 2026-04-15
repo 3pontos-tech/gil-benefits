@@ -29,6 +29,17 @@ return [
         'infolist' => [
             'metadata' => 'Metadados',
             'appointment_info' => 'Informações da Consultoria',
+            'ai_generation' => 'Geração automática (IA)',
+            'ai' => [
+                'model_used' => 'Modelo usado',
+                'input_tokens' => 'Tokens de entrada',
+                'output_tokens' => 'Tokens de saída',
+                'total_tokens' => 'Total de tokens',
+                'content' => 'Ata',
+                'internal_summary' => 'Resumo interno',
+                'published_at' => 'Publicada em',
+                'draft' => 'Rascunho',
+            ],
         ],
 
         'form' => [
@@ -39,6 +50,33 @@ return [
             'slot_unavailable' => 'Este horário não está mais disponível. Por favor, selecione outro.',
             'consultant_unavailable' => 'Este consultor não está disponível para o horário selecionado.',
             'calendar_event_failed' => 'Falha ao criar o evento no Google Calendar. Tente salvar novamente ou verifique a integração.',
+        ],
+
+        'records' => [
+            'editor_label' => 'Ata (visível ao cliente após publicar)',
+            'notifications' => [
+                'ready' => [
+                    'title' => 'Ata pronta para revisão',
+                    'body' => 'Atendimento: :user',
+                ],
+                'failed' => [
+                    'title' => 'Falha ao gerar ata',
+                    'body' => [
+                        'unreadable' => 'Não foi possível ler o documento enviado. Verifique se não está corrompido ou protegido por senha.',
+                        'generation' => 'Não conseguimos gerar a ata. Tente novamente em alguns minutos ou redija manualmente.',
+                        'unexpected' => 'Erro inesperado ao gerar a ata. Tente novamente ou redija manualmente.',
+                    ],
+                ],
+                'draft_saved' => [
+                    'title' => 'Rascunho salvo',
+                ],
+                'published' => [
+                    'title' => 'Ata publicada',
+                ],
+                'updated' => [
+                    'title' => 'Ata atualizada',
+                ],
+            ],
         ],
 
         'notifications' => [
