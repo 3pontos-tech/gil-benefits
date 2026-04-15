@@ -34,7 +34,7 @@ class UserFactory extends Factory
         ];
     }
 
-    public function admin(): Factory|UserFactory
+    public function admin(): static
     {
         return $this->state([
             'name' => 'Dev Admin',
@@ -42,7 +42,7 @@ class UserFactory extends Factory
         ])->afterCreating(fn (User $user) => $user->assignRole(Roles::Admin));
     }
 
-    public function superAdmin(): Factory|UserFactory
+    public function superAdmin(): static
     {
         return $this->state([
             'name' => 'Dev Admin',
@@ -50,15 +50,42 @@ class UserFactory extends Factory
         ])->afterCreating(fn (User $user) => $user->assignRole(Roles::SuperAdmin));
     }
 
-    public function companyOwner(): Factory|UserFactory
+    public function companyOwner(): static
     {
-        return $this->state([
-            'name' => 'empresa',
-            'email' => $this->faker->userName() . '@5pontos.com',
-        ])->afterCreating(fn (User $user) => $user->assignRole(Roles::CompanyOwner));
+        return $this->afterCreating(
+            fn (User $user) => $user->assignRole(Roles::CompanyOwner)
+        );
     }
 
-    public function adminCompanyEmployee(): Factory|UserFactory
+    public function companyManager(): static
+    {
+        return $this->afterCreating(
+            fn (User $user) => $user->assignRole(Roles::CompanyManager)
+        );
+    }
+
+    public function employee(): static
+    {
+        return $this->afterCreating(
+            fn (User $user) => $user->assignRole(Roles::Employee)
+        );
+    }
+
+    public function consultant(): static
+    {
+        return $this->afterCreating(
+            fn (User $user) => $user->assignRole(Roles::Consultant)
+        );
+    }
+
+    public function user(): static
+    {
+        return $this->afterCreating(
+            fn (User $user) => $user->assignRole(Roles::User)
+        );
+    }
+
+    public function adminCompanyEmployee(): static
     {
         $names = [
             'Renan Silva',
@@ -69,14 +96,6 @@ class UserFactory extends Factory
         return $this->state([
             'name' => $this->faker->randomElement($names),
             'email' => $this->faker->userName() . '@5pontos.com',
-        ])->afterCreating(fn (User $user) => $user->assignRole(Roles::Employee));
-    }
-
-    public function employee(): Factory|UserFactory
-    {
-        return $this->state([
-            'name' => 'empregado',
-            'email' => 'empregado@empregado.com',
         ])->afterCreating(fn (User $user) => $user->assignRole(Roles::Employee));
     }
 
