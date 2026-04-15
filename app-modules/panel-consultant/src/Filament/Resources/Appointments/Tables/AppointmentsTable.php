@@ -5,6 +5,9 @@ namespace TresPontosTech\Consultants\Filament\Resources\Appointments\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Consultants\Filament\Actions\CreateAppointmentRecordAction;
+use TresPontosTech\Consultants\Filament\Actions\ReviewAppointmentRecordAction;
+use TresPontosTech\Consultants\Filament\Actions\ViewPreviousRecordSummaryAction;
 use TresPontosTech\Consultants\Models\Consultant;
 
 class AppointmentsTable
@@ -14,14 +17,19 @@ class AppointmentsTable
         $consultant = Consultant::query()->where('consultants.user_id', auth()->user()->getKey())->first();
 
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('consultant_id', $consultant->getKey()))
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->where('consultant_id', $consultant->getKey())
+                ->with(['user', 'record'])
+            )
             ->columns(self::columns())
             ->defaultSort('appointment_at', 'desc')
             ->filters([
                 //
             ])
             ->recordActions([
-
+                ViewPreviousRecordSummaryAction::make(),
+                CreateAppointmentRecordAction::make(),
+                ReviewAppointmentRecordAction::make(),
             ]);
 
     }

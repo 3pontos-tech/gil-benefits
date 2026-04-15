@@ -15,6 +15,7 @@ class PanelConsultantServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'panel-consultant');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'panel-consultant');
         Media::observe(MediaObserver::class);
     }
 }
