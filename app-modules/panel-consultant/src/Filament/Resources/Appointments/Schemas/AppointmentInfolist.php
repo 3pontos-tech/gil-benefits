@@ -52,8 +52,7 @@ class AppointmentInfolist
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('repeater')
-                    ->label(__('appointments::resources.appointments.infolist.employee_documents'))
+                Section::make(__('appointments::resources.appointments.infolist.employee_documents'))
                     ->icon(Heroicon::Document)
                     ->schema([
                         RepeatableEntry::make(__('appointments::resources.appointments.infolist.employee_shared_documents'))
