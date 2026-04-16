@@ -82,19 +82,19 @@ class GenerateAppointmentRecordJob implements ShouldQueue
 
         try {
             $draft = $generate->execute($file, $record->appointment);
+
+            $record->update([
+                'content' => $draft->content,
+                'internal_summary' => $draft->internalSummary,
+                'model_used' => $draft->modelUsed,
+                'input_tokens' => $draft->inputTokens,
+                'output_tokens' => $draft->outputTokens,
+            ]);
         } catch (Throwable $throwable) {
             $record->update(['generation_started_at' => null]);
 
             throw $throwable;
         }
-
-        $record->update([
-            'content' => $draft->content,
-            'internal_summary' => $draft->internalSummary,
-            'model_used' => $draft->modelUsed,
-            'input_tokens' => $draft->inputTokens,
-            'output_tokens' => $draft->outputTokens,
-        ]);
 
         $disk->delete($this->path);
 
@@ -121,6 +121,6 @@ class GenerateAppointmentRecordJob implements ShouldQueue
             'message' => $e?->getMessage(),
         ]);
 
-        AppointmentRecord::find($this->recordId)?->forceDelete();
+        AppointmentRecord::query()->find($this->recordId)?->forceDelete();
     }
 }

@@ -37,7 +37,12 @@ class ViewAppointment extends ViewRecord
 
     public function downloadDocument(string $documentId): void
     {
-        $document = Document::query()->find($documentId);
+        $appointment = $this->getRecord();
+
+        $document = Document::query()
+            ->where('documentable_id', $appointment->user_id)
+            ->where('documentable_type', 'users')
+            ->find($documentId);
 
         if (! $document) {
             return;
