@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('model_used')->nullable();
             $table->unsignedInteger('input_tokens')->nullable();
             $table->unsignedInteger('output_tokens')->nullable();
+            $table->timestamp('generation_started_at')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->timestamps();
             $table->softDeletes();

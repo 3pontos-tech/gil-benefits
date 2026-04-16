@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use TresPontosTech\Appointments\Exceptions\RecordGenerationFailedException;
@@ -31,9 +31,9 @@ function buildDocxFixture(string $text): string
     return $path;
 }
 
-function fakeUploadedFromPath(string $path, string $mime, string $originalName): TemporaryUploadedFile
+function fakeUploadedFromPath(string $path, string $mime, string $originalName): UploadedFile
 {
-    $file = Mockery::mock(TemporaryUploadedFile::class);
+    $file = Mockery::mock(UploadedFile::class);
     $file->shouldReceive('getRealPath')->andReturn($path);
     $file->shouldReceive('getMimeType')->andReturn($mime);
     $file->shouldReceive('getClientOriginalName')->andReturn($originalName);
@@ -43,7 +43,7 @@ function fakeUploadedFromPath(string $path, string $mime, string $originalName):
 }
 
 it('retorna null para PDF (sem extração)', function (): void {
-    $file = Mockery::mock(TemporaryUploadedFile::class);
+    $file = Mockery::mock(UploadedFile::class);
     $file->shouldReceive('getMimeType')->andReturn('application/pdf');
 
     $result = resolve(DocumentTextExtractor::class)->extractText($file);
@@ -67,7 +67,7 @@ it('extrai texto de DOCX usando PhpWord Word2007', function (): void {
 });
 
 it('lança unsupportedMimeType para mime desconhecido', function (): void {
-    $file = Mockery::mock(TemporaryUploadedFile::class);
+    $file = Mockery::mock(UploadedFile::class);
     $file->shouldReceive('getMimeType')->andReturn('image/png');
 
     resolve(DocumentTextExtractor::class)->extractText($file);

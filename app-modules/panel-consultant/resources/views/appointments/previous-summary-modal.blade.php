@@ -11,7 +11,10 @@
         </p>
     @else
         <div class="prose prose-sm dark:prose-invert max-w-none">
-            {!! \Illuminate\Support\Str::markdown($summary) !!}
+            {!! \Illuminate\Support\Str::markdown($summary, [
+                'html_input' => 'strip',
+                'allow_unsafe_links' => false,
+            ]) !!}
         </div>
     @endif
 </div>

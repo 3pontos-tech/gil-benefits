@@ -26,6 +26,10 @@ class EssentialsSeeder extends Seeder
      */
     public function run(): void
     {
+        if (! app()->environment(['local', 'testing'])) {
+            return;
+        }
+
         Artisan::call('sync:permissions');
 
         $admin = User::factory()
@@ -91,14 +95,14 @@ class EssentialsSeeder extends Seeder
                 'company_id' => $company->getKey(),
             ]);
 
-        // Cenários de teste para a feature de Ata (FLM-18), refletindo o fluxo
+        // Cenários de teste para a feature de Ata, refletindo o fluxo
         // real — a ata só existe depois que o consultor sobe o documento e a
         // IA processa. O seeder NÃO cria records pré-fabricados.
         //
         //  1. Agendamento recém-finalizado sem ata — habilita o botão "Criar
         //     Ata" no painel do consultor para testar upload + geração pela IA.
         //  2. Agendamento futuro — usado para verificar o botão "Resumo do
-        //     último atendimento" (FLM-89) APÓS o fluxo (1) ser concluído e
+        //     último atendimento" APÓS o fluxo (1) ser concluído e
         //     publicado. Antes disso, o botão permanece oculto por design.
         Appointment::factory()->create([
             'user_id' => $employee->getKey(),

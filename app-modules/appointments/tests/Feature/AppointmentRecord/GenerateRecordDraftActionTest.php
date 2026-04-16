@@ -2,19 +2,19 @@
 
 declare(strict_types=1);
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Prism\Prism\Enums\Provider;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Exceptions\PrismProviderOverloadedException;
 use Prism\Prism\Exceptions\PrismRateLimitedException;
 use Prism\Prism\Exceptions\PrismRequestTooLargeException;
 use Prism\Prism\PrismManager;
+use Prism\Prism\Structured\Request as StructuredRequest;
+use Prism\Prism\Structured\Response as StructuredResponse;
 use Prism\Prism\Testing\PrismFake;
-use Prism\Prism\Testing\TextResponseFake;
-use Prism\Prism\Text\Request as TextRequest;
-use Prism\Prism\Text\Response as TextResponse;
+use Prism\Prism\Testing\StructuredResponseFake;
 use Prism\Prism\ValueObjects\Usage;
 use TresPontosTech\Appointments\Actions\Records\GenerateRecordDraftAction;
 use TresPontosTech\Appointments\Exceptions\RecordGenerationFailedException;
@@ -23,15 +23,15 @@ use TresPontosTech\Appointments\Models\AppointmentRecord;
 use TresPontosTech\Appointments\Support\DocumentTextExtractor;
 
 /**
- * Helper que estende PrismFake para suportar exceções na fila de respostas.
+ * Helper que estende PrismFake para suportar exceções na fila de respostas estruturadas.
  *
- * @param  array<int, TextResponse|Throwable>  $responses
+ * @param  array<int, StructuredResponse|Throwable>  $responses
  */
 function fakePrismWithExceptions(array $responses): PrismFake
 {
     $fake = new class($responses) extends PrismFake
     {
-        public function text(TextRequest $request): TextResponse
+        public function structured(StructuredRequest $request): StructuredResponse
         {
             $this->recorded[] = $request;
 
@@ -40,11 +40,11 @@ function fakePrismWithExceptions(array $responses): PrismFake
 
             throw_if($next instanceof Throwable, $next);
 
-            if ($next instanceof TextResponse) {
+            if ($next instanceof StructuredResponse) {
                 return $next;
             }
 
-            return TextResponseFake::make()->withText('default fake');
+            return StructuredResponseFake::make()->withStructured(['content' => 'default fake']);
         }
     };
 
@@ -63,9 +63,9 @@ function fakePrismWithExceptions(array $responses): PrismFake
     return $fake;
 }
 
-function fakePdfFile(): TemporaryUploadedFile
+function fakePdfFile(): UploadedFile
 {
-    $file = Mockery::mock(TemporaryUploadedFile::class);
+    $file = Mockery::mock(UploadedFile::class);
     $file->shouldReceive('getMimeType')->andReturn('application/pdf');
     $file->shouldReceive('get')->andReturn('%PDF-1.4 fake bytes');
     $file->shouldReceive('getClientOriginalName')->andReturn('reuniao.pdf');
@@ -86,9 +86,44 @@ beforeEach(function (): void {
     ]);
 });
 
+it('pula provider inválido no primário e executa o fallback sem propagar ValueError', function (): void {
+    config([
+        'appointments.ai.primary.provider' => 'invalid-provider-xyz',
+        'appointments.ai.primary.model' => 'gemini-2.5-pro',
+        'appointments.ai.fallback.provider' => 'gemini',
+        'appointments.ai.fallback.model' => 'gemini-2.5-flash',
+    ]);
+
+    fakePrismWithExceptions([
+        StructuredResponseFake::make()->withStructured([
+            'content' => 'Conteúdo do fallback',
+            'internal_summary' => null,
+        ]),
+    ]);
+
+    $appointment = Appointment::factory()->create();
+    AppointmentRecord::factory()->recycle($appointment)->draft()->create();
+    $appointment->refresh()->load('record');
+
+    $draft = resolve(GenerateRecordDraftAction::class)
+        ->execute(fakePdfFile(), $appointment);
+
+    expect($draft->modelUsed)->toBe('gemini-2.5-flash')
+        ->and($draft->content)->toBe('Conteúdo do fallback');
+
+    Log::shouldHaveReceived('error')
+        ->withArgs(fn (string $msg, array $ctx = []): bool => $msg === 'IA :: provider inválido na configuração'
+            && ($ctx['tier'] ?? null) === 'primary'
+            && ($ctx['provider'] ?? null) === 'invalid-provider-xyz')
+        ->once();
+});
+
 it('gera ata com sucesso usando o modelo primário (PDF)', function (): void {
     fakePrismWithExceptions([
-        TextResponseFake::make()->withText('## Resumo executivo\n\nConteúdo gerado.'),
+        StructuredResponseFake::make()->withStructured([
+            'content' => "## Resumo executivo\n\nConteúdo gerado.",
+            'internal_summary' => null,
+        ]),
     ]);
 
     $appointment = Appointment::factory()->create();
@@ -107,8 +142,11 @@ it('gera ata com sucesso usando o modelo primário (PDF)', function (): void {
 it('faz fallback ao modelo secundário quando o primário sofre rate limit', function (): void {
     fakePrismWithExceptions([
         new PrismRateLimitedException(rateLimits: [], retryAfter: 30),
-        TextResponseFake::make()
-            ->withText('Conteúdo do fallback')
+        StructuredResponseFake::make()
+            ->withStructured([
+                'content' => 'Conteúdo do fallback',
+                'internal_summary' => null,
+            ])
             ->withUsage(new Usage(promptTokens: 5000, completionTokens: 800)),
     ]);
 
@@ -136,7 +174,10 @@ it('faz fallback ao modelo secundário quando o primário sofre rate limit', fun
 it('abre o circuit breaker quando o provider está sobrecarregado', function (): void {
     fakePrismWithExceptions([
         new PrismProviderOverloadedException('gemini'),
-        TextResponseFake::make()->withText('Conteúdo do fallback'),
+        StructuredResponseFake::make()->withStructured([
+            'content' => 'Conteúdo do fallback',
+            'internal_summary' => null,
+        ]),
     ]);
 
     $appointment = Appointment::factory()->create();
@@ -155,7 +196,10 @@ it('abre o circuit breaker quando o provider está sobrecarregado', function ():
 it('NÃO abre o circuit breaker quando o documento é grande demais', function (): void {
     fakePrismWithExceptions([
         new PrismRequestTooLargeException('gemini'),
-        TextResponseFake::make()->withText('Conteúdo do fallback'),
+        StructuredResponseFake::make()->withStructured([
+            'content' => 'Conteúdo do fallback',
+            'internal_summary' => null,
+        ]),
     ]);
 
     $appointment = Appointment::factory()->create();
@@ -175,7 +219,10 @@ it('pula o modelo se o circuit breaker estiver aberto', function (): void {
     Cache::put('appointments:ai:cb:gemini:gemini-2.5-pro', true, now()->addMinutes(3));
 
     $fake = fakePrismWithExceptions([
-        TextResponseFake::make()->withText('Conteúdo do fallback'),
+        StructuredResponseFake::make()->withStructured([
+            'content' => 'Conteúdo do fallback',
+            'internal_summary' => null,
+        ]),
     ]);
 
     $appointment = Appointment::factory()->create();
@@ -211,8 +258,11 @@ it('lança RecordGenerationFailedException quando todos os modelos falham', func
 
 it('persiste input e output tokens vindos do Usage do Prism no GeneratedDraft', function (): void {
     fakePrismWithExceptions([
-        TextResponseFake::make()
-            ->withText('Conteúdo gerado.')
+        StructuredResponseFake::make()
+            ->withStructured([
+                'content' => 'Conteúdo gerado.',
+                'internal_summary' => null,
+            ])
             ->withUsage(new Usage(promptTokens: 12450, completionTokens: 2110)),
     ]);
 
@@ -228,15 +278,15 @@ it('persiste input e output tokens vindos do Usage do Prism no GeneratedDraft', 
         ->and($draft->modelUsed)->toBe('gemini-2.5-pro');
 });
 
-it('separa ata e resumo interno quando a resposta contém o delimitador', function (): void {
-    $fullResponse = <<<'MD'
+it('popula content e internalSummary a partir dos campos estruturados', function (): void {
+    $ata = <<<'MD'
 # ATA DE REUNIÃO – Atendimento Flamma
 
 ## Resumo da Reunião
 Conteúdo da ata completa.
+MD;
 
----INTERNAL_SUMMARY---
-
+    $resumo = <<<'MD'
 ## Resumo para o próximo atendimento
 
 **Contexto rápido**: cliente engajado.
@@ -247,7 +297,10 @@ Conteúdo da ata completa.
 MD;
 
     fakePrismWithExceptions([
-        TextResponseFake::make()->withText($fullResponse),
+        StructuredResponseFake::make()->withStructured([
+            'content' => $ata,
+            'internal_summary' => $resumo,
+        ]),
     ]);
 
     $appointment = Appointment::factory()->create();
@@ -257,33 +310,16 @@ MD;
     $draft = resolve(GenerateRecordDraftAction::class)
         ->execute(fakePdfFile(), $appointment);
 
-    expect($draft->content)->toContain('# ATA DE REUNIÃO')
-        ->and($draft->content)->toContain('Conteúdo da ata completa.')
-        ->and($draft->content)->not->toContain('---INTERNAL_SUMMARY---')
-        ->and($draft->content)->not->toContain('Resumo para o próximo atendimento')
-        ->and($draft->internalSummary)->not->toBeNull()
-        ->and($draft->internalSummary)->toContain('## Resumo para o próximo atendimento')
-        ->and($draft->internalSummary)->toContain('ponto 1')
-        ->and($draft->internalSummary)->not->toContain('Conteúdo da ata completa.');
+    expect($draft->content)->toBe($ata)
+        ->and($draft->internalSummary)->toBe($resumo);
 });
 
-it('remove envelope ```markdown ...``` que o modelo possa ter adicionado em volta da resposta', function (): void {
-    $fullResponse = <<<'MD'
-```markdown
-# ATA DE REUNIÃO – Atendimento Flamma
-
-## Resumo da Reunião
-Conteúdo real da ata.
-
----INTERNAL_SUMMARY---
-
-## Resumo para o próximo atendimento
-- ponto-chave
-```
-MD;
-
+it('quando internal_summary vier null, o GeneratedDraft recebe internalSummary null', function (): void {
     fakePrismWithExceptions([
-        TextResponseFake::make()->withText($fullResponse),
+        StructuredResponseFake::make()->withStructured([
+            'content' => "# Ata\n\nConteúdo completo.",
+            'internal_summary' => null,
+        ]),
     ]);
 
     $appointment = Appointment::factory()->create();
@@ -293,45 +329,46 @@ MD;
     $draft = resolve(GenerateRecordDraftAction::class)
         ->execute(fakePdfFile(), $appointment);
 
-    expect($draft->content)->toContain('# ATA DE REUNIÃO')
-        ->and($draft->content)->not->toContain('```')
-        ->and($draft->content)->not->toContain('markdown')
-        ->and($draft->internalSummary)->not->toBeNull()
-        ->and($draft->internalSummary)->toContain('ponto-chave')
-        ->and($draft->internalSummary)->not->toContain('```');
-});
-
-it('quando a resposta não tem delimitador, content recebe tudo e internalSummary fica null', function (): void {
-    fakePrismWithExceptions([
-        TextResponseFake::make()->withText('# Ata sem delimitador\n\nConteúdo completo.'),
-    ]);
-
-    $appointment = Appointment::factory()->create();
-    AppointmentRecord::factory()->recycle($appointment)->draft()->create();
-    $appointment->refresh()->load('record');
-
-    $draft = resolve(GenerateRecordDraftAction::class)
-        ->execute(fakePdfFile(), $appointment);
-
-    expect($draft->content)->toContain('Ata sem delimitador')
+    expect($draft->content)->toContain('Conteúdo completo.')
         ->and($draft->internalSummary)->toBeNull();
+});
+
+it('quando internal_summary vier string vazia, o GeneratedDraft normaliza para null', function (): void {
+    fakePrismWithExceptions([
+        StructuredResponseFake::make()->withStructured([
+            'content' => '# Ata',
+            'internal_summary' => '   ',
+        ]),
+    ]);
+
+    $appointment = Appointment::factory()->create();
+    AppointmentRecord::factory()->recycle($appointment)->draft()->create();
+    $appointment->refresh()->load('record');
+
+    $draft = resolve(GenerateRecordDraftAction::class)
+        ->execute(fakePdfFile(), $appointment);
+
+    expect($draft->internalSummary)->toBeNull();
 });
 
 it('usa o DocumentTextExtractor para extrair texto de DOCX e enviar como prompt', function (): void {
     fakePrismWithExceptions([
-        TextResponseFake::make()->withText('Conteúdo gerado a partir de DOCX'),
+        StructuredResponseFake::make()->withStructured([
+            'content' => 'Conteúdo gerado a partir de DOCX',
+            'internal_summary' => null,
+        ]),
     ]);
 
     // Substitui o extractor por uma instância anônima que retorna texto fixo
     app()->instance(DocumentTextExtractor::class, new readonly class extends DocumentTextExtractor
     {
-        public function extractText(TemporaryUploadedFile $file): string
+        public function extractText(UploadedFile $file): string
         {
             return 'texto extraído do docx';
         }
     });
 
-    $file = Mockery::mock(TemporaryUploadedFile::class);
+    $file = Mockery::mock(UploadedFile::class);
     $file->shouldReceive('getMimeType')->andReturn('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
     $file->shouldReceive('getClientOriginalName')->andReturn('notas.docx');
 

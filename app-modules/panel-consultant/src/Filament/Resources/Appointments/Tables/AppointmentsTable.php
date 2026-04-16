@@ -14,7 +14,9 @@ class AppointmentsTable
 {
     public static function configure(Table $table): Table
     {
-        $consultant = Consultant::query()->where('consultants.user_id', auth()->user()->getKey())->first();
+        $consultant = Consultant::query()
+            ->where('consultants.user_id', auth()->user()->getKey())
+            ->firstOrFail();
 
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query

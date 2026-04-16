@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Support;
 
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Illuminate\Http\UploadedFile;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\ListItem;
 use PhpOffice\PhpWord\Element\Table;
@@ -23,7 +23,7 @@ readonly class DocumentTextExtractor
 
     private const MIME_DOC = 'application/msword';
 
-    public function extractText(TemporaryUploadedFile $file): ?string
+    public function extractText(UploadedFile $file): ?string
     {
         $mime = $file->getMimeType();
 

@@ -28,6 +28,7 @@ class AppointmentRecord extends Model
         'model_used',
         'input_tokens',
         'output_tokens',
+        'generation_started_at',
         'published_at',
     ];
 
@@ -35,6 +36,7 @@ class AppointmentRecord extends Model
     {
         return [
             'published_at' => 'datetime',
+            'generation_started_at' => 'datetime',
             'input_tokens' => 'integer',
             'output_tokens' => 'integer',
         ];

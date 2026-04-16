@@ -37,6 +37,10 @@ class CreateAppointmentRecordAction extends Action
             && $record->record === null
             && Gate::allows('create', AppointmentRecord::class));
 
+        $this->authorize(fn (Appointment $record): bool => $record->status === AppointmentStatus::Completed
+            && $record->record === null
+            && Gate::allows('create', AppointmentRecord::class));
+
         $this->schema([
             FileUpload::make('source')
                 ->label(__('panel-consultant::resources.appointment_records.create.form.document'))

@@ -33,6 +33,10 @@ class ReviewAppointmentRecordAction extends Action
             && $record->record->content !== null
             && Gate::allows('update', $record->record));
 
+        $this->authorize(fn (Appointment $record): bool => $record->record !== null
+            && $record->record->content !== null
+            && Gate::allows('update', $record->record));
+
         $this->fillForm(fn (Appointment $record): array => [
             'content' => $record->record?->content ?? '',
         ]);

@@ -13,7 +13,7 @@ class LoginPage extends Login
     {
         parent::mount();
 
-        if (! app()->environment(['local', 'staging'])) {
+        if (! app()->environment('local', 'staging')) {
             return;
         }
 
@@ -35,7 +35,7 @@ class LoginPage extends Login
             FilamentPanel::Company->value => 'company@5pontos.com',
             FilamentPanel::Consultant->value => 'consultant@5pontos.com',
             FilamentPanel::User->value => 'employee@5pontos.com',
-            default => 'admin@5pontos.com',
+            default => '',
         };
 
         return [

@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Actions\Records;
 
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Illuminate\Http\UploadedFile;
 use Prism\Prism\Enums\Provider;
 use Prism\Prism\Exceptions\PrismException;
 use Prism\Prism\Exceptions\PrismProviderOverloadedException;
 use Prism\Prism\Exceptions\PrismRateLimitedException;
 use Prism\Prism\Exceptions\PrismRequestTooLargeException;
 use Prism\Prism\Facades\Prism;
+use Prism\Prism\Schema\ObjectSchema;
+use Prism\Prism\Schema\StringSchema;
 use Prism\Prism\ValueObjects\Media\Document;
 use Throwable;
 use TresPontosTech\Appointments\DTO\GeneratedDraft;
@@ -18,7 +20,6 @@ use TresPontosTech\Appointments\Exceptions\RecordGenerationFailedException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Support\AiCircuitBreaker;
 use TresPontosTech\Appointments\Support\DocumentTextExtractor;
-use TresPontosTech\Appointments\Support\DraftResponseParser;
 
 readonly class GenerateRecordDraftAction
 {
@@ -27,7 +28,7 @@ readonly class GenerateRecordDraftAction
         private AiCircuitBreaker $circuit,
     ) {}
 
-    public function execute(TemporaryUploadedFile $file, Appointment $appointment): GeneratedDraft
+    public function execute(UploadedFile $file, Appointment $appointment): GeneratedDraft
     {
         $extractedText = $this->extractor->extractText($file);
 
@@ -51,8 +52,19 @@ readonly class GenerateRecordDraftAction
             return null;
         }
 
+        $provider = Provider::tryFrom($providerName);
+
+        if ($provider === null) {
+            logger()->error('IA :: provider inválido na configuração', [
+                'tier' => $tier,
+                'provider' => $providerName,
+            ]);
+
+            return null;
+        }
+
         return [
-            'provider' => Provider::from($providerName),
+            'provider' => $provider,
             'model' => $model,
         ];
     }
@@ -61,7 +73,7 @@ readonly class GenerateRecordDraftAction
      * @param  list<array{provider: Provider, model: string}>  $targets
      */
     private function callWithFallback(
-        TemporaryUploadedFile $file,
+        UploadedFile $file,
         ?string $extractedText,
         Appointment $appointment,
         array $targets,
@@ -154,7 +166,7 @@ readonly class GenerateRecordDraftAction
     }
 
     private function callPrism(
-        TemporaryUploadedFile $file,
+        UploadedFile $file,
         ?string $extractedText,
         Appointment $appointment,
         Provider $provider,
@@ -164,8 +176,9 @@ readonly class GenerateRecordDraftAction
             'appointment' => $appointment,
         ])->render();
 
-        $builder = Prism::text()
+        $builder = Prism::structured()
             ->using($provider, $model)
+            ->withSchema($this->buildSchema())
             ->withClientOptions([
                 'timeout' => (int) config('appointments.ai.timeout', 70),
                 'connect_timeout' => (int) config('appointments.ai.connect_timeout', 10),
@@ -176,24 +189,45 @@ readonly class GenerateRecordDraftAction
                 . "\n\n## Conteúdo do documento ({$file->getClientOriginalName()})\n\n"
                 . $extractedText;
 
-            $response = $builder->withPrompt($fullPrompt)->asText();
+            $response = $builder->withPrompt($fullPrompt)->asStructured();
         } else {
             $response = $builder->withPrompt($promptHeader, [
                 Document::fromRawContent(
                     rawContent: $file->get(),
                     mimeType: $file->getMimeType(),
                 ),
-            ])->asText();
+            ])->asStructured();
         }
 
-        $parsed = DraftResponseParser::parse($response->text);
+        $structured = $response->structured ?? [];
+        $summary = $structured['internal_summary'] ?? null;
 
         return new GeneratedDraft(
-            content: $parsed['content'],
+            content: (string) ($structured['content'] ?? ''),
             modelUsed: $model,
             inputTokens: $response->usage->promptTokens,
             outputTokens: $response->usage->completionTokens,
-            internalSummary: $parsed['internalSummary'],
+            internalSummary: is_string($summary) && trim($summary) !== '' ? $summary : null,
+        );
+    }
+
+    private function buildSchema(): ObjectSchema
+    {
+        return new ObjectSchema(
+            name: 'appointment_record_draft',
+            description: 'Ata estruturada de atendimento de consultoria financeira da Flamma, contendo a ata visível ao cliente e o resumo interno destinado ao próximo consultor.',
+            properties: [
+                new StringSchema(
+                    name: 'content',
+                    description: 'Ata completa da reunião em Markdown (pt-BR), começando exatamente pelo cabeçalho obrigatório e seguindo a sequência de seções definida no prompt.',
+                ),
+                new StringSchema(
+                    name: 'internal_summary',
+                    description: 'Resumo interno curto em Markdown destinado ao próximo consultor. Deve ser null quando o documento não trouxer informação suficiente para redigir o resumo.',
+                    nullable: true,
+                ),
+            ],
+            requiredFields: ['content', 'internal_summary'],
         );
     }
 }
