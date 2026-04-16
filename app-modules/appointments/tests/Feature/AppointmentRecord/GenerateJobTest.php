@@ -39,7 +39,7 @@ function fakeAppointmentWithRecord(): array
 
 function persistFixtureFile(AppointmentRecord $record): string
 {
-    $path = "appointments/records/{$record->getKey()}.pdf";
+    $path = sprintf('appointments/records/%s.pdf', $record->getKey());
     Storage::disk('local')->put($path, '%PDF fake bytes');
 
     return $path;
@@ -139,7 +139,7 @@ it('handle: faz rollback do generation_started_at quando a geração falha', fun
 it('failed: loga erro mas NÃO apaga o record', function (): void {
     [$record] = fakeAppointmentWithRecord();
 
-    $job = new GenerateAppointmentRecordJob($record->id, 'local', "appointments/records/{$record->getKey()}.pdf");
+    $job = new GenerateAppointmentRecordJob($record->id, 'local', sprintf('appointments/records/%s.pdf', $record->getKey()));
 
     $job->failed(RecordGenerationFailedException::unreadableDocument('reuniao.docx'));
 

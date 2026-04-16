@@ -39,6 +39,7 @@ return [
                 'internal_summary' => 'Internal summary',
                 'published_at' => 'Published at',
                 'draft' => 'Draft',
+            ],
             'employee_documents' => 'Employee Documents',
             'documents' => [
                 'title' => 'Document Name',

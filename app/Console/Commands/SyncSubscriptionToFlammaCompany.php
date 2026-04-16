@@ -33,7 +33,7 @@ class SyncSubscriptionToFlammaCompany extends Command
             $this->error('flamma does not exists!');
         }
 
-        $flammaCompany->subscriptions()->create([
+        $flammaCompany?->subscriptions()->create([
             'stripe_id' => Uuid::uuid4()->toString(),
             'type' => 'company',
             'stripe_status' => 'active',

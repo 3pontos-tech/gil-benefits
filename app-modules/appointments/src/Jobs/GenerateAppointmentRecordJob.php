@@ -82,10 +82,10 @@ class GenerateAppointmentRecordJob implements ShouldQueue
 
         try {
             $draft = $generate->execute($file, $record->appointment);
-        } catch (Throwable $e) {
+        } catch (Throwable $throwable) {
             $record->update(['generation_started_at' => null]);
 
-            throw $e;
+            throw $throwable;
         }
 
         $record->update([

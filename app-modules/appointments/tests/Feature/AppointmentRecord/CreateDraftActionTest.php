@@ -31,7 +31,7 @@ it('cria um record vazio, persiste o arquivo em disco durável e despacha o job'
         ->and($record->published_at)->toBeNull()
         ->and($record->appointment_id)->toBe($appointment->getKey());
 
-    $expectedPath = "appointments/records/{$record->getKey()}.pdf";
+    $expectedPath = sprintf('appointments/records/%s.pdf', $record->getKey());
 
     Storage::disk('local')->assertExists($expectedPath);
 

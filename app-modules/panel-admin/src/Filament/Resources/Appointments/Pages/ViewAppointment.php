@@ -36,7 +36,7 @@ class ViewAppointment extends ViewRecord
 
     public function downloadDocument(string $documentId): void
     {
-        $document = Document::find($documentId);
+        $document = Document::query()->find($documentId);
 
         if (! $document) {
             return;
@@ -51,9 +51,9 @@ class ViewAppointment extends ViewRecord
         $url = Storage::disk($media->disk)->temporaryUrl(
             $media->getPathRelativeToRoot(),
             now()->addMinutes(5),
-            ['ResponseContentDisposition' => "attachment; filename=\"{$media->file_name}\""],
+            ['ResponseContentDisposition' => sprintf('attachment; filename="%s"', $media->file_name)],
         );
 
-        $this->js("window.open('{$url}', '_blank')");
+        $this->js(sprintf("window.open('%s', '_blank')", $url));
     }
 }
