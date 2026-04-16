@@ -13,7 +13,7 @@ class ConsultantLatestAppointmentWidget extends Widget
 {
     protected string $view = 'filament.admin.widgets.latest-appointment';
 
-    protected int|string|array $columnSpan = 3;
+    protected int|string|array $columnSpan = 5;
 
     protected function getViewData(): array
     {
