@@ -56,13 +56,23 @@ class AppointmentInfolist
                     ->label(__('appointments::resources.appointments.infolist.employee_documents'))
                     ->icon(Heroicon::Document)
                     ->schema([
-                        RepeatableEntry::make(__('appointments::resources.appointments.infolist.employee_documents'))
+                        RepeatableEntry::make(__('appointments::resources.appointments.infolist.employee_shared_documents'))
                             ->label('')
                             ->getStateUsing(function (Appointment $record): Collection {
-                                return Document::query()
+                                if ($record->relationLoaded('_userOwnedDocuments')) {
+                                    return $record->getRelation('_userOwnedDocuments');
+                                }
+
+                                $documents = Document::query()
                                     ->where('documents.documentable_id', $record->user_id)
                                     ->where('documents.documentable_type', '=', 'users')
+                                    ->with(['media', 'documentable'])
                                     ->get();
+
+                                $record->setRelation('_userOwnedDocuments', $documents);
+                                $documents->each(fn (Document $doc) => $doc->media->each(fn ($m) => $m->setRelation('model', $doc)));
+
+                                return $documents;
                             })
                             ->schema([
                                 TextEntry::make('title')
@@ -73,7 +83,38 @@ class AppointmentInfolist
                                     ->hintAction(DownloadDocumentFilamentAction::make()),
                             ])
                             ->columns(2)
+                            ->placeholder(__('appointments::resources.appointments.infolist.documents.empty'))
+                            ->columnSpanFull(),
 
+                        RepeatableEntry::make(__('appointments::resources.appointments.infolist.employee_documents'))
+                            ->label('')
+                            ->getStateUsing(function (Appointment $record): Collection {
+                                if ($record->relationLoaded('_userSharedDocuments')) {
+                                    return $record->getRelation('_userSharedDocuments');
+                                }
+
+                                $documents = Document::query()
+                                    ->whereHas('shares', function ($query) use ($record) {
+                                        return $query->where('employee_id', $record->user_id)
+                                            ->where('active', 1);
+                                    })
+                                    ->with(['media', 'documentable'])
+                                    ->get();
+
+                                $record->setRelation('_userSharedDocuments', $documents);
+                                $documents->each(fn (Document $doc) => $doc->media->each(fn ($media) => $media->setRelation('model', $doc)));
+
+                                return $documents;
+                            })
+                            ->schema([
+                                TextEntry::make('title')
+                                    ->label(__('appointments::resources.appointments.infolist.documents.title')),
+                                TextEntry::make('type')
+                                    ->label(__('appointments::resources.appointments.infolist.documents.type'))
+                                    ->badge()
+                                    ->hintAction(DownloadDocumentFilamentAction::make()),
+                            ])
+                            ->columns(2)
                             ->placeholder(__('appointments::resources.appointments.infolist.documents.empty'))
                             ->columnSpanFull(),
                     ]),
