@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Filament\Actions\DownloadDocumentFilamentAction;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\User\Enums\LifeMoment;
 
 class AppointmentInfolist
 {
@@ -70,6 +71,37 @@ class AppointmentInfolist
                     ->schema([
                         TextEntry::make('notes')
                             ->label('ㅤㅤ')
+                            ->placeholder('-')
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make(__('appointments::resources.appointments.infolist.anamnese'))
+                    ->icon(Heroicon::ClipboardDocumentList)
+                    ->collapsible()
+                    ->visible(fn ($record): bool => $record->user?->anamnese !== null)
+                    ->schema([
+                        TextEntry::make('user.anamnese.life_moment')
+                            ->label(__('panel-app::anamnese.fields.life_moment'))
+                            ->badge()
+                            ->formatStateUsing(fn ($state) => $state instanceof LifeMoment ? $state->getLabel() : LifeMoment::tryFrom((string) $state)?->getLabel() ?? $state),
+
+                        TextEntry::make('user.anamnese.main_motivation')
+                            ->label(__('panel-app::anamnese.fields.main_motivation'))
+                            ->placeholder('-')
+                            ->columnSpanFull(),
+
+                        TextEntry::make('user.anamnese.money_relationship')
+                            ->label(__('panel-app::anamnese.fields.money_relationship'))
+                            ->placeholder('-')
+                            ->columnSpanFull(),
+
+                        TextEntry::make('user.anamnese.plans_monthly_expenses')
+                            ->label(__('panel-app::anamnese.fields.plans_monthly_expenses'))
+                            ->placeholder('-')
+                            ->columnSpanFull(),
+
+                        TextEntry::make('user.anamnese.tried_financial_strategies')
+                            ->label(__('panel-app::anamnese.fields.tried_financial_strategies'))
                             ->placeholder('-')
                             ->columnSpanFull(),
                     ]),

@@ -9,4 +9,5 @@ return [
     'billing' => 'Billing',
     'my_profile' => 'My Profile',
     'settings' => 'Settings',
+    'back' => 'Back',
 ];

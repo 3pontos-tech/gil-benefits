@@ -9,4 +9,5 @@ return [
     'billing' => 'Cobrança',
     'my_profile' => 'Meu Perfil',
     'settings' => 'Configurações',
+    'back' => 'Voltar',
 ];

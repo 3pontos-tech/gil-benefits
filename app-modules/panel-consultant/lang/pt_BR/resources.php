@@ -3,6 +3,23 @@
 declare(strict_types=1);
 
 return [
+    'appointments' => [
+        'infolist' => [
+            'tabs' => [
+                'consultation' => 'Consultoria',
+                'client' => 'Cliente',
+                'prontuario' => 'Perfil Financeiro',
+            ],
+            'consultation' => 'Dados da Consultoria',
+            'client' => 'Sobre o Cliente',
+            'client_email' => 'E-mail',
+            'financial_profile' => 'Prontuário Financeiro',
+            'financial_profile_description' => 'Perfil respondido pelo cliente antes da consultoria.',
+            'no_anamnese' => 'Perfil não preenchido',
+            'no_anamnese_description' => 'Este cliente ainda não preencheu o perfil financeiro.',
+            'meeting_url_pending' => 'Aguardando confirmação',
+        ],
+    ],
     'documents' => [
         'navigation_label' => 'Materiais',
         'model_label' => 'Material',
