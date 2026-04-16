@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'life_moment' => [
         'endebted' => [
-            'label' => 'Endebted',
+            'label' => 'Indebted',
             'description' => "I have debts, I don't know the total and I don't know how to resolve them.",
         ],
         'payer' => [

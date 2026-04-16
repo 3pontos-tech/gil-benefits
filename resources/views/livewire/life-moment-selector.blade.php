@@ -11,12 +11,12 @@
                 @php
                     $isSelected = $selectedValue == $case->value;
                 @endphp
-                <div
+                <button
+                    type="button"
                     wire:key="life-moment-{{ $case->value }}"
                     wire:click="$set('{{ $getStatePath() }}', '{{ $case->value }}')"
-                    role="option"
-                    aria-selected="{{ $isSelected ? 'true' : 'false' }}"
-                    class="relative cursor-pointer border rounded-lg p-4 transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500
+                    aria-pressed="{{ $isSelected ? 'true' : 'false' }}"
+                    class="relative w-full text-left cursor-pointer border rounded-lg p-4 transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500
                     {{ $isSelected
                         ? 'border-primary-500 bg-primary-50 dark:bg-primary-900 ring-2 ring-primary-500 text-gray-900 dark:text-gray-100'
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600' }}">
@@ -40,7 +40,7 @@
                             </div>
                         @endif
                     </div>
-                </div>
+                </button>
             @endforeach
         </div>
     </div>

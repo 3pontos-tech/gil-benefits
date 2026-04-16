@@ -14,6 +14,7 @@ use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\User\Actions\SaveAnamneseAction;
 use TresPontosTech\User\Enums\LifeMoment;
 
@@ -101,13 +102,15 @@ class EditUserProfile extends BaseEditUserProfile
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $anamneseData = Arr::only($data, self::ANAMNESE_FIELDS);
-        $profileData = Arr::except($data, self::ANAMNESE_FIELDS);
+        return DB::transaction(function () use ($record, $data): Model {
+            $anamneseData = Arr::only($data, self::ANAMNESE_FIELDS);
+            $profileData = Arr::except($data, self::ANAMNESE_FIELDS);
 
-        $record = parent::handleRecordUpdate($record, $profileData);
+            $updatedRecord = parent::handleRecordUpdate($record, $profileData);
 
-        resolve(SaveAnamneseAction::class)->handle($record, $anamneseData);
+            resolve(SaveAnamneseAction::class)->handle($updatedRecord, $anamneseData);
 
-        return $record;
+            return $updatedRecord;
+        });
     }
 }

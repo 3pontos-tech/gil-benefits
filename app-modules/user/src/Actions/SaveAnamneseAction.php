@@ -12,9 +12,8 @@ readonly class SaveAnamneseAction
      *     life_moment: string,
      *     main_motivation: string,
      *     money_relationship: string,
-     *     plans_monthly_expenses: bool,
-     *     tried_financial_strategies: bool,
-     *     financial_strategies_description: string|null,
+     *     plans_monthly_expenses: string,
+     *     tried_financial_strategies: string,
      * }  $data
      */
     public function handle(User $user, array $data): UserAnamnese

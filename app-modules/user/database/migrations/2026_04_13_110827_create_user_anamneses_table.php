@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('user_anamneses', function (Blueprint $table): void {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_id')->constrained()->cascadeOnDelete()->unique();
             $table->string('life_moment');
             $table->text('main_motivation');
             $table->text('money_relationship');
