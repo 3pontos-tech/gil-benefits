@@ -13,6 +13,7 @@ return [
             'model' => env('APPOINTMENTS_AI_FALLBACK_MODEL', 'gemini-3-flash-preview'),
         ],
         'circuit_cooldown_minutes' => 3,
+        'rate_limit_per_minute' => env('APPOINTMENTS_AI_RATE_LIMIT_PER_MINUTE', 10),
         'timeout' => 70,
         'connect_timeout' => 10,
     ],
