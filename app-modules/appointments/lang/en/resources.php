@@ -30,6 +30,7 @@ return [
             'metadata' => 'Metadata',
             'appointment_info' => 'Appointment Info',
             'employee_documents' => 'Employee Documents',
+            'employee_shared_documents' => 'Document shared with employee',
             'documents' => [
                 'title' => 'Document Name',
                 'type' => 'Type',
