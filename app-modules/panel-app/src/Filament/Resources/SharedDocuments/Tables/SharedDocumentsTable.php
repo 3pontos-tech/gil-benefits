@@ -2,12 +2,12 @@
 
 namespace TresPontosTech\App\Filament\Resources\SharedDocuments\Tables;
 
-use Filament\Actions\Action;
-use Filament\Support\Icons\Heroicon;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Storage;
-use TresPontosTech\Consultants\Models\Document;
+use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Consultants\Filament\Actions\DownloadDocumentFilamentAction;
 
 class SharedDocumentsTable
 {
@@ -15,18 +15,16 @@ class SharedDocumentsTable
     {
 
         return $table
-            ->modifyQueryUsing(fn ($query) => $query?->where('active', 1)
-                ->whereHas('shares', fn ($subquery) => $subquery?->where('employee_id', auth()->user()->getKey())
-                    ->where('active', 1)
-                ))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['documentable', 'media']))
             ->columns([
                 TextColumn::make('documentable.name')
                     ->label(__('panel-app::resources.documents.table.consultant'))
+                    ->hidden(fn ($livewire): bool => $livewire->activeTab === 'mine')
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('title')
-                    ->label(__('panel-app::resources.documents.table.active'))
+                    ->label(__('panel-app::resources.documents.table.title'))
                     ->searchable()
                     ->sortable(),
 
@@ -42,19 +40,10 @@ class SharedDocumentsTable
                     ->sortable(),
             ])
             ->recordActions([
-                Action::make('download')
-                    ->label('Download')
-                    ->icon(Heroicon::ArrowDown)
-                    ->url(function (Document $record): string {
-                        $media = $record->getFirstMedia('documents');
-
-                        return Storage::temporaryUrl(
-                            $media->getPath(),
-                            now()->addMinutes(5),
-                            ['ResponseContentDisposition' => 'attachment; filename="' . $media->file_name . '"'],
-                        );
-                    })
-                    ->openUrlInNewTab(),
+                DownloadDocumentFilamentAction::make(),
+                EditAction::make(),
+                DeleteAction::make()
+                    ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
             ]);
     }
 }

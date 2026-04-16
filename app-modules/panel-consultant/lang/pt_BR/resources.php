@@ -29,6 +29,18 @@ return [
                 'customer' => 'Cliente',
             ],
         ],
+        'relation_manager' => [
+            'title' => 'Compartilhado Com',
+            'table' => [
+                'employee' => 'Funcionário',
+                'shared_at' => 'Compartilhado Em',
+                'active' => 'Ativo',
+            ],
+            'actions' => [
+                'deactivate' => 'Desativar',
+                'activate' => 'Ativar',
+            ],
+        ],
     ],
     'appointment_records' => [
         'previous_summary' => [

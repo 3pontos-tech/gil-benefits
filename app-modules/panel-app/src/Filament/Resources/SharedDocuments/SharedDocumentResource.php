@@ -4,11 +4,15 @@ namespace TresPontosTech\App\Filament\Resources\SharedDocuments;
 
 use BackedEnum;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\CreateSharedDocument;
+use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
+use TresPontosTech\App\Filament\Resources\SharedDocuments\Schemas\SharedDocumentForm;
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
 use TresPontosTech\Consultants\Models\Document;
 use UnitEnum;
@@ -25,6 +29,11 @@ class SharedDocumentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Document;
 
+    public static function form(Schema $schema): Schema
+    {
+        return SharedDocumentForm::configure($schema);
+    }
+
     public static function table(Table $table): Table
     {
         return SharedDocumentsTable::table($table);
@@ -39,6 +48,8 @@ class SharedDocumentResource extends Resource
     {
         return [
             'index' => ListSharedDocuments::route('/'),
+            'create' => CreateSharedDocument::route('/create'),
+            'edit' => EditSharedDocument::route('/{record}/edit'),
         ];
     }
 

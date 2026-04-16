@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Consultants\Filament\Resources\Appointments\Tables;
 
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,6 +33,7 @@ class AppointmentsTable
                 ViewPreviousRecordSummaryAction::make(),
                 CreateAppointmentRecordAction::make(),
                 ReviewAppointmentRecordAction::make(),
+                ViewAction::make(),
             ]);
 
     }
