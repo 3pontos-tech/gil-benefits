@@ -39,6 +39,11 @@ return [
                 'internal_summary' => 'Resumo interno',
                 'published_at' => 'Publicada em',
                 'draft' => 'Rascunho',
+            'employee_documents' => 'Materiais do Colaborador',
+            'documents' => [
+                'title' => 'Nome do Documento',
+                'type' => 'Tipo',
+                'empty' => 'Nenhum material compartilhado com este colaborador.',
             ],
         ],
 

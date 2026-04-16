@@ -60,6 +60,7 @@ essentials-seeder: ## Run the essentials seeder
 	@echo "Essentials Seeder completed."
 	@echo "Seeding Stripe"
 	@php artisan billing:sync-stripe
+	@php artisan app:sync-subscription-to-flamma-company
 
 .PHONY: stripe-listen
 stripe-listen: ## Run Stripe Webhook

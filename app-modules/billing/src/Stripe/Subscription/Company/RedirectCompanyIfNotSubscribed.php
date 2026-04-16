@@ -15,6 +15,10 @@ class RedirectCompanyIfNotSubscribed
         /** @var Company|Filament $tenant */
         $tenant = Filament::getTenant();
 
+        if ($tenant->slug === 'flamma-company') {
+            return $next($request);
+        }
+
         if ($tenant->hasActivePlan()) {
             return $next($request);
         }

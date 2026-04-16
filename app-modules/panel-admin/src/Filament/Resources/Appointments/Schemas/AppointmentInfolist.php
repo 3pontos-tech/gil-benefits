@@ -2,12 +2,17 @@
 
 namespace TresPontosTech\Admin\Filament\Resources\Appointments\Schemas;
 
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Collection;
+use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Consultants\Filament\Actions\DownloadDocumentFilamentAction;
+use TresPontosTech\Consultants\Models\Document;
 
 class AppointmentInfolist
 {
@@ -111,6 +116,27 @@ class AppointmentInfolist
                             ->label(__('appointments::resources.appointments.infolist.ai.internal_summary'))
                             ->placeholder('—')
                             ->markdown()
+                Section::make(__('appointments::resources.appointments.infolist.employee_documents'))
+                    ->icon(Heroicon::Document)
+                    ->schema([
+                        RepeatableEntry::make('repeater')
+                            ->label(__('appointments::resources.appointments.infolist.employee_documents'))
+                            ->getStateUsing(function (Appointment $record): Collection {
+                                return Document::query()
+                                    ->where('documents.documentable_id', $record->user_id)
+                                    ->where('documents.documentable_type', '=', 'users')
+                                    ->get();
+                            })
+                            ->schema([
+                                TextEntry::make('title')
+                                    ->label(__('appointments::resources.appointments.infolist.documents.title')),
+                                TextEntry::make('type')
+                                    ->label(__('appointments::resources.appointments.infolist.documents.type'))
+                                    ->badge()
+                                    ->hintAction(DownloadDocumentFilamentAction::make()),
+                            ])
+                            ->columns(2)
+                            ->placeholder(__('appointments::resources.appointments.infolist.documents.empty'))
                             ->columnSpanFull(),
                     ]),
             ]);
