@@ -43,7 +43,7 @@ class DocumentForm
                                     ->map(fn (DocumentExtensionTypeEnum $type): string => $type->getMimeType())
                                     ->all()
                             )
-                            ->maxSize(20480)
+                            ->maxSize(102400)
                             ->required()
                             ->columnSpanFull(),
                     ])

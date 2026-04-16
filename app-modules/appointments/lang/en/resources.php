@@ -31,6 +31,7 @@ return [
             'appointment_info' => 'Appointment Info',
             'anamnese' => 'User Profile',
             'employee_documents' => 'Employee Documents',
+            'employee_shared_documents' => 'Document shared with employee',
             'documents' => [
                 'title' => 'Document Name',
                 'type' => 'Type',

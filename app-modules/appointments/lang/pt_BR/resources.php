@@ -31,6 +31,7 @@ return [
             'appointment_info' => 'Informações da Consultoria',
             'anamnese' => 'Perfil do Usuário',
             'employee_documents' => 'Materiais do Colaborador',
+            'employee_shared_documents' => 'Materiais compartilhados com o Colaborador',
             'documents' => [
                 'title' => 'Nome do Documento',
                 'type' => 'Tipo',
