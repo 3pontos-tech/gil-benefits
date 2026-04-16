@@ -8,6 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Js;
 use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Consultants\Models\Document;
 
@@ -54,6 +55,6 @@ class ViewAppointment extends ViewRecord
             ['ResponseContentDisposition' => sprintf('attachment; filename="%s"', $media->file_name)],
         );
 
-        $this->js(sprintf("window.open('%s', '_blank')", $url));
+        $this->js('window.open(' . Js::from($url) . ", '_blank')");
     }
 }

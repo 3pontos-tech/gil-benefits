@@ -120,5 +120,7 @@ class GenerateAppointmentRecordJob implements ShouldQueue
             'exception_class' => $e instanceof Throwable ? $e::class : null,
             'message' => $e?->getMessage(),
         ]);
+
+        AppointmentRecord::find($this->recordId)?->forceDelete();
     }
 }

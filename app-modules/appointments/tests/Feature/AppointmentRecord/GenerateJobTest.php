@@ -136,7 +136,7 @@ it('handle: faz rollback do generation_started_at quando a geração falha', fun
     expect($record->generation_started_at)->toBeNull();
 });
 
-it('failed: loga erro mas NÃO apaga o record', function (): void {
+it('failed: loga erro e remove o record placeholder via forceDelete', function (): void {
     [$record] = fakeAppointmentWithRecord();
 
     $job = new GenerateAppointmentRecordJob($record->id, 'local', sprintf('appointments/records/%s.pdf', $record->getKey()));
@@ -147,7 +147,7 @@ it('failed: loga erro mas NÃO apaga o record', function (): void {
         ->withArgs(fn (string $msg): bool => $msg === 'IA :: job de geração falhou definitivamente após retries')
         ->once();
 
-    expect(AppointmentRecord::withTrashed()->find($record->id))->not->toBeNull();
+    expect(AppointmentRecord::withTrashed()->find($record->id))->toBeNull();
 
     Mail::assertNothingQueued();
 });

@@ -200,10 +200,16 @@ readonly class GenerateRecordDraftAction
         }
 
         $structured = $response->structured ?? [];
+        $content = trim((string) ($structured['content'] ?? ''));
+
+        if ($content === '') {
+            throw new PrismException('AI returned empty appointment record content.');
+        }
+
         $summary = $structured['internal_summary'] ?? null;
 
         return new GeneratedDraft(
-            content: (string) ($structured['content'] ?? ''),
+            content: $content,
             modelUsed: $model,
             inputTokens: $response->usage->promptTokens,
             outputTokens: $response->usage->completionTokens,

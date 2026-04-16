@@ -123,14 +123,18 @@ it('exibe badge de rascunho quando a ata não foi publicada', function (): void 
 });
 
 it('exibe badge com data de publicação quando a ata foi publicada', function (): void {
+    $publishedAt = now()->subHour();
+
     $appointment = Appointment::factory()->create();
     AppointmentRecord::factory()
         ->recycle($appointment)
-        ->published()
-        ->create(['content' => 'Conteúdo da ata']);
+        ->create([
+            'content' => 'Conteúdo da ata',
+            'published_at' => $publishedAt,
+        ]);
 
     livewire(ViewAppointment::class, ['record' => $appointment->getKey()])
-        ->assertSee(now()->format('d/m/Y H:i'));
+        ->assertSee($publishedAt->format('d/m/Y H:i'));
 });
 
 it('exibe indicador de processamento quando record existe mas content é null', function (): void {

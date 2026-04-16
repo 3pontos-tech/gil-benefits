@@ -18,7 +18,7 @@
                 <x-slot name="badge">
                     @if($record->isPublished())
                         <x-filament::badge size="sm" color="success"
-                                           title="Data de quando foi disponibilizado para o usuário">
+                                           :title="__('appointments::resources.appointments.infolist.ai.published_at')">
                             {{ $record->published_at->format('d/m/Y H:i') }}
                         </x-filament::badge>
                     @else
