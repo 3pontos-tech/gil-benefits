@@ -6,11 +6,13 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Role;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\DTOs\ImportUsersResultDTO;
+use TresPontosTech\User\Mail\WelcomeUserMail;
 
 class PersistImportedUsersAction
 {
@@ -20,20 +22,21 @@ class PersistImportedUsersAction
     {
         $imported = 0;
         $now = now();
-        $temporaryPassword = bcrypt(Str::password(12));
+        $plainPassword = Str::password(12);
+        $temporaryPassword = bcrypt($plainPassword);
         $roleId = Role::findByName(Roles::Employee->value)->id;
         $userMorphClass = (new User)->getMorphClass();
         $roleTable = config('permission.table_names.model_has_roles');
 
         $rows->chunk(self::CHUNK_SIZE)->each(
-            function (Collection $chunk) use ($company, &$imported, $now, $temporaryPassword, $roleId, $userMorphClass, $roleTable): void {
-                DB::transaction(
-                    function () use ($chunk, $company, &$imported, $now, $temporaryPassword, $roleId, $userMorphClass, $roleTable): void {
-                        $items = $chunk->values()->map(fn (array $row): array => [
-                            'id' => (string) Str::uuid(),
-                            'row' => $row,
-                        ]);
+            function (Collection $chunk) use ($company, &$imported, $now, $plainPassword, $temporaryPassword, $roleId, $userMorphClass, $roleTable): void {
+                $items = $chunk->values()->map(fn (array $row): array => [
+                    'id' => (string) Str::uuid(),
+                    'row' => $row,
+                ]);
 
+                DB::transaction(
+                    function () use ($items, $company, &$imported, $now, $temporaryPassword, $roleId, $userMorphClass, $roleTable): void {
                         User::query()->insert($items->map(fn (array $item): array => [
                             'id' => $item['id'],
                             'name' => trim($item['row']['name']),
@@ -65,8 +68,12 @@ class PersistImportedUsersAction
                             ])->all()
                         );
 
-                        $imported += $chunk->count();
+                        $imported += $items->count();
                     }
+                );
+
+                User::query()->whereIn('id', $items->pluck('id'))->each(
+                    fn (User $user) => Mail::to($user->email)->send(new WelcomeUserMail($user, $plainPassword))
                 );
             }
         );

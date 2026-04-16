@@ -3,7 +3,9 @@
 namespace TresPontosTech\Appointments\Actions\StateMachine;
 
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
 use Zap\Enums\ScheduleTypes;
@@ -28,12 +30,16 @@ abstract class AbstractAppointmentStep
 
     public function cancel(): void
     {
+        $this->appointment->loadMissing(['user', 'consultant']);
+
         Notification::make()
             ->title(__('appointments::resources.appointments.notifications.cancelled.title'))
             ->body(__('appointments::resources.appointments.notifications.cancelled.body'))
             ->warning()
             ->sendToDatabase($this->appointment->user)
             ->send();
+
+        Mail::to($this->appointment->user->email)->send(new AppointmentCancelledMail($this->appointment));
 
         $this->appointment->update([
             'status' => AppointmentStatus::Cancelled,

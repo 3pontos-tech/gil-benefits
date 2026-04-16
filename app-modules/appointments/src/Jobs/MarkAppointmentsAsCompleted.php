@@ -19,7 +19,7 @@ class MarkAppointmentsAsCompleted implements ShouldQueue
             ->whereNotNull('consultant_id')
             ->chunkById(100, function ($appointments): void {
                 foreach ($appointments as $appointment) {
-                    $appointment->status->currentStep($appointment)->processStep();
+                    $appointment->status->currentStep($appointment)->handle();
                 }
             });
     }

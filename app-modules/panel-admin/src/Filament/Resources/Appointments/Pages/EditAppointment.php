@@ -6,11 +6,15 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
+use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
+use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
+use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
@@ -69,7 +73,7 @@ class EditAppointment extends EditRecord
     private function handleStatusChange(Appointment $appointment): void
     {
         if ($appointment->status === AppointmentStatus::Active) {
-            $appointment->loadMissing('consultant');
+            $appointment->loadMissing(['consultant', 'user']);
             $consultant = $appointment->consultant;
 
             if (filled($consultant) && filled($consultant->email) && blank($appointment->google_event_id)) {
@@ -85,9 +89,21 @@ class EditAppointment extends EditRecord
                         ->send();
                 }
             }
+
+            if (filled($consultant) && filled($consultant->email)) {
+                Mail::to($consultant->email)->send(new AppointmentScheduledMail($appointment));
+            }
+        }
+
+        if ($appointment->status === AppointmentStatus::Completed) {
+            $appointment->loadMissing(['user', 'consultant']);
+
+            Mail::to($appointment->user->email)->send(new AppointmentCompletedMail($appointment));
         }
 
         if ($appointment->status === AppointmentStatus::Cancelled) {
+            $appointment->loadMissing(['user', 'consultant']);
+
             Schedule::query()
                 ->where('schedule_type', ScheduleTypes::APPOINTMENT)
                 ->whereJsonContains('metadata->appointment_id', $appointment->id)
@@ -96,6 +112,8 @@ class EditAppointment extends EditRecord
             if (filled($appointment->google_event_id)) {
                 dispatch(new DeleteAppointmentCalendarEventJob($appointment));
             }
+
+            Mail::to($appointment->user->email)->send(new AppointmentCancelledMail($appointment));
         }
     }
 }
