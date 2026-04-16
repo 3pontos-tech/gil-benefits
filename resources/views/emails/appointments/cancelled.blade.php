@@ -1,18 +1,18 @@
 <x-mail::message>
-# Consulta Cancelada
+# {{ __('emails.appointments.cancelled.title') }}
 
-Olá, **{{ $userName }}**!
+{{ __('emails.appointments.cancelled.greeting', ['name' => $userName]) }}
 
-Informamos que a sua consulta com **{{ $consultantName }}**, que estava agendada para **{{ $appointmentAt->format('d/m/Y \à\s H:i') }}**, foi cancelada.
+{{ __('emails.appointments.cancelled.body', ['consultant' => $consultantName, 'date' => $appointmentAt->format('d/m/Y \à\s H:i')]) }}
 
-Se o cancelamento foi feito por engano ou se desejar reagendar, acesse o painel e crie uma nova solicitação.
+{{ __('emails.appointments.cancelled.reschedule') }}
 
 <x-mail::button :url="$panelUrl" color="error">
-Acessar painel
+{{ __('emails.appointments.cancelled.button') }}
 </x-mail::button>
 
-Se tiver dúvidas sobre o cancelamento, entre em contato com o suporte.
+{{ __('emails.appointments.cancelled.support') }}
 
-Obrigado,<br>
+{{ __('emails.appointments.cancelled.thanks') }},<br>
 {{ config('app.name') }}
 </x-mail::message>

@@ -1,18 +1,18 @@
 <x-mail::message>
-# Consulta Concluída
+# {{ __('emails.appointments.completed.title') }}
 
-Olá, **{{ $userName }}**!
+{{ __('emails.appointments.completed.greeting', ['name' => $userName]) }}
 
-Sua consulta com **{{ $consultantName }}**, realizada em **{{ $appointmentAt->format('d/m/Y \à\s H:i') }}**, foi concluída com sucesso.
+{{ __('emails.appointments.completed.body', ['consultant' => $consultantName, 'date' => $appointmentAt->format('d/m/Y \à\s H:i')]) }}
 
-Esperamos que a sessão tenha sido útil para você. Caso queira deixar um feedback sobre o atendimento, acesse o painel abaixo.
+{{ __('emails.appointments.completed.feedback') }}
 
 <x-mail::button :url="$panelUrl">
-Avaliar consulta
+{{ __('emails.appointments.completed.button') }}
 </x-mail::button>
 
-Caso tenha alguma dúvida ou precise agendar uma nova consulta, estamos à disposição.
+{{ __('emails.appointments.completed.help') }}
 
-Obrigado,<br>
+{{ __('emails.appointments.completed.thanks') }},<br>
 {{ config('app.name') }}
 </x-mail::message>

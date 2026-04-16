@@ -1,40 +1,40 @@
 <x-mail::message>
-# Bem-vindo ao {{ config('app.name') }}!
+# {{ __('emails.users.welcome.title', ['app' => config('app.name')]) }}
 
-Olá, **{{ $userName }}**!
+{{ __('emails.users.welcome.greeting', ['name' => $userName]) }}
 
-Estamos felizes em tê-lo(a) conosco. Sua conta foi criada com sucesso e você já pode acessar a plataforma de benefícios da sua empresa.
+{{ __('emails.users.welcome.intro') }}
 
-Por aqui você pode:
+{{ __('emails.users.welcome.features_title') }}:
 
 <x-mail::table>
-| O que você pode fazer |
+| {{ __('emails.users.welcome.features_title') }} |
 | --------------------- |
-| Agendar consultas com consultores especializados |
-| Visualizar documentos compartilhados por sua equipe |
-| Acompanhar o histórico de seus atendimentos |
+| {{ __('emails.users.welcome.feature_appointments') }} |
+| {{ __('emails.users.welcome.feature_documents') }} |
+| {{ __('emails.users.welcome.feature_history') }} |
 </x-mail::table>
 
 @if(filled($password))
-Seu acesso foi criado pelo administrador da sua empresa. Use as credenciais abaixo para entrar pela primeira vez:
+{{ __('emails.users.welcome.admin_created') }}
 
-**E-mail:** {{ $userEmail }}
+{{ __('emails.users.welcome.email_label', ['email' => $userEmail]) }}
 
-**Senha temporária:** {{ $password }}
+{{ __('emails.users.welcome.temp_password', ['password' => $password]) }}
 
-Por segurança, recomendamos que você altere sua senha após o primeiro acesso.
+{{ __('emails.users.welcome.security_note') }}
 
 @else
-Para começar, acesse a plataforma com suas credenciais de login.
+{{ __('emails.users.welcome.login_prompt') }}
 
 @endif
 
 <x-mail::button :url="$panelUrl">
-Acessar plataforma
+{{ __('emails.users.welcome.button') }}
 </x-mail::button>
 
-Se tiver qualquer dúvida, não hesite em entrar em contato.
+{{ __('emails.users.welcome.help') }}
 
-Obrigado,<br>
+{{ __('emails.users.welcome.thanks') }},<br>
 {{ config('app.name') }}
 </x-mail::message>

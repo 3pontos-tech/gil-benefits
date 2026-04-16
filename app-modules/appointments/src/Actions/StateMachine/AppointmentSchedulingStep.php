@@ -5,6 +5,7 @@ namespace TresPontosTech\Appointments\Actions\StateMachine;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Events\AppointmentBooked;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 
@@ -13,6 +14,8 @@ class AppointmentSchedulingStep extends AbstractAppointmentStep
     public function processStep(): void
     {
         $this->appointment->update(['status' => AppointmentStatus::Active]);
+
+        event(new AppointmentBooked($this->appointment));
 
         $this->dispatchCalendarEvent();
     }

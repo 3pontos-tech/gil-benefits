@@ -5,6 +5,7 @@ namespace TresPontosTech\Appointments\Actions\StateMachine;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Events\AppointmentCompleted;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
 
 class AppointmentActiveStep extends AbstractAppointmentStep
@@ -12,6 +13,8 @@ class AppointmentActiveStep extends AbstractAppointmentStep
     public function processStep(): void
     {
         $this->appointment->update(['status' => AppointmentStatus::Completed]);
+
+        event(new AppointmentCompleted($this->appointment));
     }
 
     public function notify(): void

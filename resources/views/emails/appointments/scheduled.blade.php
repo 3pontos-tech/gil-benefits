@@ -1,29 +1,29 @@
 <x-mail::message>
-# Nova Consulta Agendada
+# {{ __('emails.appointments.scheduled.title') }}
 
-Olá, **{{ $consultantName }}**!
+{{ __('emails.appointments.scheduled.greeting', ['name' => $consultantName]) }}
 
-Você tem uma nova consulta confirmada com **{{ $userName }}**.
+{{ __('emails.appointments.scheduled.body', ['name' => $userName]) }}
 
 <x-mail::panel>
-**Data e hora:** {{ $appointmentAt->format('d/m/Y \à\s H:i') }}
+**{{ __('emails.appointments.scheduled.date_time') }}** {{ $appointmentAt->format('d/m/Y \à\s H:i') }}
 
 @if($meetingUrl)
-**Link da reunião:** [Acessar reunião]({{ $meetingUrl }})
+**{{ __('emails.appointments.scheduled.meeting_link') }}** [{{ __('emails.appointments.scheduled.meeting_link_label') }}]({{ $meetingUrl }})
 @endif
 
 @if($notes)
-**Observações do funcionário:**
+**{{ __('emails.appointments.scheduled.employee_notes') }}**
 {{ $notes }}
 @endif
 </x-mail::panel>
 
-Acesse o painel para visualizar todos os detalhes da consulta.
+{{ __('emails.appointments.scheduled.panel_description') }}
 
 <x-mail::button :url="$panelUrl">
-Acessar painel
+{{ __('emails.appointments.scheduled.button') }}
 </x-mail::button>
 
-Obrigado,<br>
+{{ __('emails.appointments.scheduled.thanks') }},<br>
 {{ config('app.name') }}
 </x-mail::message>
