@@ -70,7 +70,7 @@ class AppointmentInfolist
                                     ->get();
 
                                 $record->setRelation('_userOwnedDocuments', $documents);
-                                $documents->each(fn(Document $doc) => $doc->media->each(fn($m) => $m->setRelation('model', $doc)));
+                                $documents->each(fn (Document $doc) => $doc->media->each(fn ($m) => $m->setRelation('model', $doc)));
 
                                 return $documents;
                             })
@@ -102,7 +102,7 @@ class AppointmentInfolist
                                     ->get();
 
                                 $record->setRelation('_userSharedDocuments', $documents);
-                                $documents->each(fn(Document $doc) => $doc->media->each(fn($media) => $media->setRelation('model', $doc)));
+                                $documents->each(fn (Document $doc) => $doc->media->each(fn ($media) => $media->setRelation('model', $doc)));
 
                                 return $documents;
                             })
