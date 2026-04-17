@@ -92,7 +92,7 @@ it('sends welcome email with temporary password to each imported user', function
     Mail::assertQueuedCount(2);
 });
 
-it('all imported users receive the same temporary password', function (): void {
+it('each imported user receives a unique temporary password', function (): void {
     Mail::fake();
 
     $company = Company::factory()->create();
@@ -108,7 +108,7 @@ it('all imported users receive the same temporary password', function (): void {
         ->map(fn (WelcomeUserMail $mail): ?string => $mail->password)
         ->unique();
 
-    expect($passwords)->toHaveCount(1);
+    expect($passwords)->toHaveCount(2);
 });
 
 it('returns zero imported and empty errors for an empty file', function (): void {
