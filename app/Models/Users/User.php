@@ -170,16 +170,10 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->morphMany(Subscription::class, 'subscriptionable');
     }
 
-    /**
-     * Determine if the user is eligible to create a new appointment.
-     *
-     * Rules:
-     * - Must have monthly appointments left.
-     * - Must not have any ongoing appointment (i.e., previous one must be completed or cancelled).
-     */
-    public function canCreateAppointment(): bool
+    public function activeSubscription(): MorphOne
     {
-        return $this->monthly_appointments_left > 0 && ! $this->hasOngoingAppointment();
+        return $this->morphOne(Subscription::class, 'subscriptionable')
+            ->where('stripe_status', 'active');
     }
 
     /**
@@ -233,6 +227,18 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     }
 
     /**
+     * Determine if the user is eligible to create a new appointment.
+     *
+     * Rules:
+     * - Must have monthly appointments left.
+     * - Must not have any ongoing appointment (i.e., previous one must be completed or cancelled).
+     */
+    public function canCreateAppointment(): bool
+    {
+        return $this->monthly_appointments_left > 0 && ! $this->hasOngoingAppointment();
+    }
+
+    /**
      * Computed, cached monthly appointments left in the last 30 days window.
      *
      * @return Attribute<int, never>
@@ -255,78 +261,53 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                         ->first();
 
                     if ($subscription === null || $subscription->price === null) {
-                        return $this->monthlyAppointmentsLeftFromContractualPlan();
+                        $contractualPlan = CompanyPlan::query()
+                            ->whereIn('company_id', $this->companies()->select('companies.id'))
+                            ->where('status', CompanyPlanStatusEnum::Active->value)
+                            ->whereNull('deleted_at')
+                            ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+                            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
+                            ->first();
+
+                        if ($contractualPlan === null) {
+                            return 0;
+                        }
+
+                        $monthlyLimit = (int) ($contractualPlan->monthly_appointments_per_employee ?? 0);
+                        if ($monthlyLimit <= 0) {
+                            return 0;
+                        }
+
+                        $since = now()->subDays(30);
+                        $used = (int) $this->appointments()
+                            ->where('created_at', '>=', $since)
+                            ->where('status', '!=', AppointmentStatus::Cancelled->value)
+                            ->count();
+
+                        return max($monthlyLimit - $used, 0);
                     }
 
-                    $priceMonthlyAppointments = $subscription->price->getAttribute('monthly_appointments');
-                    $monthlyLimit = is_numeric($priceMonthlyAppointments)
-                        ? (int) $priceMonthlyAppointments
-                        : 0;
+                    $monthlyLimit = (int) ($subscription->price->monthly_appointments ?? 0);
+                    if ($monthlyLimit <= 0) {
+                        return 0;
+                    }
 
-                    return $this->remainingAppointmentsFrom($monthlyLimit);
+                    $since = now()->subDays(30);
+
+                    $used = (int) $this->appointments()
+                        ->where('created_at', '>=', $since)
+                        ->where('status', '!=', AppointmentStatus::Cancelled->value)
+                        ->count();
+
+                    return max($monthlyLimit - $used, 0);
                 });
-
-                return $result;
             }
         )->shouldCache();
     }
 
     protected function getMonthlyAppointmentsLeftCacheKey(): string
     {
-        $key = $this->getKey();
-
-        return sprintf(
-            'user:%s:monthly_appointments_left',
-            is_scalar($key) ? (string) $key : '',
-        );
-    }
-
-    /**
-     * @return MorphOne<Subscription, $this>
-     */
-    public function activeSubscription(): MorphOne
-    {
-        return $this->morphOne(Subscription::class, 'subscriptionable')
-            ->where('stripe_status', 'active');
-    }
-
-    private function monthlyAppointmentsLeftFromContractualPlan(): int
-    {
-        /** @var CompanyPlan|null $contractualPlan */
-        $contractualPlan = CompanyPlan::query()
-            ->whereIn('company_id', $this->companies()->select('companies.id'))
-            ->where('status', CompanyPlanStatusEnum::Active->value)
-            ->whereNull('deleted_at')
-            ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
-            ->first();
-
-        if ($contractualPlan === null) {
-            return 0;
-        }
-
-        $planMonthlyLimit = $contractualPlan->getAttribute('monthly_appointments_per_employee');
-        $monthlyLimit = is_numeric($planMonthlyLimit)
-            ? (int) $planMonthlyLimit
-            : 0;
-
-        return $this->remainingAppointmentsFrom($monthlyLimit);
-    }
-
-    private function remainingAppointmentsFrom(int $monthlyLimit): int
-    {
-        if ($monthlyLimit <= 0) {
-            return 0;
-        }
-
-        $since = now()->subDays(30);
-
-        $used = $this->appointments()
-            ->where('created_at', '>=', $since)
-            ->where('status', '!=', AppointmentStatus::Cancelled->value)
-            ->count();
-
-        return max($monthlyLimit - $used, 0);
+        return sprintf('user:%s:monthly_appointments_left', $this->getKey());
     }
 
     /**

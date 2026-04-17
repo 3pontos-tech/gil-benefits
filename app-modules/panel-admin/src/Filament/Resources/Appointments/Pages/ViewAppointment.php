@@ -57,11 +57,11 @@ class ViewAppointment extends ViewRecord
             ->icon(Heroicon::ArrowDownTray)
             ->tooltip('Download')
             ->color('gray')
-            ->visible(fn (array $arguments): bool => $this->resolveEmployeeDocumentMedia($arguments['documentId'] ?? null) !== null)
+            ->visible(fn (array $arguments): bool => $this->resolveEmployeeDocumentMedia($arguments['documentId'] ?? null) instanceof Media)
             ->url(function (array $arguments): ?string {
                 $media = $this->resolveEmployeeDocumentMedia($arguments['documentId'] ?? null);
 
-                return $media ? $this->buildDownloadUrl($media) : null;
+                return $media instanceof Media ? $this->buildDownloadUrl($media) : null;
             }, shouldOpenInNewTab: true);
     }
 
@@ -72,11 +72,11 @@ class ViewAppointment extends ViewRecord
             ->icon(Heroicon::ArrowDownTray)
             ->tooltip('Download')
             ->color('gray')
-            ->visible(fn (array $arguments): bool => $this->resolveSharedDocumentMedia($arguments['documentId'] ?? null) !== null)
+            ->visible(fn (array $arguments): bool => $this->resolveSharedDocumentMedia($arguments['documentId'] ?? null) instanceof Media)
             ->url(function (array $arguments): ?string {
                 $media = $this->resolveSharedDocumentMedia($arguments['documentId'] ?? null);
 
-                return $media ? $this->buildDownloadUrl($media) : null;
+                return $media instanceof Media ? $this->buildDownloadUrl($media) : null;
             }, shouldOpenInNewTab: true);
     }
 
