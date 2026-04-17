@@ -19,4 +19,5 @@ return [
         'title' => 'Agendamento concluído',
         'body' => 'O agendamento de :name foi concluído.',
     ],
+    'unknown_user' => 'Usuário desconhecido',
 ];

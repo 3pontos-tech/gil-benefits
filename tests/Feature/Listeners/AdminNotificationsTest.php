@@ -84,10 +84,16 @@ it('notifies all admin users', function (): void {
 
     $appointment = Appointment::factory()->create();
 
-    DB::table('notifications')->truncate();
-
     $listener = new NotifyAdminsOfAppointmentBookedListener;
     $listener->handle(new AppointmentBooked($appointment));
 
-    expect(DB::table('notifications')->where('notifiable_type', 'users')->count())->toBe(2);
+    assertDatabaseHas('notifications', [
+        'notifiable_type' => 'users',
+        'notifiable_id' => $this->admin->id,
+    ]);
+
+    assertDatabaseHas('notifications', [
+        'notifiable_type' => 'users',
+        'notifiable_id' => $secondAdmin->id,
+    ]);
 });

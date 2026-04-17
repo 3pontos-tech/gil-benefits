@@ -19,4 +19,5 @@ return [
         'title' => 'Appointment completed',
         'body' => ":name's appointment was completed.",
     ],
+    'unknown_user' => 'Unknown user',
 ];

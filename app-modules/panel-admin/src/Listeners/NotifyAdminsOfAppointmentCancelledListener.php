@@ -27,7 +27,7 @@ class NotifyAdminsOfAppointmentCancelledListener implements ShouldQueue
         $admins->each(
             fn (Model|Authenticatable|Collection|array $admin): Notification => Notification::make()
                 ->title(__('panel-admin::notifications.appointment_cancelled.title'))
-                ->body(__('panel-admin::notifications.appointment_cancelled.body', ['name' => $event->appointment->user->name]))
+                ->body(__('panel-admin::notifications.appointment_cancelled.body', ['name' => $event->appointment->user?->name ?? __('panel-admin::notifications.unknown_user')]))
                 ->warning()
                 ->sendToDatabase($admin),
         );

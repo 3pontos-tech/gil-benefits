@@ -91,14 +91,16 @@ class EditAppointment extends EditRecord
             }
 
             if (filled($consultant) && filled($consultant->email)) {
-                Mail::to($consultant->email)->send(new AppointmentScheduledMail($appointment));
+                Mail::to($consultant->email)->queue(new AppointmentScheduledMail($appointment));
             }
         }
 
         if ($appointment->status === AppointmentStatus::Completed) {
             $appointment->loadMissing(['user', 'consultant']);
 
-            Mail::to($appointment->user->email)->send(new AppointmentCompletedMail($appointment));
+            if (filled($appointment->user) && filled($appointment->user->email)) {
+                Mail::to($appointment->user->email)->queue(new AppointmentCompletedMail($appointment));
+            }
         }
 
         if ($appointment->status === AppointmentStatus::Cancelled) {
@@ -113,7 +115,9 @@ class EditAppointment extends EditRecord
                 dispatch(new DeleteAppointmentCalendarEventJob($appointment));
             }
 
-            Mail::to($appointment->user->email)->send(new AppointmentCancelledMail($appointment));
+            if (filled($appointment->user) && filled($appointment->user->email)) {
+                Mail::to($appointment->user->email)->queue(new AppointmentCancelledMail($appointment));
+            }
         }
     }
 }

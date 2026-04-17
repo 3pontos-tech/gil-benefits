@@ -16,6 +16,6 @@ class SendWelcomeEmailListener
             return;
         }
 
-        Mail::to($event->user->email)->send(new WelcomeUserMail($event->user, $event->temporaryPassword));
+        Mail::to($event->user->email)->queue(new WelcomeUserMail($event->user, $event->temporaryPassword));
     }
 }

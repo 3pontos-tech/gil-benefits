@@ -85,7 +85,7 @@ class ShareDocumentFilamentAction extends Action
         $employee = User::query()->find($data['employee_id']);
 
         if ($employee) {
-            Mail::to($employee->email)->send(new DocumentSharedMail($record, $employee));
+            Mail::to($employee->email)->queue(new DocumentSharedMail($record, $employee));
         }
 
         Notification::make()->success()->title('Documento compartilhado com sucesso')->send();

@@ -28,6 +28,6 @@ class AppointmentActiveStep extends AbstractAppointmentStep
             ->sendToDatabase($this->appointment->user)
             ->send();
 
-        Mail::to($this->appointment->user->email)->send(new AppointmentCompletedMail($this->appointment));
+        Mail::to($this->appointment->user->email)->queue(new AppointmentCompletedMail($this->appointment));
     }
 }

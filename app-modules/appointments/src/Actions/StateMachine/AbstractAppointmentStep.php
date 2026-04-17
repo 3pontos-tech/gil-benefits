@@ -33,6 +33,10 @@ abstract class AbstractAppointmentStep
     {
         $this->appointment->loadMissing(['user', 'consultant']);
 
+        $this->appointment->update([
+            'status' => AppointmentStatus::Cancelled,
+        ]);
+
         Notification::make()
             ->title(__('appointments::resources.appointments.notifications.cancelled.title'))
             ->body(__('appointments::resources.appointments.notifications.cancelled.body'))
@@ -40,11 +44,7 @@ abstract class AbstractAppointmentStep
             ->sendToDatabase($this->appointment->user)
             ->send();
 
-        Mail::to($this->appointment->user->email)->send(new AppointmentCancelledMail($this->appointment));
-
-        $this->appointment->update([
-            'status' => AppointmentStatus::Cancelled,
-        ]);
+        Mail::to($this->appointment->user->email)->queue(new AppointmentCancelledMail($this->appointment));
 
         event(new AppointmentCancelled($this->appointment));
 

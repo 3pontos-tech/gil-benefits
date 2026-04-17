@@ -6,6 +6,7 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
@@ -22,26 +23,29 @@ class PersistImportedUsersAction
     {
         $imported = 0;
         $now = now();
-        $plainPassword = Str::password(12);
-        $temporaryPassword = bcrypt($plainPassword);
         $roleId = Role::findByName(Roles::Employee->value)->id;
         $userMorphClass = (new User)->getMorphClass();
         $roleTable = config('permission.table_names.model_has_roles');
 
         $rows->chunk(self::CHUNK_SIZE)->each(
-            function (Collection $chunk) use ($company, &$imported, $now, $plainPassword, $temporaryPassword, $roleId, $userMorphClass, $roleTable): void {
+            function (Collection $chunk) use ($company, &$imported, $now, $roleId, $userMorphClass, $roleTable): void {
                 $items = $chunk->values()->map(fn (array $row): array => [
                     'id' => (string) Str::uuid(),
+                    'plain_password' => Str::password(12),
                     'row' => $row,
                 ]);
 
+                $items = $items->map(fn (array $item): array => array_merge($item, [
+                    'hashed_password' => bcrypt($item['plain_password']),
+                ]));
+
                 DB::transaction(
-                    function () use ($items, $company, &$imported, $now, $temporaryPassword, $roleId, $userMorphClass, $roleTable): void {
+                    function () use ($items, $company, &$imported, $now, $roleId, $userMorphClass, $roleTable): void {
                         User::query()->insert($items->map(fn (array $item): array => [
                             'id' => $item['id'],
                             'name' => trim($item['row']['name']),
                             'email' => strtolower(trim($item['row']['email'])),
-                            'password' => $temporaryPassword,
+                            'password' => $item['hashed_password'],
                             'created_at' => $now,
                             'updated_at' => $now,
                         ])->all());
@@ -72,8 +76,20 @@ class PersistImportedUsersAction
                     }
                 );
 
+                $passwordsByUserId = $items->pluck('plain_password', 'id');
+
                 User::query()->whereIn('id', $items->pluck('id'))->each(
-                    fn (User $user) => Mail::to($user->email)->send(new WelcomeUserMail($user, $plainPassword))
+                    function (User $user) use ($passwordsByUserId): void {
+                        try {
+                            Mail::to($user->email)->queue(new WelcomeUserMail($user, $passwordsByUserId[$user->id]));
+                        } catch (\Throwable $throwable) {
+                            Log::warning('Failed to queue welcome email', [
+                                'user_id' => $user->id,
+                                'email' => $user->email,
+                                'error' => $throwable->getMessage(),
+                            ]);
+                        }
+                    }
                 );
             }
         );

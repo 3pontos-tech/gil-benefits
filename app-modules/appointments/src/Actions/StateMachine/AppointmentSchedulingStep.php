@@ -50,6 +50,6 @@ class AppointmentSchedulingStep extends AbstractAppointmentStep
             return;
         }
 
-        Mail::to($consultant->email)->send(new AppointmentScheduledMail($this->appointment));
+        Mail::to($consultant->email)->queue(new AppointmentScheduledMail($this->appointment));
     }
 }
