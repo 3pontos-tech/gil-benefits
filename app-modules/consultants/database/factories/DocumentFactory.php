@@ -2,7 +2,7 @@
 
 namespace TresPontosTech\Consultants\Database\Factories;
 
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
