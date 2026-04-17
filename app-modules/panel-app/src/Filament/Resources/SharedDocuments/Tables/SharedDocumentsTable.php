@@ -47,6 +47,6 @@ class SharedDocumentsTable
 
                 DeleteAction::make()
                     ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
-            ])->recordUrl(fn ($record) => $record->documentable_id === auth()->user()->id ? EditSharedDocument::getUrl(['record' => $record->getKey()]) : null);
+            ])->recordUrl(fn ($record): ?string => $record->documentable_id === auth()->user()->id ? EditSharedDocument::getUrl(['record' => $record->getKey()]) : null);
     }
 }
