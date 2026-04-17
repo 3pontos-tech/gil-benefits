@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Users\User;
+use Filament\Actions\Testing\TestAction;
 use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
@@ -70,4 +72,65 @@ it('does not show inactive shared documents', function (): void {
     livewire(ViewAppointment::class, ['record' => $this->appointment->getRouteKey()])
         ->assertOk()
         ->assertDontSee('Documento Compartilhado Inativo Xz9q');
+});
+
+it('exposes the download action for a document owned by the appointment employee', function (): void {
+    $document = Document::factory()->state([
+        'documentable_id' => $this->appointment->user_id,
+        'documentable_type' => $this->appointment->user->getMorphClass(),
+    ])->create();
+
+    $action = TestAction::make('downloadDocument')->arguments(['documentId' => $document->id]);
+
+    livewire(ViewAppointment::class, ['record' => $this->appointment->getRouteKey()])
+        ->assertActionVisible($action)
+        ->assertActionShouldOpenUrlInNewTab($action);
+});
+
+it('hides the download action for a document owned by another employee', function (): void {
+    $otherUser = User::factory()->create();
+    $foreignDocument = Document::factory()->state([
+        'documentable_id' => $otherUser->id,
+        'documentable_type' => $otherUser->getMorphClass(),
+    ])->create();
+
+    livewire(ViewAppointment::class, ['record' => $this->appointment->getRouteKey()])
+        ->assertActionHidden(TestAction::make('downloadDocument')->arguments(['documentId' => $foreignDocument->id]));
+});
+
+it('exposes the shared download action for an active share', function (): void {
+    $document = Document::factory()->forConsultant()->create();
+    DocumentShare::factory()->active()->create([
+        'document_id' => $document->id,
+        'employee_id' => $this->appointment->user_id,
+    ]);
+
+    $action = TestAction::make('downloadSharedDocument')->arguments(['documentId' => $document->id]);
+
+    livewire(ViewAppointment::class, ['record' => $this->appointment->getRouteKey()])
+        ->assertActionVisible($action)
+        ->assertActionShouldOpenUrlInNewTab($action);
+});
+
+it('hides the shared download action when the share is for another employee', function (): void {
+    $otherEmployee = User::factory()->create();
+    $document = Document::factory()->forConsultant()->create();
+    DocumentShare::factory()->active()->create([
+        'document_id' => $document->id,
+        'employee_id' => $otherEmployee->id,
+    ]);
+
+    livewire(ViewAppointment::class, ['record' => $this->appointment->getRouteKey()])
+        ->assertActionHidden(TestAction::make('downloadSharedDocument')->arguments(['documentId' => $document->id]));
+});
+
+it('hides the shared download action when the share is inactive', function (): void {
+    $document = Document::factory()->forConsultant()->create();
+    DocumentShare::factory()->notActive()->create([
+        'document_id' => $document->id,
+        'employee_id' => $this->appointment->user_id,
+    ]);
+
+    livewire(ViewAppointment::class, ['record' => $this->appointment->getRouteKey()])
+        ->assertActionHidden(TestAction::make('downloadSharedDocument')->arguments(['documentId' => $document->id]));
 });

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Admin\Filament\Resources\Appointments\Pages;
 
+use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Js;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Consultants\Models\Document;
 
@@ -35,34 +37,6 @@ class ViewAppointment extends ViewRecord
             ->get();
     }
 
-    public function downloadDocument(string $documentId): void
-    {
-        $appointment = $this->getRecord();
-
-        $document = Document::query()
-            ->where('documentable_id', $appointment->user_id)
-            ->where('documentable_type', 'users')
-            ->find($documentId);
-
-        if (! $document) {
-            return;
-        }
-
-        $media = $document->getFirstMedia('documents');
-
-        if (! $media) {
-            return;
-        }
-
-        $url = Storage::disk($media->disk)->temporaryUrl(
-            $media->getPathRelativeToRoot(),
-            now()->addMinutes(5),
-            ['ResponseContentDisposition' => sprintf('attachment; filename="%s"', $media->file_name)],
-        );
-
-        $this->js('window.open(' . Js::from($url) . ", '_blank')");
-    }
-
     public function getSharedDocuments(): Collection
     {
         $record = $this->getRecord();
@@ -76,8 +50,56 @@ class ViewAppointment extends ViewRecord
             ->get();
     }
 
-    public function downloadSharedDocument(string $documentId): void
+    public function downloadDocumentAction(): Action
     {
+        return Action::make('downloadDocument')
+            ->iconButton()
+            ->icon(Heroicon::ArrowDownTray)
+            ->tooltip('Download')
+            ->color('gray')
+            ->visible(fn (array $arguments): bool => $this->resolveEmployeeDocumentMedia($arguments['documentId'] ?? null) !== null)
+            ->url(function (array $arguments): ?string {
+                $media = $this->resolveEmployeeDocumentMedia($arguments['documentId'] ?? null);
+
+                return $media ? $this->buildDownloadUrl($media) : null;
+            }, shouldOpenInNewTab: true);
+    }
+
+    public function downloadSharedDocumentAction(): Action
+    {
+        return Action::make('downloadSharedDocument')
+            ->iconButton()
+            ->icon(Heroicon::ArrowDownTray)
+            ->tooltip('Download')
+            ->color('gray')
+            ->visible(fn (array $arguments): bool => $this->resolveSharedDocumentMedia($arguments['documentId'] ?? null) !== null)
+            ->url(function (array $arguments): ?string {
+                $media = $this->resolveSharedDocumentMedia($arguments['documentId'] ?? null);
+
+                return $media ? $this->buildDownloadUrl($media) : null;
+            }, shouldOpenInNewTab: true);
+    }
+
+    private function resolveEmployeeDocumentMedia(?string $documentId): ?Media
+    {
+        if (blank($documentId)) {
+            return null;
+        }
+
+        $document = Document::query()
+            ->where('documentable_id', $this->getRecord()->user_id)
+            ->where('documentable_type', 'users')
+            ->find($documentId);
+
+        return $document?->getFirstMedia('documents');
+    }
+
+    private function resolveSharedDocumentMedia(?string $documentId): ?Media
+    {
+        if (blank($documentId)) {
+            return null;
+        }
+
         $appointment = $this->getRecord();
 
         $document = Document::query()
@@ -87,22 +109,15 @@ class ViewAppointment extends ViewRecord
             })
             ->find($documentId);
 
-        if (! $document) {
-            return;
-        }
+        return $document?->getFirstMedia('documents');
+    }
 
-        $media = $document->getFirstMedia('documents');
-
-        if (! $media) {
-            return;
-        }
-
-        $url = Storage::disk($media->disk)->temporaryUrl(
+    private function buildDownloadUrl(Media $media): string
+    {
+        return Storage::disk($media->disk)->temporaryUrl(
             $media->getPathRelativeToRoot(),
             now()->addMinutes(5),
             ['ResponseContentDisposition' => sprintf('attachment; filename="%s"', $media->file_name)],
         );
-
-        $this->js('window.open(' . Js::from($url) . ", '_blank')");
     }
 }

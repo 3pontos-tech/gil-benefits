@@ -18,9 +18,11 @@
 
         <div class="space-y-6">
             <x-panel-admin::appointments.schedule :appointment="$appointment" />
-            <x-panel-admin::appointments.documents :documents="$documents" :sharedDocuments="$sharedDocuments" />
+            <x-panel-admin::appointments.documents :page="$this" :documents="$documents" :sharedDocuments="$sharedDocuments" />
             <x-panel-admin::appointments.ai-metadata :record="$record" />
             <x-panel-admin::appointments.metadata :appointment="$appointment" />
         </div>
     </div>
+
+    <x-filament-actions::modals />
 </x-filament-panels::page>

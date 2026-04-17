@@ -1,4 +1,5 @@
 @props([
+    'page',
     'documents',
     'sharedDocuments' => null,
 ])
@@ -19,15 +20,10 @@
                             {{ $document->type->getLabel() }}
                         </x-filament::badge>
                     </div>
-                    @if($document->getFirstMedia('documents'))
-                        <button
-                            type="button"
-                            wire:click="downloadDocument('{{ $document->getKey() }}')"
-                            class="shrink-0 text-gray-400 transition hover:text-primary-500 dark:hover:text-primary-400"
-                            title="Download"
-                        >
-                            <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-5 w-5" />
-                        </button>
+                    @if(($page->downloadDocumentAction)(['documentId' => $document->getKey()])->isVisible())
+                        <div class="shrink-0">
+                            {{ ($page->downloadDocumentAction)(['documentId' => $document->getKey()]) }}
+                        </div>
                     @endif
                 </li>
             @endforeach
@@ -54,15 +50,10 @@
                             {{ $document->type->getLabel() }}
                         </x-filament::badge>
                     </div>
-                    @if($document->getFirstMedia('documents'))
-                        <button
-                            type="button"
-                            wire:click="downloadSharedDocument('{{ $document->getKey() }}')"
-                            class="shrink-0 text-gray-400 transition hover:text-primary-500 dark:hover:text-primary-400"
-                            title="Download"
-                        >
-                            <x-filament::icon icon="heroicon-o-arrow-down-tray" class="h-5 w-5" />
-                        </button>
+                    @if(($page->downloadSharedDocumentAction)(['documentId' => $document->getKey()])->isVisible())
+                        <div class="shrink-0">
+                            {{ ($page->downloadSharedDocumentAction)(['documentId' => $document->getKey()]) }}
+                        </div>
                     @endif
                 </li>
             @endforeach
