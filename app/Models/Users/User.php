@@ -301,6 +301,8 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
                     return max($monthlyLimit - $used, 0);
                 });
+
+                return $result;
             }
         )->shouldCache();
     }
