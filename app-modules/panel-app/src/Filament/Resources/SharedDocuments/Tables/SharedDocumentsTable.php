@@ -41,9 +41,11 @@ class SharedDocumentsTable
             ])
             ->recordActions([
                 DownloadDocumentFilamentAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
+
                 DeleteAction::make()
                     ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
-            ]);
+            ])->recordUrl(fn ($record) => $record->documentable_id === auth()->user()->id ? $record->getKey() : null);
     }
 }
