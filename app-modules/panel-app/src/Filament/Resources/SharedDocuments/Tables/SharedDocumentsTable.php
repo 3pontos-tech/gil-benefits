@@ -7,6 +7,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
 use TresPontosTech\Consultants\Filament\Actions\DownloadDocumentFilamentAction;
 
 class SharedDocumentsTable
@@ -46,6 +47,6 @@ class SharedDocumentsTable
 
                 DeleteAction::make()
                     ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
-            ])->recordUrl(fn ($record) => $record->documentable_id === auth()->user()->id ? $record->getKey() : null);
+            ])->recordUrl(fn ($record) => $record->documentable_id === auth()->user()->id ? EditSharedDocument::getUrl(['record' => $record->getKey()]) : null);
     }
 }
