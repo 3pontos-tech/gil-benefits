@@ -2,12 +2,15 @@
 
 namespace TresPontosTech\App\Filament\Resources\SharedDocuments\Tables;
 
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Consultants\Filament\Actions\DownloadDocumentFilamentAction;
+use TresPontosTech\Consultants\Models\Document;
 
 class SharedDocumentsTable
 {
@@ -40,10 +43,18 @@ class SharedDocumentsTable
                     ->sortable(),
             ])
             ->recordActions([
-                DownloadDocumentFilamentAction::make(),
-                EditAction::make(),
+                DownloadDocumentFilamentAction::make()
+                    ->visible(fn (Document $record): bool => ! $record->hasLink()),
+                Action::make('open-link')
+                    ->label('Link')
+                    ->icon(Heroicon::ArrowTopRightOnSquare)
+                    ->url(fn (Document $record): string => $record->link)
+                    ->openUrlInNewTab()
+                    ->visible(fn (Document $record): bool => $record->hasLink()),
+                EditAction::make()
+                    ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
                 DeleteAction::make()
                     ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
-            ]);
+            ])->recordUrl(fn ($record) => $record->documentable_id === auth()->user()->id ? $record->getKey() : null);
     }
 }

@@ -42,9 +42,21 @@ class DocumentFactory extends Factory
         ]);
     }
 
+    public function withLink(string $url = 'https://example.com'): self
+    {
+        return $this->state([
+            'type' => DocumentExtensionTypeEnum::Link,
+            'link' => $url,
+        ]);
+    }
+
     public function configure(): static
     {
         return $this->afterCreating(function (Document $document): void {
+            if ($document->type === DocumentExtensionTypeEnum::Link) {
+                return;
+            }
+
             $document->addMedia(UploadedFile::fake()->create('documento_teste.pdf', 100))
                 ->toMediaCollection('documents');
         });

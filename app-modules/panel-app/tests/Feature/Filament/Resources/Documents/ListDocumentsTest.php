@@ -101,3 +101,33 @@ test('no one can se a not active document', function (): void {
         ->assertOk()
         ->assertCanNotSeeTableRecords([$document]);
 });
+
+it('should not show the open-link action for a document that has a file', function (): void {
+    $document = Document::factory()->forConsultant()->active()->create();
+    DocumentShare::factory()
+        ->for($document)
+        ->for($this->employee, 'employee')
+        ->for($document->documentable, 'consultant')
+        ->active()
+        ->create();
+
+    livewire(ListSharedDocuments::class)
+        ->assertOk()
+        ->assertTableActionHidden('open-link', $document)
+        ->assertTableActionVisible('download-document-action', $document);
+});
+
+it('should not show the download action for a document that has a link', function (): void {
+    $document = Document::factory()->forConsultant()->active()->withLink()->create();
+    DocumentShare::factory()
+        ->for($document)
+        ->for($this->employee, 'employee')
+        ->for($document->documentable, 'consultant')
+        ->active()
+        ->create();
+
+    livewire(ListSharedDocuments::class)
+        ->assertOk()
+        ->assertTableActionHidden('download-document-action', $document)
+        ->assertTableActionVisible('open-link', $document);
+});
