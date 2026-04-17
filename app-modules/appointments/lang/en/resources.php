@@ -29,6 +29,7 @@ return [
         'infolist' => [
             'metadata' => 'Metadata',
             'appointment_info' => 'Appointment Info',
+            'anamnese' => 'User Profile',
             'ai_generation' => 'AI generation',
             'ai' => [
                 'model_used' => 'Model used',
@@ -41,6 +42,7 @@ return [
                 'draft' => 'Draft',
             ],
             'employee_documents' => 'Employee Documents',
+            'employee_shared_documents' => 'Document shared with employee',
             'documents' => [
                 'title' => 'Document Name',
                 'type' => 'Type',

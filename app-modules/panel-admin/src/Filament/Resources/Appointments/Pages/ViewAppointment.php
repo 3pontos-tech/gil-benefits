@@ -62,4 +62,47 @@ class ViewAppointment extends ViewRecord
 
         $this->js('window.open(' . Js::from($url) . ", '_blank')");
     }
+
+    public function getSharedDocuments(): Collection
+    {
+        $record = $this->getRecord();
+
+        return Document::query()
+            ->whereHas('shares', function ($query) use ($record): void {
+                $query->where('employee_id', $record->user_id)
+                    ->where('active', 1);
+            })
+            ->with(['media', 'documentable'])
+            ->get();
+    }
+
+    public function downloadSharedDocument(string $documentId): void
+    {
+        $appointment = $this->getRecord();
+
+        $document = Document::query()
+            ->whereHas('shares', function ($query) use ($appointment): void {
+                $query->where('employee_id', $appointment->user_id)
+                    ->where('active', 1);
+            })
+            ->find($documentId);
+
+        if (! $document) {
+            return;
+        }
+
+        $media = $document->getFirstMedia('documents');
+
+        if (! $media) {
+            return;
+        }
+
+        $url = Storage::disk($media->disk)->temporaryUrl(
+            $media->getPathRelativeToRoot(),
+            now()->addMinutes(5),
+            ['ResponseContentDisposition' => sprintf('attachment; filename="%s"', $media->file_name)],
+        );
+
+        $this->js('window.open(' . Js::from($url) . ", '_blank')");
+    }
 }
