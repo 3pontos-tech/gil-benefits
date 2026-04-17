@@ -40,6 +40,7 @@ use TresPontosTech\Consultants\Models\DocumentShare;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
+use TresPontosTech\User\Models\UserAnamnese;
 
 /**
  * @property-read int $monthly_appointments_left
@@ -117,6 +118,12 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function detail(): HasOne
     {
         return $this->hasOne(Detail::class);
+    }
+
+    /** @return HasOne<UserAnamnese, $this> */
+    public function anamnese(): HasOne
+    {
+        return $this->hasOne(UserAnamnese::class);
     }
 
     /**
