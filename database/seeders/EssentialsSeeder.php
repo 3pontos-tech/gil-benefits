@@ -11,7 +11,10 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\Consultants\Models\DocumentShare;
 
 class EssentialsSeeder extends Seeder
 {
@@ -119,6 +122,56 @@ class EssentialsSeeder extends Seeder
             'status' => AppointmentStatus::Active,
             'appointment_at' => now()->addDay(),
         ]);
+
+        // Documentos do próprio colaborador (anamnese / ficha) — alimentam o
+        // painel "Documentos do colaborador" na tela ViewAppointment do admin.
+        Document::factory()
+            ->forUser($employee)
+            ->active()
+            ->create([
+                'title' => 'Anamnese - Histórico Pessoal',
+                'type' => DocumentExtensionTypeEnum::PDF,
+            ]);
+
+        Document::factory()
+            ->forUser($employee)
+            ->active()
+            ->create([
+                'title' => 'Comprovante de Renda 2026',
+                'type' => DocumentExtensionTypeEnum::XLSX,
+            ]);
+
+        // Documentos compartilhados pelo consultor com o colaborador —
+        // alimentam o painel "Documentos compartilhados" na mesma tela.
+        $sharedInvestment = Document::factory()
+            ->forConsultant($testConsultant)
+            ->active()
+            ->create([
+                'title' => 'Proposta de Investimento Personalizada',
+                'type' => DocumentExtensionTypeEnum::PDF,
+            ]);
+
+        DocumentShare::factory()
+            ->for($sharedInvestment, 'document')
+            ->for($testConsultant, 'consultant')
+            ->for($employee, 'employee')
+            ->active()
+            ->create();
+
+        $sharedPortfolio = Document::factory()
+            ->forConsultant($testConsultant)
+            ->active()
+            ->create([
+                'title' => 'Análise de Carteira de Ações',
+                'type' => DocumentExtensionTypeEnum::XLSX,
+            ]);
+
+        DocumentShare::factory()
+            ->for($sharedPortfolio, 'document')
+            ->for($testConsultant, 'consultant')
+            ->for($employee, 'employee')
+            ->active()
+            ->create();
 
         $company->employees()->attach($admin);
     }
