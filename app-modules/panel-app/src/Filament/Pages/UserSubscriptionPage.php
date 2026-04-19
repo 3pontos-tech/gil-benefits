@@ -8,8 +8,9 @@ use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Laravel\Cashier\Cashier;
-use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
+use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 
 class UserSubscriptionPage extends Page
@@ -25,6 +26,8 @@ class UserSubscriptionPage extends Page
     protected static bool $shouldRegisterNavigation = false;
 
     public string $selectedPlan = 'user';
+
+    public string $selectedProvider = 'stripe';
 
     protected function getViewData(): array
     {
@@ -46,29 +49,26 @@ class UserSubscriptionPage extends Page
 
         $plan = resolve(PlanRepository::class)->get($this->selectedPlan);
         $price = $plan->prices->first();
+        $data = new CheckoutData(
+            planSlug: $plan->slug,
+            priceId: $price->priceId,
+            isMetered: false,
+            quantity: 1,
+            trialDays: $plan->hasGenericTrial && $plan->trialDays !== false
+                ? $plan->trialDays
+                : null,
+            allowPromotionCodes: $plan->allowPromotionCodes,
+            collectTaxIds: $plan->collectTaxIds,
+            successUrl: UserDashboard::getUrl(),
+            cancelUrl: UserDashboard::getUrl(),
+            metadata: ['model' => Relation::getMorphAlias(User::class)],
+        );
 
-        $sessionCheckout = $user
-            ->newSubscription(type: $plan->slug, prices: [$price->priceId])
-            ->when(
-                value: $plan->hasGenericTrial && $plan->trialDays !== false,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->trialDays(trialDays: $plan->trialDays),
-            )
-            ->when(
-                value: $plan->allowPromotionCodes === true,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->allowPromotionCodes(),
-            )
-            ->when(
-                value: $plan->collectTaxIds === true,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
-            )
-            ->withMetadata([
-                'model' => Relation::getMorphAlias(User::class),
-            ])
-            ->checkout(sessionOptions: [
-                'success_url' => UserDashboard::getUrl(),
-                'cancel_url' => UserDashboard::getUrl(),
-            ]);
+        $url = resolve(BillingContract::class)->createCheckout(
+            billable: $user,
+            data: $data
+        );
 
-        redirect($sessionCheckout->asStripeCheckoutSession()->url);
+        redirect($url);
     }
 }

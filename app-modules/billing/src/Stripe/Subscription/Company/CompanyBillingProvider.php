@@ -6,6 +6,7 @@ use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
 use Filament\Facades\Filament;
 use Filament\Pages\Dashboard;
+use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Company\Models\Company;
 
 class CompanyBillingProvider implements BillingProvider
@@ -16,13 +17,16 @@ class CompanyBillingProvider implements BillingProvider
             /** @var Company $tenant */
             $tenant = Filament::getTenant();
 
-            if ($tenant->hasStripeId() === false) {
-                $tenant->createAsStripeCustomer();
-            }
+            $billing = resolve(BillingContract::class);
+            $billing->ensureCustomerExists($tenant);
 
-            return $tenant->redirectToBillingPortal(returnUrl: Dashboard::getUrl(), options: [
-                'configuration' => config('cashier.portals.company'),
-            ]);
+            $url = $billing->getBillingPortalUrl(
+                billable: $tenant,
+                returnUrl: Dashboard::getUrl(),
+                options: ['configuration' => config('cashier.portals.company')],
+            );
+
+            return redirect($url);
         };
     }
 

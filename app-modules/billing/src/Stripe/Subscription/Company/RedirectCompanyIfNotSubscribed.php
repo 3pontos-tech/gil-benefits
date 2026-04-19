@@ -5,6 +5,7 @@ namespace TresPontosTech\Billing\Stripe\Subscription\Company;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
@@ -23,17 +24,13 @@ class RedirectCompanyIfNotSubscribed
             return $next($request);
         }
 
-        if ($tenant->hasStripeId() === false) {
-            $tenant->createAsStripeCustomer([
-                'metadata' => [
-                    'model_type' => Company::class,
-                ],
-            ]);
-        }
+        $billing = resolve(BillingContract::class);
+        $billing->ensureCustomerExists($tenant);
 
         $plans = resolve(PlanRepository::class)->all();
+
         foreach ($plans as $plan) {
-            if ($tenant->subscribed($plan->slug)) {
+            if ($billing->isSubscribed($tenant, $plan->slug)) {
                 return $next($request);
             }
         }

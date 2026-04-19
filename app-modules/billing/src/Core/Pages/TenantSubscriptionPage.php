@@ -7,8 +7,9 @@ use Filament\Pages\Dashboard;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
+use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
@@ -57,37 +58,23 @@ class TenantSubscriptionPage extends Page
             $seats = 5;
         }
 
-        $sessionCheckout = $tenant
-            ->newSubscription(type: $plan->slug)
-            ->when(
-                value: $plan->isMeteredPrice,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription
-                    ->meteredPrice($price->priceId)
-                    ->quantity($seats),
-            )
-            ->when(
-                value: $plan->hasGenericTrial && $plan->trialDays !== false,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->trialDays(trialDays: $plan->trialDays),
-            )
-            ->when(
-                value: $plan->allowPromotionCodes,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->allowPromotionCodes(),
-            )
-            ->when(
-                value: $plan->collectTaxIds,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
-            )
-            ->withMetadata([
-                'model' => Relation::getMorphAlias(Company::class),
-            ])
-            ->checkout(sessionOptions: [
-                'success_url' => Dashboard::getUrl(),
-                'cancel_url' => Dashboard::getUrl(),
-                'customer_update' => [
-                    'address' => 'auto',
-                ],
-            ]);
+        $data = new CheckoutData(
+            planSlug: $plan->slug,
+            priceId: $price->priceId,
+            isMetered: $plan->isMeteredPrice,
+            quantity: max($this->seatsAmount, 5),
+            trialDays: $plan->hasGenericTrial && $plan->trialDays !== false
+                ? $plan->trialDays
+                : null,
+            allowPromotionCodes: $plan->allowPromotionCodes,
+            collectTaxIds: $plan->collectTaxIds,
+            successUrl: Dashboard::getUrl(),
+            cancelUrl: Dashboard::getUrl(),
+            metadata: ['model' => Relation::getMorphAlias(Company::class)],
+        );
 
-        redirect($sessionCheckout->asStripeCheckoutSession()->url);
+        $url = resolve(BillingContract::class)->createCheckout($tenant, $data);
+
+        redirect($url);
     }
 }

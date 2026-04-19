@@ -6,8 +6,8 @@ use App\Models\Users\User;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
-use Laravel\Cashier\Cashier;
 use Stripe\Collection;
+use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
@@ -24,20 +24,12 @@ class RedirectUserIfNotSubscribed
         if ($tenant->hasActivePlan()) {
             return $next($request);
         }
-
-        Cashier::useCustomerModel(User::class);
-
-        if ($tenant->hasStripeId() === false) {
-            $tenant->createAsStripeCustomer();
-        }
+        $billing = resolve(BillingContract::class);
 
         // TODO: when the company cancels the subscription, the user needs a page to understand what do next
         // TODO: ask the team which kind of page to add here
 
-        $hasActiveSubscription = $tenant
-            ->subscriptions()
-            ->whereIn('stripe_status', ['active', 'incomplete'])
-            ->exists();
+        $hasActiveSubscription = $billing->hasActiveSubscription($tenant);
 
         if ($tenant->slug === 'flamma-company') {
             $hasActiveSubscription = true;
@@ -52,7 +44,7 @@ class RedirectUserIfNotSubscribed
         /** @var Collection<string, PlanEntity> $availableEmployeesPlans */
         $availableEmployeesPlans = $this->planRepository->getPlansFor('user');
         foreach ($availableEmployeesPlans as $plan) {
-            if ($employee->subscribed($plan->slug)) {
+            if ($billing->isUserSubscribed($employee, $plan->slug)) {
                 return $next($request);
             }
         }
