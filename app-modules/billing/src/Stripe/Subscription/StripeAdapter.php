@@ -11,7 +11,7 @@ class StripeAdapter implements BillingContract
 {
     public function ensureCustomerExists(Company $company): void
     {
-        if ($company->stripe_id) {
+        if ($company->hasStripeId()) {
             return;
         }
 

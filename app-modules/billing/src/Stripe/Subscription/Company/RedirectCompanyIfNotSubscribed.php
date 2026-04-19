@@ -5,12 +5,18 @@ namespace TresPontosTech\Billing\Stripe\Subscription\Company;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
 class RedirectCompanyIfNotSubscribed
 {
+    public function __construct(
+        private readonly BillingManager $billingManager,
+    ) {}
+
     public function handle(Request $request, Closure $next, string ...$plans)
     {
         /** @var Company|Filament $tenant */
@@ -29,10 +35,23 @@ class RedirectCompanyIfNotSubscribed
 
         $plans = resolve(PlanRepository::class)->all();
 
-        foreach ($plans as $plan) {
-            if ($billing->isSubscribed($tenant, $plan->slug)) {
-                return $next($request);
-            }
+        $hasValidSubscription = collect(BillingProviderEnum::activeCases())
+            ->some(function (BillingProviderEnum $provider) use ($tenant, $plans) {
+                $driver = $this->billingManager->getDriver($provider);
+
+                $driver->ensureCustomerExists($tenant);
+
+                foreach ($plans as $plan) {
+                    if ($driver->isSubscribed($tenant, $plan->slug)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+
+        if ($hasValidSubscription) {
+            return $next($request);
         }
 
         $route = 'filament.company.pages.available-subscriptions';
