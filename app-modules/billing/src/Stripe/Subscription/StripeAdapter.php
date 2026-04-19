@@ -9,22 +9,24 @@ use TresPontosTech\Company\Models\Company;
 
 class StripeAdapter implements BillingContract
 {
-    public function ensureCustomerExists(Company $company): void
+    public function ensureCustomerExists(Company|User $billable): void
     {
-        if ($company->hasStripeId()) {
+        if ($billable->hasStripeId()) {
             return;
         }
 
-        $company->createAsStripeCustomer([
+        $modelType = $billable instanceof Company ? Company::class : User::class;
+
+        $billable->createAsStripeCustomer([
             'metadata' => [
-                'model_type' => Company::class,
+                'model_type' => $modelType,
             ],
         ]);
     }
 
-    public function isSubscribed(Company $company, string $planSlug): bool
+    public function isSubscribed(Company|User $billable, string $planSlug): bool
     {
-        return $company->subscribed($planSlug);
+        return $billable->subscribed($planSlug);
     }
 
     public function hasActivePlan(Company $company): bool
@@ -68,24 +70,6 @@ class StripeAdapter implements BillingContract
         return $billable
             ->redirectToBillingPortal(returnUrl: $returnUrl, options: $options)
             ->getTargetUrl();
-    }
-
-    public function ensureUserCustomerExists(User $user): void
-    {
-        if ($user->hasStripeId()) {
-            return;
-        }
-
-        $user->createAsStripeCustomer([
-            'metadata' => [
-                'model_type' => User::class,
-            ],
-        ]);
-    }
-
-    public function isUserSubscribed(User $user, string $planSlug): bool
-    {
-        return $user->subscribed($planSlug);
     }
 
     public function hasActiveSubscription(Company|User $billable): bool

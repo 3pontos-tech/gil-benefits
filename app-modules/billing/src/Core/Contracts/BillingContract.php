@@ -8,9 +8,9 @@ use TresPontosTech\Company\Models\Company;
 
 interface BillingContract
 {
-    public function ensureCustomerExists(Company $company): void;
+    public function ensureCustomerExists(Company|User $billable): void;
 
-    public function isSubscribed(Company $company, string $planSlug): bool;
+    public function isSubscribed(Company|User $billable, string $planSlug): bool;
 
     public function hasActivePlan(Company $company): bool;
 
@@ -18,9 +18,6 @@ interface BillingContract
 
     public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string;
 
-    public function ensureUserCustomerExists(User $user): void;
-
-    public function isUserSubscribed(User $user, string $planSlug): bool;
 
     public function hasActiveSubscription(Company|User $billable): bool;
 }

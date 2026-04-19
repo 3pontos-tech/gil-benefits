@@ -55,10 +55,10 @@ class RedirectUserIfNotSubscribed
             ->some(function (BillingProviderEnum $provider) use ($employee, $availableEmployeesPlans) {
                 $driver = $this->billingManager->getDriver($provider);
 
-                $driver->ensureUserCustomerExists($employee);
+                $driver->ensureCustomerExists($employee);
 
                 foreach ($availableEmployeesPlans as $plan) {
-                    if ($driver->isUserSubscribed($employee, $plan->slug)) {
+                    if ($driver->isSubscribed($employee, $plan->slug)) {
                         return true;
                     }
                 }
