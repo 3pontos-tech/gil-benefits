@@ -140,6 +140,14 @@
                                 </div>
 
                             </div>
+                            Provedor de Pagamento
+                            <x-filament::input.wrapper class="mb-2">
+                                <x-filament::input.select wire:model.live="driver">
+                                    @foreach(\TresPontosTech\Billing\Core\Enums\BillingProviderEnum::activeCases() as $case)
+                                        <option value="{{$case->value}}">{{$case->getLabel()}}</option>
+                                    @endforeach
+                                </x-filament::input.select>
+                            </x-filament::input.wrapper>
 
                             <x-filament::button
                                 x-bind:disabled="qty < min"

@@ -6,7 +6,6 @@ use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use TresPontosTech\Billing\Core\BillingManager;
-use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
@@ -30,24 +29,15 @@ class RedirectCompanyIfNotSubscribed
             return $next($request);
         }
 
-        $billing = resolve(BillingContract::class);
-        $billing->ensureCustomerExists($tenant);
-
         $plans = resolve(PlanRepository::class)->all();
 
         $hasValidSubscription = collect(BillingProviderEnum::activeCases())
-            ->some(function (BillingProviderEnum $provider) use ($tenant, $plans) {
+            ->contains(function (BillingProviderEnum $provider) use ($tenant, $plans): bool {
                 $driver = $this->billingManager->getDriver($provider);
 
                 $driver->ensureCustomerExists($tenant);
 
-                foreach ($plans as $plan) {
-                    if ($driver->isSubscribed($tenant, $plan->slug)) {
-                        return true;
-                    }
-                }
-
-                return false;
+                return array_any($plans, fn ($plan): bool => $driver->isSubscribed($tenant, $plan->slug));
             });
 
         if ($hasValidSubscription) {

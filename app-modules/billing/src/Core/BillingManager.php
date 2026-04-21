@@ -3,6 +3,8 @@
 namespace TresPontosTech\Billing\Core;
 
 use Illuminate\Support\Manager;
+use TresPontosTech\Billing\Barte\BarteAdapter;
+use TresPontosTech\Billing\Barte\BarteClient;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Stripe\Subscription\StripeAdapter;
@@ -19,10 +21,16 @@ final class BillingManager extends Manager
         return new StripeAdapter;
     }
 
+    private function barteDriver(): BillingContract
+    {
+        return new BarteAdapter(new BarteClient);
+    }
+
     public function getDriver(BillingProviderEnum $driver = BillingProviderEnum::Stripe): BillingContract
     {
         return match ($driver) {
             BillingProviderEnum::Stripe => $this->stripeDriver(),
+            BillingProviderEnum::Barte => $this->barteDriver(),
             BillingProviderEnum::Contractual => throw new \Exception('To be implemented'),
         };
     }

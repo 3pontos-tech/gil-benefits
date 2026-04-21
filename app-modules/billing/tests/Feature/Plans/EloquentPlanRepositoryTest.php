@@ -2,6 +2,7 @@
 
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Repositories\EloquentPlanRepository;
@@ -46,7 +47,7 @@ it('getActiveTenantPlan() returns only stripe plan', function (): void {
     Plan::factory()->active()->contractual()->state(['type' => BillableTypeEnum::Company])->create();
 
     $repository = new EloquentPlanRepository;
-    $plan = $repository->getActiveTenantPlan();
+    $plan = $repository->getActiveTenantPlan(BillingProviderEnum::Stripe);
 
     expect($plan)->toBeInstanceOf(PlanEntity::class);
     expect($plan->productId)->toBe($stripePlan->provider_product_id);

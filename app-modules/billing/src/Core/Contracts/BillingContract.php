@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Billing\Core\Contracts;
 
 use App\Models\Users\User;
@@ -17,7 +19,6 @@ interface BillingContract
     public function createCheckout(Company|User $billable, CheckoutData $data): string;
 
     public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string;
-
 
     public function hasActiveSubscription(Company|User $billable): bool;
 }

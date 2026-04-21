@@ -2,7 +2,6 @@
 
 namespace TresPontosTech\Billing\Stripe\Subscription\User;
 
-use App\Models\Users\User;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
@@ -33,7 +32,7 @@ class RedirectUserIfNotSubscribed
         // TODO: ask the team which kind of page to add here
 
         $hasActiveSubscription = collect(BillingProviderEnum::activeCases())
-            ->some(fn (BillingProviderEnum $provider) => $this->billingManager
+            ->contains(fn (BillingProviderEnum $provider): bool => $this->billingManager
                 ->getDriver($provider)
                 ->hasActiveSubscription($tenant)
             );
@@ -52,7 +51,7 @@ class RedirectUserIfNotSubscribed
         $availableEmployeesPlans = $this->planRepository->getPlansFor('user');
 
         $hasValidSubscription = collect(BillingProviderEnum::activeCases())
-            ->some(function (BillingProviderEnum $provider) use ($employee, $availableEmployeesPlans) {
+            ->contains(function (BillingProviderEnum $provider) use ($employee, $availableEmployeesPlans): bool {
                 $driver = $this->billingManager->getDriver($provider);
 
                 $driver->ensureCustomerExists($employee);

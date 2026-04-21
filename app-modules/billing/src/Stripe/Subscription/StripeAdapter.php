@@ -68,7 +68,7 @@ class StripeAdapter implements BillingContract
     public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string
     {
         return $billable
-            ->redirectToBillingPortal(returnUrl: $returnUrl, options: $options)
+            ->redirectToBillingPortal(returnUrl: $returnUrl, options: ['configuration' => config('cashier.portals.company')])
             ->getTargetUrl();
     }
 

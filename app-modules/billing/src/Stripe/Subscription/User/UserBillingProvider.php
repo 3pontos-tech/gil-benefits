@@ -4,25 +4,32 @@ namespace TresPontosTech\Billing\Stripe\Subscription\User;
 
 use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use TresPontosTech\App\Filament\Pages\UserDashboard;
-use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\BillingCustomer;
+use TresPontosTech\Billing\Core\BillingManager;
 
 class UserBillingProvider implements BillingProvider
 {
     public function getRouteAction(): string|Closure|array
     {
-        return static function () {
+        return static function (): RedirectResponse|Redirector {
             $user = auth()->user();
 
-            $billing = resolve(BillingContract::class);
-            $billing->ensureUserCustomerExists($user);
+            $providerEnum = BillingCustomer::getActiveProvider($user);
 
-            $billing->ensureUserCustomerExists($user);
+            $billing = resolve(BillingManager::class);
 
-            $url = $billing->getBillingPortalUrl(
+            $driver = $providerEnum
+                ? $billing->driver($providerEnum->value)
+                : $billing->getDefaultDriver();
+
+            $driver->ensureCustomerExists($user);
+
+            $url = $driver->getBillingPortalUrl(
                 billable: $user,
                 returnUrl: UserDashboard::getUrl(),
-                options: ['configuration' => config('cashier.portals.user')],
             );
 
             return redirect($url);

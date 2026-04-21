@@ -8,9 +8,10 @@ use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Livewire\Attributes\Computed;
-use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
@@ -30,6 +31,8 @@ class TenantSubscriptionPage extends Page
 
     public int $seatsAmount = 5;
 
+    public string $driver = 'stripe';
+
     protected function getViewData(): array
     {
         return [
@@ -40,12 +43,11 @@ class TenantSubscriptionPage extends Page
     #[Computed]
     public function getActiveTenantPlan(): PlanEntity
     {
-        return resolve(PlanRepository::class)->getActiveTenantPlan();
+        return resolve(PlanRepository::class)->getActiveTenantPlan(BillingProviderEnum::from($this->driver));
     }
 
     public function checkout(): void
     {
-
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
@@ -73,7 +75,9 @@ class TenantSubscriptionPage extends Page
             metadata: ['model' => Relation::getMorphAlias(Company::class)],
         );
 
-        $url = resolve(BillingContract::class)->createCheckout($tenant, $data);
+        $url = resolve(BillingManager::class)
+            ->getDriver(BillingProviderEnum::from($this->driver))
+            ->createCheckout($tenant, $data);
 
         redirect($url);
     }
