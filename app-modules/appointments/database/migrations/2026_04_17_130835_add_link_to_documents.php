@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('documents', function (Blueprint $table): void {
-            $table->addColumn('string', 'link')->after('active')->nullable();
+            $table->addColumn('string', 'link')->nullable();
         });
     }
 
