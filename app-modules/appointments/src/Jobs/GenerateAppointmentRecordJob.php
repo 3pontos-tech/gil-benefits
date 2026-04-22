@@ -13,7 +13,7 @@ use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
-use TresPontosTech\Appointments\Actions\Records\GenerateRecordDraftAction;
+use TresPontosTech\Appointments\Actions\Records\GenerateAndPersistDraftAction;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
 
 class GenerateAppointmentRecordJob implements ShouldQueue
@@ -52,7 +52,7 @@ class GenerateAppointmentRecordJob implements ShouldQueue
         return [new RateLimited('appointment-record-ai')];
     }
 
-    public function handle(GenerateRecordDraftAction $generate): void
+    public function handle(GenerateAndPersistDraftAction $generateAndPersist): void
     {
         $record = AppointmentRecord::with([
             'appointment.user',
@@ -68,7 +68,7 @@ class GenerateAppointmentRecordJob implements ShouldQueue
             return;
         }
 
-        $record->update(['generation_started_at' => now()]);
+        $record->markGenerationStarted();
 
         $disk = Storage::disk($this->disk);
         $absolutePath = $disk->path($this->path);
@@ -80,21 +80,7 @@ class GenerateAppointmentRecordJob implements ShouldQueue
             test: true,
         );
 
-        try {
-            $draft = $generate->execute($file, $record->appointment);
-
-            $record->update([
-                'content' => $draft->content,
-                'internal_summary' => $draft->internalSummary,
-                'model_used' => $draft->modelUsed,
-                'input_tokens' => $draft->inputTokens,
-                'output_tokens' => $draft->outputTokens,
-            ]);
-        } catch (Throwable $throwable) {
-            $record->update(['generation_started_at' => null]);
-
-            throw $throwable;
-        }
+        $generateAndPersist->execute($record, $file);
 
         $disk->delete($this->path);
 
@@ -120,6 +106,8 @@ class GenerateAppointmentRecordJob implements ShouldQueue
             'exception_class' => $e instanceof Throwable ? $e::class : null,
             'message' => $e?->getMessage(),
         ]);
+
+        Storage::disk($this->disk)->delete($this->path);
 
         AppointmentRecord::query()->find($this->recordId)?->forceDelete();
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -57,7 +58,18 @@ class AppointmentRecord extends Model
         return $this->published_at !== null;
     }
 
-    protected function scopePublished(Builder $query): Builder
+    public function markGenerationStarted(): void
+    {
+        $this->update(['generation_started_at' => now()]);
+    }
+
+    public function clearGenerationStart(): void
+    {
+        $this->update(['generation_started_at' => null]);
+    }
+
+    #[Scope]
+    protected function published(Builder $query): Builder
     {
         return $query->whereNotNull('published_at');
     }

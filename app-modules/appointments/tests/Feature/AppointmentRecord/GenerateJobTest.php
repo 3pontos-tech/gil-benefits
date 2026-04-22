@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Prism\Prism\Exceptions\PrismException;
+use TresPontosTech\Appointments\Actions\Records\GenerateAndPersistDraftAction;
 use TresPontosTech\Appointments\Actions\Records\GenerateRecordDraftAction;
 use TresPontosTech\Appointments\DTO\GeneratedDraft;
 use TresPontosTech\Appointments\Exceptions\RecordGenerationFailedException;
@@ -45,7 +46,7 @@ function persistFixtureFile(AppointmentRecord $record): string
     return $path;
 }
 
-it('handle: persiste content gerado, marca generation_started_at e deleta o arquivo do disco', function (): void {
+it('handle: persists generated content, marks generation_started_at and deletes the file from disk', function (): void {
     [$record] = fakeAppointmentWithRecord();
     $path = persistFixtureFile($record);
 
@@ -66,7 +67,7 @@ it('handle: persiste content gerado, marca generation_started_at e deleta o arqu
     });
 
     $job = new GenerateAppointmentRecordJob($record->id, 'local', $path);
-    $job->handle(resolve(GenerateRecordDraftAction::class));
+    $job->handle(resolve(GenerateAndPersistDraftAction::class));
 
     $record->refresh();
 
@@ -82,7 +83,7 @@ it('handle: persiste content gerado, marca generation_started_at e deleta o arqu
     Mail::assertNothingQueued();
 });
 
-it('handle: ignora retry quando generation_started_at já está setado', function (): void {
+it('handle: skips retry when generation_started_at is already set', function (): void {
     [$record] = fakeAppointmentWithRecord();
     $record->update(['generation_started_at' => now()->subMinute()]);
     $path = persistFixtureFile($record);
@@ -103,7 +104,7 @@ it('handle: ignora retry quando generation_started_at já está setado', functio
     });
 
     $job = new GenerateAppointmentRecordJob($record->id, 'local', $path);
-    $job->handle(resolve(GenerateRecordDraftAction::class));
+    $job->handle(resolve(GenerateAndPersistDraftAction::class));
 
     expect($tracker->called)->toBeFalse();
 
@@ -112,7 +113,7 @@ it('handle: ignora retry quando generation_started_at já está setado', functio
         ->once();
 });
 
-it('handle: faz rollback do generation_started_at quando a geração falha', function (): void {
+it('handle: rolls back generation_started_at when the generation fails', function (): void {
     [$record] = fakeAppointmentWithRecord();
     $path = persistFixtureFile($record);
 
@@ -128,7 +129,7 @@ it('handle: faz rollback do generation_started_at quando a geração falha', fun
 
     $job = new GenerateAppointmentRecordJob($record->id, 'local', $path);
 
-    expect(fn () => $job->handle(resolve(GenerateRecordDraftAction::class)))
+    expect(fn () => $job->handle(resolve(GenerateAndPersistDraftAction::class)))
         ->toThrow(PrismException::class);
 
     $record->refresh();
@@ -136,16 +137,19 @@ it('handle: faz rollback do generation_started_at quando a geração falha', fun
     expect($record->generation_started_at)->toBeNull();
 });
 
-it('failed: loga erro e remove o record placeholder via forceDelete', function (): void {
+it('failed: logs the error, removes the uploaded file and force-deletes the record placeholder', function (): void {
     [$record] = fakeAppointmentWithRecord();
+    $path = persistFixtureFile($record);
 
-    $job = new GenerateAppointmentRecordJob($record->id, 'local', sprintf('appointments/records/%s.pdf', $record->getKey()));
+    $job = new GenerateAppointmentRecordJob($record->id, 'local', $path);
 
     $job->failed(RecordGenerationFailedException::unreadableDocument('reuniao.docx'));
 
     Log::shouldHaveReceived('error')
         ->withArgs(fn (string $msg): bool => $msg === 'IA :: job de geração falhou definitivamente após retries')
         ->once();
+
+    Storage::disk('local')->assertMissing($path);
 
     expect(AppointmentRecord::withTrashed()->find($record->id))->toBeNull();
 
