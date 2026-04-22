@@ -12,10 +12,12 @@ it('should render', function () {
 it('should fill login form on local and staging', function () {
     app()->detectEnvironment(fn () => 'local');
     config(['app.env' => 'local']);
+    filament()->setCurrentPanel(filament()->getPanel('app'));
+
     livewire(LoginPage::class)
         ->assertOk()
         ->assertSchemaStateSet([
-            'email' => 'admin@5pontos.com',
+            'email' => 'employee@5pontos.com',
             'password' => 'password',
             'remember' => true,
         ]);

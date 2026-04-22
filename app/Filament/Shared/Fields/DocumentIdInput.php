@@ -19,6 +19,10 @@ final class DocumentIdInput
             ))
             ->minLength(5)
             ->maxLength(14)
-            ->dehydrateStateUsing(fn ($state): string|array|null => preg_replace('/\D/', '', $state));
+            ->dehydrateStateUsing(
+                static fn (mixed $state): ?string => is_string($state)
+                    ? (preg_replace('/\D/', '', $state) ?? $state)
+                    : null,
+            );
     }
 }

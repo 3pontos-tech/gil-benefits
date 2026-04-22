@@ -6,6 +6,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\App\Filament\Actions\FeedbackAction;
+use TresPontosTech\App\Filament\Actions\ViewAppointmentRecordAction;
 
 class AppointmentsTable
 {
@@ -14,7 +15,7 @@ class AppointmentsTable
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query
                 ->where('user_id', auth()->user()->getKey())
-                ->with(['consultant', 'feedback'])
+                ->with(['consultant', 'feedback', 'record'])
             )
             ->columns([
                 TextColumn::make('consultant.name')
@@ -49,6 +50,7 @@ class AppointmentsTable
                 //
             ])
             ->recordActions([
+                ViewAppointmentRecordAction::make(),
                 FeedbackAction::make(),
             ]);
 

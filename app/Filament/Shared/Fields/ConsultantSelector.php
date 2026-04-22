@@ -10,8 +10,14 @@ class ConsultantSelector extends Field
 {
     protected string $view = 'livewire.consultant-selector';
 
+    /**
+     * @var array<int|string, mixed>|Closure
+     */
     protected array|Closure $consultants = [];
 
+    /**
+     * @param  array<int|string, mixed>|Closure  $consultants
+     */
     public function consultants(array|Closure $consultants): static
     {
         $this->consultants = $consultants;
@@ -19,9 +25,18 @@ class ConsultantSelector extends Field
         return $this;
     }
 
+    /**
+     * @return array<int|string, mixed>
+     */
     public function getConsultants(): array
     {
-        return $this->evaluate($this->consultants) ?? Consultant::all()->toArray();
+        $evaluated = $this->evaluate($this->consultants);
+
+        if (is_array($evaluated)) {
+            return $evaluated;
+        }
+
+        return Consultant::all()->toArray();
     }
 
     protected function setUp(): void

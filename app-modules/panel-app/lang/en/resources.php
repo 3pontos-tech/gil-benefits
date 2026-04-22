@@ -7,6 +7,13 @@ return [
         'table' => [
             'category_type' => 'Appointment Type',
         ],
+        'records' => [
+            'view' => [
+                'label' => 'View Record',
+                'modal_heading' => 'Appointment record',
+                'close' => 'Close',
+            ],
+        ],
         'feedback' => [
             'action_label' => 'Rate',
             'modal_heading' => 'Rate your consultation',

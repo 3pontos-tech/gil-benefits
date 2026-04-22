@@ -61,10 +61,10 @@ class CompanyPanelProvider extends PanelProvider
             ->tenantRegistration(RegisterTenant::class)
             ->tenantProfile(EditTenantProfile::class)
             ->brandLogo(function (): ?HtmlString {
-                /** @var Company $company */
+                /** @var Company|null $company */
                 $company = filament()->getTenant();
 
-                if (! $company) {
+                if ($company === null) {
                     return null;
                 }
 
@@ -98,7 +98,12 @@ class CompanyPanelProvider extends PanelProvider
                 NavigationItem::make(__('companies::resources.companies.billing_settings'))
                     ->icon(Heroicon::CreditCard)
                     ->group(__('all.settings'))
-                    ->visible(fn (): bool => ! filament()->getTenant()?->hasActivePlan())
+                    ->visible(function (): bool {
+                        /** @var Company|null $tenant */
+                        $tenant = filament()->getTenant();
+
+                        return ! $tenant?->hasActivePlan();
+                    })
                     ->url(fn (): string => route('filament.company.tenant.billing', ['tenant' => Filament::getTenant()])),
                 NavigationItem::make(__('all.my_profile'))
                     ->icon(Heroicon::UserCircle)

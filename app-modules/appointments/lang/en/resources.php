@@ -30,6 +30,17 @@ return [
             'metadata' => 'Metadata',
             'appointment_info' => 'Appointment Info',
             'anamnese' => 'User Profile',
+            'ai_generation' => 'AI generation',
+            'ai' => [
+                'model_used' => 'Model used',
+                'input_tokens' => 'Input tokens',
+                'output_tokens' => 'Output tokens',
+                'total_tokens' => 'Total tokens',
+                'content' => 'Record',
+                'internal_summary' => 'Internal summary',
+                'published_at' => 'Published at',
+                'draft' => 'Draft',
+            ],
             'employee_documents' => 'Employee Documents',
             'employee_shared_documents' => 'Document shared with employee',
             'documents' => [
@@ -47,6 +58,33 @@ return [
             'slot_unavailable' => 'This time slot is no longer available. Please select another.',
             'consultant_unavailable' => 'This consultant is not available for the selected time slot.',
             'calendar_event_failed' => 'Failed to create the Google Calendar event. Try saving again or check the integration.',
+        ],
+
+        'records' => [
+            'editor_label' => 'Record (visible to the client after publishing)',
+            'notifications' => [
+                'ready' => [
+                    'title' => 'Record ready for review',
+                    'body' => 'Appointment: :user',
+                ],
+                'failed' => [
+                    'title' => 'Failed to generate record',
+                    'body' => [
+                        'unreadable' => 'We could not read the uploaded document. Make sure it is not corrupted or password protected.',
+                        'generation' => 'We could not generate the record. Try again in a few minutes or write it manually.',
+                        'unexpected' => 'Unexpected error while generating the record. Try again or write it manually.',
+                    ],
+                ],
+                'draft_saved' => [
+                    'title' => 'Draft saved',
+                ],
+                'published' => [
+                    'title' => 'Record published',
+                ],
+                'updated' => [
+                    'title' => 'Record updated',
+                ],
+            ],
         ],
 
         'notifications' => [

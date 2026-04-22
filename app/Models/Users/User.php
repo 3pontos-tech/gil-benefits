@@ -5,6 +5,7 @@ namespace App\Models\Users;
 use App\Filament\FilamentPanel;
 use App\Observers\UserObserver;
 use App\Policies\Users\UserPolicy;
+use Database\Factories\Users\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
@@ -41,12 +42,18 @@ use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
 use TresPontosTech\User\Models\UserAnamnese;
 
+/**
+ * @property-read int $monthly_appointments_left
+ */
 #[UsePolicy(UserPolicy::class)]
 #[ObservedBy(UserObserver::class)]
 class User extends Authenticatable implements FilamentUser, HasTenants
 {
     use Billable;
+
+    /** @use HasFactory<UserFactory> */
     use HasFactory;
+
     use HasRoles;
     use HasTenant;
     use HasUuids;
@@ -86,6 +93,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->companies()->whereKey($tenant)->exists();
     }
 
+    /**
+     * @return BelongsToMany<Company, $this, TenantMember>
+     */
     public function companies(): BelongsToMany
     {
         return $this->belongsToMany(Company::class, 'company_employees', 'user_id', 'company_id')
@@ -94,49 +104,67 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             ->using(TenantMember::class);
     }
 
+    /**
+     * @return HasMany<Company, $this>
+     */
     public function ownedCompanies(): HasMany
     {
         return $this->hasMany(Company::class, 'user_id');
     }
 
+    /**
+     * @return HasOne<Detail, $this>
+     */
     public function detail(): HasOne
     {
         return $this->hasOne(Detail::class);
     }
 
+    /** @return HasOne<UserAnamnese, $this> */
     public function anamnese(): HasOne
     {
         return $this->hasOne(UserAnamnese::class);
     }
 
+    /**
+     * @return HasOne<Consultant, $this>
+     */
     public function consultant(): HasOne
     {
         return $this->hasOne(Consultant::class);
     }
 
-    public function appointments(): HasMany
-    {
-        return $this->hasMany(Appointment::class);
-    }
-
+    /**
+     * @return MorphMany<Document, $this>
+     */
     public function documents(): MorphMany
     {
         return $this->morphMany(Document::class, 'documentable');
     }
 
+    /**
+     * @return HasMany<DocumentShare, $this>
+     */
     public function sharedDocuments(): HasMany
     {
         return $this->hasMany(DocumentShare::class, 'employee_id');
     }
 
+    /**
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
     #[Scope]
-    public function whereNotSharedWith(Builder $query, string $documentId)
+    public function whereNotSharedWith(Builder $query, string $documentId): Builder
     {
         return $query->whereDoesntHave('sharedDocuments', function (Builder $subquery) use ($documentId): void {
             $subquery->where('document_id', $documentId);
         });
     }
 
+    /**
+     * @return MorphMany<Subscription, $this>
+     */
     public function subscriptions(): MorphMany
     {
         return $this->morphMany(Subscription::class, 'subscriptionable');
@@ -162,6 +190,43 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     }
 
     /**
+     * @return HasMany<Appointment, $this>
+     */
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasAnyRole([Roles::SuperAdmin, Roles::Admin]);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(Roles::SuperAdmin);
+    }
+
+    public function isCompanyOwner(): bool
+    {
+        return $this->hasRole([Roles::CompanyOwner]);
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->hasRole(Roles::Employee);
+    }
+
+    public function forgetMonthlyAppointmentsLeftCache(): void
+    {
+        if ($this->getKey() === null) {
+            return;
+        }
+
+        Cache::forget($this->getMonthlyAppointmentsLeftCacheKey());
+    }
+
+    /**
      * Determine if the user is eligible to create a new appointment.
      *
      * Rules:
@@ -175,6 +240,8 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     /**
      * Computed, cached monthly appointments left in the last 30 days window.
+     *
+     * @return Attribute<int, never>
      */
     protected function monthlyAppointmentsLeft(): Attribute
     {
@@ -186,7 +253,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
                 $cacheKey = $this->getMonthlyAppointmentsLeftCacheKey();
 
-                return Cache::remember($cacheKey, now()->addMinute(), function (): int {
+                /** @var int $result */
+                $result = Cache::remember($cacheKey, now()->addMinute(), function (): int {
+                    /** @var Subscription|null $subscription */
                     $subscription = $this->activeSubscription()
                         ->with('price')
                         ->first();
@@ -232,37 +301,10 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
                     return max($monthlyLimit - $used, 0);
                 });
+
+                return $result;
             }
         )->shouldCache();
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->hasAnyRole([Roles::SuperAdmin, Roles::Admin]);
-    }
-
-    public function isSuperAdmin(): bool
-    {
-        return $this->hasRole(Roles::SuperAdmin);
-    }
-
-    public function isCompanyOwner(): bool
-    {
-        return $this->hasRole([Roles::CompanyOwner]);
-    }
-
-    public function isEmployee(): bool
-    {
-        return $this->hasRole(Roles::Employee);
-    }
-
-    public function forgetMonthlyAppointmentsLeftCache(): void
-    {
-        if ($this->getKey() === null) {
-            return;
-        }
-
-        Cache::forget($this->getMonthlyAppointmentsLeftCacheKey());
     }
 
     protected function getMonthlyAppointmentsLeftCacheKey(): string

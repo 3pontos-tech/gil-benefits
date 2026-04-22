@@ -13,6 +13,9 @@ return [
         'navigation_label' => 'Agendamentos',
         'model_label' => 'Agendamento',
         'plural_model_label' => 'Agendamentos',
+        'view' => [
+            'processing' => 'Ata em processamento pela IA…',
+        ],
     ],
     'consultants' => [
         'navigation_label' => 'Consultores',

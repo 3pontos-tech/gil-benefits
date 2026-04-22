@@ -10,5 +10,18 @@ parameters:
         - bootstrap
         - database/factories
         - routes
+
     excludePaths:
         - bootstrap/cache
+
+    ignoreErrors:
+        # FakerPHP providers do locale pt_BR expõem métodos rg()/cpf() dinamicamente
+        # via __call, então o PHPStan não os encontra na interface Faker\Generator.
+        -
+            message: '#^Call to an undefined method Faker\\Generator::(rg|cpf)\(\)\.$#'
+            path: database/factories/Users/DetailFactory.php
+        # Panel::macro() rebinds $this via Closure::bindTo() em runtime. O PHPStan
+        # não infere isso, então reporta falsos positivos no closure do macro.
+        -
+            message: '#^(Call to an undefined method .+::getId\(\)|Parameter \#1 \$value of static method App\\Filament\\FilamentPanel::from\(\) expects int\|string, mixed given)\.$#'
+            path: app/Providers/FilamentServiceProvider.php

@@ -11,11 +11,11 @@ class CnpjColumn extends TextColumn
         parent::setUp();
 
         $this->formatStateUsing(static function (mixed $state): ?string {
-            if (blank($state)) {
+            if (! is_string($state) || $state === '') {
                 return null;
             }
 
-            $cnpj = preg_replace('/[^0-9]/', '', $state);
+            $cnpj = preg_replace('/[^0-9]/', '', $state) ?? '';
 
             if (strlen($cnpj) !== 14) {
                 return $state;
