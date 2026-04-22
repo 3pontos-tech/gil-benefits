@@ -27,6 +27,17 @@ class ListAppointments extends ListRecords
         ];
     }
 
+    public function mount(): void
+    {
+        parent::mount();
+
+        $persisted = session($this->getTableFiltersSessionKey());
+
+        if (filled($persisted)) {
+            $this->dispatch('appointments-table-filters-changed', filters: $persisted);
+        }
+    }
+
     protected function handleTableFilterUpdates(): void
     {
         parent::handleTableFilterUpdates();
