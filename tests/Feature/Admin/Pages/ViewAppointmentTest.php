@@ -15,7 +15,7 @@ beforeEach(function (): void {
     actingAsAdmin();
 });
 
-it('renderiza a página de visualização do agendamento', function (): void {
+it('renders the appointment view page', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Completed)
         ->create();
@@ -26,7 +26,7 @@ it('renderiza a página de visualização do agendamento', function (): void {
         ->assertSee($appointment->status->getLabel());
 });
 
-it('exibe nome do usuário e do consultor na seção de participantes', function (): void {
+it('shows user and consultant names in the participants section', function (): void {
     $appointment = Appointment::factory()->create();
 
     livewire(ViewAppointment::class, ['record' => $appointment->getKey()])
@@ -34,7 +34,7 @@ it('exibe nome do usuário e do consultor na seção de participantes', function
         ->assertSee($appointment->consultant->name);
 });
 
-it('oculta seção do consultor quando agendamento não tem consultor', function (): void {
+it('hides the consultant section when the appointment has no consultant', function (): void {
     $appointment = Appointment::factory()->withoutConsultant()->create();
 
     livewire(ViewAppointment::class, ['record' => $appointment->getKey()])
@@ -42,7 +42,7 @@ it('oculta seção do consultor quando agendamento não tem consultor', function
         ->assertDontSee(__('appointments::resources.appointments.table.columns.consultant'));
 });
 
-it('exibe badge de categoria quando presente', function (): void {
+it('shows the category badge when present', function (): void {
     $appointment = Appointment::factory()->create([
         'category_type' => AppointmentCategoryEnum::PersonalFinance,
     ]);
@@ -51,20 +51,20 @@ it('exibe badge de categoria quando presente', function (): void {
         ->assertSee(AppointmentCategoryEnum::PersonalFinance->getLabel());
 });
 
-it('exibe badge de status do agendamento', function (AppointmentStatus $status): void {
+it('shows the appointment status badge', function (AppointmentStatus $status): void {
     $appointment = Appointment::factory()->withStatus($status)->create();
 
     livewire(ViewAppointment::class, ['record' => $appointment->getKey()])
         ->assertSee($status->getLabel());
 })->with([
-    'rascunho' => AppointmentStatus::Draft,
-    'pendente' => AppointmentStatus::Pending,
-    'ativo' => AppointmentStatus::Active,
-    'concluído' => AppointmentStatus::Completed,
-    'cancelado' => AppointmentStatus::Cancelled,
+    'draft' => AppointmentStatus::Draft,
+    'pending' => AppointmentStatus::Pending,
+    'active' => AppointmentStatus::Active,
+    'completed' => AppointmentStatus::Completed,
+    'cancelled' => AppointmentStatus::Cancelled,
 ]);
 
-it('exibe data e hora do agendamento na sidebar', function (): void {
+it('shows the appointment date and time in the sidebar', function (): void {
     $appointment = Appointment::factory()->create([
         'appointment_at' => '2026-03-20 14:30:00',
     ]);
@@ -74,7 +74,7 @@ it('exibe data e hora do agendamento na sidebar', function (): void {
         ->assertSee('14:30');
 });
 
-it('exibe link da reunião quando disponível', function (): void {
+it('shows the meeting link when available', function (): void {
     $appointment = Appointment::factory()->create([
         'meeting_url' => 'https://meet.google.com/abc-defg-hij',
     ]);
@@ -84,7 +84,7 @@ it('exibe link da reunião quando disponível', function (): void {
         ->assertSeeHtml('href="https://meet.google.com/abc-defg-hij"');
 });
 
-it('exibe observações quando presentes', function (): void {
+it('shows notes when present', function (): void {
     $appointment = Appointment::factory()->create([
         'notes' => 'Cliente solicitou foco em investimentos de longo prazo.',
     ]);
@@ -93,14 +93,14 @@ it('exibe observações quando presentes', function (): void {
         ->assertSee('Cliente solicitou foco em investimentos de longo prazo.');
 });
 
-it('oculta seção de observações quando vazia', function (): void {
+it('hides the notes section when empty', function (): void {
     $appointment = Appointment::factory()->create(['notes' => null]);
 
     livewire(ViewAppointment::class, ['record' => $appointment->getKey()])
         ->assertDontSee(__('appointments::resources.appointments.wizard.labels.notes'));
 });
 
-it('exibe ata com conteúdo renderizado em markdown', function (): void {
+it('renders the record content as markdown', function (): void {
     $appointment = Appointment::factory()->create();
     AppointmentRecord::factory()
         ->recycle($appointment)
@@ -112,7 +112,7 @@ it('exibe ata com conteúdo renderizado em markdown', function (): void {
         ->assertSee('Cliente demonstrou interesse.');
 });
 
-it('exibe badge de rascunho quando a ata não foi publicada', function (): void {
+it('shows a draft badge when the record is not published', function (): void {
     $appointment = Appointment::factory()->create();
     AppointmentRecord::factory()
         ->recycle($appointment)
@@ -122,7 +122,7 @@ it('exibe badge de rascunho quando a ata não foi publicada', function (): void 
         ->assertSee(__('appointments::resources.appointments.infolist.ai.draft'));
 });
 
-it('exibe badge com data de publicação quando a ata foi publicada', function (): void {
+it('shows a badge with the publication date when the record is published', function (): void {
     $publishedAt = now()->subHour();
 
     $appointment = Appointment::factory()->create();
@@ -137,7 +137,7 @@ it('exibe badge com data de publicação quando a ata foi publicada', function (
         ->assertSee($publishedAt->format('d/m/Y H:i'));
 });
 
-it('exibe indicador de processamento quando record existe mas content é null', function (): void {
+it('shows a processing indicator when the record exists but content is null', function (): void {
     $appointment = Appointment::factory()->create();
     AppointmentRecord::factory()
         ->recycle($appointment)
@@ -148,7 +148,7 @@ it('exibe indicador de processamento quando record existe mas content é null', 
         ->assertSee(__('panel-admin::resources.appointments.view.processing'));
 });
 
-it('exibe resumo interno na tab quando disponível', function (): void {
+it('shows the internal summary tab when available', function (): void {
     $appointment = Appointment::factory()->create();
     AppointmentRecord::factory()
         ->recycle($appointment)
@@ -162,7 +162,7 @@ it('exibe resumo interno na tab quando disponível', function (): void {
         ->assertSee('Cliente engajado.');
 });
 
-it('não exibe tab de resumo interno quando ausente', function (): void {
+it('does not show the internal summary tab when absent', function (): void {
     $appointment = Appointment::factory()->create();
     AppointmentRecord::factory()
         ->recycle($appointment)
@@ -175,7 +175,7 @@ it('não exibe tab de resumo interno quando ausente', function (): void {
         ->assertDontSee(__('appointments::resources.appointments.infolist.ai.internal_summary'));
 });
 
-it('exibe metadados da IA quando disponíveis', function (): void {
+it('shows AI metadata when available', function (): void {
     $appointment = Appointment::factory()->create();
     AppointmentRecord::factory()
         ->recycle($appointment)
@@ -189,7 +189,7 @@ it('exibe metadados da IA quando disponíveis', function (): void {
         ->assertSee('9,700');
 });
 
-it('exibe documentos do colaborador quando existem', function (): void {
+it('shows employee documents when present', function (): void {
     $appointment = Appointment::factory()->create();
 
     Document::factory()
@@ -203,14 +203,14 @@ it('exibe documentos do colaborador quando existem', function (): void {
         ->assertSee('Extrato bancário março');
 });
 
-it('exibe placeholder quando colaborador não tem documentos', function (): void {
+it('shows a placeholder when the employee has no documents', function (): void {
     $appointment = Appointment::factory()->create();
 
     livewire(ViewAppointment::class, ['record' => $appointment->getKey()])
         ->assertSee(__('appointments::resources.appointments.infolist.documents.empty'));
 });
 
-it('oculta seção de IA quando não há record', function (): void {
+it('hides the AI section when there is no record', function (): void {
     $appointment = Appointment::factory()->create();
 
     livewire(ViewAppointment::class, ['record' => $appointment->getKey()])
@@ -218,7 +218,7 @@ it('oculta seção de IA quando não há record', function (): void {
         ->assertDontSee(__('panel-admin::resources.appointments.view.processing'));
 });
 
-it('exibe timestamps de criação e atualização nos metadados', function (): void {
+it('shows created and updated timestamps in the metadata', function (): void {
     $appointment = Appointment::factory()->create([
         'created_at' => '2026-03-15 10:00:00',
         'updated_at' => '2026-03-15 10:00:00',

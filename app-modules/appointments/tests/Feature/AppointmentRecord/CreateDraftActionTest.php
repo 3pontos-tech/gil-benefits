@@ -16,7 +16,7 @@ beforeEach(function (): void {
     Storage::fake('local');
 });
 
-it('cria um record vazio, persiste o arquivo em disco durável e despacha o job', function (): void {
+it('creates an empty record, persists the file to durable storage and dispatches the job', function (): void {
     $appointment = Appointment::factory()->create([
         'status' => AppointmentStatus::Completed,
     ]);
@@ -43,7 +43,7 @@ it('cria um record vazio, persiste o arquivo em disco durável e despacha o job'
     );
 });
 
-it('retorna o mesmo record e não despacha novo job em chamada repetida (idempotência)', function (): void {
+it('returns the same record and does not dispatch a new job on repeated calls (idempotency)', function (): void {
     $appointment = Appointment::factory()->create([
         'status' => AppointmentStatus::Completed,
     ]);
