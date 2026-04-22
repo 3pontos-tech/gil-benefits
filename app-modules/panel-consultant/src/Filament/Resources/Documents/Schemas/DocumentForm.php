@@ -64,6 +64,7 @@ class DocumentForm
                             ->hiddenJs(<<<'JS'
                                 $get('_document_type') === 'link'
                             JS)
+                            ->required(fn (Get $get): bool => $get('_document_type') === 'file')
                             ->columnSpanFull(),
 
                         TextInput::make('link')
@@ -73,6 +74,7 @@ class DocumentForm
                                 $get('_document_type') !== 'link'
                             JS)
                             ->dehydrateStateUsing(fn (Get $get, $state) => $get('_document_type') === 'link' ? $state : null)
+                            ->required(fn (Get $get): bool => $get('_document_type') === 'link')
                             ->columnSpanFull(),
                     ])
                     ->columnSpanFull(),

@@ -59,6 +59,6 @@ class Document extends Model implements HasMedia
 
     public function hasLink(): bool
     {
-        return $this->type === DocumentExtensionTypeEnum::Link;
+        return $this->type === DocumentExtensionTypeEnum::Link && filled($this->link);
     }
 }

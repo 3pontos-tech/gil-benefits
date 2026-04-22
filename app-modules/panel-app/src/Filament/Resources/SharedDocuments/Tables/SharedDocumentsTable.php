@@ -45,7 +45,7 @@ class SharedDocumentsTable
             ])
             ->recordActions([
                 DownloadDocumentFilamentAction::make()
-                    ->visible(fn (Document $record): bool => ! $record->hasLink()),
+                    ->visible(fn (Document $record): bool => $record->hasLink() === false),
                 Action::make('open-link')
                     ->label('Link')
                     ->icon(Heroicon::ArrowTopRightOnSquare)
@@ -56,7 +56,7 @@ class SharedDocumentsTable
                     ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
                 DeleteAction::make()
                     ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
-           
+
             ])->recordUrl(fn ($record): ?string => $record->documentable_id === auth()->user()->id ? EditSharedDocument::getUrl(['record' => $record->getKey()]) : null);
     }
 }
