@@ -3,17 +3,24 @@
 namespace TresPontosTech\Appointments\Actions\StateMachine;
 
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Events\AppointmentCompleted;
+use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
 
 class AppointmentActiveStep extends AbstractAppointmentStep
 {
     public function processStep(): void
     {
         $this->appointment->update(['status' => AppointmentStatus::Completed]);
+
+        event(new AppointmentCompleted($this->appointment));
     }
 
     public function notify(): void
     {
+        $this->appointment->loadMissing(['user', 'consultant']);
+
         Notification::make()
             ->title(__('appointments::resources.appointments.notifications.completed.title'))
             ->body(__('appointments::resources.appointments.notifications.completed.body'))
@@ -21,6 +28,6 @@ class AppointmentActiveStep extends AbstractAppointmentStep
             ->sendToDatabase($this->appointment->user)
             ->send();
 
-        // todo: send mail with date/time to user
+        Mail::to($this->appointment->user->email)->queue(new AppointmentCompletedMail($this->appointment));
     }
 }

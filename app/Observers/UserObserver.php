@@ -7,9 +7,6 @@ use TresPontosTech\Permissions\Roles;
 
 class UserObserver
 {
-    /**
-     * Handle the User "created" event.
-     */
     public function created(User $user): void
     {
         $user->assignRole(Roles::User->value);

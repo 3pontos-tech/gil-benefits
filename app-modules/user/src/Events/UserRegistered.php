@@ -15,5 +15,6 @@ final readonly class UserRegistered
     public function __construct(
         public User $user,
         public Roles $role,
+        public ?string $temporaryPassword = null,
     ) {}
 }
