@@ -32,8 +32,7 @@ class ViewAppointment extends ViewRecord
         $record = $this->getRecord();
 
         return Document::query()
-            ->where('documentable_id', $record->user_id)
-            ->where('documentable_type', 'users')
+            ->whereMorphedTo('documentable', $record->user)
             ->get();
     }
 
@@ -87,8 +86,7 @@ class ViewAppointment extends ViewRecord
         }
 
         $document = Document::query()
-            ->where('documentable_id', $this->getRecord()->user_id)
-            ->where('documentable_type', 'users')
+            ->whereMorphedTo('documentable', $this->getRecord()->user)
             ->find($documentId);
 
         return $document?->getFirstMedia('documents');
