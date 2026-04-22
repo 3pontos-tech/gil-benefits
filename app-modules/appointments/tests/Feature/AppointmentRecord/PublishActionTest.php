@@ -41,6 +41,8 @@ it('atualiza o conteúdo de uma ata já publicada sem reenviar email', function 
 
     $originalPublishedAt = $record->published_at;
 
+    Mail::fake();
+
     resolve(PublishAppointmentRecordAction::class)
         ->execute($record, 'versão revisada');
 

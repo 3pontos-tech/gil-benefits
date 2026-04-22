@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -13,6 +14,10 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
     actingAsAdmin();
+    Storage::fake('public');
+    Storage::disk('public')->buildTemporaryUrlsUsing(
+        fn (string $path): string => 'https://example.com/fake/' . $path
+    );
 });
 
 it('renders the appointment view page', function (): void {

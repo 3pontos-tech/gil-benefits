@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
@@ -14,6 +15,10 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
     actingAsAdmin();
+    Storage::fake('public');
+    Storage::disk('public')->buildTemporaryUrlsUsing(
+        fn (string $path): string => 'https://example.com/fake/' . $path
+    );
     $this->appointment = Appointment::factory()->create();
 });
 
