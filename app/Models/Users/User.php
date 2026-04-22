@@ -43,6 +43,7 @@ use TresPontosTech\Tenant\Models\Traits\HasTenant;
 use TresPontosTech\User\Models\UserAnamnese;
 
 /**
+ * @property string $id
  * @property-read int $monthly_appointments_left
  */
 #[UsePolicy(UserPolicy::class)]
@@ -170,6 +171,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->morphMany(Subscription::class, 'subscriptionable');
     }
 
+    /**
+     * @return MorphOne<Subscription, $this>
+     */
     public function activeSubscription(): MorphOne
     {
         return $this->morphOne(Subscription::class, 'subscriptionable')
@@ -273,7 +277,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                             return 0;
                         }
 
-                        $monthlyLimit = (int) ($contractualPlan->monthly_appointments_per_employee ?? 0);
+                        $monthlyLimit = $contractualPlan->monthly_appointments_per_employee;
                         if ($monthlyLimit <= 0) {
                             return 0;
                         }
@@ -287,7 +291,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
                         return max($monthlyLimit - $used, 0);
                     }
 
-                    $monthlyLimit = (int) ($subscription->price->monthly_appointments ?? 0);
+                    $monthlyLimit = $subscription->price->monthly_appointments;
                     if ($monthlyLimit <= 0) {
                         return 0;
                     }
@@ -309,7 +313,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     protected function getMonthlyAppointmentsLeftCacheKey(): string
     {
-        return sprintf('user:%s:monthly_appointments_left', $this->getKey());
+        return sprintf('user:%s:monthly_appointments_left', $this->id);
     }
 
     /**
