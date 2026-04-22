@@ -66,6 +66,8 @@ it('handle: persists generated content, marks generation_started_at and deletes 
         }
     });
 
+    Mail::fake();
+
     $job = new GenerateAppointmentRecordJob($record->id, 'local', $path);
     $job->handle(resolve(GenerateAndPersistDraftAction::class));
 
@@ -140,6 +142,8 @@ it('handle: rolls back generation_started_at when the generation fails', functio
 it('failed: logs the error, removes the uploaded file and force-deletes the record placeholder', function (): void {
     [$record] = fakeAppointmentWithRecord();
     $path = persistFixtureFile($record);
+
+    Mail::fake();
 
     $job = new GenerateAppointmentRecordJob($record->id, 'local', $path);
 
