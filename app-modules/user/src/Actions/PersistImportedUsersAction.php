@@ -85,7 +85,6 @@ class PersistImportedUsersAction
                         } catch (\Throwable $throwable) {
                             Log::warning('Failed to queue welcome email', [
                                 'user_id' => $user->id,
-                                'email' => $user->email,
                                 'error' => $throwable->getMessage(),
                             ]);
                         }
