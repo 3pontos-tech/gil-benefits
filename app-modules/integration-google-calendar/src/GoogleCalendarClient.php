@@ -103,7 +103,7 @@ class GoogleCalendarClient
     public function deleteEvent(string $accessToken, string $calendarId, string $eventId): void
     {
         $url = sprintf(
-            'https://www.googleapis.com/calendar/v3/calendars/%s/events/%s',
+            'https://www.googleapis.com/calendar/v3/calendars/%s/events/%s?sendUpdates=all',
             urlencode($calendarId),
             urlencode($eventId)
         );

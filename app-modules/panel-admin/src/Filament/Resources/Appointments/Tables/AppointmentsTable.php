@@ -127,6 +127,12 @@ class AppointmentsTable
                     ->label('Status')
                     ->options(AppointmentStatus::class)
                     ->multiple(),
+
+                SelectFilter::make('company_id')
+                    ->label(__('appointments::resources.appointments.table.columns.company'))
+                    ->relationship('company', 'name')
+                    ->searchable()
+                    ->preload(false),
             ])
             ->persistFiltersInSession()
             ->defaultSort('appointment_at', 'desc')
