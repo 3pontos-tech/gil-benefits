@@ -18,6 +18,7 @@ return [
                 'updated_at' => 'Atualizado em',
                 'from' => 'De',
                 'until' => 'Até',
+                'company' => 'Empresa',
             ],
             'actions' => [
                 'view' => 'Ver',

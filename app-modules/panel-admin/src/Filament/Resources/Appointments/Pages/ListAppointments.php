@@ -26,4 +26,11 @@ class ListAppointments extends ListRecords
             AppointmentsStatsOverview::class,
         ];
     }
+
+    protected function handleTableFilterUpdates(): void
+    {
+        parent::handleTableFilterUpdates();
+
+        $this->dispatch('appointments-table-filters-changed', filters: $this->tableFilters ?? []);
+    }
 }
