@@ -18,6 +18,8 @@ it('downloads the import template as a real xlsx file with header and example ro
 
     $rows = SimpleExcelReader::create($filePath)->getRows()->collect();
 
+    unlink($filePath);
+
     expect($rows)->toHaveCount(1)
         ->and($rows->first())->toBe([
             'name' => 'João Silva',
