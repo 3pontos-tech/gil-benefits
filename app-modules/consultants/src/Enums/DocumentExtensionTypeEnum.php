@@ -16,6 +16,7 @@ enum DocumentExtensionTypeEnum: string implements HasColor, HasIcon, HasLabel
     case SVG = 'svg';
     case PNG = 'png';
     case XLSX = 'xlsx';
+    case Link = 'link';
 
     public function getColor(): array
     {
@@ -26,6 +27,7 @@ enum DocumentExtensionTypeEnum: string implements HasColor, HasIcon, HasLabel
             self::PNG => Color::Green,
             self::SVG => Color::Orange,
             self::XLSX => Color::Amber,
+            self::Link => Color::Gray,
         };
     }
 
@@ -34,6 +36,7 @@ enum DocumentExtensionTypeEnum: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::JPG, self::PNG, self::SVG => Heroicon::Bookmark,
             self::Docx, self::PDF, self::XLSX => Heroicon::Document,
+            self::Link => Heroicon::Link,
         };
     }
 
@@ -51,6 +54,7 @@ enum DocumentExtensionTypeEnum: string implements HasColor, HasIcon, HasLabel
             self::PDF => 'application/pdf',
             self::Docx => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             self::XLSX => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            self::Link => 'application/link',
         };
     }
 }

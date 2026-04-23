@@ -51,3 +51,27 @@ it('should be able to upload a document', function (): void {
     expect($media->model_id)->toBe($document->getKey())
         ->and($media->name)->toBe('image');
 });
+
+test('document must be required when it is on document tab', function (): void {
+    livewire(CreateDocument::class)
+        ->assertOk()
+        ->fillForm([
+            'title' => 'document_title',
+            'active' => true,
+            '_document_type' => 'file',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['documents' => 'required']);
+});
+
+test('link must be required when it is on link tab', function (): void {
+    livewire(CreateDocument::class)
+        ->assertOk()
+        ->fillForm([
+            'title' => 'document_title',
+            'active' => true,
+            '_document_type' => 'link',
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['link' => 'required']);
+});
