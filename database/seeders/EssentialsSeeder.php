@@ -31,7 +31,7 @@ class EssentialsSeeder extends Seeder
      */
     public function run(): void
     {
-        if (! app()->environment(['local', 'testing'])) {
+        if (! app()->environment(['local', 'staging', 'testing'])) {
             return;
         }
 
