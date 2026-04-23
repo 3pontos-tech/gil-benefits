@@ -9,10 +9,10 @@
             <directory>tests/Feature</directory>
         </testsuite>
 
-        <testsuite name="E2E">
-            <directory>tests/E2E</directory>
+        <testsuite name="Modules">
+            <directory suffix="Test.php">./app-modules/*/tests</directory>
         </testsuite>
-    <testsuite name="Modules"><directory suffix="Test.php">./app-modules/*/tests</directory></testsuite></testsuites>
+    </testsuites>
     <source>
         <include>
             <directory>app</directory>

@@ -7,6 +7,8 @@ use App\Models\Users\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -32,6 +34,14 @@ class EssentialsSeeder extends Seeder
         if (! app()->environment(['local', 'testing'])) {
             return;
         }
+
+        // Silencia side-effects de notificação/email disparados por
+        // UserRegistered e afins — um seed com ~N users geraria N² jobs
+        // na fila local (NotifyAdmins..., WelcomeMail) sem valor pro dev.
+        // Listeners síncronos que fazem regra de negócio (ex.:
+        // AttachUserToDefaultCompanyListener) continuam rodando normal.
+        Queue::fake();
+        Mail::fake();
 
         Artisan::call('sync:permissions');
 
