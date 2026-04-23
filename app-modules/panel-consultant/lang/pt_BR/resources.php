@@ -32,9 +32,13 @@ return [
         'form' => [
             'title' => 'Nome do Documento',
             'extension_type' => 'Tipo',
+            'link' => 'Link',
             'active' => 'Ativo',
             'heading' => 'Novo Documento',
             'files' => 'Arquivo',
+            'tab_file' => 'Arquivo',
+            'tab_link' => 'Link',
+            'type_hint' => 'Envie um arquivo OU defina um link. Se ambos forem fornecidos, o arquivo terá prioridade e o link será desconsiderado.',
         ],
     ],
     'share_documents' => [

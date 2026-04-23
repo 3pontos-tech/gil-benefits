@@ -11,6 +11,9 @@ use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Database\Factories\CompanyPlanFactory;
 use TresPontosTech\Company\Models\Company;
 
+/**
+ * @property int $monthly_appointments_per_employee
+ */
 class CompanyPlan extends Model
 {
     use HasFactory;
@@ -36,6 +39,7 @@ class CompanyPlan extends Model
             'status' => CompanyPlanStatusEnum::class,
             'starts_at' => 'date',
             'ends_at' => 'date',
+            'monthly_appointments_per_employee' => 'integer',
         ];
     }
 

@@ -28,6 +28,7 @@ class Document extends Model implements HasMedia
         'active',
         'documentable_type',
         'documentable_id',
+        'link',
     ];
 
     protected function casts(): array
@@ -54,5 +55,10 @@ class Document extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('documents');
+    }
+
+    public function hasLink(): bool
+    {
+        return $this->type === DocumentExtensionTypeEnum::Link && filled($this->link);
     }
 }
