@@ -80,7 +80,7 @@ it('does not show inactive shared documents', function (): void {
 });
 
 it('exposes the download action for a document owned by the appointment employee', function (): void {
-    $document = Document::factory()->state([
+    $document = Document::factory()->withFile()->state([
         'documentable_id' => $this->appointment->user_id,
         'documentable_type' => $this->appointment->user->getMorphClass(),
     ])->create();
@@ -94,7 +94,7 @@ it('exposes the download action for a document owned by the appointment employee
 
 it('hides the download action for a document owned by another employee', function (): void {
     $otherUser = User::factory()->create();
-    $foreignDocument = Document::factory()->state([
+    $foreignDocument = Document::factory()->withFile()->state([
         'documentable_id' => $otherUser->id,
         'documentable_type' => $otherUser->getMorphClass(),
     ])->create();
@@ -104,7 +104,7 @@ it('hides the download action for a document owned by another employee', functio
 });
 
 it('exposes the shared download action for an active share', function (): void {
-    $document = Document::factory()->forConsultant()->create();
+    $document = Document::factory()->withFile()->forConsultant()->create();
     DocumentShare::factory()->active()->create([
         'document_id' => $document->id,
         'employee_id' => $this->appointment->user_id,
@@ -119,7 +119,7 @@ it('exposes the shared download action for an active share', function (): void {
 
 it('hides the shared download action when the share is for another employee', function (): void {
     $otherEmployee = User::factory()->create();
-    $document = Document::factory()->forConsultant()->create();
+    $document = Document::factory()->withFile()->forConsultant()->create();
     DocumentShare::factory()->active()->create([
         'document_id' => $document->id,
         'employee_id' => $otherEmployee->id,
@@ -130,7 +130,7 @@ it('hides the shared download action when the share is for another employee', fu
 });
 
 it('hides the shared download action when the share is inactive', function (): void {
-    $document = Document::factory()->forConsultant()->create();
+    $document = Document::factory()->withFile()->forConsultant()->create();
     DocumentShare::factory()->notActive()->create([
         'document_id' => $document->id,
         'employee_id' => $this->appointment->user_id,
