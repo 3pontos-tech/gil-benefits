@@ -18,7 +18,10 @@ class DocumentFactory extends Factory
     {
         return [
             'title' => $this->faker->word(),
-            'type' => $this->faker->randomElement(DocumentExtensionTypeEnum::cases()),
+            'type' => $this->faker->randomElement(array_filter(
+                DocumentExtensionTypeEnum::cases(),
+                fn (DocumentExtensionTypeEnum $type): bool => $type !== DocumentExtensionTypeEnum::Link,
+            )),
             'active' => $this->faker->boolean(),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
