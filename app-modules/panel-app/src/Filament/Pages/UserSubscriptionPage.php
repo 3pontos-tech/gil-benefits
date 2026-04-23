@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
 use Laravel\Cashier\Cashier;
 use Livewire\Attributes\Computed;
-use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 
 class UserSubscriptionPage extends Page
@@ -64,10 +65,12 @@ class UserSubscriptionPage extends Page
             metadata: ['model' => Relation::getMorphAlias(User::class)],
         );
 
-        $url = resolve(BillingContract::class)->createCheckout(
-            billable: $user,
-            data: $data
-        );
+        $url = resolve(BillingManager::class)
+            ->getDriver(BillingProviderEnum::from($this->selectedProvider))
+            ->createCheckout(
+                billable: $user,
+                data: $data
+            );
 
         redirect($url);
     }

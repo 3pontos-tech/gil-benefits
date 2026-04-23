@@ -52,6 +52,7 @@ class TenantSubscriptionPage extends Page
         $tenant = Filament::getTenant();
 
         $plan = $this->getActiveTenantPlan();
+
         $price = $plan->prices->first();
 
         $seats = $this->seatsAmount;

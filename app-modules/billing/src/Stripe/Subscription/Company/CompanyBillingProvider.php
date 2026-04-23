@@ -8,8 +8,9 @@ use Filament\Facades\Filament;
 use Filament\Pages\Dashboard;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use TresPontosTech\Billing\BillingCustomer;
+
 use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Company\Models\Company;
 
 class CompanyBillingProvider implements BillingProvider
@@ -21,6 +22,7 @@ class CompanyBillingProvider implements BillingProvider
             $tenant = Filament::getTenant();
 
             $providerEnum = BillingCustomer::getActiveProvider($tenant);
+
 
             $billing = resolve(BillingManager::class);
 

@@ -43,14 +43,14 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
     {
         return [
             'stripe' => StripeAdapter::class,
-            //            'barte' => BarteAdapter::class,
+            'barte' => BarteAdapter::class,
         ];
     }
 
     public static function activeCases(): array
     {
         return array_map(
-            fn (string $key) => self::from($key),
+            fn(string $key) => self::from($key),
             array_keys(self::availableProviders())
         );
     }
