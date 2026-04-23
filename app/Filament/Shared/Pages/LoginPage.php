@@ -13,7 +13,7 @@ class LoginPage extends Login
     {
         parent::mount();
 
-        if (! app()->environment('local', 'staging')) {
+        if (! app()->environment('local')) {
             return;
         }
 
