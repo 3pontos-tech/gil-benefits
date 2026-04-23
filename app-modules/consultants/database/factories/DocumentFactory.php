@@ -50,6 +50,13 @@ class DocumentFactory extends Factory
         ]);
     }
 
+    public function withFile(DocumentExtensionTypeEnum $type = DocumentExtensionTypeEnum::PDF): self
+    {
+        return $this->state([
+            'type' => $type,
+        ]);
+    }
+
     public function configure(): static
     {
         return $this->afterCreating(function (Document $document): void {

@@ -290,10 +290,9 @@ class ValidateUserImportAction
     {
         $currentActiveCount = $company->employees()->wherePivot('active', true)->count();
 
-        /** @var CompanyPlan|null $contractualPlan */
         $contractualPlan = $company->activeContractualPlan();
 
-        if ($contractualPlan !== null) {
+        if ($contractualPlan instanceof CompanyPlan) {
             $available = $contractualPlan->seats - $currentActiveCount;
 
             if ($newUsersCount > $available) {
