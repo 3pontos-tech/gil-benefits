@@ -21,7 +21,7 @@ it('should render', function (): void {
 });
 
 it('should render only shared documents', function (): void {
-    $document = Document::factory()->forConsultant()->active()->create();
+    $document = Document::factory()->forConsultant()->active()->withFile()->create();
     DocumentShare::factory()
         ->for($document)
         ->for($this->employee, 'employee')
@@ -29,7 +29,7 @@ it('should render only shared documents', function (): void {
         ->active()
         ->create();
 
-    $anotherDocument = Document::factory()->forConsultant()->active()->create();
+    $anotherDocument = Document::factory()->forConsultant()->active()->withFile()->create();
     DocumentShare::factory()
         ->for($anotherDocument)
         ->for($anotherDocument->documentable, 'consultant')
@@ -43,7 +43,7 @@ it('should render only shared documents', function (): void {
 });
 
 test('user can not see not active document for him, but other users can see', function (): void {
-    $document = Document::factory()->forConsultant()->active()->create();
+    $document = Document::factory()->forConsultant()->active()->withFile()->create();
 
     DocumentShare::factory()
         ->for($document)
@@ -103,7 +103,7 @@ test('no one can se a not active document', function (): void {
 });
 
 it('should not show the open-link action for a document that has a file', function (): void {
-    $document = Document::factory()->forConsultant()->active()->create();
+    $document = Document::factory()->forConsultant()->active()->withFile()->create();
     DocumentShare::factory()
         ->for($document)
         ->for($this->employee, 'employee')
