@@ -43,7 +43,6 @@ use TresPontosTech\Tenant\Models\Traits\HasTenant;
 use TresPontosTech\User\Models\UserAnamnese;
 
 /**
- * @property string $id
  * @property-read int $monthly_appointments_left
  */
 #[UsePolicy(UserPolicy::class)]
@@ -171,36 +170,6 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return $this->morphMany(Subscription::class, 'subscriptionable');
     }
 
-    /**
-     * @return MorphOne<Subscription, $this>
-     */
-    public function activeSubscription(): MorphOne
-    {
-        return $this->morphOne(Subscription::class, 'subscriptionable')
-            ->where('stripe_status', 'active');
-    }
-
-    /**
-     * Determine if the user currently has any appointment that is not completed or cancelled.
-     */
-    public function hasOngoingAppointment(): bool
-    {
-        return $this->appointments()
-            ->whereNotIn('status', [
-                AppointmentStatus::Completed->value,
-                AppointmentStatus::Cancelled->value,
-            ])
-            ->exists();
-    }
-
-    /**
-     * @return HasMany<Appointment, $this>
-     */
-    public function appointments(): HasMany
-    {
-        return $this->hasMany(Appointment::class);
-    }
-
     public function isAdmin(): bool
     {
         return $this->hasAnyRole([Roles::SuperAdmin, Roles::Admin]);
@@ -230,6 +199,14 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         Cache::forget($this->getMonthlyAppointmentsLeftCacheKey());
     }
 
+    protected function getMonthlyAppointmentsLeftCacheKey(): string
+    {
+        /** @var string $key */
+        $key = $this->getKey();
+
+        return sprintf('user:%s:monthly_appointments_left', $key);
+    }
+
     /**
      * Determine if the user is eligible to create a new appointment.
      *
@@ -240,6 +217,27 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function canCreateAppointment(): bool
     {
         return $this->monthly_appointments_left > 0 && ! $this->hasOngoingAppointment();
+    }
+
+    /**
+     * Determine if the user currently has any appointment that is not completed or cancelled.
+     */
+    public function hasOngoingAppointment(): bool
+    {
+        return $this->appointments()
+            ->whereNotIn('status', [
+                AppointmentStatus::Completed->value,
+                AppointmentStatus::Cancelled->value,
+            ])
+            ->exists();
+    }
+
+    /**
+     * @return HasMany<Appointment, $this>
+     */
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
     }
 
     /**
@@ -311,9 +309,13 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         )->shouldCache();
     }
 
-    protected function getMonthlyAppointmentsLeftCacheKey(): string
+    /**
+     * @return MorphOne<Subscription, $this>
+     */
+    public function activeSubscription(): MorphOne
     {
-        return sprintf('user:%s:monthly_appointments_left', $this->id);
+        return $this->morphOne(Subscription::class, 'subscriptionable')
+            ->where('stripe_status', 'active');
     }
 
     /**
