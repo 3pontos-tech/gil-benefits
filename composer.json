@@ -130,7 +130,7 @@
         ],
         "test": [
             "@php artisan config:clear --ansi",
-            "@php artisan test --coverage"
+            "@php artisan test --parallel"
         ]
     },
     "extra": {
