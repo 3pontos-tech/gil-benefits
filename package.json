@@ -5,7 +5,6 @@
     "scripts": {
         "build": "vite build",
         "dev": "vite",
-        "format": "npx prettier --write \"**/*.{js,ts,json,yml,md,css,blade.php}\"",
         "prepare": "husky"
     },
     "devDependencies": {
@@ -16,9 +15,6 @@
         "husky": "^9.1.7",
         "laravel-vite-plugin": "^1.2.0",
         "lint-staged": "^16.4.0",
-        "prettier": "^3.8.3",
-        "prettier-plugin-blade": "^3.1.5",
-        "prettier-plugin-tailwindcss": "^0.7.2",
         "tailwindcss": "^4.1.16",
         "vite": "^6.2.4"
     },
@@ -26,9 +22,6 @@
         "playwright": "^1.55.0"
     },
     "lint-staged": {
-        "*.{js,ts,json,yml,md,css,blade.php}": [
-            "prettier --write"
-        ],
         "*.php": [
             "vendor/bin/rector process",
             "vendor/bin/pint"
