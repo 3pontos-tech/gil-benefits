@@ -15,9 +15,7 @@ final readonly class BarteAdapter implements BillingContract
 {
     public function __construct(
         private BarteClient $client
-    )
-    {
-    }
+    ) {}
 
     public function ensureCustomerExists(Company|User $billable): void
     {
@@ -26,8 +24,8 @@ final readonly class BarteAdapter implements BillingContract
         if ($already) {
             return;
         }
-        //temos que obrigar os usuarios a preencher os details, ou quando estiver criando, melhor
-        if ($billable instanceof User && !filled($billable?->detail)) {
+        // temos que obrigar os usuarios a preencher os details, ou quando estiver criando, melhor
+        if ($billable instanceof User && ! filled($billable?->detail)) {
             return;
         }
         $response = $this->client->post('/v2/buyers', [
@@ -52,7 +50,7 @@ final readonly class BarteAdapter implements BillingContract
     {
         $customerId = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
 
-        if (!$customerId) {
+        if (! $customerId) {
             return false;
         }
 
@@ -60,17 +58,15 @@ final readonly class BarteAdapter implements BillingContract
             ->where('subscriptionable_id', $billable->getKey())
             ->where('stripe_status', 'active')->latest()->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return false;
         }
         try {
-            //maybe create a method for user and company like $this->document that returns the identifier
-
+            // maybe create a method for user and company like $this->document that returns the identifier
 
             $response = $this->client->get('/v2/subscriptions', [
                 'uuid' => $subscription->stripe_id,
             ]);
-
 
             return $response['content'][0]['uuid'] === $subscription->stripe_id
                 || $response['content'][0]['status'] === 'ACTIVE';
@@ -88,7 +84,7 @@ final readonly class BarteAdapter implements BillingContract
     {
         $customerId = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
 
-        if (!$customerId) {
+        if (! $customerId) {
             return false;
         }
 
@@ -101,7 +97,7 @@ final readonly class BarteAdapter implements BillingContract
                 'size' => 1,
             ]);
 
-            return !empty($response['content']);
+            return ! empty($response['content']);
 
         } catch (BarteApiException $barteApiException) {
             if ($barteApiException->isNotFound()) {
@@ -129,45 +125,25 @@ final readonly class BarteAdapter implements BillingContract
         $cycleType = str($data->priceId)->afterLast('-')->upper()->toString();
         $planUuid = $price->plan->provider_product_id;
 
-
         // Company: valor calculado por quantidade de seats; User: valor fixo do plano
         $valuePerMonth = $data->isMetered
             ? ($price->unit_amount_decimal / 100) * $data->quantity
             : $price->unit_amount_decimal / 100;
 
-
         $response = $this->client->post('/v2/payment-links', [
-            'type'             => 'ORDER',
+            'type' => 'SUBSCRIPTION',
             'uuidSellerClient' => $customerId,
-            'paymentOrder'     => [
-                'title'        => $price->plan->name,
-                'value'        => $valuePerMonth,
-                'installments' => 1,
-                'customInstallmentsValues' => [
-                    ['paymentMethod' => 'PIX', 'installments' => 1],
-                    ['paymentMethod' => 'CREDIT_CARD_EARLY_BUYER', 'installments' => 1],
-                    ['paymentMethod' => 'BANK_SLIP', 'installments' => 1],
-                ],
-            ],
+            'scheduledDate' => now()->addDay()->toDateString(),
+            'paymentMethods' => ['PIX'],
             'paymentSubscription' => [
-                'idPlan'        => $planUuid,
-                'type'          => $cycleType,
+                'idPlan' => $planUuid,
+                'type' => 'MONTHLY',
                 'valuePerMonth' => $valuePerMonth,
             ],
-            'paymentMethods' => ['PIX', 'CREDIT_CARD_EARLY_BUYER', 'BANK_SLIP'],
-            'metadata'       => collect([
-                ...$data->metadata,
-                'barte_plan_uuid'  => $planUuid,
-                'barte_cycle_type' => $cycleType,
-                'value_per_month'  => $valuePerMonth,
-                'billable_type'    => $billable->getMorphClass(),
-                'billable_id'      => $billable->getKey(),
-            ])->map(fn ($value, $key): array => ['key' => $key, 'value' => (string) $value])
-              ->values()
-              ->all(),
         ]);
 
-        dd($response);
+        dd($response, $planUuid, $customerId, $cycleType);
+
         return $response['url'];
     }
 
