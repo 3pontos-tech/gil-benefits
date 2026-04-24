@@ -54,6 +54,7 @@ it('requires document_id when updating the consultant profile', function (): voi
         ->fillForm([
             'name' => $consultant->user->name,
             'email' => $consultant->user->email,
+            'tax_id' => '123.456.789-09',
             'document_id' => '',
         ])
         ->call('save')

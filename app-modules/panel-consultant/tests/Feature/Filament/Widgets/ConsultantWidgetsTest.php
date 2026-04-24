@@ -16,6 +16,8 @@ beforeEach(function (): void {
 
 describe('ConsultantStatsOverview', function (): void {
     it('renders with the count of completed appointments from the last 30 days', function (): void {
+        $this->consultant->appointments()->delete();
+
         Appointment::factory()
             ->recycle($this->consultant)
             ->withStatus(AppointmentStatus::Completed)
@@ -24,17 +26,21 @@ describe('ConsultantStatsOverview', function (): void {
 
         livewire(ConsultantStatsOverview::class)
             ->assertOk()
-            ->assertSee(__('panel-consultant::widgets.stats_overview.label'));
+            ->assertSee(__('panel-consultant::widgets.stats_overview.label'))
+            ->assertSee('3');
     });
 
     it('does not count appointments from other consultants', function (): void {
+        $this->consultant->appointments()->delete();
+
         Appointment::factory()
             ->withStatus(AppointmentStatus::Completed)
             ->count(5)
             ->create(['appointment_at' => now()->subDays(2)]);
 
         livewire(ConsultantStatsOverview::class)
-            ->assertOk();
+            ->assertOk()
+            ->assertSee('0');
     });
 });
 

@@ -66,7 +66,7 @@ it('is visible when the client has a previous published record', function (): vo
         );
 });
 
-it('resolves the most recent previous appointment when multiple exist', function (): void {
+it('stays visible when the client has multiple previous published records', function (): void {
     $older = Appointment::factory()
         ->for($this->client, 'user')
         ->for($this->consultant, 'consultant')

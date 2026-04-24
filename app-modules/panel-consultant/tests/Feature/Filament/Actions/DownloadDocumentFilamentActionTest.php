@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -24,7 +25,7 @@ beforeEach(function (): void {
         ->create();
 });
 
-it('renders the view appointment page when the client has their own documents', function (): void {
+it('renders the appointment view with the client own documents listed', function (): void {
     Storage::fake('r2');
 
     $document = Document::factory()->forUser($this->employee)->create();
@@ -36,7 +37,7 @@ it('renders the view appointment page when the client has their own documents', 
         ->assertSee($document->title);
 });
 
-it('renders the view appointment page when shared documents are present', function (): void {
+it('renders the appointment view with documents shared with the client', function (): void {
     Storage::fake('r2');
 
     $document = Document::factory()->forConsultant($this->consultant)->create();
@@ -55,16 +56,16 @@ it('renders the view appointment page when shared documents are present', functi
         ->assertSee($document->title);
 });
 
-it('exposes a temporary download url for a document with media', function (): void {
+it('opens in a new tab, carries the download icon and exposes a temporary url', function (): void {
     Storage::fake('r2');
 
     $document = Document::factory()->forConsultant($this->consultant)->create();
     $document->addMedia(UploadedFile::fake()->create('report.pdf', 100, 'application/pdf'))
         ->toMediaCollection('documents');
 
-    $url = DownloadDocumentFilamentAction::make()
-        ->record($document)
-        ->getUrl();
+    $action = DownloadDocumentFilamentAction::make()->record($document);
 
-    expect($url)->toBeString()->not->toBeEmpty();
+    expect($action->getUrl())->toBeString()->not->toBeEmpty()
+        ->and($action->shouldOpenUrlInNewTab())->toBeTrue()
+        ->and($action->getIcon())->toBe(Heroicon::ArrowDown);
 });
