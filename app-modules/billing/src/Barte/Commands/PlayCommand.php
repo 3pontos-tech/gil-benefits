@@ -16,23 +16,23 @@ class PlayCommand extends Command
 
     public function handle(BarteClient $client): void
     {
-//        $response = $client->post('/v2/payment-links', [
-//            'type'             => 'SUBSCRIPTION',
-//            'scheduledDate'    => now()->addDay()->toDateString(),
-//            'uuidSellerClient' => '76313d30-b0c2-4111-9832-c8d6ac9a4fb6',
-//            'paymentSubscription' => [
-//                'idPlan'        => '69ccaa5c-c6de-4a7a-823d-764d04a51be4',
-//                'type'          => 'MONTHLY',
-//                'valuePerMonth' => 1,
-//            ],
-//            'paymentMethods' => ['PIX', 'CREDIT_CARD_EARLY_BUYER', 'BANK_SLIP'],
-//            'metadata'       => [
-//                ['key' => 'código', 'value' => 'YMC'],
-//            ],
-//        ]);
-//
-//        dump($response);
-//        return;
+        $response = $client->post('/v2/payment-links', [
+            'type'             => 'SUBSCRIPTION',
+            'scheduledDate'    => now()->addDay()->toDateString(),
+            'uuidSellerClient' => '76313d30-b0c2-4111-9832-c8d6ac9a4fb6',
+            'paymentSubscription' => [
+                'idPlan'        => 5810,
+                'type'          => 'MONTHLY',
+                'valuePerMonth' => 1,
+            ],
+            'paymentMethods' => ['PIX', 'CREDIT_CARD_EARLY_BUYER', 'BANK_SLIP'],
+            'metadata'       => [
+                ['key' => 'código', 'value' => 'YMC'],
+            ],
+        ]);
+
+        dump($response);
+        return;
 
         $response = $client->get('/v2/plans');
 

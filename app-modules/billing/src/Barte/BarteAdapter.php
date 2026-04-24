@@ -15,7 +15,9 @@ final readonly class BarteAdapter implements BillingContract
 {
     public function __construct(
         private BarteClient $client
-    ) {}
+    )
+    {
+    }
 
     public function ensureCustomerExists(Company|User $billable): void
     {
@@ -25,7 +27,7 @@ final readonly class BarteAdapter implements BillingContract
             return;
         }
         // temos que obrigar os usuarios a preencher os details, ou quando estiver criando, melhor
-        if ($billable instanceof User && ! filled($billable?->detail)) {
+        if ($billable instanceof User && !filled($billable?->detail)) {
             return;
         }
         $response = $this->client->post('/v2/buyers', [
@@ -50,7 +52,7 @@ final readonly class BarteAdapter implements BillingContract
     {
         $customerId = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
 
-        if (! $customerId) {
+        if (!$customerId) {
             return false;
         }
 
@@ -58,7 +60,7 @@ final readonly class BarteAdapter implements BillingContract
             ->where('subscriptionable_id', $billable->getKey())
             ->where('stripe_status', 'active')->latest()->first();
 
-        if (! $subscription) {
+        if (!$subscription) {
             return false;
         }
         try {
@@ -84,7 +86,7 @@ final readonly class BarteAdapter implements BillingContract
     {
         $customerId = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
 
-        if (! $customerId) {
+        if (!$customerId) {
             return false;
         }
 
@@ -97,7 +99,7 @@ final readonly class BarteAdapter implements BillingContract
                 'size' => 1,
             ]);
 
-            return ! empty($response['content']);
+            return !empty($response['content']);
 
         } catch (BarteApiException $barteApiException) {
             if ($barteApiException->isNotFound()) {
@@ -134,16 +136,21 @@ final readonly class BarteAdapter implements BillingContract
             'type' => 'SUBSCRIPTION',
             'uuidSellerClient' => $customerId,
             'scheduledDate' => now()->addDay()->toDateString(),
-            'paymentMethods' => ['PIX'],
+            'paymentMethods' => ['PIX', 'CREDIT_CARD'],
             'paymentSubscription' => [
-                'idPlan' => $planUuid,
+                'idPlan' => 5810,
                 'type' => 'MONTHLY',
                 'valuePerMonth' => $valuePerMonth,
             ],
+            'metadata' => [
+                ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
+                ['key' => 'billable_id',   'value' => (string) $billable->getKey()],
+                ['key' => 'barte_plan_uuid', 'value' => $planUuid],
+                ['key' => 'barte_cycle_type', 'value' => $cycleType],
+            ],
         ]);
 
-        dd($response, $planUuid, $customerId, $cycleType);
-
+        \Log::info('log quando criamos pagamento', $response);
         return $response['url'];
     }
 

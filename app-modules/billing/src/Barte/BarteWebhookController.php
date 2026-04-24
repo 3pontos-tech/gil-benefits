@@ -20,58 +20,58 @@ class BarteWebhookController extends Controller
     {
         $payload = $request->all();
 
-        Log::channel('barte')->info('Webhook recebido', $payload);
+        Log::info('Barte webhook recebido', $payload);
 
-        if (($payload['status'] ?? null) !== 'PAID') {
+        if (($payload['domain'] ?? null) !== 'SUBSCRIPTION') {
             return response('', 200);
         }
 
-        $metadata = collect($payload['metadata'] ?? [])
-            ->pluck('value', 'key');
+        $status = $payload['status'] ?? null;
 
-        $planUuid     = $metadata->get('barte_plan_uuid');
-        $cycleType    = $metadata->get('barte_cycle_type');
-        $valuePerMonth = (float) $metadata->get('value_per_month');
-        $billableType = $metadata->get('billable_type');
-        $billableId   = $metadata->get('billable_id');
-
-        if (!$planUuid || !$billableType || !$billableId) {
+        if (!in_array($status, ['PENDING', 'ACTIVE', 'DEFAULTER', 'INACTIVE'])) {
             return response('', 200);
         }
 
-        $billableClass = Relation::getMorphedModel($billableType);
-        $billable = $billableClass::findOrFail($billableId);
+        $uuidBuyer = $payload['uuidBuyer'] ?? null;
 
-        $buyerUuid = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
+        if (!$uuidBuyer) {
+            Log::warning('Barte webhook sem uuidBuyer', ['uuid' => $payload['uuid'] ?? null]);
+            return response('', 200);
+        }
 
-        $subscription = $this->client->post('/v2/subscriptions', [
-            'uuidPlan'   => $planUuid,
-            'uuidBuyer'  => $buyerUuid,
-            'startDate'  => Carbon::today()->toDateString(),
-            'basicValue' => [
-                'type'          => $cycleType,
-                'valuePerMonth' => $valuePerMonth,
-            ],
-            'payment' => [
-                'method'    => $payload['paymentMethod'] ?? 'PIX',
-                'fraudData' => [
-                    'email' => $billable->email ?? $billable->owner->email,
-                    'name'  => $billable->name,
-                ],
-            ],
-        ]);
+        $billingCustomer = BillingCustomer::query()
+            ->where('provider', BillingProviderEnum::Barte)
+            ->where('provider_customer_id', $uuidBuyer)
+            ->first();
+
+        if (!$billingCustomer) {
+            Log::warning('Barte webhook: BillingCustomer não encontrado', ['uuidBuyer' => $uuidBuyer]);
+            return response('', 200);
+        }
+
+        $metadata  = collect($payload['metadata'] ?? [])->pluck('value', 'key');
+        $planUuid  = $metadata->get('barte_plan_uuid');
+        $cycleType = $metadata->get('barte_cycle_type');
+
+        $billableClass = Relation::getMorphedModel($billingCustomer->billable_type);
+        $billable      = $billableClass::findOrFail($billingCustomer->billable_id);
+
+        $endsAt = $status === 'INACTIVE' ? Carbon::now() : null;
 
         Subscription::query()->updateOrCreate(
-            ['stripe_id' => $subscription['uuid']],
+            ['stripe_id' => $payload['uuid']],
             [
                 'subscriptionable_type' => $billable->getMorphClass(),
                 'subscriptionable_id'   => $billable->getKey(),
                 'type'                  => 'default',
-                'stripe_status'         => strtolower($subscription['status']),
-                'stripe_price'          => "{$planUuid}-{$cycleType}",
+                'stripe_status'         => strtolower($status),
+                'stripe_price'          => $planUuid && $cycleType ? "{$planUuid}-{$cycleType}" : null,
                 'quantity'              => 1,
+                'ends_at'               => $endsAt,
             ]
         );
+
+        Log::info('Barte subscription atualizada', ['uuid' => $payload['uuid'], 'status' => $status]);
 
         return response('', 200);
     }
