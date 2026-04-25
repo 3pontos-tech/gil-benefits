@@ -13,6 +13,7 @@ class BillingCustomer extends Model
     use SoftDeletes;
 
     protected $table = 'billing_customers';
+
     protected $fillable = [
         'billable_type',
         'billable_id',
@@ -27,10 +28,7 @@ class BillingCustomer extends Model
         ];
     }
 
-    public static function getProviderCustomerId(
-        Model               $billable,
-        BillingProviderEnum $provider
-    ): ?string
+    public static function getProviderCustomerId(Model $billable, BillingProviderEnum $provider): ?string
     {
         return static::query()
             ->where('billable_type', $billable->getMorphClass())
@@ -43,8 +41,7 @@ class BillingCustomer extends Model
     {
         return static::query()
             ->where('billable_type', $billable->getMorphClass())
-            ->where('billable_id', $billable->getKey())
-            ->orderBy('created_at')
+            ->where('billable_id', $billable->getKey())->oldest()
             ->value('provider');
     }
 }

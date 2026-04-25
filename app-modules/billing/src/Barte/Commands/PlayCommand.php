@@ -16,23 +16,23 @@ class PlayCommand extends Command
 
     public function handle(BarteClient $client): void
     {
-        $response = $client->post('/v2/payment-links', [
-            'type'             => 'SUBSCRIPTION',
-            'scheduledDate'    => now()->addDay()->toDateString(),
-            'uuidSellerClient' => '76313d30-b0c2-4111-9832-c8d6ac9a4fb6',
-            'paymentSubscription' => [
-                'idPlan'        => 5810,
-                'type'          => 'MONTHLY',
-                'valuePerMonth' => 1,
-            ],
-            'paymentMethods' => ['PIX', 'CREDIT_CARD_EARLY_BUYER', 'BANK_SLIP'],
-            'metadata'       => [
-                ['key' => 'código', 'value' => 'YMC'],
-            ],
-        ]);
-
-        dump($response);
-        return;
+        //        $response = $client->post('/v2/payment-links', [
+        //            'type'             => 'SUBSCRIPTION',
+        //            'scheduledDate'    => now()->addDay()->toDateString(),
+        //            'uuidSellerClient' => '76313d30-b0c2-4111-9832-c8d6ac9a4fb6',
+        //            'paymentSubscription' => [
+        //                'idPlan'        => 5810,
+        //                'type'          => 'MONTHLY',
+        //                'valuePerMonth' => 1,
+        //            ],
+        //            'paymentMethods' => ['PIX', 'CREDIT_CARD_EARLY_BUYER', 'BANK_SLIP'],
+        //            'metadata'       => [
+        //                ['key' => 'código', 'value' => 'YMC'],
+        //            ],
+        //        ]);
+        //
+        //        dump($response);
+        //        return;
 
         $response = $client->get('/v2/plans');
 
@@ -45,7 +45,7 @@ class PlayCommand extends Command
                 $p['title'],
                 $p['active'] ? 'sim' : 'não',
                 implode(', ', $p['acceptPaymentMethods'] ?? []),
-                collect($p['values'] ?? [])->map(fn ($v) => "{$v['type']}: {$v['valuePerMonth']}")->join(' | '),
+                collect($p['values'] ?? [])->map(fn ($v): string => sprintf('%s: %s', $v['type'], $v['valuePerMonth']))->join(' | '),
             ])
         );
 
@@ -53,21 +53,21 @@ class PlayCommand extends Command
             $plan = $this->persistPlan($bartePlan);
 
             collect($bartePlan['values'] ?? [])
-                ->each(fn(array $value) => $plan->prices()->updateOrCreate(
-                    ['provider_price_id' => "{$bartePlan['uuid']}-{$value['type']}"],
+                ->each(fn (array $value) => $plan->prices()->updateOrCreate(
+                    ['provider_price_id' => sprintf('%s-%s', $bartePlan['uuid'], $value['type'])],
                     [
                         'billing_scheme' => 'per_unit',
                         'tiers_mode' => 'not-selected',
                         'type' => 'recurring',
-                        'unit_amount_decimal' => (int)round($value['valuePerMonth'] * 100),
+                        'unit_amount_decimal' => (int) round($value['valuePerMonth'] * 100),
                         'active' => $bartePlan['active'],
                         'default' => $value['type'] === 'MONTHLY',
-                        'metadata' => []
+                        'metadata' => [],
                     ]
                 ));
         }
 
-        $this->info("Planos sincronizados: {$plans->count()}");
+        $this->info('Planos sincronizados: ' . $plans->count());
     }
 
     private function persistPlan(array $bartePlan): Plan

@@ -7,8 +7,9 @@ use Filament\Billing\Providers\Contracts\BillingProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use TresPontosTech\App\Filament\Pages\UserDashboard;
-use TresPontosTech\Billing\BillingCustomer;
 use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Models\BillingCustomer;
 
 class UserBillingProvider implements BillingProvider
 {
@@ -21,8 +22,8 @@ class UserBillingProvider implements BillingProvider
 
             $billing = resolve(BillingManager::class);
 
-            $driver = $providerEnum
-                ? $billing->driver($providerEnum->value)
+            $driver = $providerEnum instanceof BillingProviderEnum
+                ? $billing->getDriver(BillingProviderEnum::from($providerEnum->value))
                 : $billing->getDefaultDriver();
 
             $driver->ensureCustomerExists($user);

@@ -7,7 +7,6 @@ use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
-use Laravel\Cashier\Cashier;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
@@ -28,7 +27,7 @@ class UserSubscriptionPage extends Page
 
     public string $selectedPlan = 'user';
 
-    public string $selectedProvider = 'stripe';
+    public string $selectedProvider = 'barte';
 
     protected function getViewData(): array
     {
@@ -46,7 +45,6 @@ class UserSubscriptionPage extends Page
     public function checkout(): void
     {
         $user = auth()->user();
-        Cashier::useCustomerModel(User::class);
 
         $plan = resolve(PlanRepository::class)->get($this->selectedPlan);
         $price = $plan->prices->first();

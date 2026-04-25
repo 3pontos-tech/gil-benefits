@@ -50,7 +50,7 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
     public static function activeCases(): array
     {
         return array_map(
-            fn(string $key) => self::from($key),
+            fn (string $key) => self::from($key),
             array_keys(self::availableProviders())
         );
     }

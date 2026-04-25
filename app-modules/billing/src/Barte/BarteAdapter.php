@@ -3,6 +3,7 @@
 namespace TresPontosTech\Billing\Barte;
 
 use App\Models\Users\User;
+use Illuminate\Support\Facades\Log;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -15,9 +16,7 @@ final readonly class BarteAdapter implements BillingContract
 {
     public function __construct(
         private BarteClient $client
-    )
-    {
-    }
+    ) {}
 
     public function ensureCustomerExists(Company|User $billable): void
     {
@@ -26,10 +25,12 @@ final readonly class BarteAdapter implements BillingContract
         if ($already) {
             return;
         }
+
         // temos que obrigar os usuarios a preencher os details, ou quando estiver criando, melhor
-        if ($billable instanceof User && !filled($billable?->detail)) {
+        if ($billable instanceof User && blank($billable?->detail)) {
             return;
         }
+
         $response = $this->client->post('/v2/buyers', [
             'document' => [
                 'documentNumber' => $billable instanceof Company ? $billable->tax_id : $billable->detail->tax_id,
@@ -52,7 +53,7 @@ final readonly class BarteAdapter implements BillingContract
     {
         $customerId = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
 
-        if (!$customerId) {
+        if (! $customerId) {
             return false;
         }
 
@@ -60,9 +61,10 @@ final readonly class BarteAdapter implements BillingContract
             ->where('subscriptionable_id', $billable->getKey())
             ->where('stripe_status', 'active')->latest()->first();
 
-        if (!$subscription) {
+        if (! $subscription) {
             return false;
         }
+
         try {
             // maybe create a method for user and company like $this->document that returns the identifier
 
@@ -86,7 +88,7 @@ final readonly class BarteAdapter implements BillingContract
     {
         $customerId = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
 
-        if (!$customerId) {
+        if (! $customerId) {
             return false;
         }
 
@@ -99,7 +101,7 @@ final readonly class BarteAdapter implements BillingContract
                 'size' => 1,
             ]);
 
-            return !empty($response['content']);
+            return ! empty($response['content']);
 
         } catch (BarteApiException $barteApiException) {
             if ($barteApiException->isNotFound()) {
@@ -147,10 +149,12 @@ final readonly class BarteAdapter implements BillingContract
                 ['key' => 'billable_id',   'value' => (string) $billable->getKey()],
                 ['key' => 'barte_plan_uuid', 'value' => $planUuid],
                 ['key' => 'barte_cycle_type', 'value' => $cycleType],
+                ['key' => 'quantity', 'value' => $data->quantity],
             ],
         ]);
 
-        \Log::info('log quando criamos pagamento', $response);
+        Log::info('log quando criamos pagamento', $response);
+
         return $response['url'];
     }
 

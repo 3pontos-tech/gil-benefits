@@ -8,8 +8,8 @@ use Filament\Facades\Filament;
 use Filament\Pages\Dashboard;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-
 use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Company\Models\Company;
 
@@ -23,10 +23,9 @@ class CompanyBillingProvider implements BillingProvider
 
             $providerEnum = BillingCustomer::getActiveProvider($tenant);
 
-
             $billing = resolve(BillingManager::class);
 
-            $driver = $providerEnum
+            $driver = $providerEnum instanceof BillingProviderEnum
                 ? $billing->driver($providerEnum->value)
                 : $billing->getDefaultDriver();
 

@@ -15,7 +15,7 @@ class EloquentPlanRepository implements PlanRepository
     {
         return Plan::query()
             ->where('active', true)
-            ->where('provider', "!=",BillingProviderEnum::Contractual)
+            ->where('provider', '!=', BillingProviderEnum::Contractual)
             ->get()
             ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan))
             ->all();
@@ -31,7 +31,7 @@ class EloquentPlanRepository implements PlanRepository
         return Cache::remember('active_user_plans', 15, fn () => Plan::query()
             ->where('type', BillableTypeEnum::User)
             ->where('active', true)
-            ->where('provider', BillingProviderEnum::Stripe)
+            ->where('provider', BillingProviderEnum::Barte)
             ->get()
             ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan))
         );
