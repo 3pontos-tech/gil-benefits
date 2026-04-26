@@ -5,6 +5,7 @@ namespace TresPontosTech\User\Actions;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Support\Collection;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
 
@@ -291,7 +292,7 @@ class ValidateUserImportAction
 
         $contractualPlan = $company->activeContractualPlan();
 
-        if ($contractualPlan !== null) {
+        if ($contractualPlan instanceof CompanyPlan) {
             $available = $contractualPlan->seats - $currentActiveCount;
 
             if ($newUsersCount > $available) {

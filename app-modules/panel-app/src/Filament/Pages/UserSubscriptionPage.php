@@ -10,7 +10,6 @@ use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
-use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 
 class UserSubscriptionPage extends Page
@@ -26,8 +25,6 @@ class UserSubscriptionPage extends Page
     protected static bool $shouldRegisterNavigation = false;
 
     public string $selectedPlan = 'user';
-
-    public string $selectedProvider = 'barte';
 
     protected function getViewData(): array
     {
@@ -64,7 +61,7 @@ class UserSubscriptionPage extends Page
         );
 
         $url = resolve(BillingManager::class)
-            ->getDriver(BillingProviderEnum::from($this->selectedProvider))
+            ->getDriver($plan->provider)
             ->createCheckout(
                 billable: $user,
                 data: $data

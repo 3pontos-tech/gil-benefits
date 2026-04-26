@@ -5,6 +5,8 @@ namespace TresPontosTech\Billing\Stripe\Subscription;
 use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Company\Models\Company;
 
 class StripeAdapter implements BillingContract
@@ -17,10 +19,17 @@ class StripeAdapter implements BillingContract
 
         $modelType = $billable instanceof Company ? Company::class : User::class;
 
-        $billable->createAsStripeCustomer([
+        $customer = $billable->createAsStripeCustomer([
             'metadata' => [
                 'model_type' => $modelType,
             ],
+        ]);
+
+        BillingCustomer::query()->create([
+            'billable_type' => $billable->getMorphClass(),
+            'billable_id' => $billable->getKey(),
+            'provider' => BillingProviderEnum::Stripe,
+            'provider_customer_id' => $customer->id,
         ]);
     }
 

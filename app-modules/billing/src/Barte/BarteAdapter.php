@@ -20,7 +20,7 @@ final readonly class BarteAdapter implements BillingContract
 
     public function ensureCustomerExists(Company|User $billable): void
     {
-        $already = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
+        $already = $this->findCustomer($billable);
 
         if ($already) {
             return;
@@ -51,65 +51,33 @@ final readonly class BarteAdapter implements BillingContract
 
     public function isSubscribed(Company|User $billable, string $planSlug): bool
     {
-        $customerId = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
+        $customer = $this->findCustomer($billable);
 
-        if (! $customerId) {
+        if (! $customer) {
             return false;
         }
 
-        $subscription = Subscription::query()
+        return Subscription::query()
+            ->where('subscriptionable_type', $billable->getMorphClass())
             ->where('subscriptionable_id', $billable->getKey())
-            ->where('stripe_status', 'active')->latest()->first();
-
-        if (! $subscription) {
-            return false;
-        }
-
-        try {
-            // maybe create a method for user and company like $this->document that returns the identifier
-
-            $response = $this->client->get('/v2/subscriptions', [
-                'uuid' => $subscription->stripe_id,
-            ]);
-
-            return $response['content'][0]['uuid'] === $subscription->stripe_id
-                || $response['content'][0]['status'] === 'ACTIVE';
-
-        } catch (BarteApiException $barteApiException) {
-            if ($barteApiException->isNotFound()) {
-                return false;
-            }
-
-            throw $barteApiException;
-        }
+            ->where('stripe_status', 'active')
+            ->whereHas('plan', fn ($q) => $q->where('slug', $planSlug))
+            ->exists();
     }
 
     public function hasActiveSubscription(Company|User $billable): bool
     {
-        $customerId = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
+        $customer = $this->findCustomer($billable);
 
-        if (! $customerId) {
+        if (! $customer) {
             return false;
         }
 
-        try {
-            $document = $billable instanceof Company ? $billable->tax_id : $billable->detail->document_id;
-
-            $response = $this->client->get('/v2/subscriptions', [
-                'customerDocument' => $document,
-                'status' => 'ACTIVE',
-                'size' => 1,
-            ]);
-
-            return ! empty($response['content']);
-
-        } catch (BarteApiException $barteApiException) {
-            if ($barteApiException->isNotFound()) {
-                return false;
-            }
-
-            throw $barteApiException;
-        }
+        return Subscription::query()
+            ->where('subscriptionable_type', $billable->getMorphClass())
+            ->where('subscriptionable_id', $billable->getKey())
+            ->where('stripe_status', 'active')
+            ->exists();
     }
 
     public function hasActivePlan(Company $company): bool
@@ -119,7 +87,7 @@ final readonly class BarteAdapter implements BillingContract
 
     public function createCheckout(Company|User $billable, CheckoutData $data): string
     {
-        $customerId = BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
+        $customerId = $this->findCustomer($billable);
 
         $price = Price::query()
             ->where('provider_price_id', $data->priceId)
@@ -129,9 +97,9 @@ final readonly class BarteAdapter implements BillingContract
         $cycleType = str($data->priceId)->afterLast('-')->upper()->toString();
         $planUuid = $price->plan->provider_product_id;
 
-        // Company: valor calculado por quantidade de seats; User: valor fixo do plano
+        // Company: valor calculado por quantidade de seats com precificação por faixa; User: valor fixo do plano
         $valuePerMonth = $data->isMetered
-            ? ($price->unit_amount_decimal / 100) * $data->quantity
+            ? $this->pricePerSeat($data->quantity) * $data->quantity
             : $price->unit_amount_decimal / 100;
 
         $response = $this->client->post('/v2/payment-links', [
@@ -146,7 +114,7 @@ final readonly class BarteAdapter implements BillingContract
             ],
             'metadata' => [
                 ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
-                ['key' => 'billable_id',   'value' => (string) $billable->getKey()],
+                ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
                 ['key' => 'barte_plan_uuid', 'value' => $planUuid],
                 ['key' => 'barte_cycle_type', 'value' => $cycleType],
                 ['key' => 'quantity', 'value' => $data->quantity],
@@ -156,6 +124,22 @@ final readonly class BarteAdapter implements BillingContract
         Log::info('log quando criamos pagamento', $response);
 
         return $response['url'];
+    }
+
+    private function pricePerSeat(int $quantity): float
+    {
+        return match (true) {
+            $quantity <= 15 => 44.90,
+            $quantity <= 30 => 34.90,
+            $quantity <= 70 => 24.90,
+            default => 11.90,
+        };
+    }
+
+    private function findCustomer(Company|User $billable): ?string
+    {
+        return BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
+
     }
 
     public function getBillingPortalUrl(User|Company $billable, string $returnUrl, array $options = []): string

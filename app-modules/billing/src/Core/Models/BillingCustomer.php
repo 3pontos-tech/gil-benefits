@@ -41,7 +41,7 @@ class BillingCustomer extends Model
     {
         return static::query()
             ->where('billable_type', $billable->getMorphClass())
-            ->where('billable_id', $billable->getKey())->oldest()
+            ->where('billable_id', $billable->getKey())->latest()
             ->value('provider');
     }
 }

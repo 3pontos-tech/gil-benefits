@@ -10,7 +10,7 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Override;
-use TresPontosTech\Billing\Barte\Commands\PlayCommand;
+use TresPontosTech\Billing\Barte\Commands\SyncBartePlans;
 use TresPontosTech\Billing\Core\Commands\SyncStripeResourcesCommand;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Models\Subscriptions\SubscriptionItem;
@@ -32,7 +32,7 @@ class BillingServiceProvider extends ServiceProvider
 
         $this->commands([
             SyncStripeResourcesCommand::class,
-            PlayCommand::class,
+            SyncBartePlans::class,
         ]);
 
         Panel::configureUsing(function (Panel $panel): void {
