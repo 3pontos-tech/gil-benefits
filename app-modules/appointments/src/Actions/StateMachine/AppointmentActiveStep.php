@@ -10,9 +10,14 @@ use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
 
 class AppointmentActiveStep extends AbstractAppointmentStep
 {
+    public function targetStatus(): AppointmentStatus
+    {
+        return AppointmentStatus::Completed;
+    }
+
     public function processStep(): void
     {
-        $this->appointment->update(['status' => AppointmentStatus::Completed]);
+        $this->appointment->update(['status' => $this->targetStatus()]);
 
         event(new AppointmentCompleted($this->appointment));
     }

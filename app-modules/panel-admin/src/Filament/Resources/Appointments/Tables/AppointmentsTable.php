@@ -33,6 +33,7 @@ class AppointmentsTable
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(__('appointments::resources.appointments.table.columns.status'))
+                    ->badge()
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->label(__('appointments::resources.appointments.table.columns.created_at'))

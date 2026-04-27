@@ -93,9 +93,15 @@ return [
                 'title' => 'Appointment Cancelled!',
                 'body' => 'Your appointment has been cancelled. Please check your dashboard for details.',
             ],
-            'drafted' => [
-                'title' => 'Appointment Drafted',
-                'body' => 'Your appointment has been drafted. Soon we will contact you to confirm your appointment.',
+            'cancelled_by_user' => [
+                'body' => ":name's appointment was cancelled by the user.",
+            ],
+            'cancelled_by_admin' => [
+                'body' => ":name's appointment was cancelled by the administrator.",
+            ],
+            'user_cancelled_late' => [
+                'title' => 'Appointment Cancelled',
+                'body' => 'Your appointment has been cancelled. As it was cancelled less than 24 hours before the scheduled time, your credit has been consumed.',
             ],
             'pending' => [
                 'title' => 'Appointment under Scheduling',

@@ -62,7 +62,6 @@ it('shows the appointment status badge', function (AppointmentStatus $status): v
     livewire(ViewAppointment::class, ['record' => $appointment->getKey()])
         ->assertSee($status->getLabel());
 })->with([
-    'draft' => AppointmentStatus::Draft,
     'pending' => AppointmentStatus::Pending,
     'active' => AppointmentStatus::Active,
     'completed' => AppointmentStatus::Completed,

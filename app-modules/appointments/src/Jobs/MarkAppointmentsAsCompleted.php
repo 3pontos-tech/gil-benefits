@@ -15,7 +15,7 @@ class MarkAppointmentsAsCompleted implements ShouldQueue
     {
         Appointment::query()
             ->where('status', AppointmentStatus::Active)
-            ->where('appointment_at', '<', now())
+            ->where('appointment_at', '<', now()->subDay())
             ->whereNotNull('consultant_id')
             ->chunkById(100, function ($appointments): void {
                 foreach ($appointments as $appointment) {

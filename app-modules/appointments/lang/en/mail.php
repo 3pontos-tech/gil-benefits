@@ -12,4 +12,8 @@ return [
     'cancelled' => [
         'subject' => 'Appointment cancelled',
     ],
+    'user_cancelled_late' => [
+        'subject' => 'Appointment cancelled (less than 24h notice)',
+    ],
+    'no_consultant' => 'unassigned consultant',
 ];

@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Notification as LaravelNotification;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentSchedulingStep;
+use TresPontosTech\Appointments\Actions\StateMachine\AppointmentActiveStep;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
@@ -16,12 +16,12 @@ beforeEach(function (): void {
 
 it('dispatches DeleteAppointmentCalendarEventJob on cancel when google_event_id exists', function (): void {
     $appointment = Appointment::factory()->create([
-        'status' => AppointmentStatus::Scheduling,
+        'status' => AppointmentStatus::Active,
         'google_event_id' => 'google-event-123',
     ]);
     actingAs($appointment->user);
 
-    $step = new AppointmentSchedulingStep($appointment);
+    $step = new AppointmentActiveStep($appointment);
     $step->cancel();
 
     Bus::assertDispatched(DeleteAppointmentCalendarEventJob::class, function ($job) use ($appointment): bool {
@@ -33,12 +33,12 @@ it('dispatches DeleteAppointmentCalendarEventJob on cancel when google_event_id 
 
 it('does not dispatch delete job when google_event_id is null', function (): void {
     $appointment = Appointment::factory()->create([
-        'status' => AppointmentStatus::Scheduling,
+        'status' => AppointmentStatus::Active,
         'google_event_id' => null,
     ]);
     actingAs($appointment->user);
 
-    $step = new AppointmentSchedulingStep($appointment);
+    $step = new AppointmentActiveStep($appointment);
     $step->cancel();
 
     Bus::assertNotDispatched(DeleteAppointmentCalendarEventJob::class);

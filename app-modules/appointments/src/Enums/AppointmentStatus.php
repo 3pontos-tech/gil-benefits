@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Appointments\Enums;
 
+use BadMethodCallException;
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
@@ -10,19 +11,12 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use TresPontosTech\Appointments\Actions\StateMachine\AbstractAppointmentStep;
 use TresPontosTech\Appointments\Actions\StateMachine\AppointmentActiveStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentDoneStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentDraftStep;
 use TresPontosTech\Appointments\Actions\StateMachine\AppointmentPendingStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentSchedulingStep;
 use TresPontosTech\Appointments\Models\Appointment;
 
 enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
 {
-    case Draft = 'draft';
-
     case Pending = 'pending';
-
-    case Scheduling = 'scheduling';
 
     case Active = 'active';
 
@@ -30,27 +24,27 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
 
     case Cancelled = 'cancelled';
 
+    case CancelledLate = 'cancelled_late';
+
     public function getIcon(): Heroicon
     {
         return match ($this) {
-            self::Draft => Heroicon::Pencil,
             self::Pending => Heroicon::Clock,
-            self::Scheduling => Heroicon::Calendar,
             self::Active => Heroicon::Check,
             self::Completed => Heroicon::CheckCircle,
             self::Cancelled => Heroicon::XCircle,
+            self::CancelledLate => Heroicon::XMark,
         };
     }
 
     public function getColor(): array
     {
         return match ($this) {
-            self::Draft => Color::Gray,
             self::Pending => Color::Amber,
-            self::Scheduling => Color::Yellow,
             self::Active => Color::Blue,
             self::Completed => Color::Green,
             self::Cancelled => Color::Red,
+            self::CancelledLate => Color::Orange,
         };
     }
 
@@ -61,14 +55,35 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
         );
     }
 
+    /** @return list<self> */
+    public function allowedTransitions(): array
+    {
+        return match ($this) {
+            self::Pending => [self::Active, self::Cancelled, self::CancelledLate],
+            self::Active => [self::Completed, self::Cancelled, self::CancelledLate],
+            self::Completed, self::Cancelled, self::CancelledLate => [],
+        };
+    }
+
+    /** @return list<self> */
+    public static function creditConsuming(): array
+    {
+        return [self::CancelledLate];
+    }
+
+    public function canTransitionTo(self $target): bool
+    {
+        return in_array($target, $this->allowedTransitions(), true);
+    }
+
     public function currentStep(Appointment $appointment): AbstractAppointmentStep
     {
         return match ($this) {
-            self::Draft => new AppointmentDraftStep($appointment),
             self::Pending => new AppointmentPendingStep($appointment),
-            self::Scheduling => new AppointmentSchedulingStep($appointment),
             self::Active => new AppointmentActiveStep($appointment),
-            self::Completed, self::Cancelled => new AppointmentDoneStep($appointment),
+            self::Completed, self::Cancelled, self::CancelledLate => throw new BadMethodCallException(
+                sprintf('Status "%s" is terminal and has no associated step.', $this->value)
+            ),
         };
     }
 }

@@ -93,9 +93,15 @@ return [
                 'title' => 'Agendamento Cancelado!',
                 'body' => 'Seu agendamento foi cancelado. Verifique seu painel para mais detalhes.',
             ],
-            'drafted' => [
-                'title' => 'Agendamento em Rascunho',
-                'body' => 'Seu agendamento foi salvo como rascunho. Em breve entraremos em contato para confirmar.',
+            'cancelled_by_user' => [
+                'body' => 'O agendamento de :name foi cancelado pelo usuário.',
+            ],
+            'cancelled_by_admin' => [
+                'body' => 'O agendamento de :name foi cancelado pelo administrador.',
+            ],
+            'user_cancelled_late' => [
+                'title' => 'Agendamento Cancelado',
+                'body' => 'Seu agendamento foi cancelado. Como o cancelamento foi feito com menos de 24 horas de antecedência, o crédito foi consumido.',
             ],
             'pending' => [
                 'title' => 'Agendamento em Andamento',

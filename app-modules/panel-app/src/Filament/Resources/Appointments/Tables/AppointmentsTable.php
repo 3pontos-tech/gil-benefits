@@ -5,6 +5,7 @@ namespace TresPontosTech\App\Filament\Resources\Appointments\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\App\Filament\Actions\CancelAppointmentAction;
 use TresPontosTech\App\Filament\Actions\FeedbackAction;
 use TresPontosTech\App\Filament\Actions\ViewAppointmentRecordAction;
 
@@ -52,6 +53,7 @@ class AppointmentsTable
             ->recordActions([
                 ViewAppointmentRecordAction::make(),
                 FeedbackAction::make(),
+                CancelAppointmentAction::make(),
             ]);
 
     }

@@ -12,4 +12,8 @@ return [
     'cancelled' => [
         'subject' => 'Consulta cancelada',
     ],
+    'user_cancelled_late' => [
+        'subject' => 'Consulta cancelada fora do prazo',
+    ],
+    'no_consultant' => 'consultor não atribuído',
 ];

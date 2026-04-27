@@ -20,7 +20,9 @@ final class AppointmentRecordPublishedMail extends Mailable implements ShouldQue
 
     public function __construct(
         public AppointmentRecord $record,
-    ) {}
+    ) {
+        $this->onQueue('emails')->afterCommit();
+    }
 
     public function envelope(): Envelope
     {

@@ -41,6 +41,8 @@ class AppPanelProvider extends PanelProvider
             ->passwordReset()
             ->topbar(false)
             ->sidebarFullyCollapsibleOnDesktop()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->globalSearch()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->navigationItems([

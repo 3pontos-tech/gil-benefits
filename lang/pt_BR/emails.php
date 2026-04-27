@@ -34,6 +34,16 @@ return [
             'support' => 'Se tiver dúvidas sobre o cancelamento, entre em contato com o suporte.',
             'thanks' => 'Obrigado',
         ],
+        'cancelled_late' => [
+            'title' => 'Consulta Cancelada Fora do Prazo',
+            'greeting' => 'Olá, **:name**!',
+            'body' => 'Sua consulta com **:consultant**, agendada para **:date**, foi cancelada com menos de 24 horas de antecedência.',
+            'credit_notice' => 'Por conta do cancelamento tardio, o crédito referente a esta consulta **não será devolvido** ao seu plano.',
+            'reschedule' => 'Caso queira agendar uma nova consulta e ainda possua créditos disponíveis, acesse o painel.',
+            'button' => 'Acessar painel',
+            'support' => 'Se tiver dúvidas, entre em contato com o suporte.',
+            'thanks' => 'Obrigado',
+        ],
     ],
     'users' => [
         'welcome' => [

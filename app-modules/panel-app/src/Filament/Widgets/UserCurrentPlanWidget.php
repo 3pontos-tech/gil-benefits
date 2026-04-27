@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -67,6 +68,9 @@ class UserCurrentPlanWidget extends Widget
             'hasOngoingAppointment' => $user->hasOngoingAppointment(),
         ];
     }
+
+    #[On('appointment-cancelled')]
+    public function refresh(): void {}
 
     public function redirectToAppointmentCreation(): void
     {

@@ -21,7 +21,7 @@ describe('company plan', function (): void {
     it('should be able to make an appointment when status is Cancelled', function (): void {
         $employee = actingAsEmployee();
         $appointment = Appointment::factory()
-            ->withStatus(AppointmentStatus::Scheduling)
+            ->withStatus(AppointmentStatus::Active)
             ->create([
                 'user_id' => $employee->getKey(),
             ]);
@@ -34,7 +34,6 @@ describe('company plan', function (): void {
             ->call('redirectToAppointmentCreation')
             ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'));
 
-        expect($appointment->status->value)->toBe(AppointmentStatus::Scheduling->value);
         $appointment->update(['status' => AppointmentStatus::Cancelled]);
 
         travelTo(now()->addMinutes(2));
@@ -55,7 +54,7 @@ describe('employee with plan, company plan does not exists', function (): void {
     it('should be able to make an appointment when status is Cancelled', function (): void {
         $employee = actingAsSubscribedEmployee();
         $appointment = Appointment::factory()
-            ->withStatus(AppointmentStatus::Scheduling)
+            ->withStatus(AppointmentStatus::Active)
             ->create([
                 'user_id' => $employee->getKey(),
             ]);
@@ -68,7 +67,6 @@ describe('employee with plan, company plan does not exists', function (): void {
             ->call('redirectToAppointmentCreation')
             ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'));
 
-        expect($appointment->status->value)->toBe(AppointmentStatus::Scheduling->value);
         $appointment->update(['status' => AppointmentStatus::Cancelled]);
 
         travelTo(now()->addMinutes(2));

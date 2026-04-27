@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use TresPontosTech\Appointments\Models\Appointment;
 
-class AppointmentCancelledMail extends Mailable implements ShouldQueue
+class AppointmentUserCancelledLateMail extends Mailable implements ShouldQueue
 {
     use Queueable;
     use SerializesModels;
@@ -24,14 +24,14 @@ class AppointmentCancelledMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('appointments::mail.cancelled.subject'),
+            subject: __('appointments::mail.user_cancelled_late.subject'),
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.appointments.cancelled',
+            markdown: 'emails.appointments.cancelled-late',
             with: [
                 'userName' => $this->appointment->user->name,
                 'consultantName' => $this->appointment->consultant?->name ?? __('appointments::mail.no_consultant'),

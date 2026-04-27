@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 
@@ -33,6 +34,8 @@ class Appointment extends Model
         'meeting_url',
         'google_event_id',
         'notes',
+        'cancelled_by',
+        'cancellation_actor',
     ];
 
     protected function casts(): array
@@ -41,6 +44,7 @@ class Appointment extends Model
             'appointment_at' => 'datetime',
             'status' => AppointmentStatus::class,
             'category_type' => AppointmentCategoryEnum::class,
+            'cancellation_actor' => CancellationActor::class,
         ];
     }
 
@@ -52,6 +56,11 @@ class Appointment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function cancelledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
     }
 
     public function company(): BelongsTo

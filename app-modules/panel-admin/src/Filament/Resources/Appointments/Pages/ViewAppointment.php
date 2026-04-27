@@ -6,13 +6,26 @@ namespace TresPontosTech\Admin\Filament\Resources\Appointments\Pages;
 
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Throwable;
 use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\Appointments\Actions\AssignConsultantAction;
+use TresPontosTech\Appointments\Actions\CancelAppointmentAction;
+use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 
 class ViewAppointment extends ViewRecord
 {
@@ -24,6 +37,106 @@ class ViewAppointment extends ViewRecord
     {
         return [
             EditAction::make(),
+
+            Action::make('confirm_appointment')
+                ->label(__('panel-admin::resources.appointments.actions.confirm_appointment'))
+                ->icon(Heroicon::Check)
+                ->color('success')
+                ->modalSubmitActionLabel(__('panel-admin::resources.appointments.actions.confirm'))
+                ->visible(fn (): bool => $this->record->status === AppointmentStatus::Pending)
+                ->fillForm(fn (): array => [
+                    'appointment_at' => $this->record->appointment_at,
+                    'consultant_id' => $this->record->consultant_id,
+                ])
+                ->schema([
+                    DateTimePicker::make('appointment_at')
+                        ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
+                        ->required()
+                        ->live()
+                        ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
+                    Select::make('consultant_id')
+                        ->label(__('appointments::resources.appointments.table.columns.consultant'))
+                        ->options(function (Get $get): array {
+                            $appointmentAt = $get('appointment_at');
+
+                            if (! $appointmentAt) {
+                                return [];
+                            }
+
+                            return resolve(GetAvailableConsultantsAction::class)
+                                ->handle(
+                                    appointmentAt: Date::parse($appointmentAt),
+                                    alwaysIncludeConsultantId: $this->record->consultant_id,
+                                )
+                                ->pluck('name', 'id')
+                                ->all();
+                        })
+                        ->live()
+                        ->required(),
+                ])
+                ->action(function (array $data): void {
+                    /** @var Appointment $appointment */
+                    $appointment = $this->record;
+
+                    $appointment->update([
+                        'appointment_at' => $data['appointment_at'],
+                        'consultant_id' => $data['consultant_id'],
+                    ]);
+
+                    try {
+                        resolve(AssignConsultantAction::class)->handle($appointment);
+                    } catch (SlotUnavailableException) {
+                        Notification::make()
+                            ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
+                    $appointment->refresh();
+                    $appointment->status->currentStep($appointment)->handle();
+
+                    $appointment->loadMissing('consultant');
+                    $consultant = $appointment->consultant;
+
+                    if (filled($consultant) && filled($consultant->email) && blank($appointment->google_event_id)) {
+                        try {
+                            dispatch_sync(new CreateAppointmentCalendarEventJob($appointment));
+                        } catch (Throwable) {
+                            Notification::make()
+                                ->title(__('panel-admin::resources.appointments.actions.calendar_event_failed'))
+                                ->warning()
+                                ->send();
+                        }
+                    }
+
+                    $this->record->refresh();
+                }),
+
+            Action::make('complete_appointment')
+                ->label(__('panel-admin::resources.appointments.actions.complete_appointment'))
+                ->icon(Heroicon::CheckCircle)
+                ->color('success')
+                ->requiresConfirmation()
+                ->visible(fn (): bool => $this->record->status === AppointmentStatus::Active && $this->record->appointment_at->isPast())
+                ->action(function (): void {
+                    /** @var Appointment $appointment */
+                    $appointment = $this->record;
+                    $appointment->status->currentStep($appointment)->handle();
+                    $this->record->refresh();
+                }),
+
+            Action::make('cancel_appointment')
+                ->label(__('panel-admin::resources.appointments.actions.cancel_appointment'))
+                ->icon(Heroicon::XCircle)
+                ->color('danger')
+                ->requiresConfirmation()
+                ->visible(fn (): bool => $this->record->status->canTransitionTo(AppointmentStatus::Cancelled))
+                ->action(function (): void {
+                    resolve(CancelAppointmentAction::class)->handle($this->record);
+                    $this->record->refresh();
+                }),
         ];
     }
 

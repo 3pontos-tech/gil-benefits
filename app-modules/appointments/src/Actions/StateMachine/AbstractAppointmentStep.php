@@ -2,15 +2,9 @@
 
 namespace TresPontosTech\Appointments\Actions\StateMachine;
 
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Mail;
+use TresPontosTech\Appointments\Actions\CancelAppointmentAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\Appointments\Events\AppointmentCancelled;
-use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
-use Zap\Enums\ScheduleTypes;
-use Zap\Models\Schedule;
 
 abstract class AbstractAppointmentStep
 {
@@ -18,8 +12,30 @@ abstract class AbstractAppointmentStep
         public Appointment $appointment,
     ) {}
 
+    abstract public function targetStatus(): AppointmentStatus;
+
+    protected function guard(): bool
+    {
+        return true;
+    }
+
     public function handle(): void
     {
+        if (! $this->appointment->status->canTransitionTo($this->targetStatus())) {
+            throw new \LogicException(sprintf(
+                'Cannot process step: transition from "%s" to "%s" is not allowed.',
+                $this->appointment->status->value,
+                $this->targetStatus()->value,
+            ));
+        }
+
+        if (! $this->guard()) {
+            throw new \LogicException(sprintf(
+                'Cannot process step: business guard failed for status "%s".',
+                $this->appointment->status->value,
+            ));
+        }
+
         $this->processStep();
 
         $this->notify();
@@ -31,30 +47,6 @@ abstract class AbstractAppointmentStep
 
     public function cancel(): void
     {
-        $this->appointment->loadMissing(['user', 'consultant']);
-
-        $this->appointment->update([
-            'status' => AppointmentStatus::Cancelled,
-        ]);
-
-        Notification::make()
-            ->title(__('appointments::resources.appointments.notifications.cancelled.title'))
-            ->body(__('appointments::resources.appointments.notifications.cancelled.body'))
-            ->warning()
-            ->sendToDatabase($this->appointment->user)
-            ->send();
-
-        Mail::to($this->appointment->user->email)->queue(new AppointmentCancelledMail($this->appointment));
-
-        event(new AppointmentCancelled($this->appointment));
-
-        Schedule::query()
-            ->where('schedule_type', ScheduleTypes::APPOINTMENT)
-            ->whereJsonContains('metadata->appointment_id', $this->appointment->id)
-            ->delete();
-
-        if (filled($this->appointment->google_event_id)) {
-            dispatch(new DeleteAppointmentCalendarEventJob($this->appointment));
-        }
+        resolve(CancelAppointmentAction::class)->handle($this->appointment);
     }
 }

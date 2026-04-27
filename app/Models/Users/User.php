@@ -228,6 +228,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             ->whereNotIn('status', [
                 AppointmentStatus::Completed->value,
                 AppointmentStatus::Cancelled->value,
+                AppointmentStatus::CancelledLate->value,
             ])
             ->exists();
     }
