@@ -21,4 +21,6 @@ interface BillingContract
     public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string;
 
     public function hasActiveSubscription(Company|User $billable): bool;
+
+    public function cancelSubscription(Company|User $billable): void;
 }

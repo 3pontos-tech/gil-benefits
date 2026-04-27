@@ -4,12 +4,15 @@ namespace TresPontosTech\Billing\Barte;
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Log;
+use TresPontosTech\App\Filament\Pages\UserBillingManagePage;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
+use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Company\Models\Company;
 
 final readonly class BarteAdapter implements BillingContract
@@ -51,9 +54,18 @@ final readonly class BarteAdapter implements BillingContract
 
     public function isSubscribed(Company|User $billable, string $planSlug): bool
     {
-        $customer = $this->findCustomer($billable);
+        if (! $this->findCustomer($billable)) {
+            return false;
+        }
 
-        if (! $customer) {
+        // stripe_price armazena o planExternalId no formato {uuid}-{CYCLE} (ex: 69ccaa5c-...-MONTHLY).
+        // Buscamos o provider_product_id do plano (somente o UUID) e verificamos se stripe_price
+        // começa com ele — isso cobre variações de ciclo (MONTHLY, YEARLY, SEMESTER).
+        $planUuid = Plan::query()
+            ->where('slug', $planSlug)
+            ->value('provider_product_id');
+
+        if (! $planUuid) {
             return false;
         }
 
@@ -61,7 +73,7 @@ final readonly class BarteAdapter implements BillingContract
             ->where('subscriptionable_type', $billable->getMorphClass())
             ->where('subscriptionable_id', $billable->getKey())
             ->where('stripe_status', 'active')
-            ->whereHas('plan', fn ($q) => $q->where('slug', $planSlug))
+            ->where('stripe_price', 'like', $planUuid . '%')
             ->exists();
     }
 
@@ -126,6 +138,23 @@ final readonly class BarteAdapter implements BillingContract
         return $response['url'];
     }
 
+    public function cancelSubscription(Company|User $billable): void
+    {
+        $subscription = Subscription::query()
+            ->where('subscriptionable_type', $billable->getMorphClass())
+            ->where('subscriptionable_id', $billable->getKey())
+            ->where('stripe_status', 'active')
+            ->latest()
+            ->first();
+
+        if (! $subscription) {
+            return;
+        }
+
+        $this->client->delete('/v2/subscriptions/' . $subscription->stripe_id);
+
+    }
+
     private function pricePerSeat(int $quantity): float
     {
         return match (true) {
@@ -144,7 +173,10 @@ final readonly class BarteAdapter implements BillingContract
 
     public function getBillingPortalUrl(User|Company $billable, string $returnUrl, array $options = []): string
     {
-        // Barte não tem portal gerenciado — retorna rota interna
-        return route('billing.manage', ['tenant' => $billable->slug]);
+        if ($billable instanceof Company) {
+            return BillingManagePage::getUrl(tenant: $billable);
+        }
+
+        return UserBillingManagePage::getUrl();
     }
 }

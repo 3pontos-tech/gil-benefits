@@ -9,7 +9,7 @@ use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Stripe\Subscription\StripeAdapter;
 
-final class BillingManager extends Manager
+class BillingManager extends Manager
 {
     public function getDefaultDriver(): BillingContract
     {
