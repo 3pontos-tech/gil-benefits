@@ -72,8 +72,8 @@ final class UserCancelAppointmentAction
         $key = $targetStatus === AppointmentStatus::CancelledLate ? 'user_cancelled_late' : 'cancelled';
 
         Notification::make()
-            ->title(__("appointments::resources.appointments.notifications.{$key}.title"))
-            ->body(__("appointments::resources.appointments.notifications.{$key}.body"))
+            ->title(__(sprintf('appointments::resources.appointments.notifications.%s.title', $key)))
+            ->body(__(sprintf('appointments::resources.appointments.notifications.%s.body', $key)))
             ->warning()
             ->sendToDatabase($appointment->user)
             ->send();
