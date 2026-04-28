@@ -202,3 +202,15 @@ it('throws InvalidTransitionException when called on a terminal status', functio
     expect(fn () => $appointment->current_transition->handle(new TransitionData))
         ->toThrow(InvalidTransitionException::class);
 });
+
+it('throws InvalidTransitionException when user cancels a past appointment', function (): void {
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::Active)
+        ->create(['appointment_at' => now()->subHour()]);
+    actingAs($appointment->user);
+
+    expect(fn () => (new ActiveTransition($appointment))->handle(new TransitionData(
+        cancellationActor: CancellationActor::User,
+        cancelledBy: $appointment->user,
+    )))->toThrow(InvalidTransitionException::class);
+});

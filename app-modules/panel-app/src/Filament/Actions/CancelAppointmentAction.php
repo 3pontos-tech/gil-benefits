@@ -43,6 +43,10 @@ class CancelAppointmentAction extends Action
         $this->requiresConfirmation();
 
         $this->action(function (Appointment $record): void {
+            if ($record->user_id !== auth()->id()) {
+                return;
+            }
+
             $record->current_transition->handle(new TransitionData(
                 cancellationActor: CancellationActor::User,
                 cancelledBy: auth()->user(),

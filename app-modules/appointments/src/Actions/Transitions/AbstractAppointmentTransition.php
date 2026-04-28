@@ -51,6 +51,10 @@ abstract class AbstractAppointmentTransition
 
     protected function cancelProcessStep(TransitionData $data): void
     {
+        if ($data->cancellationActor === CancellationActor::User && $this->appointment->appointment_at->isPast()) {
+            throw new InvalidTransitionException('Cannot cancel a past appointment.');
+        }
+
         $targetStatus = AppointmentStatus::resolveCancellationStatus($this->appointment, $data->cancellationActor);
 
         $this->appointment->update([
