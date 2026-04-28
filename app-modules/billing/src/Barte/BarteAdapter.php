@@ -8,8 +8,10 @@ use TresPontosTech\App\Filament\Pages\UserBillingManagePage;
 use TresPontosTech\Billing\Barte\DTOs\CreateBuyerDto;
 use TresPontosTech\Billing\Barte\DTOs\CreatePaymentLinkDto;
 use TresPontosTech\Billing\Barte\DTOs\PaymentSubscriptionDto;
+use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -38,12 +40,9 @@ final readonly class BarteAdapter implements BillingContract
 
         $response = $this->client->createBuyer(CreateBuyerDto::fromBillable($billable));
 
-        BillingCustomer::query()->create([
-            'billable_type' => $billable->getMorphClass(),
-            'billable_id' => $billable->getKey(),
-            'provider' => BillingProviderEnum::Barte,
-            'provider_customer_id' => $response['uuid'],
-        ]);
+        resolve(CreateBillingCustomer::class)->handle(
+            CreateBillingCustomerDto::make($billable, BillingProviderEnum::Barte, $response['uuid'])
+        );
     }
 
     public function isSubscribed(Company|User $billable, string $planSlug): bool

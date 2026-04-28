@@ -3,10 +3,11 @@
 namespace TresPontosTech\Billing\Stripe\Subscription;
 
 use App\Models\Users\User;
+use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
-use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Company\Models\Company;
 
 class StripeAdapter implements BillingContract
@@ -25,12 +26,9 @@ class StripeAdapter implements BillingContract
             ],
         ]);
 
-        BillingCustomer::query()->create([
-            'billable_type' => $billable->getMorphClass(),
-            'billable_id' => $billable->getKey(),
-            'provider' => BillingProviderEnum::Stripe,
-            'provider_customer_id' => $customer->id,
-        ]);
+        resolve(CreateBillingCustomer::class)->handle(
+            CreateBillingCustomerDto::make($billable, BillingProviderEnum::Stripe, $customer->id)
+        );
     }
 
     public function isSubscribed(Company|User $billable, string $planSlug): bool

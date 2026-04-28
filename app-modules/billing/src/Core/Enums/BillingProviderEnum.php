@@ -9,6 +9,7 @@ use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Support\Htmlable;
 use TresPontosTech\Billing\Barte\BarteAdapter;
+use TresPontosTech\Billing\Stripe\Subscription\StripeAdapter;
 
 enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
 {
@@ -42,6 +43,7 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
     {
         return [
             'barte' => BarteAdapter::class,
+            'stripe' => StripeAdapter::class,
         ];
     }
 
