@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
+use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Consultant;
 
@@ -128,6 +129,15 @@ describe('AppointmentCancelledMail', function (): void {
         $mailable->assertSeeInHtml($appointment->appointment_at->format('d/m/Y'));
     });
 
+    it('renders fallback when consultant is null', function (): void {
+        $appointment = Appointment::factory()->withoutConsultant()->create();
+        $appointment->loadMissing(['user', 'consultant']);
+
+        $mailable = new AppointmentCancelledMail($appointment);
+
+        $mailable->assertSeeInHtml(__('appointments::mail.no_consultant'));
+    });
+
     it('is queued to the user email', function (): void {
         Mail::fake();
 
@@ -140,5 +150,39 @@ describe('AppointmentCancelledMail', function (): void {
             AppointmentCancelledMail::class,
             fn (AppointmentCancelledMail $mail) => $mail->hasTo($appointment->user->email),
         );
+    });
+});
+
+describe('AppointmentUserCancelledLateMail', function (): void {
+    it('has correct subject', function (): void {
+        $appointment = Appointment::factory()->create();
+        $appointment->loadMissing(['user', 'consultant']);
+
+        $mailable = new AppointmentUserCancelledLateMail($appointment);
+
+        $mailable->assertHasSubject(__('appointments::mail.user_cancelled_late.subject'));
+    });
+
+    it('renders user name, consultant name and appointment date in HTML', function (): void {
+        $user = User::factory()->create(['name' => 'Joao Silva']);
+        $consultant = Consultant::factory()->create(['name' => 'Ana Lima']);
+        $appointment = Appointment::factory()->recycle($user, $consultant)->create();
+
+        $appointment->loadMissing(['user', 'consultant']);
+
+        $mailable = new AppointmentUserCancelledLateMail($appointment);
+
+        $mailable->assertSeeInHtml('Joao Silva');
+        $mailable->assertSeeInHtml('Ana Lima');
+        $mailable->assertSeeInHtml($appointment->appointment_at->format('d/m/Y'));
+    });
+
+    it('renders fallback when consultant is null', function (): void {
+        $appointment = Appointment::factory()->withoutConsultant()->create();
+        $appointment->loadMissing(['user', 'consultant']);
+
+        $mailable = new AppointmentUserCancelledLateMail($appointment);
+
+        $mailable->assertSeeInHtml(__('appointments::mail.no_consultant'));
     });
 });

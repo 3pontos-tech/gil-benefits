@@ -48,7 +48,7 @@ describe('ConsultantLatestAppointmentWidget', function (): void {
     it('renders with the most recent appointment for the consultant', function (): void {
         $latest = Appointment::factory()
             ->recycle($this->consultant)
-            ->withStatus(AppointmentStatus::Scheduling)
+            ->withStatus(AppointmentStatus::Active)
             ->create(['appointment_at' => now()->addDays(2)]);
 
         livewire(ConsultantLatestAppointmentWidget::class)

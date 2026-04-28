@@ -74,19 +74,16 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
                 implode(', ', [
                     'count(*) as total',
                     'count(*) filter (where status = ? and consultant_id is not null) as scheduled',
-                    'count(*) filter (where status in (?, ?, ?)) as pending',
-                    'count(*) filter (where status = ?) as cancelled',
+                    'count(*) filter (where status = ?) as pending',
+                    'count(*) filter (where status in (?, ?)) as cancelled',
                     'count(*) filter (where status = ?) as completed',
-                    'count(*) filter (where status != ?) as non_draft',
                 ]),
                 [
                     AppointmentStatus::Active->value,
                     AppointmentStatus::Pending->value,
-                    AppointmentStatus::Scheduling->value,
-                    AppointmentStatus::Active->value,
                     AppointmentStatus::Cancelled->value,
+                    AppointmentStatus::CancelledLate->value,
                     AppointmentStatus::Completed->value,
-                    AppointmentStatus::Draft->value,
                 ]
             )
             ->first();
@@ -144,14 +141,14 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
 
     private function cancellationRateStat(): Stat
     {
-        $nonDraft = (int) $this->aggregates()->non_draft;
+        $total = (int) $this->aggregates()->total;
         $cancelled = (int) $this->aggregates()->cancelled;
-        $rate = $nonDraft > 0 ? round(($cancelled / $nonDraft) * 100, 1) : 0;
+        $rate = $total > 0 ? round(($cancelled / $total) * 100, 1) : 0;
 
         return Stat::make(__('panel-admin::widgets.appointments_stats.cancellation_rate'), $rate . '%')
             ->description(__('panel-admin::widgets.appointments_stats.cancellation_rate_description', [
                 'cancelled' => $cancelled,
-                'total' => $nonDraft,
+                'total' => $total,
             ]))
             ->color($rate >= 30 ? 'danger' : ($rate >= 15 ? 'warning' : 'success'));
     }

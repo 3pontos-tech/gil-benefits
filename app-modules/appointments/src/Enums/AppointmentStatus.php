@@ -8,21 +8,17 @@ use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
-use TresPontosTech\Appointments\Actions\StateMachine\AbstractAppointmentStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentActiveStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentDoneStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentDraftStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentPendingStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentSchedulingStep;
+use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
+use TresPontosTech\Appointments\Actions\Transitions\ActiveTransition;
+use TresPontosTech\Appointments\Actions\Transitions\CancelledLateTransition;
+use TresPontosTech\Appointments\Actions\Transitions\CancelledTransition;
+use TresPontosTech\Appointments\Actions\Transitions\CompletedTransition;
+use TresPontosTech\Appointments\Actions\Transitions\PendingTransition;
 use TresPontosTech\Appointments\Models\Appointment;
 
 enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
 {
-    case Draft = 'draft';
-
     case Pending = 'pending';
-
-    case Scheduling = 'scheduling';
 
     case Active = 'active';
 
@@ -30,27 +26,27 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
 
     case Cancelled = 'cancelled';
 
+    case CancelledLate = 'cancelled_late';
+
     public function getIcon(): Heroicon
     {
         return match ($this) {
-            self::Draft => Heroicon::Pencil,
             self::Pending => Heroicon::Clock,
-            self::Scheduling => Heroicon::Calendar,
             self::Active => Heroicon::Check,
             self::Completed => Heroicon::CheckCircle,
             self::Cancelled => Heroicon::XCircle,
+            self::CancelledLate => Heroicon::XMark,
         };
     }
 
     public function getColor(): array
     {
         return match ($this) {
-            self::Draft => Color::Gray,
             self::Pending => Color::Amber,
-            self::Scheduling => Color::Yellow,
             self::Active => Color::Blue,
             self::Completed => Color::Green,
             self::Cancelled => Color::Red,
+            self::CancelledLate => Color::Orange,
         };
     }
 
@@ -61,14 +57,25 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
         );
     }
 
-    public function currentStep(Appointment $appointment): AbstractAppointmentStep
+    public function transition(Appointment $appointment): AbstractAppointmentTransition
     {
         return match ($this) {
-            self::Draft => new AppointmentDraftStep($appointment),
-            self::Pending => new AppointmentPendingStep($appointment),
-            self::Scheduling => new AppointmentSchedulingStep($appointment),
-            self::Active => new AppointmentActiveStep($appointment),
-            self::Completed, self::Cancelled => new AppointmentDoneStep($appointment),
+            self::Pending => new PendingTransition($appointment),
+            self::Active => new ActiveTransition($appointment),
+            self::Completed => new CompletedTransition($appointment),
+            self::Cancelled => new CancelledTransition($appointment),
+            self::CancelledLate => new CancelledLateTransition($appointment),
         };
+    }
+
+    public static function resolveCancellationStatus(Appointment $appointment, CancellationActor $actor): self
+    {
+        if ($actor !== CancellationActor::User) {
+            return self::Cancelled;
+        }
+
+        $hoursUntil = now()->diffInHours($appointment->appointment_at, absolute: false);
+
+        return $hoursUntil >= 24 ? self::Cancelled : self::CancelledLate;
     }
 }

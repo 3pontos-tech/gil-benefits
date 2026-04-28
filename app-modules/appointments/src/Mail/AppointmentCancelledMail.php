@@ -34,7 +34,7 @@ class AppointmentCancelledMail extends Mailable implements ShouldQueue
             markdown: 'emails.appointments.cancelled',
             with: [
                 'userName' => $this->appointment->user->name,
-                'consultantName' => $this->appointment->consultant->name,
+                'consultantName' => $this->appointment->consultant?->name ?? __('appointments::mail.no_consultant'),
                 'appointmentAt' => $this->appointment->appointment_at,
                 'panelUrl' => $this->resolvePanelUrl(),
             ],

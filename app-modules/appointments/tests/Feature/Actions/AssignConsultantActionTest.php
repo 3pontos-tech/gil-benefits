@@ -25,7 +25,7 @@ it('creates schedule when consultant is available', function (): void {
     $appointment = Appointment::factory()->create([
         'consultant_id' => $consultant->id,
         'appointment_at' => $date->copy()->setTime(10, 0),
-        'status' => AppointmentStatus::Scheduling,
+        'status' => AppointmentStatus::Active,
     ]);
 
     resolve(AssignConsultantAction::class)->handle($appointment);
@@ -60,7 +60,7 @@ it('throws SlotUnavailableException when consultant has conflict', function (): 
     $appointment = Appointment::factory()->create([
         'consultant_id' => $consultant->id,
         'appointment_at' => $date->copy()->setTime(10, 0),
-        'status' => AppointmentStatus::Scheduling,
+        'status' => AppointmentStatus::Active,
     ]);
 
     resolve(AssignConsultantAction::class)->handle($appointment);
@@ -68,7 +68,7 @@ it('throws SlotUnavailableException when consultant has conflict', function (): 
 
 it('does nothing when consultant_id is blank', function (): void {
     $appointment = Appointment::factory()->withoutConsultant()->create([
-        'status' => AppointmentStatus::Scheduling,
+        'status' => AppointmentStatus::Active,
     ]);
 
     resolve(AssignConsultantAction::class)->handle($appointment);
@@ -104,7 +104,7 @@ it('throws SlotUnavailableException on partial overlaps', function (int $newHour
     $appointment = Appointment::factory()->create([
         'consultant_id' => $consultant->id,
         'appointment_at' => $date->copy()->setTime($newHour, $newMinute),
-        'status' => AppointmentStatus::Scheduling,
+        'status' => AppointmentStatus::Active,
     ]);
 
     resolve(AssignConsultantAction::class)->handle($appointment);
@@ -138,7 +138,7 @@ it('allows assignment when new slot is adjacent to existing one', function (int 
     $appointment = Appointment::factory()->create([
         'consultant_id' => $consultant->id,
         'appointment_at' => $date->copy()->setTime($newHour, $newMinute),
-        'status' => AppointmentStatus::Scheduling,
+        'status' => AppointmentStatus::Active,
     ]);
 
     resolve(AssignConsultantAction::class)->handle($appointment);
@@ -168,7 +168,7 @@ it('replaces the existing APPOINTMENT schedule when reassigning the same appoint
     $appointment = Appointment::factory()->create([
         'consultant_id' => $consultant->id,
         'appointment_at' => $date->copy()->setTime(10, 0),
-        'status' => AppointmentStatus::Scheduling,
+        'status' => AppointmentStatus::Active,
     ]);
 
     resolve(AssignConsultantAction::class)->handle($appointment);

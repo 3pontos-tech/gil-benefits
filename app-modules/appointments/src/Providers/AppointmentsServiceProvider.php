@@ -1,12 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Appointments\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use TresPontosTech\Appointments\Jobs\MarkAppointmentsAsCompleted;
 use TresPontosTech\Appointments\Support\AiCircuitBreaker;
 
 class AppointmentsServiceProvider extends ServiceProvider
@@ -29,9 +29,5 @@ class AppointmentsServiceProvider extends ServiceProvider
             return Limit::perMinute((int) config('appointments.ai.rate_limit_per_minute', 10));
         });
 
-        $this->app->booted(function (): void {
-            $schedule = $this->app->make(Schedule::class);
-            $schedule->job(new MarkAppointmentsAsCompleted)->hourly()->withoutOverlapping();
-        });
     }
 }

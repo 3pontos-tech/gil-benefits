@@ -94,7 +94,6 @@ class RankingsWidget extends TableWidget
                 'appointments as completed_appointments' => fn ($query) => $query->where('status', AppointmentStatus::Completed)->whereBetween('created_at', [$start, $end]),
                 'appointments as pending_appointments' => fn ($query) => $query->whereIn('status', [
                     AppointmentStatus::Pending,
-                    AppointmentStatus::Scheduling,
                     AppointmentStatus::Active,
                 ])->whereBetween('created_at', [$start, $end]),
             ])

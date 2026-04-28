@@ -9,7 +9,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
-use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 
 class AppointmentForm
@@ -29,6 +28,7 @@ class AppointmentForm
                     ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
                 Select::make('consultant_id')
                     ->label(__('appointments::resources.appointments.table.columns.consultant'))
+                    ->disabled(fn (?Appointment $record): bool => $record instanceof Appointment)
                     ->options(function (Get $get, ?Appointment $record): array {
                         $appointmentAt = $get('appointment_at');
 
@@ -45,10 +45,7 @@ class AppointmentForm
                             ->all();
                     })
                     ->reactive()
-                    ->required(),
-                Select::make('status')
-                    ->options(AppointmentStatus::class)
-                    ->required(),
+                    ->required(fn (?Appointment $record): bool => ! $record instanceof Appointment),
                 TextInput::make('meeting_url')
                     ->label(__('appointments::resources.appointments.form.meeting_url'))
                     ->dehydrateStateUsing(function (?string $state): ?string {

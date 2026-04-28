@@ -41,12 +41,11 @@ class AppointmentsByStatus extends ChartWidget
                 [
                     'data' => $counts->values()->toArray(),
                     'backgroundColor' => [
-                        'rgb(156, 163, 175)',
                         'rgb(251, 191, 36)',
-                        'rgb(234, 179, 8)',
                         'rgb(59, 130, 246)',
                         'rgb(34, 197, 94)',
                         'rgb(239, 68, 68)',
+                        'rgb(249, 115, 22)',
                     ],
                 ],
             ],
