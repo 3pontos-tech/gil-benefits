@@ -2,9 +2,11 @@
 
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Notification as LaravelNotification;
 use TresPontosTech\Appointments\Actions\StateMachine\AppointmentSchedulingStep;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Events\AppointmentBooked;
 use TresPontosTech\Appointments\Models\Appointment;
 
 use function Pest\Laravel\actingAs;
@@ -12,6 +14,7 @@ use function Pest\Laravel\actingAs;
 beforeEach(function (): void {
     LaravelNotification::fake();
     Bus::fake();
+    Event::fake();
     $this->appointment = Appointment::factory()->withStatus(AppointmentStatus::Scheduling)->create();
     actingAs($this->appointment->user);
 });
@@ -22,6 +25,7 @@ it('should process step to Scheduling status', function (): void {
 
     $this->appointment->refresh();
     expect($this->appointment->status)->toBe(AppointmentStatus::Active);
+    Event::assertDispatched(AppointmentBooked::class);
 });
 
 it('should notify user', function (): void {
