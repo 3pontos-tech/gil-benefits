@@ -24,6 +24,7 @@ it('allows SuperAdmin to perform all actions', function (): void {
 it('denies user without permissions on all actions', function (): void {
     $user = User::factory()->create();
     $user->syncRoles([]);
+    $user->syncPermissions([]);
 
     $consultant = Consultant::factory()->create();
 
@@ -39,6 +40,7 @@ it('denies user without permissions on all actions', function (): void {
 it('allows user with viewAny permission to viewAny', function (): void {
     $user = User::factory()->create();
     $user->syncRoles([]);
+    $user->syncPermissions([]);
     $user->givePermissionTo(PermissionsEnum::ViewAny->buildPermissionFor(Consultant::class));
 
     expect(Gate::forUser($user)->allows('viewAny', Consultant::class))->toBeTrue()
@@ -48,6 +50,7 @@ it('allows user with viewAny permission to viewAny', function (): void {
 it('allows user with view permission to view', function (): void {
     $user = User::factory()->create();
     $user->syncRoles([]);
+    $user->syncPermissions([]);
     $user->givePermissionTo(PermissionsEnum::View->buildPermissionFor(Consultant::class));
 
     expect(Gate::forUser($user)->allows('view', Consultant::factory()->create()))->toBeTrue()
@@ -57,6 +60,7 @@ it('allows user with view permission to view', function (): void {
 it('allows user with create permission to create', function (): void {
     $user = User::factory()->create();
     $user->syncRoles([]);
+    $user->syncPermissions([]);
     $user->givePermissionTo(PermissionsEnum::Create->buildPermissionFor(Consultant::class));
 
     expect(Gate::forUser($user)->allows('create', Consultant::class))->toBeTrue()

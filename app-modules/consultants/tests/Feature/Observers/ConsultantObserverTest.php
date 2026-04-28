@@ -33,10 +33,15 @@ describe('ConsultantObserver', function (): void {
     it('does not create duplicate users when two consultants share the same email', function (): void {
         Event::fake([UserRegistered::class]);
 
-        Consultant::factory()->create(['email' => 'shared@example.com']);
-        Consultant::factory()->create(['email' => 'shared@example.com']);
+        $first = Consultant::factory()->create(['email' => 'shared@example.com']);
+        $second = Consultant::factory()->create(['email' => 'shared@example.com']);
 
         Event::assertDispatchedTimes(UserRegistered::class, 2);
-        expect(User::query()->where('email', 'shared@example.com')->count())->toBe(1);
+
+        $sharedUser = User::query()->where('email', 'shared@example.com')->firstOrFail();
+
+        expect(User::query()->where('email', 'shared@example.com')->count())->toBe(1)
+            ->and($first->fresh()->user_id)->toBe($sharedUser->getKey())
+            ->and($second->fresh()->user_id)->toBe($sharedUser->getKey());
     });
 });

@@ -58,3 +58,35 @@ it('allows user with create permission to create', function (): void {
     expect(Gate::forUser($user)->allows('create', Document::class))->toBeTrue()
         ->and(Gate::forUser($user)->denies('update', Document::factory()->withLink()->create()))->toBeTrue();
 });
+
+it('allows user with update permission to update', function (): void {
+    $user = User::factory()->create();
+    $user->givePermissionTo(PermissionsEnum::Update->buildPermissionFor(Document::class));
+
+    expect(Gate::forUser($user)->allows('update', Document::factory()->withLink()->create()))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('delete', Document::factory()->withLink()->create()))->toBeTrue();
+});
+
+it('allows user with delete permission to delete', function (): void {
+    $user = User::factory()->create();
+    $user->givePermissionTo(PermissionsEnum::Delete->buildPermissionFor(Document::class));
+
+    expect(Gate::forUser($user)->allows('delete', Document::factory()->withLink()->create()))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('forceDelete', Document::factory()->withLink()->create()))->toBeTrue();
+});
+
+it('allows user with restore permission to restore', function (): void {
+    $user = User::factory()->create();
+    $user->givePermissionTo(PermissionsEnum::Restore->buildPermissionFor(Document::class));
+
+    expect(Gate::forUser($user)->allows('restore', Document::factory()->withLink()->create()))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('update', Document::factory()->withLink()->create()))->toBeTrue();
+});
+
+it('allows user with forceDelete permission to forceDelete', function (): void {
+    $user = User::factory()->create();
+    $user->givePermissionTo(PermissionsEnum::ForceDelete->buildPermissionFor(Document::class));
+
+    expect(Gate::forUser($user)->allows('forceDelete', Document::factory()->withLink()->create()))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('restore', Document::factory()->withLink()->create()))->toBeTrue();
+});

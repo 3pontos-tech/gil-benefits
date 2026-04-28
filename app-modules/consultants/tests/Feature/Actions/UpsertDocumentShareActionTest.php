@@ -37,7 +37,13 @@ describe('UpsertDocumentShareAction', function (): void {
             new DocumentShareDTO($share->document_id, $share->employee_id, $share->consultant_id)
         );
 
-        expect(DocumentShare::query()->count())->toBe(1);
+        expect(
+            DocumentShare::query()
+                ->where('document_id', $share->document_id)
+                ->where('employee_id', $share->employee_id)
+                ->where('consultant_id', $share->consultant_id)
+                ->count()
+        )->toBe(1);
     });
 
     it('does not reactivate a deactivated share', function (): void {

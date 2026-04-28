@@ -25,6 +25,20 @@ describe('MediaObserver', function (): void {
         'xlsx' => ['sheet.xlsx',    DocumentExtensionTypeEnum::XLSX],
     ]);
 
+    it('does not update type for uppercase extension', function (): void {
+        $document = Document::query()->create(['title' => 'test']);
+
+        $media = new Media;
+        $media->model_type = 'documents';
+        $media->collection_name = 'documents';
+        $media->file_name = 'document.PDF';
+        $media->model_id = $document->getKey();
+
+        (new MediaObserver)->created($media);
+
+        expect($document->fresh()->type)->toBeNull();
+    });
+
     it('does not change type for an unrecognized extension', function (): void {
         $document = Document::query()->create(['title' => 'test']);
 
