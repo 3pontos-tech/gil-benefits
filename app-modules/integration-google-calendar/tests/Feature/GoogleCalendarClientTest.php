@@ -14,14 +14,16 @@ beforeEach(function (): void {
         openssl_pkey_export($key, $privateKey);
     }
 
-    $credPath = storage_path('testing/gc-test-credentials.json');
-    @mkdir(dirname($credPath), 0755, true);
+    @mkdir(storage_path('testing'), 0755, true);
+    $credPath = tempnam(storage_path('testing'), 'gc-creds-');
     file_put_contents($credPath, json_encode([
         'client_email' => 'sa@project.iam.gserviceaccount.com',
         'private_key' => $privateKey,
     ]));
 
-    config(['google-calendar.service_account_credentials' => 'testing/gc-test-credentials.json']);
+    $this->credPath = $credPath;
+
+    config(['google-calendar.service_account_credentials' => 'testing/' . basename($credPath)]);
 
     Http::preventStrayRequests();
 
@@ -29,7 +31,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    @unlink(storage_path('testing/gc-test-credentials.json'));
+    @unlink($this->credPath);
 });
 
 // --- getAccessToken ---

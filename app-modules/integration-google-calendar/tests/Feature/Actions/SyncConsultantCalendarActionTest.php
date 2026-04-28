@@ -27,6 +27,10 @@ beforeEach(function (): void {
     );
 });
 
+afterEach(function (): void {
+    Date::setTestNow();
+});
+
 it('creates a blocked schedule for each active event returned', function (): void {
     $event = new GoogleEventDTO('event-1', 'Meeting', Date::parse('2026-05-01 09:00'), Date::parse('2026-05-01 10:00'), false, false);
 
