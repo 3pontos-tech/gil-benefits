@@ -31,7 +31,7 @@ class TenantSubscriptionPage extends Page
 
     public int $seatsAmount = 5;
 
-    public string $driver = 'stripe';
+    public string $driver = 'barte';
 
     protected function getViewData(): array
     {

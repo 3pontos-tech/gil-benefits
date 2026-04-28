@@ -5,6 +5,9 @@ namespace TresPontosTech\Billing\Barte;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\App\Filament\Pages\UserBillingManagePage;
+use TresPontosTech\Billing\Barte\DTOs\CreateBuyerDto;
+use TresPontosTech\Billing\Barte\DTOs\CreatePaymentLinkDto;
+use TresPontosTech\Billing\Barte\DTOs\PaymentSubscriptionDto;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -29,20 +32,11 @@ final readonly class BarteAdapter implements BillingContract
             return;
         }
 
-        // temos que obrigar os usuarios a preencher os details, ou quando estiver criando, melhor
         if ($billable instanceof User && blank($billable?->detail)) {
             return;
         }
 
-        $response = $this->client->post('/v2/buyers', [
-            'document' => [
-                'documentNumber' => $billable instanceof Company ? $billable->tax_id : $billable->detail->tax_id,
-                'documentType' => $billable instanceof Company ? 'cnpj' : 'cpf',
-                'documentNation' => 'BR',
-            ],
-            'name' => $billable->name,
-            'email' => $billable->email ?? $billable->owner->email,
-        ]);
+        $response = $this->client->createBuyer(CreateBuyerDto::fromBillable($billable));
 
         BillingCustomer::query()->create([
             'billable_type' => $billable->getMorphClass(),
@@ -58,9 +52,6 @@ final readonly class BarteAdapter implements BillingContract
             return false;
         }
 
-        // stripe_price armazena o planExternalId no formato {uuid}-{CYCLE} (ex: 69ccaa5c-...-MONTHLY).
-        // Buscamos o provider_product_id do plano (somente o UUID) e verificamos se stripe_price
-        // começa com ele — isso cobre variações de ciclo (MONTHLY, YEARLY, SEMESTER).
         $planUuid = Plan::query()
             ->where('slug', $planSlug)
             ->value('provider_product_id');
@@ -109,29 +100,26 @@ final readonly class BarteAdapter implements BillingContract
         $cycleType = str($data->priceId)->afterLast('-')->upper()->toString();
         $planUuid = $price->plan->provider_product_id;
 
-        // Company: valor calculado por quantidade de seats com precificação por faixa; User: valor fixo do plano
         $valuePerMonth = $data->isMetered
             ? $this->pricePerSeat($data->quantity) * $data->quantity
             : $price->unit_amount_decimal / 100;
 
-        $response = $this->client->post('/v2/payment-links', [
-            'type' => 'SUBSCRIPTION',
-            'uuidSellerClient' => $customerId,
-            'scheduledDate' => now()->addDay()->toDateString(),
-            'paymentMethods' => ['PIX', 'CREDIT_CARD'],
-            'paymentSubscription' => [
-                'idPlan' => 5810,
-                'type' => 'MONTHLY',
-                'valuePerMonth' => $valuePerMonth,
-            ],
-            'metadata' => [
+        $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
+            uuidSellerClient: $customerId,
+            paymentSubscription: new PaymentSubscriptionDto(
+                idPlan: 5810,
+                valuePerMonth: $valuePerMonth,
+                type: $cycleType,
+            ),
+            scheduledDate: now()->addDay()->toDateString(),
+            metadata: [
                 ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
                 ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
                 ['key' => 'barte_plan_uuid', 'value' => $planUuid],
                 ['key' => 'barte_cycle_type', 'value' => $cycleType],
                 ['key' => 'quantity', 'value' => $data->quantity],
             ],
-        ]);
+        ));
 
         Log::info('log quando criamos pagamento', $response);
 
@@ -151,7 +139,7 @@ final readonly class BarteAdapter implements BillingContract
             return;
         }
 
-        $this->client->delete('/v2/subscriptions/' . $subscription->stripe_id);
+        $this->client->deleteSubscription($subscription->stripe_id);
 
     }
 

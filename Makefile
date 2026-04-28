@@ -71,8 +71,8 @@ stripe-fresh: ## Run migrations and seed the database
 	@echo "Running migrations and seeding the database..."
 	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Migrations and seeding completed."
-	@echo "Seeding Stripe"
-	@php artisan billing:sync-stripe
+	@echo "Seeding Barte"
+	@php artisan barte:play
 
 .PHONY: env-up
 env-up: ## Start the development environment

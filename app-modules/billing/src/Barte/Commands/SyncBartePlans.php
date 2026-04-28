@@ -16,7 +16,7 @@ class SyncBartePlans extends Command
 
     public function handle(BarteClient $client): void
     {
-        $response = $client->get('/v2/plans');
+        $response = $client->getPlans();
 
         $plans = collect($response['content'] ?? $response);
 
@@ -35,6 +35,7 @@ class SyncBartePlans extends Command
             $plan = $this->persistPlan($bartePlan);
 
             collect($bartePlan['values'] ?? [])
+                ->filter(fn (array $value): bool => $value['type'] === 'MONTHLY')
                 ->each(fn (array $value) => $plan->prices()->updateOrCreate(
                     ['provider_price_id' => sprintf('%s-%s', $bartePlan['uuid'], $value['type'])],
                     [
@@ -43,7 +44,7 @@ class SyncBartePlans extends Command
                         'type' => 'recurring',
                         'unit_amount_decimal' => (int) round($value['valuePerMonth'] * 100),
                         'active' => $bartePlan['active'],
-                        'default' => $value['type'] === 'MONTHLY',
+                        'default' => true,
                         'metadata' => [],
                     ]
                 ));

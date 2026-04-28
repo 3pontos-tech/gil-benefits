@@ -2,9 +2,10 @@
 
 namespace TresPontosTech\Billing\Barte;
 
-use Closure;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
+use TresPontosTech\Billing\Barte\DTOs\CreateBuyerDto;
+use TresPontosTech\Billing\Barte\DTOs\CreatePaymentLinkDto;
 
 final class BarteClient
 {
@@ -19,37 +20,9 @@ final class BarteClient
             ->retry(3, 100);
     }
 
-    public function post(string $path, array $data = []): array
+    public function getPlans(): array
     {
-        return $this->send(
-            fn () => $this->http->post($path, $data)
-        );
-    }
-
-    public function get(string $path, array $query = []): array
-    {
-        return $this->send(
-            fn () => $this->http->get($path, $query)
-        );
-    }
-
-    public function patch(string $path, array $data = []): array
-    {
-        return $this->send(
-            fn () => $this->http->patch($path, $data)
-        );
-    }
-
-    public function delete(string $path): array
-    {
-        return $this->send(
-            fn () => $this->http->delete($path)
-        );
-    }
-
-    private function send(Closure $request): array
-    {
-        $response = $request();
+        $response = $this->http->get('/v2/plans');
 
         if ($response->failed()) {
             throw new BarteApiException(
@@ -59,5 +32,45 @@ final class BarteClient
         }
 
         return $response->json();
+    }
+
+    public function createBuyer(CreateBuyerDto $dto): array
+    {
+        $response = $this->http->post('/v2/buyers', $dto->toArray());
+
+        if ($response->failed()) {
+            throw new BarteApiException(
+                message: $response->json('message') ?? 'Erro na API da Barte',
+                code: $response->status(),
+            );
+        }
+
+        return $response->json();
+    }
+
+    public function createPaymentLink(CreatePaymentLinkDto $dto): array
+    {
+        $response = $this->http->post('/v2/payment-links', $dto->toArray());
+
+        if ($response->failed()) {
+            throw new BarteApiException(
+                message: $response->json('message') ?? 'Erro na API da Barte',
+                code: $response->status(),
+            );
+        }
+
+        return $response->json();
+    }
+
+    public function deleteSubscription(string $subscriptionId): void
+    {
+        $response = $this->http->delete('/v2/subscriptions/' . $subscriptionId);
+
+        if ($response->failed()) {
+            throw new BarteApiException(
+                message: $response->json('message') ?? 'Erro na API da Barte',
+                code: $response->status(),
+            );
+        }
     }
 }

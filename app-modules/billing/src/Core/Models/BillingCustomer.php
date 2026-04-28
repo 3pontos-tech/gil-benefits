@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
 class BillingCustomer extends Model
 {
@@ -39,6 +40,19 @@ class BillingCustomer extends Model
 
     public static function getActiveProvider(Model $billable): ?BillingProviderEnum
     {
+        $provider = Subscription::query()
+            ->where('subscriptionable_type', $billable->getMorphClass())
+            ->where('subscriptionable_id', $billable->getKey())
+            ->where('stripe_status', 'active')
+            ->join('billing_plan_prices', 'billing_subscriptions.stripe_price', '=', 'billing_plan_prices.provider_price_id')
+            ->join('billing_plans', 'billing_plan_prices.billing_plan_id', '=', 'billing_plans.id')
+            ->latest('billing_subscriptions.created_at')
+            ->value('billing_plans.provider');
+
+        if ($provider !== null) {
+            return BillingProviderEnum::from($provider);
+        }
+
         return static::query()
             ->where('billable_type', $billable->getMorphClass())
             ->where('billable_id', $billable->getKey())

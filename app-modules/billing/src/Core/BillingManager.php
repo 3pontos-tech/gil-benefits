@@ -13,7 +13,7 @@ class BillingManager extends Manager
 {
     public function getDefaultDriver(): BillingContract
     {
-        return new StripeAdapter;
+        return $this->barteDriver();
     }
 
     public function stripeDriver(): BillingContract

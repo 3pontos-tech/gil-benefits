@@ -52,7 +52,7 @@ it('should access dashboard when company has an active contractual plan', functi
 })->skipOnCI();
 
 it('should access dashboard when company has an active billing subscription', function (): void {
-    $plan = Plan::factory()->stripe()->active()->create([
+    $plan = Plan::factory()->barte()->active()->create([
         'type' => BillableTypeEnum::Company,
         'provider_product_id' => 'prod_test_company',
         'slug' => 'plano-empresa-teste',
@@ -76,7 +76,7 @@ it('should access dashboard when company has an active billing subscription', fu
 })->skipOnCI();
 
 it('should create a subscription when checkout is called', function (): void {
-    $plan = Plan::factory()->stripe()->active()->create([
+    $plan = Plan::factory()->barte()->active()->create([
         'type' => BillableTypeEnum::Company,
         'provider_product_id' => 'prod_test_company',
         'slug' => 'plano-empresa-teste',
