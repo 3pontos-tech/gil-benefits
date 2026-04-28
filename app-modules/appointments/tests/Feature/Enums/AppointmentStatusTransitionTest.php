@@ -1,74 +1,118 @@
 <?php
 
-use TresPontosTech\Appointments\Actions\StateMachine\AbstractAppointmentStep;
+use TresPontosTech\Appointments\Actions\Transitions\ActiveTransition;
+use TresPontosTech\Appointments\Actions\Transitions\CancelledLateTransition;
+use TresPontosTech\Appointments\Actions\Transitions\CancelledTransition;
+use TresPontosTech\Appointments\Actions\Transitions\CompletedTransition;
+use TresPontosTech\Appointments\Actions\Transitions\PendingTransition;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Models\Appointment;
 
-it('Pending allows transition to Active, Cancelled and CancelledLate', function (): void {
-    expect(AppointmentStatus::Pending->allowedTransitions())
-        ->toContain(AppointmentStatus::Active)
-        ->toContain(AppointmentStatus::Cancelled)
-        ->toContain(AppointmentStatus::CancelledLate)
-        ->not->toContain(AppointmentStatus::Completed);
+// --- transition() ---
+
+it('Pending resolves to PendingTransition', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Pending)->create();
+
+    expect(AppointmentStatus::Pending->transition($appointment))->toBeInstanceOf(PendingTransition::class);
 });
 
-it('Active allows transition to Completed, Cancelled and CancelledLate', function (): void {
-    expect(AppointmentStatus::Active->allowedTransitions())
-        ->toContain(AppointmentStatus::Completed)
-        ->toContain(AppointmentStatus::Cancelled)
-        ->toContain(AppointmentStatus::CancelledLate)
-        ->not->toContain(AppointmentStatus::Pending);
+it('Active resolves to ActiveTransition', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Active)->create();
+
+    expect(AppointmentStatus::Active->transition($appointment))->toBeInstanceOf(ActiveTransition::class);
 });
 
-it('Completed allows no transitions', function (): void {
-    expect(AppointmentStatus::Completed->allowedTransitions())->toBeEmpty();
+it('Completed resolves to CompletedTransition', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Completed)->create();
+
+    expect(AppointmentStatus::Completed->transition($appointment))->toBeInstanceOf(CompletedTransition::class);
 });
 
-it('Cancelled allows no transitions', function (): void {
-    expect(AppointmentStatus::Cancelled->allowedTransitions())->toBeEmpty();
+it('Cancelled resolves to CancelledTransition', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Cancelled)->create();
+
+    expect(AppointmentStatus::Cancelled->transition($appointment))->toBeInstanceOf(CancelledTransition::class);
 });
 
-it('CancelledLate allows no transitions', function (): void {
-    expect(AppointmentStatus::CancelledLate->allowedTransitions())->toBeEmpty();
+it('CancelledLate resolves to CancelledLateTransition', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::CancelledLate)->create();
+
+    expect(AppointmentStatus::CancelledLate->transition($appointment))->toBeInstanceOf(CancelledLateTransition::class);
 });
 
-it('canTransitionTo returns true for valid transitions', function (AppointmentStatus $from, AppointmentStatus $to): void {
-    expect($from->canTransitionTo($to))->toBeTrue();
-})->with([
-    'Pending to Active' => [AppointmentStatus::Pending, AppointmentStatus::Active],
-    'Pending to Cancelled' => [AppointmentStatus::Pending, AppointmentStatus::Cancelled],
-    'Pending to CancelledLate' => [AppointmentStatus::Pending, AppointmentStatus::CancelledLate],
-    'Active to Completed' => [AppointmentStatus::Active,  AppointmentStatus::Completed],
-    'Active to Cancelled' => [AppointmentStatus::Active,  AppointmentStatus::Cancelled],
-    'Active to CancelledLate' => [AppointmentStatus::Active, AppointmentStatus::CancelledLate],
-]);
+// --- canChange() ---
 
-it('canTransitionTo returns false for invalid transitions', function (AppointmentStatus $from, AppointmentStatus $to): void {
-    expect($from->canTransitionTo($to))->toBeFalse();
-})->with([
-    'Pending to Completed' => [AppointmentStatus::Pending,   AppointmentStatus::Completed],
-    'Active to Pending' => [AppointmentStatus::Active,    AppointmentStatus::Pending],
-    'Completed to any' => [AppointmentStatus::Completed, AppointmentStatus::Pending],
-    'Cancelled to any' => [AppointmentStatus::Cancelled, AppointmentStatus::Pending],
-    'CancelledLate to any' => [AppointmentStatus::CancelledLate, AppointmentStatus::Pending],
-]);
-
-it('throws BadMethodCallException when calling currentStep on a terminal status', function (AppointmentStatus $status): void {
+it('non-terminal statuses can change', function (AppointmentStatus $status): void {
     $appointment = Appointment::factory()->withStatus($status)->create();
 
-    expect(fn (): AbstractAppointmentStep => $status->currentStep($appointment))->toThrow(BadMethodCallException::class);
+    expect($status->transition($appointment)->canChange())->toBeTrue();
+})->with([
+    'Pending' => AppointmentStatus::Pending,
+    'Active' => AppointmentStatus::Active,
+]);
+
+it('terminal statuses cannot change', function (AppointmentStatus $status): void {
+    $appointment = Appointment::factory()->withStatus($status)->create();
+
+    expect($status->transition($appointment)->canChange())->toBeFalse();
 })->with([
     'Completed' => AppointmentStatus::Completed,
     'Cancelled' => AppointmentStatus::Cancelled,
     'CancelledLate' => AppointmentStatus::CancelledLate,
 ]);
 
-it('creditConsuming returns only CancelledLate', function (): void {
-    expect(AppointmentStatus::creditConsuming())
-        ->toBe([AppointmentStatus::CancelledLate]);
+// --- choices() ---
+
+it('Pending choices include Active, Cancelled and CancelledLate', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Pending)->create();
+
+    expect(AppointmentStatus::Pending->transition($appointment)->choices())
+        ->toContain(AppointmentStatus::Active)
+        ->toContain(AppointmentStatus::Cancelled)
+        ->toContain(AppointmentStatus::CancelledLate)
+        ->not->toContain(AppointmentStatus::Completed);
 });
 
-it('creditConsuming does not include Cancelled', function (): void {
-    expect(AppointmentStatus::creditConsuming())
-        ->not->toContain(AppointmentStatus::Cancelled);
+it('Active choices include Completed, Cancelled and CancelledLate', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Active)->create();
+
+    expect(AppointmentStatus::Active->transition($appointment)->choices())
+        ->toContain(AppointmentStatus::Completed)
+        ->toContain(AppointmentStatus::Cancelled)
+        ->toContain(AppointmentStatus::CancelledLate)
+        ->not->toContain(AppointmentStatus::Pending);
+});
+
+it('terminal statuses have empty choices', function (AppointmentStatus $status): void {
+    $appointment = Appointment::factory()->withStatus($status)->create();
+
+    expect($status->transition($appointment)->choices())->toBeEmpty();
+})->with([
+    'Completed' => AppointmentStatus::Completed,
+    'Cancelled' => AppointmentStatus::Cancelled,
+    'CancelledLate' => AppointmentStatus::CancelledLate,
+]);
+
+// --- resolveCancellationStatus() ---
+
+it('resolves to Cancelled for Admin actor regardless of time', function (): void {
+    $appointment = Appointment::factory()->create(['appointment_at' => now()->addHours(1)]);
+
+    expect(AppointmentStatus::resolveCancellationStatus($appointment, CancellationActor::Admin))
+        ->toBe(AppointmentStatus::Cancelled);
+});
+
+it('resolves to Cancelled for User actor >= 24h before appointment', function (): void {
+    $appointment = Appointment::factory()->create(['appointment_at' => now()->addHours(25)]);
+
+    expect(AppointmentStatus::resolveCancellationStatus($appointment, CancellationActor::User))
+        ->toBe(AppointmentStatus::Cancelled);
+});
+
+it('resolves to CancelledLate for User actor < 24h before appointment', function (): void {
+    $appointment = Appointment::factory()->create(['appointment_at' => now()->addHours(23)]);
+
+    expect(AppointmentStatus::resolveCancellationStatus($appointment, CancellationActor::User))
+        ->toBe(AppointmentStatus::CancelledLate);
 });

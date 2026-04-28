@@ -19,9 +19,10 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
-use TresPontosTech\Appointments\Actions\CancelAppointmentAction;
 use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
+use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
@@ -95,7 +96,7 @@ class ViewAppointment extends ViewRecord
                     }
 
                     $appointment->refresh();
-                    $appointment->status->currentStep($appointment)->handle();
+                    $appointment->current_transition->handle(new TransitionData);
 
                     $appointment->loadMissing('consultant');
                     $consultant = $appointment->consultant;
@@ -123,7 +124,7 @@ class ViewAppointment extends ViewRecord
                 ->action(function (): void {
                     /** @var Appointment $appointment */
                     $appointment = $this->record;
-                    $appointment->status->currentStep($appointment)->handle();
+                    $appointment->current_transition->handle(new TransitionData);
                     $this->record->refresh();
                 }),
 
@@ -132,9 +133,12 @@ class ViewAppointment extends ViewRecord
                 ->icon(Heroicon::XCircle)
                 ->color('danger')
                 ->requiresConfirmation()
-                ->visible(fn (): bool => $this->record->status->canTransitionTo(AppointmentStatus::Cancelled))
+                ->visible(fn (): bool => $this->record->current_transition->canChange())
                 ->action(function (): void {
-                    resolve(CancelAppointmentAction::class)->handle($this->record);
+                    $this->record->current_transition->handle(new TransitionData(
+                        cancellationActor: CancellationActor::Admin,
+                        cancelledBy: auth()->user(),
+                    ));
                     $this->record->refresh();
                 }),
         ];

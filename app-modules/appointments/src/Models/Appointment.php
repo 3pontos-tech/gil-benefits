@@ -3,12 +3,14 @@
 namespace TresPontosTech\Appointments\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
@@ -46,6 +48,11 @@ class Appointment extends Model
             'category_type' => AppointmentCategoryEnum::class,
             'cancellation_actor' => CancellationActor::class,
         ];
+    }
+
+    protected function currentTransition(): Attribute
+    {
+        return Attribute::make(get: fn (): AbstractAppointmentTransition => $this->status->transition($this));
     }
 
     public function consultant(): BelongsTo

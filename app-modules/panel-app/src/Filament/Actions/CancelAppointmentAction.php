@@ -5,8 +5,9 @@ namespace TresPontosTech\App\Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
-use TresPontosTech\Appointments\Actions\UserCancelAppointmentAction;
+use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Models\Appointment;
 
 class CancelAppointmentAction extends Action
@@ -42,7 +43,10 @@ class CancelAppointmentAction extends Action
         $this->requiresConfirmation();
 
         $this->action(function (Appointment $record): void {
-            resolve(UserCancelAppointmentAction::class)->handle($record);
+            $record->current_transition->handle(new TransitionData(
+                cancellationActor: CancellationActor::User,
+                cancelledBy: auth()->user(),
+            ));
 
             $this->getLivewire()->dispatch('appointment-cancelled');
 

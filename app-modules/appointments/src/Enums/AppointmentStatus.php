@@ -2,16 +2,18 @@
 
 namespace TresPontosTech\Appointments\Enums;
 
-use BadMethodCallException;
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
-use TresPontosTech\Appointments\Actions\StateMachine\AbstractAppointmentStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentActiveStep;
-use TresPontosTech\Appointments\Actions\StateMachine\AppointmentPendingStep;
+use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
+use TresPontosTech\Appointments\Actions\Transitions\ActiveTransition;
+use TresPontosTech\Appointments\Actions\Transitions\CancelledLateTransition;
+use TresPontosTech\Appointments\Actions\Transitions\CancelledTransition;
+use TresPontosTech\Appointments\Actions\Transitions\CompletedTransition;
+use TresPontosTech\Appointments\Actions\Transitions\PendingTransition;
 use TresPontosTech\Appointments\Models\Appointment;
 
 enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
@@ -55,35 +57,25 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
         );
     }
 
-    /** @return list<self> */
-    public function allowedTransitions(): array
+    public function transition(Appointment $appointment): AbstractAppointmentTransition
     {
         return match ($this) {
-            self::Pending => [self::Active, self::Cancelled, self::CancelledLate],
-            self::Active => [self::Completed, self::Cancelled, self::CancelledLate],
-            self::Completed, self::Cancelled, self::CancelledLate => [],
+            self::Pending => new PendingTransition($appointment),
+            self::Active => new ActiveTransition($appointment),
+            self::Completed => new CompletedTransition($appointment),
+            self::Cancelled => new CancelledTransition($appointment),
+            self::CancelledLate => new CancelledLateTransition($appointment),
         };
     }
 
-    /** @return list<self> */
-    public static function creditConsuming(): array
+    public static function resolveCancellationStatus(Appointment $appointment, CancellationActor $actor): self
     {
-        return [self::CancelledLate];
-    }
+        if ($actor !== CancellationActor::User) {
+            return self::Cancelled;
+        }
 
-    public function canTransitionTo(self $target): bool
-    {
-        return in_array($target, $this->allowedTransitions(), true);
-    }
+        $hoursUntil = now()->diffInHours($appointment->appointment_at, absolute: false);
 
-    public function currentStep(Appointment $appointment): AbstractAppointmentStep
-    {
-        return match ($this) {
-            self::Pending => new AppointmentPendingStep($appointment),
-            self::Active => new AppointmentActiveStep($appointment),
-            self::Completed, self::Cancelled, self::CancelledLate => throw new BadMethodCallException(
-                sprintf('Status "%s" is terminal and has no associated step.', $this->value)
-            ),
-        };
+        return $hoursUntil >= 24 ? self::Cancelled : self::CancelledLate;
     }
 }
