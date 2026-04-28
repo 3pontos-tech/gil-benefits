@@ -210,7 +210,7 @@ it('dispatches DeleteAppointmentCalendarEventJob when google_event_id is set', f
 
     (new PendingTransition($appointment))->handle(new TransitionData(cancellationActor: CancellationActor::Admin));
 
-    Bus::assertDispatched(DeleteAppointmentCalendarEventJob::class, fn ($job) => $job->appointment->id === $appointment->id);
+    Bus::assertDispatched(DeleteAppointmentCalendarEventJob::class, fn ($job): bool => $job->appointment->id === $appointment->id);
 });
 
 it('does not dispatch DeleteAppointmentCalendarEventJob when google_event_id is null', function (): void {

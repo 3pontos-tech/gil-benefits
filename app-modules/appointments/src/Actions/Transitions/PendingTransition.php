@@ -29,9 +29,7 @@ final class PendingTransition extends AbstractAppointmentTransition
             return;
         }
 
-        if (blank($this->appointment->consultant_id)) {
-            throw new MissingTransitionDataException('A consultant must be assigned before confirming the appointment.');
-        }
+        throw_if(blank($this->appointment->consultant_id), MissingTransitionDataException::class, 'A consultant must be assigned before confirming the appointment.');
     }
 
     public function processStep(TransitionData $data): void

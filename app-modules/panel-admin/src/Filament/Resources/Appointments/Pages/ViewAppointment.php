@@ -99,6 +99,7 @@ class ViewAppointment extends ViewRecord
                     $appointment->current_transition->handle(new TransitionData);
 
                     $appointment->loadMissing('consultant');
+
                     $consultant = $appointment->consultant;
 
                     if (filled($consultant) && filled($consultant->email) && blank($appointment->google_event_id)) {
@@ -125,6 +126,7 @@ class ViewAppointment extends ViewRecord
                     /** @var Appointment $appointment */
                     $appointment = $this->record;
                     $appointment->current_transition->handle(new TransitionData);
+
                     $this->record->refresh();
                 }),
 
