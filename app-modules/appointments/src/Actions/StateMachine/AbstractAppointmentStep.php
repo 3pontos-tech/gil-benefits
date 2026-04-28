@@ -31,6 +31,10 @@ abstract class AbstractAppointmentStep
 
     public function cancel(): void
     {
+        if ($this->appointment->status === AppointmentStatus::Cancelled) {
+            return;
+        }
+
         $this->appointment->loadMissing(['user', 'consultant']);
 
         $this->appointment->update([
