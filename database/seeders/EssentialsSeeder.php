@@ -17,6 +17,7 @@ use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\Permissions\Roles;
 
 class EssentialsSeeder extends Seeder
 {
@@ -62,6 +63,8 @@ class EssentialsSeeder extends Seeder
             'slug' => '5pontos',
             'user_id' => $companyOwner->getKey(),
         ]);
+
+        $company->employees()->attach($companyOwner, ['role' => Roles::CompanyOwner->value]);
 
         CompanyPlan::factory()
             ->active()
