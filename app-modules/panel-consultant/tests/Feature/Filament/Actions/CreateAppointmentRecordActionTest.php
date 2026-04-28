@@ -80,7 +80,7 @@ it('requires the source file', function (): void {
 it('is hidden when appointment is not completed', function (): void {
     $scheduling = Appointment::factory()
         ->recycle($this->consultant)
-        ->withStatus(AppointmentStatus::Scheduling)
+        ->withStatus(AppointmentStatus::Active)
         ->create();
 
     livewire(ListAppointments::class)
