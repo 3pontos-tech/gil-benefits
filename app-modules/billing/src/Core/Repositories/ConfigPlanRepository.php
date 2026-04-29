@@ -39,6 +39,7 @@ final readonly class ConfigPlanRepository implements PlanRepository
             ->map(fn (array $price): PriceEntity => PriceEntity::make($price));
 
         return new PlanEntity(
+            name: $name,
             slug: Arr::get($plan, key: 'type', default: $name),
             productId: Arr::get($plan, key: 'product_id', default: ''),
             prices: $prices,
