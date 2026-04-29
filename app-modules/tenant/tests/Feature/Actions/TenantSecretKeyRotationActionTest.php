@@ -1,11 +1,8 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Ramsey\Uuid\Uuid;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Tenant\Actions\TenantSecretKeyRotationAction;
-
-uses(RefreshDatabase::class);
 
 it('generates a new UUID and updates the company integration access key', function (): void {
     $company = Company::factory()->create();
