@@ -13,12 +13,11 @@ use TresPontosTech\Permissions\Roles;
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
 
-it('synchronizes roles and permissions', function (): void {
-    // Ensure the default super admin user exists
-    User::factory()->create([
-        'email' => 'admin@5pontos.com',
-    ]);
+beforeEach(function (): void {
+    User::factory()->create(['email' => 'admin@5pontos.com']);
+});
 
+it('synchronizes roles and permissions', function (): void {
     Artisan::call('sync:permissions');
 
     $permissionCount = Permission::query()->count();
@@ -40,10 +39,6 @@ it('synchronizes roles and permissions', function (): void {
 });
 
 it('is idempotent — running twice does not duplicate permissions', function (): void {
-    User::factory()->create([
-        'email' => 'admin@5pontos.com',
-    ]);
-
     Artisan::call('sync:permissions');
     $firstRunPermissionCount = Permission::query()->count();
     $firstRunRoleCount = Role::query()->count();
@@ -57,10 +52,6 @@ it('is idempotent — running twice does not duplicate permissions', function ()
 });
 
 it('assigns all permissions to the SuperAdmin role', function (): void {
-    User::factory()->create([
-        'email' => 'admin@5pontos.com',
-    ]);
-
     Artisan::call('sync:permissions');
 
     $allPermissions = Permission::query()->count();
