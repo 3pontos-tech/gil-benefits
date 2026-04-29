@@ -14,9 +14,7 @@ final class ValidateBarteWebhookSecret
     {
         $secret = config('services.barte.webhook_secret');
 
-        if (blank($secret) || ! hash_equals($secret, (string) $request->query('token'))) {
-            abort(401);
-        }
+        abort_if(blank($secret) || ! hash_equals($secret, (string) $request->query('token')), 401);
 
         return $next($request);
     }

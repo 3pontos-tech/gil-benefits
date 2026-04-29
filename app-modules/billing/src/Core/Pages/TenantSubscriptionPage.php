@@ -76,10 +76,36 @@ class TenantSubscriptionPage extends Page
             metadata: ['model' => Relation::getMorphAlias(Company::class)],
         );
 
-        $url = resolve(BillingManager::class)
-            ->getDriver(BillingProviderEnum::from($this->driver))
-            ->createCheckout($tenant, $data);
+        $driver = resolve(BillingManager::class)->getDriver(BillingProviderEnum::from($this->driver));
+        $url = $driver->createCheckout($tenant, $data);
 
-        redirect($url);
+        if ($driver->checkoutOpensInNewTab()) {
+            $this->dispatch('open-modal', id: 'waiting-for-payment');
+            $this->js("window.open('" . addslashes($url) . "', '_blank')");
+
+            return;
+        }
+
+        $this->redirect($url);
+    }
+
+    public function checkPaymentStatus(): void
+    {
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+
+        $active = resolve(BillingManager::class)
+            ->getDriver(BillingProviderEnum::from($this->driver))
+            ->hasActiveSubscription($tenant);
+
+        if ($active) {
+            $this->dispatch('close-modal', id: 'waiting-for-payment');
+            $this->redirect(Dashboard::getUrl());
+        }
+    }
+
+    public function cancelWaiting(): void
+    {
+        $this->dispatch('close-modal', id: 'waiting-for-payment');
     }
 }

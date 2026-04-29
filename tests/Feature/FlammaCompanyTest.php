@@ -72,6 +72,11 @@ it('should redirect to available subscriptions if company is not flamma company'
         }
 
         public function cancelSubscription(User|Company $billable): void {}
+
+        public function checkoutOpensInNewTab(): bool
+        {
+            return true;
+        }
     };
 
     $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fakeDriver) {
@@ -129,6 +134,11 @@ it('should render EditTenantProfile correctly if company has active plans', func
         }
 
         public function cancelSubscription(User|Company $billable): void {}
+
+        public function checkoutOpensInNewTab(): bool
+        {
+            return true;
+        }
     };
 
     $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fakeDriver) {

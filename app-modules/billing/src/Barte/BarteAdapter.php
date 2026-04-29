@@ -125,6 +125,11 @@ final readonly class BarteAdapter implements BillingContract
         return $response['url'];
     }
 
+    public function checkoutOpensInNewTab(): bool
+    {
+        return true;
+    }
+
     public function cancelSubscription(Company|User $billable): void
     {
         $subscription = Subscription::query()

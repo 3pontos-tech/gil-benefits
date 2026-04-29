@@ -39,7 +39,7 @@ class EloquentPlanRepository implements PlanRepository
 
     public function getActiveTenantPlan(BillingProviderEnum $provider): PlanEntity
     {
-        return Cache::remember("active_tenant_plan_{$provider->value}", 60, fn (): PlanEntity => PlanEntity::fromEloquent(
+        return Cache::remember('active_tenant_plan_' . $provider->value, 60, fn (): PlanEntity => PlanEntity::fromEloquent(
             Plan::query()
                 ->where('type', BillableTypeEnum::Company)
                 ->where('active', true)

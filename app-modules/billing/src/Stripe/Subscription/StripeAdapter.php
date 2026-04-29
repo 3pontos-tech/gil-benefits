@@ -90,6 +90,11 @@ class StripeAdapter implements BillingContract
             ->exists();
     }
 
+    public function checkoutOpensInNewTab(): bool
+    {
+        return false;
+    }
+
     public function cancelSubscription(Company|User $billable): void
     {
         $billable->subscription()?->where('stripe_status', 'active')->latest()->first()->cancel();

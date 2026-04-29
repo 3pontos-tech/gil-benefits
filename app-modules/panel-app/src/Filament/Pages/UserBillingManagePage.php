@@ -45,7 +45,7 @@ class UserBillingManagePage extends Page
         if ($this->subscription && ! $this->subscription->price?->plan) {
             $provider = BillingCustomer::getActiveProvider($user);
 
-            $fallbackPlan = $provider
+            $fallbackPlan = $provider instanceof BillingProviderEnum
                 ? Plan::query()
                     ->where('provider', $provider)
                     ->where('type', BillableTypeEnum::User)
@@ -67,7 +67,7 @@ class UserBillingManagePage extends Page
     {
         $user = auth()->user();
 
-        if (! $this->subscription) {
+        if (! $this->subscription instanceof Subscription) {
             Notification::make()->title('Nenhuma assinatura ativa encontrada.')->warning()->send();
 
             return;

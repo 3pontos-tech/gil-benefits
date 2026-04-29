@@ -50,4 +50,9 @@ final class FakeBillingContract implements BillingContract
     }
 
     public function cancelSubscription(Company|User $billable): void {}
+
+    public function checkoutOpensInNewTab(): bool
+    {
+        return false;
+    }
 }

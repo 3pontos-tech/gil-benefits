@@ -49,7 +49,7 @@ class BillingManagePage extends Page
         if ($this->subscription && ! $this->subscription->plan) {
             $provider = BillingCustomer::getActiveProvider($company);
 
-            $fallbackPlan = $provider
+            $fallbackPlan = $provider instanceof BillingProviderEnum
                 ? Plan::query()
                     ->where('provider', $provider)
                     ->where('type', BillableTypeEnum::Company)
@@ -72,7 +72,7 @@ class BillingManagePage extends Page
         /** @var Company $company */
         $company = Filament::getTenant();
 
-        if (! $this->subscription) {
+        if (! $this->subscription instanceof Subscription) {
             Notification::make()->title('Nenhuma assinatura ativa encontrada.')->warning()->send();
 
             return;

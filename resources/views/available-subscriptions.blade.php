@@ -35,6 +35,22 @@
 @endphp
 
 
+<div>
+<x-filament::modal id="waiting-for-payment" :close-button="false" :close-by-clicking-away="false">
+    <x-slot name="heading">Aguardando confirmação do pagamento</x-slot>
+
+    <div wire:poll.3000ms="checkPaymentStatus" class="flex flex-col items-center gap-4 py-4 text-center">
+        <x-filament::loading-indicator class="h-10 w-10 text-primary-600" />
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+            O link de pagamento foi aberto em uma nova aba.<br>
+            Esta página será atualizada automaticamente após a confirmação.
+        </p>
+        <x-filament::button color="gray" wire:click="cancelWaiting">
+            Voltar e tentar novamente
+        </x-filament::button>
+    </div>
+</x-filament::modal>
+
 <div
     x-data="{
         min: 5,
@@ -161,4 +177,5 @@
             </div>
         </div>
     </div>
+</div>
 </div>

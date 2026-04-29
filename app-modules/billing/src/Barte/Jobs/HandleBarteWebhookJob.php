@@ -15,7 +15,10 @@ use TresPontosTech\Billing\Barte\DTOs\BarteWebhookDto;
 
 class HandleBarteWebhookJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     public int $tries = 3;
 

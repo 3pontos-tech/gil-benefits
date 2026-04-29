@@ -14,6 +14,6 @@ class BarteWebhookController extends Controller
     {
         $payload = $request->all();
 
-        HandleBarteWebhookJob::dispatch($payload);
+        dispatch(new HandleBarteWebhookJob($payload));
     }
 }

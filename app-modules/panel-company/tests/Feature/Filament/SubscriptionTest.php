@@ -29,7 +29,7 @@ beforeEach(function (): void {
 
     $fake = new FakeBillingContract(isSubscribed: false);
 
-    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake) {
+    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake): void {
         $mock->makePartial();
         $mock->shouldReceive('getDriver')->andReturn($fake);
     }));
@@ -66,7 +66,7 @@ it('should access dashboard when company has an active billing subscription', fu
 
     $fake = new FakeBillingContract(isSubscribed: true);
 
-    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake) {
+    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake): void {
         $mock->makePartial();
         $mock->shouldReceive('getDriver')->andReturn($fake);
     }));
@@ -103,7 +103,7 @@ it('should create a subscription when checkout is called', function (): void {
         },
     );
 
-    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake) {
+    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake): void {
         $mock->makePartial();
         $mock->shouldReceive('getDriver')->andReturn($fake);
     }));
