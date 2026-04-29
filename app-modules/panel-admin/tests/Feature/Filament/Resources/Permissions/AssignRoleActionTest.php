@@ -16,7 +16,7 @@ it('is visible to SuperAdmin users', function (): void {
         ->assertActionVisible(TestAction::make('assign-role-action')->table($target));
 });
 
-it('is hidden from non-SuperAdmin users', function (): void {
+it('is hidden from Admin users', function (): void {
     actingAsAdmin();
 
     $target = User::factory()->create();
@@ -46,6 +46,8 @@ it('sends a notification when the action is called for a user who already has th
     $target = User::factory()->create();
     $target->assignRole(Roles::Employee);
 
+    $roleCountBefore = $target->roles()->count();
+
     livewire(ListUsers::class)
         ->callAction(
             TestAction::make('assign-role-action')->table($target),
@@ -53,6 +55,5 @@ it('sends a notification when the action is called for a user who already has th
         )
         ->assertNotified();
 
-    // The user still has the Employee role after the action
-    expect($target->fresh()->hasRole(Roles::Employee))->toBeTrue();
+    expect($target->fresh()->roles()->count())->toBe($roleCountBefore);
 });

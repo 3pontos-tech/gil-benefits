@@ -16,6 +16,7 @@ it('clears consultant_id when appointment_at is changed', function (): void {
 
     livewire(CreateAppointment::class)
         ->set('data.consultant_id', $consultant->id)
+        ->assertSet('data.consultant_id', $consultant->id)
         ->set('data.appointment_at', now()->addDays(3)->toDateTimeString())
         ->assertSet('data.consultant_id', null);
 });

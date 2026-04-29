@@ -57,6 +57,8 @@ it('includes the booking user name in the notification body', function (): void 
         ->whereNotIn('id', $existingIds)
         ->first();
 
+    expect($notification)->not->toBeNull();
+
     $data = json_decode($notification->data, true);
 
     expect($data['body'])->toContain($this->employee->name);
