@@ -8,8 +8,6 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Support\Htmlable;
-use TresPontosTech\Billing\Barte\BarteAdapter;
-use TresPontosTech\Billing\Stripe\Subscription\StripeAdapter;
 
 enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
 {
@@ -39,19 +37,8 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
         return $this->name;
     }
 
-    public static function availableProviders(): array
-    {
-        return [
-            'barte' => BarteAdapter::class,
-            'stripe' => StripeAdapter::class,
-        ];
-    }
-
     public static function activeCases(): array
     {
-        return array_map(
-            fn (string $key) => self::from($key),
-            array_keys(self::availableProviders())
-        );
+        return [self::Barte, self::Stripe];
     }
 }
