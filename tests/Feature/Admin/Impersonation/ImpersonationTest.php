@@ -134,12 +134,14 @@ describe('impersonation logs', function (): void {
         $admin = User::factory()->admin()->create();
         $consultant = User::factory()->create();
 
+        $closedAt = now()->subMinutes(50);
+
         $old = ImpersonationLog::create([
             'admin_id' => $admin->id,
             'impersonated_user_id' => $consultant->id,
             'started_at' => now()->subHour(),
         ]);
-        $old->ended_at = now()->subMinutes(50);
+        $old->ended_at = $closedAt;
         $old->save();
 
         $open = ImpersonationLog::create([
@@ -152,6 +154,6 @@ describe('impersonation logs', function (): void {
         $listener->handle(new LeaveImpersonation($admin, $consultant));
 
         expect($open->fresh()->ended_at)->not->toBeNull();
-        expect($old->fresh()->ended_at->toDateTimeString())->toBe(now()->subMinutes(50)->toDateTimeString());
+        expect($old->fresh()->ended_at->toDateTimeString())->toBe($closedAt->toDateTimeString());
     });
 });

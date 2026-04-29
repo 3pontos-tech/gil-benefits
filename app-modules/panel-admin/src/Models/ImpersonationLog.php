@@ -28,12 +28,12 @@ class ImpersonationLog extends Model
     /** @return BelongsTo<User, $this> */
     public function admin(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'admin_id');
+        return $this->belongsTo(User::class, 'admin_id')->withTrashed();
     }
 
     /** @return BelongsTo<User, $this> */
     public function impersonatedUser(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'impersonated_user_id');
+        return $this->belongsTo(User::class, 'impersonated_user_id')->withTrashed();
     }
 }
