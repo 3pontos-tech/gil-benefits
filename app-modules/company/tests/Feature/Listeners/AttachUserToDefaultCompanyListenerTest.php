@@ -1,13 +1,10 @@
 <?php
 
 use App\Models\Users\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use TresPontosTech\Company\Listeners\AttachUserToDefaultCompanyListener;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
-
-uses(RefreshDatabase::class);
 
 it('attaches the user to the default company when the event is handled', function (): void {
     $user = User::factory()->create();

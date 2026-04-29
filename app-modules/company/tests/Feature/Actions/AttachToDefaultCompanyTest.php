@@ -1,12 +1,9 @@
 <?php
 
 use App\Models\Users\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use TresPontosTech\Company\Actions\AttachToDefaultCompany;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
-
-uses(RefreshDatabase::class);
 
 it('creates the default company, attaches the user, and assigns the given role', function (): void {
     $user = User::factory()->create();

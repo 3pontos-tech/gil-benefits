@@ -2,14 +2,11 @@
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Ramsey\Uuid\Uuid;
 use TresPontosTech\Company\Actions\CreateCompanyAction;
 use TresPontosTech\Company\DTOs\CompanyDTO;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
-
-uses(RefreshDatabase::class);
 
 it('creates a company, attaches the user, and assigns the CompanyOwner role', function (): void {
     $user = User::factory()->create();
