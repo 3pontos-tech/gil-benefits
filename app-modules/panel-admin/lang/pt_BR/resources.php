@@ -132,6 +132,9 @@ return [
             'tax_id' => 'CNPJ',
             'plan' => 'Plano',
         ],
+        'actions' => [
+            'manage' => 'Gerenciar',
+        ],
         'relation_managers' => [
             'employees' => [
                 'title' => 'Membros',
