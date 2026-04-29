@@ -22,7 +22,7 @@ it('the generated key is a valid UUID v4', function (): void {
 
     $newKey = resolve(TenantSecretKeyRotationAction::class)->generate($company);
 
-    expect(Uuid::isValid($newKey))->toBeTrue();
+    expect(Uuid::fromString($newKey)->getVersion())->toBe(4);
 });
 
 it('replaces the previous token completely', function (): void {
