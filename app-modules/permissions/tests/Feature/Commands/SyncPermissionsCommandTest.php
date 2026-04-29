@@ -39,23 +39,41 @@ it('synchronizes roles and permissions', function (): void {
 });
 
 it('is idempotent — running twice does not duplicate permissions', function (): void {
-    Artisan::call('sync:permissions');
-    $firstRunPermissionCount = Permission::query()->count();
-    $firstRunRoleCount = Role::query()->count();
+    // First run already happened via PermissionSeeder in TestCase
+    $firstPermissionNames = Permission::query()->orderBy('name')->pluck('name')->all();
+    $firstRoleNames = Role::query()->orderBy('name')->pluck('name')->all();
+    $firstSuperAdminPermissionIds = Role::findByName(Roles::SuperAdmin->value)
+        ->permissions()
+        ->pluck('rbac_permissions.id')
+        ->sort()
+        ->values()
+        ->all();
 
     Artisan::call('sync:permissions');
-    $secondRunPermissionCount = Permission::query()->count();
-    $secondRunRoleCount = Role::query()->count();
 
-    expect($firstRunPermissionCount)->toBe($secondRunPermissionCount);
-    expect($firstRunRoleCount)->toBe($secondRunRoleCount);
+    $secondPermissionNames = Permission::query()->orderBy('name')->pluck('name')->all();
+    $secondRoleNames = Role::query()->orderBy('name')->pluck('name')->all();
+    $secondSuperAdminPermissionIds = Role::findByName(Roles::SuperAdmin->value)
+        ->permissions()
+        ->pluck('rbac_permissions.id')
+        ->sort()
+        ->values()
+        ->all();
+
+    expect($firstPermissionNames)->toBe($secondPermissionNames)
+        ->and($firstRoleNames)->toBe($secondRoleNames)
+        ->and($firstSuperAdminPermissionIds)->toBe($secondSuperAdminPermissionIds);
 });
 
 it('assigns all permissions to the SuperAdmin role', function (): void {
-    Artisan::call('sync:permissions');
-
-    $allPermissions = Permission::query()->count();
+    // sync:permissions already ran via PermissionSeeder in TestCase
+    $allPermissionIds = Permission::query()->pluck('id')->sort()->values()->all();
     $superAdminRole = Role::findByName(Roles::SuperAdmin->value);
+    $superAdminPermissionIds = $superAdminRole->permissions()
+        ->pluck('rbac_permissions.id')
+        ->sort()
+        ->values()
+        ->all();
 
-    expect($superAdminRole->permissions()->count())->toBe($allPermissions);
+    expect($superAdminPermissionIds)->toBe($allPermissionIds);
 });
