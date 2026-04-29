@@ -16,7 +16,7 @@ interface PlanRepository
 
     public function get(string $name): PlanEntity;
 
-    public function getPlansFor(string $name): Collection;
+    public function getPlansFor(string $name = 'user_'): Collection;
 
     public function getActiveTenantPlan(): PlanEntity;
 }

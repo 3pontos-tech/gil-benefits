@@ -51,10 +51,10 @@ final readonly class ConfigPlanRepository implements PlanRepository
         );
     }
 
-    public function getPlansFor(string $name): Collection
+    public function getPlansFor(string $name = 'user_'): Collection
     {
         return collect($this->all())
-            ->filter(fn ($plan, $key): bool => str_starts_with($key, 'user_'));
+            ->filter(fn ($plan, $key): bool => str_starts_with($key, $name));
     }
 
     public function getActiveTenantPlan(): PlanEntity
