@@ -26,7 +26,7 @@ class EloquentPlanRepository implements PlanRepository
         return collect($this->all())->firstOrFail(fn (PlanEntity $plan): bool => $plan->slug === $name);
     }
 
-    public function getPlansFor(string $name): Collection
+    public function getPlansFor(string $name = 'user_'): Collection
     {
         return Cache::remember('active_user_plans', 15, fn () => Plan::query()
             ->where('type', BillableTypeEnum::User)
