@@ -113,6 +113,12 @@ class CompanyPanelProvider extends PanelProvider
                 PanelsRenderHook::BODY_START,
                 fn (): Factory|View => view('filament.shared.import-errors-modal'),
             )
+            ->renderHook(
+                PanelsRenderHook::BODY_START,
+                fn (): string => auth()->user()?->isAdmin()
+                    ? view('filament.shared.admin-company-banner')->render()
+                    : '',
+            )
             ->discoverWidgets(in: app_path('Filament/Company/Widgets'), for: 'App\\Filament\\Company\\Widgets')
             ->middleware([
                 EncryptCookies::class,

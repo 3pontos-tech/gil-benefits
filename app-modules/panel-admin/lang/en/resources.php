@@ -124,6 +124,9 @@ return [
             'tax_id' => 'Tax ID',
             'plan' => 'Plan',
         ],
+        'actions' => [
+            'manage' => 'Manage',
+        ],
         'relation_managers' => [
             'employees' => [
                 'title' => 'Members',
