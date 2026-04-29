@@ -2,7 +2,6 @@
 
 use App\Models\Users\Detail;
 use App\Models\Users\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Company\Models\Company;
@@ -13,8 +12,6 @@ use TresPontosTech\User\Mail\WelcomeUserMail;
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
-
-uses(RefreshDatabase::class);
 
 function makeUserRows(int $count, int $startIndex = 1): Collection
 {
