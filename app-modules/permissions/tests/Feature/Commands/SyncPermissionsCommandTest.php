@@ -38,3 +38,33 @@ it('synchronizes roles and permissions', function (): void {
     $user = User::query()->where('email', 'admin@5pontos.com')->first();
     expect($user->hasRole(Roles::SuperAdmin->value))->toBeTrue();
 });
+
+it('is idempotent — running twice does not duplicate permissions', function (): void {
+    User::factory()->create([
+        'email' => 'admin@5pontos.com',
+    ]);
+
+    Artisan::call('sync:permissions');
+    $firstRunPermissionCount = Permission::query()->count();
+    $firstRunRoleCount = Role::query()->count();
+
+    Artisan::call('sync:permissions');
+    $secondRunPermissionCount = Permission::query()->count();
+    $secondRunRoleCount = Role::query()->count();
+
+    expect($firstRunPermissionCount)->toBe($secondRunPermissionCount);
+    expect($firstRunRoleCount)->toBe($secondRunRoleCount);
+});
+
+it('assigns all permissions to the SuperAdmin role', function (): void {
+    User::factory()->create([
+        'email' => 'admin@5pontos.com',
+    ]);
+
+    Artisan::call('sync:permissions');
+
+    $allPermissions = Permission::query()->count();
+    $superAdminRole = Role::findByName(Roles::SuperAdmin->value);
+
+    expect($superAdminRole->permissions()->count())->toBe($allPermissions);
+});
