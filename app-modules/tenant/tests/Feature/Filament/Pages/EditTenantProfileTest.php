@@ -60,6 +60,31 @@ describe('change tenant secret action tests', function (): void {
 
 describe('authorization', function (): void {
 
+    it('allows company owner to call the secret key rotation action', function (): void {
+        $companyOwner = User::factory()->companyOwner()->create();
+        $company = Company::factory()->for($companyOwner, 'owner')->create();
+        $company->subscriptions()->create([
+            'type' => 'company',
+            'stripe_id' => 'sub_owner_rotation_test',
+            'stripe_status' => 'active',
+        ]);
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        filament()->setTenant($company);
+        actingAs($companyOwner);
+
+        $action = TestAction::make(TenantSecretKeyRotationPanelAction::class);
+        $oldKey = $company->integration_access_key;
+
+        livewire(EditTenantProfile::class)
+            ->assertOk()
+            ->mountAction($action)
+            ->callAction($action)
+            ->assertHasNoFormErrors();
+
+        expect($company->refresh()->integration_access_key)->not->toBe($oldKey);
+    });
+
     test('only company owner or admin can see the page', function (): void {
         $invalidUser = User::factory()->employee()->create();
         $this->company->employees()->attach($invalidUser);
