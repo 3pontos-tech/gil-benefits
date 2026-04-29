@@ -7,9 +7,11 @@ use Filament\Pages\Dashboard;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Laravel\Cashier\SubscriptionBuilder;
 use Livewire\Attributes\Computed;
+use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
@@ -29,6 +31,8 @@ class TenantSubscriptionPage extends Page
 
     public int $seatsAmount = 5;
 
+    public string $driver = 'barte';
+
     protected function getViewData(): array
     {
         return [
@@ -39,16 +43,16 @@ class TenantSubscriptionPage extends Page
     #[Computed]
     public function getActiveTenantPlan(): PlanEntity
     {
-        return resolve(PlanRepository::class)->getActiveTenantPlan();
+        return resolve(PlanRepository::class)->getActiveTenantPlan(BillingProviderEnum::from($this->driver));
     }
 
     public function checkout(): void
     {
-
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
         $plan = $this->getActiveTenantPlan();
+
         $price = $plan->prices->first();
 
         $seats = $this->seatsAmount;
@@ -57,37 +61,51 @@ class TenantSubscriptionPage extends Page
             $seats = 5;
         }
 
-        $sessionCheckout = $tenant
-            ->newSubscription(type: $plan->slug)
-            ->when(
-                value: $plan->isMeteredPrice,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription
-                    ->meteredPrice($price->priceId)
-                    ->quantity($seats),
-            )
-            ->when(
-                value: $plan->hasGenericTrial && $plan->trialDays !== false,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->trialDays(trialDays: $plan->trialDays),
-            )
-            ->when(
-                value: $plan->allowPromotionCodes,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->allowPromotionCodes(),
-            )
-            ->when(
-                value: $plan->collectTaxIds,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
-            )
-            ->withMetadata([
-                'model' => Relation::getMorphAlias(Company::class),
-            ])
-            ->checkout(sessionOptions: [
-                'success_url' => Dashboard::getUrl(),
-                'cancel_url' => Dashboard::getUrl(),
-                'customer_update' => [
-                    'address' => 'auto',
-                ],
-            ]);
+        $data = new CheckoutData(
+            planSlug: $plan->slug,
+            priceId: $price->priceId,
+            isMetered: $plan->isMeteredPrice,
+            quantity: max($this->seatsAmount, 5),
+            trialDays: $plan->hasGenericTrial && $plan->trialDays !== false
+                ? $plan->trialDays
+                : null,
+            allowPromotionCodes: $plan->allowPromotionCodes,
+            collectTaxIds: $plan->collectTaxIds,
+            successUrl: Dashboard::getUrl(),
+            cancelUrl: Dashboard::getUrl(),
+            metadata: ['model' => Relation::getMorphAlias(Company::class)],
+        );
 
-        redirect($sessionCheckout->asStripeCheckoutSession()->url);
+        $driver = resolve(BillingManager::class)->getDriver(BillingProviderEnum::from($this->driver));
+        $url = $driver->createCheckout($tenant, $data);
+
+        if ($driver->checkoutOpensInNewTab()) {
+            $this->dispatch('open-modal', id: 'waiting-for-payment');
+            $this->js("window.open('" . addslashes($url) . "', '_blank')");
+
+            return;
+        }
+
+        $this->redirect($url);
+    }
+
+    public function checkPaymentStatus(): void
+    {
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+
+        $active = resolve(BillingManager::class)
+            ->getDriver(BillingProviderEnum::from($this->driver))
+            ->hasActiveSubscription($tenant);
+
+        if ($active) {
+            $this->dispatch('close-modal', id: 'waiting-for-payment');
+            $this->redirect(Dashboard::getUrl());
+        }
+    }
+
+    public function cancelWaiting(): void
+    {
+        $this->dispatch('close-modal', id: 'waiting-for-payment');
     }
 }

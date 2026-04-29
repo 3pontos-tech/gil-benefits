@@ -4,6 +4,7 @@ namespace TresPontosTech\Billing\Core\Entities;
 
 use Illuminate\Support\Collection;
 use InvalidArgumentException;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 
@@ -22,6 +23,7 @@ final readonly class PlanEntity
         public bool $allowPromotionCodes,
         public bool $collectTaxIds,
         public bool $isMeteredPrice,
+        public BillingProviderEnum $provider,
     ) {
         throw_if($this->slug === '', InvalidArgumentException::class, message: 'Type cannot be empty.');
 
@@ -51,7 +53,8 @@ final readonly class PlanEntity
             hasGenericTrial: $plan->has_generic_trial,
             allowPromotionCodes: $plan->allow_promotion_codes,
             collectTaxIds: $plan->collect_tax_ids,
-            isMeteredPrice: $plan->type->isMetered()
+            isMeteredPrice: $plan->type->isMetered(),
+            provider: $plan->provider
         );
     }
 

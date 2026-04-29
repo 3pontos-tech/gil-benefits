@@ -22,6 +22,7 @@ it('should register user to flamma company', function (): void {
             'email' => 'joe@doe.com',
             'password' => 'password123',
             'passwordConfirmation' => 'password123',
+            'tax_id' => '562.590.047-70',
         ])
         ->call('register')
         ->assertHasNoFormErrors();

@@ -6,6 +6,7 @@ namespace TresPontosTech\Billing\Core\Repositories;
 
 use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 
 interface PlanRepository
 {
@@ -18,5 +19,5 @@ interface PlanRepository
 
     public function getPlansFor(string $name): Collection;
 
-    public function getActiveTenantPlan(): PlanEntity;
+    public function getActiveTenantPlan(BillingProviderEnum $provider): PlanEntity;
 }

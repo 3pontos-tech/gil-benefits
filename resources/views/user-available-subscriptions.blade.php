@@ -15,9 +15,23 @@
 @endphp
 
 
-<div
-    x-data="{ selectedPlan: $wire.entangle('selectedPlan').live }"
-    class=" py-8 px-4 sm:px-6 lg:px-8">
+<div>
+<x-filament::modal id="waiting-for-payment" :close-button="false" :close-by-clicking-away="false">
+    <x-slot name="heading">Aguardando confirmação do pagamento</x-slot>
+
+    <div wire:poll.3000ms="checkPaymentStatus" class="flex flex-col items-center gap-4 py-4 text-center">
+        <x-filament::loading-indicator class="h-10 w-10 text-primary-600" />
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+            O link de pagamento foi aberto em uma nova aba.<br>
+            Esta página será atualizada automaticamente após a confirmação.
+        </p>
+        <x-filament::button color="gray" wire:click="cancelWaiting">
+            Voltar e tentar novamente
+        </x-filament::button>
+    </div>
+</x-filament::modal>
+
+<div x-data="{ selectedPlan: '{{ $this->selectedPlanSlug }}' }" class=" py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl ">
         <div class="text-center mb-8">
             <h1 class="text-4xl font-bold text-balance mb-2">{{ __('views.subscriptions.choose_plan') }}</h1>
@@ -116,15 +130,16 @@
                     </div>
 
                     <x-slot name="footer">
-                        <x-filament::button
-                            wire:click="checkout()" icon="fab-stripe" color="primary" size="xl"
-                            class="w-full text-base">
-                            {{ __('views.subscriptions.complete_subscription') }}
-                        </x-filament::button>
+                        <div x-on:click="$wire.checkout(selectedPlan)">
+                            <x-filament::button icon="fab-stripe" color="primary" size="xl" class="w-full text-base">
+                                {{ __('views.subscriptions.complete_subscription') }}
+                            </x-filament::button>
+                        </div>
                     </x-slot>
                 </x-filament::section>
 
             </div>
         </div>
     </div>
+</div>
 </div>

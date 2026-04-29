@@ -2,19 +2,22 @@
 
 namespace TresPontosTech\Billing\Stripe\Subscription\User;
 
-use App\Models\Users\User;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
-use Laravel\Cashier\Cashier;
 use Stripe\Collection;
+use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
 class RedirectUserIfNotSubscribed
 {
-    public function __construct(private readonly PlanRepository $planRepository) {}
+    public function __construct(
+        private readonly PlanRepository $planRepository,
+        private readonly BillingManager $billingManager,
+    ) {}
 
     public function handle(Request $request, Closure $next)
     {
@@ -25,19 +28,14 @@ class RedirectUserIfNotSubscribed
             return $next($request);
         }
 
-        Cashier::useCustomerModel(User::class);
-
-        if ($tenant->hasStripeId() === false) {
-            $tenant->createAsStripeCustomer();
-        }
-
         // TODO: when the company cancels the subscription, the user needs a page to understand what do next
         // TODO: ask the team which kind of page to add here
 
-        $hasActiveSubscription = $tenant
-            ->subscriptions()
-            ->whereIn('stripe_status', ['active', 'incomplete'])
-            ->exists();
+        $hasActiveSubscription = collect(BillingProviderEnum::activeCases())
+            ->contains(fn (BillingProviderEnum $provider): bool => $this->billingManager
+                ->getDriver($provider)
+                ->hasActiveSubscription($tenant)
+            );
 
         if ($tenant->slug === 'flamma-company') {
             $hasActiveSubscription = true;
@@ -51,10 +49,24 @@ class RedirectUserIfNotSubscribed
 
         /** @var Collection<string, PlanEntity> $availableEmployeesPlans */
         $availableEmployeesPlans = $this->planRepository->getPlansFor('user');
-        foreach ($availableEmployeesPlans as $plan) {
-            if ($employee->subscribed($plan->slug)) {
-                return $next($request);
-            }
+
+        $hasValidSubscription = collect(BillingProviderEnum::activeCases())
+            ->contains(function (BillingProviderEnum $provider) use ($employee, $availableEmployeesPlans): bool {
+                $driver = $this->billingManager->getDriver($provider);
+
+                $driver->ensureCustomerExists($employee);
+
+                foreach ($availableEmployeesPlans as $plan) {
+                    if ($driver->isSubscribed($employee, $plan->slug)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+
+        if ($hasValidSubscription) {
+            return $next($request);
         }
 
         $route = 'filament.app.pages.available-subscriptions';

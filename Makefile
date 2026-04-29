@@ -59,7 +59,7 @@ essentials-seeder: ## Run the essentials seeder
 	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Essentials Seeder completed."
 	@echo "Seeding Stripe"
-	@php artisan billing:sync-stripe
+	@php artisan barte:play
 	@php artisan app:sync-subscription-to-flamma-company
 
 .PHONY: stripe-listen
@@ -71,8 +71,17 @@ stripe-fresh: ## Run migrations and seed the database
 	@echo "Running migrations and seeding the database..."
 	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Migrations and seeding completed."
-	@echo "Seeding Stripe"
+	@echo "Seeding Barte"
 	@php artisan billing:sync-stripe
+
+
+.PHONY: barte-fresh
+barte-fresh: ## Run migrations and seed the database
+	@echo "Running migrations and seeding the database..."
+	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
+	@echo "Migrations and seeding completed."
+	@echo "Seeding Barte"
+	@php artisan barte:play
 
 .PHONY: env-up
 env-up: ## Start the development environment
