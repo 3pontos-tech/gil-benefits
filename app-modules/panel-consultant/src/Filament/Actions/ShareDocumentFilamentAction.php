@@ -2,12 +2,15 @@
 
 namespace TresPontosTech\Consultants\Filament\Actions;
 
+use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Consultants\Actions\UpsertDocumentShareAction;
 use TresPontosTech\Consultants\DTOs\DocumentShareDTO;
+use TresPontosTech\Consultants\Mail\DocumentSharedMail;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
 
@@ -78,6 +81,12 @@ class ShareDocumentFilamentAction extends Action
                 'consultant_id' => $consultantId,
             ])
         );
+
+        $employee = User::query()->find($data['employee_id']);
+
+        if ($employee) {
+            Mail::to($employee->email)->queue(new DocumentSharedMail($record, $employee));
+        }
 
         Notification::make()->success()->title('Documento compartilhado com sucesso')->send();
     }

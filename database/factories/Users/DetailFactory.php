@@ -8,10 +8,16 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Company\Models\Company;
 
+/**
+ * @extends Factory<Detail>
+ */
 class DetailFactory extends Factory
 {
     protected $model = Detail::class;
 
+    /**
+     * @return array<string, mixed>
+     */
     public function definition(): array
     {
         return [

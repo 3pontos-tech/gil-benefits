@@ -3,11 +3,13 @@
 use App\Enums\AvailableTagsEnum;
 use App\Models\Users\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\CreateConsultant;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Mail\WelcomeUserMail;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
@@ -137,6 +139,52 @@ it('should assign an user to the consultant after creating', function (): void {
         ->and($consultant->user->email)->toBe('joe@doe.com');
 
 });
+it('sends a welcome email with the temporary password to the consultant', function (): void {
+    Mail::fake();
+
+    livewire(CreateConsultant::class)
+        ->fillForm([
+            'name' => 'John Doe',
+            'phone' => '119999999999',
+            'email' => 'consultant@example.com',
+            'short_description' => 'Description',
+            'biography' => 'Biography',
+            'readme' => 'Readme',
+            'socials_urls' => [],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    Mail::assertQueued(WelcomeUserMail::class, function (WelcomeUserMail $mail): bool {
+        return $mail->password === 'consultant@example.com'
+            && $mail->hasTo('consultant@example.com');
+    });
+});
+
+it('sends a welcome email without a temporary password when the user already exists', function (): void {
+    Mail::fake();
+
+    User::factory()->create(['email' => 'existing@example.com']);
+
+    livewire(CreateConsultant::class)
+        ->fillForm([
+            'name' => 'Existing User',
+            'phone' => '119999999999',
+            'email' => 'existing@example.com',
+            'short_description' => 'Description',
+            'biography' => 'Biography',
+            'readme' => 'Readme',
+            'socials_urls' => [],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    Mail::assertQueued(WelcomeUserMail::class, function (WelcomeUserMail $mail): bool {
+        return $mail->password === null
+            && $mail->hasTo('existing@example.com');
+    });
+});
+
 it('sets the slug after name field is set', function (): void {
     livewire(CreateConsultant::class)
         ->assertOk()

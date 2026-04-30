@@ -55,6 +55,25 @@ it('should assign the authenticated user as the company owner', function (): voi
         ->and(auth()->user()->isCompanyOwner())->toBeTrue();
 });
 
+describe('canView', function (): void {
+    it('cannot access the register page when the company tenant is already subscribed', function (): void {
+        $company = Company::factory()->for($this->user, 'owner')->create();
+        $company->subscriptions()->create([
+            'type' => 'company',
+            'stripe_id' => 'sub_already_subscribed',
+            'stripe_status' => 'active',
+        ]);
+
+        filament()->setTenant($company);
+
+        expect(RegisterTenant::canView())->toBeFalse();
+    });
+
+    it('can access the register page when no tenant is set', function (): void {
+        expect(RegisterTenant::canView())->toBeTrue();
+    });
+});
+
 describe('validation tests', function (): void {
     test('name::field', function ($rule, $value): void {
         actingAs(User::factory()->createOneQuietly());

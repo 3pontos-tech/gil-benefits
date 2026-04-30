@@ -16,7 +16,7 @@ it('renders successfully', function (): void {
 });
 
 it('shows total count of all appointments regardless of status', function (): void {
-    Appointment::factory()->count(3)->withStatus(AppointmentStatus::Draft)->create();
+    Appointment::factory()->count(3)->withStatus(AppointmentStatus::Pending)->create();
     Appointment::factory()->count(2)->withStatus(AppointmentStatus::Completed)->create();
     Appointment::factory()->count(1)->withStatus(AppointmentStatus::Cancelled)->create();
 
@@ -32,15 +32,14 @@ it('counts scheduled as active appointments with a consultant assigned', functio
         ->assertSeeInOrder([__('panel-admin::widgets.appointments_stats.scheduled'), '3']);
 });
 
-it('counts pending as appointments in pending scheduling or active status', function (): void {
+it('counts pending as appointments in pending or active status', function (): void {
     Appointment::factory()->withStatus(AppointmentStatus::Pending)->create();
-    Appointment::factory()->withStatus(AppointmentStatus::Scheduling)->create();
     Appointment::factory()->withStatus(AppointmentStatus::Active)->create();
     Appointment::factory()->withStatus(AppointmentStatus::Completed)->create();
     Appointment::factory()->withStatus(AppointmentStatus::Cancelled)->create();
 
     livewire(AppointmentsStatsOverview::class)
-        ->assertSeeInOrder([__('panel-admin::widgets.appointments_stats.pending'), '3']);
+        ->assertSeeInOrder([__('panel-admin::widgets.appointments_stats.pending'), '2']);
 });
 
 it('counts cancelled appointments correctly', function (): void {
@@ -59,10 +58,9 @@ it('calculates conclusion rate as completed over total', function (): void {
         ->assertSeeInOrder([__('panel-admin::widgets.appointments_stats.conclusion_rate'), '40%']);
 });
 
-it('calculates cancellation rate as cancelled over non draft appointments', function (): void {
+it('calculates cancellation rate as cancelled over total appointments', function (): void {
     Appointment::factory()->count(2)->withStatus(AppointmentStatus::Cancelled)->create();
     Appointment::factory()->count(2)->withStatus(AppointmentStatus::Completed)->create();
-    Appointment::factory()->count(6)->withStatus(AppointmentStatus::Draft)->create();
 
     livewire(AppointmentsStatsOverview::class)
         ->assertSeeInOrder([__('panel-admin::widgets.appointments_stats.cancellation_rate'), '50%']);

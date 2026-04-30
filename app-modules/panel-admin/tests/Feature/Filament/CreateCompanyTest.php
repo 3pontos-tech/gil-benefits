@@ -54,7 +54,7 @@ it('company slug should be unique', function (): void {
             'slug' => Str::slug('my company'),
         ])
         ->call('create')
-        ->assertHasFormErrors(['slug' => 'The slug has already been taken.']);
+        ->assertHasFormErrors(['slug' => 'unique']);
 });
 
 test('after creating should assign company owner role to the owner', function (): void {

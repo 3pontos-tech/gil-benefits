@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Billing\Database\Factories\PriceFactory;
 
+/**
+ * @property int $monthly_appointments
+ */
 class Price extends Model
 {
     use HasFactory;

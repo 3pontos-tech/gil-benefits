@@ -12,7 +12,6 @@ use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\EditAppointment;
 use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\Admin\Filament\Resources\Appointments\Schemas\AppointmentForm;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Schemas\AppointmentInfolist;
 use TresPontosTech\Admin\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use TresPontosTech\Appointments\Models\Appointment;
 
@@ -45,11 +44,6 @@ class AppointmentResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return AppointmentForm::configure($schema);
-    }
-
-    public static function infolist(Schema $schema): Schema
-    {
-        return AppointmentInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

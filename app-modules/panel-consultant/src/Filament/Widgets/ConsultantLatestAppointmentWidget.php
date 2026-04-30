@@ -37,7 +37,6 @@ class ConsultantLatestAppointmentWidget extends Widget
         }
 
         $hasConfirmedStatus = in_array($appointment->status, [
-            AppointmentStatus::Scheduling,
             AppointmentStatus::Active,
             AppointmentStatus::Completed,
         ]);

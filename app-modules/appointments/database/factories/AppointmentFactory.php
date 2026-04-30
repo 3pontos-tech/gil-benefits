@@ -40,16 +40,7 @@ class AppointmentFactory extends Factory
         });
     }
 
-    public function draft(): self
-    {
-        return $this->state(function (): array {
-            return [
-                'status' => AppointmentStatus::Draft,
-            ];
-        });
-    }
-
-    public function withStatus(AppointmentStatus $status = AppointmentStatus::Draft): self
+    public function withStatus(AppointmentStatus $status = AppointmentStatus::Pending): self
     {
         return $this->state(function () use ($status): array {
             return [

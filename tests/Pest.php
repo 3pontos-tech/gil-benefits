@@ -31,14 +31,7 @@ use function Pest\Laravel\actingAs;
 
 pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
-    ->in('Feature', 'E2E', '../app-modules/*/tests');
-
-pest()->group('browser')
-    ->in('E2E');
-
-pest()
-    ->in('E2E/Admin')
-    ->beforeEach(fn () => filament()->setCurrentPanel('admin'));
+    ->in('Feature', '../app-modules/*/tests');
 
 /*
 |--------------------------------------------------------------------------

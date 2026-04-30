@@ -26,4 +26,22 @@ class ListAppointments extends ListRecords
             AppointmentsStatsOverview::class,
         ];
     }
+
+    public function mount(): void
+    {
+        parent::mount();
+
+        $persisted = session($this->getTableFiltersSessionKey());
+
+        if (filled($persisted)) {
+            $this->dispatch('appointments-table-filters-changed', filters: $persisted);
+        }
+    }
+
+    protected function handleTableFilterUpdates(): void
+    {
+        parent::handleTableFilterUpdates();
+
+        $this->dispatch('appointments-table-filters-changed', filters: $this->tableFilters ?? []);
+    }
 }

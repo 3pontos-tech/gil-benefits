@@ -5,20 +5,18 @@ namespace TresPontosTech\App\Filament\Widgets;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
+use TresPontosTech\App\Filament\Actions\CancelAppointmentAction;
 use TresPontosTech\App\Filament\Actions\FeedbackAction;
+use TresPontosTech\App\Filament\Actions\ViewAppointmentRecordAction;
 
 class AppointmentHistoryWidget extends TableWidget
 {
     protected int|string|array $columnSpan = 'full';
 
-    public function getHeading(): ?string
-    {
-        return __('panel-app::widgets.appointment_history.heading');
-    }
-
     public function table(Table $table): Table
     {
         return $table
+            ->heading(__('panel-app::widgets.appointment_history.heading'))
             ->query(
                 auth()
                     ->user()
@@ -47,7 +45,9 @@ class AppointmentHistoryWidget extends TableWidget
                     ->sortable(),
             ])
             ->recordActions([
+                ViewAppointmentRecordAction::make(),
                 FeedbackAction::make(),
+                CancelAppointmentAction::make(),
             ])
             ->paginated(false);
     }

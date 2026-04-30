@@ -4,6 +4,7 @@ namespace TresPontosTech\Appointments\Jobs;
 
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 
@@ -15,11 +16,11 @@ class MarkAppointmentsAsCompleted implements ShouldQueue
     {
         Appointment::query()
             ->where('status', AppointmentStatus::Active)
-            ->where('appointment_at', '<', now())
+            ->where('appointment_at', '<', now()->subDay())
             ->whereNotNull('consultant_id')
             ->chunkById(100, function ($appointments): void {
                 foreach ($appointments as $appointment) {
-                    $appointment->status->currentStep($appointment)->processStep();
+                    $appointment->current_transition->handle(new TransitionData);
                 }
             });
     }

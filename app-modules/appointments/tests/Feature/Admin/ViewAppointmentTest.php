@@ -7,7 +7,7 @@ use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
     actingAsAdmin();
-    $this->appointment = Appointment::factory()->withoutConsultant()->draft()->create();
+    $this->appointment = Appointment::factory()->withoutConsultant()->create();
 });
 
 it('should render', function (): void {

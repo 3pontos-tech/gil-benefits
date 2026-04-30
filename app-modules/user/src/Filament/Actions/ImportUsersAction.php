@@ -7,6 +7,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\HtmlString;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Actions\ParseUsersFromFileAction;
@@ -41,16 +42,20 @@ class ImportUsersAction extends Action
     {
         parent::setUp();
 
-        $this->label('Importar Funcionários');
+        $this->label(__('user::actions.import_users.label'));
         $this->icon(Heroicon::ArrowUpTray);
 
         $this->schema([
             FileUpload::make('file')
-                ->label('Planilha (CSV ou XLSX)')
-                ->helperText('Colunas obrigatórias: name, email, tax_id, phone_number. Opcional: document_id.')
+                ->label(__('user::actions.import_users.file.label'))
+                ->helperText(new HtmlString(
+                    __('user::actions.import_users.file.helper_text') .
+                    '<br><br>' .
+                    __('user::actions.import_users.file.helper_note')
+                ))
                 ->hintAction(
                     Action::make('download_template')
-                        ->label('Baixar Modelo')
+                        ->label(__('user::actions.import_users.file.hint_action'))
                         ->url(route('users.import-template.download'))
                         ->openUrlInNewTab()
                 )
@@ -78,8 +83,8 @@ class ImportUsersAction extends Action
             if ($rows->isEmpty()) {
                 Notification::make()
                     ->info()
-                    ->title('Nenhum usuário importado')
-                    ->body('A planilha está vazia ou todas as linhas foram ignoradas.')
+                    ->title(__('user::actions.import_users.notifications.empty.title'))
+                    ->body(__('user::actions.import_users.notifications.empty.body'))
                     ->send();
 
                 return;
@@ -112,8 +117,8 @@ class ImportUsersAction extends Action
 
             Notification::make()
                 ->info()
-                ->title('Importação em andamento')
-                ->body('Você receberá uma notificação quando o processo for concluído.')
+                ->title(__('user::actions.import_users.notifications.started.title'))
+                ->body(__('user::actions.import_users.notifications.started.body'))
                 ->persistent()
                 ->send();
         });
