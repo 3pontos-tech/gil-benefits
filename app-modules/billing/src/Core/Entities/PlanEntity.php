@@ -75,7 +75,8 @@ final readonly class PlanEntity
             hasGenericTrial: false,
             allowPromotionCodes: false,
             collectTaxIds: false,
-            isMeteredPrice: false
+            isMeteredPrice: false,
+            provider: BillingProviderEnum::Barte
         );
     }
 }

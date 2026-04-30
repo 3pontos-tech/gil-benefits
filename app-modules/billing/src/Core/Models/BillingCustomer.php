@@ -38,7 +38,7 @@ class BillingCustomer extends Model
             ->value('provider_customer_id');
     }
 
-    public static function getActiveProvider(Model $billable): ?BillingProviderEnum
+    public static function getActiveProvider(Model $billable): null|BillingProviderEnum|string
     {
         $provider = Subscription::query()
             ->where('subscriptionable_type', $billable->getMorphClass())

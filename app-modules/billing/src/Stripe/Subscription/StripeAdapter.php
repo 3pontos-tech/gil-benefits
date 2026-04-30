@@ -97,6 +97,6 @@ class StripeAdapter implements BillingContract
 
     public function cancelSubscription(Company|User $billable): void
     {
-        $billable->subscription()?->where('stripe_status', 'active')->latest()->first()->cancel();
+        $billable->subscription()?->where('stripe_status', 'active')->latest()->first()?->cancel();
     }
 }
