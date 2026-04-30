@@ -2,11 +2,13 @@
 
 namespace TresPontosTech\Billing\Core\Models;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Billing\Database\Factories\BillingCustomerFactory;
 
 class BillingCustomer extends Model
 {
@@ -14,6 +16,11 @@ class BillingCustomer extends Model
     use SoftDeletes;
 
     protected $table = 'billing_customers';
+
+    protected static function newFactory(): Factory
+    {
+        return BillingCustomerFactory::new();
+    }
 
     protected $fillable = [
         'billable_type',
