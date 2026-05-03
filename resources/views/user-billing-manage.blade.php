@@ -42,14 +42,8 @@
             </div>
 
             <x-slot name="footer">
-                <x-filament::button
-                    wire:click="cancelSubscription"
-                    wire:confirm="Tem certeza que deseja cancelar sua assinatura? Esta ação não pode ser desfeita."
-                    color="danger"
-                    outlined
-                >
-                    Cancelar assinatura
-                </x-filament::button>
+                {{ $this->cancelSubscription }}
+                <x-filament-actions::modals />
             </x-slot>
         </x-filament::section>
 

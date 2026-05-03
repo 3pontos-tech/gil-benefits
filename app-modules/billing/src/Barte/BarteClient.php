@@ -16,8 +16,7 @@ final class BarteClient
         $this->http = Http::baseUrl(config('services.barte.base_url'))
             ->withHeader('X-Token-Api', config('services.barte.api_key'))
             ->acceptJson()
-            ->timeout(30)
-            ->retry(3, 100);
+            ->timeout(30);
     }
 
     public function getPlans(): array

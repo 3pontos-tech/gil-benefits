@@ -2,16 +2,12 @@
 
 namespace TresPontosTech\App\Filament\Pages;
 
-use Filament\Notifications\Notification;
+use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Livewire\Attributes\Locked;
-use TresPontosTech\Billing\Core\BillingManager;
-use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
-use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
-use TresPontosTech\Billing\Core\Models\BillingCustomer;
-use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\PanelCompany\Filament\Actions\CancelSubscriptionAction;
 
 class UserBillingManagePage extends Page
 {
@@ -40,22 +36,6 @@ class UserBillingManagePage extends Page
             ->latest()
             ->first();
 
-        // Fallback: quando stripe_price não bate com nenhum provider_price_id (dados corrompidos
-        // ou legados), o hasOneThrough retorna null. Buscamos o plano ativo pelo provider do usuário.
-        if ($this->subscription && ! $this->subscription->price?->plan) {
-            $provider = BillingCustomer::getActiveProvider($user);
-
-            $fallbackPlan = $provider instanceof BillingProviderEnum
-                ? Plan::query()
-                    ->where('provider', $provider)
-                    ->where('type', BillableTypeEnum::User)
-                    ->where('active', true)
-                    ->first()
-                : null;
-
-            $this->subscription->price?->setRelation('plan', $fallbackPlan);
-        }
-
         return [
             'user' => $user,
             'subscription' => $this->subscription,
@@ -63,26 +43,9 @@ class UserBillingManagePage extends Page
         ];
     }
 
-    public function cancelSubscription(): void
+    public function cancelSubscription(): Action
     {
-        $user = auth()->user();
-
-        if (! $this->subscription instanceof Subscription) {
-            Notification::make()->title('Nenhuma assinatura ativa encontrada.')->warning()->send();
-
-            return;
-        }
-
-        $provider = $this->subscription->price?->plan?->provider
-            ?? BillingCustomer::getActiveProvider($user)
-            ?? BillingProviderEnum::Stripe;
-
-        resolve(BillingManager::class)
-            ->getDriver($provider)
-            ->cancelSubscription($user);
-
-        Notification::make()->title('Assinatura cancelada com sucesso.')->success()->send();
-
-        $this->redirect(UserSubscriptionPage::getUrl());
+        return CancelSubscriptionAction::make()
+            ->forBillable(auth()->user(), UserSubscriptionPage::getUrl());
     }
 }

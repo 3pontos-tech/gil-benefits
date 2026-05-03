@@ -3,7 +3,6 @@
 namespace TresPontosTech\Billing\Barte;
 
 use App\Models\Users\User;
-use Illuminate\Support\Facades\Log;
 use TresPontosTech\App\Filament\Pages\UserBillingManagePage;
 use TresPontosTech\Billing\Barte\DTOs\CreateBuyerDto;
 use TresPontosTech\Billing\Barte\DTOs\CreatePaymentLinkDto;
@@ -106,7 +105,7 @@ final readonly class BarteAdapter implements BillingContract
         $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
             uuidSellerClient: $customerId,
             paymentSubscription: new PaymentSubscriptionDto(
-                idPlan: 5810,
+                idPlan: $planUuid,
                 valuePerMonth: $valuePerMonth,
                 type: $cycleType,
             ),
@@ -119,8 +118,6 @@ final readonly class BarteAdapter implements BillingContract
                 ['key' => 'quantity', 'value' => $data->quantity],
             ],
         ));
-
-        Log::info('log quando criamos pagamento', $response);
 
         return $response['url'];
     }
