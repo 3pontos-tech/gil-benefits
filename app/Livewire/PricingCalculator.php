@@ -10,13 +10,16 @@ use Livewire\Component;
 
 class PricingCalculator extends Component
 {
-    public $planTiers = [];
+    /**
+     * @var list<array{id: int, min: int, max: int, price: float}>
+     */
+    public array $planTiers = [];
 
-    public $maxCollaborators = 500;
+    public int $maxCollaborators = 500;
 
-    public $minCollaborators = 5;
+    public int $minCollaborators = 5;
 
-    public $seatsCount = 1;
+    public int $seatsCount = 1;
 
     public function mount(): void
     {
@@ -28,13 +31,8 @@ class PricingCalculator extends Component
             ['id' => 5, 'min' => 151, 'max' => 500, 'price' => 11.90],
         ];
 
-        $this->minCollaborators = collect($this->planTiers)
-            ->pluck('min')
-            ->min();
-
-        $this->maxCollaborators = collect($this->planTiers)
-            ->pluck('max')
-            ->max();
+        $this->minCollaborators = min(array_column($this->planTiers, 'min'));
+        $this->maxCollaborators = max(array_column($this->planTiers, 'max'));
     }
 
     public function render(): Factory|View|\Illuminate\View\View

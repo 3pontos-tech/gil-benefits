@@ -4,18 +4,23 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "prepare": "husky"
     },
     "devDependencies": {
         "@tailwindcss/typography": "^0.5.16",
         "@tailwindcss/vite": "^4.1.16",
-        "axios": "^1.8.2",
         "concurrently": "^9.0.1",
+        "husky": "^9.1.7",
         "laravel-vite-plugin": "^1.2.0",
+        "lint-staged": "^16.4.0",
         "tailwindcss": "^4.1.16",
         "vite": "^6.2.4"
     },
-    "dependencies": {
-        "playwright": "^1.55.0"
+    "lint-staged": {
+        "*.php": [
+            "vendor/bin/rector process",
+            "vendor/bin/pint"
+        ]
     }
 }

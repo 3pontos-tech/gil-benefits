@@ -6,16 +6,29 @@ use TresPontosTech\Appointments\Models\Appointment;
 
 use function Pest\Laravel\assertDatabaseHas;
 
-it('marks active appointments with a consultant in the past as completed', function (): void {
+it('marks active appointments more than 1 day old as completed', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Active)
-        ->create(['appointment_at' => now()->subDay()]);
+        ->create(['appointment_at' => now()->subDays(2)]);
 
     (new MarkAppointmentsAsCompleted)->handle();
 
     assertDatabaseHas(Appointment::class, [
         'id' => $appointment->id,
         'status' => AppointmentStatus::Completed,
+    ]);
+});
+
+it('ignores active appointments within the 1 day buffer', function (): void {
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::Active)
+        ->create(['appointment_at' => now()->subHours(23)]);
+
+    (new MarkAppointmentsAsCompleted)->handle();
+
+    assertDatabaseHas(Appointment::class, [
+        'id' => $appointment->id,
+        'status' => AppointmentStatus::Active,
     ]);
 });
 
@@ -58,9 +71,8 @@ it('ignores appointments with non-active status', function (AppointmentStatus $s
         'status' => $status,
     ]);
 })->with([
-    'draft' => AppointmentStatus::Draft,
     'pending' => AppointmentStatus::Pending,
-    'scheduling' => AppointmentStatus::Scheduling,
     'completed' => AppointmentStatus::Completed,
     'cancelled' => AppointmentStatus::Cancelled,
+    'cancelled_late' => AppointmentStatus::CancelledLate,
 ]);

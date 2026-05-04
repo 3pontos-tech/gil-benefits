@@ -41,6 +41,8 @@ class AppPanelProvider extends PanelProvider
             ->passwordReset()
             ->topbar(false)
             ->sidebarFullyCollapsibleOnDesktop()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->globalSearch()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->navigationItems([
@@ -50,7 +52,12 @@ class AppPanelProvider extends PanelProvider
                 NavigationItem::make(__('all.my_subscription'))
                     ->icon(Heroicon::CreditCard)
                     ->group(__('all.billing'))
-                    ->visible(fn (): bool => ! filament()->getTenant()?->hasActivePlan())
+                    ->visible(function (): bool {
+                        /** @var Company|null $tenant */
+                        $tenant = filament()->getTenant();
+
+                        return ! $tenant?->hasActivePlan();
+                    })
                     ->url(fn (): string => route('filament.app.tenant.billing', ['tenant' => Filament::getTenant()])),
             ])
             ->discoverResources(in: base_path('app-modules/panel-app/src/Filament/Resources'), for: 'TresPontosTech\\App\\Filament\\Resources')

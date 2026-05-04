@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 return [
     'appointment_history' => [
-        'heading' => 'Últimos Atendimentos',
+        'heading' => 'Últimas Consultorias',
         'consultant' => 'Consultor',
         'category' => 'Categoria',
         'status' => 'Status',

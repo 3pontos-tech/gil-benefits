@@ -3,6 +3,7 @@
 namespace App\Models\Users;
 
 use App\Policies\Users\DetailPolicy;
+use Database\Factories\Users\DetailFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[UsePolicy(DetailPolicy::class)]
 class Detail extends Model
 {
+    /** @use HasFactory<DetailFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     protected $table = 'user_details';
@@ -26,6 +29,9 @@ class Detail extends Model
         'integration_id',
     ];
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

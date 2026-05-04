@@ -13,6 +13,17 @@ return [
         'navigation_label' => 'Agendamentos',
         'model_label' => 'Agendamento',
         'plural_model_label' => 'Agendamentos',
+        'view' => [
+            'processing' => 'Ata em processamento pela IA…',
+        ],
+        'actions' => [
+            'advance_to_scheduling' => 'Iniciar Agendamento',
+            'confirm_appointment' => 'Confirmar Agendamento',
+            'confirm' => 'Confirmar',
+            'complete_appointment' => 'Concluir Consulta',
+            'cancel_appointment' => 'Cancelar Agendamento',
+            'calendar_event_failed' => 'Não foi possível criar o evento no calendário. O agendamento foi confirmado, mas o link da reunião pode demorar alguns instantes para aparecer.',
+        ],
     ],
     'consultants' => [
         'navigation_label' => 'Consultores',
@@ -120,6 +131,9 @@ return [
             'name' => 'Nome',
             'tax_id' => 'CNPJ',
             'plan' => 'Plano',
+        ],
+        'actions' => [
+            'manage' => 'Gerenciar',
         ],
         'relation_managers' => [
             'employees' => [

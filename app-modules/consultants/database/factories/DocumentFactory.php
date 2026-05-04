@@ -2,7 +2,7 @@
 
 namespace TresPontosTech\Consultants\Database\Factories;
 
-use App\Models\User;
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
@@ -18,7 +18,10 @@ class DocumentFactory extends Factory
     {
         return [
             'title' => $this->faker->word(),
-            'type' => $this->faker->randomElement(DocumentExtensionTypeEnum::cases()),
+            'type' => $this->faker->randomElement(array_filter(
+                DocumentExtensionTypeEnum::cases(),
+                fn (DocumentExtensionTypeEnum $type): bool => $type !== DocumentExtensionTypeEnum::Link,
+            )),
             'active' => $this->faker->boolean(),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
@@ -42,9 +45,28 @@ class DocumentFactory extends Factory
         ]);
     }
 
+    public function withLink(string $url = 'https://example.com'): self
+    {
+        return $this->state([
+            'type' => DocumentExtensionTypeEnum::Link,
+            'link' => $url,
+        ]);
+    }
+
+    public function withFile(DocumentExtensionTypeEnum $type = DocumentExtensionTypeEnum::PDF): self
+    {
+        return $this->state([
+            'type' => $type,
+        ]);
+    }
+
     public function configure(): static
     {
         return $this->afterCreating(function (Document $document): void {
+            if ($document->type === DocumentExtensionTypeEnum::Link) {
+                return;
+            }
+
             $document->addMedia(UploadedFile::fake()->create('documento_teste.pdf', 100))
                 ->toMediaCollection('documents');
         });

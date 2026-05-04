@@ -4,6 +4,8 @@ namespace TresPontosTech\Admin\Filament\Widgets;
 
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 
@@ -13,7 +15,15 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    public array $tableFilterState = [];
+
     private ?object $aggregates = null;
+
+    #[On('appointments-table-filters-changed')]
+    public function syncFilters(array $filters): void
+    {
+        $this->tableFilterState = $filters;
+    }
 
     protected function getStats(): array
     {
@@ -30,23 +40,50 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
     private function aggregates(): object
     {
         return $this->aggregates ??= Appointment::query()
+            ->when(
+                filled(data_get($this->tableFilterState, 'company_id.value')),
+                fn (Builder $q) => $q->where('company_id', data_get($this->tableFilterState, 'company_id.value'))
+            )
+            ->when(
+                filled(data_get($this->tableFilterState, 'date_range.from')),
+                fn (Builder $q) => $q->whereDate('appointment_at', '>=', data_get($this->tableFilterState, 'date_range.from'))
+            )
+            ->when(
+                filled(data_get($this->tableFilterState, 'date_range.until')),
+                fn (Builder $q) => $q->whereDate('appointment_at', '<=', data_get($this->tableFilterState, 'date_range.until'))
+            )
+            ->when(
+                filled(data_get($this->tableFilterState, 'user_name.user_name')),
+                fn (Builder $q) => $q->whereHas(
+                    'user',
+                    fn (Builder $q) => $q->where('name', 'like', sprintf('%%%s%%', data_get($this->tableFilterState, 'user_name.user_name')))
+                )
+            )
+            ->when(
+                filled(data_get($this->tableFilterState, 'consultant_name.consultant_name')),
+                fn (Builder $q) => $q->whereHas(
+                    'consultant',
+                    fn (Builder $q) => $q->where('name', 'like', sprintf('%%%s%%', data_get($this->tableFilterState, 'consultant_name.consultant_name')))
+                )
+            )
+            ->when(
+                filled(data_get($this->tableFilterState, 'status.values')),
+                fn (Builder $q) => $q->whereIn('status', data_get($this->tableFilterState, 'status.values'))
+            )
             ->selectRaw(
                 implode(', ', [
                     'count(*) as total',
                     'count(*) filter (where status = ? and consultant_id is not null) as scheduled',
-                    'count(*) filter (where status in (?, ?, ?)) as pending',
-                    'count(*) filter (where status = ?) as cancelled',
+                    'count(*) filter (where status = ?) as pending',
+                    'count(*) filter (where status in (?, ?)) as cancelled',
                     'count(*) filter (where status = ?) as completed',
-                    'count(*) filter (where status != ?) as non_draft',
                 ]),
                 [
                     AppointmentStatus::Active->value,
                     AppointmentStatus::Pending->value,
-                    AppointmentStatus::Scheduling->value,
-                    AppointmentStatus::Active->value,
                     AppointmentStatus::Cancelled->value,
+                    AppointmentStatus::CancelledLate->value,
                     AppointmentStatus::Completed->value,
-                    AppointmentStatus::Draft->value,
                 ]
             )
             ->first();
@@ -104,14 +141,14 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
 
     private function cancellationRateStat(): Stat
     {
-        $nonDraft = (int) $this->aggregates()->non_draft;
+        $total = (int) $this->aggregates()->total;
         $cancelled = (int) $this->aggregates()->cancelled;
-        $rate = $nonDraft > 0 ? round(($cancelled / $nonDraft) * 100, 1) : 0;
+        $rate = $total > 0 ? round(($cancelled / $total) * 100, 1) : 0;
 
         return Stat::make(__('panel-admin::widgets.appointments_stats.cancellation_rate'), $rate . '%')
             ->description(__('panel-admin::widgets.appointments_stats.cancellation_rate_description', [
                 'cancelled' => $cancelled,
-                'total' => $nonDraft,
+                'total' => $total,
             ]))
             ->color($rate >= 30 ? 'danger' : ($rate >= 15 ? 'warning' : 'success'));
     }

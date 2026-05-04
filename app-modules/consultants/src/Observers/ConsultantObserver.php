@@ -19,6 +19,8 @@ class ConsultantObserver
         ]);
 
         $consultant->user()->associate($user)->save();
-        event(new UserRegistered($user, Roles::Consultant));
+
+        $temporaryPassword = $user->wasRecentlyCreated ? $consultant->email : null;
+        event(new UserRegistered($user, Roles::Consultant, $temporaryPassword));
     }
 }

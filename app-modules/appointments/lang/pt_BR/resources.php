@@ -18,6 +18,7 @@ return [
                 'updated_at' => 'Atualizado em',
                 'from' => 'De',
                 'until' => 'Até',
+                'company' => 'Empresa',
             ],
             'actions' => [
                 'view' => 'Ver',
@@ -29,6 +30,17 @@ return [
         'infolist' => [
             'metadata' => 'Metadados',
             'appointment_info' => 'Informações da Consultoria',
+            'ai_generation' => 'Geração automática (IA)',
+            'ai' => [
+                'model_used' => 'Modelo usado',
+                'input_tokens' => 'Tokens de entrada',
+                'output_tokens' => 'Tokens de saída',
+                'total_tokens' => 'Total de tokens',
+                'content' => 'Ata',
+                'internal_summary' => 'Resumo interno',
+                'published_at' => 'Publicada em',
+                'draft' => 'Rascunho',
+            ],
             'anamnese' => 'Perfil do Usuário',
             'employee_documents' => 'Materiais do Colaborador',
             'employee_shared_documents' => 'Materiais compartilhados com o Colaborador',
@@ -49,14 +61,47 @@ return [
             'calendar_event_failed' => 'Falha ao criar o evento no Google Calendar. Tente salvar novamente ou verifique a integração.',
         ],
 
+        'records' => [
+            'editor_label' => 'Ata (visível ao cliente após publicar)',
+            'notifications' => [
+                'ready' => [
+                    'title' => 'Ata pronta para revisão',
+                    'body' => 'Atendimento: :user',
+                ],
+                'failed' => [
+                    'title' => 'Falha ao gerar ata',
+                    'body' => [
+                        'unreadable' => 'Não foi possível ler o documento enviado. Verifique se não está corrompido ou protegido por senha.',
+                        'generation' => 'Não conseguimos gerar a ata. Tente novamente em alguns minutos ou redija manualmente.',
+                        'unexpected' => 'Erro inesperado ao gerar a ata. Tente novamente ou redija manualmente.',
+                    ],
+                ],
+                'draft_saved' => [
+                    'title' => 'Rascunho salvo',
+                ],
+                'published' => [
+                    'title' => 'Ata publicada',
+                ],
+                'updated' => [
+                    'title' => 'Ata atualizada',
+                ],
+            ],
+        ],
+
         'notifications' => [
             'cancelled' => [
                 'title' => 'Agendamento Cancelado!',
                 'body' => 'Seu agendamento foi cancelado. Verifique seu painel para mais detalhes.',
             ],
-            'drafted' => [
-                'title' => 'Agendamento em Rascunho',
-                'body' => 'Seu agendamento foi salvo como rascunho. Em breve entraremos em contato para confirmar.',
+            'cancelled_by_user' => [
+                'body' => 'O agendamento de :name foi cancelado pelo usuário.',
+            ],
+            'cancelled_by_admin' => [
+                'body' => 'O agendamento de :name foi cancelado pelo administrador.',
+            ],
+            'user_cancelled_late' => [
+                'title' => 'Agendamento Cancelado',
+                'body' => 'Seu agendamento foi cancelado. Como o cancelamento foi feito com menos de 24 horas de antecedência, o crédito foi consumido.',
             ],
             'pending' => [
                 'title' => 'Agendamento em Andamento',

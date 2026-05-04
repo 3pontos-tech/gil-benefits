@@ -3,9 +3,11 @@
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Actions\ImportUsersFromFileAction;
+use TresPontosTech\User\Mail\WelcomeUserMail;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
@@ -63,6 +65,50 @@ it('imports users without document_id', function (): void {
 
     expect($result->imported)->toBe(1);
     expect($result->errors)->toBeEmpty();
+});
+
+it('sends welcome email with temporary password to each imported user', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+
+    $csv = makeCsvFile([
+        ['Joao Silva', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', '21988887777'],
+    ]);
+
+    resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
+
+    Mail::assertQueued(
+        WelcomeUserMail::class,
+        fn (WelcomeUserMail $mail): bool => $mail->hasTo('joao@empresa.com') && filled($mail->password),
+    );
+
+    Mail::assertQueued(
+        WelcomeUserMail::class,
+        fn (WelcomeUserMail $mail): bool => $mail->hasTo('maria@empresa.com') && filled($mail->password),
+    );
+
+    Mail::assertQueuedCount(2);
+});
+
+it('each imported user receives a unique temporary password', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+
+    $csv = makeCsvFile([
+        ['Joao Silva', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', '21988887777'],
+    ]);
+
+    resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
+
+    $passwords = Mail::queued(WelcomeUserMail::class)
+        ->map(fn (WelcomeUserMail $mail): ?string => $mail->password)
+        ->unique();
+
+    expect($passwords)->toHaveCount(2);
 });
 
 it('returns zero imported and empty errors for an empty file', function (): void {

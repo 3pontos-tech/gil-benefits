@@ -13,6 +13,8 @@ use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use STS\FilamentImpersonate\Actions\Impersonate;
+use TresPontosTech\Consultants\Models\Consultant;
 
 class ConsultantsTable
 {
@@ -39,6 +41,10 @@ class ConsultantsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
+                Impersonate::make()
+                    ->impersonateRecord(fn (Consultant $record) => $record->user)
+                    ->redirectTo(route('filament.consultant.pages.consultant-dashboard'))
+                    ->backTo(route('filament.admin.resources.consultants.index')),
                 EditAction::make(),
             ])
             ->filters([
