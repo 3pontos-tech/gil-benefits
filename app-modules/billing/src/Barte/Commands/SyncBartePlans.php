@@ -69,7 +69,7 @@ class SyncBartePlans extends Command
                 'collect_tax_ids' => false,
                 'slug' => str($bartePlan['title'] . 'barte')->slug(),
                 'type' => BillableTypeEnum::User,
-                'unit_label' => 'empresa',
+                'unit_label' => 'seats',
                 'active' => $bartePlan['active'],
                 'statement_descriptor' => str($bartePlan['title'])->upper()->limit(22)->toString(),
             ]
