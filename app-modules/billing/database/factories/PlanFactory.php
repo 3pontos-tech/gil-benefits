@@ -54,6 +54,17 @@ class PlanFactory extends Factory
         ]);
     }
 
+    public function barte(): self
+    {
+        return $this->state([
+            'provider' => BillingProviderEnum::Barte,
+            'trial_days' => null,
+            'has_generic_trial' => false,
+            'allow_promotion_codes' => false,
+            'collect_tax_ids' => false,
+        ]);
+    }
+
     public function contractual(): self
     {
         return $this->state([

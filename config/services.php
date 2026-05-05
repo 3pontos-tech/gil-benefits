@@ -47,4 +47,10 @@ return [
         ],
     ],
 
+    'barte' => [
+        'base_url' => env('BARTE_BASE_URL', 'www.barte.com'),
+        'api_key' => env('BARTE_API_KEY', '12381376189'),
+        'webhook_secret' => env('BARTE_WEBHOOK_SECRET'),
+    ],
+
 ];
