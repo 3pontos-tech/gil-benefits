@@ -15,6 +15,7 @@ readonly class GoogleEventDTO
         public Carbon $end,
         public bool $isAllDay,
         public bool $isCancelled,
+        public ?Carbon $updated,
     ) {}
 
     public static function fromApiPayload(array $event): self
@@ -22,6 +23,7 @@ readonly class GoogleEventDTO
         $isCancelled = ($event['status'] ?? '') === 'cancelled';
         $isAllDay = isset($event['start']['date']) && ! isset($event['start']['dateTime']);
         $appTimezone = config('app.timezone');
+        $updated = isset($event['updated']) ? Date::parse($event['updated']) : null;
 
         if ($isCancelled) {
             return new self(
@@ -31,6 +33,7 @@ readonly class GoogleEventDTO
                 end: Date::now(),
                 isAllDay: false,
                 isCancelled: true,
+                updated: $updated,
             );
         }
 
@@ -42,6 +45,7 @@ readonly class GoogleEventDTO
                 end: Date::parse($event['end']['date']),
                 isAllDay: true,
                 isCancelled: false,
+                updated: $updated,
             );
         }
 
@@ -54,6 +58,7 @@ readonly class GoogleEventDTO
             end: Date::parse($event['end']['dateTime'])->setTimezone($appTimezone),
             isAllDay: false,
             isCancelled: false,
+            updated: $updated,
         );
     }
 }

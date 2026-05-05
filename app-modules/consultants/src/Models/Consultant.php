@@ -35,6 +35,7 @@ use Zap\Models\Concerns\HasSchedules;
  * @property array $socials_urls
  * @property string|null $crm_id
  * @property Carbon|null $google_calendar_synced_at
+ * @property string|null $google_calendar_sync_token
  * @property-read User|null $user
  */
 #[ObservedBy(ConsultantObserver::class)]
@@ -59,6 +60,7 @@ class Consultant extends Model implements HasMedia
         'socials_urls',
         'crm_id',
         'google_calendar_synced_at',
+        'google_calendar_sync_token',
         'user_id',
     ];
 
