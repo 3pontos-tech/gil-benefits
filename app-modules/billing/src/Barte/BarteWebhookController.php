@@ -20,7 +20,7 @@ class BarteWebhookController extends Controller
 
         resolve(StoreInboundWebhook::class)->store(
             source: InboundWebhookSourceEnum::Barte,
-            event: ($payload['domain'] ?? '') . '.' . ($payload['status'] ?? ''),
+            event: ($payload['domain']) . '.' . ($payload['status']),
             url: $request->url(),
             payload: $payload,
         );

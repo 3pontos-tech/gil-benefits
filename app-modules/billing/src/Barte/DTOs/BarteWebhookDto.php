@@ -20,9 +20,9 @@ readonly class BarteWebhookDto
     public static function fromArray(array $payload): self
     {
         return new self(
-            uuid: $payload['uuid'] ?? '',
-            domain: $payload['domain'] ?? '',
-            event: BarteWebhookEventEnum::tryFrom($payload['status'] ?? ''),
+            uuid: $payload['uuid'],
+            domain: $payload['domain'],
+            event: BarteWebhookEventEnum::tryFrom($payload['status']),
             uuidBuyer: $payload['uuidBuyer'] ?? null,
             metadata: collect($payload['metadata'] ?? [])->pluck('value', 'key'),
         );

@@ -37,7 +37,7 @@ class SyncBartePlans extends Command
             collect($bartePlan['values'] ?? [])
                 ->filter(fn (array $value): bool => $value['type'] === 'MONTHLY')
                 ->each(fn (array $value) => $plan->prices()->updateOrCreate(
-                    ['provider_price_id' => sprintf('%s-%s', $bartePlan['uuid'], $value['type'])],
+                    ['provider_price_id' => $bartePlan['uuid']],
                     [
                         'billing_scheme' => 'per_unit',
                         'tiers_mode' => 'not-selected',

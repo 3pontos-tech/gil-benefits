@@ -62,7 +62,7 @@ final readonly class BarteAdapter implements BillingContract
             ->where('subscriptionable_type', $billable->getMorphClass())
             ->where('subscriptionable_id', $billable->getKey())
             ->where('stripe_status', 'active')
-            ->where('stripe_price', 'like', $planUuid . '%')
+            ->where('stripe_price', $planUuid)
             ->exists();
     }
 
@@ -95,7 +95,6 @@ final readonly class BarteAdapter implements BillingContract
             ->with('plan')
             ->firstOrFail();
 
-        $cycleType = str($data->priceId)->afterLast('-')->upper()->toString();
         $planUuid = $price->plan->provider_product_id;
 
         $valuePerMonth = $data->isMetered
@@ -107,14 +106,13 @@ final readonly class BarteAdapter implements BillingContract
             paymentSubscription: new PaymentSubscriptionDto(
                 idPlan: $planUuid,
                 valuePerMonth: $valuePerMonth,
-                type: $cycleType,
+                type: 'MONTHLY',
             ),
             scheduledDate: now()->addDay()->toDateString(),
             metadata: [
                 ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
                 ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
                 ['key' => 'barte_plan_uuid', 'value' => $planUuid],
-                ['key' => 'barte_cycle_type', 'value' => $cycleType],
                 ['key' => 'quantity', 'value' => $data->quantity],
             ],
         ));

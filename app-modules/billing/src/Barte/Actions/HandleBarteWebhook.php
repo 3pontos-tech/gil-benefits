@@ -63,7 +63,5 @@ class HandleBarteWebhook
         }
 
         event($event);
-
-        Log::info('Barte subscription event emitido', ['uuid' => $dto->uuid, 'event' => $dto->event->value]);
     }
 }

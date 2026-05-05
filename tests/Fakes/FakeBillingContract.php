@@ -3,6 +3,7 @@
 namespace Tests\Fakes;
 
 use App\Models\Users\User;
+use Closure;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Company\Models\Company;
@@ -15,7 +16,7 @@ final class FakeBillingContract implements BillingContract
         private readonly bool $hasActivePlan = false,
         private readonly string $checkoutUrl = 'https://checkout.test',
         private readonly string $billingPortalUrl = 'https://billing.test',
-        private readonly ?\Closure $createCheckoutUsing = null,
+        private readonly ?Closure $createCheckoutUsing = null,
     ) {}
 
     public function ensureCustomerExists(Company|User $billable): void {}
@@ -32,7 +33,7 @@ final class FakeBillingContract implements BillingContract
 
     public function createCheckout(Company|User $billable, CheckoutData $data): string
     {
-        if ($this->createCheckoutUsing !== null) {
+        if ($this->createCheckoutUsing instanceof Closure) {
             return ($this->createCheckoutUsing)($billable, $data);
         }
 
