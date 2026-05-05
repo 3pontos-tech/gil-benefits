@@ -9,8 +9,13 @@ use Zap\Facades\Zap;
 use Zap\Models\Schedule;
 
 beforeEach(function (): void {
+    Date::setTestNow('2026-04-29 09:00:00');
     $this->consultant = Consultant::factory()->create(['email' => 'consultant@workspace.com']);
     $this->action = resolve(UpsertBlockedScheduleAction::class);
+});
+
+afterEach(function (): void {
+    Date::setTestNow();
 });
 
 function makeEvent(string $eventId, string $updated): GoogleEventDTO
