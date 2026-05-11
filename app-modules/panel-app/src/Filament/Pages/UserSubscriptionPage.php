@@ -6,10 +6,8 @@ use App\Models\Users\User;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Collection;
-use Laravel\Cashier\Cashier;
-use Laravel\Cashier\SubscriptionBuilder;
-use Livewire\Attributes\Computed;
+use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 
 class UserSubscriptionPage extends Page
@@ -24,51 +22,77 @@ class UserSubscriptionPage extends Page
 
     protected static bool $shouldRegisterNavigation = false;
 
-    public string $selectedPlan = 'user';
+    public string $selectedPlanSlug = '';
+
+    public function mount(): void
+    {
+        $plans = resolve(PlanRepository::class)->getPlansFor('user');
+        $this->selectedPlanSlug = $plans->first()?->slug ?? '';
+    }
 
     protected function getViewData(): array
     {
-        return [
-            'plans' => $this->planRepository($this->selectedPlan),
-        ];
+        return ['plans' => resolve(PlanRepository::class)->getPlansFor('user')];
     }
 
-    #[Computed]
-    public function planRepository(string $type): Collection
-    {
-        return resolve(PlanRepository::class)->getPlansFor($type);
-    }
-
-    public function checkout(): void
+    public function checkout(string $planSlug): void
     {
         $user = auth()->user();
-        Cashier::useCustomerModel(User::class);
 
-        $plan = resolve(PlanRepository::class)->get($this->selectedPlan);
+        $plan = resolve(PlanRepository::class)->get($planSlug);
+        $this->selectedPlanSlug = $planSlug;
         $price = $plan->prices->first();
+        $data = new CheckoutData(
+            planSlug: $plan->slug,
+            priceId: $price->priceId,
+            isMetered: false,
+            quantity: 1,
+            trialDays: $plan->hasGenericTrial && $plan->trialDays !== false
+                ? $plan->trialDays
+                : null,
+            allowPromotionCodes: $plan->allowPromotionCodes,
+            collectTaxIds: $plan->collectTaxIds,
+            successUrl: UserDashboard::getUrl(),
+            cancelUrl: UserDashboard::getUrl(),
+            metadata: ['model' => Relation::getMorphAlias(User::class)],
+        );
 
-        $sessionCheckout = $user
-            ->newSubscription(type: $plan->slug, prices: [$price->priceId])
-            ->when(
-                value: $plan->hasGenericTrial && $plan->trialDays !== false,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->trialDays(trialDays: $plan->trialDays),
-            )
-            ->when(
-                value: $plan->allowPromotionCodes === true,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->allowPromotionCodes(),
-            )
-            ->when(
-                value: $plan->collectTaxIds === true,
-                callback: static fn (SubscriptionBuilder $subscription): SubscriptionBuilder => $subscription->collectTaxIds(),
-            )
-            ->withMetadata([
-                'model' => Relation::getMorphAlias(User::class),
-            ])
-            ->checkout(sessionOptions: [
-                'success_url' => UserDashboard::getUrl(),
-                'cancel_url' => UserDashboard::getUrl(),
-            ]);
+        $driver = resolve(BillingManager::class)->getDriver($plan->provider);
+        $url = $driver->createCheckout(billable: $user, data: $data);
 
-        redirect($sessionCheckout->asStripeCheckoutSession()->url);
+        if ($driver->checkoutOpensInNewTab()) {
+            $this->dispatch('open-modal', id: 'waiting-for-payment');
+            $this->js("window.open('" . addslashes($url) . "', '_blank')");
+
+            return;
+        }
+
+        $this->redirect($url);
+    }
+
+    public function checkPaymentStatus(): void
+    {
+        if (blank($this->selectedPlanSlug)) {
+            return;
+        }
+
+        /** @var User $user */
+        $user = auth()->user();
+
+        $plan = resolve(PlanRepository::class)->get($this->selectedPlanSlug);
+
+        $active = resolve(BillingManager::class)
+            ->getDriver($plan->provider)
+            ->hasActiveSubscription($user);
+
+        if ($active) {
+            $this->dispatch('close-modal', id: 'waiting-for-payment');
+            $this->redirect(UserDashboard::getUrl());
+        }
+    }
+
+    public function cancelWaiting(): void
+    {
+        $this->dispatch('close-modal', id: 'waiting-for-payment');
     }
 }

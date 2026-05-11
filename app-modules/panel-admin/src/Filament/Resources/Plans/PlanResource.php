@@ -198,7 +198,7 @@ class PlanResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ])
-            ->where('provider', BillingProviderEnum::Stripe);
+            ->where('provider', '!=', BillingProviderEnum::Contractual);
     }
 
     public static function getGloballySearchableAttributes(): array
