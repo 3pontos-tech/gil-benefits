@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 return [
     'pages' => [
+        'credits' => [
+            'navigation_label' => 'Credits',
+            'title' => 'Credits',
+            'columns' => [
+                'holder' => 'Employee',
+                'status' => 'Status',
+                'owner' => 'Purchased by',
+                'transferred_at' => 'Distributed at',
+            ],
+        ],
         'edit_tenant' => [
             'label' => 'Company Settings',
             'members_heading' => 'Active Members List',
@@ -39,6 +49,22 @@ return [
         'logo' => [
             'label' => 'Company Logo',
             'notification' => 'Company logo changed succesfully.',
+        ],
+        'purchase_credits' => [
+            'label' => 'Purchase Credits',
+            'quantity' => 'Quantity',
+        ],
+        'distribute_equally' => [
+            'label' => 'Equal Distribution',
+        ],
+        'distribute_manually' => [
+            'label' => 'Distribute Credits',
+            'employee' => 'Employee',
+            'quantity' => 'Quantity',
+        ],
+        'transfer_credit' => [
+            'label' => 'Transfer',
+            'employee' => 'Transfer to',
         ],
     ],
 ];

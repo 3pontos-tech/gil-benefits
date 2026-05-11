@@ -14,6 +14,7 @@ use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
@@ -61,8 +62,17 @@ abstract class AbstractAppointmentTransition
             'cancellation_actor' => $data->cancellationActor,
         ]);
 
-        $this->appointment->loadMissing('user');
+        $this->appointment->loadMissing(['user', 'credit']);
         $this->appointment->user->forgetMonthlyAppointmentsLeftCache();
+
+        $credit = $this->appointment->credit;
+        if ($credit?->status === UserCreditStatusEnum::InUse) {
+            if ($this->appointment->status === AppointmentStatus::Cancelled) {
+                $credit->update(['status' => UserCreditStatusEnum::Available, 'appointment_id' => null]);
+            } else {
+                $credit->update(['status' => UserCreditStatusEnum::Used]);
+            }
+        }
 
         Schedule::query()
             ->where('schedule_type', ScheduleTypes::APPOINTMENT)

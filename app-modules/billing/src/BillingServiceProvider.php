@@ -52,5 +52,6 @@ class BillingServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/billing-routes.php');
+        $this->loadTranslationsFrom(__DIR__ . '/../lang', 'billing');
     }
 }

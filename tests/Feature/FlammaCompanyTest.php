@@ -2,6 +2,7 @@
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
+use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
@@ -12,7 +13,7 @@ use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use function Pest\Laravel\get;
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     $user = actingAsAdmin(FilamentPanel::Company);
     $this->anotherCompany = Company::factory()
         ->recycle($user)
@@ -77,9 +78,14 @@ it('should redirect to available subscriptions if company is not flamma company'
         {
             return true;
         }
+
+        public function purchaseCredits(User|Company $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
+        {
+            return 'credit';
+        }
     };
 
-    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fakeDriver) {
+    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fakeDriver): void {
         $mock->makePartial();
         $mock->shouldReceive('getDriver')->andReturn($fakeDriver);
     }));
@@ -139,9 +145,14 @@ it('should render EditTenantProfile correctly if company has active plans', func
         {
             return true;
         }
+
+        public function purchaseCredits(User|Company $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
+        {
+            return '123';
+        }
     };
 
-    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fakeDriver) {
+    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fakeDriver): void {
         $mock->makePartial();
         $mock->shouldReceive('getDriver')->andReturn($fakeDriver);
     }));

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Events\AppointmentCompleted;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
+use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 
 final class ActiveTransition extends AbstractAppointmentTransition
 {
@@ -33,6 +34,10 @@ final class ActiveTransition extends AbstractAppointmentTransition
         }
 
         $this->appointment->update(['status' => AppointmentStatus::Completed]);
+
+        $this->appointment->credit()
+            ->where('status', UserCreditStatusEnum::InUse)
+            ->update(['status' => UserCreditStatusEnum::Used]);
 
         event(new AppointmentCompleted($this->appointment));
     }

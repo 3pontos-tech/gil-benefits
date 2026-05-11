@@ -56,4 +56,9 @@ final class FakeBillingContract implements BillingContract
     {
         return false;
     }
+
+    public function purchaseCredits(User|Company $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
+    {
+        return '123';
+    }
 }

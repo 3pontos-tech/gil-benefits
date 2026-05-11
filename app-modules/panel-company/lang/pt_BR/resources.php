@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 return [
     'pages' => [
+        'credits' => [
+            'navigation_label' => 'Créditos',
+            'title' => 'Créditos',
+            'columns' => [
+                'holder' => 'Colaborador',
+                'status' => 'Status',
+                'owner' => 'Comprado por',
+                'transferred_at' => 'Distribuído em',
+            ],
+        ],
         'edit_tenant' => [
             'label' => 'Configurações da Empresa',
             'members_heading' => 'Lista de Membros ativos',
@@ -39,6 +49,22 @@ return [
         'logo' => [
             'label' => 'Logo da Empresa',
             'notification' => 'Logo alterado com sucesso.',
+        ],
+        'purchase_credits' => [
+            'label' => 'Comprar Créditos',
+            'quantity' => 'Quantidade',
+        ],
+        'distribute_equally' => [
+            'label' => 'Distribuição Igualitária',
+        ],
+        'distribute_manually' => [
+            'label' => 'Distribuir Créditos',
+            'employee' => 'Colaborador',
+            'quantity' => 'Quantidade',
+        ],
+        'transfer_credit' => [
+            'label' => 'Transferir',
+            'employee' => 'Transferir para',
         ],
     ],
 ];

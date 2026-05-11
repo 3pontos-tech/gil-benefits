@@ -25,4 +25,6 @@ interface BillingContract
     public function hasActiveSubscription(Company|User $billable): bool;
 
     public function cancelSubscription(Company|User $billable): void;
+
+    public function purchaseCredits(Company|User $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string;
 }

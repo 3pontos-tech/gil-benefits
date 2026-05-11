@@ -42,6 +42,15 @@ return [
             ],
         ],
     ],
+    'credits' => [
+        'navigation_label' => 'Meus Créditos',
+        'title' => 'Meus Créditos',
+        'columns' => [
+            'status' => 'Status',
+            'distributed_at' => 'Distribuído em',
+            'purchased_at' => 'Comprado em',
+        ],
+    ],
     'documents' => [
         'tabs' => [
             'shared' => 'Compartilhados comigo',

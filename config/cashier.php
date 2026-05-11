@@ -129,6 +129,10 @@ return [
         'user' => env('FLAMMA_STRIPE_USER_PORTAL_ID'),
     ],
 
+    'credits' => [
+        'price_id' => env('FLAMMA_STRIPE_CREDIT_PRICE_ID'),
+    ],
+
     'plans' => [
         'company' => [
             'product_id' => env('FLAMMA_STRIPE_ENTERPRISE_PRODUCT_ID'),

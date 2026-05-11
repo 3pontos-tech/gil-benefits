@@ -99,4 +99,28 @@ class StripeAdapter implements BillingContract
     {
         $billable->subscription()?->where('stripe_status', 'active')->latest()->first()?->cancel();
     }
+
+    public function purchaseCredits(Company|User $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
+    {
+        $this->ensureCustomerExists($billable);
+
+        /** @var string $priceId */
+        $priceId = config('cashier.credits.price_id');
+
+        $ownerId = $billable instanceof User ? $billable->getKey() : $company->owner->getKey();
+
+        $session = $billable->checkout([$priceId => $quantity], [
+            'mode' => 'payment',
+            'success_url' => $successUrl,
+            'cancel_url' => $cancelUrl,
+            'metadata' => [
+                'type' => 'credits',
+                'company_id' => $company->getKey(),
+                'owner_id' => $ownerId,
+                'quantity' => $quantity,
+            ],
+        ]);
+
+        return $session->url;
+    }
 }
