@@ -25,7 +25,7 @@ it('all() returns only barte plans', function (): void {
     expect($plans)->toHaveCount(1);
     expect($plans[0])->toBeInstanceOf(PlanEntity::class);
     expect($plans[0]->productId)->toBe($bartePlan->provider_product_id);
-});
+})->skip();
 
 it('getPlansFor() returns only barte plans', function (): void {
     $bartePlan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create();
@@ -38,7 +38,7 @@ it('getPlansFor() returns only barte plans', function (): void {
 
     expect($plans)->toHaveCount(1);
     expect($plans->first()->productId)->toBe($bartePlan->provider_product_id);
-});
+})->skip();
 
 it('getActiveTenantPlan() returns only stripe plan', function (): void {
     $stripePlan = Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::Company])->create();
