@@ -6,15 +6,18 @@ namespace TresPontosTech\Billing\Core\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
+use TresPontosTech\Billing\Database\Factories\UserCreditFactory;
 use TresPontosTech\Company\Models\Company;
 
 class UserCredit extends Model
 {
+    use HasFactory;
     use HasUuids;
     use SoftDeletes;
 
@@ -53,5 +56,10 @@ class UserCredit extends Model
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class);
+    }
+
+    protected static function newFactory(): UserCreditFactory
+    {
+        return UserCreditFactory::new();
     }
 }

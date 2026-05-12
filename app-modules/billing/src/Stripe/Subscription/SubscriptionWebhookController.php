@@ -5,7 +5,6 @@ namespace TresPontosTech\Billing\Stripe\Subscription;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +16,7 @@ class SubscriptionWebhookController extends WebhookController
     public function handleWebhook(Request $request)
     {
         $payload = json_decode($request->getContent(), true);
-        Log::info($request->getContent());
+
         $objectPayload = $payload['data']['object'];
         if (array_key_exists('metadata', $objectPayload)) {
             $metadata = $objectPayload['metadata'];

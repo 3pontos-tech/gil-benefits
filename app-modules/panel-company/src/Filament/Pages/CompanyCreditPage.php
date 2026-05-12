@@ -20,6 +20,7 @@ use TresPontosTech\Billing\Core\Actions\AllocateCreditToEmployee;
 use TresPontosTech\Billing\Core\Actions\TransferCreditBetweenEmployees;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
 
 class CompanyCreditPage extends Page implements HasTable
 {
@@ -51,52 +52,17 @@ class CompanyCreditPage extends Page implements HasTable
             && auth()->user()->ownedCompanies()->where('slug', filament()->getTenant()->slug)->exists();
     }
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Action::make('distribute_equally')
-                ->label(__('panel-company::resources.actions.distribute_equally.label'))
-                ->icon(Heroicon::OutlinedUsers)
-                ->requiresConfirmation()
-                ->visible(fn (): bool => $this->canDistributeEqually())
-                ->action(function (): void {
-                    resolve(AllocateCreditToEmployee::class)->handleEqually(filament()->getTenant());
-                }),
-
-            Action::make('distribute_manually')
-                ->label(__('panel-company::resources.actions.distribute_manually.label'))
-                ->icon(Heroicon::OutlinedArrowRight)
-                ->form(fn (): array => [
-                    Select::make('employee_id')
-                        ->label(__('panel-company::resources.actions.distribute_manually.employee'))
-                        ->options($this->getActiveEmployeeOptions())
-                        ->searchable()
-                        ->required(),
-                    TextInput::make('quantity')
-                        ->label(__('panel-company::resources.actions.distribute_manually.quantity'))
-                        ->numeric()
-                        ->integer()
-                        ->minValue(1)
-                        ->required(),
-                ])
-                ->action(function (array $data): void {
-                    $employee = User::query()->findOrFail($data['employee_id']);
-                    resolve(AllocateCreditToEmployee::class)->handle(
-                        filament()->getTenant(),
-                        $employee,
-                        (int) $data['quantity'],
-                    );
-                }),
-        ];
-    }
-
     public function table(Table $table): Table
     {
+        $tenant = filament()->getTenant();
+        $records = UserCredit::query()
+            ->where('company_id', $tenant->getKey())
+            ->where('owner_id', $tenant->owner->getKey())
+            ->with(['holder', 'owner']);
+
         return $table
             ->query(
-                UserCredit::query()
-                    ->where('company_id', filament()->getTenant()?->getKey())
-                    ->with(['holder', 'owner'])
+                $records
                     ->latest()
             )
             ->columns([
@@ -126,7 +92,7 @@ class CompanyCreditPage extends Page implements HasTable
                     ->label(__('panel-company::resources.actions.transfer_credit.label'))
                     ->icon(Heroicon::OutlinedArrowsRightLeft)
                     ->visible(fn (UserCredit $record): bool => $record->status === UserCreditStatusEnum::Available)
-                    ->form(fn (): array => [
+                    ->schema(fn (): array => [
                         Select::make('employee_id')
                             ->label(__('panel-company::resources.actions.transfer_credit.employee'))
                             ->options($this->getActiveEmployeeOptions())
@@ -137,6 +103,43 @@ class CompanyCreditPage extends Page implements HasTable
                         $employee = User::query()->findOrFail($data['employee_id']);
                         resolve(TransferCreditBetweenEmployees::class)->handle($record, $employee);
                     }),
+            ])
+            ->headerActions([
+                PurchaseCreditsAction::make(),
+                Action::make('distribute_equally')
+                    ->label(__('panel-company::resources.actions.distribute_equally.label'))
+                    ->icon(Heroicon::OutlinedUsers)
+                    ->requiresConfirmation()
+                    ->disabled(fn (): bool => ! $this->canDistributeEqually())
+                    ->action(function (): void {
+                        resolve(AllocateCreditToEmployee::class)->handleEqually(filament()->getTenant());
+                    }),
+
+                Action::make('distribute_manually')
+                    ->label(__('panel-company::resources.actions.distribute_manually.label'))
+                    ->icon(Heroicon::OutlinedArrowRight)
+                    ->schema(fn (): array => [
+                        Select::make('employee_id')
+                            ->label(__('panel-company::resources.actions.distribute_manually.employee'))
+                            ->options($this->getActiveEmployeeOptions())
+                            ->searchable()
+                            ->required(),
+                        TextInput::make('quantity')
+                            ->label(__('panel-company::resources.actions.distribute_manually.quantity'))
+                            ->numeric()
+                            ->integer()
+                            ->minValue(1)
+                            ->maxValue(fn () => $records->count())
+                            ->required(),
+                    ])
+                    ->action(function (array $data): void {
+                        $employee = User::query()->findOrFail($data['employee_id']);
+                        resolve(AllocateCreditToEmployee::class)->handle(
+                            filament()->getTenant(),
+                            $employee,
+                            (int) $data['quantity'],
+                        );
+                    }),
             ]);
     }
 
@@ -145,15 +148,15 @@ class CompanyCreditPage extends Page implements HasTable
     {
         $company = filament()->getTenant();
 
-        $availableCount = UserCredit::query()
+        $availableCredits = UserCredit::query()
             ->where('company_id', $company->getKey())
             ->where('holder_id', $company->user_id)
             ->where('status', UserCreditStatusEnum::Available)
             ->count();
 
-        $employeeCount = $company->employees()->wherePivot('active', true)->count();
+        $employeeCount = $company->employees()->wherePivot('active', true)->where('users.id', '!=', $company->user_id)->count();
 
-        return $employeeCount > 0 && $availableCount >= $employeeCount;
+        return $employeeCount > 0 && $availableCredits >= $employeeCount;
     }
 
     /** @return array<string, string> */

@@ -34,7 +34,7 @@ class AllocateCreditToEmployee
      */
     public function handleEqually(Company $company): void
     {
-        $employees = $company->employees()->wherePivot('active', true)->get();
+        $employees = $company->employees()->wherePivot('active', true)->where('users.id', '!=', $company->user_id)->get();
 
         $available = UserCredit::query()
             ->where('company_id', $company->getKey())

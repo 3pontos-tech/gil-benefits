@@ -23,7 +23,6 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Actions\CreateAndAttachAction;
-use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSeatsCounterAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSecretKeyRotationPanelAction;
 use TresPontosTech\Permissions\Roles;
@@ -132,7 +131,6 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
     {
         return [
             TenantSecretKeyRotationPanelAction::make(),
-            PurchaseCreditsAction::make(),
             Action::make('company_logo')
                 ->label(__('panel-company::resources.actions.logo.label'))
                 ->icon(Heroicon::OutlinedCamera)

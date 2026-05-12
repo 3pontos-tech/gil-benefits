@@ -10,7 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Support\Icons\Heroicon;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
+use TresPontosTech\PanelCompany\Filament\Pages\CompanyCreditPage;
 
 class PurchaseCreditsAction extends Action
 {
@@ -44,8 +44,8 @@ class PurchaseCreditsAction extends Action
                         billable: $company,
                         company: $company,
                         quantity: (int) $data['quantity'],
-                        successUrl: EditTenantProfile::getUrl(),
-                        cancelUrl: EditTenantProfile::getUrl(),
+                        successUrl: CompanyCreditPage::getUrl(),
+                        cancelUrl: CompanyCreditPage::getUrl(),
                     );
 
                 $livewire->redirect($url);
