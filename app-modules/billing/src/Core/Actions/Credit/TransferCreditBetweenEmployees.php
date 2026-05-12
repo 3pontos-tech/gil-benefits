@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Billing\Core\Actions;
+namespace TresPontosTech\Billing\Core\Actions\Credit;
 
 use App\Models\Users\User;
 use RuntimeException;

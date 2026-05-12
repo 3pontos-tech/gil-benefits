@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Appointments\Actions;
 
 use App\Models\Users\User;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Billing\Core\DTOs\CreditDTO;
+use TresPontosTech\Billing\Core\Events\Credit\CreditConsumed;
 
 readonly class BookAppointmentAction
 {
@@ -22,14 +24,10 @@ readonly class BookAppointmentAction
         ]);
 
         if (! $hasMonthlyQuota) {
-            UserCredit::query()
-                ->where('holder_id', $user->getKey())
-                ->where('status', UserCreditStatusEnum::Available)
-                ->first()
-                ?->update([
-                    'status' => UserCreditStatusEnum::InUse,
-                    'appointment_id' => $appointment->id,
-                ]);
+            event(new CreditConsumed(new CreditDTO(
+                holderId: $user->getKey(),
+                appointmentId: $appointment->getKey(),
+            )));
         }
     }
 }
