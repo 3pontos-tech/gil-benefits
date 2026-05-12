@@ -3,13 +3,16 @@
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Support\Facades\Mail;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
+use TresPontosTech\User\Mail\WelcomeUserMail;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
 use function Pest\Livewire\livewire;
 
 it('should register an employee ', function (): void {
+    Mail::fake();
     actingAsCompanyOwner();
 
     livewire(EditTenantProfile::class)
@@ -38,6 +41,12 @@ it('should register an employee ', function (): void {
         'document_id' => '123456789',
         'phone_number' => '+5511999999999',
     ]);
+
+    Mail::assertQueued(
+        WelcomeUserMail::class,
+        fn (WelcomeUserMail $mail): bool => $mail->hasTo('teste@empresa.com')
+            && $mail->password === 'password123',
+    );
 });
 
 describe('validation tests', function (): void {

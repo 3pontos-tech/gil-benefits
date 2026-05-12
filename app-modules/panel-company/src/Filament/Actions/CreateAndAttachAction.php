@@ -11,16 +11,18 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Cashier\Subscription;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Rules\UniqueAtCompany;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Events\UserRegistered;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class CreateAndAttachAction extends CreateAction
 {
+    private ?string $plainPassword = null;
+
     public static function getDefaultName(): ?string
     {
         return 'create-and-attach-tenant-employee';
@@ -43,10 +45,18 @@ class CreateAndAttachAction extends CreateAction
                 $this->halt();
             }
         });
+
+        $this->mutateFormDataUsing(function (array $data): array {
+            $this->plainPassword = $data['password'] ?? null;
+
+            return $data;
+        });
+
         $this->after(
             function (User $record): void {
                 filament()->getTenant()->employees()->syncWithoutDetaching($record);
                 $record->assignRole(Roles::Employee);
+                event(new UserRegistered($record, Roles::Employee, $this->plainPassword));
             }
         );
 
@@ -69,7 +79,6 @@ class CreateAndAttachAction extends CreateAction
                         ->required(),
                     TextInput::make('password')
                         ->label(__('panel-company::resources.actions.create_and_attach.password'))
-                        ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                         ->password()
                         ->required(),
                 ]),
