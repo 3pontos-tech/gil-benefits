@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Billing\Barte\Actions;
 
+use App\Models\Users\User;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\Billing\Barte\DTOs\BarteWebhookDto;
@@ -16,6 +19,7 @@ use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionDefaulted;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
+use TresPontosTech\Company\Models\Company;
 
 class HandleBarteWebhook
 {
@@ -69,7 +73,7 @@ class HandleBarteWebhook
 
     private function handleOrder(BarteWebhookDto $dto): void
     {
-        if ($dto->event !== BarteWebhookEventEnum::OrderPaid) {
+        if (! in_array($dto->event, [BarteWebhookEventEnum::OrderSent, BarteWebhookEventEnum::OrderPaid], true)) {
             return;
         }
 
@@ -84,11 +88,41 @@ class HandleBarteWebhook
             return;
         }
 
+        if ($dto->event === BarteWebhookEventEnum::OrderSent) {
+            $this->notifyOrderPending($billableType, $billableId, $quantity);
+
+            return;
+        }
+
         event(new OrderCreditPurchased(
             billableType: $billableType,
             billableId: $billableId,
             companyId: $companyId,
             quantity: $quantity,
         ));
+    }
+
+    private function notifyOrderPending(string $billableType, string $billableId, int $quantity): void
+    {
+        $modelClass = Relation::getMorphedModel($billableType);
+
+        if ($modelClass === null) {
+            return;
+        }
+
+        $billable = $modelClass::query()->findOrFail($billableId);
+
+        if ($billable instanceof User) {
+            $owner = $billable;
+        } else {
+            /** @var Company $billable */
+            $owner = $billable->owner;
+        }
+
+        Notification::make()
+            ->title(__('billing::notifications.credit_order_created.title'))
+            ->body(__('billing::notifications.credit_order_created.body', ['quantity' => $quantity]))
+            ->warning()
+            ->sendToDatabase($owner);
     }
 }

@@ -13,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use TresPontosTech\Billing\Core\Actions\Credit\PurchaseCredits;
 use TresPontosTech\Billing\Core\DTOs\CreditDTO;
+use TresPontosTech\Billing\Core\Events\Credit\CreditsDelivered;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Company\Models\Company;
 
@@ -41,6 +42,7 @@ class ProcessCreditPurchaseJob implements ShouldQueue
                 companyId: $this->event->companyId,
                 quantity: $this->event->quantity,
             );
+            $ownerId = (string) $billable->getKey();
         } else {
             /** @var Company $billable */
             $dto = new CreditDTO(
@@ -49,8 +51,11 @@ class ProcessCreditPurchaseJob implements ShouldQueue
                 companyId: $billable->getKey(),
                 quantity: $this->event->quantity,
             );
+            $ownerId = (string) $billable->user_id;
         }
 
         $action->handle($dto);
+
+        event(new CreditsDelivered(ownerId: $ownerId, quantity: $this->event->quantity));
     }
 }
