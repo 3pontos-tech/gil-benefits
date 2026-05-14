@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification as LaravelNotification;
 use TresPontosTech\Appointments\Actions\Transitions\ActiveTransition;
@@ -20,8 +18,6 @@ use function Pest\Laravel\actingAs;
 beforeEach(function (): void {
     LaravelNotification::fake();
     Mail::fake();
-    Bus::fake();
-    Event::fake();
 });
 
 // ---------------------------------------------------------------------------
