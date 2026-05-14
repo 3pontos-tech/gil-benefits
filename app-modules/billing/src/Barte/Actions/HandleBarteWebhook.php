@@ -10,6 +10,7 @@ use TresPontosTech\Billing\Barte\DTOs\BarteWebhookDto;
 use TresPontosTech\Billing\Barte\Enums\BarteWebhookEventEnum;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
@@ -22,6 +23,7 @@ class HandleBarteWebhook
     {
         match ($dto->domain) {
             'SUBSCRIPTION' => $this->handleSubscription($dto),
+            'ORDER' => $this->handleOrder($dto),
             default => null,
         };
     }
@@ -63,5 +65,30 @@ class HandleBarteWebhook
         }
 
         event($event);
+    }
+
+    private function handleOrder(BarteWebhookDto $dto): void
+    {
+        if ($dto->event !== BarteWebhookEventEnum::OrderPaid) {
+            return;
+        }
+
+        $billableType = $dto->metadata->get('billable_type');
+        $billableId = $dto->metadata->get('billable_id');
+        $companyId = $dto->metadata->get('company_id');
+        $quantity = (int) $dto->metadata->get('quantity', 0);
+
+        if (! $billableType || ! $billableId || ! $companyId || $quantity <= 0) {
+            Log::warning('Barte ORDER webhook com metadata incompleto', ['uuid' => $dto->uuid]);
+
+            return;
+        }
+
+        event(new OrderCreditPurchased(
+            billableType: $billableType,
+            billableId: $billableId,
+            companyId: $companyId,
+            quantity: $quantity,
+        ));
     }
 }

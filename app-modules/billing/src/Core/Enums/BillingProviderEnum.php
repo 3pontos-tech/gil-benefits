@@ -39,6 +39,6 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
 
     public static function activeCases(): array
     {
-        return [self::Stripe];
+        return [self::Barte];
     }
 }

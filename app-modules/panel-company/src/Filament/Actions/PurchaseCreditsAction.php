@@ -38,17 +38,21 @@ class PurchaseCreditsAction extends Action
                 /** @var Company $company */
                 $company = filament()->getTenant();
 
-                $url = resolve(BillingManager::class)
-                    ->driver()
-                    ->purchaseCredits(
-                        billable: $company,
-                        company: $company,
-                        quantity: (int) $data['quantity'],
-                        successUrl: CompanyCreditPage::getUrl(),
-                        cancelUrl: CompanyCreditPage::getUrl(),
-                    );
+                $driver = resolve(BillingManager::class)->driver();
 
-                $livewire->redirect($url);
+                $url = $driver->purchaseCredits(
+                    billable: $company,
+                    company: $company,
+                    quantity: (int) $data['quantity'],
+                    successUrl: CompanyCreditPage::getUrl(),
+                    cancelUrl: CompanyCreditPage::getUrl(),
+                );
+
+                if ($driver->checkoutOpensInNewTab()) {
+                    $livewire->js("window.open('" . addslashes($url) . "', '_blank')");
+                } else {
+                    $livewire->redirect($url);
+                }
             });
     }
 
@@ -58,17 +62,21 @@ class PurchaseCreditsAction extends Action
             /** @var Company $company */
             $company = filament()->getTenant();
 
-            $url = resolve(BillingManager::class)
-                ->driver()
-                ->purchaseCredits(
-                    billable: $billable,
-                    company: $company,
-                    quantity: (int) $data['quantity'],
-                    successUrl: $successUrl,
-                    cancelUrl: $cancelUrl,
-                );
+            $driver = resolve(BillingManager::class)->driver();
 
-            $livewire->redirect($url);
+            $url = $driver->purchaseCredits(
+                billable: $billable,
+                company: $company,
+                quantity: (int) $data['quantity'],
+                successUrl: $successUrl,
+                cancelUrl: $cancelUrl,
+            );
+
+            if ($driver->checkoutOpensInNewTab()) {
+                $livewire->js("window.open('" . addslashes($url) . "', '_blank')");
+            } else {
+                $livewire->redirect($url);
+            }
         });
     }
 }

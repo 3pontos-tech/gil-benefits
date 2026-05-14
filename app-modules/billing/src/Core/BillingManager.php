@@ -13,7 +13,7 @@ class BillingManager extends Manager
 {
     public function getDefaultDriver(): string
     {
-        return 'stripe';
+        return 'barte';
     }
 
     public function createStripeDriver(): BillingContract

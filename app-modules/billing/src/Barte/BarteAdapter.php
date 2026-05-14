@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use TresPontosTech\App\Filament\Pages\UserBillingManagePage;
 use TresPontosTech\Billing\Barte\DTOs\CreateBuyerDto;
 use TresPontosTech\Billing\Barte\DTOs\CreatePaymentLinkDto;
+use TresPontosTech\Billing\Barte\DTOs\PaymentOrderDto;
 use TresPontosTech\Billing\Barte\DTOs\PaymentSubscriptionDto;
 use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
@@ -103,18 +104,17 @@ final readonly class BarteAdapter implements BillingContract
 
         $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
             uuidSellerClient: $customerId,
-            paymentSubscription: new PaymentSubscriptionDto(
-                idPlan: $planUuid,
-                valuePerMonth: $valuePerMonth,
-                type: 'MONTHLY',
-            ),
             scheduledDate: now()->addDay()->toDateString(),
             metadata: [
                 ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
                 ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
                 ['key' => 'barte_plan_uuid', 'value' => $planUuid],
-                ['key' => 'quantity', 'value' => $data->quantity],
+                ['key' => 'quantity', 'value' => (string) $data->quantity],
             ],
+            paymentSubscription: new PaymentSubscriptionDto(
+                uuidPlan: $planUuid,
+                valuePerMonth: $valuePerMonth,
+            ),
         ));
 
         return $response['url'];
@@ -165,5 +165,35 @@ final readonly class BarteAdapter implements BillingContract
         }
 
         return UserBillingManagePage::getUrl();
+    }
+
+    public function purchaseCredits(User|Company $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
+    {
+        $customerId = $this->findCustomer($billable);
+
+        $pricePerCredit = 150;
+
+        $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
+            uuidSellerClient: $customerId,
+            scheduledDate: now()->toDateString(),
+            metadata: [
+                ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
+                ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
+                ['key' => 'company_id', 'value' => (string) $company->getKey()],
+                ['key' => 'quantity', 'value' => (string) $quantity],
+            ],
+            type: 'ORDER',
+            paymentMethods: ['PIX', 'CREDIT_CARD_EARLY_BUYER'],
+            paymentOrder: new PaymentOrderDto(
+                title: sprintf('Compra de %d crédito(s)', $quantity),
+                value: $quantity * $pricePerCredit,
+                customInstallmentsValues: [
+                    ['paymentMethod' => 'PIX', 'installments' => 1],
+                    ['paymentMethod' => 'CREDIT_CARD_EARLY_BUYER', 'installments' => 1],
+                ],
+            ),
+        ));
+
+        return $response['url'];
     }
 }
