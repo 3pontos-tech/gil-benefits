@@ -3,6 +3,12 @@
 declare(strict_types=1);
 
 return [
+    'credit_stats' => [
+        'total' => 'Total',
+        'available_description' => 'Prontos para uso',
+        'in_use_description' => 'Em agendamentos',
+        'used_description' => 'Sessões concluídas',
+    ],
     'adoption_stats' => [
         'employees' => 'Funcionários',
         'members' => 'Membros',

@@ -11,6 +11,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use TresPontosTech\App\Filament\Widgets\UserCreditStatsWidget;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
@@ -33,6 +34,11 @@ class UserCreditsPage extends Page implements HasTable
     public function getTitle(): string
     {
         return __('panel-app::resources.credits.title');
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [UserCreditStatsWidget::class];
     }
 
     public function table(Table $table): Table

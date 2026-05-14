@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -19,11 +20,13 @@ use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\Actions\Credit\AllocateCreditToEmployee;
-use TresPontosTech\Billing\Core\Actions\Credit\RevokeCreditsFromEmployees;
 use TresPontosTech\Billing\Core\Actions\Credit\TransferCreditBetweenEmployees;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
+use TresPontosTech\Billing\Core\Jobs\DistributeCreditsEquallyJob;
+use TresPontosTech\Billing\Core\Jobs\RevokeCreditsFromEmployeesJob;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
+use TresPontosTech\PanelCompany\Filament\Widgets\CompanyCreditStatsWidget;
 
 class CompanyCreditPage extends Page implements HasTable
 {
@@ -43,6 +46,11 @@ class CompanyCreditPage extends Page implements HasTable
     public function getTitle(): string
     {
         return __('panel-company::resources.pages.credits.title');
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [CompanyCreditStatsWidget::class];
     }
 
     public static function canAccess(): bool
@@ -119,7 +127,12 @@ class CompanyCreditPage extends Page implements HasTable
                         ? null
                         : __('panel-company::resources.actions.revoke_all_credits.disabled_tooltip'))
                     ->action(function (): void {
-                        resolve(RevokeCreditsFromEmployees::class)->handle(filament()->getTenant());
+                        dispatch(new RevokeCreditsFromEmployeesJob(filament()->getTenant()));
+
+                        Notification::make()
+                            ->title(__('panel-company::resources.actions.revoke_all_credits.queued_notification'))
+                            ->info()
+                            ->send();
                     }),
                 Action::make('distribute_equally')
                     ->label(__('panel-company::resources.actions.distribute_equally.label'))
@@ -130,7 +143,12 @@ class CompanyCreditPage extends Page implements HasTable
                         ? null
                         : __('panel-company::resources.actions.distribute_equally.disabled_tooltip'))
                     ->action(function (): void {
-                        resolve(AllocateCreditToEmployee::class)->handleEqually(filament()->getTenant());
+                        dispatch(new DistributeCreditsEquallyJob(filament()->getTenant()));
+
+                        Notification::make()
+                            ->title(__('panel-company::resources.actions.distribute_equally.queued_notification'))
+                            ->info()
+                            ->send();
                     }),
 
                 Action::make('distribute_manually')
@@ -161,13 +179,15 @@ class CompanyCreditPage extends Page implements HasTable
                             ->maxValue(fn () => $records->count())
                             ->required(),
                     ])
-                    ->action(function (array $data): void {
+                    ->successNotificationTitle(__('panel-company::resources.actions.distribute_manually.success_notification'))
+                    ->action(function (array $data, Action $action): void {
                         $employee = User::query()->findOrFail($data['employee_id']);
                         resolve(AllocateCreditToEmployee::class)->handle(
                             filament()->getTenant(),
                             $employee,
                             (int) $data['quantity'],
                         );
+                        $action->success();
                     }),
             ]);
     }
