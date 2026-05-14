@@ -54,13 +54,20 @@ return [
             'label' => 'Comprar Créditos',
             'quantity' => 'Quantidade',
         ],
+        'revoke_all_credits' => [
+            'label' => 'Revogar Créditos',
+            'disabled_tooltip' => 'Não há créditos distribuídos para revogar.',
+        ],
         'distribute_equally' => [
             'label' => 'Distribuição Igualitária',
+            'disabled_tooltip' => 'Não há créditos disponíveis suficientes para distribuir igualitariamente. Os créditos devem estar com o dono da empresa.',
         ],
         'distribute_manually' => [
             'label' => 'Distribuir Créditos',
             'employee' => 'Colaborador',
             'quantity' => 'Quantidade',
+            'notice' => 'Os créditos disponíveis do dono da empresa serão transferidos para o colaborador selecionado.',
+            'disabled_tooltip' => 'O dono da empresa não possui créditos disponíveis para distribuir.',
         ],
         'transfer_credit' => [
             'label' => 'Transferir',

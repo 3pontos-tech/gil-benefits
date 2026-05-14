@@ -8,6 +8,7 @@ use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -15,8 +16,10 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use Livewire\Attributes\Computed;
 use TresPontosTech\Billing\Core\Actions\Credit\AllocateCreditToEmployee;
+use TresPontosTech\Billing\Core\Actions\Credit\RevokeCreditsFromEmployees;
 use TresPontosTech\Billing\Core\Actions\Credit\TransferCreditBetweenEmployees;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
@@ -106,11 +109,26 @@ class CompanyCreditPage extends Page implements HasTable
             ])
             ->headerActions([
                 PurchaseCreditsAction::make(),
+                Action::make('revoke_all_credits')
+                    ->label(__('panel-company::resources.actions.revoke_all_credits.label'))
+                    ->icon(Heroicon::OutlinedArrowUturnLeft)
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->disabled(fn (): bool => ! $this->hasDistributedCredits())
+                    ->tooltip(fn (): ?string => $this->hasDistributedCredits()
+                        ? null
+                        : __('panel-company::resources.actions.revoke_all_credits.disabled_tooltip'))
+                    ->action(function (): void {
+                        resolve(RevokeCreditsFromEmployees::class)->handle(filament()->getTenant());
+                    }),
                 Action::make('distribute_equally')
                     ->label(__('panel-company::resources.actions.distribute_equally.label'))
                     ->icon(Heroicon::OutlinedUsers)
                     ->requiresConfirmation()
                     ->disabled(fn (): bool => ! $this->canDistributeEqually())
+                    ->tooltip(fn (): ?string => $this->canDistributeEqually()
+                        ? null
+                        : __('panel-company::resources.actions.distribute_equally.disabled_tooltip'))
                     ->action(function (): void {
                         resolve(AllocateCreditToEmployee::class)->handleEqually(filament()->getTenant());
                     }),
@@ -118,7 +136,18 @@ class CompanyCreditPage extends Page implements HasTable
                 Action::make('distribute_manually')
                     ->label(__('panel-company::resources.actions.distribute_manually.label'))
                     ->icon(Heroicon::OutlinedArrowRight)
+                    ->disabled(fn (): bool => ! $this->hasOwnerAvailableCredits())
+                    ->tooltip(fn (): ?string => $this->hasOwnerAvailableCredits()
+                        ? null
+                        : __('panel-company::resources.actions.distribute_manually.disabled_tooltip'))
                     ->schema(fn (): array => [
+                        TextEntry::make('notice')
+                            ->label('')
+                            ->state(new HtmlString(
+                                '<p class="text-sm text-warning-600 dark:text-warning-400">' .
+                                __('panel-company::resources.actions.distribute_manually.notice') .
+                                '</p>'
+                            )),
                         Select::make('employee_id')
                             ->label(__('panel-company::resources.actions.distribute_manually.employee'))
                             ->options($this->getActiveEmployeeOptions())
@@ -141,6 +170,30 @@ class CompanyCreditPage extends Page implements HasTable
                         );
                     }),
             ]);
+    }
+
+    #[Computed]
+    public function hasOwnerAvailableCredits(): bool
+    {
+        $company = filament()->getTenant();
+
+        return UserCredit::query()
+            ->where('company_id', $company->getKey())
+            ->where('holder_id', $company->user_id)
+            ->where('status', UserCreditStatusEnum::Available)
+            ->exists();
+    }
+
+    #[Computed]
+    public function hasDistributedCredits(): bool
+    {
+        $company = filament()->getTenant();
+
+        return UserCredit::query()
+            ->where('company_id', $company->getKey())
+            ->where('holder_id', '!=', $company->user_id)
+            ->where('status', UserCreditStatusEnum::Available)
+            ->exists();
     }
 
     #[Computed]

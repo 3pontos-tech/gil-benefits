@@ -35,6 +35,10 @@ Fechar gaps identificados na auditoria (`docs/testing/coverage-gap-report.md#pan
 - `make phpstan` sem regressão.
 - `make check` verde no CI.
 
+### ✅ Concluído
+- [x] `CompanyCreditPage` — `revoke_all_credits`: revoga apenas créditos disponíveis do dono distribuídos a funcionários; não revoga créditos comprados pelo próprio funcionário nem créditos com status diferente de `available` — Feature — `CompanyCreditPageTest`
+- [x] `CompanyCreditPage` — listagem: créditos comprados pelo funcionário (owner_id ≠ company_owner) não aparecem na tabela do dono — Feature — `CompanyCreditPageTest`
+
 ## Referências
 
 - Relatório: `docs/testing/coverage-gap-report.md#panel-company`
