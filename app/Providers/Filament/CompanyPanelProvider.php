@@ -59,6 +59,7 @@ class CompanyPanelProvider extends PanelProvider
                 BillingManagePage::class,
             ])
             ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->passwordReset()
             ->registration()
             ->tenantRegistration(RegisterTenant::class)

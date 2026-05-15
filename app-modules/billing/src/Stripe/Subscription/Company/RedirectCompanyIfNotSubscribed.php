@@ -25,10 +25,6 @@ class RedirectCompanyIfNotSubscribed
             return $next($request);
         }
 
-        if ($tenant->hasActivePlan()) {
-            return $next($request);
-        }
-
         $plans = resolve(PlanRepository::class)->all();
 
         $hasValidSubscription = collect(BillingProviderEnum::activeCases())
@@ -41,6 +37,10 @@ class RedirectCompanyIfNotSubscribed
             });
 
         if ($hasValidSubscription) {
+            return $next($request);
+        }
+
+        if ($tenant->hasActivePlan()) {
             return $next($request);
         }
 
