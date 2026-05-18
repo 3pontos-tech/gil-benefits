@@ -19,7 +19,6 @@ use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionDefaulted;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
-use TresPontosTech\Company\Models\Company;
 
 class HandleBarteWebhook
 {
@@ -112,12 +111,7 @@ class HandleBarteWebhook
 
         $billable = $modelClass::query()->findOrFail($billableId);
 
-        if ($billable instanceof User) {
-            $owner = $billable;
-        } else {
-            /** @var Company $billable */
-            $owner = $billable->owner;
-        }
+        $owner = $billable instanceof User ? $billable : $billable->owner;
 
         Notification::make()
             ->title(__('billing::notifications.credit_order_created.title'))

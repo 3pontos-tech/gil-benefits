@@ -169,6 +169,8 @@ final readonly class BarteAdapter implements BillingContract
 
     public function purchaseCredits(User|Company $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
     {
+        $this->ensureCustomerExists($billable);
+
         $customerId = $this->findCustomer($billable);
 
         $pricePerCredit = 150;
