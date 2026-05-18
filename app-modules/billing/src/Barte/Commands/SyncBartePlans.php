@@ -62,7 +62,7 @@ class SyncBartePlans extends Command
             ],
             [
                 'name' => $bartePlan['title'] . 'barte',
-                'description' => 'whatever description',
+                'description' => 'N/A',
                 'trial_days' => null,
                 'has_generic_trial' => false,
                 'allow_promotion_codes' => false,
@@ -70,7 +70,7 @@ class SyncBartePlans extends Command
                 'slug' => str($bartePlan['title'] . 'barte')->slug(),
                 'type' => BillableTypeEnum::User,
                 'unit_label' => 'seats',
-                'active' => $bartePlan['active'],
+                'active' => false,
                 'statement_descriptor' => str($bartePlan['title'])->upper()->limit(22)->toString(),
             ]
         );

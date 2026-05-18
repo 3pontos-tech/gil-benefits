@@ -16,6 +16,8 @@ class CompanyCreditStatsWidget extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected static ?int $sort = 10;
+
     protected ?string $pollingInterval = null;
 
     protected function getStats(): array
@@ -38,17 +40,17 @@ class CompanyCreditStatsWidget extends StatsOverviewWidget
             Stat::make(__('panel-company::widgets.credit_stats.total'), $total)
                 ->icon('heroicon-o-credit-card')
                 ->color('gray'),
-            Stat::make(__('billing::enums.user_credit_status.available'), $available)
+            Stat::make(__('panel-company::widgets.credit_stats.available'), $available)
                 ->description(__('panel-company::widgets.credit_stats.available_description'))
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->icon('heroicon-o-check-circle')
                 ->color('success'),
-            Stat::make(__('billing::enums.user_credit_status.in_use'), $inUse)
+            Stat::make(__('panel-company::widgets.credit_stats.in_use'), $inUse)
                 ->description(__('panel-company::widgets.credit_stats.in_use_description'))
                 ->descriptionIcon('heroicon-o-clock')
                 ->icon('heroicon-o-clock')
                 ->color('info'),
-            Stat::make(__('billing::enums.user_credit_status.used'), $used)
+            Stat::make(__('panel-company::widgets.credit_stats.used'), $used)
                 ->description(__('panel-company::widgets.credit_stats.used_description'))
                 ->descriptionIcon('heroicon-o-check-badge')
                 ->icon('heroicon-o-check-badge')

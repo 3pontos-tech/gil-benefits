@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 return [
     'credit_stats' => [
-        'total' => 'Total',
+        'total' => 'Total de créditos',
+        'available' => 'Créditos disponíveis',
+        'in_use' => 'Créditos em uso',
+        'used' => 'Créditos utilizados',
         'available_description' => 'Prontos para uso',
         'in_use_description' => 'Em agendamentos',
         'used_description' => 'Sessões concluídas',

@@ -20,6 +20,9 @@ return new class extends Migration
             $table->timestamp('transferred_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique('appointment_id');
+            $table->index(['holder_id', 'status', 'created_at'], 'user_credits_consume_idx');
         });
     }
 
