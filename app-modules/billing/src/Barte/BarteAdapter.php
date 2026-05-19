@@ -13,6 +13,7 @@ use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -99,7 +100,7 @@ final readonly class BarteAdapter implements BillingContract
         $planUuid = $price->plan->provider_product_id;
 
         $valuePerMonth = $data->isMetered
-            ? $this->pricePerSeat($data->quantity) * $data->quantity
+            ? SeatPricingTierEnum::fromQuantity($data->quantity)->pricePerSeat() * $data->quantity
             : $price->unit_amount_decimal / 100;
 
         $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
@@ -140,16 +141,6 @@ final readonly class BarteAdapter implements BillingContract
 
         $this->client->deleteSubscription($subscription->stripe_id);
 
-    }
-
-    private function pricePerSeat(int $quantity): float
-    {
-        return match (true) {
-            $quantity <= 15 => 44.90,
-            $quantity <= 30 => 34.90,
-            $quantity <= 70 => 24.90,
-            default => 11.90,
-        };
     }
 
     private function findCustomer(Company|User $billable): ?string

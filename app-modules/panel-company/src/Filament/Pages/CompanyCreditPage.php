@@ -76,15 +76,14 @@ class CompanyCreditPage extends Page implements HasTable
                 $records
                     ->latest()
             )
+            ->poll('10s')
             ->columns([
                 TextColumn::make('holder.name')
                     ->label(__('panel-company::resources.pages.credits.columns.holder'))
                     ->searchable(),
                 TextColumn::make('status')
                     ->badge()
-                    ->label(__('panel-company::resources.pages.credits.columns.status'))
-                    ->formatStateUsing(fn (UserCreditStatusEnum $state): string => $state->getLabel())
-                    ->color(fn (UserCreditStatusEnum $state): array => $state->getColor()),
+                    ->label(__('panel-company::resources.pages.credits.columns.status')),
                 TextColumn::make('owner.name')
                     ->label(__('panel-company::resources.pages.credits.columns.owner'))
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -176,7 +175,7 @@ class CompanyCreditPage extends Page implements HasTable
                             ->numeric()
                             ->integer()
                             ->minValue(1)
-                            ->maxValue(fn () => $records->count())
+                            ->maxValue(fn () => $this->ownerAvailableCreditsCount)
                             ->required(),
                     ])
                     ->successNotificationTitle(__('panel-company::resources.actions.distribute_manually.success_notification'))
@@ -193,7 +192,7 @@ class CompanyCreditPage extends Page implements HasTable
     }
 
     #[Computed]
-    public function hasOwnerAvailableCredits(): bool
+    public function ownerAvailableCreditsCount(): int
     {
         $company = filament()->getTenant();
 
@@ -201,7 +200,13 @@ class CompanyCreditPage extends Page implements HasTable
             ->where('company_id', $company->getKey())
             ->where('holder_id', $company->user_id)
             ->where('status', UserCreditStatusEnum::Available)
-            ->exists();
+            ->count();
+    }
+
+    #[Computed]
+    public function hasOwnerAvailableCredits(): bool
+    {
+        return $this->ownerAvailableCreditsCount > 0;
     }
 
     #[Computed]
@@ -227,7 +232,7 @@ class CompanyCreditPage extends Page implements HasTable
             ->where('status', UserCreditStatusEnum::Available)
             ->count();
 
-        $employeeCount = $company->employees()->wherePivot('active', true)->where('users.id', '!=', $company->user_id)->count();
+        $employeeCount = $company->onlyEmployees()->count();
 
         return $employeeCount > 0 && $availableCredits >= $employeeCount;
     }
@@ -236,8 +241,7 @@ class CompanyCreditPage extends Page implements HasTable
     private function getActiveEmployeeOptions(): array
     {
         return filament()->getTenant()
-            ->employees()
-            ->wherePivot('active', true)
+            ->onlyEmployees()
             ->get()
             ->pluck('name', 'id')
             ->toArray();

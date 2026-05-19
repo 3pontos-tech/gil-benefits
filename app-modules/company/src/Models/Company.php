@@ -4,6 +4,7 @@ namespace TresPontosTech\Company\Models;
 
 use App\Models\Users\User;
 use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -109,6 +110,12 @@ class Company extends Model implements HasAvatar, HasMedia
             ->withTimestamps()
             ->withPivot(['role', 'active'])
             ->using(TenantMember::class);
+    }
+
+    #[Scope]
+    protected function onlyEmployees()
+    {
+        return $this->employees()->wherePivot('active', true)->whereNot('id', $this->user_id);
     }
 
     protected static function newFactory(): CompanyFactory

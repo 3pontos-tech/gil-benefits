@@ -1,4 +1,5 @@
 @php
+    use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
     use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
     use TresPontosTech\Company\Models\Company;
 
@@ -8,13 +9,7 @@
     $quantity  = $subscription?->quantity ?? 0;
     $plan      = $subscription?->plan;
 
-    $tierPrice = match (true) {
-        $quantity <= 15 => 44.90,
-        $quantity <= 30 => 34.90,
-        $quantity <= 70 => 24.90,
-        default         => 11.90,
-    };
-
+    $tierPrice     = SeatPricingTierEnum::fromQuantity($quantity)->pricePerSeat();
     $totalPerMonth = $quantity * $tierPrice;
 
     $billingDay  = $subscription?->created_at->day ?? now()->day;
