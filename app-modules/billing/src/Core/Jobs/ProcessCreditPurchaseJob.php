@@ -6,6 +6,7 @@ namespace TresPontosTech\Billing\Core\Jobs;
 
 use App\Models\Users\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,7 +18,7 @@ use TresPontosTech\Billing\Core\Events\Credit\CreditsDelivered;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Company\Models\Company;
 
-class ProcessCreditPurchaseJob implements ShouldQueue
+class ProcessCreditPurchaseJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable;
     use InteractsWithQueue;
@@ -28,7 +29,14 @@ class ProcessCreditPurchaseJob implements ShouldQueue
 
     public int $timeout = 60;
 
+    public int $uniqueFor = 3600;
+
     public function __construct(public readonly OrderCreditPurchased $event) {}
+
+    public function uniqueId(): string
+    {
+        return $this->event->orderUuid;
+    }
 
     public function handle(PurchaseCredits $action): void
     {

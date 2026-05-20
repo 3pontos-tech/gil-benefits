@@ -94,6 +94,7 @@ class HandleBarteWebhook
         }
 
         event(new OrderCreditPurchased(
+            orderUuid: $dto->uuid,
             billableType: $billableType,
             billableId: $billableId,
             companyId: $companyId,
