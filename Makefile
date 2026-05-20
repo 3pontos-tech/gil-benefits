@@ -58,8 +58,8 @@ essentials-seeder: ## Run the essentials seeder
 	@echo "Running Essentials Seeder..."
 	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Essentials Seeder completed."
-	@echo "Seeding Stripe"
-	@php artisan billing:sync-stripe
+	@echo "Seeding Barte"
+	@php artisan barte:play
 	@php artisan app:sync-subscription-to-flamma-company
 
 .PHONY: stripe-listen

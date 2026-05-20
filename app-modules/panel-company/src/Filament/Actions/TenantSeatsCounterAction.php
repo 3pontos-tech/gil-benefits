@@ -29,7 +29,7 @@ class TenantSeatsCounterAction extends Action
         /** @var Company $tenant */
         $tenant = filament()->getTenant();
 
-        $employeesCount = $tenant->employees()->wherePivot('active', true)->count();
+        $employeesCount = $tenant->onlyEmployees()->count();
 
         /** @var CompanyPlan|null $contractualPlan */
         $contractualPlan = $tenant->activeContractualPlan();

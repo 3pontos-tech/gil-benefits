@@ -7,7 +7,7 @@ namespace TresPontosTech\Billing\Barte\DTOs;
 readonly class PaymentSubscriptionDto
 {
     public function __construct(
-        public int $idPlan,
+        public int|string $uuidPlan,
         public float $valuePerMonth,
         public string $type = 'MONTHLY',
     ) {}
@@ -15,7 +15,7 @@ readonly class PaymentSubscriptionDto
     public function toArray(): array
     {
         return [
-            'idPlan' => $this->idPlan,
+            'uuidPlan' => $this->uuidPlan,
             'type' => $this->type,
             'valuePerMonth' => $this->valuePerMonth,
         ];

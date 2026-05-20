@@ -6,12 +6,14 @@ use App\Models\Users\User;
 use TresPontosTech\App\Filament\Pages\UserBillingManagePage;
 use TresPontosTech\Billing\Barte\DTOs\CreateBuyerDto;
 use TresPontosTech\Billing\Barte\DTOs\CreatePaymentLinkDto;
+use TresPontosTech\Billing\Barte\DTOs\PaymentOrderDto;
 use TresPontosTech\Billing\Barte\DTOs\PaymentSubscriptionDto;
 use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -98,23 +100,22 @@ final readonly class BarteAdapter implements BillingContract
         $planUuid = $price->plan->provider_product_id;
 
         $valuePerMonth = $data->isMetered
-            ? $this->pricePerSeat($data->quantity) * $data->quantity
+            ? SeatPricingTierEnum::fromQuantity($data->quantity)->pricePerSeat() * $data->quantity
             : $price->unit_amount_decimal / 100;
 
         $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
             uuidSellerClient: $customerId,
-            paymentSubscription: new PaymentSubscriptionDto(
-                idPlan: $planUuid,
-                valuePerMonth: $valuePerMonth,
-                type: 'MONTHLY',
-            ),
             scheduledDate: now()->addDay()->toDateString(),
             metadata: [
                 ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
                 ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
                 ['key' => 'barte_plan_uuid', 'value' => $planUuid],
-                ['key' => 'quantity', 'value' => $data->quantity],
+                ['key' => 'quantity', 'value' => (string) $data->quantity],
             ],
+            paymentSubscription: new PaymentSubscriptionDto(
+                uuidPlan: $planUuid,
+                valuePerMonth: $valuePerMonth,
+            ),
         ));
 
         return $response['url'];
@@ -142,16 +143,6 @@ final readonly class BarteAdapter implements BillingContract
 
     }
 
-    private function pricePerSeat(int $quantity): float
-    {
-        return match (true) {
-            $quantity <= 15 => 44.90,
-            $quantity <= 30 => 34.90,
-            $quantity <= 70 => 24.90,
-            default => 11.90,
-        };
-    }
-
     private function findCustomer(Company|User $billable): ?string
     {
         return BillingCustomer::getProviderCustomerId($billable, BillingProviderEnum::Barte);
@@ -165,5 +156,37 @@ final readonly class BarteAdapter implements BillingContract
         }
 
         return UserBillingManagePage::getUrl();
+    }
+
+    public function purchaseCredits(User|Company $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
+    {
+        $this->ensureCustomerExists($billable);
+
+        $customerId = $this->findCustomer($billable);
+
+        $pricePerCredit = 150;
+
+        $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
+            uuidSellerClient: $customerId,
+            scheduledDate: now()->toDateString(),
+            metadata: [
+                ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
+                ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
+                ['key' => 'company_id', 'value' => (string) $company->getKey()],
+                ['key' => 'quantity', 'value' => (string) $quantity],
+            ],
+            type: 'ORDER',
+            paymentMethods: ['PIX', 'CREDIT_CARD_EARLY_BUYER'],
+            paymentOrder: new PaymentOrderDto(
+                title: sprintf('Compra de %d crédito(s)', $quantity),
+                value: $quantity * $pricePerCredit,
+                customInstallmentsValues: [
+                    ['paymentMethod' => 'PIX', 'installments' => 1],
+                    ['paymentMethod' => 'CREDIT_CARD_EARLY_BUYER', 'installments' => 1],
+                ],
+            ),
+        ));
+
+        return $response['url'];
     }
 }

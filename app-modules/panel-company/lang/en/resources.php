@@ -4,6 +4,16 @@ declare(strict_types=1);
 
 return [
     'pages' => [
+        'credits' => [
+            'navigation_label' => 'Credits',
+            'title' => 'Credits',
+            'columns' => [
+                'holder' => 'Employee',
+                'status' => 'Status',
+                'owner' => 'Purchased by',
+                'transferred_at' => 'Distributed at',
+            ],
+        ],
         'edit_tenant' => [
             'label' => 'Company Settings',
             'members_heading' => 'Active Members List',
@@ -39,6 +49,32 @@ return [
         'logo' => [
             'label' => 'Company Logo',
             'notification' => 'Company logo changed succesfully.',
+        ],
+        'purchase_credits' => [
+            'label' => 'Purchase Credits',
+            'quantity' => 'Quantity',
+        ],
+        'revoke_all_credits' => [
+            'label' => 'Revoke Credits',
+            'disabled_tooltip' => 'There are no distributed credits to revoke.',
+            'queued_notification' => 'Credits are being revoked.',
+        ],
+        'distribute_equally' => [
+            'label' => 'Equal Distribution',
+            'disabled_tooltip' => 'There are not enough available credits to distribute equally. Credits must be with the company owner.',
+            'queued_notification' => 'Credits are being distributed.',
+        ],
+        'distribute_manually' => [
+            'label' => 'Distribute Credits',
+            'employee' => 'Employee',
+            'quantity' => 'Quantity',
+            'notice' => "The company owner's available credits will be transferred to the selected employee.",
+            'disabled_tooltip' => 'The company owner has no available credits to distribute.',
+            'success_notification' => 'Credits successfully distributed.',
+        ],
+        'transfer_credit' => [
+            'label' => 'Transfer',
+            'employee' => 'Transfer to',
         ],
     ],
 ];

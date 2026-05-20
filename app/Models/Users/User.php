@@ -32,8 +32,10 @@ use Spatie\Permission\Traits\HasRoles;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
@@ -243,7 +245,22 @@ class User extends Authenticatable implements FilamentUser, HasTenants
      */
     public function canCreateAppointment(): bool
     {
-        return $this->monthly_appointments_left > 0 && ! $this->hasOngoingAppointment();
+        return ($this->monthly_appointments_left > 0 || $this->hasAvailableCredit())
+            && ! $this->hasOngoingAppointment();
+    }
+
+    public function hasAvailableCredit(): bool
+    {
+        return UserCredit::query()
+            ->where('holder_id', $this->getKey())
+            ->where('status', UserCreditStatusEnum::Available)
+            ->exists();
+    }
+
+    /** @return HasMany<UserCredit, $this> */
+    public function credits(): HasMany
+    {
+        return $this->hasMany(UserCredit::class, 'holder_id');
     }
 
     /**

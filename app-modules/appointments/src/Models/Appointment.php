@@ -14,6 +14,7 @@ use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransitio
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
+use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 
@@ -83,5 +84,10 @@ class Appointment extends Model
     public function record(): HasOne
     {
         return $this->hasOne(AppointmentRecord::class);
+    }
+
+    public function credit(): HasOne
+    {
+        return $this->hasOne(UserCredit::class);
     }
 }
