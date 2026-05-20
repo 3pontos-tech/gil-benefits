@@ -56,21 +56,49 @@ class BillingManager extends Manager
 
 `src/Core/Enums/BillingProviderEnum.php`
 
+O enum expõe dois métodos estáticos que controlam o comportamento do sistema. **Todo o código de negócio consulta esses métodos — nunca referencia um case de provedor diretamente.**
+
 ```php
 enum BillingProviderEnum: string
 {
     case Stripe       = 'stripe';
     case Barte        = 'barte';
-    case Contractual  = 'contractual';  // não implementado ainda
+    case Contractual  = 'contractual';
 
+    /**
+     * Providers whose existing subscriptions are considered valid for access.
+     * Includes legacy providers while their plans have not yet expired.
+     */
     public static function activeCases(): array
     {
-        return [self::Barte];  // Stripe pode ser reativado aqui
+        return [self::Stripe, self::Barte];
+    }
+
+    /**
+     * Providers available for NEW subscriptions.
+     * Change this when migrating to a new gateway — no other changes needed.
+     */
+    public static function checkoutCases(): array
+    {
+        return [self::Barte];
     }
 }
 ```
 
-Ativar ou desativar um provedor é questão de atualizar `activeCases()` — sem mudanças em código de negócio.
+#### Separação de responsabilidades
+
+| Método | Usado em | Comportamento |
+|---|---|---|
+| `activeCases()` | Middlewares de acesso, `getPlansFor()`, `all()` | Inclui **todos** os providers com assinaturas válidas, inclusive legados |
+| `checkoutCases()` | Páginas de nova assinatura, `getCheckoutPlansFor()`, `ensureCustomerExists` nos middlewares | Apenas o(s) provider(s) disponíveis para **novas** assinaturas |
+
+#### Migração entre gateways
+
+Durante a migração de Stripe → Barte:
+- `activeCases()` contém `[Stripe, Barte]` para que assinantes Stripe legados continuem com acesso até o vencimento do plano.
+- `checkoutCases()` contém apenas `[Barte]` para que novas assinaturas usem exclusivamente o Barte.
+
+Quando todos os planos Stripe legados expirarem, basta remover `Stripe` de `activeCases()`. Para trocar de Barte para um próximo gateway, basta atualizar `checkoutCases()` — nenhum outro arquivo precisa ser alterado.
 
 ---
 
@@ -197,14 +225,21 @@ Migra os `stripe_id` existentes em `users` e `companies` para a nova tabela `bil
 `src/Stripe/Subscription/User/RedirectUserIfNotSubscribed.php`  
 `src/Stripe/Subscription/Company/RedirectCompanyIfNotSubscribed.php`
 
-Verificam subscription iterando sobre `BillingProviderEnum::activeCases()`, suportando múltiplos provedores simultâneos:
+Verificam subscription separando duas responsabilidades:
 
 ```php
-collect(BillingProviderEnum::activeCases())
+// 1. Cria customer apenas no gateway de novas assinaturas (checkoutCases)
+collect(BillingProviderEnum::checkoutCases())
+    ->each(fn ($provider) => $this->billingManager->getDriver($provider)->ensureCustomerExists($tenant));
+
+// 2. Verifica acesso em TODOS os providers ativos, incluindo legados (activeCases)
+$hasValidSubscription = collect(BillingProviderEnum::activeCases())
     ->contains(fn ($provider) =>
-        $this->billingManager->getDriver($provider)->hasActiveSubscription($tenant)
+        $this->billingManager->getDriver($provider)->isSubscribed($tenant, $plan->slug)
     );
 ```
+
+Dessa forma, assinantes do provider legado (Stripe) continuam com acesso enquanto o plano não vencer, mas novos customers só são criados no provider atual (Barte).
 
 ---
 
@@ -254,7 +289,7 @@ Configura `Cashier::useCustomerModel()` dinamicamente por painel Filament:
 | **Event-Driven** | Webhooks → eventos de domínio → listener único de sincronização |
 | **Repository** | `PlanRepository` abstrai acesso a planos |
 | **Polymorphic Morph** | `billing_customers` e `billing_subscriptions` suportam `User` e `Company` |
-| **Configuration-driven** | `BillingProviderEnum::activeCases()` controla os provedores ativos |
+| **Configuration-driven** | `BillingProviderEnum::activeCases()` controla acesso de assinantes existentes; `checkoutCases()` controla o gateway de novas assinaturas |
 
 ---
 

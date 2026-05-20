@@ -31,14 +31,14 @@ class RedirectCompanyIfNotSubscribed
 
         $plans = resolve(PlanRepository::class)->all();
 
+        collect(BillingProviderEnum::checkoutCases())
+            ->each(fn (BillingProviderEnum $provider) => $this->billingManager->getDriver($provider)->ensureCustomerExists($tenant));
+
         $hasValidSubscription = collect(BillingProviderEnum::activeCases())
-            ->contains(function (BillingProviderEnum $provider) use ($tenant, $plans): bool {
-                $driver = $this->billingManager->getDriver($provider);
-
-                $driver->ensureCustomerExists($tenant);
-
-                return array_any($plans, fn ($plan): bool => $driver->isSubscribed($tenant, $plan->slug));
-            });
+            ->contains(fn (BillingProviderEnum $provider): bool => array_any(
+                $plans,
+                fn ($plan): bool => $this->billingManager->getDriver($provider)->isSubscribed($tenant, $plan->slug)
+            ));
 
         if ($hasValidSubscription) {
             return $next($request);

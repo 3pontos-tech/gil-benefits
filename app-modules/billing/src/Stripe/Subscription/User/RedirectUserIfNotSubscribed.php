@@ -50,11 +50,12 @@ class RedirectUserIfNotSubscribed
         /** @var Collection<string, PlanEntity> $availableEmployeesPlans */
         $availableEmployeesPlans = $this->planRepository->getPlansFor('user');
 
+        collect(BillingProviderEnum::checkoutCases())
+            ->each(fn (BillingProviderEnum $provider) => $this->billingManager->getDriver($provider)->ensureCustomerExists($employee));
+
         $hasValidSubscription = collect(BillingProviderEnum::activeCases())
             ->contains(function (BillingProviderEnum $provider) use ($employee, $availableEmployeesPlans): bool {
                 $driver = $this->billingManager->getDriver($provider);
-
-                $driver->ensureCustomerExists($employee);
 
                 foreach ($availableEmployeesPlans as $plan) {
                     if ($driver->isSubscribed($employee, $plan->slug)) {

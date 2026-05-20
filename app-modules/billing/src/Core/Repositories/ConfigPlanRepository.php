@@ -57,6 +57,11 @@ final readonly class ConfigPlanRepository implements PlanRepository
             ->filter(fn ($plan, $key): bool => str_starts_with($key, 'user_'));
     }
 
+    public function getCheckoutPlansFor(string $name): Collection
+    {
+        return $this->getPlansFor($name);
+    }
+
     public function getActiveTenantPlan(BillingProviderEnum $provider): PlanEntity
     {
         return collect($this->all())
