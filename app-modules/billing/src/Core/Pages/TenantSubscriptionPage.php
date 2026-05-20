@@ -31,8 +31,6 @@ class TenantSubscriptionPage extends Page
 
     public int $seatsAmount = 5;
 
-    public string $driver = 'barte';
-
     protected function getViewData(): array
     {
         return [
@@ -43,7 +41,12 @@ class TenantSubscriptionPage extends Page
     #[Computed]
     public function getActiveTenantPlan(): PlanEntity
     {
-        return resolve(PlanRepository::class)->getActiveTenantPlan(BillingProviderEnum::from($this->driver));
+        return resolve(PlanRepository::class)->getActiveTenantPlan($this->checkoutProvider());
+    }
+
+    private function checkoutProvider(): BillingProviderEnum
+    {
+        return BillingProviderEnum::checkoutCases()[0];
     }
 
     public function checkout(): void
@@ -76,7 +79,7 @@ class TenantSubscriptionPage extends Page
             metadata: ['model' => Relation::getMorphAlias(Company::class)],
         );
 
-        $driver = resolve(BillingManager::class)->getDriver(BillingProviderEnum::from($this->driver));
+        $driver = resolve(BillingManager::class)->getDriver($this->checkoutProvider());
         $url = $driver->createCheckout($tenant, $data);
 
         if ($driver->checkoutOpensInNewTab()) {
@@ -95,7 +98,7 @@ class TenantSubscriptionPage extends Page
         $tenant = Filament::getTenant();
 
         $active = resolve(BillingManager::class)
-            ->getDriver(BillingProviderEnum::from($this->driver))
+            ->getDriver($this->checkoutProvider())
             ->hasActiveSubscription($tenant);
 
         if ($active) {

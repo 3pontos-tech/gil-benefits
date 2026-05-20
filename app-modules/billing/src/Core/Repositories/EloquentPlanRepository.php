@@ -37,6 +37,17 @@ class EloquentPlanRepository implements PlanRepository
         );
     }
 
+    public function getCheckoutPlansFor(string $name): Collection
+    {
+        return Cache::remember('checkout_user_plans', 15, fn () => Plan::query()
+            ->where('type', BillableTypeEnum::User)
+            ->where('active', true)
+            ->whereIn('provider', BillingProviderEnum::checkoutCases())
+            ->get()
+            ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan))
+        );
+    }
+
     public function getActiveTenantPlan(BillingProviderEnum $provider): PlanEntity
     {
         return Cache::remember('active_tenant_plan_' . $provider->value, 60, fn (): PlanEntity => PlanEntity::fromEloquent(

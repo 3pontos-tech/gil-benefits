@@ -26,13 +26,13 @@ class UserSubscriptionPage extends Page
 
     public function mount(): void
     {
-        $plans = resolve(PlanRepository::class)->getPlansFor('user');
+        $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user');
         $this->selectedPlanSlug = $plans->first()?->slug ?? '';
     }
 
     protected function getViewData(): array
     {
-        return ['plans' => resolve(PlanRepository::class)->getPlansFor('user')];
+        return ['plans' => resolve(PlanRepository::class)->getCheckoutPlansFor('user')];
     }
 
     public function checkout(string $planSlug): void

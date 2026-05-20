@@ -19,5 +19,8 @@ interface PlanRepository
 
     public function getPlansFor(string $name): Collection;
 
+    /** Planos disponíveis para NOVAS assinaturas (usa checkoutCases). */
+    public function getCheckoutPlansFor(string $name): Collection;
+
     public function getActiveTenantPlan(BillingProviderEnum $provider): PlanEntity;
 }

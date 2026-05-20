@@ -37,7 +37,19 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
         return $this->name;
     }
 
+    /**
+     * Providers whose existing subscriptions are considered valid for access.
+     * Includes legacy providers while their plans have not yet expired.
+     */
     public static function activeCases(): array
+    {
+        return [self::Stripe, self::Barte];
+    }
+
+    /**
+     * Available Providers for NEW Subscriptions.
+     */
+    public static function checkoutCases(): array
     {
         return [self::Barte];
     }

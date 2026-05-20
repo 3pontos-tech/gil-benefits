@@ -15,6 +15,7 @@ final readonly class SubscriptionDTO
         public string $subscriptionExternalId,
         public string $status,
         public ?string $planExternalId,
+        public string $planSlug,
         public int $quantity,
         public ?Carbon $endsAt,
     ) {}
@@ -27,6 +28,7 @@ final readonly class SubscriptionDTO
         ?string $cycleType,
         int|string $quantity,
         ?Carbon $endsAt = null,
+        string $planSlug = 'default',
     ): self {
         return new self(
             billableType: $billingCustomer->billable_type,
@@ -34,6 +36,7 @@ final readonly class SubscriptionDTO
             subscriptionExternalId: $subscriptionExternalId,
             status: $status,
             planExternalId: $planUuid ? ($cycleType ? sprintf('%s-%s', $planUuid, $cycleType) : $planUuid) : null,
+            planSlug: $planSlug,
             quantity: (int) $quantity,
             endsAt: $endsAt,
         );
