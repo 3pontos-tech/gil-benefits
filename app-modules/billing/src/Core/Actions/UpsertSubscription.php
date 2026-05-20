@@ -16,7 +16,7 @@ final class UpsertSubscription
             [
                 'subscriptionable_type' => $dto->billableType,
                 'subscriptionable_id' => $dto->billableId,
-                'type' => 'default',
+                'type' => $dto->planSlug,
                 'stripe_status' => $dto->status,
                 'stripe_price' => $dto->planExternalId,
                 'quantity' => $dto->quantity,

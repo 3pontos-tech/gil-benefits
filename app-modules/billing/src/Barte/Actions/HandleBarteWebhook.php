@@ -19,6 +19,7 @@ use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionDefaulted;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
+use TresPontosTech\Billing\Core\Models\Plan;
 
 class HandleBarteWebhook
 {
@@ -55,11 +56,15 @@ class HandleBarteWebhook
 
         $quantity = $dto->metadata->get('quantity');
 
+        $planSlug = $planUuid
+            ? (Plan::query()->where('provider_product_id', $planUuid)->value('slug') ?? 'default')
+            : 'default';
+
         $event = match ($dto->event) {
-            BarteWebhookEventEnum::SubscriptionPending => new SubscriptionCreated(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'pending', $planUuid, $cycleType, $quantity)),
-            BarteWebhookEventEnum::SubscriptionActive => new SubscriptionActivated(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'active', $planUuid, $cycleType, $quantity)),
-            BarteWebhookEventEnum::SubscriptionDefaulter => new SubscriptionDefaulted(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'defaulter', $planUuid, $cycleType, $quantity)),
-            BarteWebhookEventEnum::SubscriptionInactive => new SubscriptionCancelled(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'inactive', $planUuid, $cycleType, $quantity, Date::now())),
+            BarteWebhookEventEnum::SubscriptionPending => new SubscriptionCreated(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'pending', $planUuid, $cycleType, $quantity, planSlug: $planSlug)),
+            BarteWebhookEventEnum::SubscriptionActive => new SubscriptionActivated(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'active', $planUuid, $cycleType, $quantity, planSlug: $planSlug)),
+            BarteWebhookEventEnum::SubscriptionDefaulter => new SubscriptionDefaulted(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'defaulter', $planUuid, $cycleType, $quantity, planSlug: $planSlug)),
+            BarteWebhookEventEnum::SubscriptionInactive => new SubscriptionCancelled(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'inactive', $planUuid, $cycleType, $quantity, Date::now(), $planSlug)),
             default => null,
         };
 
