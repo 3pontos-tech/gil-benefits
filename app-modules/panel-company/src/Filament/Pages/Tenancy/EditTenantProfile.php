@@ -36,11 +36,17 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 
     public static function canAccess(): bool
     {
-        if (auth()->user()->isAdmin()) {
+        /** @var User $user */
+        $user = auth()->user();
+        if ($user->isAdmin()) {
             return true;
         }
 
-        return auth()->user()->isCompanyOwner() && auth()->user()->ownedCompanies()->where('slug', filament()->getTenant()->slug)->exists();
+        if ($user->isCompanyOwner()) {
+            return true;
+        }
+
+        return $user->isCompanyManager();
     }
 
     public static function getLabel(): string
