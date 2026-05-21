@@ -14,6 +14,17 @@ return [
                 'transferred_at' => 'Distribuído em',
             ],
         ],
+        'metrics' => [
+            'title' => 'Métricas',
+            'navigation_label' => 'Métricas',
+            'filter_start_date' => 'Data inicial',
+            'filter_end_date' => 'Data final',
+            'tab_consultations' => 'Consultorias',
+            'tab_engagement' => 'Engajamento',
+            'tab_credits' => 'Créditos',
+            'filter_user' => 'Colaborador',
+            'filter_user_placeholder' => 'Todos os colaboradores',
+        ],
         'edit_tenant' => [
             'label' => 'Configurações da Empresa',
             'members_heading' => 'Lista de Membros ativos',
