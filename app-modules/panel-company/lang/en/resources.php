@@ -14,6 +14,17 @@ return [
                 'transferred_at' => 'Distributed at',
             ],
         ],
+        'metrics' => [
+            'title' => 'Metrics',
+            'navigation_label' => 'Metrics',
+            'filter_start_date' => 'Start date',
+            'filter_end_date' => 'End date',
+            'tab_consultations' => 'Consultations',
+            'tab_engagement' => 'Engagement',
+            'tab_credits' => 'Credits',
+            'filter_user' => 'Employee',
+            'filter_user_placeholder' => 'All employees',
+        ],
         'edit_tenant' => [
             'label' => 'Company Settings',
             'members_heading' => 'Active Members List',
