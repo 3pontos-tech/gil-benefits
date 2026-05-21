@@ -42,11 +42,25 @@ class AppointmentVolumeChart extends ChartWidget
         $tenantId = Filament::getTenant()->id;
         $userId = data_get($this->filters, 'userId');
 
-        [$start, $end, $period] = match ($this->filter ?? 'month') {
-            'day' => [today(), now()->endOfDay(), 'perHour'],
-            'week' => [now()->startOfWeek(), now()->endOfWeek(), 'perDay'],
-            default => [now()->startOfMonth(), now()->endOfMonth(), 'perDay'],
-        };
+        $startDate = data_get($this->filters, 'startDate');
+        $endDate = data_get($this->filters, 'endDate');
+
+        if (filled($startDate) && filled($endDate)) {
+            $start = now()->parse($startDate)->startOfDay();
+            $end = now()->parse($endDate)->endOfDay();
+            $span = $start->diffInDays($end);
+            $period = match (true) {
+                $span <= 1 => 'perHour',
+                $span <= 31 => 'perDay',
+                default => 'perMonth',
+            };
+        } else {
+            [$start, $end, $period] = match ($this->filter ?? 'month') {
+                'day' => [today(), now()->endOfDay(), 'perHour'],
+                'week' => [now()->startOfWeek(), now()->endOfWeek(), 'perDay'],
+                default => [now()->startOfMonth(), now()->endOfMonth(), 'perDay'],
+            };
+        }
 
         $cacheKey = sprintf('company_metrics.appt_volume.%s.%s.%s.%s.%s', $tenantId, $userId, $this->filter, $start, $end);
 

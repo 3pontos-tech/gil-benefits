@@ -12,9 +12,11 @@ use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class CreditUsageTableWidget extends TableWidget
 {
+    use HasMetricsDateRange;
     use InteractsWithPageFilters;
 
     protected static bool $isDiscovered = false;
@@ -77,16 +79,5 @@ class CreditUsageTableWidget extends TableWidget
             ->when($userId, fn ($q) => $q->where('user_credits.holder_id', $userId))
             ->select('user_credits.*')
             ->latest('appointments.appointment_at');
-    }
-
-    private function dateRange(): array
-    {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
-
-        return [
-            'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
-            'end' => filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay(),
-        ];
     }
 }

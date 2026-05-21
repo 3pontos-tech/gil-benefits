@@ -10,9 +10,11 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class CreditStatsWidget extends StatsOverviewWidget
 {
+    use HasMetricsDateRange;
     use InteractsWithPageFilters;
 
     protected static bool $isDiscovered = false;
@@ -70,17 +72,6 @@ class CreditStatsWidget extends StatsOverviewWidget
                 ->description(__('panel-company::widgets.credit_stats_metrics.available_description'))
                 ->descriptionIcon('heroicon-o-credit-card')
                 ->color('gray'),
-        ];
-    }
-
-    private function dateRange(): array
-    {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
-
-        return [
-            'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
-            'end' => filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay(),
         ];
     }
 }

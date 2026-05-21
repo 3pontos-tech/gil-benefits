@@ -9,9 +9,11 @@ use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class AppointmentsByCategoryChart extends ChartWidget
 {
+    use HasMetricsDateRange;
     use InteractsWithPageFilters;
 
     protected static bool $isDiscovered = false;
@@ -79,17 +81,6 @@ class AppointmentsByCategoryChart extends ChartWidget
             'plugins' => [
                 'legend' => ['display' => false],
             ],
-        ];
-    }
-
-    private function dateRange(): array
-    {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
-
-        return [
-            'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
-            'end' => filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay(),
         ];
     }
 }

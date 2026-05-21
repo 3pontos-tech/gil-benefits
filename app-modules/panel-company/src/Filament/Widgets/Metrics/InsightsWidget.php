@@ -10,9 +10,11 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class InsightsWidget extends StatsOverviewWidget
 {
+    use HasMetricsDateRange;
     use InteractsWithPageFilters;
 
     protected static bool $isDiscovered = false;
@@ -39,12 +41,16 @@ class InsightsWidget extends StatsOverviewWidget
         ]);
     }
 
-    private function neverUsedStat(Company $tenant, ?string $userId): Stat
+    private function neverUsedStat(Company $tenant, ?string $userId): ?Stat
     {
         $employeesQuery = $tenant->employees()
             ->when($userId, fn ($q) => $q->where('users.id', $userId));
 
         $totalEmployees = (clone $employeesQuery)->count();
+
+        if ($totalEmployees === 0) {
+            return null;
+        }
 
         $everUsedCount = (clone $employeesQuery)
             ->whereHas('appointments', fn ($q) => $q
@@ -125,9 +131,12 @@ class InsightsWidget extends StatsOverviewWidget
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
+        $employeeIds = $tenant->employees()->select('users.id');
+
         $topData = Appointment::query()
             ->where('company_id', $tenant->id)
             ->whereBetween('appointment_at', [$start, $end])
+            ->whereIn('user_id', $employeeIds)
             ->selectRaw('user_id, count(*) as period_count')
             ->groupBy('user_id')
             ->orderByDesc('period_count')
@@ -138,13 +147,7 @@ class InsightsWidget extends StatsOverviewWidget
             return null;
         }
 
-        $topUser = $tenant->employees()
-            ->where('users.id', $topData->user_id)
-            ->first();
-
-        if (! $topUser) {
-            return null;
-        }
+        $topUser = $tenant->employees()->find($topData->user_id);
 
         return Stat::make(__('panel-company::widgets.insights.top_user'), $topUser->name)
             ->description(__('panel-company::widgets.insights.top_user_description', [
@@ -160,16 +163,5 @@ class InsightsWidget extends StatsOverviewWidget
         return Stat::make(__('panel-company::widgets.insights.no_data'), '—')
             ->description(__('panel-company::widgets.insights.no_data_description'))
             ->color('gray');
-    }
-
-    private function dateRange(): array
-    {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
-
-        return [
-            'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
-            'end' => filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay(),
-        ];
     }
 }

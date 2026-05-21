@@ -10,9 +10,11 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class AppointmentStatsWidget extends StatsOverviewWidget
 {
+    use HasMetricsDateRange;
     use InteractsWithPageFilters;
 
     protected static bool $isDiscovered = false;
@@ -71,17 +73,6 @@ class AppointmentStatsWidget extends StatsOverviewWidget
                 ]))
                 ->descriptionIcon('heroicon-o-chart-bar')
                 ->color($attendanceRate >= 70 ? 'success' : ($attendanceRate >= 40 ? 'warning' : 'danger')),
-        ];
-    }
-
-    private function dateRange(): array
-    {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
-
-        return [
-            'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
-            'end' => filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay(),
         ];
     }
 }

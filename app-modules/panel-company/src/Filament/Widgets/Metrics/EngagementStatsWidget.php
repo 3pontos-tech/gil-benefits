@@ -9,9 +9,11 @@ use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class EngagementStatsWidget extends StatsOverviewWidget
 {
+    use HasMetricsDateRange;
     use InteractsWithPageFilters;
 
     protected static bool $isDiscovered = false;
@@ -83,17 +85,6 @@ class EngagementStatsWidget extends StatsOverviewWidget
                 ->description(__('panel-company::widgets.engagement_stats.first_time_users_description'))
                 ->descriptionIcon('heroicon-o-star')
                 ->color('info'),
-        ];
-    }
-
-    private function dateRange(): array
-    {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
-
-        return [
-            'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
-            'end' => filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay(),
         ];
     }
 }
