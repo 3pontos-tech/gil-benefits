@@ -38,15 +38,18 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
     {
         /** @var User $user */
         $user = auth()->user();
+
         if ($user->isAdmin()) {
             return true;
         }
 
-        if ($user->isCompanyOwner()) {
-            return true;
+        if (! $user->isCompanyOwner() && ! $user->isCompanyManager()) {
+            return false;
         }
 
-        return $user->isCompanyManager();
+        $tenant = filament()->getTenant();
+
+        return ! $tenant instanceof Model || $user->canAccessTenant($tenant);
     }
 
     public static function getLabel(): string

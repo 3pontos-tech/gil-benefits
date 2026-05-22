@@ -28,15 +28,6 @@ class AppointmentVolumeChart extends ChartWidget
         return __('panel-company::widgets.appointment_volume.heading');
     }
 
-    protected function getFilters(): ?array
-    {
-        return [
-            'day' => __('panel-company::widgets.appointment_volume.filter_today'),
-            'week' => __('panel-company::widgets.appointment_volume.filter_week'),
-            'month' => __('panel-company::widgets.appointment_volume.filter_month'),
-        ];
-    }
-
     protected function getData(): array
     {
         $tenantId = Filament::getTenant()->id;
@@ -48,21 +39,19 @@ class AppointmentVolumeChart extends ChartWidget
         if (filled($startDate) && filled($endDate)) {
             $start = now()->parse($startDate)->startOfDay();
             $end = now()->parse($endDate)->endOfDay();
-            $span = $start->diffInDays($end);
-            $period = match (true) {
-                $span <= 1 => 'perHour',
-                $span <= 31 => 'perDay',
-                default => 'perMonth',
-            };
         } else {
-            [$start, $end, $period] = match ($this->filter ?? 'month') {
-                'day' => [today(), now()->endOfDay(), 'perHour'],
-                'week' => [now()->startOfWeek(), now()->endOfWeek(), 'perDay'],
-                default => [now()->startOfMonth(), now()->endOfMonth(), 'perDay'],
-            };
+            $start = now()->startOfMonth();
+            $end = now()->endOfMonth();
         }
 
-        $cacheKey = sprintf('company_metrics.appt_volume.%s.%s.%s.%s.%s', $tenantId, $userId, $this->filter, $start, $end);
+        $span = $start->diffInDays($end);
+        $period = match (true) {
+            $span <= 1 => 'perHour',
+            $span <= 31 => 'perDay',
+            default => 'perMonth',
+        };
+
+        $cacheKey = sprintf('company_metrics.appt_volume.%s.%s.%s.%s', $tenantId, $userId, $start, $end);
 
         [$totalData, $completedData] = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($tenantId, $userId, $start, $end, $period): array {
             return [
