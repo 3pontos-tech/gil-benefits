@@ -39,6 +39,10 @@ return [
             'form_name' => 'Company Name',
             'form_tax_id' => 'Tax ID',
             'form_integration_access_key' => 'Integration Access Key',
+            'make_manager' => 'Make Manager',
+            'remove_manager' => 'Remove Manager',
+            'make_manager_notification' => ':name is now a Company Manager.',
+            'remove_manager_notification' => ':name is no longer a Company Manager.',
         ],
     ],
     'actions' => [

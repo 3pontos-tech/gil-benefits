@@ -39,6 +39,10 @@ return [
             'form_name' => 'Nome da Empresa',
             'form_tax_id' => 'CNPJ',
             'form_integration_access_key' => 'Chave de Acesso de Integração',
+            'make_manager' => 'Tornar Gerente',
+            'remove_manager' => 'Remover Gerente',
+            'make_manager_notification' => ':name agora é Gerente.',
+            'remove_manager_notification' => ':name não é mais Gerente.',
         ],
     ],
     'actions' => [

@@ -36,11 +36,20 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 
     public static function canAccess(): bool
     {
-        if (auth()->user()->isAdmin()) {
+        /** @var User $user */
+        $user = auth()->user();
+
+        if ($user->isAdmin()) {
             return true;
         }
 
-        return auth()->user()->isCompanyOwner() && auth()->user()->ownedCompanies()->where('slug', filament()->getTenant()->slug)->exists();
+        if (! $user->isCompanyOwner() && ! $user->isCompanyManager()) {
+            return false;
+        }
+
+        $tenant = filament()->getTenant();
+
+        return ! $tenant instanceof Model || $user->canAccessTenant($tenant);
     }
 
     public static function getLabel(): string
@@ -91,10 +100,56 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->company(fn (): ?Model => filament()->getTenant()),
             ])
             ->recordActions([
+                Action::make('toggle-manager')
+                    ->label(fn (User $record): string => $record->hasRole(Roles::CompanyManager)
+                        ? __('panel-company::resources.pages.edit_tenant.remove_manager')
+                        : __('panel-company::resources.pages.edit_tenant.make_manager'))
+                    ->icon(Heroicon::OutlinedShieldCheck)
+                    ->color(fn (User $record): string => $record->hasRole(Roles::CompanyManager) ? 'danger' : 'warning')
+                    ->requiresConfirmation()
+                    ->visible(function (User $record): bool {
+                        /** @var User $actingUser */
+                        $actingUser = auth()->user();
+                        /** @var Company $company */
+                        $company = filament()->getTenant();
+
+                        if ($record->getKey() === $actingUser->getKey()) {
+                            return false;
+                        }
+
+                        if ($record->getKey() === $company->user_id) {
+                            return false;
+                        }
+
+                        return ! ($actingUser->isCompanyManager() && $record->hasRole(Roles::CompanyManager));
+                    })
+                    ->action(function (User $record): void {
+                        if ($record->hasRole(Roles::CompanyManager)) {
+                            $record->removeRole(Roles::CompanyManager);
+
+                            Notification::make()
+                                ->title(__('panel-company::resources.pages.edit_tenant.remove_manager_notification', ['name' => $record->name]))
+                                ->success()
+                                ->send();
+                        } else {
+                            $record->assignRole(Roles::CompanyManager);
+
+                            Notification::make()
+                                ->title(__('panel-company::resources.pages.edit_tenant.make_manager_notification', ['name' => $record->name]))
+                                ->success()
+                                ->send();
+                        }
+                    }),
                 Action::make('toggle-active')
-                    ->label(fn ($record): string => $record->active
+                    ->label(fn (User $record): string => $record->active
                         ? __('panel-company::resources.pages.edit_tenant.deactivate')
                         : __('panel-company::resources.pages.edit_tenant.activate'))
+                    ->visible(function (User $record): bool {
+                        /** @var Company $company */
+                        $company = filament()->getTenant();
+
+                        return $record->getKey() !== $company->user_id;
+                    })
                     ->action(function (User $record): void {
                         /** @var Company $company */
                         $company = filament()->getTenant();
@@ -105,6 +160,12 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                         ]);
                     }),
                 DetachAction::make()
+                    ->visible(function (User $record): bool {
+                        /** @var Company $company */
+                        $company = filament()->getTenant();
+
+                        return $record->getKey() !== $company->user_id;
+                    })
                     ->action(fn ($record) => filament()->getTenant()->employees()->detach($record)),
             ])
             ->columns([

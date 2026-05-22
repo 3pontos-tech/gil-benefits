@@ -107,6 +107,14 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             return true;
         }
 
+        if ($this->isCompanyOwner()) {
+            return $this->ownedCompanies()->whereKey($tenant)->exists();
+        }
+
+        if ($this->isCompanyManager()) {
+            return $this->companies()->whereKey($tenant)->exists();
+        }
+
         return $this->companies()->whereKey($tenant)->exists();
     }
 
@@ -117,6 +125,14 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     {
         if ($this->isAdmin()) {
             return Company::query()->orderBy('name')->get();
+        }
+
+        if ($this->isCompanyOwner()) {
+            return $this->ownedCompanies()->orderBy('name')->get();
+        }
+
+        if ($this->isCompanyManager()) {
+            return $this->companies;
         }
 
         return $this->companies;
@@ -212,6 +228,11 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function isCompanyOwner(): bool
     {
         return $this->hasRole([Roles::CompanyOwner]);
+    }
+
+    public function isCompanyManager(): bool
+    {
+        return $this->hasRole([Roles::CompanyManager]);
     }
 
     public function isEmployee(): bool
