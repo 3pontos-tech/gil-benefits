@@ -3,6 +3,12 @@
 declare(strict_types=1);
 
 return [
+    'credit_stats' => [
+        'total' => 'Total',
+        'available_description' => 'Ready to use',
+        'in_use_description' => 'In appointments',
+        'used_description' => 'Sessions completed',
+    ],
     'appointment_history' => [
         'heading' => 'Latest Appointments',
         'consultant' => 'Consultant',

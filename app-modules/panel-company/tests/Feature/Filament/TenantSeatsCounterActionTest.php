@@ -14,7 +14,7 @@ beforeEach(function (): void {
 it('shows seat count using active stripe subscription quantity when no contractual plan exists', function (): void {
     livewire(EditTenantProfile::class)
         ->assertOk()
-        ->assertSee('Assentos: 1/10');
+        ->assertSee('Assentos: 0/10');
 });
 
 it('shows seat count using contractual plan seats when a contractual plan is active', function (): void {
@@ -22,7 +22,7 @@ it('shows seat count using contractual plan seats when a contractual plan is act
 
     livewire(EditTenantProfile::class)
         ->assertOk()
-        ->assertSee('Assentos: 1/5');
+        ->assertSee('Assentos: 0/5');
 });
 
 it('counts only active employees in the seat display', function (): void {
@@ -31,5 +31,5 @@ it('counts only active employees in the seat display', function (): void {
 
     livewire(EditTenantProfile::class)
         ->assertOk()
-        ->assertSee('Assentos: 1/10');
+        ->assertSee('Assentos: 0/10');
 });

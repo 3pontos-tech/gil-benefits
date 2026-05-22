@@ -49,6 +49,26 @@ return [
                 PermissionsEnum::Delete,
             ],
         ],
+        Roles::CompanyManager->value => [
+            Company::class => [
+                PermissionsEnum::View,
+                PermissionsEnum::Update,
+            ],
+            User::class => [
+                PermissionsEnum::ViewAny,
+                PermissionsEnum::View,
+                PermissionsEnum::Create,
+                PermissionsEnum::Update,
+                PermissionsEnum::Delete,
+            ],
+            Detail::class => [
+                PermissionsEnum::ViewAny,
+                PermissionsEnum::View,
+                PermissionsEnum::Create,
+                PermissionsEnum::Update,
+                PermissionsEnum::Delete,
+            ],
+        ],
         Roles::CompanyOwner->value => [
             Company::class => [
                 PermissionsEnum::View,

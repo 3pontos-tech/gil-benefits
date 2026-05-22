@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\AvailableTagsEnum;
 use Illuminate\Database\Seeder;
 use TresPontosTech\Consultants\Models\Consultant;
+use Zap\Facades\Zap;
 
 class ConsultantSeeder extends Seeder
 {
@@ -150,6 +151,13 @@ class ConsultantSeeder extends Seeder
             foreach (AvailableTagsEnum::cases() as $case) {
                 $consultant->attachTags($case->getDefault(), $case->value);
             }
+
+            Zap::for($consultant)
+                ->named('Comercial')
+                ->availability()
+                ->from(now()->toDateString())
+                ->weekDays(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], '08:00', '20:00')
+                ->save();
         }
     }
 }

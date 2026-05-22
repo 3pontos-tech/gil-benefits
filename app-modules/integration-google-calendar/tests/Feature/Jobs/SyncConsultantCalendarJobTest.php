@@ -29,7 +29,7 @@ beforeEach(function (): void {
 it('calls SyncConsultantCalendarAction successfully', function (): void {
     $client = Mockery::mock(GoogleCalendarClient::class);
     $client->shouldReceive('getAccessToken')->andReturn('fake-token');
-    $client->shouldReceive('listEvents')->once()->andReturn(new CalendarEventsResponse(collect([]), null));
+    $client->shouldReceive('listEvents')->once()->andReturn(new CalendarEventsResponse(collect([]), null, null));
 
     $this->job->handle(makeSyncAction($client));
 });

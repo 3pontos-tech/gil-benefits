@@ -4,46 +4,42 @@
 ])
 
 @php
+    use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
+
     /** @var \TresPontosTech\Billing\Core\Entities\PlanEntity $plan */
 
-    $tiers = [
-        [
-            'label' => '5-15 colaboradores',
-            'pricing' => 44.90,
-            'min' => 5,
-            'max' => 15
-        ],
-        [
-            'label' => '16-30 colaboradores',
-            'pricing' => 34.90,
-            'min' => 16,
-            'max' => 30
-        ],
-        [
-            'label' => '31-70 colaboradores',
-            'pricing' => 24.90,
-            'min' => 31,
-            'max' => 70
-        ],
-        [
-            'label' => '71+ colaboradores',
-            'pricing' => 11.90,
-            'min' => 71,
-            'max' => 9999999999
-        ],
-    ];
+    $tiers = SeatPricingTierEnum::cases();
+
+    $tierData = collect($tiers)
+        ->map(fn ($tier) => ['max' => $tier->maxSeats(), 'price' => $tier->pricePerSeat()])
+        ->values()
+        ->all();
 @endphp
 
+
+<div>
+<x-filament::modal id="waiting-for-payment" :close-button="false" :close-by-clicking-away="false">
+    <x-slot name="heading">Aguardando confirmação do pagamento</x-slot>
+
+    <div wire:poll.3000ms="checkPaymentStatus" class="flex flex-col items-center gap-4 py-4 text-center">
+        <x-filament::loading-indicator class="h-10 w-10 text-primary-600" />
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+            O link de pagamento foi aberto em uma nova aba.<br>
+            Esta página será atualizada automaticamente após a confirmação.
+        </p>
+        <x-filament::button color="gray" wire:click="cancelWaiting">
+            Voltar e tentar novamente
+        </x-filament::button>
+    </div>
+</x-filament::modal>
 
 <div
     x-data="{
         min: 5,
         qty: 5,
+        tiers: @js($tierData),
         tierPrice() {
-            if (this.qty <= 15) { return 44.90 }
-            if (this.qty <= 30) { return 34.90 }
-            if (this.qty <= 70) { return 24.90 }
-            return 11.90
+            return this.tiers.find(t => t.max === null || this.qty <= t.max)?.price ?? 0
         },
         formatBRL(v) { return 'R$ ' + Number(v).toFixed(2).replace('.', ',') },
         clamp() { if (!this.qty || this.qty < this.min) this.qty = this.min },
@@ -67,17 +63,17 @@
                     <div class="grid sm:grid-cols-2 gap-3 mb-10">
                         @foreach($tiers as $tier)
                             <x-filament::section compact="true"
-                                                 x-bind:class="inRange({{$tier['min']}},{{$tier['max']}}) ? 'bg-primary-900/10 ring-primary-800/30' : ''">
+                                                 x-bind:class="inRange({{ $tier->minSeats() }}, {{ $tier->maxSeats() ?? 'null' }}) ? 'bg-primary-900/10 ring-primary-800/30' : ''">
                                 <x-filament::section.heading>
-                                    {{ $tier['label'] }}
-                                    <x-filament::badge x-show="inRange({{$tier['min']}},{{$tier['max']}})"
+                                    {{ $tier->label() }}
+                                    <x-filament::badge x-show="inRange({{ $tier->minSeats() }}, {{ $tier->maxSeats() ?? 'null' }})"
                                                        badge-color="primary">Atual
                                     </x-filament::badge>
                                 </x-filament::section.heading>
 
                                 <x-filament::section.description>
                                     <span
-                                        class="text-2xl font-bold">R$ {{ number_format($tier['pricing'], 2, ',') }}</span>
+                                        class="text-2xl font-bold">R$ {{ number_format($tier->pricePerSeat(), 2, ',') }}</span>
                                 </x-filament::section.description>
                             </x-filament::section>
                         @endforeach
@@ -140,6 +136,14 @@
                                 </div>
 
                             </div>
+{{--                            Provedor de Pagamento--}}
+{{--                            <x-filament::input.wrapper class="mb-2">--}}
+{{--                                <x-filament::input.select wire:model.live="driver">--}}
+{{--                                    @foreach(\TresPontosTech\Billing\Core\Enums\BillingProviderEnum::activeCases() as $case)--}}
+{{--                                        <option value="{{$case->value}}">{{$case->getLabel()}}</option>--}}
+{{--                                    @endforeach--}}
+{{--                                </x-filament::input.select>--}}
+{{--                            </x-filament::input.wrapper>--}}
 
                             <x-filament::button
                                 x-bind:disabled="qty < min"
@@ -153,4 +157,5 @@
             </div>
         </div>
     </div>
+</div>
 </div>

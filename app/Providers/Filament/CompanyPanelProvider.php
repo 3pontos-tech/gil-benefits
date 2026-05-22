@@ -26,6 +26,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\Billing\Stripe\Subscription\Company\CompanyBillingProvider;
 use TresPontosTech\Company\Models\Company;
@@ -55,7 +56,10 @@ class CompanyPanelProvider extends PanelProvider
             ->pages([
                 Dashboard::class,
                 TenantSubscriptionPage::class,
+                BillingManagePage::class,
             ])
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->passwordReset()
             ->registration()
             ->tenantRegistration(RegisterTenant::class)

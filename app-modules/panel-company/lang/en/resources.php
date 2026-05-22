@@ -4,6 +4,27 @@ declare(strict_types=1);
 
 return [
     'pages' => [
+        'credits' => [
+            'navigation_label' => 'Credits',
+            'title' => 'Credits',
+            'columns' => [
+                'holder' => 'Employee',
+                'status' => 'Status',
+                'owner' => 'Purchased by',
+                'transferred_at' => 'Distributed at',
+            ],
+        ],
+        'metrics' => [
+            'title' => 'Metrics',
+            'navigation_label' => 'Metrics',
+            'filter_start_date' => 'Start date',
+            'filter_end_date' => 'End date',
+            'tab_consultations' => 'Consultations',
+            'tab_engagement' => 'Engagement',
+            'tab_credits' => 'Credits',
+            'filter_user' => 'Employee',
+            'filter_user_placeholder' => 'All employees',
+        ],
         'edit_tenant' => [
             'label' => 'Company Settings',
             'members_heading' => 'Active Members List',
@@ -18,6 +39,10 @@ return [
             'form_name' => 'Company Name',
             'form_tax_id' => 'Tax ID',
             'form_integration_access_key' => 'Integration Access Key',
+            'make_manager' => 'Make Manager',
+            'remove_manager' => 'Remove Manager',
+            'make_manager_notification' => ':name is now a Company Manager.',
+            'remove_manager_notification' => ':name is no longer a Company Manager.',
         ],
     ],
     'actions' => [
@@ -39,6 +64,32 @@ return [
         'logo' => [
             'label' => 'Company Logo',
             'notification' => 'Company logo changed succesfully.',
+        ],
+        'purchase_credits' => [
+            'label' => 'Purchase Credits',
+            'quantity' => 'Quantity',
+        ],
+        'revoke_all_credits' => [
+            'label' => 'Revoke Credits',
+            'disabled_tooltip' => 'There are no distributed credits to revoke.',
+            'queued_notification' => 'Credits are being revoked.',
+        ],
+        'distribute_equally' => [
+            'label' => 'Equal Distribution',
+            'disabled_tooltip' => 'There are not enough available credits to distribute equally. Credits must be with the company owner.',
+            'queued_notification' => 'Credits are being distributed.',
+        ],
+        'distribute_manually' => [
+            'label' => 'Distribute Credits',
+            'employee' => 'Employee',
+            'quantity' => 'Quantity',
+            'notice' => "The company owner's available credits will be transferred to the selected employee.",
+            'disabled_tooltip' => 'The company owner has no available credits to distribute.',
+            'success_notification' => 'Credits successfully distributed.',
+        ],
+        'transfer_credit' => [
+            'label' => 'Transfer',
+            'employee' => 'Transfer to',
         ],
     ],
 ];

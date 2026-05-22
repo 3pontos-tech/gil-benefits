@@ -6,6 +6,7 @@ use Filament\Facades\Filament;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use TresPontosTech\Company\Models\Company;
 
 class TenantAdoptionStatsWidget extends StatsOverviewWidget
 {
@@ -21,7 +22,10 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
 
     private function getEmployeesCount(): Stat
     {
-        $employeesCount = Filament::getTenant()->employees()->count();
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+
+        $employeesCount = $tenant->onlyEmployees()->count();
 
         return Stat::make(__('panel-company::widgets.adoption_stats.employees'), $employeesCount)
             ->description(__('panel-company::widgets.adoption_stats.members'))
@@ -32,9 +36,9 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
     private function getEmployeesWithAccessCount(): Stat
     {
         $tenant = Filament::getTenant();
-        $totalEmployees = $tenant->employees()->count();
+        $totalEmployees = $tenant->onlyEmployees()->count();
 
-        $employeesWithAccess = $tenant->employees()
+        $employeesWithAccess = $tenant->onlyEmployees()
             ->count();
 
         $percentage = $totalEmployees > 0
@@ -51,11 +55,11 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
     {
         $tenant = Filament::getTenant();
 
-        $employeesWithAccess = $tenant->employees()
+        $employeesWithAccess = $tenant->onlyEmployees()
             ->whereNotNull('email_verified_at')
             ->count();
 
-        $employeesWithPlans = $tenant->employees()
+        $employeesWithPlans = $tenant->onlyEmployees()
             ->whereHas('subscriptions')
             ->count();
 
@@ -72,9 +76,9 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
     private function getAdoptionRate(): Stat
     {
         $tenant = Filament::getTenant();
-        $totalEmployees = $tenant->employees()->count();
+        $totalEmployees = $tenant->onlyEmployees()->count();
 
-        $employeesWithPlans = $tenant->employees()
+        $employeesWithPlans = $tenant->onlyEmployees()
             ->whereHas('subscriptions')
             ->count();
 

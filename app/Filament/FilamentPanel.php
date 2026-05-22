@@ -25,14 +25,15 @@ enum FilamentPanel: string
     {
         $panel = self::from($panel->getId());
         $isAdmin = $user->hasAnyRole([Roles::SuperAdmin->value, Roles::Admin->value]);
-        $user->hasAnyRole([Roles::CompanyOwner->value]);
+        $isCompanyOwner = $user->hasAnyRole([Roles::CompanyOwner->value]);
+        $isCompanyManager = $user->hasAnyRole([Roles::CompanyManager->value]);
         $isEmployee = $user->hasAnyRole([Roles::Employee->value]);
         $isConsultant = $user->hasAnyRole([Roles::Consultant->value]);
 
         return match ($panel) {
             self::User => $isEmployee || $isAdmin,
             self::Admin => ($user->hasVerifiedEmail() && $isAdmin),
-            self::Company => Gate::forUser($user)->allows('register_company'),
+            self::Company => Gate::forUser($user)->allows('register_company') || $isCompanyOwner || $isCompanyManager,
             self::Consultant => $isConsultant || $isAdmin,
             self::Guest => true,
         };

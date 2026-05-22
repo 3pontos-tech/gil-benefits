@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Override;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 
 final readonly class ConfigPlanRepository implements PlanRepository
 {
@@ -56,7 +57,12 @@ final readonly class ConfigPlanRepository implements PlanRepository
             ->filter(fn ($plan, $key): bool => str_starts_with($key, 'user_'));
     }
 
-    public function getActiveTenantPlan(): PlanEntity
+    public function getCheckoutPlansFor(string $name): Collection
+    {
+        return $this->getPlansFor($name);
+    }
+
+    public function getActiveTenantPlan(BillingProviderEnum $provider): PlanEntity
     {
         return collect($this->all())
             ->filter(fn ($plan, $key): bool => str_starts_with($key, 'company'))

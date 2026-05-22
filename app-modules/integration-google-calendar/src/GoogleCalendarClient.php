@@ -45,17 +45,22 @@ class GoogleCalendarClient
     public function listEvents(
         string $accessToken,
         string $calendarId,
-        string $timeMin,
-        string $timeMax,
+        ?string $timeMin = null,
+        ?string $timeMax = null,
         ?string $pageToken = null,
+        ?string $syncToken = null,
     ): CalendarEventsResponse {
         $params = [
             'singleEvents' => 'true',
-            'orderBy' => 'startTime',
             'maxResults' => 250,
-            'timeMin' => $timeMin,
-            'timeMax' => $timeMax,
         ];
+
+        if (filled($syncToken)) {
+            $params['syncToken'] = $syncToken;
+        } else {
+            $params['timeMin'] = $timeMin;
+            $params['timeMax'] = $timeMax;
+        }
 
         if (filled($pageToken)) {
             $params['pageToken'] = $pageToken;
