@@ -59,7 +59,7 @@
                             @endphp
                             <x-card-gradient>
                                 <x-slot name="title" class="flex flex-row justify-between">
-                                    <h4>{{ __($plan->name) }}</h4>
+                                    <h4>{{ __( $plan->name) }}</h4>
                                     <span class="inline-flex items-center">
                                         <label class="relative inline-flex items-center cursor-pointer select-none" :aria-checked="selectedPlan === '{{ $plan->slug }}'" role="radio">
                                             <input

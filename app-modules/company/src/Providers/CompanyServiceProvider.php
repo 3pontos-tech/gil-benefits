@@ -34,10 +34,6 @@ class CompanyServiceProvider extends ServiceProvider
                 return true;
             }
 
-            //            if ($user->isAdmin() || $user->isCompanyOwner() || $user->isCompanyManager()) {
-            //                return true;
-            //            }
-
             $registrationUrl = route('filament.company.tenant.registration');
             $referer = request()->header('referer');
 
