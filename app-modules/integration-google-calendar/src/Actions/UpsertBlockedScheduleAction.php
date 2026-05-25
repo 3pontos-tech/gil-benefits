@@ -77,6 +77,11 @@ readonly class UpsertBlockedScheduleAction
 
         [$endDate, $period] = $this->resolveCreateRange($event, $startTime);
 
+        // Google allows zero-duration events (start == end); Zap rejects equal times, so skip them.
+        if ($period[0] === $period[1]) {
+            return;
+        }
+
         Zap::for($consultant)
             ->named($event->summary)
             ->blocked()
