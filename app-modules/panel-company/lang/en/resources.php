@@ -24,6 +24,8 @@ return [
             'tab_credits' => 'Credits',
             'filter_user' => 'Employee',
             'filter_user_placeholder' => 'All employees',
+            'filter_department' => 'Department',
+            'filter_department_placeholder' => 'All departments',
         ],
         'edit_tenant' => [
             'label' => 'Company Settings',
@@ -36,6 +38,7 @@ return [
             'inactive' => 'Inactive',
             'member_name' => 'Name',
             'member_role' => 'Role',
+            'member_department' => 'Department',
             'form_name' => 'Company Name',
             'form_tax_id' => 'Tax ID',
             'form_integration_access_key' => 'Integration Access Key',
@@ -43,6 +46,23 @@ return [
             'remove_manager' => 'Remove Manager',
             'make_manager_notification' => ':name is now a Company Manager.',
             'remove_manager_notification' => ':name is no longer a Company Manager.',
+            'assign_department' => 'Assign Department',
+            'assign_department_notification' => 'Department assigned successfully.',
+            'department' => 'Department',
+        ],
+    ],
+    'departments' => [
+        'navigation_label' => 'Departments',
+        'model_label' => 'Department',
+        'plural_model_label' => 'Departments',
+        'form' => [
+            'name' => 'Name',
+            'category' => 'Category',
+        ],
+        'table' => [
+            'name' => 'Name',
+            'category' => 'Category',
+            'created_at' => 'Created at',
         ],
     ],
     'actions' => [

@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Collection;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
@@ -28,10 +29,10 @@ class EngagementStatsWidget extends StatsOverviewWidget
 
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
-        $userId = data_get($this->filters, 'userId');
+        $userIds = $this->filteredUserIds();
 
         $employeesQuery = $tenant->employees()
-            ->when($userId, fn ($q) => $q->where('users.id', $userId));
+            ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('users.id', $userIds));
 
         $totalEmployees = (clone $employeesQuery)->count();
 
@@ -39,7 +40,7 @@ class EngagementStatsWidget extends StatsOverviewWidget
             ->whereHas('appointments', fn ($q) => $q
                 ->where('company_id', $tenant->id)
                 ->whereBetween('appointment_at', [$start, $end])
-                ->when($userId, fn ($q) => $q->where('user_id', $userId))
+                ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
             )
             ->count();
 
@@ -53,12 +54,12 @@ class EngagementStatsWidget extends StatsOverviewWidget
             ->whereHas('appointments', fn ($q) => $q
                 ->where('company_id', $tenant->id)
                 ->whereBetween('appointment_at', [$start, $end])
-                ->when($userId, fn ($q) => $q->where('user_id', $userId))
+                ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
             )
             ->whereDoesntHave('appointments', fn ($q) => $q
                 ->where('company_id', $tenant->id)
                 ->where('appointment_at', '<', $start)
-                ->when($userId, fn ($q) => $q->where('user_id', $userId))
+                ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
             )
             ->count();
 

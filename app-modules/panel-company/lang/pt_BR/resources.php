@@ -24,6 +24,8 @@ return [
             'tab_credits' => 'Créditos',
             'filter_user' => 'Colaborador',
             'filter_user_placeholder' => 'Todos os colaboradores',
+            'filter_department' => 'Departamento',
+            'filter_department_placeholder' => 'Todos os departamentos',
         ],
         'edit_tenant' => [
             'label' => 'Configurações da Empresa',
@@ -36,6 +38,7 @@ return [
             'inactive' => 'Inativo',
             'member_name' => 'Nome',
             'member_role' => 'Função',
+            'member_department' => 'Departamento',
             'form_name' => 'Nome da Empresa',
             'form_tax_id' => 'CNPJ',
             'form_integration_access_key' => 'Chave de Acesso de Integração',
@@ -43,6 +46,23 @@ return [
             'remove_manager' => 'Remover Gerente',
             'make_manager_notification' => ':name agora é Gerente.',
             'remove_manager_notification' => ':name não é mais Gerente.',
+            'assign_department' => 'Atribuir Departamento',
+            'assign_department_notification' => 'Departamento atribuído com sucesso.',
+            'department' => 'Departamento',
+        ],
+    ],
+    'departments' => [
+        'navigation_label' => 'Departamentos',
+        'model_label' => 'Departamento',
+        'plural_model_label' => 'Departamentos',
+        'form' => [
+            'name' => 'Nome',
+            'category' => 'Categoria',
+        ],
+        'table' => [
+            'name' => 'Nome',
+            'category' => 'Categoria',
+            'created_at' => 'Criado em',
         ],
     ],
     'actions' => [

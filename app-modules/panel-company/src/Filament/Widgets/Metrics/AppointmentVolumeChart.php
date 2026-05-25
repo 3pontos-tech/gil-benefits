@@ -9,12 +9,15 @@ use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class AppointmentVolumeChart extends ChartWidget
 {
+    use HasMetricsDateRange;
     use InteractsWithPageFilters;
 
     protected static bool $isDiscovered = false;
@@ -31,7 +34,7 @@ class AppointmentVolumeChart extends ChartWidget
     protected function getData(): array
     {
         $tenantId = Filament::getTenant()->id;
-        $userId = data_get($this->filters, 'userId');
+        $userIds = $this->filteredUserIds();
 
         $startDate = data_get($this->filters, 'startDate');
         $endDate = data_get($this->filters, 'endDate');
@@ -51,14 +54,15 @@ class AppointmentVolumeChart extends ChartWidget
             default => 'perMonth',
         };
 
-        $cacheKey = sprintf('company_metrics.appt_volume.%s.%s.%s.%s', $tenantId, $userId, $start, $end);
+        $filterKey = $userIds instanceof Collection ? $userIds->implode(',') : 'all';
+        $cacheKey = sprintf('company_metrics.appt_volume.%s.%s.%s.%s', $tenantId, $filterKey, $start, $end);
 
-        [$totalData, $completedData] = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($tenantId, $userId, $start, $end, $period): array {
+        [$totalData, $completedData] = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($tenantId, $userIds, $start, $end, $period): array {
             return [
                 Trend::query(
                     Appointment::query()
                         ->where('company_id', $tenantId)
-                        ->when($userId, fn ($q) => $q->where('user_id', $userId))
+                        ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
                 )
                     ->between(start: $start, end: $end)
                     ->$period()
@@ -67,7 +71,7 @@ class AppointmentVolumeChart extends ChartWidget
                     Appointment::query()
                         ->where('company_id', $tenantId)
                         ->where('status', AppointmentStatus::Completed)
-                        ->when($userId, fn ($q) => $q->where('user_id', $userId))
+                        ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
                 )
                     ->between(start: $start, end: $end)
                     ->$period()

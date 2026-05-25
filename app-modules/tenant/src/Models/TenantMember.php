@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Tenant\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
 
 class TenantMember extends Pivot
@@ -15,6 +18,7 @@ class TenantMember extends Pivot
     protected $fillable = [
         'role',
         'active',
+        'department_id',
     ];
 
     protected $casts = [
@@ -30,5 +34,10 @@ class TenantMember extends Pivot
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 }

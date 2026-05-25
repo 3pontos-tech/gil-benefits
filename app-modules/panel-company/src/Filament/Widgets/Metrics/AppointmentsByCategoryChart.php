@@ -7,6 +7,7 @@ namespace TresPontosTech\PanelCompany\Filament\Widgets\Metrics;
 use Filament\Facades\Filament;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
+use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
@@ -31,12 +32,12 @@ class AppointmentsByCategoryChart extends ChartWidget
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $userId = data_get($this->filters, 'userId');
+        $userIds = $this->filteredUserIds();
 
         $results = Appointment::query()
             ->where('company_id', Filament::getTenant()->id)
             ->whereBetween('appointment_at', [$start, $end])
-            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
             ->whereNotNull('category_type')
             ->selectRaw('category_type, count(*) as total')
             ->groupBy('category_type')

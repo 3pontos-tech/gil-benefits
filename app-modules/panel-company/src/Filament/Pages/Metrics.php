@@ -63,6 +63,17 @@ class Metrics extends BaseDashboard
                 )
                 ->searchable()
                 ->native(false),
+            Select::make('departmentId')
+                ->label(__('panel-company::resources.pages.metrics.filter_department'))
+                ->placeholder(__('panel-company::resources.pages.metrics.filter_department_placeholder'))
+                ->options(fn (): array => Filament::getTenant()
+                    ->departments()
+                    ->orderBy('name')
+                    ->pluck('name', 'id')
+                    ->toArray()
+                )
+                ->searchable()
+                ->native(false),
         ]);
     }
 

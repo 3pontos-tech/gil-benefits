@@ -163,6 +163,19 @@ return [
             ],
         ],
     ],
+    'department_categories' => [
+        'navigation_label' => 'Department Categories',
+        'model_label' => 'Department Category',
+        'plural_model_label' => 'Department Categories',
+        'form' => [
+            'name' => 'Name',
+        ],
+        'table' => [
+            'name' => 'Name',
+            'departments_count' => 'Departments',
+            'created_at' => 'Created at',
+        ],
+    ],
     'users' => [
         'navigation_label' => 'Users',
         'model_label' => 'User',
@@ -198,6 +211,10 @@ return [
             'navigation_label' => 'Metrics',
             'filter_start_date' => 'Start date',
             'filter_end_date' => 'End date',
+            'filter_department_category' => 'Department Category',
+            'filter_department_category_placeholder' => 'All categories',
+            'tab_consultants' => 'Consultants',
+            'tab_appointments' => 'Appointments',
         ],
         'edit_profile' => [
             'cpf' => 'CPF',

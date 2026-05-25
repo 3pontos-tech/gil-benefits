@@ -5,6 +5,7 @@ namespace TresPontosTech\PanelCompany\Filament\Pages\Tenancy;
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\DetachAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -20,6 +21,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Actions\CreateAndAttachAction;
@@ -89,7 +91,18 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(filament()->getTenant()->employees()->getQuery())
+            ->query(
+                filament()->getTenant()
+                    ->employees()
+                    ->getQuery()
+                    ->select([
+                        'users.*',
+                        'company_employees.role',
+                        'company_employees.active',
+                        'company_employees.department_id',
+                        DB::raw('(SELECT name FROM departments WHERE id = company_employees.department_id LIMIT 1) as department_name'),
+                    ])
+            )
             ->heading(__('panel-company::resources.pages.edit_tenant.members_heading'))
             ->headerActions([
                 TenantSeatsCounterAction::make(),
@@ -159,6 +172,34 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                             'role' => $record->role,
                         ]);
                     }),
+                Action::make('assign-department')
+                    ->label(__('panel-company::resources.pages.edit_tenant.assign_department'))
+                    ->icon(Heroicon::OutlinedSquares2x2)
+                    ->fillForm(fn (User $record): array => [
+                        'department_id' => $record->getAttribute('department_id'),
+                    ])
+                    ->schema([
+                        Select::make('department_id')
+                            ->label(__('panel-company::resources.pages.edit_tenant.department'))
+                            ->options(fn (): array => filament()->getTenant()
+                                ->departments()
+                                ->orderBy('name')
+                                ->pluck('name', 'id')
+                                ->toArray()
+                            )
+                            ->nullable()
+                            ->native(false),
+                    ])
+                    ->action(function (User $record, array $data): void {
+                        filament()->getTenant()->employees()->updateExistingPivot($record, [
+                            'department_id' => $data['department_id'],
+                        ]);
+
+                        Notification::make()
+                            ->title(__('panel-company::resources.pages.edit_tenant.assign_department_notification'))
+                            ->success()
+                            ->send();
+                    }),
                 DetachAction::make()
                     ->visible(function (User $record): bool {
                         /** @var Company $company */
@@ -185,6 +226,9 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->color(fn ($state) => Roles::from($state)->getColor())
                     ->formatStateUsing(fn ($state) => Roles::from($state)->getLabel())
                     ->badge(),
+                TextColumn::make('department_name')
+                    ->label(__('panel-company::resources.pages.edit_tenant.member_department'))
+                    ->placeholder('—'),
             ]);
     }
 
