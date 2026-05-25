@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Carbon\CarbonInterface;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
