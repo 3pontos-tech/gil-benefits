@@ -24,6 +24,7 @@ class AppointmentForm
                 DateTimePicker::make('appointment_at')
                     ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
                     ->required()
+                    ->minDate(now())
                     ->reactive()
                     ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
                 Select::make('consultant_id')

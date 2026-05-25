@@ -133,6 +133,33 @@ it('creates a blocked schedule for a same-day timed event', function (): void {
         ->and($schedule->periods->first()->end_time)->toBe('10:00');
 });
 
+it('skips zero-duration events where start time equals end time', function (): void {
+    $event = new GoogleEventDTO('evt-zero', 'Zero Duration', Date::parse('2026-05-01 07:00'), Date::parse('2026-05-01 07:00'), false, false, null);
+
+    $this->action->handle($this->consultant, $event);
+
+    expect(Schedule::query()
+        ->where('schedule_type', ScheduleTypes::BLOCKED)
+        ->whereJsonContains('metadata->google_event_id', 'evt-zero')
+        ->exists())->toBeFalse();
+});
+
+it('creates a blocked schedule for a past-dated event', function (): void {
+    $event = new GoogleEventDTO('evt-past', 'Past Meeting', Date::parse('2026-04-20 09:00'), Date::parse('2026-04-20 10:00'), false, false, null);
+
+    $this->action->handle($this->consultant, $event);
+
+    $schedule = Schedule::query()
+        ->where('schedule_type', ScheduleTypes::BLOCKED)
+        ->whereJsonContains('metadata->google_event_id', 'evt-past')
+        ->with('periods')
+        ->firstOrFail();
+
+    expect($schedule->start_date->toDateString())->toBe('2026-04-20')
+        ->and($schedule->periods->first()->start_time)->toBe('09:00')
+        ->and($schedule->periods->first()->end_time)->toBe('10:00');
+});
+
 it('creates a blocked schedule for an all-day single-day event', function (): void {
     $event = new GoogleEventDTO('evt-allday-single', 'Day Off', Date::parse('2026-05-01'), Date::parse('2026-05-02'), true, false, null);
 
