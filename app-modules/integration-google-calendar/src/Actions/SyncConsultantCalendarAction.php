@@ -23,24 +23,39 @@ readonly class SyncConsultantCalendarAction
     {
         $accessToken = $this->client->getAccessToken($consultant->email);
 
-        if ($this->shouldFullSync($consultant)) {
-            $this->fullSync($consultant, $accessToken);
-
-            return;
-        }
-
         try {
-            $this->incrementalSync($consultant, $accessToken);
+            if ($this->shouldFullSync($consultant)) {
+                $this->fullSync($consultant, $accessToken);
+
+                return;
+            }
+
+            try {
+                $this->incrementalSync($consultant, $accessToken);
+            } catch (GoogleCalendarApiException $googleCalendarApiException) {
+                throw_if($googleCalendarApiException->getCode() !== 410, $googleCalendarApiException);
+
+                Log::warning('Google Calendar sync token expired (410), falling back to full sync', [
+                    'consultant_id' => $consultant->id,
+                ]);
+
+                $consultant->update(['google_calendar_sync_token' => null]);
+                $this->fullSync($consultant->refresh(), $accessToken);
+            }
         } catch (GoogleCalendarApiException $googleCalendarApiException) {
-            throw_if($googleCalendarApiException->getCode() !== 410, $googleCalendarApiException);
+            throw_unless($this->isNotACalendarUser($googleCalendarApiException), $googleCalendarApiException);
 
-            Log::warning('Google Calendar sync token expired (410), falling back to full sync', [
+            Log::warning('Google Calendar is not enabled for consultant, skipping sync', [
                 'consultant_id' => $consultant->id,
+                'consultant_email' => $consultant->email,
             ]);
-
-            $consultant->update(['google_calendar_sync_token' => null]);
-            $this->fullSync($consultant->refresh(), $accessToken);
         }
+    }
+
+    private function isNotACalendarUser(GoogleCalendarApiException $exception): bool
+    {
+        return $exception->getCode() === 403
+            && str_contains($exception->getMessage(), 'notACalendarUser');
     }
 
     private function shouldFullSync(Consultant $consultant): bool

@@ -147,6 +147,32 @@ it('falls back to full sync when token expires (410)', function (): void {
     expect($this->consultant->refresh()->google_calendar_sync_token)->toBe('post-recovery-token');
 });
 
+it('skips sync without failing when consultant is not a Google Calendar user (403)', function (): void {
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')
+        ->once()
+        ->andThrow(new GoogleCalendarApiException(
+            'Failed to list events for primary: {"error":{"errors":[{"reason":"notACalendarUser"}]}}',
+            403,
+        ));
+
+    buildAction($client)->handle($this->consultant);
+
+    expect($this->consultant->refresh()->google_calendar_sync_token)->toBeNull();
+});
+
+it('rethrows other 403 errors that are not notACalendarUser', function (): void {
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')
+        ->once()
+        ->andThrow(new GoogleCalendarApiException('Forbidden', 403));
+
+    expect(fn () => buildAction($client)->handle($this->consultant))
+        ->toThrow(GoogleCalendarApiException::class);
+});
+
 it('removes stale blocked schedules during full sync only', function (): void {
     Zap::for($this->consultant)
         ->named('Stale block')
