@@ -87,6 +87,43 @@ it('does not change company_id when editing', function (): void {
     ]);
 });
 
+describe('uniqueness', function (): void {
+    it('prevents renaming to a name already used in the same company', function (): void {
+        Department::factory()->create([
+            'company_id' => $this->company->getKey(),
+            'category_id' => $this->category->getKey(),
+            'name' => 'RH',
+        ]);
+
+        livewire(EditDepartment::class, ['record' => $this->department->getRouteKey()])
+            ->fillForm(['name' => 'RH'])
+            ->call('save')
+            ->assertHasFormErrors(['name' => 'unique']);
+    });
+
+    it('allows saving the same name on the same record', function (): void {
+        livewire(EditDepartment::class, ['record' => $this->department->getRouteKey()])
+            ->fillForm(['name' => $this->department->name])
+            ->call('save')
+            ->assertHasNoFormErrors();
+    });
+
+    it('allows using a name that exists in another company', function (): void {
+        $otherOwner = User::factory()->companyOwner()->create();
+        $otherCompany = Company::factory()->recycle($otherOwner)->create();
+
+        Department::factory()->create([
+            'company_id' => $otherCompany->getKey(),
+            'name' => 'Financeiro',
+        ]);
+
+        livewire(EditDepartment::class, ['record' => $this->department->getRouteKey()])
+            ->fillForm(['name' => 'Financeiro'])
+            ->call('save')
+            ->assertHasNoFormErrors();
+    });
+});
+
 it('can delete a department that belongs to the current tenant', function (): void {
     livewire(EditDepartment::class, ['record' => $this->department->getRouteKey()])
         ->callAction('delete');

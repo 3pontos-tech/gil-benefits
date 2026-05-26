@@ -58,6 +58,7 @@ return [
         'form' => [
             'name' => 'Nome',
             'category' => 'Categoria',
+            'category_placeholder' => 'Sem categoria',
         ],
         'table' => [
             'name' => 'Nome',

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Company\Models\DepartmentCategory;
 use TresPontosTech\PanelCompany\Filament\Resources\Departments\Pages\CreateDepartment;
 
@@ -62,6 +63,40 @@ it('never assigns another tenant company_id on create', function (): void {
         'name' => 'RH',
         'company_id' => $otherCompany->getKey(),
     ]);
+});
+
+describe('uniqueness', function (): void {
+    it('prevents the same company from creating two departments with the same name', function (): void {
+        Department::factory()->create([
+            'company_id' => $this->company->getKey(),
+            'name' => 'RH',
+        ]);
+
+        livewire(CreateDepartment::class)
+            ->fillForm(['name' => 'RH', 'category_id' => $this->category->getKey()])
+            ->call('create')
+            ->assertHasFormErrors(['name' => 'unique']);
+    });
+
+    it('allows two different companies to create a department with the same name', function (): void {
+        $otherOwner = User::factory()->companyOwner()->create();
+        $otherCompany = Company::factory()->recycle($otherOwner)->create();
+
+        Department::factory()->create([
+            'company_id' => $otherCompany->getKey(),
+            'name' => 'RH',
+        ]);
+
+        livewire(CreateDepartment::class)
+            ->fillForm(['name' => 'RH', 'category_id' => $this->category->getKey()])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('departments', [
+            'name' => 'RH',
+            'company_id' => $this->company->getKey(),
+        ]);
+    });
 });
 
 describe('validation', function (): void {

@@ -11,7 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('company_employees', function (Blueprint $table): void {
-            $table->foreignUuid('department_id')->nullable()->constrained('departments')->nullOnDelete();
+            $table->foreignUuid('department_id')->nullable()->constrained('departments')->nullOnDelete()->index();
         });
     }
 

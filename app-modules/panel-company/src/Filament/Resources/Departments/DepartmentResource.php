@@ -16,6 +16,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\Rules\Unique;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Company\Models\DepartmentCategory;
 use TresPontosTech\PanelCompany\Filament\Resources\Departments\Pages\CreateDepartment;
@@ -62,7 +63,11 @@ class DepartmentResource extends Resource
             TextInput::make('name')
                 ->label(__('panel-company::resources.departments.form.name'))
                 ->required()
-                ->maxLength(255),
+                ->maxLength(255)
+                ->unique(
+                    ignoreRecord: true,
+                    modifyRuleUsing: fn (Unique $rule) => $rule->where('company_id', Filament::getTenant()?->getKey()),
+                ),
             Select::make('category_id')
                 ->label(__('panel-company::resources.departments.form.category'))
                 ->options(fn (): array => DepartmentCategory::query()

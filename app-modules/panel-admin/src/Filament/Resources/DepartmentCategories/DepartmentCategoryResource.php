@@ -50,7 +50,8 @@ class DepartmentCategoryResource extends Resource
             TextInput::make('name')
                 ->label(__('panel-admin::resources.department_categories.form.name'))
                 ->required()
-                ->maxLength(255),
+                ->maxLength(255)
+                ->unique(ignoreRecord: true),
         ]);
     }
 
