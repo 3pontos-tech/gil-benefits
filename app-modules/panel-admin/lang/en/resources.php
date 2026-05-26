@@ -163,19 +163,6 @@ return [
             ],
         ],
     ],
-    'department_categories' => [
-        'navigation_label' => 'Department Categories',
-        'model_label' => 'Department Category',
-        'plural_model_label' => 'Department Categories',
-        'form' => [
-            'name' => 'Name',
-        ],
-        'table' => [
-            'name' => 'Name',
-            'departments_count' => 'Departments',
-            'created_at' => 'Created at',
-        ],
-    ],
     'users' => [
         'navigation_label' => 'Users',
         'model_label' => 'User',
@@ -219,6 +206,14 @@ return [
         'edit_profile' => [
             'cpf' => 'CPF',
             'rg' => 'Document ID',
+        ],
+        'department_categories' => [
+            'navigation_label' => 'Department Categories',
+            'title' => 'Department Categories',
+            'table' => [
+                'category' => 'Category',
+                'departments_count' => 'Departments',
+            ],
         ],
     ],
 ];

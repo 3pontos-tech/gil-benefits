@@ -5,9 +5,9 @@ declare(strict_types=1);
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use TresPontosTech\Company\Enums\DepartmentCategory;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
-use TresPontosTech\Company\Models\DepartmentCategory;
 use TresPontosTech\PanelCompany\Filament\Resources\Departments\Pages\EditDepartment;
 
 use function Pest\Laravel\actingAs;
@@ -18,11 +18,9 @@ beforeEach(function (): void {
     $this->company = Company::factory()->recycle($this->owner)->create();
     $this->company->employees()->attach($this->owner->getKey());
 
-    $this->category = DepartmentCategory::factory()->create();
-
     $this->department = Department::factory()->create([
         'company_id' => $this->company->getKey(),
-        'category_id' => $this->category->getKey(),
+        'category' => DepartmentCategory::Finance->value,
         'name' => 'Financeiro',
     ]);
 
@@ -32,12 +30,10 @@ beforeEach(function (): void {
 });
 
 it('can edit a department that belongs to the current tenant', function (): void {
-    $newCategory = DepartmentCategory::factory()->create();
-
     livewire(EditDepartment::class, ['record' => $this->department->getRouteKey()])
         ->fillForm([
             'name' => 'Financeiro e Contabilidade',
-            'category_id' => $newCategory->getKey(),
+            'category' => DepartmentCategory::Administrative->value,
         ])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -45,7 +41,7 @@ it('can edit a department that belongs to the current tenant', function (): void
     $this->assertDatabaseHas('departments', [
         'id' => $this->department->getKey(),
         'name' => 'Financeiro e Contabilidade',
-        'category_id' => $newCategory->getKey(),
+        'category' => DepartmentCategory::Administrative->value,
         'company_id' => $this->company->getKey(),
     ]);
 });
@@ -56,7 +52,6 @@ it('cannot access a department from another tenant', function (): void {
 
     $foreignDepartment = Department::factory()->create([
         'company_id' => $otherCompany->getKey(),
-        'category_id' => $this->category->getKey(),
     ]);
 
     $this->expectException(ModelNotFoundException::class);
@@ -71,7 +66,7 @@ it('does not change company_id when editing', function (): void {
     livewire(EditDepartment::class, ['record' => $this->department->getRouteKey()])
         ->fillForm([
             'name' => 'Alterado',
-            'category_id' => $this->category->getKey(),
+            'category' => DepartmentCategory::Finance->value,
         ])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -91,7 +86,6 @@ describe('uniqueness', function (): void {
     it('prevents renaming to a name already used in the same company', function (): void {
         Department::factory()->create([
             'company_id' => $this->company->getKey(),
-            'category_id' => $this->category->getKey(),
             'name' => 'RH',
         ]);
 

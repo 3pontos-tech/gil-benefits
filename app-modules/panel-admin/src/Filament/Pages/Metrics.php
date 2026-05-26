@@ -19,7 +19,7 @@ use TresPontosTech\Admin\Filament\Widgets\Metrics\AppointmentVolume;
 use TresPontosTech\Admin\Filament\Widgets\Metrics\GlobalAppointmentStatsWidget;
 use TresPontosTech\Admin\Filament\Widgets\Metrics\KPIsOverview;
 use TresPontosTech\Admin\Filament\Widgets\Metrics\RankingsWidget;
-use TresPontosTech\Company\Models\DepartmentCategory;
+use TresPontosTech\Company\Enums\DepartmentCategory;
 
 class Metrics extends BaseDashboard
 {
@@ -63,14 +63,10 @@ class Metrics extends BaseDashboard
             DatePicker::make('endDate')
                 ->label(__('panel-admin::resources.pages.metrics.filter_end_date'))
                 ->default(now()),
-            Select::make('departmentCategoryId')
+            Select::make('departmentCategory')
                 ->label(__('panel-admin::resources.pages.metrics.filter_department_category'))
                 ->placeholder(__('panel-admin::resources.pages.metrics.filter_department_category_placeholder'))
-                ->options(fn (): array => DepartmentCategory::query()
-                    ->orderBy('name')
-                    ->pluck('name', 'id')
-                    ->toArray()
-                )
+                ->options(DepartmentCategory::class)
                 ->searchable()
                 ->native(false)
                 ->visible(fn (): bool => $this->activeTab === 'appointments'),

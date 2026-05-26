@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Company\Database\Factories\DepartmentFactory;
+use TresPontosTech\Company\Enums\DepartmentCategory;
 
 /** @use HasFactory<DepartmentFactory> */
 class Department extends Model
@@ -20,17 +21,16 @@ class Department extends Model
 
     protected $fillable = [
         'company_id',
-        'category_id',
+        'category',
         'name',
+    ];
+
+    protected $casts = [
+        'category' => DepartmentCategory::class,
     ];
 
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(DepartmentCategory::class, 'category_id');
     }
 }

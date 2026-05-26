@@ -6,8 +6,8 @@ use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use TresPontosTech\Company\Enums\DepartmentCategory;
 use TresPontosTech\Company\Models\Department;
-use TresPontosTech\Company\Models\DepartmentCategory;
 
 class AppointmentsByDepartmentCategoryChart extends ChartWidget
 {
@@ -19,13 +19,13 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
 
     public function getHeading(): ?string
     {
-        $categoryId = data_get($this->filters, 'departmentCategoryId');
+        $category = data_get($this->filters, 'departmentCategory');
 
-        if (filled($categoryId)) {
-            $category = DepartmentCategory::query()->find($categoryId);
+        if (filled($category)) {
+            $enum = DepartmentCategory::tryFrom($category);
 
             return __('panel-admin::widgets.metrics.appointments_by_department_category.heading_filtered', [
-                'category' => $category?->name ?? '—',
+                'category' => $enum?->getLabel() ?? '—',
             ]);
         }
 
@@ -36,14 +36,14 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
     {
         $startDate = data_get($this->filters, 'startDate');
         $endDate = data_get($this->filters, 'endDate');
-        $categoryId = data_get($this->filters, 'departmentCategoryId');
+        $category = data_get($this->filters, 'departmentCategory');
 
         $start = filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay();
         $end = filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay();
 
-        if (filled($categoryId)) {
+        if (filled($category)) {
             $counts = Department::query()
-                ->where('departments.category_id', $categoryId)
+                ->where('departments.category', $category)
                 ->leftJoin('company_employees', 'company_employees.department_id', '=', 'departments.id')
                 ->leftJoin('appointments', function ($join) use ($start, $end): void {
                     $join->on('appointments.user_id', '=', 'company_employees.user_id')
@@ -61,21 +61,24 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
             return $this->buildChartData($counts, color: 'rgba(139, 92, 246, 0.7)', border: 'rgb(139, 92, 246)');
         }
 
-        $counts = DepartmentCategory::query()
-            ->leftJoin('departments', 'departments.category_id', '=', 'department_categories.id')
+        $counts = Department::query()
             ->leftJoin('company_employees', 'company_employees.department_id', '=', 'departments.id')
             ->leftJoin('appointments', function ($join) use ($start, $end): void {
                 $join->on('appointments.user_id', '=', 'company_employees.user_id')
                     ->on('appointments.company_id', '=', 'company_employees.company_id')
                     ->whereBetween('appointments.appointment_at', [$start, $end]);
             })
-            ->groupBy('department_categories.id', 'department_categories.name')
+            ->groupBy('departments.category')
             ->orderByDesc('total')
             ->select([
-                'department_categories.name',
+                'departments.category',
                 DB::raw('COUNT(appointments.id) as total'),
             ])
-            ->get();
+            ->get()
+            ->map(fn ($row) => (object) [
+                'name' => $row->category->getLabel(),
+                'total' => $row->total,
+            ]);
 
         return $this->buildChartData($counts);
     }

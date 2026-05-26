@@ -17,8 +17,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rules\Unique;
+use TresPontosTech\Company\Enums\DepartmentCategory;
 use TresPontosTech\Company\Models\Department;
-use TresPontosTech\Company\Models\DepartmentCategory;
 use TresPontosTech\PanelCompany\Filament\Resources\Departments\Pages\CreateDepartment;
 use TresPontosTech\PanelCompany\Filament\Resources\Departments\Pages\EditDepartment;
 use TresPontosTech\PanelCompany\Filament\Resources\Departments\Pages\ListDepartments;
@@ -68,13 +68,9 @@ class DepartmentResource extends Resource
                     ignoreRecord: true,
                     modifyRuleUsing: fn (Unique $rule) => $rule->where('company_id', Filament::getTenant()?->getKey()),
                 ),
-            Select::make('category_id')
+            Select::make('category')
                 ->label(__('panel-company::resources.departments.form.category'))
-                ->options(fn (): array => DepartmentCategory::query()
-                    ->orderBy('name')
-                    ->pluck('name', 'id')
-                    ->toArray()
-                )
+                ->options(DepartmentCategory::class)
                 ->searchable()
                 ->native(false)
                 ->required(),
@@ -89,8 +85,9 @@ class DepartmentResource extends Resource
                     ->label(__('panel-company::resources.departments.table.name'))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('category.name')
+                TextColumn::make('category')
                     ->label(__('panel-company::resources.departments.table.category'))
+                    ->badge()
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('panel-company::resources.departments.table.created_at'))

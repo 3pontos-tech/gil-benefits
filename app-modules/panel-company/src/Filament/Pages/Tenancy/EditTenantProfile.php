@@ -228,6 +228,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->badge(),
                 TextColumn::make('department_name')
                     ->label(__('panel-company::resources.pages.edit_tenant.member_department'))
+                    ->badge()
                     ->placeholder('—'),
             ]);
     }

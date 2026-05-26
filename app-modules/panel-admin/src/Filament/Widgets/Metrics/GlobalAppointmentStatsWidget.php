@@ -22,17 +22,17 @@ class GlobalAppointmentStatsWidget extends StatsOverviewWidget
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $categoryId = data_get($this->filters, 'departmentCategoryId');
+        $category = data_get($this->filters, 'departmentCategory');
 
         $base = Appointment::query()
             ->whereBetween('appointment_at', [$start, $end])
-            ->when($categoryId, fn ($q) => $q
+            ->when($category, fn ($q) => $q
                 ->join('company_employees', function ($join): void {
                     $join->on('company_employees.user_id', '=', 'appointments.user_id')
                         ->on('company_employees.company_id', '=', 'appointments.company_id');
                 })
                 ->join('departments', 'departments.id', '=', 'company_employees.department_id')
-                ->where('departments.category_id', $categoryId)
+                ->where('departments.category', $category)
                 ->select('appointments.*')
             );
 

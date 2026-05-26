@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
+use TresPontosTech\Company\Enums\DepartmentCategory;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
-use TresPontosTech\Company\Models\DepartmentCategory;
 use TresPontosTech\PanelCompany\Filament\Resources\Departments\Pages\CreateDepartment;
 
 use function Pest\Laravel\actingAs;
@@ -17,8 +17,6 @@ beforeEach(function (): void {
     $this->company = Company::factory()->recycle($this->owner)->create();
     $this->company->employees()->attach($this->owner->getKey());
 
-    $this->category = DepartmentCategory::factory()->create();
-
     filament()->setCurrentPanel(FilamentPanel::Company->value);
     actingAs($this->owner);
     filament()->setTenant($this->company);
@@ -28,7 +26,7 @@ it('creates a department and assigns the current tenant automatically', function
     livewire(CreateDepartment::class)
         ->fillForm([
             'name' => 'Financeiro',
-            'category_id' => $this->category->getKey(),
+            'category' => DepartmentCategory::Finance->value,
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -36,7 +34,7 @@ it('creates a department and assigns the current tenant automatically', function
     $this->assertDatabaseHas('departments', [
         'name' => 'Financeiro',
         'company_id' => $this->company->getKey(),
-        'category_id' => $this->category->getKey(),
+        'category' => DepartmentCategory::Finance->value,
     ]);
 });
 
@@ -47,8 +45,7 @@ it('never assigns another tenant company_id on create', function (): void {
     livewire(CreateDepartment::class)
         ->fillForm([
             'name' => 'RH',
-            'category_id' => $this->category->getKey(),
-            // mesmo que alguém tente injetar outro company_id pelo form
+            'category' => DepartmentCategory::HumanResources->value,
             'company_id' => $otherCompany->getKey(),
         ])
         ->call('create')
@@ -73,7 +70,7 @@ describe('uniqueness', function (): void {
         ]);
 
         livewire(CreateDepartment::class)
-            ->fillForm(['name' => 'RH', 'category_id' => $this->category->getKey()])
+            ->fillForm(['name' => 'RH', 'category' => DepartmentCategory::HumanResources->value])
             ->call('create')
             ->assertHasFormErrors(['name' => 'unique']);
     });
@@ -88,7 +85,7 @@ describe('uniqueness', function (): void {
         ]);
 
         livewire(CreateDepartment::class)
-            ->fillForm(['name' => 'RH', 'category_id' => $this->category->getKey()])
+            ->fillForm(['name' => 'RH', 'category' => DepartmentCategory::HumanResources->value])
             ->call('create')
             ->assertHasNoFormErrors();
 
@@ -102,23 +99,23 @@ describe('uniqueness', function (): void {
 describe('validation', function (): void {
     it('requires name', function (): void {
         livewire(CreateDepartment::class)
-            ->fillForm(['name' => '', 'category_id' => $this->category->getKey()])
+            ->fillForm(['name' => '', 'category' => DepartmentCategory::Finance->value])
             ->call('create')
             ->assertHasFormErrors(['name' => 'required']);
     });
 
     it('requires category', function (): void {
         livewire(CreateDepartment::class)
-            ->fillForm(['name' => 'TI', 'category_id' => null])
+            ->fillForm(['name' => 'TI', 'category' => null])
             ->call('create')
-            ->assertHasFormErrors(['category_id' => 'required']);
+            ->assertHasFormErrors(['category' => 'required']);
     });
 
     it('enforces max length on name', function (): void {
         livewire(CreateDepartment::class)
             ->fillForm([
                 'name' => str_repeat('a', 256),
-                'category_id' => $this->category->getKey(),
+                'category' => DepartmentCategory::Finance->value,
             ])
             ->call('create')
             ->assertHasFormErrors(['name' => 'max']);

@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('departments', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->foreignUuid('company_id')->constrained('companies')->cascadeOnDelete();
-            $table->foreignUuid('category_id')->constrained('department_categories')->restrictOnDelete();
+            $table->string('category');
             $table->string('name');
             $table->timestamps();
             $table->softDeletes();

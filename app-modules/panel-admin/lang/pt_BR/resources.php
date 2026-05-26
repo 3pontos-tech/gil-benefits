@@ -163,19 +163,6 @@ return [
             ],
         ],
     ],
-    'department_categories' => [
-        'navigation_label' => 'Categorias de Departamento',
-        'model_label' => 'Categoria de Departamento',
-        'plural_model_label' => 'Categorias de Departamento',
-        'form' => [
-            'name' => 'Nome',
-        ],
-        'table' => [
-            'name' => 'Nome',
-            'departments_count' => 'Departamentos',
-            'created_at' => 'Criado em',
-        ],
-    ],
     'users' => [
         'navigation_label' => 'Usuários',
         'model_label' => 'Usuário',
@@ -219,6 +206,14 @@ return [
         'edit_profile' => [
             'cpf' => 'CPF',
             'rg' => 'RG',
+        ],
+        'department_categories' => [
+            'navigation_label' => 'Categorias de Departamento',
+            'title' => 'Categorias de Departamento',
+            'table' => [
+                'category' => 'Categoria',
+                'departments_count' => 'Departamentos',
+            ],
         ],
     ],
 ];
