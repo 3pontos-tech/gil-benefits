@@ -41,15 +41,17 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
         $start = filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay();
         $end = filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay();
 
+        $query = Department::query()
+            ->leftJoin('company_employees', 'company_employees.department_id', '=', 'departments.id')
+            ->leftJoin('appointments', function ($join) use ($start, $end): void {
+                $join->on('appointments.user_id', '=', 'company_employees.user_id')
+                    ->on('appointments.company_id', '=', 'company_employees.company_id')
+                    ->whereBetween('appointments.appointment_at', [$start, $end]);
+            });
+
         if (filled($category)) {
-            $counts = Department::query()
+            $counts = $query
                 ->where('departments.category', $category)
-                ->leftJoin('company_employees', 'company_employees.department_id', '=', 'departments.id')
-                ->leftJoin('appointments', function ($join) use ($start, $end): void {
-                    $join->on('appointments.user_id', '=', 'company_employees.user_id')
-                        ->on('appointments.company_id', '=', 'company_employees.company_id')
-                        ->whereBetween('appointments.appointment_at', [$start, $end]);
-                })
                 ->groupBy('departments.id', 'departments.name')
                 ->orderByDesc('total')
                 ->select([
@@ -61,13 +63,7 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
             return $this->buildChartData($counts, color: 'rgba(139, 92, 246, 0.7)', border: 'rgb(139, 92, 246)');
         }
 
-        $counts = Department::query()
-            ->leftJoin('company_employees', 'company_employees.department_id', '=', 'departments.id')
-            ->leftJoin('appointments', function ($join) use ($start, $end): void {
-                $join->on('appointments.user_id', '=', 'company_employees.user_id')
-                    ->on('appointments.company_id', '=', 'company_employees.company_id')
-                    ->whereBetween('appointments.appointment_at', [$start, $end]);
-            })
+        $counts = $query
             ->groupBy('departments.category')
             ->orderByDesc('total')
             ->select([

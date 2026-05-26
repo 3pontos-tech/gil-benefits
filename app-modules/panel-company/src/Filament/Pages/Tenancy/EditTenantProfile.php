@@ -100,7 +100,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                         'company_employees.role',
                         'company_employees.active',
                         'company_employees.department_id',
-                        DB::raw('(SELECT name FROM departments WHERE id = company_employees.department_id LIMIT 1) as department_name'),
+                        DB::raw('(SELECT name FROM departments WHERE id = company_employees.department_id AND company_id = company_employees.company_id LIMIT 1) as department_name'),
                     ])
             )
             ->heading(__('panel-company::resources.pages.edit_tenant.members_heading'))
