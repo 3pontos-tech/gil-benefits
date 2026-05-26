@@ -22,6 +22,8 @@ class AppointmentsByDepartmentChart extends ChartWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $maxHeight = '300px';
+
     public function getHeading(): ?string
     {
         return __('panel-company::widgets.appointments_by_department.heading');

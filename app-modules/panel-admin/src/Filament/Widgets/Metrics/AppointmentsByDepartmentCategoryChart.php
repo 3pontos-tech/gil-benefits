@@ -17,6 +17,8 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $maxHeight = '300px';
+
     public function getHeading(): ?string
     {
         $category = data_get($this->filters, 'departmentCategory');
