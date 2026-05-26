@@ -106,7 +106,6 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
     protected function getOptions(): array
     {
         return [
-            'indexAxis' => 'y',
             'plugins' => [
                 'legend' => ['display' => false],
             ],

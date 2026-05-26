@@ -68,6 +68,10 @@ return [
     'appointments_by_category' => [
         'heading' => 'Consultorias por categoria',
     ],
+    'appointments_by_department' => [
+        'heading' => 'Consultorias por departamento',
+        'dataset_label' => 'Consultorias',
+    ],
     'credit_stats' => [
         'total' => 'Total de créditos',
         'available' => 'Créditos disponíveis',

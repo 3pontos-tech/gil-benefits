@@ -12,8 +12,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
 use TresPontosTech\Company\Enums\DepartmentCategory;
+use TresPontosTech\Company\Models\Department;
 
 class DepartmentCategories extends Page implements HasTable
 {
@@ -63,8 +63,7 @@ class DepartmentCategories extends Page implements HasTable
 
     private function getCategoryData(): array
     {
-        $counts = DB::table('departments')
-            ->whereNull('deleted_at')
+        $counts = Department::query()
             ->selectRaw('category, COUNT(*) as total')
             ->groupBy('category')
             ->pluck('total', 'category');
