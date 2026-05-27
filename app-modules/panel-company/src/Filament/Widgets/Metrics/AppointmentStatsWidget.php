@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
@@ -29,12 +30,12 @@ class AppointmentStatsWidget extends StatsOverviewWidget
 
         $tenantId = Filament::getTenant()->id;
 
-        $userId = data_get($this->filters, 'userId');
+        $userIds = $this->filteredUserIds();
 
         $base = Appointment::query()
             ->where('company_id', $tenantId)
             ->whereBetween('appointment_at', [$start, $end])
-            ->when($userId, fn ($q) => $q->where('user_id', $userId));
+            ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds));
 
         $total = (clone $base)->count();
 

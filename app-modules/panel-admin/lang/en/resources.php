@@ -198,10 +198,22 @@ return [
             'navigation_label' => 'Metrics',
             'filter_start_date' => 'Start date',
             'filter_end_date' => 'End date',
+            'filter_department_category' => 'Department Category',
+            'filter_department_category_placeholder' => 'All categories',
+            'tab_consultants' => 'Consultants',
+            'tab_appointments' => 'Appointments',
         ],
         'edit_profile' => [
             'cpf' => 'CPF',
             'rg' => 'Document ID',
+        ],
+        'department_categories' => [
+            'navigation_label' => 'Department Categories',
+            'title' => 'Department Categories',
+            'table' => [
+                'category' => 'Category',
+                'departments_count' => 'Departments',
+            ],
         ],
     ],
 ];

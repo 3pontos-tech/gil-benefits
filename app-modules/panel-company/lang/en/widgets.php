@@ -68,6 +68,10 @@ return [
     'appointments_by_category' => [
         'heading' => 'Consultations by category',
     ],
+    'appointments_by_department' => [
+        'heading' => 'Consultations by department',
+        'dataset_label' => 'Consultations',
+    ],
     'credit_stats' => [
         'total' => 'Total credits',
         'available' => 'Available credits',

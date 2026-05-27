@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
@@ -28,6 +29,7 @@ class InsightsWidget extends StatsOverviewWidget
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
+        $userIds = $this->filteredUserIds();
         $userId = data_get($this->filters, 'userId');
 
         if ($tenant->employees()->count() === 0) {
@@ -35,16 +37,16 @@ class InsightsWidget extends StatsOverviewWidget
         }
 
         return array_filter([
-            $this->neverUsedStat($tenant, $userId),
-            $this->volumeVariationStat($tenant->id, $userId),
-            $userId ? null : $this->topUserStat($tenant),
+            $this->neverUsedStat($tenant, $userIds),
+            $this->volumeVariationStat($tenant->id, $userIds),
+            filled($userId) ? null : $this->topUserStat($tenant, $userIds),
         ]);
     }
 
-    private function neverUsedStat(Company $tenant, ?string $userId): ?Stat
+    private function neverUsedStat(Company $tenant, ?Collection $userIds): ?Stat
     {
         $employeesQuery = $tenant->employees()
-            ->when($userId, fn ($q) => $q->where('users.id', $userId));
+            ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('users.id', $userIds));
 
         $totalEmployees = (clone $employeesQuery)->count();
 
@@ -55,7 +57,7 @@ class InsightsWidget extends StatsOverviewWidget
         $everUsedCount = (clone $employeesQuery)
             ->whereHas('appointments', fn ($q) => $q
                 ->where('company_id', $tenant->id)
-                ->when($userId, fn ($q) => $q->where('user_id', $userId))
+                ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
             )
             ->count();
 
@@ -74,7 +76,7 @@ class InsightsWidget extends StatsOverviewWidget
             ->color($neverUsedRate > 50 ? 'danger' : ($neverUsedRate > 20 ? 'warning' : 'success'));
     }
 
-    private function volumeVariationStat(string $tenantId, ?string $userId): ?Stat
+    private function volumeVariationStat(string $tenantId, ?Collection $userIds): ?Stat
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
@@ -85,13 +87,13 @@ class InsightsWidget extends StatsOverviewWidget
         $currentTotal = Appointment::query()
             ->where('company_id', $tenantId)
             ->whereBetween('appointment_at', [$start, $end])
-            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
             ->count();
 
         $previousTotal = Appointment::query()
             ->where('company_id', $tenantId)
             ->whereBetween('appointment_at', [$prevStart, $prevEnd])
-            ->when($userId, fn ($q) => $q->where('user_id', $userId))
+            ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
             ->count();
 
         if ($previousTotal === 0) {
@@ -127,11 +129,11 @@ class InsightsWidget extends StatsOverviewWidget
             ->color($color);
     }
 
-    private function topUserStat(Company $tenant): ?Stat
+    private function topUserStat(Company $tenant, ?Collection $userIds = null): ?Stat
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $employeeIds = $tenant->employees()->select('users.id');
+        $employeeIds = $userIds ?? $tenant->employees()->pluck('users.id');
 
         $topData = Appointment::query()
             ->where('company_id', $tenant->id)

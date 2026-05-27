@@ -40,6 +40,21 @@ return [
         'appointments_by_category' => [
             'heading' => 'Distribuição por Categoria',
         ],
+        'global_appointment_stats' => [
+            'total' => 'Total de Agendamentos',
+            'total_description' => 'No período selecionado',
+            'completed' => 'Concluídos',
+            'completed_description' => ':rate% de taxa de conclusão',
+            'cancelled' => 'Cancelados',
+            'cancelled_description' => 'No período selecionado',
+            'top_company' => 'Empresa Mais Ativa',
+            'top_company_description' => ':total agendamentos no período',
+        ],
+        'appointments_by_department_category' => [
+            'heading' => 'Agendamentos por Categoria de Departamento',
+            'heading_filtered' => 'Departamentos em :category',
+            'dataset_label' => 'Agendamentos',
+        ],
         'consultants_ranking' => [
             'heading' => 'Ranking de Consultores',
             'column_consultant' => 'Consultor',
