@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Models\Users\User;
+use App\Support\UserAvatarPathGenerator;
 use Spatie\ImageOptimizer\Optimizers\Avifenc;
 use Spatie\ImageOptimizer\Optimizers\Cwebp;
 use Spatie\ImageOptimizer\Optimizers\Gifsicle;
@@ -128,6 +130,7 @@ return [
         // 'model_morph_alias' => PathGenerator::class
         Document::class => DocumentPathGenerator::class,
         Company::class => CompanyLogoPathGenerator::class,
+        User::class => UserAvatarPathGenerator::class,
     ],
 
     /*
