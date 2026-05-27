@@ -13,7 +13,7 @@ final class UserAvatarPathGenerator implements PathGenerator
         /** @var User $user */
         $user = $media->model;
 
-        return sprintf('usuarios/%s/avatar/', $user->getKey());
+        return sprintf('usuarios/%s/avatar/', $user->id);
     }
 
     public function getPathForConversions(Media $media): string

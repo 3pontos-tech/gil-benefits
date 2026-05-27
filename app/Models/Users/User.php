@@ -413,21 +413,17 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasMedia,
     {
         $this->addMediaConversion('user-avatar')
             ->performOnCollections('user_avatar')
-            ->width(96)
-            ->height(96)
-            ->fit(Fit::Crop, 96, 96)
-            ->nonQueued();
+            ->nonQueued()
+            ->fit(Fit::Crop, 96, 96);
     }
 
     public function getFilamentAvatarUrl(): ?string
     {
         $media = $this->getFirstMedia('user_avatar');
 
-        $url = $media?->getTemporaryUrl(
+        return $media?->getTemporaryUrl(
             now()->addMinutes(60),
             'user-avatar'
         );
-
-        return $url ?: null;
     }
 }
