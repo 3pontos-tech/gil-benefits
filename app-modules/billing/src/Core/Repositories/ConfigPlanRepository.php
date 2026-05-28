@@ -9,6 +9,7 @@ use Override;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Company\Models\Company;
 
 final readonly class ConfigPlanRepository implements PlanRepository
 {
@@ -51,13 +52,13 @@ final readonly class ConfigPlanRepository implements PlanRepository
         );
     }
 
-    public function getPlansFor(string $name): Collection
+    public function getPlansFor(string $name, ?Company $tenant = null): Collection
     {
         return collect($this->all())
             ->filter(fn ($plan, $key): bool => str_starts_with($key, 'user_'));
     }
 
-    public function getCheckoutPlansFor(string $name): Collection
+    public function getCheckoutPlansFor(string $name, ?Company $tenant = null): Collection
     {
         return $this->getPlansFor($name);
     }

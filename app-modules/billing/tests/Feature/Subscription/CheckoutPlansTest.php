@@ -1,10 +1,12 @@
 <?php
 
+use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Repositories\EloquentPlanRepository;
+use TresPontosTech\Company\Models\Company;
 
 // The subscription page shown to new subscribers must only display plans
 // from BillingProviderEnum::checkoutCases() — currently Barte.
@@ -49,6 +51,40 @@ it('getCheckoutPlansFor() respects checkoutCases() — only providers listed the
     $plans = (new EloquentPlanRepository)->getCheckoutPlansFor('user');
 
     expect($plans)->toHaveCount($providers->count());
+});
+
+it('getCheckoutPlansFor() returns only tenant-specific plans when the tenant has its own plans', function (): void {
+    $owner = User::factory()->companyOwner()->create();
+    $flamma = Company::factory()->recycle($owner)->create(['slug' => 'flamma-company']);
+
+    $flammaPlan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User, 'company_id' => $flamma->id])->create();
+    Price::factory()->for($flammaPlan, 'plan')->create();
+
+    // Global plan — must NOT be returned when tenant has specific plans
+    Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User, 'company_id' => null])->create();
+
+    $plans = (new EloquentPlanRepository)->getCheckoutPlansFor('user', $flamma);
+
+    expect($plans)->toHaveCount(1)
+        ->and($plans->first()->productId)->toBe($flammaPlan->provider_product_id);
+});
+
+it('getCheckoutPlansFor() falls back to global plans when tenant has no specific plans', function (): void {
+    $owner = User::factory()->companyOwner()->create();
+    $company = Company::factory()->recycle($owner)->create();
+
+    $globalPlan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User, 'company_id' => null])->create();
+    Price::factory()->for($globalPlan, 'plan')->create();
+
+    // Another tenant's plan — must NOT appear as fallback for this company
+    $otherOwner = User::factory()->companyOwner()->create();
+    $other = Company::factory()->recycle($otherOwner)->create();
+    Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User, 'company_id' => $other->id])->create();
+
+    $plans = (new EloquentPlanRepository)->getCheckoutPlansFor('user', $company);
+
+    expect($plans)->toHaveCount(1)
+        ->and($plans->first()->productId)->toBe($globalPlan->provider_product_id);
 });
 
 it('getPlansFor() still returns plans from all active providers for subscription verification', function (): void {

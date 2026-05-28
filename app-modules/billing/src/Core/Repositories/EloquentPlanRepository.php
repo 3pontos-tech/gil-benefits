@@ -8,6 +8,7 @@ use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\Company\Models\Company;
 
 class EloquentPlanRepository implements PlanRepository
 {
@@ -26,26 +27,48 @@ class EloquentPlanRepository implements PlanRepository
         return collect($this->all())->firstOrFail(fn (PlanEntity $plan): bool => $plan->slug === $name);
     }
 
-    public function getPlansFor(string $name): Collection
+    public function getPlansFor(string $name, ?Company $tenant = null): Collection
     {
-        return Cache::remember('active_user_plans', 15, fn () => Plan::query()
-            ->where('type', BillableTypeEnum::User)
-            ->where('active', true)
-            ->whereIn('provider', BillingProviderEnum::activeCases())
-            ->get()
-            ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan))
-        );
+        $cacheKey = 'active_user_plans_' . ($tenant?->id ?? 'global');
+
+        return Cache::remember($cacheKey, 15, fn (): Collection => $this->userPlansQuery(
+            providers: BillingProviderEnum::activeCases(),
+            tenant: $tenant,
+        ));
     }
 
-    public function getCheckoutPlansFor(string $name): Collection
+    public function getCheckoutPlansFor(string $name, ?Company $tenant = null): Collection
     {
-        return Cache::remember('checkout_user_plans', 15, fn () => Plan::query()
+        $cacheKey = 'checkout_user_plans_' . ($tenant?->id ?? 'global');
+
+        return Cache::remember($cacheKey, 15, fn (): Collection => $this->userPlansQuery(
+            providers: BillingProviderEnum::checkoutCases(),
+            tenant: $tenant,
+        ));
+    }
+
+    private function userPlansQuery(array $providers, ?Company $tenant): Collection
+    {
+        $tenantPlans = $tenant instanceof Company
+            ? Plan::query()
+                ->where('type', BillableTypeEnum::User)
+                ->where('active', true)
+                ->whereIn('provider', $providers)
+                ->where('company_id', $tenant->id)
+                ->get()
+            : collect();
+
+        if ($tenantPlans->isNotEmpty()) {
+            return $tenantPlans->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan));
+        }
+
+        return Plan::query()
             ->where('type', BillableTypeEnum::User)
             ->where('active', true)
-            ->whereIn('provider', BillingProviderEnum::checkoutCases())
+            ->whereIn('provider', $providers)
+            ->whereNull('company_id')
             ->get()
-            ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan))
-        );
+            ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan));
     }
 
     public function getActiveTenantPlan(BillingProviderEnum $provider): PlanEntity
