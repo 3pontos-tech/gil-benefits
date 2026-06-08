@@ -56,8 +56,8 @@ class SyncBartePlans extends Command
     }
 
     private const FLAMMA_PRICES = [
-        'flamma-black-barte' => 35000,
-        'flamma-platinum-barte' => 37000,
+        'flamma-gold-barte' => 25000,
+        'flamma-platinum-barte' => 30000,
     ];
 
     private function syncFlammaPrices(Plan $plan, array $bartePlan): void
