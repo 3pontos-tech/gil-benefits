@@ -8,6 +8,7 @@ use App\Policies\Users\UserPolicy;
 use Database\Factories\Users\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
+use Filament\Models\Contracts\HasDefaultTenant;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -55,7 +56,7 @@ use TresPontosTech\User\Models\UserAnamnese;
  */
 #[UsePolicy(UserPolicy::class)]
 #[ObservedBy(UserObserver::class)]
-class User extends Authenticatable implements FilamentUser, HasAvatar, HasMedia, HasTenants
+class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasMedia, HasTenants
 {
     use Billable;
 
