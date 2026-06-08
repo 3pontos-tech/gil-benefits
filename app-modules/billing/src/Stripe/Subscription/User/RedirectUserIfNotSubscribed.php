@@ -48,7 +48,7 @@ class RedirectUserIfNotSubscribed
         // TODO: the plan is already settled up (by pila) so, let them continue
 
         /** @var Collection<string, PlanEntity> $availableEmployeesPlans */
-        $availableEmployeesPlans = $this->planRepository->getPlansFor('user', $tenant);
+        $availableEmployeesPlans = $this->planRepository->getPlansFor('user');
 
         collect(BillingProviderEnum::checkoutCases())
             ->each(fn (BillingProviderEnum $provider) => $this->billingManager->getDriver($provider)->ensureCustomerExists($employee));

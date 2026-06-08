@@ -113,51 +113,6 @@ describe('company access during gateway migration', function (): void {
     });
 });
 
-// ─── flamma-company tenant isolation ─────────────────────────────────────────
-
-describe('user plan isolation for flamma-company tenant', function (): void {
-    beforeEach(function (): void {
-        $owner = User::factory()->companyOwner()->create();
-        $this->employee = User::factory()->employee()->create();
-        $this->flamma = Company::factory()->recycle($owner)->create(['slug' => 'flamma-company']);
-
-        // Flamma-specific plan — the only valid plan for this tenant
-        $flammaPlan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User, 'company_id' => $this->flamma->id])->create();
-        Price::factory()->for($flammaPlan, 'plan')->create();
-
-        // Global plan — user holds a subscription to this, but it is NOT valid inside flamma-company
-        Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User, 'company_id' => null])->create();
-
-        filament()->setCurrentPanel(FilamentPanel::User->value);
-        $this->actingAs($this->employee);
-        filament()->setTenant($this->flamma);
-    });
-
-    it('redirects a user whose subscription is on a global plan when entering the flamma-company tenant', function (): void {
-        // isSubscribed: false — the user has no subscription to the flamma-specific plan
-        $middleware = makeUserMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-            barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-        );
-
-        $response = $middleware->handle(fakeRequest(), passThrough());
-
-        expect($response->isRedirect())->toBeTrue();
-    });
-
-    it('lets a user through when they hold a subscription to the flamma-specific plan', function (): void {
-        // isSubscribed: true — the user has a valid flamma plan subscription
-        $middleware = makeUserMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-            barte: new FakeBillingContract(isSubscribed: true, hasActiveSubscription: false),
-        );
-
-        $response = $middleware->handle(fakeRequest(), passThrough());
-
-        expect($response->getContent())->toBe('ok');
-    });
-});
-
 // ─── user (employee) access ───────────────────────────────────────────────────
 
 describe('user access during gateway migration', function (): void {

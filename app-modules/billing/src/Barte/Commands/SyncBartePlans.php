@@ -48,9 +48,38 @@ class SyncBartePlans extends Command
                         'metadata' => [],
                     ]
                 ));
+
+            $this->syncFlammaPrices($plan, $bartePlan);
         }
 
         $this->info('Planos sincronizados: ' . $plans->count());
+    }
+
+    private const FLAMMA_PRICES = [
+        'flamma-black-barte' => 35000,
+        'flamma-platinum-barte' => 37000,
+    ];
+
+    private function syncFlammaPrices(Plan $plan, array $bartePlan): void
+    {
+        $flammaPriceInCents = self::FLAMMA_PRICES[$plan->slug] ?? null;
+
+        if ($flammaPriceInCents === null) {
+            return;
+        }
+
+        $plan->prices()->updateOrCreate(
+            ['provider_price_id' => $bartePlan['uuid'] . '-standalone-user'],
+            [
+                'billing_scheme' => 'per_unit',
+                'tiers_mode' => 'not-selected',
+                'type' => 'recurring',
+                'unit_amount_decimal' => $flammaPriceInCents,
+                'active' => $bartePlan['active'],
+                'default' => false,
+                'metadata' => ['tenant' => 'flamma-company'],
+            ]
+        );
     }
 
     private function persistPlan(array $bartePlan): Plan

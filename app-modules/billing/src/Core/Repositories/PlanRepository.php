@@ -7,7 +7,6 @@ namespace TresPontosTech\Billing\Core\Repositories;
 use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
-use TresPontosTech\Company\Models\Company;
 
 interface PlanRepository
 {
@@ -18,10 +17,10 @@ interface PlanRepository
 
     public function get(string $name): PlanEntity;
 
-    public function getPlansFor(string $name, ?Company $tenant = null): Collection;
+    public function getPlansFor(string $name): Collection;
 
     /** Planos disponíveis para NOVAS assinaturas (usa checkoutCases). */
-    public function getCheckoutPlansFor(string $name, ?Company $tenant = null): Collection;
+    public function getCheckoutPlansFor(string $name): Collection;
 
     public function getActiveTenantPlan(BillingProviderEnum $provider): PlanEntity;
 }

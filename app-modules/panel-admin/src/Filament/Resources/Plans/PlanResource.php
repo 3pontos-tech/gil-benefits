@@ -12,10 +12,8 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -34,7 +32,6 @@ use TresPontosTech\Admin\Filament\Resources\Plans\Pages\ListPlans;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
-use TresPontosTech\Company\Models\Company;
 
 class PlanResource extends Resource
 {
@@ -92,21 +89,6 @@ class PlanResource extends Resource
                     ->enum(BillableTypeEnum::class)
                     ->options(BillableTypeEnum::class)
                     ->required(),
-
-                Toggle::make('exclusive_to_flamma')
-                    ->label('Exclusivo para Flamma')
-                    ->helperText('Quando ativo, este plano só aparece para colaboradores do tenant Flamma.')
-                    ->dehydrated(false)
-                    ->afterStateHydrated(function (Toggle $component, ?Plan $record): void {
-                        $component->state($record?->company_id !== null);
-                    })
-                    ->afterStateUpdated(function (bool $state, callable $set): void {
-                        $flammaId = Company::query()->where('slug', 'flamma-company')->value('id');
-                        $set('company_id', $state ? $flammaId : null);
-                    })
-                    ->live(),
-
-                Hidden::make('company_id'),
 
                 Section::make(__('panel-admin::resources.plans.behavior.title'))
                     ->columnSpanFull()

@@ -4,13 +4,11 @@ namespace TresPontosTech\Billing\Core\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Database\Factories\PlanFactory;
-use TresPontosTech\Company\Models\Company;
 
 class Plan extends Model
 {
@@ -33,7 +31,6 @@ class Plan extends Model
         'unit_label',
         'active',
         'statement_descriptor',
-        'company_id',
     ];
 
     protected function casts(): array
@@ -50,11 +47,6 @@ class Plan extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'billing_plan_id');
-    }
-
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
     }
 
     protected static function newFactory(): PlanFactory

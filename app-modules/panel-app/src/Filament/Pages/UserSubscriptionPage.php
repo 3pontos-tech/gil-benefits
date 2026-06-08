@@ -8,6 +8,7 @@ use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\Entities\PriceEntity;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 
 class UserSubscriptionPage extends Page
@@ -26,13 +27,27 @@ class UserSubscriptionPage extends Page
 
     public function mount(): void
     {
-        $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user', filament()->getTenant());
+        $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user');
         $this->selectedPlanSlug = $plans->first()?->slug ?? '';
     }
 
     protected function getViewData(): array
     {
-        return ['plans' => resolve(PlanRepository::class)->getCheckoutPlansFor('user', filament()->getTenant())];
+        $isFlamma = filament()->getTenant()?->slug === 'flamma-company';
+        $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user');
+
+        if ($isFlamma) {
+            $plans = $plans->filter(
+                fn ($plan) => $plan->prices->contains(
+                    fn ($p): bool => ($p->metadata['tenant'] ?? null) === 'flamma-company'
+                )
+            );
+        }
+
+        return [
+            'plans' => $plans,
+            'isFlamma' => $isFlamma,
+        ];
     }
 
     public function checkout(string $planSlug): void
@@ -41,7 +56,9 @@ class UserSubscriptionPage extends Page
 
         $plan = resolve(PlanRepository::class)->get($planSlug);
         $this->selectedPlanSlug = $planSlug;
-        $price = $plan->prices->first();
+
+        $price = $this->resolvePriceForTenant($plan->prices->all());
+
         $data = new CheckoutData(
             planSlug: $plan->slug,
             priceId: $price->priceId,
@@ -94,5 +111,22 @@ class UserSubscriptionPage extends Page
     public function cancelWaiting(): void
     {
         $this->dispatch('close-modal', id: 'waiting-for-payment');
+    }
+
+    /** @param PriceEntity[] $prices */
+    private function resolvePriceForTenant(array $prices): PriceEntity
+    {
+        $isFlamma = filament()->getTenant()?->slug === 'flamma-company';
+        $prices = collect($prices);
+
+        if ($isFlamma) {
+            return $prices->first(
+                fn (PriceEntity $p): bool => ($p->metadata['tenant'] ?? null) === 'flamma-company'
+            ) ?? $prices->firstOrFail();
+        }
+
+        return $prices->first(
+            fn (PriceEntity $p): bool => ! isset($p->metadata['tenant'])
+        ) ?? $prices->firstOrFail();
     }
 }
