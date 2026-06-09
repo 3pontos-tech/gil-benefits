@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Billing\Stripe\Subscription\User;
 
+use App\Models\Users\User;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
@@ -9,6 +10,8 @@ use Stripe\Collection;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
@@ -66,6 +69,10 @@ class RedirectUserIfNotSubscribed
                 return false;
             });
 
+        if ($tenant->slug === 'flamma-company') {
+            $hasValidSubscription = $this->hasFlammaPriceSubscription($employee);
+        }
+
         if ($hasValidSubscription) {
             return $next($request);
         }
@@ -77,6 +84,23 @@ class RedirectUserIfNotSubscribed
         }
 
         return to_route($route, ['tenant' => $tenant->slug]);
+    }
 
+    private function hasFlammaPriceSubscription(User $employee): bool
+    {
+        $flammaPriceIds = Price::query()
+            ->whereJsonContains('metadata->tenant', 'flamma-company')
+            ->pluck('provider_price_id');
+
+        if ($flammaPriceIds->isEmpty()) {
+            return false;
+        }
+
+        return Subscription::query()
+            ->where('subscriptionable_type', $employee->getMorphClass())
+            ->where('subscriptionable_id', $employee->getKey())
+            ->where('stripe_status', 'active')
+            ->whereIn('stripe_price', $flammaPriceIds)
+            ->exists();
     }
 }

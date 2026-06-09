@@ -113,6 +113,71 @@ describe('company access during gateway migration', function (): void {
     });
 });
 
+// ─── flamma-company subscription isolation ────────────────────────────────────
+
+describe('flamma-company subscription isolation', function (): void {
+    beforeEach(function (): void {
+        $owner = User::factory()->companyOwner()->create();
+        $this->employee = User::factory()->employee()->create();
+        $this->flamma = Company::factory()->recycle($owner)->create(['slug' => 'flamma-company']);
+        $this->flamma->employees()->attach($this->employee->getKey());
+
+        $plan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create();
+
+        $this->standardPrice = Price::factory()->for($plan, 'plan')->create([
+            'provider_price_id' => $plan->provider_product_id,
+            'metadata' => [],
+        ]);
+
+        $this->flammaPrice = Price::factory()->for($plan, 'plan')->create([
+            'provider_price_id' => $plan->provider_product_id . '-standalone-user',
+            'metadata' => ['tenant' => 'flamma-company'],
+        ]);
+
+        filament()->setCurrentPanel(FilamentPanel::User->value);
+        $this->actingAs($this->employee);
+        filament()->setTenant($this->flamma);
+    });
+
+    it('lets a user through when they have an active flamma-specific subscription', function (): void {
+        $this->employee->subscriptions()->create([
+            'type' => 'test-plan',
+            'stripe_id' => 'sub_flamma_test',
+            'stripe_status' => 'active',
+            'stripe_price' => $this->flammaPrice->provider_price_id,
+            'quantity' => 1,
+        ]);
+
+        $middleware = makeUserMiddleware(
+            stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
+            barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
+        );
+
+        $response = $middleware->handle(fakeRequest(), passThrough());
+
+        expect($response->getContent())->toBe('ok');
+    });
+
+    it('redirects a user whose subscription uses the standard price when in flamma-company', function (): void {
+        $this->employee->subscriptions()->create([
+            'type' => 'test-plan',
+            'stripe_id' => 'sub_standard_test',
+            'stripe_status' => 'active',
+            'stripe_price' => $this->standardPrice->provider_price_id,
+            'quantity' => 1,
+        ]);
+
+        $middleware = makeUserMiddleware(
+            stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
+            barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
+        );
+
+        $response = $middleware->handle(fakeRequest(), passThrough());
+
+        expect($response->isRedirect())->toBeTrue();
+    });
+});
+
 // ─── user (employee) access ───────────────────────────────────────────────────
 
 describe('user access during gateway migration', function (): void {

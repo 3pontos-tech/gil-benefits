@@ -1,6 +1,7 @@
 @php use Filament\Support\Icons\Heroicon;use Illuminate\Support\Collection;use TresPontosTech\Billing\Core\Entities\PlanEntity; @endphp
 @props([
-    'plans'
+    'plans',
+    'isFlamma' => false,
 ])
 
 @php
@@ -49,7 +50,9 @@
                         @foreach($sortedPlans as $plan)
                             @php
                                 /** @var PlanEntity $plan */
-                                $price = $plan->prices->first();
+                                $price = $isFlamma
+                                ? $plan->prices->first(fn ($p) => ($p->metadata['tenant'] ?? null) === 'flamma-company')
+                                : ($plan->prices->first(fn ($p) => !isset($p->metadata['tenant'])) ?? $plan->prices->first());
                                 $features =  [
                                     'appointments' => $price->monthlyAppointments,
                                     'whatsapp_access' => $price->whatsappEnabled,
