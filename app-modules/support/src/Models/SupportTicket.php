@@ -1,0 +1,87 @@
+<?php
+
+declare(strict_types=1);
+
+namespace TresPontosTech\Support\Models;
+
+use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+
+class SupportTicket extends Model implements HasMedia
+{
+    use HasFactory;
+    use HasUuids;
+    use InteractsWithMedia;
+
+    protected $fillable = [
+        'protocol',
+        'user_id',
+        'company_id',
+        'visitor_name',
+        'visitor_email',
+        'visitor_company_name',
+        'category',
+        'subject',
+        'description',
+        'status',
+        'url',
+        'browser',
+        'device',
+        'environment',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'category' => SupportTicketCategoryEnum::class,
+            'status' => SupportTicketStatusEnum::class,
+        ];
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('attachments')
+            ->acceptsMimeTypes([
+                'image/jpeg',
+                'image/png',
+                'application/pdf',
+            ]);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void {}
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    public function destinations(): HasMany
+    {
+        return $this->hasMany(TicketDestination::class);
+    }
+
+    public function getRequesterEmail(): ?string
+    {
+        return $this->user?->email ?? $this->visitor_email;
+    }
+
+    public function getRequesterName(): ?string
+    {
+        return $this->user?->name ?? $this->visitor_name;
+    }
+}

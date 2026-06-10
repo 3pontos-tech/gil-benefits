@@ -38,6 +38,7 @@
         "3pontos-tech/panel-company": "*",
         "3pontos-tech/panel-consultant": "*",
         "3pontos-tech/permissions": "^1.0",
+        "3pontos-tech/support": "^1.0",
         "3pontos-tech/tenant": "*",
         "3pontos-tech/user": "*",
         "basementdevs/filament-better-mails": "^5.0",
