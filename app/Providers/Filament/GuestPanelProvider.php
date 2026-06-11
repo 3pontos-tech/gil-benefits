@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Guest\Pages\HelpCenterPage;
 use App\Filament\Guest\Pages\LandingPage;
 use Filament\Actions\Action;
 use Filament\Enums\ThemeMode;
@@ -92,6 +93,11 @@ class GuestPanelProvider extends PanelProvider
                 NavigationItem::make('FAQ')
                     ->url('#faq')
                     ->sort(6),
+                NavigationItem::make('Abrir Chamado')
+                    ->group('Ajuda')
+                    ->icon(Heroicon::QuestionMarkCircle)
+                    ->url(fn (): string => HelpCenterPage::getUrl())
+                    ->sort(7),
             ])
             ->discoverWidgets(in: app_path('Filament/Guest/Widgets'), for: 'App\Filament\Guest\Widgets')
             ->widgets([

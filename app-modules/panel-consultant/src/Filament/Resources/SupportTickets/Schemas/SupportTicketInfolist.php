@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Consultants\Filament\Resources\SupportTickets\Schemas;
 
+use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -62,6 +63,16 @@ class SupportTicketInfolist
                     TextEntry::make('created_at')
                         ->label(__('support::resources.support_tickets.fields.created_at'))
                         ->dateTime('d/m/Y H:i'),
+                ]),
+
+            Section::make(__('support::resources.support_tickets.sections.attachments'))
+                ->icon(Heroicon::PaperClip)
+                ->visible(fn (SupportTicket $record): bool => $record->getMedia('attachments')->isNotEmpty())
+                ->schema([
+                    SpatieMediaLibraryImageEntry::make('attachment')
+                        ->label('')
+                        ->collection('attachments')
+                        ->height(220),
                 ]),
         ]);
     }

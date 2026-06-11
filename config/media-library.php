@@ -32,6 +32,8 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Support\CompanyLogoPathGenerator;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Support\DocumentPathGenerator;
+use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Support\Support\SupportTicketPathGenerator;
 
 return [
 
@@ -131,6 +133,7 @@ return [
         Document::class => DocumentPathGenerator::class,
         Company::class => CompanyLogoPathGenerator::class,
         User::class => UserAvatarPathGenerator::class,
+        SupportTicket::class => SupportTicketPathGenerator::class,
     ],
 
     /*
