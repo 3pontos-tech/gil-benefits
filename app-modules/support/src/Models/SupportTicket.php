@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -17,6 +18,25 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 
+/**
+ * @property string $id
+ * @property string $protocol
+ * @property string|null $user_id
+ * @property string|null $company_id
+ * @property string|null $visitor_name
+ * @property string|null $visitor_email
+ * @property string|null $visitor_company_name
+ * @property SupportTicketCategoryEnum $category
+ * @property string $subject
+ * @property string $description
+ * @property SupportTicketStatusEnum $status
+ * @property string|null $url
+ * @property string|null $browser
+ * @property string|null $device
+ * @property string|null $environment
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class SupportTicket extends Model implements HasMedia
 {
     use HasFactory;

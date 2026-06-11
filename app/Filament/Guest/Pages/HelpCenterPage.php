@@ -23,6 +23,9 @@ use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 
+/**
+ * @property-read Schema $form
+ */
 class HelpCenterPage extends Page
 {
     protected static ?string $slug = 'help-center';
@@ -36,6 +39,7 @@ class HelpCenterPage extends Page
         return __('support::pages.help_center.title');
     }
 
+    /** @var array<string, mixed> */
     public array $data = [];
 
     public function mount(): void
@@ -45,55 +49,56 @@ class HelpCenterPage extends Page
 
     public function form(Schema $schema): Schema
     {
-        return $schema->statePath('data')->schema([
-            Section::make(__('support::pages.help_center.section_visitor'))
-                ->schema([
-                    TextInput::make('visitor_name')
-                        ->label(__('support::pages.help_center.fields.visitor_name'))
-                        ->required()
-                        ->maxLength(255),
+        return $schema->statePath('data')
+            ->schema([
+                Section::make(__('support::pages.help_center.section_visitor'))
+                    ->schema([
+                        TextInput::make('visitor_name')
+                            ->label(__('support::pages.help_center.fields.visitor_name'))
+                            ->required()
+                            ->maxLength(255),
 
-                    TextInput::make('visitor_email')
-                        ->label(__('support::pages.help_center.fields.visitor_email'))
-                        ->email()
-                        ->required()
-                        ->maxLength(255),
+                        TextInput::make('visitor_email')
+                            ->label(__('support::pages.help_center.fields.visitor_email'))
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
 
-                    TextInput::make('visitor_company_name')
-                        ->label(__('support::pages.help_center.fields.visitor_company_name'))
-                        ->maxLength(255),
-                ]),
+                        TextInput::make('visitor_company_name')
+                            ->label(__('support::pages.help_center.fields.visitor_company_name'))
+                            ->maxLength(255),
+                    ]),
 
-            Section::make(__('support::pages.help_center.section_category'))
-                ->schema([
-                    Select::make('category')
-                        ->label(__('support::pages.help_center.fields.category'))
-                        ->options(SupportTicketCategoryEnum::class)
-                        ->required()
-                        ->searchable()
-                        ->native(false),
-                ]),
+                Section::make(__('support::pages.help_center.section_category'))
+                    ->schema([
+                        Select::make('category')
+                            ->label(__('support::pages.help_center.fields.category'))
+                            ->options(SupportTicketCategoryEnum::class)
+                            ->required()
+                            ->searchable()
+                            ->native(false),
+                    ]),
 
-            Section::make(__('support::pages.help_center.section_details'))
-                ->schema([
-                    TextInput::make('subject')
-                        ->label(__('support::pages.help_center.fields.subject'))
-                        ->required()
-                        ->maxLength(255),
+                Section::make(__('support::pages.help_center.section_details'))
+                    ->schema([
+                        TextInput::make('subject')
+                            ->label(__('support::pages.help_center.fields.subject'))
+                            ->required()
+                            ->maxLength(255),
 
-                    Textarea::make('description')
-                        ->label(__('support::pages.help_center.fields.description'))
-                        ->required()
-                        ->rows(5),
+                        Textarea::make('description')
+                            ->label(__('support::pages.help_center.fields.description'))
+                            ->required()
+                            ->rows(5),
 
-                    FileUpload::make('attachment')
-                        ->label(__('support::pages.help_center.fields.attachment'))
-                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
-                        ->maxSize(5120)
-                        ->storeFiles(false)
-                        ->nullable(),
-                ]),
-        ]);
+                        FileUpload::make('attachment')
+                            ->label(__('support::pages.help_center.fields.attachment'))
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
+                            ->maxSize(5120)
+                            ->storeFiles(false)
+                            ->nullable(),
+                    ]),
+            ]);
     }
 
     public function content(Schema $schema): Schema
@@ -108,6 +113,9 @@ class HelpCenterPage extends Page
         ]);
     }
 
+    /**
+     * @return array<Action>
+     */
     protected function getFormActions(): array
     {
         return [
@@ -120,19 +128,24 @@ class HelpCenterPage extends Page
 
     public function submit(): void
     {
+        /** @var array<string, mixed> $data */
         $data = $this->form->getState();
 
+        $category = $data['category'];
         $attachment = $data['attachment'] ?? null;
+        $visitorName = $data['visitor_name'] ?? null;
+        $visitorEmail = $data['visitor_email'] ?? null;
+        $visitorCompanyName = $data['visitor_company_name'] ?? null;
 
         $dto = new CreateSupportTicketDTO(
-            category: $data['category'] instanceof SupportTicketCategoryEnum
-                ? $data['category']
-                : SupportTicketCategoryEnum::from($data['category']),
-            subject: $data['subject'],
-            description: $data['description'],
-            visitorName: $data['visitor_name'] ?? null,
-            visitorEmail: $data['visitor_email'] ?? null,
-            visitorCompanyName: $data['visitor_company_name'] ?? null,
+            category: $category instanceof SupportTicketCategoryEnum
+                ? $category
+                : SupportTicketCategoryEnum::from((string) $category),
+            subject: (string) $data['subject'],
+            description: (string) $data['description'],
+            visitorName: is_string($visitorName) ? $visitorName : null,
+            visitorEmail: is_string($visitorEmail) ? $visitorEmail : null,
+            visitorCompanyName: is_string($visitorCompanyName) ? $visitorCompanyName : null,
             url: Request::header('referer'),
             browser: $this->parseBrowser(Request::userAgent()),
             device: $this->parseDevice(Request::userAgent()),
