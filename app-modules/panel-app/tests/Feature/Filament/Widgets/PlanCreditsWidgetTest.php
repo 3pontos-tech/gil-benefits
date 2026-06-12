@@ -57,6 +57,32 @@ it('exposes the view-plan action and renders description and features in the mod
         ->toContain(trans_choice('panel-app::widgets.plan_details.monthly_appointments', 1, ['count' => 1]));
 });
 
+it('lists every applicable block reason at once', function (): void {
+    $employee = actingAsEmployee(); // CompanyPlan: 1 consulta/mês, sem créditos
+
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Active)
+        ->create(['user_id' => $employee->getKey()]);
+
+    livewire(PlanCreditsWidget::class)
+        ->assertOk()
+        ->assertSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
+        ->assertSeeText(__('panel-app::widgets.plans_overview.no_appointments_available'));
+});
+
+it('shows only the ongoing reason when the user still has quota', function (): void {
+    $employee = actingAsSubscribedEmployee(monthlyLimit: 4);
+
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Active)
+        ->create(['user_id' => $employee->getKey()]);
+
+    livewire(PlanCreditsWidget::class)
+        ->assertOk()
+        ->assertSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
+        ->assertDontSeeText(__('panel-app::widgets.plans_overview.no_appointments_available'));
+});
+
 describe('appointment guard', function (): void {
     it('blocks booking with company plan and allows after cancellation', function (): void {
         $employee = actingAsEmployee();
