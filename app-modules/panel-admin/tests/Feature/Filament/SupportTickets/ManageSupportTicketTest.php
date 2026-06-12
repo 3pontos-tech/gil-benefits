@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
+use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
@@ -46,7 +47,7 @@ it('lists tickets from every user (not scoped)', function (): void {
     expect(SupportTicketResource::getEloquentQuery()->count())->toBe(3);
 });
 
-it('can change a ticket status', function (): void {
+it('can change a ticket status from the table', function (): void {
     $ticket = makeTicketFor(User::factory()->create());
 
     livewire(ListSupportTickets::class)
@@ -54,6 +55,18 @@ it('can change a ticket status', function (): void {
             'status' => SupportTicketStatusEnum::Resolved->value,
         ])
         ->assertHasNoTableActionErrors();
+
+    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
+});
+
+it('can change a ticket status from the view page', function (): void {
+    $ticket = makeTicketFor(User::factory()->create());
+
+    livewire(ViewSupportTicket::class, ['record' => $ticket->getKey()])
+        ->callAction('update_status', data: [
+            'status' => SupportTicketStatusEnum::Resolved->value,
+        ])
+        ->assertHasNoActionErrors();
 
     expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
 });
