@@ -1,19 +1,12 @@
 @php
     $pct = $monthlyLimit > 0 ? min(100, (int) round((($monthlyLimit - $monthlyLeft) / $monthlyLimit) * 100)) : 0;
-    $statusColors = [
-        'active' => 'text-green-700 bg-green-50 dark:text-green-300 dark:bg-green-500/10',
-        'inactive' => 'text-gray-600 bg-gray-100 dark:text-gray-300 dark:bg-white/10',
-        'expired' => 'text-danger-700 bg-danger-50 dark:text-danger-300 dark:bg-danger-500/10',
-    ];
 @endphp
 <x-filament-widgets::widget class="h-full">
     <div class="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-900">
         <div class="flex items-center justify-between gap-2">
             <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Plano &amp; créditos</p>
             @if($plan)
-                <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold {{ $statusColors[$plan->status] ?? $statusColors['inactive'] }}">
-                    {{ __('panel-app::widgets.plan_status.' . $plan->status) }}
-                </span>
+                {{ $this->viewPlanAction }}
             @endif
         </div>
 
@@ -53,12 +46,6 @@
                         <span>{{ $reason }}</span>
                     </p>
                 @endforeach
-            @endif
-
-            @if($plan)
-                <div class="mt-3 text-center">
-                    {{ $this->viewPlanAction }}
-                </div>
             @endif
         </div>
     </div>

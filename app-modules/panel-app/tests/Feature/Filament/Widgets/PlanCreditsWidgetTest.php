@@ -7,6 +7,7 @@ use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 
 use function Pest\Laravel\travelTo;
@@ -28,12 +29,17 @@ it('renders plan name, monthly allowance and available credits', function (): vo
         ->assertSee('3'); // créditos disponíveis
 });
 
-it('shows the plan name and an active status badge', function (): void {
-    actingAsEmployee();
+it('shows the plan name on the card', function (): void {
+    $employee = actingAsEmployee();
+
+    $companyPlan = CompanyPlan::query()
+        ->whereIn('company_id', $employee->companies()->select('companies.id'))
+        ->with('plan')
+        ->first();
 
     livewire(PlanCreditsWidget::class)
         ->assertSuccessful()
-        ->assertSee(__('panel-app::widgets.plan_status.active'));
+        ->assertSee($companyPlan->plan->name);
 });
 
 it('exposes the view-plan action and renders description and features in the modal partial', function (): void {
