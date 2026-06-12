@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use TresPontosTech\App\DTOs\PlanSummary;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -33,6 +34,27 @@ it('shows the plan name and an active status badge', function (): void {
     livewire(PlanCreditsWidget::class)
         ->assertSuccessful()
         ->assertSee(__('panel-app::widgets.plan_status.active'));
+});
+
+it('exposes the view-plan action and renders description and features in the modal partial', function (): void {
+    actingAsEmployee(); // CompanyPlan: 1 consulta/mês
+
+    livewire(PlanCreditsWidget::class)
+        ->assertActionVisible('viewPlan');
+
+    $plan = new PlanSummary(
+        name: 'Plano X',
+        status: 'active',
+        description: 'Descrição do plano de teste',
+        monthlyLimit: 1,
+        features: [trans_choice('panel-app::widgets.plan_details.monthly_appointments', 1, ['count' => 1])],
+    );
+
+    $html = view('filament.app.widgets.partials.plan-details', ['plan' => $plan])->render();
+
+    expect($html)
+        ->toContain('Descrição do plano de teste')
+        ->toContain(trans_choice('panel-app::widgets.plan_details.monthly_appointments', 1, ['count' => 1]));
 });
 
 describe('appointment guard', function (): void {
