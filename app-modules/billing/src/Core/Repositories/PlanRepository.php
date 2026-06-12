@@ -17,7 +17,7 @@ interface PlanRepository
 
     public function get(string $name): PlanEntity;
 
-    public function getPlansFor(string $name): Collection;
+    public function getPlansFor(string $name = 'user_'): Collection;
 
     /** Planos disponíveis para NOVAS assinaturas (usa checkoutCases). */
     public function getCheckoutPlansFor(string $name): Collection;
