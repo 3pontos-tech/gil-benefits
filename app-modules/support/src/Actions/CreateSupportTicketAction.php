@@ -7,10 +7,12 @@ namespace TresPontosTech\Support\Actions;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Throwable;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Jobs\DispatchSupportTicketJob;
+use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Services\ProtocolGenerator;
 
@@ -27,6 +29,12 @@ class CreateSupportTicketAction
         if ($dto->attachment instanceof UploadedFile) {
             $ticket->addMedia($dto->attachment)
                 ->toMediaCollection('attachments');
+        }
+
+        // Acknowledge receipt to the requester once, regardless of the routing channel.
+        $requesterEmail = $ticket->getRequesterEmail();
+        if ($requesterEmail !== null) {
+            Mail::to($requesterEmail)->queue(new SupportTicketConfirmationMail($ticket));
         }
 
         dispatch(new DispatchSupportTicketJob($ticket));

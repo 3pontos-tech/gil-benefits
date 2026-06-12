@@ -24,6 +24,22 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
         return __('support::enums.ticket_status.' . $this->value);
     }
 
+    /**
+     * Derives the ticket status from its destinations' outcomes.
+     *
+     * @param  iterable<TicketDestinationStatusEnum>  $statuses
+     */
+    public static function fromDestinations(iterable $statuses): self
+    {
+        $statuses = collect($statuses);
+
+        return match (true) {
+            $statuses->contains(TicketDestinationStatusEnum::Failed) => self::Failed,
+            $statuses->contains(TicketDestinationStatusEnum::Sent) => self::Dispatched,
+            default => self::Pending,
+        };
+    }
+
     public function getIcon(): Heroicon
     {
         return match ($this) {

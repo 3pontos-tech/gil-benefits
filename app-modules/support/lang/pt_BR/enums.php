@@ -35,4 +35,9 @@ return [
         'monday' => 'Monday',
         'email' => 'E-mail',
     ],
+    'destination_status' => [
+        'pending' => 'Pendente',
+        'sent' => 'Enviado',
+        'failed' => 'Falhou',
+    ],
 ];

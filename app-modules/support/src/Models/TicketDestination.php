@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
+use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
 
 class TicketDestination extends Model
@@ -29,6 +30,7 @@ class TicketDestination extends Model
         return [
             'type' => TicketDestinationTypeEnum::class,
             'channel' => TicketDestinationChannelEnum::class,
+            'status' => TicketDestinationStatusEnum::class,
         ];
     }
 

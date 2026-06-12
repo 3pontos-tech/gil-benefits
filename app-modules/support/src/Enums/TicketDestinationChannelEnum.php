@@ -22,20 +22,19 @@ enum TicketDestinationChannelEnum: string implements HasLabel
 
     public function getDestinationType(): TicketDestinationTypeEnum
     {
-        return match ($this) {
-            self::SupportTi => TicketDestinationTypeEnum::Monday,
-            default => TicketDestinationTypeEnum::Email,
-        };
+        // Every channel is delivered by e-mail for now. When the Monday integration
+        // lands, SupportTi will switch to TicketDestinationTypeEnum::Monday.
+        return TicketDestinationTypeEnum::Email;
     }
 
     public function getRecipientEmail(): ?string
     {
         return match ($this) {
+            self::SupportTi => config('support.emails.support_ti'),
             self::Financial => config('support.emails.financial'),
             self::Commercial => config('support.emails.commercial'),
             self::Cs => config('support.emails.cs'),
             self::Product => config('support.emails.product'),
-            default => null,
         };
     }
 }

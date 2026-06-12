@@ -67,6 +67,18 @@ enum SupportTicketCategoryEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
+    /**
+     * Destinations this category routes to. Single channel today; returning a list
+     * lets a category fan out to several destinations later without touching the
+     * orchestrator.
+     *
+     * @return array<TicketDestinationChannelEnum>
+     */
+    public function destinationChannels(): array
+    {
+        return [$this->getDestinationChannel()];
+    }
+
     public function getDestinationChannel(): TicketDestinationChannelEnum
     {
         return match ($this) {
