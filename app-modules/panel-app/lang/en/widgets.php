@@ -40,4 +40,12 @@ return [
     'next_appointment' => [
         'awaiting_tooltip' => 'The meeting link will appear here once the consultation is confirmed.',
     ],
+
+    'shared_materials' => [
+        'view_all' => 'View all',
+        'download' => 'Download',
+        'open' => 'Open',
+        'unavailable' => 'Unavailable',
+        'more_count' => '{1} +:count more material|[2,*] +:count more materials',
+    ],
 ];

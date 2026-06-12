@@ -40,4 +40,12 @@ return [
     'next_appointment' => [
         'awaiting_tooltip' => 'O link da reunião aparecerá aqui assim que a consultoria for confirmada.',
     ],
+
+    'shared_materials' => [
+        'view_all' => 'Ver todos',
+        'download' => 'Download',
+        'open' => 'Abrir',
+        'unavailable' => 'Indisponível',
+        'more_count' => '{1} +:count outro material|[2,*] +:count outros materiais',
+    ],
 ];

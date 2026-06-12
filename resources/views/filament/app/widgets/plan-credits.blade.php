@@ -37,15 +37,15 @@
                     Agendar consultoria
                 </x-filament::button>
             @else
-                <x-filament::button disabled class="w-full">
-                    Agendar consultoria
-                </x-filament::button>
                 @foreach($blockReasons as $reason)
-                    <p class="mt-2 flex items-start gap-1.5 text-xs text-danger-600 dark:text-danger-400">
+                    <p class="mb-2 flex items-start gap-1.5 text-xs text-danger-600 dark:text-danger-400">
                         <x-filament::icon icon="heroicon-o-exclamation-triangle" class="mt-0.5 size-4 shrink-0" />
                         <span>{{ $reason }}</span>
                     </p>
                 @endforeach
+                <x-filament::button disabled class="w-full">
+                    Agendar consultoria
+                </x-filament::button>
             @endif
         </div>
     </div>

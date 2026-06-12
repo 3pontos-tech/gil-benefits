@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Filament\Support\Enums\Width;
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\App\DTOs\PlanSummary;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
@@ -45,8 +47,13 @@ it('shows the plan name on the card', function (): void {
 it('exposes the view-plan action and renders description and features in the modal partial', function (): void {
     actingAsEmployee(); // CompanyPlan: 1 consulta/mês
 
-    livewire(PlanCreditsWidget::class)
+    $component = livewire(PlanCreditsWidget::class)
         ->assertActionVisible('viewPlan');
+
+    $action = $component->instance()->viewPlanAction();
+
+    expect($action->getModalWidth())->toBe(Width::Medium)
+        ->and($action->getModalCancelAction())->toBeNull();
 
     $plan = new PlanSummary(
         name: 'Plano X',
@@ -87,6 +94,27 @@ it('shows only the ongoing reason when the user still has quota', function (): v
         ->assertOk()
         ->assertSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
         ->assertDontSeeText(__('panel-app::widgets.plans_overview.no_appointments_available'));
+});
+
+it('checks ongoing-appointment eligibility with a single query', function (): void {
+    $employee = actingAsEmployee();
+
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Active)
+        ->create(['user_id' => $employee->getKey()]);
+
+    $ongoingChecks = 0;
+    DB::listen(function ($query) use (&$ongoingChecks): void {
+        $sql = strtolower($query->sql);
+        if (str_contains($sql, 'appointments') && str_contains($sql, 'not in')) {
+            ++$ongoingChecks;
+        }
+    });
+
+    livewire(PlanCreditsWidget::class)->assertOk();
+
+    // canCreateAppointment e blockReasons compartilham o mesmo resultado, sem duplicar a query.
+    expect($ongoingChecks)->toBe(1);
 });
 
 describe('appointment guard', function (): void {

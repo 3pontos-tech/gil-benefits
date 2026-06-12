@@ -11,6 +11,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Support\Enums\Width;
 use Filament\Widgets\Widget;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -48,13 +49,18 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             ->where('status', UserCreditStatusEnum::Available)
             ->count();
 
+        $monthlyLeft = $user->monthly_appointments_left;
+        $hasCredit = $availableCredits > 0;
+        $hasOngoingAppointment = $user->hasOngoingAppointment();
+        $canCreateAppointment = ($monthlyLeft > 0 || $hasCredit) && ! $hasOngoingAppointment;
+
         return [
             'plan' => $plan,
-            'monthlyLeft' => $user->monthly_appointments_left,
+            'monthlyLeft' => $monthlyLeft,
             'monthlyLimit' => $plan?->monthlyLimit ?? 0,
             'availableCredits' => $availableCredits,
-            'canCreateAppointment' => $user->canCreateAppointment(),
-            'blockReasons' => $this->blockReasons($user),
+            'canCreateAppointment' => $canCreateAppointment,
+            'blockReasons' => $this->blockReasons($hasOngoingAppointment, $monthlyLeft, $hasCredit),
         ];
     }
 
@@ -67,8 +73,9 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             ->label(__('panel-app::widgets.plan_details.view_plan'))
             ->visible($plan instanceof PlanSummary)
             ->modalHeading($plan?->name)
+            ->modalWidth(Width::Medium)
             ->modalSubmitAction(false)
-            ->modalCancelActionLabel(__('panel-app::widgets.plan_details.close'))
+            ->modalCancelAction(false)
             ->modalContent(fn (): View => view('filament.app.widgets.partials.plan-details', [
                 'plan' => $this->plan(),
             ]));
@@ -98,15 +105,15 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
     /**
      * @return list<string>
      */
-    private function blockReasons(User $user): array
+    private function blockReasons(bool $hasOngoingAppointment, int $monthlyLeft, bool $hasCredit): array
     {
         $reasons = [];
 
-        if ($user->hasOngoingAppointment()) {
+        if ($hasOngoingAppointment) {
             $reasons[] = __('panel-app::widgets.plans_overview.ongoing_appointment');
         }
 
-        if (! ($user->monthly_appointments_left > 0 || $user->hasAvailableCredit())) {
+        if ($monthlyLeft <= 0 && ! $hasCredit) {
             $reasons[] = __('panel-app::widgets.plans_overview.no_appointments_available');
         }
 
