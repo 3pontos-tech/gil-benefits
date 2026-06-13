@@ -78,11 +78,15 @@ it('bypasses 403 check for flamma-company tenant', function (): void {
     filament()->setTenant($flammaCompany);
 
     $plan = Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create(['slug' => 'user-gold']);
-    Price::factory()->for($plan, 'plan')->create();
+    $flammaPrice = Price::factory()->for($plan, 'plan')->create([
+        'provider_price_id' => 'price_flamma_gold',
+        'metadata' => ['tenant' => 'flamma-company'],
+    ]);
     $this->employee->subscriptions()->create([
         'type' => 'user-gold',
         'stripe_id' => 'sub_flamma_user_' . uniqid(),
         'stripe_status' => 'active',
+        'stripe_price' => $flammaPrice->provider_price_id,
     ]);
 
     $response = $this->middleware->handle($this->request, $this->next);
