@@ -4,6 +4,7 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
 use Laravel\Cashier\Cashier;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
@@ -16,6 +17,11 @@ use TresPontosTech\Company\Models\Company;
 use function Pest\Laravel\actingAs;
 
 beforeEach(function (): void {
+    Http::preventStrayRequests();
+    Http::fake([
+        '*/v2/buyers' => Http::response(['uuid' => 'fake-barte-buyer-uuid'], 201),
+    ]);
+
     $this->employee = User::factory()->employee()->create([
         'stripe_id' => 'cus_user_' . uniqid(),
     ]);
