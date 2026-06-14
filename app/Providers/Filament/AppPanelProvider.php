@@ -19,7 +19,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use TresPontosTech\App\Filament\Pages\EditUserProfile;
+use TresPontosTech\App\Filament\Pages\ProfilePage;
 use TresPontosTech\App\Filament\Pages\UserRegistration;
 use TresPontosTech\App\Http\Middleware\RedirectIfAnamneseNotCompleted;
 use TresPontosTech\Billing\Stripe\Subscription\User\UserBillingProvider;
@@ -33,22 +33,20 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login(LoginPage::class)
-            ->profile(EditUserProfile::class)
             ->colors([
                 'primary' => Color::hex('#F1785A'),
             ])
             ->registration(UserRegistration::class)
             ->passwordReset()
-            ->topbar(false)
+            ->topNavigation()
             ->sidebarFullyCollapsibleOnDesktop()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
-            ->globalSearch()
-            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearch(false)
             ->navigationItems([
                 NavigationItem::make(__('all.my_profile'))
                     ->icon(Heroicon::UserCircle)
-                    ->url(fn (): string => EditUserProfile::getUrl()),
+                    ->url(fn (): string => ProfilePage::getUrl()),
                 NavigationItem::make(__('all.my_subscription'))
                     ->icon(Heroicon::CreditCard)
                     ->group(__('all.billing'))

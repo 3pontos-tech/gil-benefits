@@ -13,3 +13,13 @@
 .scrollbar-hidden {
     scrollbar-width: none;
 }
+
+/* Profile page: center the avatar label and enlarge the avatar uploader */
+.profile-avatar-field .fi-fo-field-label-ctn,
+.profile-avatar-field .fi-fo-field-label {
+    justify-content: center;
+}
+
+.profile-avatar-field .fi-fo-file-upload-avatar .fi-fo-file-upload-input-ctn {
+    width: 10rem;
+}
