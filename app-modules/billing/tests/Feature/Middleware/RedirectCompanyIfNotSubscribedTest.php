@@ -4,6 +4,7 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -13,6 +14,11 @@ use TresPontosTech\Company\Models\Company;
 use function Pest\Laravel\actingAs;
 
 beforeEach(function (): void {
+    Http::preventStrayRequests();
+    Http::fake([
+        '*/v2/buyers' => Http::response(['uuid' => 'fake-barte-buyer-uuid'], 201),
+    ]);
+
     $this->user = User::factory()->companyOwner()->create();
     $this->company = Company::factory()->recycle($this->user)->create([
         'stripe_id' => 'cus_test_' . uniqid(),

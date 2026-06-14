@@ -49,6 +49,7 @@ final readonly class ConfigPlanRepository implements PlanRepository
             allowPromotionCodes: Arr::get($plan, key: 'allow_promotion_codes', default: false),
             collectTaxIds: Arr::get($plan, key: 'collect_tax_ids', default: false),
             isMeteredPrice: Arr::get($plan, key: 'metered_price', default: false),
+            provider: BillingProviderEnum::from(Arr::get($plan, key: 'provider', default: BillingProviderEnum::Stripe->value)),
         );
     }
 

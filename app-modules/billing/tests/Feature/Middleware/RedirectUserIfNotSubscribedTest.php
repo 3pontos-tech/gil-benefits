@@ -4,6 +4,7 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Http;
 use Laravel\Cashier\Cashier;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
@@ -16,6 +17,11 @@ use TresPontosTech\Company\Models\Company;
 use function Pest\Laravel\actingAs;
 
 beforeEach(function (): void {
+    Http::preventStrayRequests();
+    Http::fake([
+        '*/v2/buyers' => Http::response(['uuid' => 'fake-barte-buyer-uuid'], 201),
+    ]);
+
     $this->employee = User::factory()->employee()->create([
         'stripe_id' => 'cus_user_' . uniqid(),
     ]);
@@ -78,11 +84,15 @@ it('bypasses 403 check for flamma-company tenant', function (): void {
     filament()->setTenant($flammaCompany);
 
     $plan = Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create(['slug' => 'user-gold']);
-    Price::factory()->for($plan, 'plan')->create();
+    $flammaPrice = Price::factory()->for($plan, 'plan')->create([
+        'provider_price_id' => 'price_flamma_gold',
+        'metadata' => ['tenant' => 'flamma-company'],
+    ]);
     $this->employee->subscriptions()->create([
         'type' => 'user-gold',
         'stripe_id' => 'sub_flamma_user_' . uniqid(),
         'stripe_status' => 'active',
+        'stripe_price' => $flammaPrice->provider_price_id,
     ]);
 
     $response = $this->middleware->handle($this->request, $this->next);

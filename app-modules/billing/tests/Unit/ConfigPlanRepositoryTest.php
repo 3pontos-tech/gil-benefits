@@ -2,6 +2,7 @@
 
 use Illuminate\Contracts\Config\Repository;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\ConfigPlanRepository;
 
 function configWithPlans(array $plans): ConfigPlanRepository
@@ -75,7 +76,7 @@ it('getActiveTenantPlan() returns the first plan starting with "company"', funct
         'company' => fakePlanConfig(['product_id' => 'prod_company']),
     ]);
 
-    $plan = $repo->getActiveTenantPlan();
+    $plan = $repo->getActiveTenantPlan(BillingProviderEnum::Stripe);
 
     expect($plan)->toBeInstanceOf(PlanEntity::class)
         ->and($plan->productId)->toBe('prod_company');
