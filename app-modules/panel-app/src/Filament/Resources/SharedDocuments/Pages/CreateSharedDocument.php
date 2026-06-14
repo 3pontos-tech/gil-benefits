@@ -11,6 +11,11 @@ class CreateSharedDocument extends CreateRecord
 {
     protected static string $resource = SharedDocumentResource::class;
 
+    public function getHeading(): string
+    {
+        return '';
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['documentable_type'] = auth()->user()->getMorphClass();

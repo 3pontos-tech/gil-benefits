@@ -10,6 +10,11 @@ class ListAppointments extends ListRecords
 {
     protected static string $resource = AppointmentResource::class;
 
+    public function getHeading(): string
+    {
+        return '';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

@@ -15,7 +15,6 @@ use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocume
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Schemas\SharedDocumentForm;
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
 use TresPontosTech\Consultants\Models\Document;
-use UnitEnum;
 
 class SharedDocumentResource extends Resource
 {
@@ -37,11 +36,6 @@ class SharedDocumentResource extends Resource
     public static function table(Table $table): Table
     {
         return SharedDocumentsTable::table($table);
-    }
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('panel-admin::resources.navigation_group.appointments');
     }
 
     public static function getPages(): array

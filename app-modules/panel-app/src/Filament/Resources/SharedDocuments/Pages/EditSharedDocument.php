@@ -12,6 +12,11 @@ class EditSharedDocument extends EditRecord
 {
     protected static string $resource = SharedDocumentResource::class;
 
+    public function getHeading(): string
+    {
+        return '';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

@@ -36,6 +36,11 @@ class UserCreditsPage extends Page implements HasTable
         return __('panel-app::resources.credits.title');
     }
 
+    public function getHeading(): string
+    {
+        return '';
+    }
+
     protected function getHeaderWidgets(): array
     {
         return [UserCreditStatsWidget::class];
