@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\RelationManagers\DestinationsRelationManager;
@@ -12,6 +13,7 @@ use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
+use TresPontosTech\Support\Mail\SupportTicketStatusUpdatedMail;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Models\TicketDestination;
 
@@ -52,7 +54,9 @@ it('lists tickets from every user (not scoped)', function (): void {
     expect(SupportTicketResource::getEloquentQuery()->count())->toBe(3);
 });
 
-it('can change a ticket status from the table', function (): void {
+it('can change a ticket status from the table and notifies the requester', function (): void {
+    Mail::fake();
+
     $ticket = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::Dispatched);
 
     livewire(ListSupportTickets::class)
@@ -62,6 +66,7 @@ it('can change a ticket status from the table', function (): void {
         ->assertHasNoTableActionErrors();
 
     expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
+    Mail::assertQueued(SupportTicketStatusUpdatedMail::class);
 });
 
 it('hides the status action for a closed (terminal) ticket', function (): void {
