@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
@@ -28,11 +29,11 @@ class CreditStatsWidget extends StatsOverviewWidget
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
         $tenantId = Filament::getTenant()->id;
-        $userId = data_get($this->filters, 'userId');
+        $userIds = $this->filteredUserIds();
 
         $base = UserCredit::query()
             ->where('company_id', $tenantId)
-            ->when($userId, fn ($q) => $q->where('holder_id', $userId));
+            ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('holder_id', $userIds));
 
         $distributed = (clone $base)
             ->whereNotNull('transferred_at')

@@ -40,6 +40,7 @@ final readonly class ConfigPlanRepository implements PlanRepository
             ->map(fn (array $price): PriceEntity => PriceEntity::make($price));
 
         return new PlanEntity(
+            name: $name,
             slug: Arr::get($plan, key: 'type', default: $name),
             productId: Arr::get($plan, key: 'product_id', default: ''),
             prices: $prices,
@@ -48,13 +49,14 @@ final readonly class ConfigPlanRepository implements PlanRepository
             allowPromotionCodes: Arr::get($plan, key: 'allow_promotion_codes', default: false),
             collectTaxIds: Arr::get($plan, key: 'collect_tax_ids', default: false),
             isMeteredPrice: Arr::get($plan, key: 'metered_price', default: false),
+            provider: BillingProviderEnum::from(Arr::get($plan, key: 'provider', default: BillingProviderEnum::Stripe->value)),
         );
     }
 
-    public function getPlansFor(string $name): Collection
+    public function getPlansFor(string $name = 'user_'): Collection
     {
         return collect($this->all())
-            ->filter(fn ($plan, $key): bool => str_starts_with($key, 'user_'));
+            ->filter(fn ($plan, $key): bool => str_starts_with($key, $name));
     }
 
     public function getCheckoutPlansFor(string $name): Collection

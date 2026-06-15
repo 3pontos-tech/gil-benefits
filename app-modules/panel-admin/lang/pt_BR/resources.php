@@ -198,10 +198,22 @@ return [
             'navigation_label' => 'Métricas',
             'filter_start_date' => 'Data inicial',
             'filter_end_date' => 'Data final',
+            'filter_department_category' => 'Categoria de Departamento',
+            'filter_department_category_placeholder' => 'Todas as categorias',
+            'tab_consultants' => 'Consultores',
+            'tab_appointments' => 'Agendamentos',
         ],
         'edit_profile' => [
             'cpf' => 'CPF',
             'rg' => 'RG',
+        ],
+        'department_categories' => [
+            'navigation_label' => 'Categorias de Departamento',
+            'title' => 'Categorias de Departamento',
+            'table' => [
+                'category' => 'Categoria',
+                'departments_count' => 'Departamentos',
+            ],
         ],
     ],
 ];

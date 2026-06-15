@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
@@ -68,7 +69,7 @@ class CreditUsageTableWidget extends TableWidget
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
         $tenantId = Filament::getTenant()->id;
-        $userId = data_get($this->filters, 'userId');
+        $userIds = $this->filteredUserIds();
 
         return UserCredit::query()
             ->with(['holder', 'appointment.consultant'])
@@ -76,7 +77,7 @@ class CreditUsageTableWidget extends TableWidget
             ->where('user_credits.company_id', $tenantId)
             ->whereIn('user_credits.status', [UserCreditStatusEnum::Used, UserCreditStatusEnum::InUse])
             ->whereBetween('appointments.appointment_at', [$start, $end])
-            ->when($userId, fn ($q) => $q->where('user_credits.holder_id', $userId))
+            ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_credits.holder_id', $userIds))
             ->select('user_credits.*')
             ->latest('appointments.appointment_at');
     }

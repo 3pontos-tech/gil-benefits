@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use TresPontosTech\PanelCompany\Filament\Widgets\Metrics\AppointmentsByCategoryChart;
+use TresPontosTech\PanelCompany\Filament\Widgets\Metrics\AppointmentsByDepartmentChart;
 use TresPontosTech\PanelCompany\Filament\Widgets\Metrics\AppointmentStatsWidget;
 use TresPontosTech\PanelCompany\Filament\Widgets\Metrics\AppointmentVolumeChart;
 use TresPontosTech\PanelCompany\Filament\Widgets\Metrics\CreditStatsWidget;
@@ -63,6 +64,17 @@ class Metrics extends BaseDashboard
                 )
                 ->searchable()
                 ->native(false),
+            Select::make('departmentId')
+                ->label(__('panel-company::resources.pages.metrics.filter_department'))
+                ->placeholder(__('panel-company::resources.pages.metrics.filter_department_placeholder'))
+                ->options(fn (): array => Filament::getTenant()
+                    ->departments()
+                    ->orderBy('name')
+                    ->pluck('name', 'id')
+                    ->toArray()
+                )
+                ->searchable()
+                ->native(false),
         ]);
     }
 
@@ -80,6 +92,7 @@ class Metrics extends BaseDashboard
                                     AppointmentStatsWidget::class,
                                     AppointmentVolumeChart::class,
                                     AppointmentsByCategoryChart::class,
+                                    AppointmentsByDepartmentChart::class,
                                 ])),
                         ]),
                     Tab::make(__('panel-company::resources.pages.metrics.tab_engagement'))

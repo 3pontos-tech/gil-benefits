@@ -5,6 +5,7 @@ namespace App\Filament\Shared\Pages;
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\EditProfile;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,7 @@ class EditUserProfile extends EditProfile
     public function form(Schema $schema): Schema
     {
         return $schema->components([
+            $this->getAvatarFormComponent(),
             $this->getNameFormComponent(),
             $this->getEmailFormComponent(),
             $this->getPhoneFormComponent(),
@@ -29,6 +31,18 @@ class EditUserProfile extends EditProfile
             $this->getPasswordConfirmationFormComponent(),
             $this->getCurrentPasswordFormComponent(),
         ]);
+    }
+
+    protected function getAvatarFormComponent(): Component
+    {
+        return SpatieMediaLibraryFileUpload::make('avatar')
+            ->label('Foto de Perfil')
+            ->collection('user_avatar')
+            ->image()
+            ->imageEditor()
+            ->circleCropper()
+            ->maxFiles(1)
+            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp']);
     }
 
     protected function getPhoneFormComponent(): Component

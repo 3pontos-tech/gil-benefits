@@ -7,6 +7,8 @@ use App\Observers\UserObserver;
 use App\Policies\Users\UserPolicy;
 use Database\Factories\Users\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
+use Filament\Models\Contracts\HasDefaultTenant;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -28,6 +30,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Cashier\Billable;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -50,7 +56,7 @@ use TresPontosTech\User\Models\UserAnamnese;
  */
 #[UsePolicy(UserPolicy::class)]
 #[ObservedBy(UserObserver::class)]
-class User extends Authenticatable implements FilamentUser, HasTenants
+class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasMedia, HasTenants
 {
     use Billable;
 
@@ -60,6 +66,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     use HasRoles;
     use HasTenant;
     use HasUuids;
+    use InteractsWithMedia;
     use Notifiable;
     use SoftDeletes;
 
@@ -395,5 +402,29 @@ class User extends Authenticatable implements FilamentUser, HasTenants
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('user_avatar')
+            ->singleFile();
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('user-avatar')
+            ->performOnCollections('user_avatar')
+            ->nonQueued()
+            ->fit(Fit::Crop, 96, 96);
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        $media = $this->getFirstMedia('user_avatar');
+
+        return $media?->getTemporaryUrl(
+            now()->addMinutes(60),
+            'user-avatar'
+        );
     }
 }

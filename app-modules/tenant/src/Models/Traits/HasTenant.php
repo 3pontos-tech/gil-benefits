@@ -22,6 +22,12 @@ trait HasTenant
         return $this->{$tenant};
     }
 
+    public function getDefaultTenant(Panel $panel): ?Model
+    {
+        return $this->getTenants($panel)->first(fn (Model $t): bool => $t->slug !== 'flamma-company')
+            ?? $this->getTenants($panel)->first();
+    }
+
     public function getTenantRelationship(): string
     {
         return 'companies';

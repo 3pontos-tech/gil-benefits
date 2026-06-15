@@ -40,6 +40,7 @@ class EditUserProfile extends BaseEditUserProfile
                     Tab::make(__('panel-app::profile.tabs.account'))
                         ->icon('heroicon-o-user')
                         ->schema([
+                            $this->getAvatarFormComponent(),
                             $this->getNameFormComponent(),
                             $this->getEmailFormComponent(),
                             $this->getPhoneFormComponent(),

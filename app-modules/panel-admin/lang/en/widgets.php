@@ -40,6 +40,21 @@ return [
         'appointments_by_category' => [
             'heading' => 'Distribution by Category',
         ],
+        'global_appointment_stats' => [
+            'total' => 'Total Appointments',
+            'total_description' => 'In the selected period',
+            'completed' => 'Completed',
+            'completed_description' => ':rate% completion rate',
+            'cancelled' => 'Cancelled',
+            'cancelled_description' => 'In the selected period',
+            'top_company' => 'Most Active Company',
+            'top_company_description' => ':total appointments in the period',
+        ],
+        'appointments_by_department_category' => [
+            'heading' => 'Appointments by Department Category',
+            'heading_filtered' => 'Departments in :category',
+            'dataset_label' => 'Appointments',
+        ],
         'consultants_ranking' => [
             'heading' => 'Consultants Ranking',
             'column_consultant' => 'Consultant',

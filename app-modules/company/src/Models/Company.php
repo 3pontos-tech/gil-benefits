@@ -108,8 +108,13 @@ class Company extends Model implements HasAvatar, HasMedia
     {
         return $this->belongsToMany(User::class, 'company_employees', 'company_id', 'user_id')
             ->withTimestamps()
-            ->withPivot(['role', 'active'])
+            ->withPivot(['role', 'active', 'department_id'])
             ->using(TenantMember::class);
+    }
+
+    public function departments(): HasMany
+    {
+        return $this->hasMany(Department::class);
     }
 
     #[Scope]
