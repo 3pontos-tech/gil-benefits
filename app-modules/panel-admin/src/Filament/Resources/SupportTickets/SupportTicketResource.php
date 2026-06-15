@@ -12,6 +12,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
+use TresPontosTech\Admin\Filament\Resources\SupportTickets\RelationManagers\DestinationsRelationManager;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\Schemas\SupportTicketInfolist;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\Tables\SupportTicketsTable;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -75,7 +76,9 @@ class SupportTicketResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            DestinationsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

@@ -58,5 +58,17 @@ return [
             'heading' => 'Nenhum chamado encontrado',
             'description' => 'Você ainda não abriu nenhum chamado.',
         ],
+
+        'destinations' => [
+            'title' => 'Destinos',
+            'columns' => [
+                'type' => 'Tipo',
+                'channel' => 'Canal',
+                'status' => 'Status',
+                'reference_id' => 'Referência',
+                'created_at' => 'Criado em',
+            ],
+            'empty' => 'Nenhum destino para este chamado.',
+        ],
     ],
 ];

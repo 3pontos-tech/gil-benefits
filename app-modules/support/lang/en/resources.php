@@ -58,5 +58,17 @@ return [
             'heading' => 'No tickets found',
             'description' => "You haven't opened any tickets yet.",
         ],
+
+        'destinations' => [
+            'title' => 'Destinations',
+            'columns' => [
+                'type' => 'Type',
+                'channel' => 'Channel',
+                'status' => 'Status',
+                'reference_id' => 'Reference',
+                'created_at' => 'Created at',
+            ],
+            'empty' => 'No destinations for this ticket.',
+        ],
     ],
 ];

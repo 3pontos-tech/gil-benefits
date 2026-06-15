@@ -5,10 +5,15 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
+use TresPontosTech\Admin\Filament\Resources\SupportTickets\RelationManagers\DestinationsRelationManager;
 use TresPontosTech\Admin\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
+use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
+use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
 use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Support\Models\TicketDestination;
 
 use function Pest\Livewire\livewire;
 
@@ -57,6 +62,25 @@ it('can change a ticket status from the table', function (): void {
         ->assertHasNoTableActionErrors();
 
     expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
+});
+
+it('shows the ticket destinations in the relation manager', function (): void {
+    $ticket = makeTicketFor(User::factory()->create());
+
+    $destination = TicketDestination::query()->create([
+        'support_ticket_id' => $ticket->getKey(),
+        'type' => TicketDestinationTypeEnum::Email,
+        'channel' => TicketDestinationChannelEnum::Financial,
+        'status' => TicketDestinationStatusEnum::Sent,
+        'reference_id' => 'msg-123',
+    ]);
+
+    livewire(DestinationsRelationManager::class, [
+        'ownerRecord' => $ticket,
+        'pageClass' => ViewSupportTicket::class,
+    ])
+        ->assertCanSeeTableRecords([$destination])
+        ->assertTableColumnStateSet('reference_id', 'msg-123', $destination);
 });
 
 it('can change a ticket status from the view page', function (): void {
