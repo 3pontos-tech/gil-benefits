@@ -10,7 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Throwable;
-use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Services\TicketRouterService;
 
@@ -36,8 +36,10 @@ class DispatchSupportTicketJob implements ShouldQueue
 
     public function failed(Throwable $e): void
     {
-        $this->ticket->update([
-            'status' => SupportTicketStatusEnum::Failed,
-        ]);
+        // Delivery failure belongs to the destination, not the ticket lifecycle.
+        // Mark any destination that never got delivered as failed.
+        $this->ticket->destinations()
+            ->where('status', TicketDestinationStatusEnum::Pending)
+            ->update(['status' => TicketDestinationStatusEnum::Failed]);
     }
 }

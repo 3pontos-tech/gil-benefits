@@ -9,7 +9,9 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Carbon;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Support\Models\TicketDestination;
 
 class SupportTicketStatsWidget extends StatsOverviewWidget
 {
@@ -34,7 +36,12 @@ class SupportTicketStatsWidget extends StatsOverviewWidget
             + (int) $counts->get(SupportTicketStatusEnum::Closed->value, 0);
         $open = (int) $counts->get(SupportTicketStatusEnum::Pending->value, 0)
             + (int) $counts->get(SupportTicketStatusEnum::Dispatched->value, 0);
-        $failed = (int) $counts->get(SupportTicketStatusEnum::Failed->value, 0);
+
+        // Delivery failures live on the destination, not the ticket lifecycle.
+        $failed = TicketDestination::query()
+            ->whereBetween('created_at', [$start, $end])
+            ->where('status', TicketDestinationStatusEnum::Failed)
+            ->count();
 
         $resolutionRate = $total > 0 ? (int) round($resolved / $total * 100) : 0;
 

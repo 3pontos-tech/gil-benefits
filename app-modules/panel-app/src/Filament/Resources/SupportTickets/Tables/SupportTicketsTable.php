@@ -11,6 +11,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use TresPontosTech\Support\Actions\TransitionSupportTicketStatusAction;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -69,12 +70,9 @@ class SupportTicketsTable
                     ->icon(Heroicon::ArchiveBox)
                     ->color('gray')
                     ->requiresConfirmation()
-                    ->visible(fn (SupportTicket $record): bool => ! in_array($record->status, [
-                        SupportTicketStatusEnum::Closed,
-                        SupportTicketStatusEnum::Resolved,
-                    ], strict: true))
+                    ->visible(fn (SupportTicket $record): bool => $record->status->canTransitionTo(SupportTicketStatusEnum::Closed))
                     ->action(function (SupportTicket $record): void {
-                        $record->update(['status' => SupportTicketStatusEnum::Closed]);
+                        resolve(TransitionSupportTicketStatusAction::class)->execute($record, SupportTicketStatusEnum::Closed);
 
                         Notification::make()
                             ->title(__('support::resources.support_tickets.notifications.closed'))

@@ -20,7 +20,7 @@ beforeEach(function (): void {
         SupportTicketStatusEnum::Resolved,
         SupportTicketStatusEnum::Closed,
         SupportTicketStatusEnum::Pending,
-        SupportTicketStatusEnum::Failed,
+        SupportTicketStatusEnum::Dispatched,
     ];
 
     foreach ($statuses as $i => $status) {

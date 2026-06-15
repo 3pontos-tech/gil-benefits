@@ -53,7 +53,7 @@ it('lists tickets from every user (not scoped)', function (): void {
 });
 
 it('can change a ticket status from the table', function (): void {
-    $ticket = makeTicketFor(User::factory()->create());
+    $ticket = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::Dispatched);
 
     livewire(ListSupportTickets::class)
         ->callTableAction('update_status', $ticket, data: [
@@ -62,6 +62,15 @@ it('can change a ticket status from the table', function (): void {
         ->assertHasNoTableActionErrors();
 
     expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
+});
+
+it('hides the status action for a closed (terminal) ticket', function (): void {
+    $open = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::Dispatched);
+    $closed = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::Closed);
+
+    livewire(ListSupportTickets::class)
+        ->assertTableActionVisible('update_status', $open)
+        ->assertTableActionHidden('update_status', $closed);
 });
 
 it('shows the ticket destinations in the relation manager', function (): void {
@@ -84,7 +93,7 @@ it('shows the ticket destinations in the relation manager', function (): void {
 });
 
 it('can change a ticket status from the view page', function (): void {
-    $ticket = makeTicketFor(User::factory()->create());
+    $ticket = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::Dispatched);
 
     livewire(ViewSupportTicket::class, ['record' => $ticket->getKey()])
         ->callAction('update_status', data: [

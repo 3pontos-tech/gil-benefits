@@ -15,7 +15,6 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
 {
     case Pending = 'pending';
     case Dispatched = 'dispatched';
-    case Failed = 'failed';
     case Resolved = 'resolved';
     case Closed = 'closed';
 
@@ -25,7 +24,9 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
     }
 
     /**
-     * Derives the ticket status from its destinations' outcomes.
+     * Derives the ticket status from its destinations' outcomes. Delivery failure
+     * lives on the destination, not the ticket — so a failed send keeps the ticket
+     * pending (the job retries), it does not move the ticket to a failed state.
      *
      * @param  iterable<TicketDestinationStatusEnum>  $statuses
      */
@@ -33,11 +34,29 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
     {
         $statuses = collect($statuses);
 
-        return match (true) {
-            $statuses->contains(TicketDestinationStatusEnum::Failed) => self::Failed,
-            $statuses->contains(TicketDestinationStatusEnum::Sent) => self::Dispatched,
-            default => self::Pending,
+        return $statuses->contains(TicketDestinationStatusEnum::Sent)
+            ? self::Dispatched
+            : self::Pending;
+    }
+
+    /**
+     * The states this status may transition to (manual transitions). Closed is terminal.
+     *
+     * @return array<SupportTicketStatusEnum>
+     */
+    public function allowedTransitions(): array
+    {
+        return match ($this) {
+            self::Pending => [self::Dispatched, self::Closed],
+            self::Dispatched => [self::Resolved, self::Closed],
+            self::Resolved => [self::Closed],
+            self::Closed => [],
         };
+    }
+
+    public function canTransitionTo(self $target): bool
+    {
+        return in_array($target, $this->allowedTransitions(), true);
     }
 
     public function getIcon(): Heroicon
@@ -45,7 +64,6 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::Pending => Heroicon::Clock,
             self::Dispatched => Heroicon::PaperAirplane,
-            self::Failed => Heroicon::XCircle,
             self::Resolved => Heroicon::CheckCircle,
             self::Closed => Heroicon::ArchiveBox,
         };
@@ -56,7 +74,6 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::Pending => Color::Amber,
             self::Dispatched => Color::Blue,
-            self::Failed => Color::Red,
             self::Resolved => Color::Green,
             self::Closed => Color::Gray,
         };
