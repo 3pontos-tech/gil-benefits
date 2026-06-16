@@ -11,13 +11,16 @@ use TresPontosTech\Billing\Core\Models\Plan;
 
 class EloquentPlanRepository implements PlanRepository
 {
+    /**
+     * @return array<string, PlanEntity>
+     */
     public function all(): array
     {
         return Plan::query()
             ->where('active', true)
             ->whereIn('provider', BillingProviderEnum::activeCases())
             ->get()
-            ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan))
+            ->mapWithKeys(fn (Plan $plan): array => [$plan->slug => PlanEntity::fromEloquent($plan)])
             ->all();
     }
 

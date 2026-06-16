@@ -110,6 +110,7 @@ class EditUserProfile extends BaseEditUserProfile
             $anamneseData = Arr::only($data, self::ANAMNESE_FIELDS);
             $profileData = Arr::except($data, self::ANAMNESE_FIELDS);
 
+            /** @var User $updatedRecord */
             $updatedRecord = parent::handleRecordUpdate($record, $profileData);
 
             resolve(SaveAnamneseAction::class)->handle($updatedRecord, $anamneseData);

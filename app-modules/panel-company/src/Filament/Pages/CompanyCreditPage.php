@@ -137,7 +137,9 @@ class CompanyCreditPage extends Page implements HasTable
                         ? null
                         : __('panel-company::resources.actions.revoke_all_credits.disabled_tooltip'))
                     ->action(function (): void {
-                        dispatch(new RevokeCreditsFromEmployeesJob(filament()->getTenant()));
+                        /** @var Company $tenant */
+                        $tenant = filament()->getTenant();
+                        dispatch(new RevokeCreditsFromEmployeesJob($tenant));
 
                         Notification::make()
                             ->title(__('panel-company::resources.actions.revoke_all_credits.queued_notification'))
@@ -153,7 +155,9 @@ class CompanyCreditPage extends Page implements HasTable
                         ? null
                         : __('panel-company::resources.actions.distribute_equally.disabled_tooltip'))
                     ->action(function (): void {
-                        dispatch(new DistributeCreditsEquallyJob(filament()->getTenant()));
+                        /** @var Company $tenant */
+                        $tenant = filament()->getTenant();
+                        dispatch(new DistributeCreditsEquallyJob($tenant));
 
                         Notification::make()
                             ->title(__('panel-company::resources.actions.distribute_equally.queued_notification'))
@@ -192,8 +196,10 @@ class CompanyCreditPage extends Page implements HasTable
                     ->successNotificationTitle(__('panel-company::resources.actions.distribute_manually.success_notification'))
                     ->action(function (array $data, Action $action): void {
                         $employee = User::query()->findOrFail($data['employee_id']);
+                        /** @var Company $tenant */
+                        $tenant = filament()->getTenant();
                         resolve(AllocateCreditToEmployee::class)->handle(
-                            filament()->getTenant(),
+                            $tenant,
                             $employee,
                             (int) $data['quantity'],
                         );

@@ -23,6 +23,7 @@ use TresPontosTech\Company\Enums\DepartmentCategory;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property-read int $total
  */
 class Department extends Model
 {
