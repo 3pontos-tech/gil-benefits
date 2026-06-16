@@ -14,6 +14,11 @@ class ListSharedDocuments extends ListRecords
 {
     protected static string $resource = SharedDocumentResource::class;
 
+    public function getTitle(): string
+    {
+        return '';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

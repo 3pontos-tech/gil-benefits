@@ -11,6 +11,11 @@ use TresPontosTech\App\Filament\Widgets\UserCurrentPlanWidget;
 
 class UserDashboard extends Dashboard
 {
+    public function getTitle(): string
+    {
+        return '';
+    }
+
     public function getColumns(): int|array
     {
         return 6;

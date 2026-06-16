@@ -22,6 +22,11 @@ class EditUserProfile extends BaseEditUserProfile
 {
     protected Width|string|null $maxWidth = Width::FourExtraLarge;
 
+    public function getTitle(): string
+    {
+        return '';
+    }
+
     /** @var list<string> */
     private const array ANAMNESE_FIELDS = [
         'life_moment',
