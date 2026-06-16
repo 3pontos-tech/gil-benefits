@@ -207,7 +207,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
      * @return Builder<User>
      */
     #[Scope]
-    public function whereNotSharedWith(Builder $query, string $documentId): Builder
+    protected function whereNotSharedWith(Builder $query, string $documentId): Builder
     {
         return $query->whereDoesntHave('sharedDocuments', function (Builder $subquery) use ($documentId): void {
             $subquery->where('document_id', $documentId);
