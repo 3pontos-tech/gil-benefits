@@ -89,7 +89,7 @@ readonly class DocumentTextExtractor
     {
         foreach ($container->getElements() as $element) {
             if ($element instanceof Text) {
-                $lines[] = $element->getText();
+                $lines[] = $element->getText() ?? '';
 
                 continue;
             }

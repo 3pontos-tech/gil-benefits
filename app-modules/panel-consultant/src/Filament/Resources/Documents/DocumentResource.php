@@ -70,11 +70,11 @@ class DocumentResource extends Resource
     }
 
     /**
-     * @return Builder<Document>
+     * @return Builder<Model>
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['documentable']);
+        return static::getEloquentQuery()->with(['documentable']);
     }
 
     public static function getGloballySearchableAttributes(): array
