@@ -4,6 +4,9 @@ namespace TresPontosTech\Billing\Core\Entities;
 
 class PriceEntity implements \JsonSerializable
 {
+    /**
+     * @param  array<string, mixed>  $metadata
+     */
     public function __construct(
         public string $type,
         public string $priceId,
@@ -14,6 +17,9 @@ class PriceEntity implements \JsonSerializable
         public array $metadata = []
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     public static function make(array $payload): self
     {
         return new self(
@@ -23,6 +29,9 @@ class PriceEntity implements \JsonSerializable
         );
     }
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     public static function fromEloquent(array $payload): self
     {
         return new self(

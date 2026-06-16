@@ -29,7 +29,9 @@ use TresPontosTech\Billing\Database\Factories\PriceFactory;
  */
 class Price extends Model
 {
+    /** @use HasFactory<PriceFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     protected $table = 'billing_plan_prices';

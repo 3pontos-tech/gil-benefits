@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelCompany\Filament\Concerns;
 
 use Filament\Facades\Filament;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Company\Models\Company;
 
 trait HasMetricsDateRange
 {
+    /**
+     * @return array{start: Carbon, end: Carbon}
+     */
     private function dateRange(): array
     {
         $startDate = data_get($this->pageFilters, 'startDate');
@@ -22,6 +26,9 @@ trait HasMetricsDateRange
         ];
     }
 
+    /**
+     * @return Collection<int, string>|null
+     */
     private function filteredUserIds(): ?Collection
     {
         $userId = data_get($this->pageFilters, 'userId');

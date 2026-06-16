@@ -14,8 +14,6 @@ use TresPontosTech\Company\Database\Factories\DepartmentFactory;
 use TresPontosTech\Company\Enums\DepartmentCategory;
 
 /**
- * @use HasFactory<DepartmentFactory>
- *
  * @property string $id
  * @property string $company_id
  * @property DepartmentCategory $category
@@ -27,7 +25,9 @@ use TresPontosTech\Company\Enums\DepartmentCategory;
  */
 class Department extends Model
 {
+    /** @use HasFactory<DepartmentFactory> */
     use HasFactory;
+
     use HasUuids;
     use SoftDeletes;
 

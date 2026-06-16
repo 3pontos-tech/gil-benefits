@@ -149,6 +149,9 @@ final readonly class BarteAdapter implements BillingContract
 
     }
 
+    /**
+     * @param  array<string, mixed>  $options
+     */
     public function getBillingPortalUrl(User|Company $billable, string $returnUrl, array $options = []): string
     {
         if ($billable instanceof Company) {

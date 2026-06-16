@@ -7,6 +7,7 @@ use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -22,7 +23,7 @@ class RedirectUserIfNotSubscribed
         private readonly BillingManager $billingManager,
     ) {}
 
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         /** @var Company|Filament $tenant */
         $tenant = Filament::getTenant();

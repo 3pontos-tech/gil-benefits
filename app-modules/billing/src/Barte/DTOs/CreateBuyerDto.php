@@ -27,6 +27,9 @@ readonly class CreateBuyerDto
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

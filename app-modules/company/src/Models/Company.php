@@ -53,7 +53,10 @@ use TresPontosTech\Tenant\Policies\CompanyPolicy;
 class Company extends Model implements HasAvatar, HasMedia
 {
     use Billable;
+
+    /** @use HasFactory<CompanyFactory> */
     use HasFactory;
+
     use HasUuids;
     use InteractsWithMedia;
     use SoftDeletes;
@@ -148,8 +151,11 @@ class Company extends Model implements HasAvatar, HasMedia
         return $this->hasMany(Department::class);
     }
 
+    /**
+     * @return BelongsToMany<User, $this, TenantMember>
+     */
     #[Scope]
-    protected function onlyEmployees()
+    protected function onlyEmployees(): BelongsToMany
     {
         return $this->employees()->wherePivot('active', true)->whereNot('id', $this->user_id);
     }

@@ -11,6 +11,9 @@ use TresPontosTech\Admin\Filament\Widgets\StatsOverview;
 
 class Dashboard extends BaseDashboard
 {
+    /**
+     * @var int|string|array<string, int|string>
+     */
     protected int|string|array $columnSpan = 'full';
 
     public function getColumns(): int|array

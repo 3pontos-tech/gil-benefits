@@ -5,6 +5,7 @@ namespace TresPontosTech\Billing\Stripe\Subscription\Company;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
@@ -16,7 +17,7 @@ class RedirectCompanyIfNotSubscribed
         private readonly BillingManager $billingManager,
     ) {}
 
-    public function handle(Request $request, Closure $next, string ...$plans)
+    public function handle(Request $request, Closure $next, string ...$plans): Response
     {
         /** @var Company|Filament $tenant */
         $tenant = Filament::getTenant();

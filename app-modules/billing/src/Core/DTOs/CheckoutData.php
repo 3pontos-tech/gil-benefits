@@ -6,6 +6,9 @@ namespace TresPontosTech\Billing\Core\DTOs;
 
 final readonly class CheckoutData
 {
+    /**
+     * @param  array<string, string>  $metadata
+     */
     public function __construct(
         public string $planSlug,
         public string $priceId,

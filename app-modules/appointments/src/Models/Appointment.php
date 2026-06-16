@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
+use TresPontosTech\Appointments\Database\Factories\AppointmentFactory;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
@@ -39,7 +40,9 @@ use TresPontosTech\Consultants\Models\Consultant;
  */
 class Appointment extends Model
 {
+    /** @use HasFactory<AppointmentFactory> */
     use HasFactory;
+
     use HasUuids;
     use SoftDeletes;
 
@@ -70,6 +73,9 @@ class Appointment extends Model
         ];
     }
 
+    /**
+     * @return Attribute<AbstractAppointmentTransition, never>
+     */
     protected function currentTransition(): Attribute
     {
         return Attribute::make(get: fn (): AbstractAppointmentTransition => $this->status->transition($this));

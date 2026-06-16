@@ -74,6 +74,9 @@ class AppointmentWizard
                 ->action('start'));
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function availableSlots(?string $date): array
     {
         if (is_null($date)) {
@@ -89,6 +92,9 @@ class AppointmentWizard
         return self::getAvailableTimeSlots($startDate);
     }
 
+    /**
+     * @return array<string, string>
+     */
     private static function getAvailableTimeSlots(Carbon $startDate): array
     {
         return resolve(GetAvailableSlotsAction::class)->handle($startDate);

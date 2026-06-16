@@ -29,6 +29,9 @@ class EloquentPlanRepository implements PlanRepository
         return collect($this->all())->firstOrFail(fn (PlanEntity $plan): bool => $plan->slug === $name);
     }
 
+    /**
+     * @return Collection<int, PlanEntity>
+     */
     public function getPlansFor(string $name = 'user_'): Collection
     {
         return Cache::remember('active_user_plans', 15, fn () => Plan::query()
@@ -40,6 +43,9 @@ class EloquentPlanRepository implements PlanRepository
         );
     }
 
+    /**
+     * @return Collection<int, PlanEntity>
+     */
     public function getCheckoutPlansFor(string $name): Collection
     {
         return Cache::remember('checkout_user_plans', 15, fn () => Plan::query()

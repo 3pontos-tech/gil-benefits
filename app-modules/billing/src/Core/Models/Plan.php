@@ -32,7 +32,9 @@ use TresPontosTech\Billing\Database\Factories\PlanFactory;
  */
 class Plan extends Model
 {
+    /** @use HasFactory<PlanFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     protected $table = 'billing_plans';

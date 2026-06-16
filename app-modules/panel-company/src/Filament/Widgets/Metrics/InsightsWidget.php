@@ -43,6 +43,9 @@ class InsightsWidget extends StatsOverviewWidget
         ]);
     }
 
+    /**
+     * @param  Collection<int, string>|null  $userIds
+     */
     private function neverUsedStat(Company $tenant, ?Collection $userIds): ?Stat
     {
         $employeesQuery = $tenant->employees()
@@ -76,6 +79,9 @@ class InsightsWidget extends StatsOverviewWidget
             ->color($neverUsedRate > 50 ? 'danger' : ($neverUsedRate > 20 ? 'warning' : 'success'));
     }
 
+    /**
+     * @param  Collection<int, string>|null  $userIds
+     */
     private function volumeVariationStat(string $tenantId, ?Collection $userIds): ?Stat
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
@@ -129,6 +135,9 @@ class InsightsWidget extends StatsOverviewWidget
             ->color($color);
     }
 
+    /**
+     * @param  Collection<int, string>|null  $userIds
+     */
     private function topUserStat(Company $tenant, ?Collection $userIds = null): ?Stat
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();

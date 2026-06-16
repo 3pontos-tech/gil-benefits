@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Consultants\Database\Factories\DocumentShareFactory;
 
 /**
  * @property int $id
@@ -19,6 +20,7 @@ use Illuminate\Support\Carbon;
  */
 class DocumentShare extends Model
 {
+    /** @use HasFactory<DocumentShareFactory> */
     use HasFactory;
 
     protected $table = 'document_shares';

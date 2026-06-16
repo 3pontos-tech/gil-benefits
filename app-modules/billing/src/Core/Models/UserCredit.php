@@ -30,7 +30,9 @@ use TresPontosTech\Company\Models\Company;
  */
 class UserCredit extends Model
 {
+    /** @use HasFactory<UserCreditFactory> */
     use HasFactory;
+
     use HasUuids;
     use SoftDeletes;
 

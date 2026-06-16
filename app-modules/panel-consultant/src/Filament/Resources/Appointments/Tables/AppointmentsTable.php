@@ -38,6 +38,9 @@ class AppointmentsTable
 
     }
 
+    /**
+     * @return array<int, TextColumn>
+     */
     public static function columns(): array
     {
         return [

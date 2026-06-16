@@ -65,6 +65,9 @@ class CreditUsageTableWidget extends TableWidget
             ]);
     }
 
+    /**
+     * @return Builder<UserCredit>
+     */
     private function tableQuery(): Builder
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();

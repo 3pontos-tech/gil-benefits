@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use TresPontosTech\Consultants\Database\Factories\DocumentFactory;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Policies\DocumentPolicy;
 
@@ -32,7 +33,9 @@ use TresPontosTech\Consultants\Policies\DocumentPolicy;
 #[UsePolicy(DocumentPolicy::class)]
 class Document extends Model implements HasMedia
 {
+    /** @use HasFactory<DocumentFactory> */
     use HasFactory;
+
     use HasUuids;
     use InteractsWithMedia;
     use SoftDeletes;

@@ -10,6 +10,9 @@ final readonly class DocumentShareDTO
         public string|int $consultantId,
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public static function make(array $data): self
     {
         return new self(

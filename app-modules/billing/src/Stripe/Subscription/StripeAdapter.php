@@ -72,6 +72,9 @@ class StripeAdapter implements BillingContract
         return $session->asStripeCheckoutSession()->url;
     }
 
+    /**
+     * @param  array<string, mixed>  $options
+     */
     public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string
     {
         return $billable

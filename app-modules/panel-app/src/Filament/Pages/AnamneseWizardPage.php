@@ -38,6 +38,9 @@ class AnamneseWizardPage extends Page
         return false;
     }
 
+    /**
+     * @var array<string, mixed>
+     */
     public array $data = [];
 
     public function mount(): void

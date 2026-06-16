@@ -31,6 +31,9 @@ class SubscriptionWebhookController extends WebhookController
         return parent::handleWebhook($request);
     }
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     protected function handleCheckoutSessionCompleted(array $payload): Response
     {
         $session = $payload['data']['object'];

@@ -18,23 +18,34 @@ class SyncBartePlans extends Command
     {
         $response = $client->getPlans();
 
-        $plans = collect($response['content'] ?? $response);
+        /** @var list<array<string, mixed>> $bartePlans */
+        $bartePlans = $response['content'] ?? $response;
+
+        $plans = collect($bartePlans);
 
         $this->table(
             ['UUID', 'Título', 'Ativo', 'Métodos', 'Valores'],
-            $plans->map(fn (array $p): array => [
-                $p['uuid'],
-                $p['title'],
-                $p['active'] ? 'sim' : 'não',
-                implode(', ', $p['acceptPaymentMethods'] ?? []),
-                collect($p['values'] ?? [])->map(fn ($v): string => sprintf('%s: %s', $v['type'], $v['valuePerMonth']))->join(' | '),
-            ])
+            $plans->map(function (array $p): array {
+                /** @var list<array<string, mixed>> $values */
+                $values = $p['values'] ?? [];
+
+                return [
+                    $p['uuid'],
+                    $p['title'],
+                    $p['active'] ? 'sim' : 'não',
+                    implode(', ', $p['acceptPaymentMethods'] ?? []),
+                    collect($values)->map(fn (array $v): string => sprintf('%s: %s', $v['type'], $v['valuePerMonth']))->join(' | '),
+                ];
+            })
         );
 
         foreach ($plans as $bartePlan) {
             $plan = $this->persistPlan($bartePlan);
 
-            collect($bartePlan['values'] ?? [])
+            /** @var list<array<string, mixed>> $planValues */
+            $planValues = $bartePlan['values'] ?? [];
+
+            collect($planValues)
                 ->filter(fn (array $value): bool => $value['type'] === 'MONTHLY')
                 ->each(fn (array $value) => $plan->prices()->updateOrCreate(
                     ['provider_price_id' => $bartePlan['uuid']],
@@ -60,6 +71,9 @@ class SyncBartePlans extends Command
         'flamma-platinum-barte' => 30000,
     ];
 
+    /**
+     * @param  array<string, mixed>  $bartePlan
+     */
     private function syncFlammaPrices(Plan $plan, array $bartePlan): void
     {
         $flammaPriceInCents = self::FLAMMA_PRICES[$plan->slug] ?? null;
@@ -82,6 +96,9 @@ class SyncBartePlans extends Command
         );
     }
 
+    /**
+     * @param  array<string, mixed>  $bartePlan
+     */
     private function persistPlan(array $bartePlan): Plan
     {
         return Plan::query()->updateOrCreate(

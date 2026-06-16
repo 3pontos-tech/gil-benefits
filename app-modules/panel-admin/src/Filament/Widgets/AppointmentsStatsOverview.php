@@ -15,10 +15,16 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    /**
+     * @var array<string, mixed>
+     */
     public array $tableFilterState = [];
 
     private ?object $aggregates = null;
 
+    /**
+     * @param  array<string, mixed>  $filters
+     */
     #[On('appointments-table-filters-changed')]
     public function syncFilters(array $filters): void
     {

@@ -18,6 +18,9 @@ readonly class GoogleEventDTO
         public ?Carbon $updated,
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $event
+     */
     public static function fromApiPayload(array $event): self
     {
         $isCancelled = ($event['status'] ?? '') === 'cancelled';

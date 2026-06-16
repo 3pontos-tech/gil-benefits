@@ -33,7 +33,9 @@ use TresPontosTech\Appointments\Policies\AppointmentRecordPolicy;
 #[UsePolicy(AppointmentRecordPolicy::class)]
 class AppointmentRecord extends Model
 {
+    /** @use HasFactory<AppointmentRecordFactory> */
     use HasFactory;
+
     use HasUuids;
     use SoftDeletes;
 
@@ -86,6 +88,10 @@ class AppointmentRecord extends Model
         $this->update(['generation_started_at' => null]);
     }
 
+    /**
+     * @param  Builder<AppointmentRecord>  $query
+     * @return Builder<AppointmentRecord>
+     */
     #[Scope]
     protected function published(Builder $query): Builder
     {

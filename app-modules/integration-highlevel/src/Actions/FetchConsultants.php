@@ -10,6 +10,9 @@ final readonly class FetchConsultants
         private HighLevelClient $client,
     ) {}
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function populateAction(): array
     {
         sprintf(
@@ -19,7 +22,7 @@ final readonly class FetchConsultants
 
         //        return Cache::flexible($cacheKey, [$baseTtl, $baseTtl * 2], function () {
         return collect($this->client->getCompanyEmployees()['users'])
-            ->mapWithKeys(fn ($employee): array => [$employee['id'] => $employee['name']])
+            ->mapWithKeys(fn (array $employee): array => [$employee['id'] => $employee['name']])
             ->toArray();
         //        });
     }
