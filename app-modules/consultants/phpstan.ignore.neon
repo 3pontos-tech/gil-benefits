@@ -1,2 +1,7 @@
 parameters:
     ignoreErrors:
+        # $media->model é tipado como Model base pela medialibrary; para mídia de Document acessa ->documentable.
+        - message: '#^Access to an undefined property Illuminate\\Database\\Eloquent\\Model::\$documentable\.$#'
+          identifier: property.notFound
+          count: 1
+          path: src/Support/DocumentPathGenerator.php

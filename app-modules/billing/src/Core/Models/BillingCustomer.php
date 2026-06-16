@@ -6,10 +6,21 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Database\Factories\BillingCustomerFactory;
 
+/**
+ * @property int $id
+ * @property string $billable_type
+ * @property string $billable_id
+ * @property BillingProviderEnum $provider
+ * @property string $provider_customer_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ */
 class BillingCustomer extends Model
 {
     use HasFactory;

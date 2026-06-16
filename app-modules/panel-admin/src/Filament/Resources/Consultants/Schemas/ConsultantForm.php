@@ -44,7 +44,7 @@ class ConsultantForm
                                         })
                                         ->required(),
                                     TextInput::make('slug')
-                                        ->formatStateUsing(fn ($get) => str($get('name'))->slug),
+                                        ->formatStateUsing(fn ($get) => str($get('name'))->slug()),
                                     PhoneInput::make('phone')
                                         ->defaultCountry('BR')
                                         ->initialCountry('BR')

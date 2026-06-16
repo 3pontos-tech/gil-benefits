@@ -9,6 +9,7 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Company\Models\Company;
 
 class CompanyCreditStatsWidget extends StatsOverviewWidget
 {
@@ -22,6 +23,7 @@ class CompanyCreditStatsWidget extends StatsOverviewWidget
 
     protected function getStats(): array
     {
+        /** @var Company $company */
         $company = Filament::getTenant();
 
         $stats = UserCredit::query()

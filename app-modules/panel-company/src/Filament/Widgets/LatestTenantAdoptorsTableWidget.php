@@ -7,6 +7,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Company\Models\Company;
 
 class LatestTenantAdoptorsTableWidget extends TableWidget
 {
@@ -19,10 +20,15 @@ class LatestTenantAdoptorsTableWidget extends TableWidget
         return $table
             ->searchable(false)
             ->heading(__('panel-company::widgets.latest_adoptors.heading'))
-            ->query(fn (): Builder => Filament::getTenant()
-                ->employees()
-                ->take(5)
-                ->getQuery())
+            ->query(function (): Builder {
+                /** @var Company $tenant */
+                $tenant = Filament::getTenant();
+
+                return $tenant
+                    ->employees()
+                    ->take(5)
+                    ->getQuery();
+            })
             ->paginated(false)
             ->columns([
                 TextColumn::make('name')

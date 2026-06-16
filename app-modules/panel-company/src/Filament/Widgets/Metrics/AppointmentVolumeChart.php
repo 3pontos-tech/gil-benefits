@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class AppointmentVolumeChart extends ChartWidget
@@ -33,7 +34,9 @@ class AppointmentVolumeChart extends ChartWidget
 
     protected function getData(): array
     {
-        $tenantId = Filament::getTenant()->id;
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+        $tenantId = $tenant->id;
         $userIds = $this->filteredUserIds();
 
         $startDate = data_get($this->pageFilters, 'startDate');

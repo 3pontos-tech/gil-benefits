@@ -11,6 +11,7 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class AppointmentStatsWidget extends StatsOverviewWidget
@@ -28,7 +29,9 @@ class AppointmentStatsWidget extends StatsOverviewWidget
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $tenantId = Filament::getTenant()->id;
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+        $tenantId = $tenant->id;
 
         $userIds = $this->filteredUserIds();
 

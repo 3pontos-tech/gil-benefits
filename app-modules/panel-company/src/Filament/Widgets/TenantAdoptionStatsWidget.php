@@ -35,6 +35,7 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
 
     private function getEmployeesWithAccessCount(): Stat
     {
+        /** @var Company $tenant */
         $tenant = Filament::getTenant();
         $totalEmployees = $tenant->onlyEmployees()->count();
 
@@ -53,6 +54,7 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
 
     private function getEmployeesWithPlansCount(): Stat
     {
+        /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
         $employeesWithAccess = $tenant->onlyEmployees()
@@ -75,6 +77,7 @@ class TenantAdoptionStatsWidget extends StatsOverviewWidget
 
     private function getAdoptionRate(): Stat
     {
+        /** @var Company $tenant */
         $tenant = Filament::getTenant();
         $totalEmployees = $tenant->onlyEmployees()->count();
 

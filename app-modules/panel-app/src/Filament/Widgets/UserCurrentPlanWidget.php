@@ -59,9 +59,9 @@ class UserCurrentPlanWidget extends Widget
             'description' => $plan->description,
             'status' => $subscription->ends_at ? 'expired' : ($subscription->stripe_status === 'active' ? 'active' : 'inactive'),
             'features' => [
-                'appointments' => $price->monthlyAppointments,
-                'whatsapp_access' => $price->whatsappEnabled,
-                'exclusive_materials' => $price->materialsEnabled,
+                'appointments' => $price->monthly_appointments,
+                'whatsapp_access' => $price->whatsapp_enabled,
+                'exclusive_materials' => $price->materials_enabled,
             ],
             'availableAppointments' => $user->monthly_appointments_left,
             'canCreateAppointment' => $user->canCreateAppointment(),

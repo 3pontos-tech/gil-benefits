@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Facades\DB;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
@@ -35,8 +36,11 @@ class AppointmentsByDepartmentChart extends ChartWidget
 
         $selectedDepartmentId = data_get($this->pageFilters, 'departmentId');
 
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+
         $counts = Department::query()
-            ->where('departments.company_id', Filament::getTenant()->id)
+            ->where('departments.company_id', $tenant->id)
             ->leftJoin('company_employees', 'company_employees.department_id', '=', 'departments.id')
             ->leftJoin('appointments', function ($join) use ($start, $end): void {
                 $join->on('appointments.user_id', '=', 'company_employees.user_id')

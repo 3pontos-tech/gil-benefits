@@ -1,2 +1,11 @@
 parameters:
     ignoreErrors:
+        # role/active são colunas de company_employees trazidas no select do join (users.* + company_employees.*).
+        - message: '#^Access to an undefined property App\\Models\\Users\\User::\$active\.$#'
+          identifier: property.notFound
+          count: 2
+          path: src/Filament/Pages/Tenancy/EditTenantProfile.php
+        - message: '#^Access to an undefined property App\\Models\\Users\\User::\$role\.$#'
+          identifier: property.notFound
+          count: 1
+          path: src/Filament/Pages/Tenancy/EditTenantProfile.php

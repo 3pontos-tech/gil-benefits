@@ -8,6 +8,7 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Company\Models\Company;
 
 class LatestScheduledSessionsTableWidget extends TableWidget
 {
@@ -20,8 +21,13 @@ class LatestScheduledSessionsTableWidget extends TableWidget
         return $table
             ->searchable(true)
             ->heading(__('panel-company::widgets.latest_sessions.heading'))
-            ->query(fn (): Builder => Appointment::query()
-                ->where('company_id', Filament::getTenant()->id)->latest())
+            ->query(function (): Builder {
+                /** @var Company $tenant */
+                $tenant = Filament::getTenant();
+
+                return Appointment::query()
+                    ->where('company_id', $tenant->id)->latest();
+            })
             ->columns([
                 TextColumn::make('consultant.name')
                     ->label(__('panel-company::widgets.latest_sessions.consultant'))

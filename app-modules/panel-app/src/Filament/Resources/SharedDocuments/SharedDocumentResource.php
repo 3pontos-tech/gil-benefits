@@ -58,12 +58,12 @@ class SharedDocumentResource extends Resource
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['consultant']);
+        return parent::getGlobalSearchEloquentQuery()->with(['documentable']);
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['title', 'consultant.name'];
+        return ['title', 'documentable.name'];
     }
 
     /**
@@ -73,8 +73,8 @@ class SharedDocumentResource extends Resource
     {
         $details = [];
 
-        if ($record->consultant) {
-            $details['Consultant'] = $record->consultant->name;
+        if ($record->documentable) {
+            $details['Consultant'] = $record->documentable->name;
         }
 
         return $details;

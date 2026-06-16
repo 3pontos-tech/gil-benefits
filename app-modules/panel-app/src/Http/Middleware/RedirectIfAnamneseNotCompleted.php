@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use TresPontosTech\Company\Models\Company;
 
 class RedirectIfAnamneseNotCompleted
 {
@@ -22,6 +23,7 @@ class RedirectIfAnamneseNotCompleted
         }
 
         $user = auth()->user();
+        /** @var Company|null $tenant */
         $tenant = filament()->getTenant();
 
         if ($user === null || $user->anamnese !== null) {

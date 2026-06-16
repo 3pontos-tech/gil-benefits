@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class CreditUsageTableWidget extends TableWidget
@@ -68,7 +69,9 @@ class CreditUsageTableWidget extends TableWidget
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $tenantId = Filament::getTenant()->id;
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+        $tenantId = $tenant->id;
         $userIds = $this->filteredUserIds();
 
         return UserCredit::query()

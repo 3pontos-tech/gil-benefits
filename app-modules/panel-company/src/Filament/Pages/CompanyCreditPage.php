@@ -25,6 +25,7 @@ use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Jobs\DistributeCreditsEquallyJob;
 use TresPontosTech\Billing\Core\Jobs\RevokeCreditsFromEmployeesJob;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
 use TresPontosTech\PanelCompany\Filament\Widgets\CompanyCreditStatsWidget;
 
@@ -74,6 +75,7 @@ class CompanyCreditPage extends Page implements HasTable
 
     public function table(Table $table): Table
     {
+        /** @var Company $tenant */
         $tenant = filament()->getTenant();
         $records = UserCredit::query()
             ->where('company_id', $tenant->getKey())
@@ -203,6 +205,7 @@ class CompanyCreditPage extends Page implements HasTable
     #[Computed]
     public function ownerAvailableCreditsCount(): int
     {
+        /** @var Company $company */
         $company = filament()->getTenant();
 
         return UserCredit::query()
@@ -221,6 +224,7 @@ class CompanyCreditPage extends Page implements HasTable
     #[Computed]
     public function hasDistributedCredits(): bool
     {
+        /** @var Company $company */
         $company = filament()->getTenant();
 
         return UserCredit::query()
@@ -233,6 +237,7 @@ class CompanyCreditPage extends Page implements HasTable
     #[Computed]
     public function canDistributeEqually(): bool
     {
+        /** @var Company $company */
         $company = filament()->getTenant();
 
         $availableCredits = UserCredit::query()
@@ -249,7 +254,10 @@ class CompanyCreditPage extends Page implements HasTable
     /** @return array<string, string> */
     private function getActiveEmployeeOptions(): array
     {
-        return filament()->getTenant()
+        /** @var Company $tenant */
+        $tenant = filament()->getTenant();
+
+        return $tenant
             ->onlyEmployees()
             ->get()
             ->pluck('name', 'id')
