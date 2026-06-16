@@ -36,8 +36,8 @@ class AppointmentVolumeChart extends ChartWidget
         $tenantId = Filament::getTenant()->id;
         $userIds = $this->filteredUserIds();
 
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
 
         if (filled($startDate) && filled($endDate)) {
             $start = now()->parse($startDate)->startOfDay();
