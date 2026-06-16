@@ -224,7 +224,7 @@ describe('user access during gateway migration', function (): void {
             barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
         );
 
-        expect(fn () => $middleware->handle(fakeRequest(), passThrough()))
+        expect(fn (): Symfony\Component\HttpFoundation\Response => $middleware->handle(fakeRequest(), passThrough()))
             ->toThrow(HttpException::class);
     });
 

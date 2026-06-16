@@ -64,7 +64,7 @@ it('getPlansFor() still returns plans from all active providers for subscription
 
     $plans = (new EloquentPlanRepository)->getPlansFor('user');
 
-    $productIds = $plans->map(fn ($p) => $p->productId);
+    $productIds = $plans->map(fn ($p): string => $p->productId);
 
     expect($plans)->toHaveCount(2)
         ->and($productIds)->toContain($stripePlan->provider_product_id)
