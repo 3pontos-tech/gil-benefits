@@ -17,7 +17,6 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Request;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
@@ -128,29 +127,11 @@ class HelpCenterPage extends Page
 
     public function submit(): void
     {
-        /** @var array<string, mixed> $data */
-        $data = $this->form->getState();
-
-        $category = $data['category'];
-        $attachment = $data['attachment'] ?? null;
-        $visitorName = $data['visitor_name'] ?? null;
-        $visitorEmail = $data['visitor_email'] ?? null;
-        $visitorCompanyName = $data['visitor_company_name'] ?? null;
-
-        $dto = new CreateSupportTicketDTO(
-            category: $category instanceof SupportTicketCategoryEnum
-                ? $category
-                : SupportTicketCategoryEnum::from((string) $category),
-            subject: (string) $data['subject'],
-            description: (string) $data['description'],
-            visitorName: is_string($visitorName) ? $visitorName : null,
-            visitorEmail: is_string($visitorEmail) ? $visitorEmail : null,
-            visitorCompanyName: is_string($visitorCompanyName) ? $visitorCompanyName : null,
+        $dto = CreateSupportTicketDTO::fromFormState(
+            $this->form->getState(),
             url: Request::header('referer'),
-            browser: $this->parseBrowser(Request::userAgent()),
-            device: $this->parseDevice(Request::userAgent()),
+            userAgent: Request::userAgent(),
             environment: app()->environment(),
-            attachment: $attachment instanceof UploadedFile ? $attachment : null,
         );
 
         $ticket = resolve(CreateSupportTicketAction::class)->execute($dto);
@@ -161,34 +142,5 @@ class HelpCenterPage extends Page
             ->send();
 
         $this->form->fill();
-    }
-
-    private function parseBrowser(?string $userAgent): ?string
-    {
-        if ($userAgent === null) {
-            return null;
-        }
-
-        return match (true) {
-            str_contains($userAgent, 'Chrome') && ! str_contains($userAgent, 'Edg') => 'Chrome',
-            str_contains($userAgent, 'Firefox') => 'Firefox',
-            str_contains($userAgent, 'Safari') && ! str_contains($userAgent, 'Chrome') => 'Safari',
-            str_contains($userAgent, 'Edg') => 'Edge',
-            str_contains($userAgent, 'OPR') => 'Opera',
-            default => 'Unknown',
-        };
-    }
-
-    private function parseDevice(?string $userAgent): ?string
-    {
-        if ($userAgent === null) {
-            return null;
-        }
-
-        return match (true) {
-            str_contains($userAgent, 'Mobile') || str_contains($userAgent, 'Android') => 'mobile',
-            str_contains($userAgent, 'Tablet') || str_contains($userAgent, 'iPad') => 'tablet',
-            default => 'desktop',
-        };
     }
 }

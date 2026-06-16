@@ -6,8 +6,6 @@ namespace TresPontosTech\Support;
 
 use Illuminate\Support\ServiceProvider;
 use Override;
-use TresPontosTech\Support\Services\ProtocolGenerator;
-use TresPontosTech\Support\Services\TicketRouterService;
 
 class SupportServiceProvider extends ServiceProvider
 {
@@ -15,9 +13,6 @@ class SupportServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/support.php', 'support');
-
-        $this->app->singleton(ProtocolGenerator::class);
-        $this->app->singleton(TicketRouterService::class);
     }
 
     public function boot(): void
