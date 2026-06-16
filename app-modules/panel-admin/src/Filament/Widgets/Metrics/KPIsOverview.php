@@ -47,8 +47,8 @@ class KPIsOverview extends StatsOverviewWidget
             ->toBase()
             ->first();
 
-        $avg = round((float) ($result?->avg_rating ?? 0), 1);
-        $total = (int) ($result?->total ?? 0);
+        $avg = round((float) ($result->avg_rating ?? 0), 1);
+        $total = (int) ($result->total ?? 0);
 
         return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.avg_rating'), $avg . '/5')
             ->description(__('panel-admin::widgets.metrics.kpis_overview.avg_rating_description', ['total' => $total]))
@@ -67,8 +67,8 @@ class KPIsOverview extends StatsOverviewWidget
             ->toBase()
             ->first();
 
-        $consultantCount = (int) ($result?->consultant_count ?? 0);
-        $total = (int) ($result?->total ?? 0);
+        $consultantCount = (int) ($result->consultant_count ?? 0);
+        $total = (int) ($result->total ?? 0);
 
         $avg = $consultantCount > 0
             ? round($total / $consultantCount, 1)

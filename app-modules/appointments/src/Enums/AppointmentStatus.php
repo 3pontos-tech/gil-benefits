@@ -7,7 +7,6 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Support\Htmlable;
 use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
 use TresPontosTech\Appointments\Actions\Transitions\ActiveTransition;
 use TresPontosTech\Appointments\Actions\Transitions\CancelledLateTransition;
@@ -50,7 +49,7 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return __(
             'appointments::enums.appointment_status.' . $this->value

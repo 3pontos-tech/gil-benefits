@@ -40,7 +40,7 @@ class SchedulesRelationManager extends RelationManager
                     ->searchable(),
                 TextColumn::make('frequency_config')
                     ->label(__('consultants::resources.schedules.table.columns.days'))
-                    ->state(fn (Schedule $record): string => collect($record->frequency_config?->days ?? [])
+                    ->state(fn (Schedule $record): string => collect($record->frequency_config->days ?? [])
                         ->map(fn (string $day): string => __('consultants::resources.schedules.days.' . $day))
                         ->join(', ')
                     ),
@@ -63,7 +63,7 @@ class SchedulesRelationManager extends RelationManager
                     ->form($this->availabilityFormSchema())
                     ->mutateRecordDataUsing(function (array $data, Schedule $record): array {
                         $data['frequency_config'] = [
-                            'days' => $record->frequency_config?->days ?? [],
+                            'days' => $record->frequency_config->days ?? [],
                         ];
 
                         $data['periods'] = $record->periods

@@ -17,7 +17,7 @@ class RegisterTenant extends BaseRegisterTenant
 {
     public static function canView(): bool
     {
-        /** @var Company $tenant */
+        /** @var Company|null $tenant */
         $tenant = filament()->getTenant();
 
         if (is_null($tenant)) {

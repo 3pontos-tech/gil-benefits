@@ -38,7 +38,7 @@ class ReviewAppointmentRecordAction extends Action
             && Gate::allows('update', $record->record));
 
         $this->fillForm(fn (Appointment $record): array => [
-            'content' => $record->record?->content ?? '',
+            'content' => $record->record->content ?? '',
         ]);
 
         $this->schema([

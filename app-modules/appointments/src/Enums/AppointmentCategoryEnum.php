@@ -8,7 +8,6 @@ use Filament\Support\Contracts\HasDescription;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Support\Htmlable;
 
 enum AppointmentCategoryEnum: string implements HasColor, HasDescription, HasIcon, HasLabel
 {
@@ -24,7 +23,7 @@ enum AppointmentCategoryEnum: string implements HasColor, HasDescription, HasIco
 
     case RiskAndCompliance = 'risk_and_compliance';
 
-    public function getDescription(): string|Htmlable|null
+    public function getDescription(): string
     {
         return __('appointments::categories.' . $this->value . '.description');
     }
@@ -53,7 +52,7 @@ enum AppointmentCategoryEnum: string implements HasColor, HasDescription, HasIco
         };
     }
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return __('appointments::categories.' . $this->value . '.label');
     }

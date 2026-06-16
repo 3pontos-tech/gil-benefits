@@ -8,7 +8,6 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
-use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 
@@ -26,31 +25,6 @@ class StatsOverview extends StatsOverviewWidget
             $this->mountTotalAppointmentsStat(),
 
         ];
-    }
-
-    private function mountActivePlansStat(): Stat
-    {
-        $activePlans = Company::query()
-            ->whereHas('plans', function (Builder $query): void {
-                $query->where('company_plans.status', 'active');
-            })
-            ->count();
-
-        $data = Trend::query(Company::query()
-            ->whereHas('plans', function (Builder $query): void {
-                $query->where('company_plans.status', 'active');
-            }))
-            ->between(
-                start: now()->subDays(7),
-                end: now(),
-            )
-            ->perWeek()
-            ->count();
-
-        return Stat::make(__('panel-admin::widgets.stats_overview.active_plans'), $activePlans)
-            ->chart($data->map(fn (TrendValue $value): mixed => $value->aggregate))
-            ->color('success')
-            ->description(__('panel-admin::widgets.stats_overview.active_plans_description'));
     }
 
     private function mountNewUsersStat(): Stat

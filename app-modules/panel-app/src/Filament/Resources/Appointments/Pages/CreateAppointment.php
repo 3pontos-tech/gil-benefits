@@ -28,7 +28,7 @@ class CreateAppointment extends CreateRecord
 
         /** @var User $user */
         $user = auth()->user();
-        if ($user && ! $user->canCreateAppointment()) {
+        if (! $user->canCreateAppointment()) {
             Notification::make()
                 ->title(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
                 ->body(__('panel-app::resources.appointments.pages.create.no_appointments_available'))

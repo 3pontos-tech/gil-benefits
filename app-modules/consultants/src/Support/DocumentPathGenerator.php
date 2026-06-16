@@ -15,7 +15,7 @@ class DocumentPathGenerator implements PathGenerator
         $owner = $media->model->documentable;
 
         if (! $owner) {
-            $owner = auth()->user()?->consultant ?? auth()->user();
+            $owner = auth()->user()->consultant ?? auth()->user();
         }
 
         $folderName = Str::slug($owner->name ?? $owner->user->name);

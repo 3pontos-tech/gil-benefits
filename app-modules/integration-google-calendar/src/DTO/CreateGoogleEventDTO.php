@@ -27,9 +27,7 @@ readonly class CreateGoogleEventDTO
 
         $descriptionParts = [];
 
-        if ($appointment->category_type) {
-            $descriptionParts[] = sprintf('Categoria: %s', $appointment->category_type->getLabel());
-        }
+        $descriptionParts[] = sprintf('Categoria: %s', $appointment->category_type->getLabel());
 
         if (filled($appointment->notes)) {
             $descriptionParts[] = $appointment->notes;

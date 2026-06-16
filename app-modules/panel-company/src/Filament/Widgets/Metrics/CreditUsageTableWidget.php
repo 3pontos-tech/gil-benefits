@@ -55,7 +55,7 @@ class CreditUsageTableWidget extends TableWidget
                 TextColumn::make('status')
                     ->label(__('panel-company::widgets.credit_usage.status'))
                     ->badge()
-                    ->color(fn (UserCreditStatusEnum $state): string|array => $state->getColor()),
+                    ->color(fn (UserCreditStatusEnum $state): array => $state->getColor()),
 
                 TextColumn::make('transferred_at')
                     ->label(__('panel-company::widgets.credit_usage.transferred_at'))
