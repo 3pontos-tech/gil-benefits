@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelCompany\Filament\Widgets\Metrics;
 
+use App\Models\Users\User;
 use Filament\Facades\Filament;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
@@ -158,7 +159,11 @@ class InsightsWidget extends StatsOverviewWidget
             return null;
         }
 
-        $topUser = $tenant->employees()->find($topData->user_id);
+        $topUser = $tenant->employees()->find((string) $topData->user_id);
+
+        if (! $topUser instanceof User) {
+            return null;
+        }
 
         return Stat::make(__('panel-company::widgets.insights.top_user'), $topUser->name)
             ->description(__('panel-company::widgets.insights.top_user_description', [

@@ -25,7 +25,7 @@ class RedirectUserIfNotSubscribed
 
     public function handle(Request $request, Closure $next): Response
     {
-        /** @var Company|Filament $tenant */
+        /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
         if ($tenant->hasActivePlan()) {

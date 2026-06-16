@@ -226,8 +226,8 @@ class SyncPermissionsCommand extends Command
         note('Models and RBAC Status:');
         table(['Name', 'Resource', 'Group', 'Has RBAC'], $tableData);
 
-        return collect($rbacConfigs)->map(fn (array $resources, string $role): RolePermissions => new RolePermissions(
-            role: $role,
+        return collect($rbacConfigs)->map(fn (array $resources, int|string $role): RolePermissions => new RolePermissions(
+            role: (string) $role,
             resources: $resources
         ))->values();
     }

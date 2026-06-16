@@ -89,7 +89,7 @@ class ShareDocumentFilamentAction extends Action
             ])
         );
 
-        $employee = User::query()->find($data['employee_id']);
+        $employee = User::query()->whereKey($data['employee_id'])->first();
 
         if ($employee) {
             Mail::to($employee->email)->queue(new DocumentSharedMail($record, $employee));

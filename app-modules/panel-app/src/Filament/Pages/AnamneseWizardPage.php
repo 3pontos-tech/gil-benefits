@@ -118,7 +118,15 @@ class AnamneseWizardPage extends Page
 
     public function submit(): void
     {
-        $data = $this->form->getState();
+        $state = $this->form->getState();
+
+        $data = [
+            'life_moment' => (string) $state['life_moment'],
+            'main_motivation' => (string) $state['main_motivation'],
+            'money_relationship' => (string) $state['money_relationship'],
+            'plans_monthly_expenses' => (string) $state['plans_monthly_expenses'],
+            'tried_financial_strategies' => (string) $state['tried_financial_strategies'],
+        ];
 
         /** @var User $user */
         $user = auth()->user();

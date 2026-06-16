@@ -21,7 +21,7 @@ final readonly class FetchConsultants
         );
 
         //        return Cache::flexible($cacheKey, [$baseTtl, $baseTtl * 2], function () {
-        return collect($this->client->getCompanyEmployees()['users'])
+        return collect($this->client->getCompanyEmployees()['users'] ?? [])
             ->mapWithKeys(fn (array $employee): array => [$employee['id'] => $employee['name']])
             ->toArray();
         //        });

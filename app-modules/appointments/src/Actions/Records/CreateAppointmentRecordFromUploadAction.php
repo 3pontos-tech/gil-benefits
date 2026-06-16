@@ -33,6 +33,10 @@ final readonly class CreateAppointmentRecordFromUploadAction
 
         $path = $file->storeAs(self::STORAGE_DIRECTORY, $filename, self::STORAGE_DISK);
 
+        if ($path === false) {
+            throw new \RuntimeException(sprintf('Failed to store appointment record file "%s".', $filename));
+        }
+
         dispatch(new GenerateAppointmentRecordJob($record->id, self::STORAGE_DISK, $path));
 
         return $record;

@@ -57,7 +57,7 @@ class GlobalAppointmentStatsWidget extends StatsOverviewWidget
             ->first();
 
         $topCompany = $topCompanyData
-            ? Company::query()->find($topCompanyData->company_id)
+            ? Company::query()->whereKey($topCompanyData->company_id)->first()
             : null;
 
         return array_filter([

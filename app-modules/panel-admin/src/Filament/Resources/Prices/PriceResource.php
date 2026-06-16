@@ -140,8 +140,8 @@ class PriceResource extends Resource
                             ->schema([
                                 CodeEditor::make('metadata')
                                     ->formatStateUsing(fn (mixed $state): string => match (true) {
-                                        is_array($state) => json_encode($state, JSON_PRETTY_PRINT),
-                                        is_string($state) && filled($state) => json_encode(json_decode($state), JSON_PRETTY_PRINT),
+                                        is_array($state) => json_encode($state, JSON_PRETTY_PRINT) ?: '',
+                                        is_string($state) && filled($state) => json_encode(json_decode($state), JSON_PRETTY_PRINT) ?: '',
                                         default => '',
                                     })
                                     ->dehydrateStateUsing(fn (?string $state): ?array => $state ? json_decode($state, true) : null)
