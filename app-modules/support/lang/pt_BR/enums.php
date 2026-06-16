@@ -20,6 +20,7 @@ return [
     'ticket_status' => [
         'pending' => 'Pendente',
         'dispatched' => 'Enviado',
+        'in_progress' => 'Em andamento',
         'failed' => 'Falhou',
         'resolved' => 'Resolvido',
         'closed' => 'Encerrado',
@@ -28,7 +29,7 @@ return [
         'support_ti' => 'Time de TI',
         'financial' => 'Financeiro',
         'commercial' => 'Comercial',
-        'cs' => 'CS',
+        'cs' => 'Dúvidas e Reclamações',
         'product' => 'Produto',
     ],
     'destination_type' => [

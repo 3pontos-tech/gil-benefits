@@ -36,6 +36,8 @@ it('exposes the allowed transition graph', function (): void {
     expect(SupportTicketStatusEnum::Pending->allowedTransitions())
         ->toBe([SupportTicketStatusEnum::Dispatched, SupportTicketStatusEnum::Closed])
         ->and(SupportTicketStatusEnum::Dispatched->allowedTransitions())
+        ->toBe([SupportTicketStatusEnum::InProgress, SupportTicketStatusEnum::Closed])
+        ->and(SupportTicketStatusEnum::InProgress->allowedTransitions())
         ->toBe([SupportTicketStatusEnum::Resolved, SupportTicketStatusEnum::Closed])
         ->and(SupportTicketStatusEnum::Resolved->allowedTransitions())
         ->toBe([SupportTicketStatusEnum::Closed])
@@ -44,7 +46,9 @@ it('exposes the allowed transition graph', function (): void {
 });
 
 it('answers canTransitionTo for valid and invalid edges', function (): void {
-    expect(SupportTicketStatusEnum::Dispatched->canTransitionTo(SupportTicketStatusEnum::Resolved))->toBeTrue()
+    expect(SupportTicketStatusEnum::Dispatched->canTransitionTo(SupportTicketStatusEnum::InProgress))->toBeTrue()
+        ->and(SupportTicketStatusEnum::InProgress->canTransitionTo(SupportTicketStatusEnum::Resolved))->toBeTrue()
+        ->and(SupportTicketStatusEnum::Dispatched->canTransitionTo(SupportTicketStatusEnum::Resolved))->toBeFalse()
         ->and(SupportTicketStatusEnum::Pending->canTransitionTo(SupportTicketStatusEnum::Resolved))->toBeFalse()
         ->and(SupportTicketStatusEnum::Resolved->canTransitionTo(SupportTicketStatusEnum::Dispatched))->toBeFalse()
         ->and(SupportTicketStatusEnum::Closed->canTransitionTo(SupportTicketStatusEnum::Pending))->toBeFalse();
@@ -55,11 +59,11 @@ it('answers canTransitionTo for valid and invalid edges', function (): void {
 it('transitions a valid edge and persists the new status', function (): void {
     $ticket = ticketWithStatus(SupportTicketStatusEnum::Dispatched);
 
-    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::Resolved);
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
 
     assertDatabaseHas(SupportTicket::class, [
         'id' => $ticket->getKey(),
-        'status' => SupportTicketStatusEnum::Resolved->value,
+        'status' => SupportTicketStatusEnum::InProgress->value,
     ]);
 });
 
@@ -75,9 +79,20 @@ it('rejects an invalid transition', function (): void {
 });
 
 it('notifies the requester when resolved', function (): void {
-    $ticket = ticketWithStatus(SupportTicketStatusEnum::Dispatched);
+    $ticket = ticketWithStatus(SupportTicketStatusEnum::InProgress);
 
     resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::Resolved);
+
+    Mail::assertQueued(
+        SupportTicketStatusUpdatedMail::class,
+        fn (SupportTicketStatusUpdatedMail $mail): bool => $mail->hasTo('requester@example.com'),
+    );
+});
+
+it('notifies the requester when moved to in progress', function (): void {
+    $ticket = ticketWithStatus(SupportTicketStatusEnum::Dispatched);
+
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
 
     Mail::assertQueued(
         SupportTicketStatusUpdatedMail::class,

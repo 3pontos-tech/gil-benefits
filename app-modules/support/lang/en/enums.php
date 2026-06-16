@@ -20,6 +20,7 @@ return [
     'ticket_status' => [
         'pending' => 'Pending',
         'dispatched' => 'Dispatched',
+        'in_progress' => 'In Progress',
         'failed' => 'Failed',
         'resolved' => 'Resolved',
         'closed' => 'Closed',

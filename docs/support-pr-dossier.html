@@ -120,6 +120,7 @@
   .st small{display:block;font-family:"DM Mono",monospace;font-weight:400;font-size:9px;letter-spacing:.14em;color:var(--muted)}
   .st.amber{border-color:var(--amber);color:var(--amber)}
   .st.teal{border-color:var(--teal);color:var(--teal)}
+  .st.indigo{border-color:#4a4d99;color:#4a4d99}
   .st.green{border-color:#3a7d3f;color:#3a7d3f}
   .st.gray{border-color:var(--muted);color:var(--muted)}
   .arr{font-family:"DM Mono",monospace;color:var(--ink-soft)}
@@ -222,7 +223,7 @@
       <div class="field">
         <div class="fc">transparência</div>
         <h3>O solicitante sabe o andamento</h3>
-        <p>Recebe confirmação na abertura e e-mail quando o chamado é resolvido ou encerrado — independente do canal por onde foi tratado.</p>
+        <p>Recebe confirmação na abertura e e-mail a cada virada de status — quando entra em andamento, é resolvido ou encerrado — independente do canal por onde foi tratado.</p>
       </div>
       <div class="field">
         <div class="fc">gestão</div>
@@ -267,19 +268,22 @@
     <span class="eyebrow">Campo C — Ciclo de vida</span>
     <h2>Estados do chamado</h2>
     <div class="rule"></div>
-    <p class="lead">Uma state machine leve: o status só anda por caminhos válidos, e a transição notifica o solicitante quando chega em Resolvido ou Fechado. <b>Falha de entrega não é estado do chamado</b> — isso vive no destino.</p>
+    <p class="lead">Uma state machine leve: o status só anda por caminhos válidos, e a transição notifica o solicitante quando chega em Em andamento, Resolvido ou Fechado. <b>Falha de entrega não é estado do chamado</b> — isso vive no destino.</p>
     <div class="sm" style="margin-top:22px">
       <span class="st amber">Pendente<small>pending</small></span>
       <span class="arr">→</span>
       <span class="st teal">Despachado<small>dispatched</small></span>
+      <span class="arr">→</span>
+      <span class="st indigo">Em andamento<small>in_progress</small></span>
       <span class="arr">→</span>
       <span class="st green">Resolvido<small>resolved</small></span>
       <span class="arr">→</span>
       <span class="st gray">Fechado<small>closed · terminal</small></span>
     </div>
     <div class="smnote">
-      <div><b>Guard no enum.</b> <span class="code">allowedTransitions()</span> proíbe pulos (ex.: reabrir um Fechado, ou ir de Pendente direto a Resolvido).</div>
-      <div><b>Notifica por e-mail</b> em <b>Resolvido</b> e <b>Fechado</b> — tanto pela ação do admin quanto pelo "Finalizar" do usuário.</div>
+      <div><b>Guard no enum.</b> <span class="code">allowedTransitions()</span> proíbe pulos (ex.: reabrir um Fechado, ou ir de Despachado direto a Resolvido sem passar por Em andamento).</div>
+      <div><b>Em andamento é o sinal vivo.</b> Recebido (Despachado) só avança para <b>Em andamento</b> — o admin muda o status para avisar o solicitante de que a equipe já está resolvendo.</div>
+      <div><b>Notifica por e-mail</b> em <b>Em andamento</b>, <b>Resolvido</b> e <b>Fechado</b> — tanto pela ação do admin quanto pelo "Finalizar" do usuário.</div>
       <div><b>Uma porta só.</b> Toda mudança manual passa por <span class="code">TransitionSupportTicketStatusAction</span>; a UI oferece apenas os próximos estados válidos.</div>
       <div><b>Pendente → Fechado</b> também é permitido (encerrar sem resolver); Fechado não volta.</div>
     </div>

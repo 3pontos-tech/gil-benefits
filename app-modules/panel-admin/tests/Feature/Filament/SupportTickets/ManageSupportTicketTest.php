@@ -61,11 +61,11 @@ it('can change a ticket status from the table and notifies the requester', funct
 
     livewire(ListSupportTickets::class)
         ->callTableAction('update_status', $ticket, data: [
-            'status' => SupportTicketStatusEnum::Resolved->value,
+            'status' => SupportTicketStatusEnum::InProgress->value,
         ])
         ->assertHasNoTableActionErrors();
 
-    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
+    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress);
     Mail::assertQueued(SupportTicketStatusUpdatedMail::class);
 });
 
@@ -102,9 +102,9 @@ it('can change a ticket status from the view page', function (): void {
 
     livewire(ViewSupportTicket::class, ['record' => $ticket->getKey()])
         ->callAction('update_status', data: [
-            'status' => SupportTicketStatusEnum::Resolved->value,
+            'status' => SupportTicketStatusEnum::InProgress->value,
         ])
         ->assertHasNoActionErrors();
 
-    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
+    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress);
 });

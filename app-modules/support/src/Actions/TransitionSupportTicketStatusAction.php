@@ -22,6 +22,7 @@ class TransitionSupportTicketStatusAction
      * Statuses that notify the requester by e-mail when reached.
      */
     private const NOTIFIES = [
+        SupportTicketStatusEnum::InProgress,
         SupportTicketStatusEnum::Resolved,
         SupportTicketStatusEnum::Closed,
     ];

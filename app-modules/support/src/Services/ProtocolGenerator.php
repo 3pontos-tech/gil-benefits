@@ -32,7 +32,7 @@ class ProtocolGenerator
             ->withoutGlobalScopes()
             ->where('protocol', 'like', $prefix . '%')
             ->pluck('protocol')
-            ->map(static fn (string $protocol): int => (int) substr($protocol, -4))
+            ->map(static fn (string $protocol): int => (int) substr($protocol, strlen($prefix)))
             ->max() ?? 0;
 
         return sprintf('%s%04d', $prefix, $lastSequence + 1);

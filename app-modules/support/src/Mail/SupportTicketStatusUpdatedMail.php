@@ -10,7 +10,6 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 
 class SupportTicketStatusUpdatedMail extends Mailable implements ShouldQueue
@@ -41,7 +40,6 @@ class SupportTicketStatusUpdatedMail extends Mailable implements ShouldQueue
             with: [
                 'ticket' => $this->ticket,
                 'requesterName' => $this->ticket->getRequesterName(),
-                'isResolved' => $this->ticket->status === SupportTicketStatusEnum::Resolved,
             ],
         );
     }

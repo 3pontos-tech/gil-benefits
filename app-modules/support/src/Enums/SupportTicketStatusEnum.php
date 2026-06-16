@@ -15,6 +15,7 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
 {
     case Pending = 'pending';
     case Dispatched = 'dispatched';
+    case InProgress = 'in_progress';
     case Resolved = 'resolved';
     case Closed = 'closed';
 
@@ -48,7 +49,8 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
     {
         return match ($this) {
             self::Pending => [self::Dispatched, self::Closed],
-            self::Dispatched => [self::Resolved, self::Closed],
+            self::Dispatched => [self::InProgress, self::Closed],
+            self::InProgress => [self::Resolved, self::Closed],
             self::Resolved => [self::Closed],
             self::Closed => [],
         };
@@ -64,6 +66,7 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::Pending => Heroicon::Clock,
             self::Dispatched => Heroicon::PaperAirplane,
+            self::InProgress => Heroicon::Cog6Tooth,
             self::Resolved => Heroicon::CheckCircle,
             self::Closed => Heroicon::ArchiveBox,
         };
@@ -74,6 +77,7 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::Pending => Color::Amber,
             self::Dispatched => Color::Blue,
+            self::InProgress => Color::Indigo,
             self::Resolved => Color::Green,
             self::Closed => Color::Gray,
         };

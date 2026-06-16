@@ -8,10 +8,14 @@ return [
     ],
     'status_updated' => [
         'subjects' => [
+            'in_progress' => 'Your ticket is now in progress — :protocol',
             'resolved' => 'Your ticket has been resolved — :protocol',
             'closed' => 'Your ticket has been closed — :protocol',
         ],
-        'resolved_intro' => 'Good news! Your ticket has been marked as **resolved**.',
-        'closed_intro' => 'Your ticket has been **closed**.',
+        'intros' => [
+            'in_progress' => 'We are on it! Your ticket is now **in progress** and our team is working on a solution.',
+            'resolved' => 'Good news! Your ticket has been marked as **resolved**.',
+            'closed' => 'Your ticket has been **closed**.',
+        ],
     ],
 ];

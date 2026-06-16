@@ -75,3 +75,11 @@ it('ignores protocols from other years when incrementing', function (): void {
 
     expect(generate())->toBe('SUP-2026-0001');
 });
+
+it('parses sequences longer than four digits', function (): void {
+    // %04d is a minimum width, so past 9999 the suffix grows — the parser must read
+    // the whole numeric part, not the last four characters.
+    makeTicket('SUP-2026-10000');
+
+    expect(generate())->toBe('SUP-2026-10001');
+});

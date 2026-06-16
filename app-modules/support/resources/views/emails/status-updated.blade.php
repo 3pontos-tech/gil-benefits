@@ -3,7 +3,7 @@
 
 Olá, {{ $requesterName ?? 'usuário' }}!
 
-{{ $isResolved ? __('support::mail.status_updated.resolved_intro') : __('support::mail.status_updated.closed_intro') }}
+{{ __('support::mail.status_updated.intros.' . $ticket->status->value) }}
 
 <x-mail::panel>
 **Protocolo:** {{ $ticket->protocol }}
