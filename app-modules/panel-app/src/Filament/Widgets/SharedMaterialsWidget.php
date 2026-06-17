@@ -131,10 +131,14 @@ class SharedMaterialsWidget extends Widget implements HasActions, HasSchemas
 
     private function buildDownloadUrl(Media $media): string
     {
+        // Remove aspas e caracteres de controle do nome do arquivo para evitar
+        // injeção/quebra no header Content-Disposition.
+        $safeFilename = preg_replace('/["\x00-\x1F\x7F]/', '', basename($media->file_name)) ?? '';
+
         return Storage::disk($media->disk)->temporaryUrl(
             $media->getPathRelativeToRoot(),
             now()->addMinutes(5),
-            ['ResponseContentDisposition' => sprintf('attachment; filename="%s"', $media->file_name)],
+            ['ResponseContentDisposition' => sprintf('attachment; filename="%s"', $safeFilename)],
         );
     }
 }
