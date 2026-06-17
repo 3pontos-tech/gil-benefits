@@ -221,6 +221,6 @@ final class ChartGeometry
      */
     private static function n(float $value): string
     {
-        return sprintf('%.2f', $value);
+        return sprintf('%.2F', $value);
     }
 }

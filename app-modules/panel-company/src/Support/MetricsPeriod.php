@@ -6,6 +6,7 @@ namespace TresPontosTech\PanelCompany\Support;
 
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use InvalidArgumentException;
 
 /**
  * Immutable description of a metrics window: bounds, granularity and a stable
@@ -23,6 +24,8 @@ final readonly class MetricsPeriod
 
     public static function lastMonths(int $months = 12): self
     {
+        throw_if($months < 1, InvalidArgumentException::class, 'The number of months must be at least 1.');
+
         $end = now()->toImmutable()->endOfMonth();
         $start = now()->toImmutable()->subMonthsNoOverflow($months - 1)->startOfMonth();
 
@@ -46,6 +49,6 @@ final readonly class MetricsPeriod
 
     public function cacheKey(): string
     {
-        return sprintf('%s_%s', $this->start->toDateString(), $this->end->toDateString());
+        return sprintf('%s_%s_%s', $this->start->toDateString(), $this->end->toDateString(), $this->granularity->name);
     }
 }

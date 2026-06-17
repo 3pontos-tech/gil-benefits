@@ -91,3 +91,21 @@ it('omits donut slices that are thinner than the gap', function (): void {
         ->and($paths[0])->not->toBe('')
         ->and($paths[1])->toBe('');
 });
+
+it('keeps a dot decimal separator under a comma-decimal locale', function (): void {
+    $previous = setlocale(LC_NUMERIC, '0');
+    $changed = setlocale(LC_NUMERIC, 'pt_BR.UTF-8', 'de_DE.UTF-8', 'fr_FR.UTF-8');
+
+    if ($changed === false) {
+        test()->markTestSkipped('No comma-decimal locale available on this environment.');
+    }
+
+    try {
+        $points = ChartGeometry::sparkline([1, 2, 3]);
+        expect($points)->toMatch('/^\d+\.\d{2},\d+\.\d{2}( \d+\.\d{2},\d+\.\d{2})*$/');
+    } finally {
+        if (is_string($previous)) {
+            setlocale(LC_NUMERIC, $previous);
+        }
+    }
+});

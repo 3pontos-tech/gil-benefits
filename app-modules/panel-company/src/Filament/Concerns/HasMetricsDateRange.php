@@ -15,11 +15,10 @@ trait HasMetricsDateRange
 {
     private function dateRange(): array
     {
-        $month = data_get($this->filters, 'month');
+        $parsedMonth = $this->parsedMonthFilter();
 
-        if (filled($month)) {
-            [$year, $monthNumber] = explode('-', (string) $month);
-            $base = now()->setDate((int) $year, (int) $monthNumber, 1);
+        if ($parsedMonth !== null) {
+            $base = now()->setDate($parsedMonth['year'], $parsedMonth['month'], 1);
 
             return [
                 'start' => $base->copy()->startOfMonth(),
@@ -38,17 +37,39 @@ trait HasMetricsDateRange
 
     private function metricsPeriod(): MetricsPeriod
     {
-        $month = data_get($this->filters, 'month');
+        $parsedMonth = $this->parsedMonthFilter();
 
-        if (filled($month)) {
-            [$year, $monthNumber] = explode('-', (string) $month);
-
-            return MetricsPeriod::month((int) $year, (int) $monthNumber);
+        if ($parsedMonth !== null) {
+            return MetricsPeriod::month($parsedMonth['year'], $parsedMonth['month']);
         }
 
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
         return MetricsPeriod::range($start, $end);
+    }
+
+    /**
+     * Parses the `month` filter (expected `YYYY-MM`), returning null when it is
+     * absent or malformed so callers fall back to the default range.
+     *
+     * @return array{year: int, month: int}|null
+     */
+    private function parsedMonthFilter(): ?array
+    {
+        $month = data_get($this->filters, 'month');
+
+        if (blank($month) || preg_match('/^\d{4}-\d{1,2}$/', (string) $month) !== 1) {
+            return null;
+        }
+
+        [$year, $monthNumber] = explode('-', (string) $month);
+        $monthNumber = (int) $monthNumber;
+
+        if ($monthNumber < 1 || $monthNumber > 12) {
+            return null;
+        }
+
+        return ['year' => (int) $year, 'month' => $monthNumber];
     }
 
     private function metricsFilters(): MetricsFilters

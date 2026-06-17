@@ -39,5 +39,8 @@ it('returns zeros when there is no feedback', function (): void {
 
     $data = resolve(GetSatisfaction::class)->handle($company, MetricsPeriod::lastMonths(12), MetricsFilters::none());
 
-    expect($data->total)->toBe(0)->and($data->avg)->toBe(0.0)->and($data->nps)->toBe(0);
+    expect($data->total)->toBe(0)
+        ->and($data->avg)->toBe(0.0)
+        ->and($data->nps)->toBe(0)
+        ->and($data->recommend)->toBe(0.0);
 });

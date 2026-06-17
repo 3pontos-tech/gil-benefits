@@ -1,11 +1,13 @@
+@use('TresPontosTech\PanelCompany\Support\MetricsNumber')
+
 @php
     $card = 'rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-gray-900';
     $label = 'text-sm font-semibold text-gray-500 dark:text-gray-400';
     $num = 'font-mono tabular-nums tracking-tight';
     $muted = 'text-gray-400 dark:text-gray-500';
     $funnelBar = ['bg-primary-500/30', 'bg-primary-500/60', 'bg-primary-500'];
-    $br = fn (int|float $n): string => number_format((float) $n, 0, ',', '.');
-    $pct = fn (float $n): string => rtrim(rtrim(number_format($n, 1, ',', '.'), '0'), ',');
+    $br = fn (int|float $n): string => MetricsNumber::integer($n);
+    $pct = fn (float $n): string => MetricsNumber::percent($n);
 @endphp
 
 <x-filament-widgets::widget>

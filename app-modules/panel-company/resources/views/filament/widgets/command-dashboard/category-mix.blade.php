@@ -1,3 +1,5 @@
+@use('TresPontosTech\PanelCompany\Support\MetricsNumber')
+
 @php
     $fill = [
         'primary' => 'fill-primary-500', 'emerald' => 'fill-emerald-500', 'blue' => 'fill-blue-500',
@@ -13,8 +15,8 @@
     $label = 'text-sm font-semibold text-gray-500 dark:text-gray-400';
     $num = 'font-mono tabular-nums tracking-tight';
     $muted = 'text-gray-400 dark:text-gray-500';
-    $br = fn (int|float $n): string => number_format((float) $n, 0, ',', '.');
-    $pct = fn (float $n): string => rtrim(rtrim(number_format($n, 1, ',', '.'), '0'), ',');
+    $br = fn (int|float $n): string => MetricsNumber::integer($n);
+    $pct = fn (float $n): string => MetricsNumber::percent($n);
 @endphp
 
 <x-filament-widgets::widget>

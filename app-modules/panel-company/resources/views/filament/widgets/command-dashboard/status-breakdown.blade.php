@@ -1,3 +1,5 @@
+@use('TresPontosTech\PanelCompany\Support\MetricsNumber')
+
 @php
     $dot = [
         'primary' => 'bg-primary-500', 'emerald' => 'bg-emerald-500', 'blue' => 'bg-blue-500',
@@ -8,8 +10,8 @@
     $label = 'text-sm font-semibold text-gray-500 dark:text-gray-400';
     $num = 'font-mono tabular-nums tracking-tight';
     $muted = 'text-gray-400 dark:text-gray-500';
-    $br = fn (int|float $n): string => number_format((float) $n, 0, ',', '.');
-    $pct = fn (float $n): string => rtrim(rtrim(number_format($n, 1, ',', '.'), '0'), ',');
+    $br = fn (int|float $n): string => MetricsNumber::integer($n);
+    $pct = fn (float $n): string => MetricsNumber::percent($n);
 @endphp
 
 <x-filament-widgets::widget>
@@ -20,7 +22,8 @@
         @else
             <div class="mb-4 flex h-3.5 overflow-hidden rounded-full">
                 @foreach ($data->segments as $segment)
-                    <div class="h-full {{ $dot[$segment->color] ?? 'bg-gray-400' }}" style="width: {{ $segment->percent }}%"></div>
+                    @php $width = max(0, min(100, (float) $segment->percent)); @endphp
+                    <div class="h-full {{ $dot[$segment->color] ?? 'bg-gray-400' }}" style="width: {{ $width }}%"></div>
                 @endforeach
             </div>
             <div class="flex flex-col gap-2.5">

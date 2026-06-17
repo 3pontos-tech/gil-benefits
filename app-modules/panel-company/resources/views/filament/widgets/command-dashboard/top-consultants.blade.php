@@ -1,3 +1,5 @@
+@use('TresPontosTech\PanelCompany\Support\MetricsNumber')
+
 @php
     $dot = [
         'primary' => 'bg-primary-500', 'emerald' => 'bg-emerald-500', 'blue' => 'bg-blue-500',
@@ -8,7 +10,7 @@
     $label = 'text-sm font-semibold text-gray-500 dark:text-gray-400';
     $num = 'font-mono tabular-nums tracking-tight';
     $muted = 'text-gray-400 dark:text-gray-500';
-    $br = fn (int|float $n): string => number_format((float) $n, 0, ',', '.');
+    $br = fn (int|float $n): string => MetricsNumber::integer($n);
 @endphp
 
 <x-filament-widgets::widget>
@@ -30,7 +32,7 @@
                         <div class="shrink-0 text-right">
                             <p class="{{ $num }} text-xs font-semibold text-gray-900 dark:text-white">{{ $br($consultant->sessions) }}</p>
                             @if ($consultant->rating !== null)
-                                <p class="text-xs text-amber-500">★ {{ number_format($consultant->rating, 1, ',', '.') }}</p>
+                                <p class="text-xs text-amber-500">★ {{ MetricsNumber::decimal($consultant->rating) }}</p>
                             @endif
                         </div>
                     </div>

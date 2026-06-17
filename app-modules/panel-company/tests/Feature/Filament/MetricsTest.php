@@ -22,3 +22,11 @@ it('filters the metrics by a specific month', function (): void {
         ->set('filters.month', now()->format('Y-m'))
         ->assertOk();
 });
+
+it('handles a malformed month filter gracefully', function (): void {
+    actingAsCompanyOwner();
+
+    livewire(Metrics::class)
+        ->set('filters.month', 'invalid-month')
+        ->assertOk();
+});

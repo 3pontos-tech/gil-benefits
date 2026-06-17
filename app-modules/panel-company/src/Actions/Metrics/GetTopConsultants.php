@@ -63,6 +63,7 @@ final class GetTopConsultants
                 ->where('appointments.company_id', $tenant->getKey())
                 ->whereIn('appointments.consultant_id', $consultantIds)
                 ->whereBetween('appointments.appointment_at', [$period->start, $period->end])
+                ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('appointments.user_id', $userIds))
                 ->groupBy('appointments.consultant_id')
                 ->selectRaw('appointments.consultant_id as cid, avg(appointment_feedbacks.rating) as avg_rating')
                 ->pluck('avg_rating', 'cid');
