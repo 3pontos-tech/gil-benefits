@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Filament\Support\Enums\Width;
 use Illuminate\Support\Facades\DB;
 use TresPontosTech\App\DTOs\PlanSummary;
+use TresPontosTech\App\Enums\PlanStatus;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -57,7 +58,7 @@ it('exposes the view-plan action and renders description and features in the mod
 
     $plan = new PlanSummary(
         name: 'Plano X',
-        status: 'active',
+        status: PlanStatus::Active,
         description: 'Descrição do plano de teste',
         monthlyLimit: 1,
         features: [trans_choice('panel-app::widgets.plan_details.monthly_appointments', 1, ['count' => 1])],

@@ -17,6 +17,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use TresPontosTech\App\DTOs\PlanSummary;
+use TresPontosTech\App\Enums\PlanStatus;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
@@ -147,7 +148,7 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
 
             return new PlanSummary(
                 name: $contractualPlan->plan->name,
-                status: 'active',
+                status: PlanStatus::Active,
                 description: $contractualPlan->plan->description,
                 monthlyLimit: $limit,
                 features: [
@@ -166,8 +167,8 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
         }
 
         $status = $subscription->ends_at !== null
-            ? 'expired'
-            : ($subscription->stripe_status === 'active' ? 'active' : 'inactive');
+            ? PlanStatus::Expired
+            : ($subscription->stripe_status === 'active' ? PlanStatus::Active : PlanStatus::Inactive);
 
         $limit = (int) $price->monthly_appointments;
 
