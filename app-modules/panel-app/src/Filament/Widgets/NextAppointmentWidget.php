@@ -30,10 +30,8 @@ class NextAppointmentWidget extends Widget implements HasActions, HasSchemas
     {
         $appointment = $this->resolveAppointment();
 
-        $hasConfirmedStatus = $appointment instanceof Appointment && in_array($appointment->status, [
-            AppointmentStatus::Active,
-            AppointmentStatus::Completed,
-        ], true);
+        $hasConfirmedStatus = $appointment instanceof Appointment
+            && $appointment->status === AppointmentStatus::Active;
 
         return [
             'appointment' => $appointment,
