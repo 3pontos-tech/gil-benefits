@@ -25,6 +25,7 @@ return [
         ],
         'notifications' => [
             'created' => 'Ticket :protocol created successfully!',
+            'rate_limited' => 'You have opened too many tickets. Please wait :seconds seconds and try again.',
         ],
     ],
 ];

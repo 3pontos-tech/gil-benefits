@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Request;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
@@ -32,6 +33,14 @@ class HelpCenterPage extends Page
     protected static bool $shouldRegisterNavigation = false;
 
     protected string $view = 'filament.guest.pages.help-center';
+
+    /**
+     * Per-IP throttle for the public ticket form: at most MAX_ATTEMPTS
+     * submissions every DECAY_SECONDS. Guards an anonymous endpoint against spam.
+     */
+    private const MAX_ATTEMPTS = 5;
+
+    private const DECAY_SECONDS = 60;
 
     public function getTitle(): string
     {
@@ -127,6 +136,21 @@ class HelpCenterPage extends Page
 
     public function submit(): void
     {
+        $key = 'help-center:' . Request::ip();
+
+        if (RateLimiter::tooManyAttempts($key, self::MAX_ATTEMPTS)) {
+            Notification::make()
+                ->title(__('support::pages.help_center.notifications.rate_limited', [
+                    'seconds' => RateLimiter::availableIn($key),
+                ]))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        RateLimiter::hit($key, self::DECAY_SECONDS);
+
         $dto = CreateSupportTicketDTO::fromFormState(
             $this->form->getState(),
             url: Request::header('referer'),

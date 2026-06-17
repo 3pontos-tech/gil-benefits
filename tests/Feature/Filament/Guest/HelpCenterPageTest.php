@@ -51,6 +51,30 @@ it('lets a visitor open a ticket and notifies area + visitor', function (): void
     );
 });
 
+it('throttles ticket submissions per IP', function (): void {
+    $payload = [
+        'visitor_name' => 'Spammer',
+        'visitor_email' => 'spam@example.com',
+        'category' => SupportTicketCategoryEnum::Bug->value,
+        'subject' => 'subject',
+        'description' => 'description',
+    ];
+
+    $component = livewire(HelpCenterPage::class);
+
+    // The limiter allows 5 submissions per IP before blocking.
+    for ($i = 0; $i < 5; ++$i) {
+        $component->fillForm($payload)->call('submit')->assertHasNoFormErrors();
+    }
+
+    expect(SupportTicket::query()->count())->toBe(5);
+
+    // The 6th submission from the same IP is rejected without creating a ticket.
+    $component->fillForm($payload)->call('submit');
+
+    expect(SupportTicket::query()->count())->toBe(5);
+});
+
 it('requires visitor name and email', function (): void {
     livewire(HelpCenterPage::class)
         ->fillForm([

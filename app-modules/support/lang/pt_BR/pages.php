@@ -25,6 +25,7 @@ return [
         ],
         'notifications' => [
             'created' => 'Chamado :protocol criado com sucesso!',
+            'rate_limited' => 'Você abriu chamados demais. Aguarde :seconds segundos e tente novamente.',
         ],
     ],
 ];
