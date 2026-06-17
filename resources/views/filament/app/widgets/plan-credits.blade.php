@@ -4,7 +4,7 @@
 <x-filament-widgets::widget class="h-full">
     <div class="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-900">
         <div class="flex items-center justify-between gap-2">
-            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Plano &amp; créditos</p>
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">{{ __('panel-app::widgets.plan_credits.title') }}</p>
             @if($plan)
                 {{ $this->viewPlanAction }}
             @endif
@@ -22,19 +22,19 @@
                 </span>
             </div>
             <div class="flex-1 text-sm leading-snug text-gray-500 dark:text-gray-400">
-                agendamentos restantes este mês
+                {{ __('panel-app::widgets.plan_credits.appointments_remaining') }}
             </div>
         </div>
 
         <div class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4 dark:border-white/5">
-            <span class="text-sm text-gray-500 dark:text-gray-400">Créditos avulsos</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">{{ __('panel-app::widgets.plan_credits.extra_credits') }}</span>
             <span class="text-lg font-semibold text-gray-900 dark:text-white">+{{ $availableCredits }}</span>
         </div>
 
         <div class="mt-auto pt-4">
             @if($canCreateAppointment)
                 <x-filament::button wire:click="redirectToAppointmentCreation" class="w-full">
-                    Agendar consultoria
+                    {{ __('panel-app::widgets.plan_credits.book_appointment') }}
                 </x-filament::button>
             @else
                 @foreach($blockReasons as $reason)
@@ -44,7 +44,7 @@
                     </p>
                 @endforeach
                 <x-filament::button disabled class="w-full">
-                    Agendar consultoria
+                    {{ __('panel-app::widgets.plan_credits.book_appointment') }}
                 </x-filament::button>
             @endif
         </div>

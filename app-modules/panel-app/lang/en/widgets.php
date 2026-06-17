@@ -37,6 +37,13 @@ return [
         'materials' => 'Exclusive materials',
     ],
 
+    'plan_credits' => [
+        'title' => 'Plan & credits',
+        'appointments_remaining' => 'appointments remaining this month',
+        'extra_credits' => 'Extra credits',
+        'book_appointment' => 'Book consultation',
+    ],
+
     'next_appointment' => [
         'awaiting_tooltip' => 'The meeting link will appear here once the consultation is confirmed.',
     ],

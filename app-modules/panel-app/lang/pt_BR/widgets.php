@@ -37,6 +37,13 @@ return [
         'materials' => 'Materiais exclusivos',
     ],
 
+    'plan_credits' => [
+        'title' => 'Plano & créditos',
+        'appointments_remaining' => 'agendamentos restantes este mês',
+        'extra_credits' => 'Créditos avulsos',
+        'book_appointment' => 'Agendar consultoria',
+    ],
+
     'next_appointment' => [
         'awaiting_tooltip' => 'O link da reunião aparecerá aqui assim que a consultoria for confirmada.',
     ],
