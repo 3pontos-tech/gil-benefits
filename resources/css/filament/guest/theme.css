@@ -3,6 +3,7 @@
 
 @source '../../../../app/Filament/Guest/**/*';
 @source '../../../../resources/views/**/*';
+@source '../../../../app-modules/panel-company/resources/views/**/*';
 
 @plugin '@tailwindcss/typography';
 
