@@ -16,6 +16,18 @@ return [
             'button' => 'Access panel',
             'thanks' => 'Thank you',
         ],
+        'requested_admin' => [
+            'title' => 'New Appointment Request',
+            'greeting' => 'Hello!',
+            'body' => 'A new appointment request has been made on the platform and is awaiting consultant assignment. Access the panel to assign a consultant to this request.',
+            'employee' => 'Employee:',
+            'category' => 'Category:',
+            'date_time' => 'Requested date and time:',
+            'employee_notes' => 'Employee notes:',
+            'panel_description' => 'Access the admin panel to assign a consultant to this request.',
+            'button' => 'Assign consultant',
+            'thanks' => 'Best regards',
+        ],
         'completed' => [
             'title' => 'Appointment Completed',
             'greeting' => 'Hello, **:name**!',

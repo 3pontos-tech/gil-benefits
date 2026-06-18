@@ -16,6 +16,18 @@ return [
             'button' => 'Acessar painel',
             'thanks' => 'Obrigado',
         ],
+        'requested_admin' => [
+            'title' => 'Nova Solicitação de Agendamento',
+            'greeting' => 'Olá!',
+            'body' => 'Uma nova solicitação de agendamento foi feita na plataforma e está aguardando a atribuição de um consultor. Acesse o painel para atribuir um consultor a esta solicitação.',
+            'employee' => 'Funcionário:',
+            'category' => 'Categoria:',
+            'date_time' => 'Data e hora solicitada:',
+            'employee_notes' => 'Observações do funcionário:',
+            'panel_description' => 'Acesse o painel administrativo para atribuir um consultor a esta solicitação.',
+            'button' => 'Atribuir consultor',
+            'thanks' => 'Atenciosamente',
+        ],
         'completed' => [
             'title' => 'Consulta Concluída',
             'greeting' => 'Olá, **:name**!',
