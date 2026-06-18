@@ -198,7 +198,7 @@
       </div>
       <div class="stamp press" aria-label="Status do PR: pronto">
         <span class="big">Pronto</span>
-        <span class="sm">48 testes · phpstan ok</span>
+        <span class="sm">51 testes · phpstan ok</span>
       </div>
     </div>
     <div class="perf"></div>
@@ -268,24 +268,21 @@
     <span class="eyebrow">Campo C — Ciclo de vida</span>
     <h2>Estados do chamado</h2>
     <div class="rule"></div>
-    <p class="lead">Uma state machine leve: o status só anda por caminhos válidos, e a transição notifica o solicitante quando chega em Em andamento, Resolvido ou Fechado. <b>Falha de entrega não é estado do chamado</b> — isso vive no destino.</p>
+    <p class="lead">Uma state machine leve: o chamado abre em <b>Pendente</b> e segue para <b>Em desenvolvimento</b> em diante. O status só anda por caminhos válidos e cada virada notifica o solicitante. <b>Falha de entrega não é estado do chamado</b> — isso vive no destino.</p>
     <div class="sm" style="margin-top:22px">
       <span class="st amber">Pendente<small>pending</small></span>
       <span class="arr">→</span>
-      <span class="st teal">Despachado<small>dispatched</small></span>
+      <span class="st indigo">Em desenvolvimento<small>in_progress</small></span>
       <span class="arr">→</span>
-      <span class="st indigo">Em andamento<small>in_progress</small></span>
-      <span class="arr">→</span>
-      <span class="st green">Resolvido<small>resolved</small></span>
-      <span class="arr">→</span>
+      <span class="st green">Resolvido<small>resolved · desfecho</small></span>
+      <span class="arr" style="color:var(--ox)">↺</span>
       <span class="st gray">Fechado<small>closed · terminal</small></span>
     </div>
     <div class="smnote">
-      <div><b>Guard no enum.</b> <span class="code">allowedTransitions()</span> proíbe pulos (ex.: reabrir um Fechado, ou ir de Despachado direto a Resolvido sem passar por Em andamento).</div>
-      <div><b>Em andamento é o sinal vivo.</b> Recebido (Despachado) só avança para <b>Em andamento</b> — o admin muda o status para avisar o solicitante de que a equipe já está resolvendo.</div>
-      <div><b>Notifica por e-mail</b> em <b>Em andamento</b>, <b>Resolvido</b> e <b>Fechado</b> — tanto pela ação do admin quanto pelo "Finalizar" do usuário.</div>
-      <div><b>Uma porta só.</b> Toda mudança manual passa por <span class="code">TransitionSupportTicketStatusAction</span>; a UI oferece apenas os próximos estados válidos.</div>
-      <div><b>Pendente → Fechado</b> também é permitido (encerrar sem resolver); Fechado não volta.</div>
+      <div><b>Pendente é o repouso.</b> Ao abrir, o setor é notificado por e-mail, mas o chamado fica em <b>Pendente</b> até um agente assumir e movê-lo para <b>Em desenvolvimento</b> — a notificação não avança o ciclo.</div>
+      <div><b>Dois desfechos.</b> <b>Resolvido</b> = atendido; <b>Fechado</b> = encerrado <b>sem resposta do solicitante ou quando o chamado não faz sentido</b>. Ambos são estados de fim.</div>
+      <div><b>Reabertura.</b> Um chamado <b>Resolvido pode voltar para Em desenvolvimento</b> (↺) se o problema persistir. <b>Fechado é terminal</b> — não reabre.</div>
+      <div><b>Uma porta só.</b> Toda mudança manual passa por <span class="code">TransitionSupportTicketStatusAction</span>; o guard <span class="code">allowedTransitions()</span> proíbe pulos e a UI oferece só os próximos estados válidos. Notifica em Em desenvolvimento, Resolvido e Fechado.</div>
     </div>
   </section>
 
@@ -310,7 +307,7 @@
         <div class="step"><div class="n">4</div><div class="b"><div class="cls">TicketRouterService::dispatch()</div><div class="d">Orquestra: para cada canal de <em>category-&gt;destinationChannels()</em> cria um <em>TicketDestination</em> (estruturado para N destinos).</div></div></div>
         <div class="step"><div class="n">5</div><div class="b"><div class="cls">app($type-&gt;senderClass())</div><div class="d">Resolve o handler por tipo. Canal novo = nova classe + 1 case no enum, <em>sem tocar no orquestrador</em>.</div></div></div>
         <div class="step"><div class="n">6</div><div class="b"><div class="cls">EmailTicketSender::send() → DispatchResult</div><div class="d">Só envia (<em>sendNow</em>, inline no job) e devolve o resultado — não toca no banco. Monday segue stub (<em>pending</em>).</div></div></div>
-        <div class="step"><div class="n">7</div><div class="b"><div class="cls">$destination->update($result) · fromDestinations()</div><div class="d">O orquestrador grava o desfecho no destino e deriva o status do ticket: <em>algum Sent → Dispatched</em>.</div></div></div>
+        <div class="step"><div class="n">7</div><div class="b"><div class="cls">$destination->update($result)</div><div class="d">O orquestrador grava o desfecho no destino. O <em>chamado segue Pendente</em> — notificar o setor não avança o ciclo de vida.</div></div></div>
       </div>
     </div>
     <p class="lead" style="margin-top:18px;font-size:14px">
@@ -365,7 +362,7 @@
       <div class="lr"><div class="k">Falha de entrega</div><div class="v">Mora no <b>TicketDestination</b> (não no chamado); job esgotado marca o destino como <b>Failed</b>.</div></div>
       <div class="lr"><div class="k">E-mail</div><div class="v">Mailables na fila <b>emails</b>; o mail da área sai <b>inline</b> no job (sendNow). Worker: <span class="code">--queue=emails,default</span>.</div></div>
       <div class="lr"><div class="k">Anexos</div><div class="v">Spatie Media Library no R2, organizados por <b>tickets/{protocolo}/</b>.</div></div>
-      <div class="lr"><div class="k">Testes</div><div class="v"><b>48</b> focados (dispatch por categoria, transições, protocolo, criação por painel, métricas, guest) · suíte total <b>762</b> verdes.</div></div>
+      <div class="lr"><div class="k">Testes</div><div class="v"><b>51</b> focados (dispatch por categoria, transições, protocolo, criação por painel, métricas, guest) · suíte total <b>833</b> verdes.</div></div>
       <div class="lr"><div class="k">Estática</div><div class="v">PHPStan <b>level max</b> sem erros · Pint limpo · comentários em inglês.</div></div>
     </div>
   </section>

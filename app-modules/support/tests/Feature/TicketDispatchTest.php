@@ -65,8 +65,10 @@ it('dispatches each category to its channel recipient and marks it sent', functi
     $ticket->refresh();
     $destination = $ticket->destinations()->sole();
 
+    // Routing notifies the sector but does not advance the lifecycle — the ticket
+    // stays Pending until an agent moves it into progress.
     expect($destination->channel)->toBe($category->getDestinationChannel())
         ->and($destination->status)->toBe(TicketDestinationStatusEnum::Sent)
-        ->and($ticket->status)->toBe(SupportTicketStatusEnum::Dispatched);
+        ->and($ticket->status)->toBe(SupportTicketStatusEnum::Pending);
 
 })->with('category_routing');

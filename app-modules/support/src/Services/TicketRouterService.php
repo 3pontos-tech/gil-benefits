@@ -5,23 +5,20 @@ declare(strict_types=1);
 namespace TresPontosTech\Support\Services;
 
 use TresPontosTech\Support\Contracts\TicketChannelSender;
-use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Models\TicketDestination;
 
 /**
  * Orchestrates routing only. For each destination channel it creates the
- * TicketDestination, delegates the actual send to the resolved channel sender,
- * persists the outcome, and finally derives the ticket status. It holds no
- * per-type sending logic and no requester confirmation (queued at creation).
+ * TicketDestination, delegates the actual send to the resolved channel sender, and
+ * persists the outcome on the destination. Notifying a sector does not advance the
+ * ticket's lifecycle — it stays Pending until an agent moves it into progress.
  */
 final class TicketRouterService
 {
     public function dispatch(SupportTicket $ticket): void
     {
-        $statuses = [];
-
         foreach ($ticket->category->destinationChannels() as $channel) {
             $type = $channel->getDestinationType();
 
@@ -38,12 +35,6 @@ final class TicketRouterService
             $result = $sender->send($ticket, $channel);
 
             $destination->update($result->jsonSerialize());
-
-            $statuses[] = $result->status;
         }
-
-        $ticket->update([
-            'status' => SupportTicketStatusEnum::fromDestinations($statuses),
-        ]);
     }
 }

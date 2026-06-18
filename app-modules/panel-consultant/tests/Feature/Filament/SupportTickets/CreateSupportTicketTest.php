@@ -35,7 +35,7 @@ it('opens a ticket through the consultant panel and notifies area + requester', 
         'subject' => 'Cobrança indevida',
         'user_id' => $user->getKey(),
         'category' => SupportTicketCategoryEnum::FinancialIssue->value,
-        'status' => SupportTicketStatusEnum::Dispatched->value,
+        'status' => SupportTicketStatusEnum::Pending->value,
     ]);
 
     Mail::assertSent(

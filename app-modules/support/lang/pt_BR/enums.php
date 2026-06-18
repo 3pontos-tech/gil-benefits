@@ -19,9 +19,7 @@ return [
     ],
     'ticket_status' => [
         'pending' => 'Pendente',
-        'dispatched' => 'Enviado',
         'in_progress' => 'Em andamento',
-        'failed' => 'Falhou',
         'resolved' => 'Resolvido',
         'closed' => 'Encerrado',
     ],

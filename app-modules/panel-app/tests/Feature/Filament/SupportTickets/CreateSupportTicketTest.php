@@ -35,7 +35,7 @@ it('opens a ticket through the app panel and notifies area + requester', functio
         'subject' => 'Cobrança indevida',
         'user_id' => $user->getKey(),
         'category' => SupportTicketCategoryEnum::FinancialIssue->value,
-        'status' => SupportTicketStatusEnum::Dispatched->value,
+        'status' => SupportTicketStatusEnum::Pending->value,
     ]);
 
     Mail::assertSent(

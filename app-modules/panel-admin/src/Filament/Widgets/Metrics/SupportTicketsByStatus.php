@@ -48,8 +48,7 @@ class SupportTicketsByStatus extends ChartWidget
                     'data' => $counts->values()->toArray(),
                     'backgroundColor' => [
                         'rgb(245, 158, 11)',  // Pending - amber
-                        'rgb(59, 130, 246)',  // Dispatched - blue
-                        'rgb(239, 68, 68)',   // Failed - red
+                        'rgb(99, 102, 241)',  // InProgress - indigo
                         'rgb(34, 197, 94)',   // Resolved - green
                         'rgb(107, 114, 128)', // Closed - gray
                     ],

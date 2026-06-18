@@ -35,7 +35,7 @@ class SupportTicketStatsWidget extends StatsOverviewWidget
         $resolved = (int) $counts->get(SupportTicketStatusEnum::Resolved->value, 0)
             + (int) $counts->get(SupportTicketStatusEnum::Closed->value, 0);
         $open = (int) $counts->get(SupportTicketStatusEnum::Pending->value, 0)
-            + (int) $counts->get(SupportTicketStatusEnum::Dispatched->value, 0);
+            + (int) $counts->get(SupportTicketStatusEnum::InProgress->value, 0);
 
         // Delivery failures live on the destination, not the ticket lifecycle.
         $failed = TicketDestination::query()

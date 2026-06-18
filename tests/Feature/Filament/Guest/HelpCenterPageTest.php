@@ -38,7 +38,7 @@ it('lets a visitor open a ticket and notifies area + visitor', function (): void
         'visitor_email' => 'maria@example.com',
         'visitor_company_name' => 'ACME',
         'category' => SupportTicketCategoryEnum::FinancialIssue->value,
-        'status' => SupportTicketStatusEnum::Dispatched->value,
+        'status' => SupportTicketStatusEnum::Pending->value,
     ]);
 
     Mail::assertSent(

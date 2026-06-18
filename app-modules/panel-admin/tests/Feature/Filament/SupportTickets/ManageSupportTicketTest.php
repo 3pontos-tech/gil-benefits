@@ -57,20 +57,20 @@ it('lists tickets from every user (not scoped)', function (): void {
 it('can change a ticket status from the table and notifies the requester', function (): void {
     Mail::fake();
 
-    $ticket = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::Dispatched);
+    $ticket = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::InProgress);
 
     livewire(ListSupportTickets::class)
         ->callTableAction('update_status', $ticket, data: [
-            'status' => SupportTicketStatusEnum::InProgress->value,
+            'status' => SupportTicketStatusEnum::Resolved->value,
         ])
         ->assertHasNoTableActionErrors();
 
-    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress);
+    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
     Mail::assertQueued(SupportTicketStatusUpdatedMail::class);
 });
 
 it('hides the status action for a closed (terminal) ticket', function (): void {
-    $open = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::Dispatched);
+    $open = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::InProgress);
     $closed = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::Closed);
 
     livewire(ListSupportTickets::class)
@@ -98,13 +98,13 @@ it('shows the ticket destinations in the relation manager', function (): void {
 });
 
 it('can change a ticket status from the view page', function (): void {
-    $ticket = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::Dispatched);
+    $ticket = makeTicketFor(User::factory()->create(), SupportTicketStatusEnum::InProgress);
 
     livewire(ViewSupportTicket::class, ['record' => $ticket->getKey()])
         ->callAction('update_status', data: [
-            'status' => SupportTicketStatusEnum::InProgress->value,
+            'status' => SupportTicketStatusEnum::Resolved->value,
         ])
         ->assertHasNoActionErrors();
 
-    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress);
+    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
 });
