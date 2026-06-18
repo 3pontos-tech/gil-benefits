@@ -48,10 +48,13 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
         $availableCredits = UserCredit::query()
             ->where('holder_id', $user->getKey())
             ->where('status', UserCreditStatusEnum::Available)
-            ->count();
+            ->get(['owner_id']);
+
+        $ownCredits = $availableCredits->where('owner_id', $user->getKey())->count();
+        $companyCredits = $availableCredits->count() - $ownCredits;
 
         $monthlyLeft = $user->monthly_appointments_left;
-        $hasCredit = $availableCredits > 0;
+        $hasCredit = $availableCredits->isNotEmpty();
         $hasOngoingAppointment = $user->hasOngoingAppointment();
         $canCreateAppointment = ($monthlyLeft > 0 || $hasCredit) && ! $hasOngoingAppointment;
 
@@ -59,7 +62,9 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             'plan' => $plan,
             'monthlyLeft' => $monthlyLeft,
             'monthlyLimit' => $plan?->monthlyLimit ?? 0,
-            'availableCredits' => $availableCredits,
+            'creditsTotal' => $availableCredits->count(),
+            'ownCredits' => $ownCredits,
+            'companyCredits' => $companyCredits,
             'canCreateAppointment' => $canCreateAppointment,
             'blockReasons' => $this->blockReasons($hasOngoingAppointment, $monthlyLeft, $hasCredit),
         ];

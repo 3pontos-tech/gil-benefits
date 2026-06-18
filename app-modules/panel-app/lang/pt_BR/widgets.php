@@ -41,6 +41,8 @@ return [
         'title' => 'Plano & créditos',
         'appointments_remaining' => 'agendamentos restantes este mês',
         'extra_credits' => 'Créditos avulsos',
+        'credits_own' => '{1} :count seu|[2,*] :count seus',
+        'credits_company' => '{1} :count da empresa|[2,*] :count da empresa',
         'book_appointment' => 'Agendar consultoria',
     ],
 

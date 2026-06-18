@@ -32,6 +32,42 @@ it('renders plan name, monthly allowance and available credits', function (): vo
         ->assertSee('3'); // créditos disponíveis
 });
 
+it('splits extra credits by origin (yours vs company)', function (): void {
+    $employee = actingAsEmployee(); // CompanyPlan ativo
+    $tenant = filament()->getTenant();
+
+    // 2 comprados pelo próprio colaborador (owner = ele)
+    UserCredit::factory()->available()->count(2)->create([
+        'owner_id' => $employee->id,
+        'holder_id' => $employee->id,
+        'company_id' => $tenant->getKey(),
+    ]);
+
+    // 5 comprados pela empresa e alocados a ele (owner = dono da empresa)
+    UserCredit::factory()->available()->count(5)->create([
+        'owner_id' => $tenant->user_id,
+        'holder_id' => $employee->id,
+        'company_id' => $tenant->getKey(),
+    ]);
+
+    livewire(PlanCreditsWidget::class)
+        ->assertOk()
+        ->assertSee(__('panel-app::widgets.plan_credits.extra_credits'))
+        ->assertSeeText('7')
+        ->assertSeeText('2 seus')
+        ->assertSeeText('5 da empresa');
+});
+
+it('omits the breakdown legend when there are no extra credits', function (): void {
+    actingAsEmployee();
+
+    livewire(PlanCreditsWidget::class)
+        ->assertOk()
+        ->assertSee(__('panel-app::widgets.plan_credits.extra_credits'))
+        ->assertDontSeeText('seus')
+        ->assertDontSeeText('da empresa');
+});
+
 it('shows the plan name on the card', function (): void {
     $employee = actingAsEmployee();
 
