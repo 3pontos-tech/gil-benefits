@@ -117,3 +117,11 @@ it('is scoped and memoizes the journey per user within a request', function (): 
     expect($second)->toBe($first)
         ->and($journeyQueries)->toBe($queriesAfterFirst);
 });
+
+it('keeps the maturity ladder in sync with every life moment', function (): void {
+    // A escada (STAGES) é mantida à mão. Se um novo LifeMoment for adicionado ao enum
+    // sem entrar na escada, o usuário nesse momento cairia silenciosamente na etapa 1.
+    // Este guardrail falha imediatamente nesse caso, antes de chegar à produção.
+    expect(BuildUserJourneyAction::STAGES)
+        ->toEqualCanonicalizing(LifeMoment::cases());
+});
