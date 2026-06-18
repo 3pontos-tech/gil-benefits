@@ -6,6 +6,9 @@ return [
     'scheduled' => [
         'subject' => 'New appointment scheduled',
     ],
+    'requested_admin' => [
+        'subject' => 'New appointment request awaiting assignment',
+    ],
     'completed' => [
         'subject' => 'Your appointment has been completed',
     ],

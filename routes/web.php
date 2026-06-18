@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use Illuminate\Support\Facades\Route;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
+use TresPontosTech\Appointments\Mail\AppointmentRequestedAdminMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Mail\DocumentSharedMail;
@@ -24,6 +25,12 @@ if (app()->isLocal()) {
 
             return new AppointmentScheduledMail($appointment);
         })->name('appointment-scheduled');
+
+        Route::get('/appointment-requested-admin/{appointment}', function (Appointment $appointment): AppointmentRequestedAdminMail {
+            $appointment->loadMissing(['user']);
+
+            return new AppointmentRequestedAdminMail($appointment);
+        })->name('appointment-requested-admin');
 
         Route::get('/appointment-completed/{appointment}', function (Appointment $appointment): AppointmentCompletedMail {
             $appointment->loadMissing(['user', 'consultant']);

@@ -4,6 +4,7 @@ use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
+use TresPontosTech\Appointments\Mail\AppointmentRequestedAdminMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -62,6 +63,65 @@ describe('AppointmentScheduledMail', function (): void {
         Mail::assertQueued(
             AppointmentScheduledMail::class,
             fn (AppointmentScheduledMail $mail) => $mail->hasTo($appointment->consultant->email),
+        );
+    });
+});
+
+describe('AppointmentRequestedAdminMail', function (): void {
+    it('has correct subject', function (): void {
+        $appointment = Appointment::factory()->create();
+        $appointment->loadMissing('user');
+
+        $mailable = new AppointmentRequestedAdminMail($appointment);
+
+        $mailable->assertHasSubject(__('appointments::mail.requested_admin.subject'));
+    });
+
+    it('renders employee name, category and requested date in HTML', function (): void {
+        $user = User::factory()->create(['name' => 'Joao Silva']);
+        $appointment = Appointment::factory()->recycle($user)->create();
+
+        $appointment->loadMissing('user');
+
+        $mailable = new AppointmentRequestedAdminMail($appointment);
+
+        $mailable->assertSeeInHtml('Joao Silva');
+        $mailable->assertSeeInHtml((string) $appointment->category_type->getLabel());
+        $mailable->assertSeeInHtml($appointment->appointment_at->format('d/m/Y'));
+    });
+
+    it('does not reference a consultant', function (): void {
+        $consultant = Consultant::factory()->create(['name' => 'Ana Lima']);
+        $appointment = Appointment::factory()->recycle($consultant)->create();
+        $appointment->loadMissing('user');
+
+        $mailable = new AppointmentRequestedAdminMail($appointment);
+
+        $mailable->assertDontSeeInHtml('Ana Lima');
+    });
+
+    it('renders notes when present', function (): void {
+        $appointment = Appointment::factory()->create(['notes' => 'Preciso de ajuda com investimentos']);
+        $appointment->loadMissing('user');
+
+        $mailable = new AppointmentRequestedAdminMail($appointment);
+
+        $mailable->assertSeeInHtml('Preciso de ajuda com investimentos');
+    });
+
+    it('is queued to the configured admin recipients', function (): void {
+        Mail::fake();
+        config(['appointments.admin_notification_recipients' => ['atendimento@flammabeneficios.com.br', 'renan@firece.com.br']]);
+
+        $appointment = Appointment::factory()->create();
+        $appointment->loadMissing('user');
+
+        Mail::to(config('appointments.admin_notification_recipients'))->queue(new AppointmentRequestedAdminMail($appointment));
+
+        Mail::assertQueued(
+            AppointmentRequestedAdminMail::class,
+            fn (AppointmentRequestedAdminMail $mail): bool => $mail->hasTo('atendimento@flammabeneficios.com.br')
+                && $mail->hasTo('renan@firece.com.br'),
         );
     });
 });
