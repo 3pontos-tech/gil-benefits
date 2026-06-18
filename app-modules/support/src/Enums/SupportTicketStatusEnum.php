@@ -41,7 +41,8 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
     }
 
     /**
-     * The states this status may transition to (manual transitions). Closed is terminal.
+     * The states this status may transition to (manual transitions). A resolved ticket can
+     * be reopened back into progress; Closed is terminal.
      *
      * @return array<SupportTicketStatusEnum>
      */
@@ -51,7 +52,7 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
             self::Pending => [self::Dispatched, self::Closed],
             self::Dispatched => [self::InProgress, self::Closed],
             self::InProgress => [self::Resolved, self::Closed],
-            self::Resolved => [self::Closed],
+            self::Resolved => [self::InProgress, self::Closed],
             self::Closed => [],
         };
     }

@@ -40,7 +40,7 @@ it('exposes the allowed transition graph', function (): void {
         ->and(SupportTicketStatusEnum::InProgress->allowedTransitions())
         ->toBe([SupportTicketStatusEnum::Resolved, SupportTicketStatusEnum::Closed])
         ->and(SupportTicketStatusEnum::Resolved->allowedTransitions())
-        ->toBe([SupportTicketStatusEnum::Closed])
+        ->toBe([SupportTicketStatusEnum::InProgress, SupportTicketStatusEnum::Closed])
         ->and(SupportTicketStatusEnum::Closed->allowedTransitions())
         ->toBe([]);
 });
@@ -51,6 +51,7 @@ it('answers canTransitionTo for valid and invalid edges', function (): void {
         ->and(SupportTicketStatusEnum::Dispatched->canTransitionTo(SupportTicketStatusEnum::Resolved))->toBeFalse()
         ->and(SupportTicketStatusEnum::Pending->canTransitionTo(SupportTicketStatusEnum::Resolved))->toBeFalse()
         ->and(SupportTicketStatusEnum::Resolved->canTransitionTo(SupportTicketStatusEnum::Dispatched))->toBeFalse()
+        ->and(SupportTicketStatusEnum::Resolved->canTransitionTo(SupportTicketStatusEnum::InProgress))->toBeTrue()
         ->and(SupportTicketStatusEnum::Closed->canTransitionTo(SupportTicketStatusEnum::Pending))->toBeFalse();
 });
 
@@ -114,4 +115,12 @@ it('does not notify on the dispatched transition', function (): void {
     resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::Dispatched);
 
     Mail::assertNothingQueued();
+});
+
+it('reopens a resolved ticket back into progress', function (): void {
+    $ticket = ticketWithStatus(SupportTicketStatusEnum::Resolved);
+
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
+
+    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress);
 });
