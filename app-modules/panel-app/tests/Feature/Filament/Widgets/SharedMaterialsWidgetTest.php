@@ -17,7 +17,7 @@ beforeEach(function (): void {
 
 it('lists documents shared with the employee with a download action', function (): void {
     $consultant = Consultant::factory()->create();
-    $document = Document::factory()->create(['title' => 'Guia de reserva de emergência']);
+    $document = Document::factory()->withFile()->create(['title' => 'Guia de reserva de emergência']);
     DocumentShare::factory()->create([
         'document_id' => $document->id,
         'consultant_id' => $consultant->id,
@@ -30,6 +30,23 @@ it('lists documents shared with the employee with a download action', function (
         ->assertSee('Materiais compartilhados')
         ->assertSee('Guia de reserva de emergência')
         ->assertSee('Download');
+});
+
+it('renders a shared document without a type instead of crashing', function (): void {
+    $consultant = Consultant::factory()->create();
+    // Documento sem arquivo nem link nasce com type null (ex.: extensão fora do enum,
+    // que o MediaObserver não mapeia) — estado que precisa renderizar sem quebrar.
+    $document = Document::factory()->create(['title' => 'Material sem tipo']);
+    DocumentShare::factory()->create([
+        'document_id' => $document->id,
+        'consultant_id' => $consultant->id,
+        'employee_id' => $this->employee->id,
+        'active' => true,
+    ]);
+
+    livewire(SharedMaterialsWidget::class)
+        ->assertSuccessful()
+        ->assertSee('Material sem tipo');
 });
 
 it('shows an empty state when nothing is shared', function (): void {
@@ -94,6 +111,7 @@ it('reuses the eager-loaded documents without lazy-loading media per item', func
     $consultant = Consultant::factory()->create();
 
     Document::factory()
+        ->withFile()
         ->count(4)
         ->create()
         ->each(function (Document $document) use ($consultant): void {

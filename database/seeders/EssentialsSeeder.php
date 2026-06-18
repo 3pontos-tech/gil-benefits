@@ -183,7 +183,8 @@ class EssentialsSeeder extends Seeder
             Document::factory()
                 ->forUser($employee)
                 ->active()
-                ->create(['title' => $title, 'type' => $type]);
+                ->withFile($type)
+                ->create(['title' => $title]);
         }
     }
 
@@ -198,7 +199,8 @@ class EssentialsSeeder extends Seeder
             $document = Document::factory()
                 ->forConsultant($consultant)
                 ->active()
-                ->create(['title' => $title, 'type' => $type]);
+                ->withFile($type)
+                ->create(['title' => $title]);
 
             DocumentShare::factory()
                 ->for($document, 'document')
