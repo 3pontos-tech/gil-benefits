@@ -23,8 +23,11 @@ class SubscriptionWebhookController extends WebhookController
             $metadata = $objectPayload['metadata'];
 
             if (array_key_exists('model', $metadata)) {
-                $model = $metadata['model'];
-                Cashier::useCustomerModel(Relation::getMorphedModel($model));
+                $morphedModel = Relation::getMorphedModel($metadata['model']);
+
+                if ($morphedModel !== null) {
+                    Cashier::useCustomerModel($morphedModel);
+                }
             }
         }
 
