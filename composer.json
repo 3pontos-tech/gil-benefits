@@ -38,6 +38,7 @@
         "3pontos-tech/panel-company": "*",
         "3pontos-tech/panel-consultant": "*",
         "3pontos-tech/permissions": "^1.0",
+        "3pontos-tech/support": "^1.0",
         "3pontos-tech/tenant": "*",
         "3pontos-tech/user": "*",
         "basementdevs/filament-better-mails": "^5.0",
@@ -117,7 +118,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=300\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=300 --queue=emails,default\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
         ],
         "pint": "vendor/bin/pint",
         "test:pint": "vendor/bin/pint --test",

@@ -85,6 +85,25 @@ return [
             'column_completion_rate' => 'Completion Rate',
             'column_avg_rating' => 'Avg Rating',
         ],
+        'support_ticket_stats' => [
+            'total' => 'Total Tickets',
+            'total_description' => 'In the selected period',
+            'resolved' => 'Resolved',
+            'resolved_description' => ':rate% resolution rate',
+            'open' => 'Open',
+            'open_description' => 'Pending or in progress',
+            'failed' => 'Dispatch failures',
+            'failed_description' => 'In the selected period',
+        ],
+        'support_tickets_by_status' => [
+            'heading' => 'Tickets by Status',
+        ],
+        'support_tickets_by_category' => [
+            'heading' => 'Tickets by Category',
+        ],
+        'support_tickets_by_sector' => [
+            'heading' => 'Tickets by Sector',
+        ],
     ],
     'appointments_stats' => [
         'total_requests' => 'Appointment Requests',

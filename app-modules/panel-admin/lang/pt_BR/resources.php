@@ -202,6 +202,7 @@ return [
             'filter_department_category_placeholder' => 'Todas as categorias',
             'tab_consultants' => 'Consultores',
             'tab_appointments' => 'Agendamentos',
+            'tab_support' => 'Suporte',
         ],
         'edit_profile' => [
             'cpf' => 'CPF',

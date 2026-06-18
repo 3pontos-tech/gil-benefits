@@ -39,9 +39,9 @@
         ],
         [
             'question' => 'Como posso entrar em contato com o suporte?',
-            'answer' => 'O suporte técnico e operacional da Flamma pode ser contatado através dos seguintes canais:<br><br>
-                <strong>Para Colaboradores:</strong> Através do chat de suporte disponível no painel do usuário ou pelo e-mail de suporte (a ser fornecido pela Flamma).<br><br>
-                <strong>Para o RH/Gestores:</strong> Através do canal de atendimento exclusivo para clientes corporativos (e-mail ou telefone dedicados, a serem fornecidos no momento da contratação).',
+            'answer' => 'O suporte técnico e operacional da Flamma pode ser contatado diretamente pelo formulário de chamados disponível na plataforma. Basta clicar em <strong><a href="' . \App\Filament\Guest\Pages\HelpCenterPage::getUrl(panel: 'guest') . '" class="underline">Abrir Chamado</a></strong> e preencher as informações solicitadas. Nossa equipe retornará em breve pelo e-mail cadastrado.<br><br>
+                <strong>Para Colaboradores:</strong> Acesse o painel do usuário e clique em <em>Suporte &rsaquo; Abrir Chamado</em>.<br><br>
+                <strong>Para o RH/Gestores:</strong> Utilize o canal de atendimento exclusivo disponível no painel administrativo da empresa.',
         ],
     ];
 @endphp
@@ -56,8 +56,8 @@
                 {{ $description }}
             </x-slot:description>
             <x-slot:actions>
-                <x-button rel="noopener noreferrer" target="_blank" href="https://wa.me/5511976205711?text=Flamma">
-                    Entre em contato
+                <x-button href="{{ \App\Filament\Guest\Pages\HelpCenterPage::getUrl(panel: 'guest') }}">
+                    Abrir chamado
                 </x-button>
             </x-slot:actions>
         </x-headline>

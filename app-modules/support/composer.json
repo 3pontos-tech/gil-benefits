@@ -1,0 +1,23 @@
+{
+	"name": "3pontos-tech/support",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\Support\\": "src/",
+			"TresPontosTech\\Support\\Tests\\": "tests/",
+			"TresPontosTech\\Support\\Database\\Factories\\": "database/factories/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\Support\\SupportServiceProvider"
+			]
+		}
+	}
+}

@@ -19,6 +19,10 @@ use TresPontosTech\Admin\Filament\Widgets\Metrics\AppointmentVolume;
 use TresPontosTech\Admin\Filament\Widgets\Metrics\GlobalAppointmentStatsWidget;
 use TresPontosTech\Admin\Filament\Widgets\Metrics\KPIsOverview;
 use TresPontosTech\Admin\Filament\Widgets\Metrics\RankingsWidget;
+use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketsByCategory;
+use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketsBySector;
+use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketsByStatus;
+use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketStatsWidget;
 use TresPontosTech\Company\Enums\DepartmentCategory;
 
 class Metrics extends BaseDashboard
@@ -96,6 +100,16 @@ class Metrics extends BaseDashboard
                                 ->schema($this->getWidgetsSchemaComponents([
                                     GlobalAppointmentStatsWidget::class,
                                     AppointmentsByDepartmentCategoryChart::class,
+                                ])),
+                        ]),
+                    'support' => Tab::make(__('panel-admin::resources.pages.metrics.tab_support'))
+                        ->schema([
+                            Grid::make(['xl' => 2])
+                                ->schema($this->getWidgetsSchemaComponents([
+                                    SupportTicketStatsWidget::class,
+                                    SupportTicketsByStatus::class,
+                                    SupportTicketsBySector::class,
+                                    SupportTicketsByCategory::class,
                                 ])),
                         ]),
                 ]),
