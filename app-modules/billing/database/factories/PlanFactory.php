@@ -16,8 +16,18 @@ class PlanFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->name(),
-            'description' => $this->faker->text(),
+            'name' => $this->faker->randomElement([
+                'Plano Essencial',
+                'Plano Bem-Estar Financeiro',
+                'Plano Performance',
+                'Plano Premium',
+                'Plano Corporativo',
+            ]),
+            'description' => $this->faker->randomElement([
+                'Consultorias financeiras mensais com especialistas para organizar suas finanças e planejar o futuro.',
+                'Acompanhamento financeiro contínuo, com materiais exclusivos e suporte para o seu dia a dia.',
+                'Orientação personalizada de investimentos, planejamento de aposentadoria e saúde financeira.',
+            ]),
             'provider' => $this->faker->randomElement(BillingProviderEnum::cases()),
             'provider_product_id' => $this->faker->word(),
             'trial_days' => $this->faker->randomNumber(),

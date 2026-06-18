@@ -22,4 +22,39 @@ return [
         'no_appointments_available' => 'Você não possui agendamentos disponíveis neste mês.',
         'ongoing_appointment' => 'Você possui uma consultoria em andamento. Finalize a anterior para agendar outra.',
     ],
+
+    'plan_status' => [
+        'active' => 'Ativo',
+        'inactive' => 'Inativo',
+        'expired' => 'Expirado',
+    ],
+
+    'plan_details' => [
+        'view_plan' => 'Ver plano',
+        'close' => 'Fechar',
+        'monthly_appointments' => '{1} :count consulta por mês|[2,*] :count consultas por mês',
+        'whatsapp' => 'Acesso ao WhatsApp',
+        'materials' => 'Materiais exclusivos',
+    ],
+
+    'plan_credits' => [
+        'title' => 'Plano & créditos',
+        'appointments_remaining' => 'agendamentos restantes este mês',
+        'extra_credits' => 'Créditos avulsos',
+        'credits_own' => '{1} :count seu|[2,*] :count seus',
+        'credits_company' => '{1} :count da empresa|[2,*] :count da empresa',
+        'book_appointment' => 'Agendar consultoria',
+    ],
+
+    'next_appointment' => [
+        'awaiting_tooltip' => 'O link da reunião aparecerá aqui assim que a consultoria for confirmada.',
+    ],
+
+    'shared_materials' => [
+        'view_all' => 'Ver todos',
+        'download' => 'Download',
+        'open' => 'Abrir',
+        'unavailable' => 'Indisponível',
+        'more_count' => '{1} +:count outro material|[2,*] +:count outros materiais',
+    ],
 ];

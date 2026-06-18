@@ -330,47 +330,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
 
                 /** @var int $result */
                 $result = Cache::remember($cacheKey, now()->addMinute(), function (): int {
-                    /** @var Subscription|null $subscription */
-                    $subscription = $this->activeSubscription()
-                        ->with('price')
-                        ->first();
+                    $monthlyLimit = $this->resolveMonthlyAppointmentLimit();
 
-                    if ($subscription === null || $subscription->price === null) {
-                        $contractualPlan = CompanyPlan::query()
-                            ->whereIn('company_id', $this->companies()->select('companies.id'))
-                            ->where('status', CompanyPlanStatusEnum::Active->value)
-                            ->whereNull('deleted_at')
-                            ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-                            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
-                            ->first();
-
-                        if ($contractualPlan === null) {
-                            return 0;
-                        }
-
-                        $monthlyLimit = $contractualPlan->monthly_appointments_per_employee;
-                        if ($monthlyLimit <= 0) {
-                            return 0;
-                        }
-
-                        $since = now()->subDays(30);
-                        $used = (int) $this->appointments()
-                            ->where('created_at', '>=', $since)
-                            ->where('status', '!=', AppointmentStatus::Cancelled->value)
-                            ->count();
-
-                        return max($monthlyLimit - $used, 0);
-                    }
-
-                    $monthlyLimit = $subscription->price->monthly_appointments;
                     if ($monthlyLimit <= 0) {
                         return 0;
                     }
 
-                    $since = now()->subDays(30);
-
                     $used = (int) $this->appointments()
-                        ->where('created_at', '>=', $since)
+                        ->where('created_at', '>=', now()->subDays(30))
                         ->where('status', '!=', AppointmentStatus::Cancelled->value)
                         ->count();
 
@@ -380,6 +347,30 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
                 return $result;
             }
         )->shouldCache();
+    }
+
+    /**
+     * Cota mensal de agendamentos, priorizando o plano da empresa (CompanyPlan)
+     * sobre a assinatura individual quando ambos existirem.
+     */
+    private function resolveMonthlyAppointmentLimit(): int
+    {
+        $contractualPlan = CompanyPlan::query()
+            ->whereIn('company_id', $this->companies()->select('companies.id'))
+            ->where('status', CompanyPlanStatusEnum::Active->value)
+            ->whereNull('deleted_at')
+            ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
+            ->first();
+
+        if ($contractualPlan !== null) {
+            return (int) $contractualPlan->monthly_appointments_per_employee;
+        }
+
+        /** @var Subscription|null $subscription */
+        $subscription = $this->activeSubscription()->with('price')->first();
+
+        return (int) ($subscription?->price?->monthly_appointments ?? 0);
     }
 
     /**
