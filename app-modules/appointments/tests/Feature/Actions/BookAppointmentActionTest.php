@@ -2,6 +2,7 @@
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Actions\BookAppointmentAction;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
@@ -67,4 +68,26 @@ it('does not queue AppointmentRequestedAdminMail when no recipients are configur
     resolve(BookAppointmentAction::class)->handle($dto);
 
     Mail::assertNotQueued(AppointmentRequestedAdminMail::class);
+});
+
+it('still creates the appointment when the admin notification fails to queue', function (): void {
+    Exceptions::fake();
+    config(['appointments.admin_notification_recipients' => ['atendimento@flammabeneficios.com.br']]);
+    Mail::shouldReceive('to')->andThrow(new RuntimeException('mail broker unavailable'));
+
+    $user = User::factory()->create();
+
+    $dto = new BookAppointmentDTO(
+        userId: $user->getKey(),
+        categoryType: AppointmentCategoryEnum::PersonalFinance,
+        appointmentAt: Date::now()->addDays(3)->setTime(10, 0),
+    );
+
+    resolve(BookAppointmentAction::class)->handle($dto);
+
+    assertDatabaseHas(Appointment::class, [
+        'user_id' => $user->getKey(),
+        'status' => AppointmentStatus::Pending->value,
+    ]);
+    Exceptions::assertReported(RuntimeException::class);
 });

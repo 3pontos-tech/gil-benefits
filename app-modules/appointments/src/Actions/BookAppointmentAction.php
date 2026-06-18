@@ -6,6 +6,7 @@ namespace TresPontosTech\Appointments\Actions;
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Mail\AppointmentRequestedAdminMail;
@@ -44,6 +45,10 @@ readonly class BookAppointmentAction
             return;
         }
 
-        Mail::to($recipients)->queue(new AppointmentRequestedAdminMail($appointment));
+        try {
+            Mail::to($recipients)->queue(new AppointmentRequestedAdminMail($appointment));
+        } catch (Throwable $throwable) {
+            report($throwable);
+        }
     }
 }

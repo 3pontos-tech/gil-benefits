@@ -20,9 +20,6 @@ return [
 
     'admin_notification_recipients' => array_values(array_filter(array_map(
         'trim',
-        explode(',', (string) env(
-            'APPOINTMENTS_ADMIN_NOTIFICATION_RECIPIENTS',
-            'atendimento@flammabeneficios.com.br,renan@firece.com.br',
-        )),
+        explode(',', (string) env('APPOINTMENTS_ADMIN_NOTIFICATION_RECIPIENTS', '')),
     ))),
 ];
