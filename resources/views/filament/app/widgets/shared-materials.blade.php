@@ -20,7 +20,7 @@
                     @continue($document === null)
                     <li class="flex items-center justify-between gap-3 py-2.5">
                         <span class="flex min-w-0 items-center gap-2 text-gray-700 dark:text-gray-300">
-                            <x-filament::icon :icon="$document->type->getIcon()" class="size-4 shrink-0 text-gray-400" />
+                            <x-filament::icon :icon="$document->type?->getIcon() ?? 'heroicon-o-document'" class="size-4 shrink-0 text-gray-400" />
                             <span class="truncate">{{ $document->title }}</span>
                         </span>
                         @php $download = ($this->downloadDocumentAction)(['documentId' => $document->getKey()]); @endphp
