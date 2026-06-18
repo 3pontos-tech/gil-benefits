@@ -28,6 +28,33 @@ it('shows the next upcoming appointment', function (): void {
         ->assertSee('Dr. João Silva');
 });
 
+it('keeps showing a confirmed appointment that is already in progress', function (): void {
+    $consultant = Consultant::factory()->create(['name' => 'Dra. Marina Costa']);
+    Appointment::factory()->withStatus(AppointmentStatus::Active)->create([
+        'user_id' => $this->employee->id,
+        'consultant_id' => $consultant->id,
+        'appointment_at' => now()->subMinutes(10),
+        'meeting_url' => 'https://meet.example.com/sala',
+    ]);
+
+    livewire(NextAppointmentWidget::class)
+        ->assertSuccessful()
+        ->assertDontSee('Agende sua próxima consultoria')
+        ->assertSee('Dra. Marina Costa')
+        ->assertSee('Entrar na reunião');
+});
+
+it('does not show a pending appointment whose time has already passed', function (): void {
+    Appointment::factory()->withStatus(AppointmentStatus::Pending)->create([
+        'user_id' => $this->employee->id,
+        'appointment_at' => now()->subMinutes(10),
+    ]);
+
+    livewire(NextAppointmentWidget::class)
+        ->assertSuccessful()
+        ->assertSee('Agende sua próxima consultoria');
+});
+
 it('ignores past appointments and shows the empty state', function (): void {
     Appointment::factory()->withStatus(AppointmentStatus::Completed)->create([
         'user_id' => $this->employee->id,

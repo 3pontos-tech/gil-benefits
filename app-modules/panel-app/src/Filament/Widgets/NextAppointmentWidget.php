@@ -11,6 +11,7 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Widgets\Widget;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use TresPontosTech\App\Filament\Actions\CancelAppointmentAction;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
@@ -57,8 +58,15 @@ class NextAppointmentWidget extends Widget implements HasActions, HasSchemas
 
         return $user->appointments()
             ->with('consultant')
-            ->whereIn('status', [AppointmentStatus::Pending->value, AppointmentStatus::Active->value])
-            ->where('appointment_at', '>=', now())
+            ->where(function (Builder $query): void {
+                // Confirmada: continua relevante mesmo após o horário (consultoria em andamento/atrasada).
+                $query->where('status', AppointmentStatus::Active->value)
+                    // Aguardando confirmação: só enquanto ainda está por vir.
+                    ->orWhere(function (Builder $pending): void {
+                        $pending->where('status', AppointmentStatus::Pending->value)
+                            ->where('appointment_at', '>=', now());
+                    });
+            })
             ->oldest('appointment_at')
             ->first();
     }
