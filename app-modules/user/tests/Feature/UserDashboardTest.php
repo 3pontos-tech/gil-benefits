@@ -5,11 +5,11 @@ use App\Models\Users\User;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use TresPontosTech\App\Filament\Pages\UserDashboard;
-use TresPontosTech\App\Filament\Widgets\AppointmentHistoryWidget;
-use TresPontosTech\App\Filament\Widgets\LatestAppointmentWidget;
-use TresPontosTech\App\Filament\Widgets\UserCurrentPlanWidget;
-use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\App\Filament\Widgets\FinancialTopicsWidget;
+use TresPontosTech\App\Filament\Widgets\JourneyHeroWidget;
+use TresPontosTech\App\Filament\Widgets\NextAppointmentWidget;
+use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
+use TresPontosTech\App\Filament\Widgets\SharedMaterialsWidget;
 use TresPontosTech\Billing\Stripe\Subscription\User\RedirectUserIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
 
@@ -30,7 +30,8 @@ it('should render', function (): void {
     livewire(UserDashboard::class)
         ->assertOk();
 });
-it('should have some widgets', function (): void {
+
+it('should have the hub widgets', function (): void {
     app()->instance(RedirectUserIfNotSubscribed::class,
         new class
         {
@@ -41,9 +42,11 @@ it('should have some widgets', function (): void {
         });
     $this->get(route('filament.app.pages.user-dashboard', ['tenant' => filament()->getTenant()->slug]))
         ->assertOk()
-        ->assertSeeLivewire(UserCurrentPlanWidget::class)
-        ->assertSeeLivewire(LatestAppointmentWidget::class)
-        ->assertSeeLivewire(AppointmentHistoryWidget::class);
+        ->assertSeeLivewire(JourneyHeroWidget::class)
+        ->assertSeeLivewire(NextAppointmentWidget::class)
+        ->assertSeeLivewire(PlanCreditsWidget::class)
+        ->assertSeeLivewire(FinancialTopicsWidget::class)
+        ->assertSeeLivewire(SharedMaterialsWidget::class);
 });
 
 it('should receive forbidden if tenant is not subscribed in any plan', function (): void {
@@ -75,30 +78,4 @@ it('should receive forbidden if tenant is not subscribed in any plan', function 
     ]);
     $this->get(route('filament.app.pages.user-dashboard', ['tenant' => filament()->getTenant()->slug]))
         ->assertOk();
-});
-
-describe('testing widgets that are on user dashboard', function (): void {
-
-    test('latest appointment', function (): void {
-        Appointment::factory()->for($this->employee, 'user')->count(4)->create(['appointment_at' => now()->subDays(5)]);
-        $latest = Appointment::factory()->for($this->employee, 'user')->withStatus(AppointmentStatus::Pending)->create(['appointment_at' => now()->addDay()]);
-
-        livewire(LatestAppointmentWidget::class)
-            ->assertOk()
-            ->assertSeeText('Próxima consultoria')
-            ->assertSeeText($latest->status->getLabel());
-    });
-    test('latest appointment, zero appointments', function (): void {
-        livewire(LatestAppointmentWidget::class)
-            ->assertOk()
-            ->assertSeeText('Nenhum agendamento encontrado.');
-    });
-    test('appointment history', function (): void {
-
-        $appointments = Appointment::factory()->for($this->employee, 'user')->count(5)->create();
-        livewire(AppointmentHistoryWidget::class)
-            ->assertOk()
-            ->assertCanSeeTableRecords($appointments)
-            ->assertSeeText($appointments->first()->status->getLabel());
-    });
 });

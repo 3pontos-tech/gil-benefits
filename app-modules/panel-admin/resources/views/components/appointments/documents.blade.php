@@ -16,9 +16,11 @@
                         <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
                             {{ $document->title }}
                         </p>
-                        <x-filament::badge size="sm" color="gray">
-                            {{ $document->type->getLabel() }}
-                        </x-filament::badge>
+                        @if($document->type)
+                            <x-filament::badge size="sm" color="gray">
+                                {{ $document->type->getLabel() }}
+                            </x-filament::badge>
+                        @endif
                     </div>
                     @if(($page->downloadDocumentAction)(['documentId' => $document->getKey()])->isVisible())
                         <div class="shrink-0">
@@ -46,9 +48,11 @@
                         <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
                             {{ $document->title }}
                         </p>
-                        <x-filament::badge size="sm" color="gray">
-                            {{ $document->type->getLabel() }}
-                        </x-filament::badge>
+                        @if($document->type)
+                            <x-filament::badge size="sm" color="gray">
+                                {{ $document->type->getLabel() }}
+                            </x-filament::badge>
+                        @endif
                     </div>
                     @if(($page->downloadSharedDocumentAction)(['documentId' => $document->getKey()])->isVisible())
                         <div class="shrink-0">

@@ -18,16 +18,11 @@ class DocumentFactory extends Factory
     {
         return [
             'title' => $this->faker->word(),
-            'type' => $this->faker->randomElement(array_filter(
-                DocumentExtensionTypeEnum::cases(),
-                fn (DocumentExtensionTypeEnum $type): bool => $type !== DocumentExtensionTypeEnum::Link,
-            )),
             'active' => $this->faker->boolean(),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
             'documentable_id' => null,
             'documentable_type' => null,
-
         ];
     }
 
@@ -53,23 +48,34 @@ class DocumentFactory extends Factory
         ]);
     }
 
-    public function withFile(DocumentExtensionTypeEnum $type = DocumentExtensionTypeEnum::PDF): self
+    /**
+     * Define apenas o type do documento, sem anexar mídia.
+     */
+    public function withType(DocumentExtensionTypeEnum $type = DocumentExtensionTypeEnum::PDF): self
     {
         return $this->state([
             'type' => $type,
         ]);
     }
 
-    public function configure(): static
+    /**
+     * Anexa uma mídia fake com a extensão do type; o MediaObserver define o type a partir dela.
+     */
+    public function withMedia(DocumentExtensionTypeEnum $type = DocumentExtensionTypeEnum::PDF): self
     {
-        return $this->afterCreating(function (Document $document): void {
-            if ($document->type === DocumentExtensionTypeEnum::Link) {
-                return;
-            }
-
-            $document->addMedia(UploadedFile::fake()->create('documento_teste.pdf', 100))
-                ->toMediaCollection('documents');
+        return $this->afterCreating(function (Document $document) use ($type): void {
+            $document->addMedia(
+                UploadedFile::fake()->create('documento_teste.' . $type->value, 100)
+            )->toMediaCollection('documents');
         });
+    }
+
+    /**
+     * Documento baseado em arquivo: define o type e anexa a mídia correspondente.
+     */
+    public function withFile(DocumentExtensionTypeEnum $type = DocumentExtensionTypeEnum::PDF): self
+    {
+        return $this->withType($type)->withMedia($type);
     }
 
     public function forConsultant(?Consultant $consultant = null): self

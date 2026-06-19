@@ -9,9 +9,14 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Models\AppointmentFeedback;
+use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -21,55 +26,73 @@ use TresPontosTech\Permissions\Roles;
 
 class EssentialsSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * Cria um usuário por tipo de painel (senha = "password" em todos):
-     *   - admin@5pontos.com       → painel /admin       (SuperAdmin)
-     *   - company@5pontos.com     → painel /company     (CompanyOwner)
-     *   - consultant@5pontos.com  → painel /consultant  (Consultant)
-     *   - employee@5pontos.com    → painel /app         (Employee)
-     */
     public function run(): void
     {
         if (! app()->environment(['local', 'staging', 'testing'])) {
             return;
         }
 
-        // Silencia side-effects de notificação/email disparados por
-        // UserRegistered e afins — um seed com ~N users geraria N² jobs
-        // na fila local (NotifyAdmins..., WelcomeMail) sem valor pro dev.
-        // Listeners síncronos que fazem regra de negócio (ex.:
-        // AttachUserToDefaultCompanyListener) continuam rodando normal.
         Queue::fake();
         Mail::fake();
 
         Artisan::call('sync:permissions');
 
-        $admin = User::factory()
-            ->superAdmin()
-            ->createQuietly();
+        $admin = User::factory()->superAdmin()->createQuietly();
+        $companyOwner = $this->createCompanyOwner();
+        $company = $this->createCompany($companyOwner);
+        $employee = $this->createEmployee($company);
+        $consultant = $this->createConsultant();
 
-        $companyOwner = User::factory()
+        $this->seedEmployeeAppointments($employee, $company, $consultant);
+        $this->seedEmployeeCredits($employee, $company);
+        $this->seedEmployeeOwnedDocuments($employee);
+        $this->seedDocumentsSharedWithEmployee($employee, $consultant);
+
+        $company->employees()->attach($admin);
+    }
+
+    private function createCompanyOwner(): User
+    {
+        return User::factory()
             ->companyOwner()
             ->createQuietly([
                 'name' => 'Company Owner',
                 'email' => 'company@5pontos.com',
                 'password' => Hash::make('password'),
             ]);
+    }
 
+    private function createCompany(User $owner): Company
+    {
         $company = Company::factory()->create([
             'name' => '5Pontos',
             'slug' => '5pontos',
-            'user_id' => $companyOwner->getKey(),
+            'user_id' => $owner->getKey(),
         ]);
 
-        $company->employees()->attach($companyOwner, ['role' => Roles::CompanyOwner->value]);
+        $company->employees()->attach($owner, ['role' => Roles::CompanyOwner->value]);
+
+        $plan = Plan::factory()
+            ->contractual()
+            ->create([
+                'type' => BillableTypeEnum::Company,
+                'name' => 'Plano Bem-Estar Financeiro',
+                'description' => 'Consultorias financeiras mensais com especialistas, além de materiais exclusivos para os colaboradores.',
+            ]);
 
         CompanyPlan::factory()
             ->active()
-            ->create(['company_id' => $company->getKey()]);
+            ->create([
+                'company_id' => $company->getKey(),
+                'plan_id' => $plan->getKey(),
+                'monthly_appointments_per_employee' => 2,
+            ]);
 
+        return $company;
+    }
+
+    private function createEmployee(Company $company): User
+    {
         $employee = User::factory()
             ->employee()
             ->has(Detail::factory())
@@ -78,22 +101,23 @@ class EssentialsSeeder extends Seeder
                 'email' => 'employee@5pontos.com',
                 'password' => Hash::make('password'),
             ]);
+
         $company->employees()->attach($employee);
 
-        // Usuário criado antes do Consultant para que o ConsultantObserver
-        // (firstOrCreate por email) preserve a senha 'password' definida aqui.
-        // O role Consultant é atribuído pelo próprio observer via UserRegistered.
+        return $employee;
+    }
+
+    private function createConsultant(): Consultant
+    {
         User::factory()->createQuietly([
             'name' => 'Consultor Teste',
             'email' => 'consultant@5pontos.com',
             'password' => Hash::make('password'),
         ]);
 
-        $this->call([
-            ConsultantSeeder::class,
-        ]);
+        $this->call([ConsultantSeeder::class]);
 
-        $testConsultant = Consultant::query()->create([
+        return Consultant::query()->create([
             'name' => 'Consultor Teste',
             'slug' => 'consultor-teste',
             'phone' => '+5511900000000',
@@ -103,89 +127,87 @@ class EssentialsSeeder extends Seeder
             'readme' => 'Consultor de teste para o painel consultor.',
             'socials_urls' => [],
         ]);
+    }
 
-        Appointment::factory()
-            ->count(5)
-            ->create([
+    private function seedEmployeeAppointments(User $employee, Company $company, Consultant $consultant): void
+    {
+        $appointments = [
+            [AppointmentStatus::Completed, AppointmentCategoryEnum::PersonalFinance, now()->subDays(36), true],
+            [AppointmentStatus::Completed, AppointmentCategoryEnum::InvestmentAdvisory, now()->subDays(24), true],
+            [AppointmentStatus::Completed, AppointmentCategoryEnum::RetirementAndEstatePlanning, now()->subDays(12), false],
+            [AppointmentStatus::Cancelled, AppointmentCategoryEnum::FundraisingAndCredit, now()->subDays(6), false],
+            [AppointmentStatus::Completed, AppointmentCategoryEnum::PersonalFinance, now()->subHours(2), false],
+            [AppointmentStatus::Active, AppointmentCategoryEnum::InvestmentAdvisory, now()->addDay(), false],
+        ];
+
+        foreach ($appointments as [$status, $category, $scheduledAt, $rated]) {
+            $appointment = Appointment::factory()->create([
                 'user_id' => $employee->getKey(),
+                'consultant_id' => $consultant->getKey(),
+                'company_id' => $company->getKey(),
+                'status' => $status,
+                'category_type' => $category,
+                'appointment_at' => $scheduledAt,
+            ]);
+
+            if ($rated) {
+                AppointmentFeedback::factory()->create([
+                    'appointment_id' => $appointment->getKey(),
+                    'user_id' => $employee->getKey(),
+                    'rating' => 5,
+                ]);
+            }
+        }
+    }
+
+    private function seedEmployeeCredits(User $employee, Company $company): void
+    {
+        UserCredit::factory()
+            ->available()
+            ->count(2)
+            ->create([
+                'owner_id' => $employee->getKey(),
+                'holder_id' => $employee->getKey(),
                 'company_id' => $company->getKey(),
             ]);
+    }
 
-        // Cenários de teste para a feature de Ata, refletindo o fluxo
-        // real — a ata só existe depois que o consultor sobe o documento e a
-        // IA processa. O seeder NÃO cria records pré-fabricados.
-        //
-        //  1. Agendamento recém-finalizado sem ata — habilita o botão "Criar
-        //     Ata" no painel do consultor para testar upload + geração pela IA.
-        //  2. Agendamento futuro — usado para verificar o botão "Resumo do
-        //     último atendimento" APÓS o fluxo (1) ser concluído e
-        //     publicado. Antes disso, o botão permanece oculto por design.
-        Appointment::factory()->create([
-            'user_id' => $employee->getKey(),
-            'consultant_id' => $testConsultant->getKey(),
-            'company_id' => $company->getKey(),
-            'status' => AppointmentStatus::Completed,
-            'appointment_at' => now()->subHours(2),
-        ]);
+    private function seedEmployeeOwnedDocuments(User $employee): void
+    {
+        $documents = [
+            ['Anamnese - Histórico Pessoal', DocumentExtensionTypeEnum::PDF],
+            ['Comprovante de Renda 2026', DocumentExtensionTypeEnum::XLSX],
+        ];
 
-        Appointment::factory()->create([
-            'user_id' => $employee->getKey(),
-            'consultant_id' => $testConsultant->getKey(),
-            'company_id' => $company->getKey(),
-            'status' => AppointmentStatus::Active,
-            'appointment_at' => now()->addDay(),
-        ]);
+        foreach ($documents as [$title, $type]) {
+            Document::factory()
+                ->forUser($employee)
+                ->active()
+                ->withFile($type)
+                ->create(['title' => $title]);
+        }
+    }
 
-        // Documentos do próprio colaborador (anamnese / ficha) — alimentam o
-        // painel "Documentos do colaborador" na tela ViewAppointment do admin.
-        Document::factory()
-            ->forUser($employee)
-            ->active()
-            ->create([
-                'title' => 'Anamnese - Histórico Pessoal',
-                'type' => DocumentExtensionTypeEnum::PDF,
-            ]);
+    private function seedDocumentsSharedWithEmployee(User $employee, Consultant $consultant): void
+    {
+        $documents = [
+            ['Proposta de Investimento Personalizada', DocumentExtensionTypeEnum::PDF],
+            ['Análise de Carteira de Ações', DocumentExtensionTypeEnum::XLSX],
+        ];
 
-        Document::factory()
-            ->forUser($employee)
-            ->active()
-            ->create([
-                'title' => 'Comprovante de Renda 2026',
-                'type' => DocumentExtensionTypeEnum::XLSX,
-            ]);
+        foreach ($documents as [$title, $type]) {
+            $document = Document::factory()
+                ->forConsultant($consultant)
+                ->active()
+                ->withFile($type)
+                ->create(['title' => $title]);
 
-        // Documentos compartilhados pelo consultor com o colaborador —
-        // alimentam o painel "Documentos compartilhados" na mesma tela.
-        $sharedInvestment = Document::factory()
-            ->forConsultant($testConsultant)
-            ->active()
-            ->create([
-                'title' => 'Proposta de Investimento Personalizada',
-                'type' => DocumentExtensionTypeEnum::PDF,
-            ]);
-
-        DocumentShare::factory()
-            ->for($sharedInvestment, 'document')
-            ->for($testConsultant, 'consultant')
-            ->for($employee, 'employee')
-            ->active()
-            ->create();
-
-        $sharedPortfolio = Document::factory()
-            ->forConsultant($testConsultant)
-            ->active()
-            ->create([
-                'title' => 'Análise de Carteira de Ações',
-                'type' => DocumentExtensionTypeEnum::XLSX,
-            ]);
-
-        DocumentShare::factory()
-            ->for($sharedPortfolio, 'document')
-            ->for($testConsultant, 'consultant')
-            ->for($employee, 'employee')
-            ->active()
-            ->create();
-
-        $company->employees()->attach($admin);
+            DocumentShare::factory()
+                ->for($document, 'document')
+                ->for($consultant, 'consultant')
+                ->for($employee, 'employee')
+                ->active()
+                ->create();
+        }
     }
 }

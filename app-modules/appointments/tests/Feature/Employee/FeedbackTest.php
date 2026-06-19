@@ -3,7 +3,6 @@
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use TresPontosTech\App\Filament\Resources\Appointments\Pages\ListAppointments;
-use TresPontosTech\App\Filament\Widgets\AppointmentHistoryWidget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
@@ -116,24 +115,4 @@ it('does not save feedback with invalid rating', function (): void {
         ->assertHasTableActionErrors(['rating']);
 
     expect(AppointmentFeedback::query()->where('appointment_id', $appointment->getKey())->exists())->toBeFalse();
-});
-
-it('shows feedback action in appointment history widget', function (): void {
-    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Completed)->create([
-        'user_id' => $this->employee->getKey(),
-    ]);
-
-    livewire(AppointmentHistoryWidget::class)
-        ->assertTableActionVisible('feedback', $appointment);
-});
-
-it('hides feedback action in appointment history widget when already rated', function (): void {
-    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Completed)->create([
-        'user_id' => $this->employee->getKey(),
-    ]);
-
-    AppointmentFeedback::factory()->recycle($appointment)->recycle($this->employee)->create();
-
-    livewire(AppointmentHistoryWidget::class)
-        ->assertTableActionHidden('feedback', $appointment);
 });

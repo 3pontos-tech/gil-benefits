@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Release v5.0.0 — Checklist de Produção · gil-benefits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0c0e0d;
+    --ink-2:#13161a;
+    --paper:#ece4d3;
+    --paper-dim:#b7ae9c;
+    --line:#2a2f35;
+    --line-soft:#1c2025;
+    --amber:#e8a33d;
+    --amber-deep:#c97d1c;
+    --green:#6fcf8e;
+    --green-deep:#2f7d4f;
+    --blue:#7aa6d6;
+    --red:#e06b5c;
+    --grid:rgba(122,166,214,.06);
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+    --serif:'Instrument Serif',Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:var(--mono);
+    font-size:14px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:48px 48px;
+    padding:0 0 8rem;
+    overflow-x:hidden;
+  }
+  /* grain overlay */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.035;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+
+  /* ---------- HEADER ---------- */
+  header{
+    border-bottom:1px solid var(--line);
+    padding:4.5rem 0 2.5rem;
+    position:relative;
+    background:
+      radial-gradient(120% 80% at 12% 0%, rgba(232,163,61,.10), transparent 55%),
+      radial-gradient(100% 70% at 92% 0%, rgba(122,166,214,.07), transparent 60%);
+  }
+  .eyebrow{
+    font-size:11px;letter-spacing:.34em;text-transform:uppercase;
+    color:var(--paper-dim);display:flex;align-items:center;gap:.9rem;
+    opacity:0;animation:rise .7s .05s forwards;
+  }
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--amber)}
+  h1{
+    font-family:var(--serif);font-weight:400;
+    font-size:clamp(3.2rem,9vw,6.4rem);line-height:.92;
+    letter-spacing:-.01em;margin:1.1rem 0 .4rem;
+  }
+  h1 .v-from{color:var(--paper-dim)}
+  h1 .arrow{color:var(--amber);font-style:italic;padding:0 .15em}
+  h1 .v-to{position:relative}
+  h1 .v-to::after{
+    content:"";position:absolute;left:0;right:-.05em;bottom:.12em;height:.07em;
+    background:var(--amber);transform:scaleX(0);transform-origin:left;
+    animation:wipe .9s .55s cubic-bezier(.6,0,.2,1) forwards;
+  }
+  .sub{font-family:var(--serif);font-size:1.55rem;font-style:italic;color:var(--paper-dim);max-width:40ch;line-height:1.25;margin-top:.6rem}
+  .meta-row{
+    display:flex;flex-wrap:wrap;gap:0;margin-top:2.4rem;
+    border:1px solid var(--line);border-radius:3px;overflow:hidden;
+    opacity:0;animation:rise .7s .35s forwards;
+  }
+  .meta-cell{flex:1 1 130px;padding:.85rem 1.1rem;border-right:1px solid var(--line-soft)}
+  .meta-cell:last-child{border-right:none}
+  .meta-cell .k{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--paper-dim)}
+  .meta-cell .val{font-size:1.05rem;color:var(--paper);margin-top:.15rem}
+  .meta-cell .val b{color:var(--amber);font-weight:700}
+
+  /* ---------- VERDICT ---------- */
+  .verdict{
+    margin-top:2.4rem;border:1px solid var(--amber-deep);border-radius:4px;
+    background:linear-gradient(180deg,rgba(232,163,61,.10),rgba(232,163,61,.02));
+    padding:1.6rem 1.8rem;display:flex;gap:1.4rem;align-items:flex-start;
+    opacity:0;animation:rise .7s .5s forwards;
+  }
+  .verdict .badge{
+    flex:0 0 auto;width:54px;height:54px;border-radius:50%;
+    border:1.5px solid var(--amber);display:grid;place-items:center;
+    font-family:var(--serif);font-size:2rem;color:var(--amber);
+    box-shadow:0 0 0 6px rgba(232,163,61,.06);
+  }
+  .verdict h2{font-family:var(--serif);font-weight:400;font-size:1.9rem;line-height:1.1;letter-spacing:-.01em}
+  .verdict p{color:var(--paper-dim);margin-top:.35rem;max-width:62ch}
+  .verdict b{color:var(--paper)}
+
+  /* ---------- SECTIONS ---------- */
+  section{margin-top:4.5rem}
+  .sec-head{display:flex;align-items:baseline;gap:1rem;border-bottom:1px solid var(--line);padding-bottom:.7rem;margin-bottom:1.8rem}
+  .sec-head .no{font-family:var(--serif);font-size:1.4rem;color:var(--amber);font-style:italic}
+  .sec-head h3{font-weight:500;font-size:1.05rem;letter-spacing:.04em;text-transform:uppercase}
+  .sec-head .tag{margin-left:auto;font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:.28rem .7rem;border-radius:2px;border:1px solid}
+  .tag.req{color:var(--amber);border-color:var(--amber-deep);background:rgba(232,163,61,.08)}
+  .tag.routine{color:var(--blue);border-color:#33506e;background:rgba(122,166,214,.07)}
+  .tag.safe{color:var(--green);border-color:var(--green-deep);background:rgba(111,207,142,.07)}
+
+  /* command / step cards */
+  .step{border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:3px;background:var(--ink-2);margin-bottom:1rem;overflow:hidden}
+  .step.routine{border-left-color:var(--blue)}
+  .step-top{display:flex;align-items:center;gap:.8rem;padding:.9rem 1.2rem;border-bottom:1px solid var(--line-soft)}
+  .step-top .n{font-family:var(--serif);font-style:italic;color:var(--paper-dim);font-size:1.1rem}
+  .step-top .title{font-weight:700;letter-spacing:.02em}
+  .step-top .pill{margin-left:auto;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-dim);border:1px solid var(--line);padding:.18rem .5rem;border-radius:2px}
+  .step-body{padding:1rem 1.2rem}
+  .cmd{
+    font-family:var(--mono);background:#000;border:1px solid var(--line);border-radius:3px;
+    padding:.7rem .9rem;color:var(--green);font-size:13px;display:flex;gap:.6rem;align-items:center;
+    overflow-x:auto;white-space:nowrap;
+  }
+  .cmd::before{content:"$";color:var(--amber);flex:0 0 auto}
+  .step-body p{color:var(--paper-dim);margin-top:.7rem;font-size:13px}
+  .step-body p b{color:var(--paper)}
+  .files{margin-top:.7rem;display:flex;flex-direction:column;gap:.3rem}
+  .file{font-size:12px;color:var(--blue);display:flex;gap:.55rem;align-items:baseline}
+  .file::before{content:"+";color:var(--green);font-weight:700}
+  .file .desc{color:var(--paper-dim)}
+
+  /* no-action grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .cell{background:var(--ink-2);padding:1.1rem 1.2rem}
+  .cell .h{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:13px}
+  .cell .h::before{content:"✓";color:var(--green);font-weight:700}
+  .cell p{color:var(--paper-dim);font-size:12px;margin-top:.4rem;line-height:1.55}
+  .cell code{color:var(--amber);font-size:11px}
+
+  /* features / PRs */
+  .pr{display:grid;grid-template-columns:auto 1fr;gap:0 1.3rem;padding:1.3rem 0;border-bottom:1px solid var(--line-soft)}
+  .pr:last-child{border-bottom:none}
+  .pr .id{font-family:var(--serif);font-style:italic;font-size:1.5rem;color:var(--amber)}
+  .pr .id small{display:block;font-family:var(--mono);font-style:normal;font-size:9px;letter-spacing:.12em;color:var(--paper-dim);text-transform:uppercase}
+  .pr h4{font-size:1rem;font-weight:700}
+  .pr .branch{font-size:11px;color:var(--blue);margin:.15rem 0 .5rem}
+  .pr ul{list-style:none;display:flex;flex-direction:column;gap:.25rem}
+  .pr li{font-size:13px;color:var(--paper-dim);padding-left:1.1rem;position:relative}
+  .pr li::before{content:"›";position:absolute;left:0;color:var(--amber)}
+  .pr li b{color:var(--paper)}
+  .pr .mig{display:inline-block;margin-top:.55rem;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);border:1px solid var(--amber-deep);padding:.18rem .55rem;border-radius:2px;background:rgba(232,163,61,.07)}
+
+  /* qa */
+  .qa{border:1px solid var(--line);border-radius:3px;background:var(--ink-2);padding:1.1rem 1.3rem;margin-bottom:.9rem;display:flex;gap:1rem}
+  .qa .dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;margin-top:.5rem;background:var(--blue)}
+  .qa h4{font-size:.95rem;font-weight:700}
+  .qa p{color:var(--paper-dim);font-size:13px;margin-top:.2rem}
+  .qa code{color:var(--amber);font-size:12px}
+
+  footer{margin-top:5rem;border-top:1px solid var(--line);padding-top:2rem;color:var(--paper-dim);font-size:11px;line-height:1.8}
+  footer b{color:var(--paper)}
+  footer .gen{font-family:var(--serif);font-style:italic;font-size:1.15rem;color:var(--paper);margin-bottom:.6rem}
+
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+  @keyframes wipe{to{transform:scaleX(1)}}
+  .eyebrow,.meta-row,.verdict{transform:translateY(14px)}
+  @media print{body{background:#fff;color:#111}body::after{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">gil-benefits · flamma · production readiness</div>
+    <h1><span class="v-from">v4.0.0</span><span class="arrow">→</span><span class="v-to">v5.0.0</span></h1>
+    <p class="sub">O que mudou desde a última release — e o que precisa rodar em produção.</p>
+
+    <div class="meta-row">
+      <div class="meta-cell"><div class="k">Baseline (prod)</div><div class="val">v4.0.0 · <span style="color:var(--paper-dim)">7288b78</span></div></div>
+      <div class="meta-cell"><div class="k">Alvo da release</div><div class="val"><b>develop</b> · 4ab28e7</div></div>
+      <div class="meta-cell"><div class="k">Período</div><div class="val">22 mai → 09 jun 2026</div></div>
+      <div class="meta-cell"><div class="k">Commits</div><div class="val"><b>18</b> · 4 PRs</div></div>
+      <div class="meta-cell"><div class="k">Migrations</div><div class="val"><b>2</b> aditivas</div></div>
+    </div>
+
+    <div class="verdict">
+      <div class="badge">1</div>
+      <div>
+        <h2>Uma única ação obrigatória: rodar as migrations.</h2>
+        <p>Tudo nesta janela é <b>aditivo e reversível</b>. Não há colunas/tabelas removidas, nenhuma variável de ambiente nova, nenhum job de fila novo e nenhuma dependência nova além de um patch. O risco de quebra por uma feature anterior é <b>baixo</b> — desde que as duas migrations sejam aplicadas no deploy.</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- 1. REQUIRED -->
+  <section>
+    <div class="sec-head"><span class="no">01</span><h3>Ação obrigatória</h3><span class="tag req">deve rodar</span></div>
+
+    <div class="step">
+      <div class="step-top"><span class="n">a.</span><span class="title">Aplicar migrations do banco</span><span class="pill">PR #191 · departments</span></div>
+      <div class="step-body">
+        <div class="cmd">php artisan migrate --force</div>
+        <p>Duas migrations novas, ambas <b>aditivas e seguras</b> (FK nullable, sem perda de dados, com <code>down()</code> reversível):</p>
+        <div class="files">
+          <div class="file"><code>2026_05_25_100001_create_departments_table</code><span class="desc">— nova tabela <b>departments</b> (uuid, company_id, category, name, soft-deletes)</span></div>
+          <div class="file"><code>2026_05_25_100002_add_department_id_to_company_employees</code><span class="desc">— coluna FK <b>department_id</b> nullable em <b>company_employees</b> (nullOnDelete)</span></div>
+        </div>
+        <p style="margin-top:1rem;border-top:1px dashed var(--line-soft);padding-top:.7rem">Sem backfill necessário: departamentos e suas categorias são funcionalidade <b>nova</b> — não há dados legados para migrar. O refactor "categoria de model → coluna" criou a coluna <code>category</code> já dentro da tabela nova.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. ROUTINE -->
+  <section>
+    <div class="sec-head"><span class="no">02</span><h3>Rotina de deploy</h3><span class="tag routine">padrão</span></div>
+
+    <div class="step routine">
+      <div class="step-top"><span class="n">a.</span><span class="title">Dependências</span><span class="pill">composer.lock</span></div>
+      <div class="step-body">
+        <div class="cmd">composer install --no-dev --optimize-autoloader</div>
+        <p>Única mudança: <b>basementdevs/filament-better-mails</b> <code>5.1.5 → 5.1.6</code> (patch). <b>Nenhuma dependência nova</b> — o pacote <code>laraveljutsu/zap</code> já existia desde antes da v4.0.0; nesta release apenas o <code>config/zap.php</code> foi publicado (vai junto no deploy do código).</p>
+      </div>
+    </div>
+
+    <div class="step routine">
+      <div class="step-top"><span class="n">b.</span><span class="title">Recriar caches de config / Filament</span><span class="pill">config/zap.php novo</span></div>
+      <div class="step-body">
+        <div class="cmd">php artisan optimize:clear && php artisan optimize</div>
+        <p>Arquivos de config tocados: <code>config/zap.php</code> (novo) e <code>config/media-library.php</code> (path generator do avatar). Se o config estiver cacheado, é preciso recriar. Filament ganhou novos resources/pages/widgets — rode também <code>php artisan filament:cache-components</code> se você usa cache de componentes.</p>
+      </div>
+    </div>
+
+    <div class="step routine">
+      <div class="step-top"><span class="n">c.</span><span class="title">Verificar symlink de storage (avatars)</span><span class="pill">PR #192 · media-library</span></div>
+      <div class="step-body">
+        <div class="cmd">php artisan storage:link</div>
+        <p>O avatar de usuário é armazenado via spatie/media-library no disco <code>MEDIA_DISK</code> (default <code>public</code>), em <code>usuarios/{id}/avatar/</code>. Se o disco público já está linkado em produção (provável), <b>nada a fazer</b>. As conversões de imagem são <code>->nonQueued()</code> (síncronas) — <b>não exigem worker de fila</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. NO ACTION -->
+  <section>
+    <div class="sec-head"><span class="no">03</span><h3>Sem ação necessária</h3><span class="tag safe">verificado</span></div>
+    <div class="grid">
+      <div class="cell"><div class="h">Variáveis de ambiente</div><p><code>.env.example</code> sem alterações. Chaves citadas em config (<code>MEDIA_DISK</code>, <code>MEDIA_QUEUE</code>, <code>QUEUE_CONVERSIONS_BY_DEFAULT</code>) já existiam e têm default. Nada novo para setar.</p></div>
+      <div class="cell"><div class="h">Workers / Filas</div><p>Nenhum job <code>ShouldQueue</code> novo. A conversão de avatar é explicitamente <code>->nonQueued()</code>. Não há mudança de queue connection.</p></div>
+      <div class="cell"><div class="h">Scheduler / Cron</div><p>Sem novas entradas no scheduler. As mudanças em google-calendar são em Actions chamadas pelo fluxo de sync existente.</p></div>
+      <div class="cell"><div class="h">Mudanças destrutivas</div><p>Nenhum arquivo deletado, nenhuma coluna/tabela removida ou renomeada, nenhum backfill. Migrations 100% aditivas.</p></div>
+      <div class="cell"><div class="h">Dependências novas</div><p>Apenas patch em filament-better-mails. <code>zap</code> já estava instalado. Sem mudança em <code>composer.json</code> nem <code>package.json</code>.</p></div>
+      <div class="cell"><div class="h">Assets / build</div><p>Sem mudança em <code>vite.config.js</code> ou <code>package-lock.json</code>. Pipeline de assets inalterada.</p></div>
+    </div>
+  </section>
+
+  <!-- 4. FEATURES -->
+  <section>
+    <div class="sec-head"><span class="no">04</span><h3>O que entrou na release</h3><span class="tag routine">4 PRs</span></div>
+
+    <div class="pr">
+      <div class="id">#191<small>migration</small></div>
+      <div>
+        <h4>Departamentos com categorias</h4>
+        <div class="branch">feat/company-departments</div>
+        <ul>
+          <li>Nova tabela <b>departments</b> + enum <b>DepartmentCategory</b> (categoria virou coluna, não mais model)</li>
+          <li><b>DepartmentResource</b> no painel da empresa (CRUD) + vínculo <code>department_id</code> em company_employees</li>
+          <li>Painel admin: página <b>DepartmentCategories</b>, gráficos "Appointments por departamento/categoria" e <b>GlobalAppointmentStatsWidget</b></li>
+        </ul>
+        <span class="mig">requer migrate</span>
+      </div>
+    </div>
+
+    <div class="pr">
+      <div class="id">#192<small>storage</small></div>
+      <div>
+        <h4>Avatar de usuário</h4>
+        <div class="branch">feat/user-avatar</div>
+        <ul>
+          <li>User passa a implementar <b>HasMedia / HasAvatar</b> (Filament) com coleção <code>user_avatar</code> single-file</li>
+          <li>Upload no <b>EditUserProfile</b>; conversão 96×96 crop <b>nonQueued</b></li>
+          <li>Novo <b>UserAvatarPathGenerator</b> → <code>usuarios/{id}/avatar/</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pr">
+      <div class="id">#193<small>comportamento</small></div>
+      <div>
+        <h4>Flamma plans + redirect de tenant</h4>
+        <div class="branch">feat/flamma-plans</div>
+        <ul>
+          <li>Usuário assinante passa a ser redirecionado ao <b>tenant default</b> em vez do <code>flamma-company</code> (<code>HasTenant::getDefaultTenant</code>)</li>
+          <li>Ajustes em <b>UserSubscriptionPage</b> e acesso de assinantes legados</li>
+          <li>Mudanças na <b>EditTenantProfile</b> e métricas por período (HasMetricsDateRange)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pr">
+      <div class="id">#190<small>fix</small></div>
+      <div>
+        <h4>Sync com main + fix Google Calendar</h4>
+        <div class="branch">main → develop (#189)</div>
+        <ul>
+          <li><b>SyncConsultantCalendarAction</b>: trata eventos passados e de duração zero ao sincronizar bloqueios</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. QA -->
+  <section>
+    <div class="sec-head"><span class="no">05</span><h3>Vale um olhar pós-deploy (comportamento)</h3><span class="tag routine">QA</span></div>
+
+    <div class="qa"><div class="dot"></div><div>
+      <h4>Redirecionamento de login para assinantes</h4>
+      <p>Assinantes agora caem no <code>tenant</code> default em vez do <code>flamma-company</code>. Confirme com uma conta real que o destino pós-login está correto — especialmente para <b>assinantes de planos antigos / legados</b>.</p>
+    </div></div>
+
+    <div class="qa"><div class="dot"></div><div>
+      <h4>Sincronização do Google Calendar</h4>
+      <p>O tratamento de eventos passados e de duração zero mudou. Sem ação de infra, mas vale validar uma sync real de um consultor com agenda cheia logo após o deploy.</p>
+    </div></div>
+
+    <div class="qa"><div class="dot"></div><div>
+      <h4>Upload de avatar</h4>
+      <p>Teste subir um avatar em produção e confirmar que a imagem aparece (caminho <code>usuarios/{id}/avatar/</code> no disco público / symlink ativo).</p>
+    </div></div>
+  </section>
+
+  <footer>
+    <div class="gen">Como este checklist foi gerado</div>
+    <b>Método:</b> diff de <code>7288b78 (v4.0.0)</code> até <code>develop (4ab28e7)</code> — 18 commits, 4 PRs (#190–#193). Análise dirigida a impacto de produção: migrations, <code>.env.example</code>, <code>composer.lock</code>/<code>composer.json</code>, <code>config/*</code>, jobs <code>ShouldQueue</code>, scheduler, arquivos deletados e mudanças de schema destrutivas.<br>
+    <b>Escopo da release:</b> a branch <code>feat/support-module</code> (módulo Support, ainda em <i>wip</i>) está 5 commits à frente de develop e <b>não</b> entra na v5.0.0.<br>
+    <b>Baseline confirmada via</b> GitHub API (release v4.0.0 publicada em 2026-05-22, a partir de <code>main</code>).<br>
+    <span style="color:var(--line);color:var(--paper-dim)">gil-benefits · 3pontos-tech — gerado em 2026-06-12</span>
+  </footer>
+
+</div>
+</body>
+</html>

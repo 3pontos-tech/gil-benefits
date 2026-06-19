@@ -20,7 +20,7 @@ function fakeStripeHttpClient(array $products = [], array $prices = []): ClientI
             private readonly array $prices,
         ) {}
 
-        public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1'): array
+        public function request($method, $absUrl, $headers, $params, $hasFile, $apiMode = 'v1', $maxNetworkRetries = null): array
         {
             if (str_contains($absUrl, '/v1/products')) {
                 return [

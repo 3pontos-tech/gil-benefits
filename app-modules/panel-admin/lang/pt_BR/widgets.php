@@ -85,6 +85,25 @@ return [
             'column_completion_rate' => 'Taxa de Conclusão',
             'column_avg_rating' => 'Média de Avaliação',
         ],
+        'support_ticket_stats' => [
+            'total' => 'Total de Chamados',
+            'total_description' => 'No período selecionado',
+            'resolved' => 'Resolvidos',
+            'resolved_description' => ':rate% de taxa de resolução',
+            'open' => 'Em aberto',
+            'open_description' => 'Pendentes ou em andamento',
+            'failed' => 'Falhas no envio',
+            'failed_description' => 'No período selecionado',
+        ],
+        'support_tickets_by_status' => [
+            'heading' => 'Chamados por Status',
+        ],
+        'support_tickets_by_category' => [
+            'heading' => 'Chamados por Categoria',
+        ],
+        'support_tickets_by_sector' => [
+            'heading' => 'Chamados por Setor',
+        ],
     ],
     'appointments_stats' => [
         'total_requests' => 'Solicitações de Agendamento',

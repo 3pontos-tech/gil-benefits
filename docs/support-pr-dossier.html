@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dossiê — Hub de Atendimento (PR feat/support-module)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Spline+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#e7e2d6;
+    --paper-2:#ded8c9;
+    --card:#efebe1;
+    --ink:#1c2522;
+    --ink-soft:#46514b;
+    --muted:#6d756d;
+    --ox:#9d2b25;
+    --teal:#2f6f68;
+    --amber:#b07016;
+    --line:rgba(28,37,34,.20);
+    --line-soft:rgba(28,37,34,.11);
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Spline Sans",sans-serif;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+  }
+  /* paper texture: faint fibers + ruling */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,.018) 0 1px, transparent 1px),
+      radial-gradient(circle at 70% 60%, rgba(0,0,0,.018) 0 1px, transparent 1px);
+    background-size:7px 7px, 11px 11px;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;position:relative;z-index:2}
+  ::selection{background:var(--ox);color:var(--paper)}
+
+  /* ---- utility type ---- */
+  .code{font-family:"DM Mono",monospace;font-size:12px;letter-spacing:.02em}
+  .eyebrow{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--ox)}
+  h2{font-family:"Saira Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+     letter-spacing:.01em;font-size:clamp(26px,4vw,40px);line-height:1.0}
+  h3{font-family:"Saira Condensed",sans-serif;font-weight:600;text-transform:uppercase;
+     letter-spacing:.04em;font-size:16px}
+  p.lead{color:var(--ink-soft);max-width:62ch}
+
+  /* ---- top docket strip ---- */
+  .strip{display:flex;flex-wrap:wrap;gap:6px 26px;align-items:baseline;
+    padding:14px 0;border-bottom:2px solid var(--ink);font-family:"DM Mono",monospace;
+    font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  .strip b{color:var(--ink);font-weight:500}
+  .strip .sp{margin-left:auto}
+
+  /* ---- hero ticket stub ---- */
+  header.stub{position:relative;padding:44px 0 0}
+  .stub-grid{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:start}
+  @media(max-width:640px){.stub-grid{grid-template-columns:1fr}}
+  .proto{font-family:"DM Mono",monospace;font-size:13px;letter-spacing:.12em;color:var(--muted)}
+  .proto b{color:var(--ox)}
+  h1{font-family:"Saira Condensed",sans-serif;font-weight:800;text-transform:uppercase;
+     font-size:clamp(48px,11vw,108px);line-height:.86;letter-spacing:0;margin:14px 0 0}
+  h1 .thin{display:block;font-weight:500;color:var(--ink-soft)}
+  .thesis{margin-top:22px;font-size:18px;max-width:54ch;color:var(--ink-soft)}
+  .thesis b{color:var(--ink);font-weight:600}
+
+  /* rubber stamp — the signature element */
+  .stamp{
+    border:3px double var(--ox);color:var(--ox);border-radius:7px;
+    padding:10px 16px 8px;text-align:center;transform:rotate(-7deg);
+    font-family:"Saira Condensed",sans-serif;text-transform:uppercase;
+    mix-blend-mode:multiply;opacity:.92;align-self:center;justify-self:end;
+    box-shadow:inset 0 0 0 1px rgba(157,43,37,.25)}
+  .stamp .big{display:block;font-weight:800;font-size:30px;line-height:.95;letter-spacing:.02em}
+  .stamp .sm{font-family:"DM Mono",monospace;font-size:9.5px;letter-spacing:.22em;color:var(--ox)}
+  .stamp.press{animation:press .5s cubic-bezier(.2,1.4,.3,1) .5s both}
+  @keyframes press{0%{opacity:0;transform:rotate(-7deg) scale(1.7)}60%{opacity:.92}100%{opacity:.92;transform:rotate(-7deg) scale(1)}}
+
+  /* perforation divider */
+  .perf{height:18px;margin:38px 0 0;
+    background:radial-gradient(circle at center, var(--paper) 0 3.5px, transparent 4px) repeat-x;
+    background-size:14px 18px;border-top:1px dashed var(--line)}
+
+  /* ---- bands ---- */
+  .band{padding:54px 0 8px}
+  .band > .eyebrow{display:block;margin-bottom:10px}
+  .rule{height:2px;background:var(--ink);margin:18px 0 26px;max-width:64px}
+
+  /* business fields */
+  .fields{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line-soft);
+    border:1px solid var(--line);margin-top:8px}
+  @media(max-width:640px){.fields{grid-template-columns:1fr}}
+  .field{background:var(--card);padding:20px 22px}
+  .field .fc{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.16em;color:var(--ox);text-transform:uppercase}
+  .field h3{margin:9px 0 7px}
+  .field p{font-size:14px;color:var(--ink-soft)}
+
+  /* routing matrix */
+  .matrix{margin-top:10px;border:1px solid var(--line);background:var(--card)}
+  .row{display:grid;grid-template-columns:150px 1fr;gap:0;border-top:1px solid var(--line-soft)}
+  .row:first-child{border-top:none}
+  .row .sector{padding:14px 18px;border-right:1px solid var(--line-soft);display:flex;align-items:center;gap:10px}
+  .row .sector .tag{font-family:"Saira Condensed",sans-serif;font-weight:700;text-transform:uppercase;font-size:15px;letter-spacing:.03em}
+  .row .cats{padding:14px 18px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .chip{font-family:"DM Mono",monospace;font-size:11px;padding:3px 9px;border:1px solid var(--line);border-radius:999px;color:var(--ink-soft);background:var(--paper)}
+  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+  .via{margin-left:auto;font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+  /* state machine */
+  .sm{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:8px}
+  .st{border:2px solid var(--ink);border-radius:6px;padding:9px 14px 7px;font-family:"Saira Condensed",sans-serif;
+    text-transform:uppercase;font-weight:700;letter-spacing:.04em;background:var(--card);position:relative}
+  .st small{display:block;font-family:"DM Mono",monospace;font-weight:400;font-size:9px;letter-spacing:.14em;color:var(--muted)}
+  .st.amber{border-color:var(--amber);color:var(--amber)}
+  .st.teal{border-color:var(--teal);color:var(--teal)}
+  .st.indigo{border-color:#4a4d99;color:#4a4d99}
+  .st.green{border-color:#3a7d3f;color:#3a7d3f}
+  .st.gray{border-color:var(--muted);color:var(--muted)}
+  .arr{font-family:"DM Mono",monospace;color:var(--ink-soft)}
+  .smnote{margin-top:18px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:640px){.smnote{grid-template-columns:1fr}}
+  .smnote div{border-left:3px solid var(--ox);padding:6px 0 6px 14px;font-size:13.5px;color:var(--ink-soft)}
+  .smnote b{color:var(--ink)}
+
+  /* code flow pipeline */
+  .lane{margin-top:22px}
+  .lane-h{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ox);display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .lane-h::after{content:"";flex:1;height:1px;background:var(--line)}
+  .steps{display:flex;flex-direction:column;gap:0;border:1px solid var(--line);background:var(--card)}
+  .step{display:grid;grid-template-columns:34px 1fr;gap:0;border-top:1px solid var(--line-soft)}
+  .step:first-child{border-top:none}
+  .step .n{font-family:"Saira Condensed",sans-serif;font-weight:700;font-size:15px;color:var(--ox);
+    display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line-soft);background:var(--paper)}
+  .step .b{padding:13px 16px}
+  .step .cls{font-family:"DM Mono",monospace;font-size:12.5px;color:var(--ink);font-weight:500}
+  .step .d{font-size:13px;color:var(--ink-soft);margin-top:3px}
+  .step .d em{font-style:normal;color:var(--ox);font-family:"DM Mono",monospace;font-size:12px}
+
+  /* arch two-col */
+  .arch{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:8px}
+  @media(max-width:720px){.arch{grid-template-columns:1fr}}
+  .col{border:1px solid var(--line);background:var(--card);padding:20px 22px}
+  .col h3{margin-bottom:4px}
+  .col .sub{font-family:"DM Mono",monospace;font-size:10.5px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:14px}
+  .col ul{list-style:none}
+  .col li{font-family:"DM Mono",monospace;font-size:12.5px;padding:5px 0;border-top:1px dashed var(--line-soft);color:var(--ink-soft)}
+  .col li:first-child{border-top:none}
+  .col li b{color:var(--ink);font-weight:500}
+
+  /* quality ledger */
+  .ledger{margin-top:8px;border:1px solid var(--line)}
+  .lr{display:grid;grid-template-columns:200px 1fr;border-top:1px solid var(--line-soft);background:var(--card)}
+  .lr:first-child{border-top:none}
+  .lr .k{padding:13px 18px;border-right:1px solid var(--line-soft);font-family:"DM Mono",monospace;
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ox)}
+  .lr .v{padding:13px 18px;font-size:14px;color:var(--ink-soft)}
+  .lr .v b{color:var(--ink);font-weight:600}
+  @media(max-width:640px){.lr{grid-template-columns:1fr}.lr .k{border-right:none;border-bottom:1px solid var(--line-soft)}}
+
+  footer{margin-top:64px;border-top:2px solid var(--ink);padding:22px 0 60px;
+    font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  footer b{color:var(--ox)}
+
+  .rv{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+  .rv.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.stamp.press{animation:none}}
+  :focus-visible{outline:2px solid var(--ox);outline-offset:3px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="strip">
+    <span>Dossiê de PR</span>
+    <span>Branch <b>feat/support-module</b></span>
+    <span>→ develop</span>
+    <span class="sp">95 arquivos · +6.327 / −7</span>
+  </div>
+
+  <!-- HERO / TICKET STUB -->
+  <header class="stub">
+    <div class="stub-grid">
+      <div>
+        <div class="proto rv">Protocolo <b>SUP-2026-0001</b> · 3pontos-tech/support</div>
+        <h1 class="rv">Hub de<br/>Atendimento<span class="thin">triagem &amp; roteamento</span></h1>
+        <p class="thesis rv">Um <b>ponto único</b> para abrir chamados — visitante ou usuário — que
+          <b>roteia automaticamente para o setor certo</b>, confirma o recebimento, avisa a cada
+          mudança de status e dá ao admin <b>métricas e controle do ciclo de vida</b>.</p>
+      </div>
+      <div class="stamp press" aria-label="Status do PR: pronto">
+        <span class="big">Pronto</span>
+        <span class="sm">51 testes · phpstan ok</span>
+      </div>
+    </div>
+    <div class="perf"></div>
+  </header>
+
+  <!-- BUSINESS -->
+  <section class="band rv">
+    <span class="eyebrow">Campo A — O que muda pro negócio</span>
+    <h2>Por que isso importa</h2>
+    <div class="rule"></div>
+    <div class="fields">
+      <div class="field">
+        <div class="fc">intake</div>
+        <h3>Abertura sem fricção</h3>
+        <p>Colaborador, RH, consultor ou visitante anônimo abrem chamado pelo painel — anexando print ou PDF. Cada chamado ganha um protocolo único e rastreável.</p>
+      </div>
+      <div class="field">
+        <div class="fc">roteamento</div>
+        <h3>Vai pro setor certo</h3>
+        <p>A categoria do chamado decide o setor responsável (TI, Financeiro, Comercial, CS, Produto). Ninguém tria à mão; o e-mail chega direto na área.</p>
+      </div>
+      <div class="field">
+        <div class="fc">transparência</div>
+        <h3>O solicitante sabe o andamento</h3>
+        <p>Recebe confirmação na abertura e e-mail a cada virada de status — quando entra em andamento, é resolvido ou encerrado — independente do canal por onde foi tratado.</p>
+      </div>
+      <div class="field">
+        <div class="fc">gestão</div>
+        <h3>Controle e leitura pro admin</h3>
+        <p>Painel admin vê todos os chamados, altera status com regras, e acompanha métricas: resolução, por status, por setor e por categoria.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROUTING MATRIX -->
+  <section class="band rv">
+    <span class="eyebrow">Campo B — Roteamento</span>
+    <h2>Categoria → setor</h2>
+    <div class="rule"></div>
+    <p class="lead">O mapa que o domínio aplica (<span class="code">SupportTicketCategoryEnum::getDestinationChannel()</span>). Hoje todo setor recebe por <b>e-mail</b>; o canal Monday fica como degrau preparado para a fase 2.</p>
+    <div class="matrix" style="margin-top:18px">
+      <div class="row">
+        <div class="sector"><span class="dot" style="background:#3b82f6"></span><span class="tag">TI</span></div>
+        <div class="cats"><span class="chip">login / acesso</span><span class="chip">erro plataforma</span><span class="chip">bug</span><span class="chip">integração</span><span class="chip">performance</span><span class="chip">agendamento</span><span class="via">via e-mail</span></div>
+      </div>
+      <div class="row">
+        <div class="sector"><span class="dot" style="background:#22a06b"></span><span class="tag">Financeiro</span></div>
+        <div class="cats"><span class="chip">financeiro / NF / reembolso</span><span class="via">via e-mail</span></div>
+      </div>
+      <div class="row">
+        <div class="sector"><span class="dot" style="background:#b07016"></span><span class="tag">Comercial</span></div>
+        <div class="cats"><span class="chip">contrato / plano / upgrade</span><span class="via">via e-mail</span></div>
+      </div>
+      <div class="row">
+        <div class="sector"><span class="dot" style="background:#9d2b25"></span><span class="tag">CS</span></div>
+        <div class="cats"><span class="chip">cancelamento / reclamação</span><span class="chip">dúvida operacional</span><span class="chip">outros</span><span class="via">via e-mail</span></div>
+      </div>
+      <div class="row">
+        <div class="sector"><span class="dot" style="background:#a855f7"></span><span class="tag">Produto</span></div>
+        <div class="cats"><span class="chip">sugestão / feedback</span><span class="via">via e-mail</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATE MACHINE -->
+  <section class="band rv">
+    <span class="eyebrow">Campo C — Ciclo de vida</span>
+    <h2>Estados do chamado</h2>
+    <div class="rule"></div>
+    <p class="lead">Uma state machine leve: o chamado abre em <b>Pendente</b> e segue para <b>Em desenvolvimento</b> em diante. O status só anda por caminhos válidos e cada virada notifica o solicitante. <b>Falha de entrega não é estado do chamado</b> — isso vive no destino.</p>
+    <div class="sm" style="margin-top:22px">
+      <span class="st amber">Pendente<small>pending</small></span>
+      <span class="arr">→</span>
+      <span class="st indigo">Em desenvolvimento<small>in_progress</small></span>
+      <span class="arr">→</span>
+      <span class="st green">Resolvido<small>resolved · desfecho</small></span>
+      <span class="arr" style="color:var(--ox)">↺</span>
+      <span class="st gray">Fechado<small>closed · terminal</small></span>
+    </div>
+    <div class="smnote">
+      <div><b>Pendente é o repouso.</b> Ao abrir, o setor é notificado por e-mail, mas o chamado fica em <b>Pendente</b> até um agente assumir e movê-lo para <b>Em desenvolvimento</b> — a notificação não avança o ciclo.</div>
+      <div><b>Dois desfechos.</b> <b>Resolvido</b> = atendido; <b>Fechado</b> = encerrado <b>sem resposta do solicitante ou quando o chamado não faz sentido</b>. Ambos são estados de fim.</div>
+      <div><b>Reabertura.</b> Um chamado <b>Resolvido pode voltar para Em desenvolvimento</b> (↺) se o problema persistir. <b>Fechado é terminal</b> — não reabre.</div>
+      <div><b>Uma porta só.</b> Toda mudança manual passa por <span class="code">TransitionSupportTicketStatusAction</span>; o guard <span class="code">allowedTransitions()</span> proíbe pulos e a UI oferece só os próximos estados válidos. Notifica em Em desenvolvimento, Resolvido e Fechado.</div>
+    </div>
+  </section>
+
+  <!-- CODE FLOW -->
+  <section class="band rv">
+    <span class="eyebrow">Campo D — Como o fluxo funciona no código</span>
+    <h2>Da abertura ao despacho</h2>
+    <div class="rule"></div>
+
+    <div class="lane">
+      <div class="lane-h">Fase 1 — Criação · web, síncrono</div>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><div class="b"><div class="cls">CreateSupportTicketAction::execute()</div><div class="d">Gera o protocolo e insere o chamado — <em>protocolo à prova de corrida</em> (advisory-free: retry na constraint única).</div></div></div>
+        <div class="step"><div class="n">2</div><div class="b"><div class="cls">Mail::queue(SupportTicketConfirmationMail)</div><div class="d">Confirma o recebimento ao solicitante — <em>1× e independente do canal</em>. Fila <em>emails</em>.</div></div></div>
+        <div class="step"><div class="n">3</div><div class="b"><div class="cls">dispatch(DispatchSupportTicketJob)</div><div class="d">Joga o roteamento para a fila <em>default</em> (assíncrono).</div></div></div>
+      </div>
+    </div>
+
+    <div class="lane">
+      <div class="lane-h">Fase 2 — Roteamento · job, assíncrono</div>
+      <div class="steps">
+        <div class="step"><div class="n">4</div><div class="b"><div class="cls">TicketRouterService::dispatch()</div><div class="d">Orquestra: para cada canal de <em>category-&gt;destinationChannels()</em> cria um <em>TicketDestination</em> (estruturado para N destinos).</div></div></div>
+        <div class="step"><div class="n">5</div><div class="b"><div class="cls">app($type-&gt;senderClass())</div><div class="d">Resolve o handler por tipo. Canal novo = nova classe + 1 case no enum, <em>sem tocar no orquestrador</em>.</div></div></div>
+        <div class="step"><div class="n">6</div><div class="b"><div class="cls">EmailTicketSender::send() → DispatchResult</div><div class="d">Só envia (<em>sendNow</em>, inline no job) e devolve o resultado — não toca no banco. Monday segue stub (<em>pending</em>).</div></div></div>
+        <div class="step"><div class="n">7</div><div class="b"><div class="cls">$destination->update($result)</div><div class="d">O orquestrador grava o desfecho no destino. O <em>chamado segue Pendente</em> — notificar o setor não avança o ciclo de vida.</div></div></div>
+      </div>
+    </div>
+    <p class="lead" style="margin-top:18px;font-size:14px">
+      Cada peça com um papel: <b>handler</b> envia, <b>orquestrador</b> persiste e agrega, <b>enum</b> guarda regras.
+      O <span class="code">DispatchResult</span> é o recibo do envio (status + reference_id + erro); o que falha vira
+      <span class="code">TicketDestination.status = Failed</span>, nunca um estado do chamado.
+    </p>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="band rv">
+    <span class="eyebrow">Campo E — Onde mora o quê</span>
+    <h2>Domínio × painéis</h2>
+    <div class="rule"></div>
+    <div class="arch">
+      <div class="col">
+        <h3>Módulo support</h3>
+        <div class="sub">domínio · zero Filament</div>
+        <ul>
+          <li><b>Models</b> — SupportTicket · TicketDestination</li>
+          <li><b>Enums</b> — Category · Status (state machine) · Destination Type/Channel/Status</li>
+          <li><b>DTOs</b> — CreateSupportTicketDTO (fromFormState) · DispatchResult</li>
+          <li><b>Actions</b> — Create · TransitionStatus</li>
+          <li><b>Services</b> — ProtocolGenerator · TicketRouterService</li>
+          <li><b>Senders</b> — Email · Monday (stub) + Contract</li>
+          <li><b>Mail</b> — confirmação · área · status atualizado</li>
+          <li><b>Job</b> — DispatchSupportTicketJob</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>Painéis</h3>
+        <div class="sub">Filament · cada painel é dono do seu</div>
+        <ul>
+          <li><b>Guest</b> — HelpCenterPage (campos de visitante)</li>
+          <li><b>App / Company / Consultant</b> — resource: abrir, ver, finalizar (próprios chamados)</li>
+          <li><b>Admin</b> — vê todos · altera status · relation manager de destinos</li>
+          <li><b>Admin · Métricas</b> — resolução · por status · por setor · por categoria</li>
+          <li><b>Compartilhado</b> — só o domínio (model, action, enums)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUALITY -->
+  <section class="band rv">
+    <span class="eyebrow">Campo F — Decisões &amp; garantias</span>
+    <h2>Lastro técnico</h2>
+    <div class="rule"></div>
+    <div class="ledger">
+      <div class="lr"><div class="k">Protocolo</div><div class="v"><b>SUP-AAAA-NNNN</b>, reset anual, único global. Geração lê a tabela inteira (ignora o scope de tenant) + retry na constraint — <b>sem duplicar sob corrida</b>.</div></div>
+      <div class="lr"><div class="k">Multi-empresa</div><div class="v">Chamados são <b>tenant-aware</b>: cada empresa só enxerga os seus; admin vê tudo.</div></div>
+      <div class="lr"><div class="k">Falha de entrega</div><div class="v">Mora no <b>TicketDestination</b> (não no chamado); job esgotado marca o destino como <b>Failed</b>.</div></div>
+      <div class="lr"><div class="k">E-mail</div><div class="v">Mailables na fila <b>emails</b>; o mail da área sai <b>inline</b> no job (sendNow). Worker: <span class="code">--queue=emails,default</span>.</div></div>
+      <div class="lr"><div class="k">Anexos</div><div class="v">Spatie Media Library no R2, organizados por <b>tickets/{protocolo}/</b>.</div></div>
+      <div class="lr"><div class="k">Testes</div><div class="v"><b>51</b> focados (dispatch por categoria, transições, protocolo, criação por painel, métricas, guest) · suíte total <b>833</b> verdes.</div></div>
+      <div class="lr"><div class="k">Estática</div><div class="v">PHPStan <b>level max</b> sem erros · Pint limpo · comentários em inglês.</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>TresPontosTech\Support · Hub de Atendimento</span>
+    <span><b>Pronto para revisão</b></span>
+  </footer>
+</div>
+
+<script>
+  const io = new IntersectionObserver((es)=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.1});
+  document.querySelectorAll('.rv').forEach((el,i)=>{ el.style.transitionDelay = Math.min(i,5)*55 + 'ms'; io.observe(el); });
+</script>
+</body>
+</html>

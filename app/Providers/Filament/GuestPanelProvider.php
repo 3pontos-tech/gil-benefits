@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Guest\Pages\HelpCenterPage;
 use App\Filament\Guest\Pages\LandingPage;
 use Filament\Actions\Action;
 use Filament\Enums\ThemeMode;
@@ -75,23 +76,28 @@ class GuestPanelProvider extends PanelProvider
             ])
             ->navigationItems([
                 NavigationItem::make('Inicio')
-                    ->url('#home')
+                    ->url(fn (): string => LandingPage::getUrl() . '#home')
                     ->sort(0),
                 NavigationItem::make('Como Funciona')
-                    ->url('#how-it-works')
+                    ->url(fn (): string => LandingPage::getUrl() . '#how-it-works')
                     ->sort(2),
                 NavigationItem::make('Nosso Desafio')
-                    ->url('#challenge')
+                    ->url(fn (): string => LandingPage::getUrl() . '#challenge')
                     ->sort(3),
                 NavigationItem::make('Consultoria')
-                    ->url('#assessment')
+                    ->url(fn (): string => LandingPage::getUrl() . '#assessment')
                     ->sort(4),
                 NavigationItem::make('Preços')
-                    ->url('#pricing')
+                    ->url(fn (): string => LandingPage::getUrl() . '#pricing')
                     ->sort(5),
                 NavigationItem::make('FAQ')
-                    ->url('#faq')
+                    ->url(fn (): string => LandingPage::getUrl() . '#faq')
                     ->sort(6),
+                NavigationItem::make('Abrir Chamado')
+                    ->group('Ajuda')
+                    ->icon(Heroicon::QuestionMarkCircle)
+                    ->url(fn (): string => HelpCenterPage::getUrl())
+                    ->sort(7),
             ])
             ->discoverWidgets(in: app_path('Filament/Guest/Widgets'), for: 'App\Filament\Guest\Widgets')
             ->widgets([
