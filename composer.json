@@ -33,6 +33,7 @@
         "3pontos-tech/consultants": "*",
         "3pontos-tech/integration-google-calendar": "*",
         "3pontos-tech/integration-highlevel": "*",
+        "3pontos-tech/integration-monday": "*",
         "3pontos-tech/panel-admin": "*",
         "3pontos-tech/panel-app": "*",
         "3pontos-tech/panel-company": "*",

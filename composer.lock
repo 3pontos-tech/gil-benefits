@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "290ccc43072dbbf6a6481f0cfe562301",
+    "content-hash": "0f44c67246caaa03d4d024bd64c137b1",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -188,6 +188,36 @@
                     "TresPontosTech\\IntegrationHighlevel\\Tests\\": "tests/",
                     "TresPontosTech\\IntegrationHighlevel\\Database\\Factories\\": "database/factories/",
                     "TresPontosTech\\IntegrationHighlevel\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/integration-monday",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/integration-monday",
+                "reference": "f014c00c39b2c13133721a63ad27e6954f245811"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\IntegrationMonday\\Providers\\IntegrationMondayServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\IntegrationMonday\\": "src/",
+                    "TresPontosTech\\IntegrationMonday\\Tests\\": "tests/"
                 }
             },
             "license": [
@@ -17105,5 +17135,5 @@
         "php": "^8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
