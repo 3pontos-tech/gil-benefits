@@ -43,14 +43,14 @@ final class GetSessionsTrend
                 Appointment::query()
                     ->where('company_id', $tenant->getKey())
                     ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds)),
-            )->between(start: $period->start, end: $period->end)->{$method}()->count();
+            )->dateColumn('appointment_at')->between(start: $period->start, end: $period->end)->{$method}()->count();
 
             $completedSeries = Trend::query(
                 Appointment::query()
                     ->where('company_id', $tenant->getKey())
                     ->where('status', AppointmentStatus::Completed->value)
                     ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds)),
-            )->between(start: $period->start, end: $period->end)->{$method}()->count();
+            )->dateColumn('appointment_at')->between(start: $period->start, end: $period->end)->{$method}()->count();
 
             $totalValues = $totalSeries->map(fn (TrendValue $v): int => (int) $v->aggregate)->all();
             $completedValues = $completedSeries->map(fn (TrendValue $v): int => (int) $v->aggregate)->all();
