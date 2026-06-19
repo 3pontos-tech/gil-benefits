@@ -6,7 +6,7 @@ namespace TresPontosTech\PanelCompany\Actions\Metrics;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
-use TresPontosTech\Appointments\Models\AppointmentFeedback;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Actions\Metrics\Concerns\BuildsMetricsCacheKey;
 use TresPontosTech\PanelCompany\DTOs\MetricsFilters;
@@ -30,8 +30,8 @@ final class GetSatisfaction
         $cacheKey = $this->metricsCacheKey('satisfaction', $tenant, $period->cacheKey(), $filters->cacheKey());
 
         return Cache::remember($cacheKey, $this->metricsCacheTtl(), function () use ($tenant, $period, $userIds): SatisfactionData {
-            $distribution = AppointmentFeedback::query()
-                ->join('appointments', 'appointments.id', '=', 'appointment_feedbacks.appointment_id')
+            $distribution = Appointment::query()
+                ->join('appointment_feedbacks', 'appointment_feedbacks.appointment_id', '=', 'appointments.id')
                 ->where('appointments.company_id', $tenant->getKey())
                 ->whereBetween('appointments.appointment_at', [$period->start, $period->end])
                 ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('appointments.user_id', $userIds))

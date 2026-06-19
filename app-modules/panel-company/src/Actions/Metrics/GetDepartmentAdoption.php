@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelCompany\Actions\Metrics;
 
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Actions\Metrics\Concerns\BuildsMetricsCacheKey;
 use TresPontosTech\PanelCompany\DTOs\DepartmentBar;
@@ -27,29 +27,28 @@ final class GetDepartmentAdoption
         $cacheKey = $this->metricsCacheKey('department_adoption', $tenant, $period->cacheKey());
 
         return Cache::remember($cacheKey, $this->metricsCacheTtl(), function () use ($tenant, $period): array {
-            $totals = DB::table('company_employees')
-                ->where('company_id', $tenant->getKey())
-                ->whereNotNull('department_id')
-                ->where('active', true)
-                ->groupBy('department_id')
-                ->selectRaw('department_id, count(*) as total')
+            $totals = $tenant->employees()
+                ->wherePivot('active', true)
+                ->wherePivotNotNull('department_id')
+                ->groupBy('company_employees.department_id')
+                ->selectRaw('company_employees.department_id as department_id, count(distinct users.id) as total')
                 ->pluck('total', 'department_id');
 
             if ($totals->isEmpty()) {
                 return [];
             }
 
-            $adopted = DB::table('company_employees as ce')
-                ->join('appointments as a', function ($join) use ($period): void {
-                    $join->on('a.user_id', '=', 'ce.user_id')
-                        ->on('a.company_id', '=', 'ce.company_id')
-                        ->whereBetween('a.appointment_at', [$period->start, $period->end]);
+            $adopted = Appointment::query()
+                ->join('company_employees as ce', function ($join): void {
+                    $join->on('ce.user_id', '=', 'appointments.user_id')
+                        ->on('ce.company_id', '=', 'appointments.company_id');
                 })
-                ->where('ce.company_id', $tenant->getKey())
+                ->where('appointments.company_id', $tenant->getKey())
+                ->whereBetween('appointments.appointment_at', [$period->start, $period->end])
                 ->whereNotNull('ce.department_id')
                 ->where('ce.active', true)
                 ->groupBy('ce.department_id')
-                ->selectRaw('ce.department_id, count(distinct ce.user_id) as adopted')
+                ->selectRaw('ce.department_id as department_id, count(distinct ce.user_id) as adopted')
                 ->pluck('adopted', 'department_id');
 
             $names = $tenant->departments()->pluck('name', 'id');

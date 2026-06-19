@@ -7,9 +7,7 @@ namespace TresPontosTech\PanelCompany\Actions\Metrics;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
-use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\PanelCompany\Actions\Metrics\Concerns\BuildsMetricsCacheKey;
@@ -18,8 +16,7 @@ use TresPontosTech\PanelCompany\DTOs\MetricsFilters;
 use TresPontosTech\PanelCompany\Support\MetricsPeriod;
 
 /**
- * Top 5 consultants by session count within the window, with completion share
- * and average rating.
+ * Top 5 consultants by session count within the window, with average rating.
  */
 final class GetTopConsultants
 {
@@ -46,7 +43,7 @@ final class GetTopConsultants
                 ->whereBetween('appointment_at', [$period->start, $period->end])
                 ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
                 ->groupBy('consultant_id')
-                ->selectRaw('consultant_id, count(*) as sessions, sum(case when status = ? then 1 else 0 end) as completed', [AppointmentStatus::Completed->value])
+                ->selectRaw('consultant_id, count(*) as sessions')
                 ->orderByDesc('sessions')
                 ->limit(5)
                 ->get();
@@ -58,8 +55,8 @@ final class GetTopConsultants
             $consultantIds = $rows->pluck('consultant_id')->all();
             $names = Consultant::query()->whereIn('id', $consultantIds)->pluck('name', 'id');
 
-            $ratings = AppointmentFeedback::query()
-                ->join('appointments', 'appointments.id', '=', 'appointment_feedbacks.appointment_id')
+            $ratings = Appointment::query()
+                ->join('appointment_feedbacks', 'appointment_feedbacks.appointment_id', '=', 'appointments.id')
                 ->where('appointments.company_id', $tenant->getKey())
                 ->whereIn('appointments.consultant_id', $consultantIds)
                 ->whereBetween('appointments.appointment_at', [$period->start, $period->end])
@@ -72,7 +69,6 @@ final class GetTopConsultants
 
             return $rows->values()->map(function ($row, int $index) use ($names, $ratings, $maxSessions): ConsultantRow {
                 $sessions = (int) $row->sessions;
-                $completed = (int) $row->completed;
                 $name = (string) ($names[$row->consultant_id] ?? '—');
                 $rating = $ratings[$row->consultant_id] ?? null;
 
@@ -81,7 +77,6 @@ final class GetTopConsultants
                     initials: $this->initials($name),
                     sessions: $sessions,
                     rating: $rating !== null ? round((float) $rating, 1) : null,
-                    completionPercent: $sessions > 0 ? round($completed / $sessions * 100) : null,
                     barWidthPercent: $this->rate($sessions, $maxSessions),
                     color: self::COLORS[$index % count(self::COLORS)],
                 );

@@ -15,7 +15,6 @@ final readonly class ConsultantRow
         public string $initials,
         public int $sessions,
         public ?float $rating,
-        public ?float $completionPercent,
         public float $barWidthPercent,
         public string $color,
     ) {}

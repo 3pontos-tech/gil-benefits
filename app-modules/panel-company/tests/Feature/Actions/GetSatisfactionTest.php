@@ -34,6 +34,22 @@ it('computes average, NPS and recommendation share from feedback', function (): 
         ->and($data->avg)->toBeGreaterThan(4.0);
 });
 
+it('excludes soft-deleted appointments from satisfaction', function (): void {
+    $company = Company::factory()->create();
+
+    $live = Appointment::factory()->create(['company_id' => $company->id, 'appointment_at' => now()]);
+    AppointmentFeedback::factory()->create(['appointment_id' => $live->id, 'rating' => 5]);
+
+    $deleted = Appointment::factory()->create(['company_id' => $company->id, 'appointment_at' => now()]);
+    AppointmentFeedback::factory()->create(['appointment_id' => $deleted->id, 'rating' => 1]);
+    $deleted->delete();
+
+    $data = resolve(GetSatisfaction::class)->handle($company, MetricsPeriod::lastMonths(12), MetricsFilters::none());
+
+    expect($data->total)->toBe(1)
+        ->and($data->avg)->toBe(5.0);
+});
+
 it('returns zeros when there is no feedback', function (): void {
     $company = Company::factory()->create();
 

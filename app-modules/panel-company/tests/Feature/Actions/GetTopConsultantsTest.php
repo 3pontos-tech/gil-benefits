@@ -76,3 +76,32 @@ it('scopes ratings to the filtered users', function (): void {
         ->and($rows[0]->sessions)->toBe(1)
         ->and($rows[0]->rating)->toBe(5.0);
 });
+
+it('excludes soft-deleted appointments from session counts and ratings', function (): void {
+    $company = Company::factory()->create();
+    $consultant = Consultant::factory()->create();
+
+    $live = Appointment::factory()->create([
+        'company_id' => $company->id,
+        'consultant_id' => $consultant->id,
+        'status' => AppointmentStatus::Completed,
+        'appointment_at' => now(),
+    ]);
+    $deleted = Appointment::factory()->create([
+        'company_id' => $company->id,
+        'consultant_id' => $consultant->id,
+        'status' => AppointmentStatus::Completed,
+        'appointment_at' => now(),
+    ]);
+
+    AppointmentFeedback::factory()->create(['appointment_id' => $live->id, 'rating' => 5]);
+    AppointmentFeedback::factory()->create(['appointment_id' => $deleted->id, 'rating' => 1]);
+
+    $deleted->delete();
+
+    $rows = resolve(GetTopConsultants::class)->handle($company, MetricsPeriod::lastMonths(12), MetricsFilters::none());
+
+    expect($rows)->toHaveCount(1)
+        ->and($rows[0]->sessions)->toBe(1)
+        ->and($rows[0]->rating)->toBe(5.0);
+});
