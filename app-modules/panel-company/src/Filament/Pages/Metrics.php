@@ -47,6 +47,11 @@ class Metrics extends BaseDashboard
     public function filtersForm(Schema $schema): Schema
     {
         return $schema->components([
+            Select::make('month')
+                ->label(__('panel-company::resources.pages.metrics.filter_month'))
+                ->placeholder(__('panel-company::resources.pages.metrics.filter_month_placeholder'))
+                ->options($this->monthOptions())
+                ->native(false),
             DatePicker::make('startDate')
                 ->label(__('panel-company::resources.pages.metrics.filter_start_date'))
                 ->default(now()->subDays(30)),
@@ -76,6 +81,21 @@ class Metrics extends BaseDashboard
                 ->searchable()
                 ->native(false),
         ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function monthOptions(): array
+    {
+        $options = [];
+
+        for ($i = 0; $i < 12; ++$i) {
+            $date = now()->subMonthsNoOverflow($i);
+            $options[$date->format('Y-m')] = ucfirst($date->translatedFormat('M/Y'));
+        }
+
+        return $options;
     }
 
     public function content(Schema $schema): Schema

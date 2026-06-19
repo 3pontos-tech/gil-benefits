@@ -13,5 +13,6 @@ class PanelCompanyServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'panel-company');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'panel-company');
     }
 }

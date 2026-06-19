@@ -13,6 +13,11 @@ use TresPontosTech\App\Filament\Widgets\SharedMaterialsWidget;
 
 class UserDashboard extends Dashboard
 {
+    public function getTitle(): string
+    {
+        return '';
+    }
+
     public function getColumns(): int|array
     {
         return 6;
@@ -21,11 +26,6 @@ class UserDashboard extends Dashboard
     public function getHeading(): string
     {
         return '';
-    }
-
-    public function getTitle(): string
-    {
-        return __('panel-app::pages.dashboard.title');
     }
 
     public static function getNavigationLabel(): string

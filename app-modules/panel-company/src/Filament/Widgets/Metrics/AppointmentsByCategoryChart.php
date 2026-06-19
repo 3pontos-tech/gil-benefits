@@ -7,9 +7,8 @@ namespace TresPontosTech\PanelCompany\Filament\Widgets\Metrics;
 use Filament\Facades\Filament;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
-use Illuminate\Support\Collection;
-use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
-use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelCompany\Actions\Metrics\GetCategoryMix;
+use TresPontosTech\PanelCompany\DTOs\CategorySlice;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class AppointmentsByCategoryChart extends ChartWidget
@@ -30,43 +29,34 @@ class AppointmentsByCategoryChart extends ChartWidget
 
     protected function getData(): array
     {
-        ['start' => $start, 'end' => $end] = $this->dateRange();
+        $mix = resolve(GetCategoryMix::class)->handle(
+            Filament::getTenant(),
+            $this->metricsPeriod(),
+            $this->metricsFilters(),
+        );
 
-        $userIds = $this->filteredUserIds();
-
-        $results = Appointment::query()
-            ->where('company_id', Filament::getTenant()->id)
-            ->whereBetween('appointment_at', [$start, $end])
-            ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
-            ->whereNotNull('category_type')
-            ->selectRaw('category_type, count(*) as total')
-            ->groupBy('category_type')
-            ->pluck('total', 'category_type');
-
-        $counts = collect(AppointmentCategoryEnum::cases())
-            ->mapWithKeys(fn (AppointmentCategoryEnum $category): array => [
-                $category->value => $results->get($category->value, 0),
-            ]);
+        $palette = [
+            'rgb(34, 197, 94)',
+            'rgb(59, 130, 246)',
+            'rgb(168, 85, 247)',
+            'rgb(249, 115, 22)',
+            'rgb(236, 72, 153)',
+            'rgb(20, 184, 166)',
+            'rgb(99, 102, 241)',
+            'rgb(239, 68, 68)',
+        ];
 
         return [
             'datasets' => [
                 [
-                    'data' => $counts->values()->toArray(),
-                    'backgroundColor' => [
-                        'rgb(34, 197, 94)',
-                        'rgb(59, 130, 246)',
-                        'rgb(168, 85, 247)',
-                        'rgb(249, 115, 22)',
-                        'rgb(236, 72, 153)',
-                        'rgb(20, 184, 166)',
-                        'rgb(99, 102, 241)',
-                        'rgb(239, 68, 68)',
-                    ],
+                    'data' => array_map(fn (CategorySlice $item): int => $item->value, $mix->items),
+                    'backgroundColor' => array_map(
+                        fn (int $index): string => $palette[$index % count($palette)],
+                        array_keys($mix->items),
+                    ),
                 ],
             ],
-            'labels' => $counts->keys()
-                ->map(fn (string $value): string => AppointmentCategoryEnum::from($value)->getLabel())
-                ->all(),
+            'labels' => array_map(fn (CategorySlice $item): string => $item->label, $mix->items),
         ];
     }
 
