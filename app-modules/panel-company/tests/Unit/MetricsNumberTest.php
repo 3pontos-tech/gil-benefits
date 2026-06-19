@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 use TresPontosTech\PanelCompany\Support\MetricsNumber;
 
+afterEach(function (): void {
+    app()->setLocale(config('app.locale'));
+});
+
 it('formats integers with locale grouping', function (string $locale, string $expected): void {
     app()->setLocale($locale);
 
