@@ -6,8 +6,8 @@ namespace TresPontosTech\PanelCompany\Filament\Concerns;
 
 use Filament\Facades\Filament;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Actions\Metrics\ResolveScopedUserIds;
 use TresPontosTech\PanelCompany\DTOs\MetricsFilters;
 use TresPontosTech\PanelCompany\Support\MetricsPeriod;
 
@@ -85,29 +85,9 @@ trait HasMetricsDateRange
 
     private function filteredUserIds(): ?Collection
     {
-        $userId = data_get($this->filters, 'userId');
-
-        if (filled($userId)) {
-            return collect([$userId]);
-        }
-
-        $departmentId = data_get($this->filters, 'departmentId');
-
-        if (blank($departmentId)) {
-            return null;
-        }
-
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
-        $tenantId = $tenant->getKey();
-        $cacheKey = sprintf('metrics.department_users.%s.%s', $tenantId, $departmentId);
 
-        return Cache::store('array')->rememberForever(
-            $cacheKey,
-            fn () => $tenant
-                ->employees()
-                ->wherePivot('department_id', $departmentId)
-                ->pluck('users.id')
-        );
+        return resolve(ResolveScopedUserIds::class)->handle($tenant, $this->metricsFilters());
     }
 }
