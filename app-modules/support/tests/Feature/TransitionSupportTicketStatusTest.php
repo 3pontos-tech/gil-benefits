@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Actions\TransitionSupportTicketStatusAction;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Events\SupportTicketStatusChanged;
 use TresPontosTech\Support\Exceptions\InvalidTransitionException;
 use TresPontosTech\Support\Mail\SupportTicketStatusUpdatedMail;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -111,4 +113,18 @@ it('reopens a resolved ticket back into progress', function (): void {
     resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
 
     expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress);
+});
+
+it('fires SupportTicketStatusChanged with the old and new status', function (): void {
+    Event::fake([SupportTicketStatusChanged::class]);
+    $ticket = ticketWithStatus(SupportTicketStatusEnum::Pending);
+
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
+
+    Event::assertDispatched(
+        SupportTicketStatusChanged::class,
+        fn (SupportTicketStatusChanged $event): bool => $event->ticket->is($ticket)
+            && $event->from === SupportTicketStatusEnum::Pending
+            && $event->to === SupportTicketStatusEnum::InProgress,
+    );
 });

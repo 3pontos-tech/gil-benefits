@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\Event;
-use TresPontosTech\IntegrationMonday\Events\MondayItemColumnChanged;
+use Basement\Webhooks\Models\InboundWebhook;
+use Illuminate\Support\Facades\Bus;
+use TresPontosTech\IntegrationMonday\Jobs\HandleMondayWebhookJob;
 
 beforeEach(function (): void {
     config(['monday.webhook_secret' => 'secret']);
@@ -23,19 +24,25 @@ it('rejects requests without the correct secret', function (): void {
         ->assertUnauthorized();
 });
 
-it('dispatches a column-changed event from a status change payload', function (): void {
-    Event::fake([MondayItemColumnChanged::class]);
+it('queues the handler job and stores the inbound webhook', function (): void {
+    Bus::fake();
 
-    $this->postJson('/webhooks/monday?token=secret', [
+    $payload = [
         'event' => [
+            'type' => 'update_column_value',
             'boardId' => 111,
             'pulseId' => 987654,
             'columnId' => 'status',
-            'value' => ['label' => ['index' => 0, 'text' => 'Em andamento']],
+            'value' => ['label' => ['index' => 0, 'text' => 'Em Andamento']],
         ],
-    ])->assertOk();
+    ];
 
-    Event::assertDispatched(MondayItemColumnChanged::class, fn (MondayItemColumnChanged $event): bool => $event->itemId === '987654'
-        && $event->columnId === 'status'
-        && $event->index === 0);
+    $this->postJson('/webhooks/monday?token=secret', $payload)->assertOk();
+
+    Bus::assertDispatched(
+        HandleMondayWebhookJob::class,
+        fn (HandleMondayWebhookJob $job): bool => $job->payload['event']['pulseId'] === 987654,
+    );
+
+    expect(InboundWebhook::query()->where('source', 'monday')->where('event', 'update_column_value')->count())->toBe(1);
 });

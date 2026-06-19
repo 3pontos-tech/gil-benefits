@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationMonday\Http\Controllers;
 
+use App\Enums\InboundWebhookSourceEnum;
+use Basement\Webhooks\Actions\StoreInboundWebhook;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use TresPontosTech\IntegrationMonday\Events\MondayItemColumnChanged;
+use TresPontosTech\IntegrationMonday\Jobs\HandleMondayWebhookJob;
 
 final class MondayWebhookController
 {
@@ -17,12 +19,16 @@ final class MondayWebhookController
             return response()->json(['challenge' => $request->input('challenge')]);
         }
 
-        $event = $request->input('event', []);
+        $payload = $request->all();
 
-        // Status columns carry the new label index under value.label.index.
-        $index = $event['value']['label']['index'] ?? null;
+        dispatch(new HandleMondayWebhookJob($payload));
 
-        event(new MondayItemColumnChanged((string) ($event['boardId'] ?? ''), (string) ($event['pulseId'] ?? ''), (string) ($event['columnId'] ?? ''), $index === null ? null : (int) $index));
+        resolve(StoreInboundWebhook::class)->store(
+            source: InboundWebhookSourceEnum::Monday,
+            event: $payload['event']['type'] ?? 'unknown',
+            url: $request->url(),
+            payload: $payload,
+        );
 
         return response()->json(['ok' => true]);
     }

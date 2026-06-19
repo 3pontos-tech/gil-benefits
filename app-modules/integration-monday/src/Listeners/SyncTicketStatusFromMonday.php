@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationMonday\Listeners;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\IntegrationMonday\Events\MondayItemColumnChanged;
 use TresPontosTech\IntegrationMonday\Support\MondayStatusMap;
@@ -19,9 +18,10 @@ use TresPontosTech\Support\Models\TicketDestination;
 /**
  * Inbound sync: turns a Monday status-column change into a guarded ticket
  * transition. Ignores other columns, unknown labels/items, and transitions the
- * support state machine forbids.
+ * support state machine forbids. Runs synchronously inside HandleMondayWebhookJob
+ * so the MondaySyncContext mute spans the transition it triggers.
  */
-final class SyncTicketStatusFromMonday implements ShouldQueue
+final class SyncTicketStatusFromMonday
 {
     public function __construct(
         private readonly TransitionSupportTicketStatusAction $transition,
@@ -53,7 +53,7 @@ final class SyncTicketStatusFromMonday implements ShouldQueue
         }
 
         try {
-            // Mute the outbound observer: this change came from Monday, so it
+            // Mute the outbound listener: this change came from Monday, so it
             // must not be pushed straight back to the board.
             MondaySyncContext::mute(fn (): SupportTicket => $this->transition->execute($ticket, $status));
         } catch (InvalidTransitionException) {

@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Http;
+use TresPontosTech\IntegrationMonday\DTO\ChangeStatusDTO;
+use TresPontosTech\IntegrationMonday\DTO\CreateItemDTO;
+use TresPontosTech\IntegrationMonday\DTO\UploadFileDTO;
 use TresPontosTech\IntegrationMonday\Exceptions\MondayApiException;
 use TresPontosTech\IntegrationMonday\MondayClient;
 
@@ -23,7 +26,7 @@ it('creates an item and returns its id', function (): void {
         'api.monday.com/*' => Http::response(['data' => ['create_item' => ['id' => '987654']]]),
     ]);
 
-    $response = (new MondayClient)->createItem('111', 'topics', '[SUP-2026-0001] Subject', ['status' => ['label' => 'Pending']]);
+    $response = (new MondayClient)->createItem(new CreateItemDTO('111', 'topics', '[SUP-2026-0001] Subject', ['status' => ['index' => 0]]));
 
     expect($response->itemId)->toBe('987654');
 
@@ -31,12 +34,12 @@ it('creates an item and returns its id', function (): void {
         && str_contains((string) $request['query'], 'create_item'));
 });
 
-it('sends a status change mutation', function (): void {
+it('sends a status change mutation by index', function (): void {
     Http::fake([
         'api.monday.com/*' => Http::response(['data' => ['change_column_value' => ['id' => '987654']]]),
     ]);
 
-    (new MondayClient)->changeStatus('987654', '111', 'status', 0);
+    (new MondayClient)->changeStatus(new ChangeStatusDTO('987654', '111', 'status', 0));
 
     Http::assertSent(fn ($request): bool => $request['variables']['value'] === '{"index":0}'
         && $request['variables']['columnId'] === 'status'
@@ -51,7 +54,7 @@ it('throws a non-retryable exception when Monday returns GraphQL errors', functi
     $exception = null;
 
     try {
-        (new MondayClient)->createItem('111', 'topics', 'name', []);
+        (new MondayClient)->createItem(new CreateItemDTO('111', 'topics', 'name', []));
     } catch (MondayApiException $mondayApiException) {
         $exception = $mondayApiException;
     }
@@ -65,7 +68,7 @@ it('uploads a file to a column via the multipart endpoint', function (): void {
         'api.monday.com/v2/file' => Http::response(['data' => ['add_file_to_column' => ['id' => '1']]]),
     ]);
 
-    (new MondayClient)->addFileToColumn('987654', 'file_col', 'binary-bytes', 'evidence.png');
+    (new MondayClient)->addFileToColumn(new UploadFileDTO('987654', 'file_col', 'binary-bytes', 'evidence.png'));
 
     Http::assertSent(fn ($request): bool => $request->url() === 'https://api.monday.com/v2/file'
         && $request->method() === 'POST');
@@ -76,7 +79,7 @@ it('throws when the file upload returns errors', function (): void {
         'api.monday.com/v2/file' => Http::response(['errors' => [['message' => 'too big']]]),
     ]);
 
-    expect(fn () => (new MondayClient)->addFileToColumn('987654', 'file_col', 'bytes', 'f.png'))
+    expect(fn () => (new MondayClient)->addFileToColumn(new UploadFileDTO('987654', 'file_col', 'bytes', 'f.png')))
         ->toThrow(MondayApiException::class);
 });
 
@@ -88,7 +91,7 @@ it('throws a retryable exception on a transport failure', function (): void {
     $exception = null;
 
     try {
-        (new MondayClient)->createItem('111', 'topics', 'name', []);
+        (new MondayClient)->createItem(new CreateItemDTO('111', 'topics', 'name', []));
     } catch (MondayApiException $mondayApiException) {
         $exception = $mondayApiException;
     }

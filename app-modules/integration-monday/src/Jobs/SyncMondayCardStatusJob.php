@@ -10,6 +10,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
+use TresPontosTech\IntegrationMonday\DTO\ChangeStatusDTO;
 use TresPontosTech\IntegrationMonday\MondayClient;
 use TresPontosTech\IntegrationMonday\Support\MondayStatusMap;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
@@ -52,11 +53,11 @@ class SyncMondayCardStatusJob implements ShouldQueue
 
         // Resolve the client only once we know there's a card to update, so the
         // job is a harmless no-op when Monday isn't configured.
-        App::make(MondayClient::class)->changeStatus(
+        App::make(MondayClient::class)->changeStatus(new ChangeStatusDTO(
             itemId: (string) $destination->reference_id,
             boardId: (string) config('monday.board_id'),
             columnId: (string) config('monday.columns.status'),
             index: MondayStatusMap::index($this->status),
-        );
+        ));
     }
 }

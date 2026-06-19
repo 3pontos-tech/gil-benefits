@@ -6,11 +6,18 @@ namespace TresPontosTech\IntegrationMonday;
 
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
+use TresPontosTech\IntegrationMonday\DTO\ChangeStatusDTO;
+use TresPontosTech\IntegrationMonday\DTO\CreateItemDTO;
+use TresPontosTech\IntegrationMonday\DTO\UploadFileDTO;
 use TresPontosTech\IntegrationMonday\Exceptions\MondayApiException;
 use TresPontosTech\IntegrationMonday\Responses\CreateItemResponse;
 
 class MondayClient
 {
+    private readonly string $apiUrl;
+
+    private readonly PendingRequest $request;
+
     public function __construct()
     {
         throw_if(
@@ -19,12 +26,18 @@ class MondayClient
             'Monday API token is not configured.',
             retryable: false,
         );
+
+        $this->apiUrl = rtrim((string) config('monday.api_url'), '/');
+
+        // Base request shared by every call: auth + JSON accept, but no body
+        // format. Each method clones this and sets its own format (asJson for
+        // GraphQL, asMultipart for file uploads) so the formats never leak.
+        $this->request = Http::baseUrl($this->apiUrl)
+            ->withHeaders(['Authorization' => (string) config('monday.token')])
+            ->acceptJson();
     }
 
-    /**
-     * @param  array<string, mixed>  $columnValues
-     */
-    public function createItem(string $boardId, string $groupId, string $itemName, array $columnValues): CreateItemResponse
+    public function createItem(CreateItemDTO $data): CreateItemResponse
     {
         $query = <<<'GRAPHQL'
             mutation ($boardId: ID!, $groupId: String!, $itemName: String!, $columnValues: JSON!) {
@@ -35,30 +48,53 @@ class MondayClient
             GRAPHQL;
 
         $payload = $this->execute($query, [
-            'boardId' => $boardId,
-            'groupId' => $groupId,
-            'itemName' => $itemName,
-            'columnValues' => json_encode($columnValues),
+            'boardId' => $data->boardId,
+            'groupId' => $data->groupId,
+            'itemName' => $data->itemName,
+            'columnValues' => json_encode($data->columnValues),
         ]);
 
         return CreateItemResponse::make($payload);
     }
 
     /**
+     * Sets a status column by its label index. Index is stable — it survives
+     * label renames, casing and locale changes, unlike the label text (which
+     * Monday matches exactly and rejects on any mismatch).
+     */
+    public function changeStatus(ChangeStatusDTO $data): void
+    {
+        $query = <<<'GRAPHQL'
+            mutation ($itemId: ID!, $boardId: ID!, $columnId: String!, $value: JSON!) {
+                change_column_value (item_id: $itemId, board_id: $boardId, column_id: $columnId, value: $value) {
+                    id
+                }
+            }
+            GRAPHQL;
+
+        $this->execute($query, [
+            'itemId' => $data->itemId,
+            'boardId' => $data->boardId,
+            'columnId' => $data->columnId,
+            'value' => json_encode(['index' => $data->index]),
+        ]);
+    }
+
+    /**
      * Uploads a file to a file column on an item. Uses Monday's multipart upload
      * endpoint (the GraphQL multipart spec), separate from the JSON endpoint.
      */
-    public function addFileToColumn(string $itemId, string $columnId, string $contents, string $filename): void
+    public function addFileToColumn(UploadFileDTO $data): void
     {
         $mutation = sprintf(
             'mutation ($file: File!) { add_file_to_column (item_id: %s, column_id: "%s", file: $file) { id } }',
-            $itemId,
-            $columnId,
+            $data->itemId,
+            $data->columnId,
         );
 
-        $response = Http::withHeaders(['Authorization' => (string) config('monday.token')])
-            ->attach('image', $contents, $filename)
-            ->post(rtrim((string) config('monday.api_url'), '/') . '/file', [
+        $response = (clone $this->request)
+            ->attach('image', $data->contents, $data->filename)
+            ->post($this->apiUrl . '/file', [
                 'query' => $mutation,
                 'map' => '{"image":"variables.file"}',
             ]);
@@ -72,35 +108,12 @@ class MondayClient
     }
 
     /**
-     * Sets a status column by its label index. Index is stable — it survives
-     * label renames, casing and locale changes, unlike the label text (which
-     * Monday matches exactly and rejects on any mismatch).
-     */
-    public function changeStatus(string $itemId, string $boardId, string $columnId, int $index): void
-    {
-        $query = <<<'GRAPHQL'
-            mutation ($itemId: ID!, $boardId: ID!, $columnId: String!, $value: JSON!) {
-                change_column_value (item_id: $itemId, board_id: $boardId, column_id: $columnId, value: $value) {
-                    id
-                }
-            }
-            GRAPHQL;
-
-        $this->execute($query, [
-            'itemId' => $itemId,
-            'boardId' => $boardId,
-            'columnId' => $columnId,
-            'value' => json_encode(['index' => $index]),
-        ]);
-    }
-
-    /**
      * @param  array<string, mixed>  $variables
      * @return array<string, mixed>
      */
     private function execute(string $query, array $variables): array
     {
-        $response = $this->request()->post('', [
+        $response = (clone $this->request)->asJson()->post('', [
             'query' => $query,
             'variables' => $variables,
         ]);
@@ -118,13 +131,5 @@ class MondayClient
         }
 
         return $response->json();
-    }
-
-    private function request(): PendingRequest
-    {
-        return Http::baseUrl((string) config('monday.api_url'))
-            ->withHeaders(['Authorization' => (string) config('monday.token')])
-            ->acceptJson()
-            ->asJson();
     }
 }

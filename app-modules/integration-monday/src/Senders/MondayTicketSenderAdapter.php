@@ -6,6 +6,8 @@ namespace TresPontosTech\IntegrationMonday\Senders;
 
 use Illuminate\Support\Facades\Storage;
 use Throwable;
+use TresPontosTech\IntegrationMonday\DTO\CreateItemDTO;
+use TresPontosTech\IntegrationMonday\DTO\UploadFileDTO;
 use TresPontosTech\IntegrationMonday\MondayClient;
 use TresPontosTech\IntegrationMonday\Support\MondayStatusMap;
 use TresPontosTech\Support\Contracts\TicketChannelSender;
@@ -30,7 +32,7 @@ final class MondayTicketSenderAdapter implements TicketChannelSender
         $columns = (array) config('monday.columns');
 
         try {
-            $response = $this->client->createItem(
+            $response = $this->client->createItem(new CreateItemDTO(
                 boardId: (string) config('monday.board_id'),
                 groupId: (string) config('monday.group_id'),
                 itemName: sprintf('[%s] %s', $ticket->protocol, $ticket->subject),
@@ -41,7 +43,7 @@ final class MondayTicketSenderAdapter implements TicketChannelSender
                     $columns['requester'] => $ticket->getRequesterEmail() ?? '',
                     $columns['description'] => ['text' => $ticket->description],
                 ],
-            );
+            ));
         } catch (Throwable $throwable) {
             return DispatchResult::failed($throwable->getMessage());
         }
@@ -60,12 +62,12 @@ final class MondayTicketSenderAdapter implements TicketChannelSender
     {
         foreach ($ticket->getMedia('attachments') as $media) {
             try {
-                $this->client->addFileToColumn(
-                    $itemId,
-                    $columnId,
-                    (string) Storage::disk($media->disk)->get($media->getPathRelativeToRoot()),
-                    $media->file_name,
-                );
+                $this->client->addFileToColumn(new UploadFileDTO(
+                    itemId: $itemId,
+                    columnId: $columnId,
+                    contents: (string) Storage::disk($media->disk)->get($media->getPathRelativeToRoot()),
+                    filename: $media->file_name,
+                ));
             } catch (Throwable $e) {
                 report($e);
             }

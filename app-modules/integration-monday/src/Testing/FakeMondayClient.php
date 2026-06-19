@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationMonday\Testing;
 
+use TresPontosTech\IntegrationMonday\DTO\ChangeStatusDTO;
+use TresPontosTech\IntegrationMonday\DTO\CreateItemDTO;
+use TresPontosTech\IntegrationMonday\DTO\UploadFileDTO;
 use TresPontosTech\IntegrationMonday\Exceptions\MondayApiException;
 use TresPontosTech\IntegrationMonday\MondayClient;
 use TresPontosTech\IntegrationMonday\Responses\CreateItemResponse;
@@ -38,31 +41,28 @@ final class FakeMondayClient extends MondayClient
         // Intentionally skips the parent token validation — a fake needs no token.
     }
 
-    /**
-     * @param  array<string, mixed>  $columnValues
-     */
-    public function createItem(string $boardId, string $groupId, string $itemName, array $columnValues): CreateItemResponse
+    public function createItem(CreateItemDTO $data): CreateItemResponse
     {
         throw_if($this->shouldFail, MondayApiException::class, 'Fake Monday failure.', retryable: false);
 
         $itemId = $this->nextItemId !== '' ? $this->nextItemId : (string) (++$this->sequence);
 
-        $this->createdItems[] = ['boardId' => $boardId, 'groupId' => $groupId, 'itemName' => $itemName, 'columnValues' => $columnValues] + ['itemId' => $itemId];
+        $this->createdItems[] = ['boardId' => $data->boardId, 'groupId' => $data->groupId, 'itemName' => $data->itemName, 'columnValues' => $data->columnValues, 'itemId' => $itemId];
 
         return new CreateItemResponse($itemId);
     }
 
-    public function changeStatus(string $itemId, string $boardId, string $columnId, int $index): void
+    public function changeStatus(ChangeStatusDTO $data): void
     {
         throw_if($this->shouldFail, MondayApiException::class, 'Fake Monday failure.', retryable: false);
 
-        $this->statusChanges[] = ['itemId' => $itemId, 'boardId' => $boardId, 'columnId' => $columnId, 'index' => $index];
+        $this->statusChanges[] = ['itemId' => $data->itemId, 'boardId' => $data->boardId, 'columnId' => $data->columnId, 'index' => $data->index];
     }
 
-    public function addFileToColumn(string $itemId, string $columnId, string $contents, string $filename): void
+    public function addFileToColumn(UploadFileDTO $data): void
     {
         throw_if($this->shouldFail || $this->shouldFailUpload, MondayApiException::class, 'Fake Monday upload failure.', retryable: false);
 
-        $this->uploadedFiles[] = ['itemId' => $itemId, 'columnId' => $columnId, 'filename' => $filename] + ['size' => strlen($contents)];
+        $this->uploadedFiles[] = ['itemId' => $data->itemId, 'columnId' => $data->columnId, 'filename' => $data->filename, 'size' => strlen($data->contents)];
     }
 }

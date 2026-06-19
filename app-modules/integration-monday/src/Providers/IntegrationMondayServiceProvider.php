@@ -7,10 +7,10 @@ namespace TresPontosTech\IntegrationMonday\Providers;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use TresPontosTech\IntegrationMonday\Events\MondayItemColumnChanged;
+use TresPontosTech\IntegrationMonday\Listeners\PushTicketStatusToMonday;
 use TresPontosTech\IntegrationMonday\Listeners\SyncTicketStatusFromMonday;
-use TresPontosTech\IntegrationMonday\Observers\SupportTicketObserver;
 use TresPontosTech\IntegrationMonday\Senders\MondayTicketSenderAdapter;
-use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Support\Events\SupportTicketStatusChanged;
 use TresPontosTech\Support\Senders\MondayTicketSender;
 
 class IntegrationMondayServiceProvider extends ServiceProvider
@@ -31,8 +31,8 @@ class IntegrationMondayServiceProvider extends ServiceProvider
         // Inbound: Monday board status change -> guarded ticket transition.
         Event::listen(MondayItemColumnChanged::class, SyncTicketStatusFromMonday::class);
 
-        // Outbound: app-side status change -> push to the card (muted when the
-        // change itself originated from Monday, to avoid bouncing it back).
-        SupportTicket::observe(SupportTicketObserver::class);
+        // Outbound: app-side status change -> push to the card. Listens to the
+        // support domain event (not the model), keeping this module agnostic.
+        Event::listen(SupportTicketStatusChanged::class, PushTicketStatusToMonday::class);
     }
 }
