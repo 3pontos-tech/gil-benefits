@@ -1194,7 +1194,7 @@ git commit -m "feat(metrics): GetDepartmentVolume + DepartmentVolume DTOs"
 - Create: `src/DTOs/MetricTile.php`, `resources/views/filament/widgets/metrics/metric-tiles.blade.php`
 
 **Interfaces:**
-- Produces: `MetricTile(string $label, string $value, string $caption, string $tone, ?string $icon = null, ?string $sparkline = null)`. A view consome `array<int, MetricTile> $tiles` e `int $columns`.
+- Produces: `MetricTile(string $label, string $value, string $caption, string $tone = 'neutral', ?string $icon = null)`. A view consome `array<int, MetricTile> $tiles` e `int $columns`.
 
 - [ ] **Step 1: Criar DTO**
 
@@ -1215,7 +1215,6 @@ final readonly class MetricTile
         public string $caption,
         public string $tone = 'neutral',
         public ?string $icon = null,
-        public ?string $sparkline = null,
     ) {}
 }
 ```
@@ -1232,6 +1231,7 @@ final readonly class MetricTile
     $iconTone = [
         'primary' => 'text-primary-500', 'success' => 'text-emerald-500', 'info' => 'text-blue-500',
         'danger' => 'text-red-500', 'warning' => 'text-amber-500', 'neutral' => 'text-gray-400',
+        // literal classes acima — necessárias para o Tailwind v4 detectar no @source
     ];
     $capTone = [
         'primary' => 'text-gray-500 dark:text-gray-400', 'success' => 'text-emerald-600 dark:text-emerald-400',
@@ -1250,13 +1250,7 @@ final readonly class MetricTile
                         <p class="{{ $label }}">{{ $tile->label }}</p>
                         <p class="{{ $num }} mt-1 text-3xl font-bold leading-none text-gray-900 dark:text-white">{{ $tile->value }}</p>
                     </div>
-                    @if (filled($tile->sparkline))
-                        @include('panel-company::filament.pages.partials.sparkline', [
-                            'points' => $tile->sparkline,
-                            'stroke' => 'stroke-' . ($tile->tone === 'neutral' ? 'gray-400' : $tile->tone . '-500'),
-                            'width' => 84, 'height' => 30,
-                        ])
-                    @elseif (filled($tile->icon))
+                    @if (filled($tile->icon))
                         <x-filament::icon :icon="$tile->icon" @class(['size-6 shrink-0', $iconTone[$tile->tone] ?? 'text-gray-400']) />
                     @endif
                 </div>
