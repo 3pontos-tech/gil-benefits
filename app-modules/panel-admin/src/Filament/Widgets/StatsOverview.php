@@ -10,6 +10,7 @@ use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Company\Models\Company;
 
 class StatsOverview extends StatsOverviewWidget
@@ -84,13 +85,13 @@ class StatsOverview extends StatsOverviewWidget
     {
         $activePlans = Company::query()
             ->whereHas('plans', function (Builder $query): void {
-                $query->where('company_plans.status', 'active');
+                $query->where('company_plans.status', CompanyPlanStatusEnum::Active);
             })
             ->count();
 
         $data = Trend::query(Company::query()
             ->whereHas('plans', function (Builder $query): void {
-                $query->where('company_plans.status', 'active');
+                $query->where('company_plans.status', CompanyPlanStatusEnum::Active);
             }))
             ->between(
                 start: now()->subDays(7),
