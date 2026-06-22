@@ -7,6 +7,7 @@ namespace TresPontosTech\PanelCompany\Filament\Widgets;
 use Filament\Facades\Filament;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Actions\Metrics\GetCreditTotals;
 
 class CompanyCreditStatsWidget extends StatsOverviewWidget
@@ -21,7 +22,10 @@ class CompanyCreditStatsWidget extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $totals = resolve(GetCreditTotals::class)->handle(Filament::getTenant());
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+
+        $totals = resolve(GetCreditTotals::class)->handle($tenant);
 
         return [
             Stat::make(__('panel-company::widgets.credit_stats.total'), $totals->total)

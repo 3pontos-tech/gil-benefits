@@ -168,9 +168,11 @@ class GoogleCalendarClient
 
         $credentials = json_decode(file_get_contents($credentialsPath), true);
 
-        throw_unless(is_array($credentials), GoogleCalendarApiException::class, 'Google service account credentials file contains invalid JSON', retryable: false);
+        // throw_unless/throw_if repassam os args ao construtor da exception; `0, false` = (code, retryable),
+        // posicional porque named arg em parâmetro variádico quebra no PHPStan e o Rector reverte o if/throw.
+        throw_unless(is_array($credentials), GoogleCalendarApiException::class, 'Google service account credentials file contains invalid JSON', 0, false);
 
-        throw_if(blank($credentials['client_email'] ?? null) || blank($credentials['private_key'] ?? null), GoogleCalendarApiException::class, 'Google service account credentials file is missing required fields (client_email, private_key)', retryable: false);
+        throw_if(blank($credentials['client_email'] ?? null) || blank($credentials['private_key'] ?? null), GoogleCalendarApiException::class, 'Google service account credentials file is missing required fields (client_email, private_key)', 0, false);
 
         $this->credentials = $credentials;
     }

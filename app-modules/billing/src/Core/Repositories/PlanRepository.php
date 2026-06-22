@@ -11,7 +11,7 @@ use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 interface PlanRepository
 {
     /**
-     * @return array<int, PlanEntity>
+     * @return array<string, PlanEntity>
      */
     public function all(): array;
 

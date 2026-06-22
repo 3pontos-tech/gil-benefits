@@ -73,9 +73,9 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
                 DB::raw('COUNT(appointments.id) as total'),
             ])
             ->get()
-            ->map(fn ($row) => (object) [
+            ->map(fn (Department $row): object => (object) [
                 'name' => $row->category->getLabel(),
-                'total' => $row->total,
+                'total' => $row->getAttribute('total'),
             ]);
 
         return $this->buildChartData($counts);
