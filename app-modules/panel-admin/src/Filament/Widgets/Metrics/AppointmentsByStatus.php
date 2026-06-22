@@ -22,8 +22,8 @@ class AppointmentsByStatus extends ChartWidget
 
     protected function getData(): array
     {
-        $start = $this->filters['startDate'] ? now()->parse($this->filters['startDate'])->startOfDay() : now()->subDays(30)->startOfDay();
-        $end = $this->filters['endDate'] ? now()->parse($this->filters['endDate'])->endOfDay() : now()->endOfDay();
+        $start = $this->pageFilters['startDate'] ? now()->parse($this->pageFilters['startDate'])->startOfDay() : now()->subDays(30)->startOfDay();
+        $end = $this->pageFilters['endDate'] ? now()->parse($this->pageFilters['endDate'])->endOfDay() : now()->endOfDay();
 
         $results = Appointment::query()
             ->whereBetween('created_at', [$start, $end])

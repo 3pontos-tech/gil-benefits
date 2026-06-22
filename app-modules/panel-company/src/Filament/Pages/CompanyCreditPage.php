@@ -28,6 +28,9 @@ use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
 use TresPontosTech\PanelCompany\Filament\Widgets\CompanyCreditStatsWidget;
 
+/**
+ * @property-read int $ownerAvailableCreditsCount
+ */
 class CompanyCreditPage extends Page implements HasTable
 {
     use InteractsWithTable;

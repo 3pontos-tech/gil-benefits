@@ -31,8 +31,8 @@ class RankingsWidget extends TableWidget
 
     public function table(Table $table): Table
     {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
 
         $start = filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay();
         $end = filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay();

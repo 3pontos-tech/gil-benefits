@@ -30,7 +30,7 @@ class InsightsWidget extends StatsOverviewWidget
         $tenant = Filament::getTenant();
 
         $userIds = $this->filteredUserIds();
-        $userId = data_get($this->filters, 'userId');
+        $userId = data_get($this->pageFilters, 'userId');
 
         if ($tenant->employees()->count() === 0) {
             return [$this->noDataStat()];

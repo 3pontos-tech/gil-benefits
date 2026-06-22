@@ -24,11 +24,11 @@ class SupportTicketsByStatus extends ChartWidget
 
     protected function getData(): array
     {
-        $start = filled($this->filters['startDate'] ?? null)
-            ? now()->parse($this->filters['startDate'])->startOfDay()
+        $start = filled($this->pageFilters['startDate'] ?? null)
+            ? now()->parse($this->pageFilters['startDate'])->startOfDay()
             : now()->subDays(30)->startOfDay();
-        $end = filled($this->filters['endDate'] ?? null)
-            ? now()->parse($this->filters['endDate'])->endOfDay()
+        $end = filled($this->pageFilters['endDate'] ?? null)
+            ? now()->parse($this->pageFilters['endDate'])->endOfDay()
             : now()->endOfDay();
 
         $results = SupportTicket::query()
