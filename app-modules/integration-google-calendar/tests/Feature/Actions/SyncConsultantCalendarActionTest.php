@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\Actions\RemoveCancelledGoogleEventAction;
 use TresPontosTech\IntegrationGoogleCalendar\Actions\RemoveStaleBlockedSchedulesAction;
@@ -54,6 +55,23 @@ function eventDto(string $id, string $updated = '2026-04-29T10:00:00Z'): GoogleE
         isCancelled: false,
         updated: Date::parse($updated),
     );
+}
+
+function unchangedBlock(Consultant $consultant, string $eventId): void
+{
+    Zap::for($consultant)
+        ->named('Reunião')
+        ->blocked()
+        ->allowOverlap()
+        ->from('2026-05-15')
+        ->to(null)
+        ->addPeriod('14:00', '15:00')
+        ->withMetadata([
+            'google_event_id' => $eventId,
+            'source' => 'google-calendar',
+            'updated' => Date::parse('2026-04-29T10:00:00Z')->toIso8601String(),
+        ])
+        ->save();
 }
 
 it('does a full sync when consultant has no sync token and persists the new token', function (): void {
@@ -371,4 +389,74 @@ it('updates google_calendar_synced_at to the current time', function (): void {
     buildAction($client)->handle($this->consultant);
 
     expect($this->consultant->fresh()->google_calendar_synced_at->toDateTimeString())->toBe('2026-05-01 10:00:00');
+});
+
+it('does not run the per-event overlap and metadata lookups when syncing', function (): void {
+    Zap::for($this->consultant)
+        ->named('Existing appointment')
+        ->appointment()
+        ->from('2026-05-15')
+        ->to('2026-05-16')
+        ->addPeriod('08:00', '09:00')
+        ->save();
+
+    $events = collect(range(1, 5))->map(fn (int $i): GoogleEventDTO => eventDto('evt-' . $i));
+
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')->once()
+        ->andReturn(new CalendarEventsResponse($events, null, 'token'));
+
+    DB::flushQueryLog();
+    DB::enableQueryLog();
+    buildAction($client)->handle($this->consultant);
+    $log = collect(DB::getQueryLog());
+    DB::disableQueryLog();
+
+    // Per-event appointment overlap: the only query joining schedules and schedule_periods.
+    $overlapLookups = $log->filter(fn (array $entry): bool => str_contains($entry['query'], 'from "schedules"')
+        && str_contains($entry['query'], 'schedule_periods')
+    );
+
+    // Per-event existing-block lookup: the only SELECT filtering by google_event_id.
+    $metadataLookups = $log->filter(fn (array $entry): bool => str_starts_with($entry['query'], 'select')
+        && str_contains($entry['query'], 'google_event_id')
+    );
+
+    expect($overlapLookups)->toBeEmpty()
+        ->and($metadataLookups)->toBeEmpty();
+});
+
+it('runs a constant number of queries regardless of unchanged event count (no N+1)', function (): void {
+    $measure = function (int $eventCount): int {
+        $consultant = Consultant::factory()->create([
+            'email' => 'steady@workspace.com',
+            'google_calendar_sync_token' => 'existing-token',
+            'google_calendar_synced_at' => Date::now()->subMinutes(10),
+        ]);
+
+        $events = collect(range(1, $eventCount))->map(function (int $i) use ($consultant): GoogleEventDTO {
+            $event = eventDto('evt-' . $i);
+            unchangedBlock($consultant, $event->eventId);
+
+            return $event;
+        });
+
+        $client = Mockery::mock(GoogleCalendarClient::class);
+        $client->shouldReceive('getAccessToken')->andReturn('access');
+        $client->shouldReceive('listEvents')->once()
+            ->andReturn(new CalendarEventsResponse($events, null, 'next-token'));
+
+        DB::flushQueryLog();
+        DB::enableQueryLog();
+        buildAction($client)->handle($consultant);
+        $count = count(DB::getQueryLog());
+        DB::disableQueryLog();
+
+        return $count;
+    };
+
+    // Steady-state sync (every event already exists, unchanged) must not run a
+    // single per-event query: the count for 8 events equals the count for 3.
+    expect($measure(8))->toBe($measure(3));
 });

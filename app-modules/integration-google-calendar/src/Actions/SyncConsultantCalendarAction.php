@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
 use TresPontosTech\IntegrationGoogleCalendar\GoogleCalendarClient;
+use TresPontosTech\IntegrationGoogleCalendar\Support\ConsultantSyncContext;
 
 readonly class SyncConsultantCalendarAction
 {
@@ -81,6 +82,7 @@ readonly class SyncConsultantCalendarAction
         $syncedEventIds = [];
         $pageToken = null;
         $nextSyncToken = null;
+        $context = ConsultantSyncContext::for($consultant);
 
         do {
             $response = $this->client->listEvents(
@@ -98,7 +100,7 @@ readonly class SyncConsultantCalendarAction
                     continue;
                 }
 
-                $this->upsertAction->handle($consultant, $event);
+                $this->upsertAction->handle($consultant, $event, $context);
                 $syncedEventIds[] = $event->eventId;
             }
 
@@ -131,6 +133,7 @@ readonly class SyncConsultantCalendarAction
         $pageToken = null;
         $nextSyncToken = null;
         $eventsProcessed = 0;
+        $context = ConsultantSyncContext::for($consultant);
 
         do {
             $response = $this->client->listEvents(
@@ -144,7 +147,7 @@ readonly class SyncConsultantCalendarAction
                 if ($event->isCancelled) {
                     $this->removeCancelledAction->handle($consultant, $event->eventId);
                 } else {
-                    $this->upsertAction->handle($consultant, $event);
+                    $this->upsertAction->handle($consultant, $event, $context);
                 }
 
                 ++$eventsProcessed;

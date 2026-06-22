@@ -16,7 +16,7 @@ readonly class RemoveCancelledGoogleEventAction
             ->where('schedulable_type', $consultant->getMorphClass())
             ->where('schedulable_id', $consultant->getKey())
             ->where('schedule_type', ScheduleTypes::BLOCKED)
-            ->whereJsonContains('metadata->google_event_id', $eventId)
+            ->where('metadata->google_event_id', $eventId)
             ->delete();
     }
 }

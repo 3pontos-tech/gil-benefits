@@ -26,7 +26,7 @@ class IntegrationGoogleCalendarServiceProvider extends ServiceProvider
         $this->app->booted(function (): void {
             $schedule = $this->app->make(Schedule::class);
             $schedule->command('google-calendar:sync')
-                ->everyTenMinutes()
+                ->cron('*/20 * * * *')
                 ->environments(['production']);
         });
     }
