@@ -7,6 +7,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Filament\Actions\DownloadDocumentFilamentAction;
 use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\Consultants\Models\Document;
@@ -54,6 +55,33 @@ it('renders the appointment view with documents shared with the client', functio
     livewire(ViewAppointment::class, ['record' => $this->appointment->getRouteKey()])
         ->assertOk()
         ->assertSee($document->title);
+});
+
+it('renders the appointment view when a document has no media file', function (): void {
+    Storage::fake('r2');
+
+    // Reproduces production: a document with a type but no attached media (no link either).
+    // The old action dereferenced a null media and 500'd the whole page.
+    $document = Document::factory()->forUser($this->employee)->create([
+        'type' => DocumentExtensionTypeEnum::PDF,
+        'link' => null,
+    ]);
+
+    livewire(ViewAppointment::class, ['record' => $this->appointment->getRouteKey()])
+        ->assertOk()
+        ->assertSee($document->title);
+});
+
+it('uses the link as the url for link-type documents', function (): void {
+    $document = Document::factory()->forUser($this->employee)->create([
+        'type' => DocumentExtensionTypeEnum::Link,
+        'link' => 'https://example.com/external-file.pdf',
+    ]);
+
+    $action = DownloadDocumentFilamentAction::make()->record($document);
+
+    expect($action->isVisible())->toBeTrue()
+        ->and($action->getUrl())->toBe('https://example.com/external-file.pdf');
 });
 
 it('opens in a new tab, carries the download icon and exposes a temporary url', function (): void {
