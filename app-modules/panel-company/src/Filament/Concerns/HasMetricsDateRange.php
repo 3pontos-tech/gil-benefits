@@ -22,8 +22,8 @@ trait HasMetricsDateRange
 
     private function metricsPeriod(): MetricsPeriod
     {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
 
         if (blank($startDate) && blank($endDate)) {
             return MetricsPeriod::lastMonths(12);
@@ -45,8 +45,8 @@ trait HasMetricsDateRange
 
     private function metricsFilters(): MetricsFilters
     {
-        $userId = data_get($this->filters, 'userId');
-        $departmentId = data_get($this->filters, 'departmentId');
+        $userId = data_get($this->pageFilters, 'userId');
+        $departmentId = data_get($this->pageFilters, 'departmentId');
 
         return new MetricsFilters(
             userId: filled($userId) ? (string) $userId : null,

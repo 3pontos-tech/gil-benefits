@@ -14,6 +14,10 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Policies\DocumentPolicy;
 
+/**
+ * @property DocumentExtensionTypeEnum|null $type
+ * @property string|null $link
+ */
 #[UsePolicy(DocumentPolicy::class)]
 class Document extends Model implements HasMedia
 {

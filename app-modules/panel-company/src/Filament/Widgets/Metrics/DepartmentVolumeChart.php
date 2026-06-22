@@ -35,7 +35,7 @@ class DepartmentVolumeChart extends ChartWidget
         $tenant = Filament::getTenant();
 
         $volume = resolve(GetDepartmentVolume::class)->handle($tenant, $this->metricsPeriod());
-        $selectedDepartmentId = data_get($this->filters, 'departmentId');
+        $selectedDepartmentId = data_get($this->pageFilters, 'departmentId');
 
         $colors = array_map(
             fn (DepartmentVolumeRow $row): string => filled($selectedDepartmentId) && $row->id === (string) $selectedDepartmentId
