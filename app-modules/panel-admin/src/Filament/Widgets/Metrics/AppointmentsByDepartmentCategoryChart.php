@@ -21,7 +21,7 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
 
     public function getHeading(): ?string
     {
-        $category = data_get($this->filters, 'departmentCategory');
+        $category = data_get($this->pageFilters, 'departmentCategory');
 
         if (filled($category)) {
             $enum = DepartmentCategory::tryFrom($category);
@@ -36,9 +36,9 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
 
     protected function getData(): array
     {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
-        $category = data_get($this->filters, 'departmentCategory');
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
+        $category = data_get($this->pageFilters, 'departmentCategory');
 
         $start = filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay();
         $end = filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay();

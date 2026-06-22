@@ -15,7 +15,6 @@ use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocume
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Schemas\SharedDocumentForm;
 use TresPontosTech\App\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
 use TresPontosTech\Consultants\Models\Document;
-use UnitEnum;
 
 class SharedDocumentResource extends Resource
 {
@@ -39,11 +38,6 @@ class SharedDocumentResource extends Resource
         return SharedDocumentsTable::table($table);
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('panel-admin::resources.navigation_group.appointments');
-    }
-
     public static function getPages(): array
     {
         return [
@@ -54,16 +48,16 @@ class SharedDocumentResource extends Resource
     }
 
     /**
-     * @return Builder<Document>
+     * @return Builder<Model>
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['consultant']);
+        return parent::getGlobalSearchEloquentQuery()->with(['documentable']);
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['title', 'consultant.name'];
+        return ['title', 'documentable.name'];
     }
 
     /**
@@ -73,8 +67,8 @@ class SharedDocumentResource extends Resource
     {
         $details = [];
 
-        if ($record->consultant) {
-            $details['Consultant'] = $record->consultant->name;
+        if ($record->documentable) {
+            $details['Consultant'] = $record->documentable->name;
         }
 
         return $details;

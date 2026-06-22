@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\App\Filament\Pages;
 
 use App\Filament\Shared\Pages\EditUserProfile as BaseEditUserProfile;
+use App\Models\Users\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Tabs;
@@ -21,6 +22,11 @@ use TresPontosTech\User\Enums\LifeMoment;
 class EditUserProfile extends BaseEditUserProfile
 {
     protected Width|string|null $maxWidth = Width::FourExtraLarge;
+
+    public function getTitle(): string
+    {
+        return '';
+    }
 
     /** @var list<string> */
     private const array ANAMNESE_FIELDS = [
@@ -90,7 +96,9 @@ class EditUserProfile extends BaseEditUserProfile
     {
         $data = parent::mutateFormDataBeforeFill($data);
 
-        $anamnese = $this->getUser()->anamnese;
+        /** @var User $user */
+        $user = $this->getUser();
+        $anamnese = $user->anamnese;
 
         $data['life_moment'] = $anamnese?->getRawOriginal('life_moment');
         $data['main_motivation'] = $anamnese?->main_motivation;

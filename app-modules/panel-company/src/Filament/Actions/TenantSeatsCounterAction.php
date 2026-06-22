@@ -3,8 +3,8 @@
 namespace TresPontosTech\PanelCompany\Filament\Actions;
 
 use Filament\Actions\Action;
-use Laravel\Cashier\Subscription;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 
 class TenantSeatsCounterAction extends Action

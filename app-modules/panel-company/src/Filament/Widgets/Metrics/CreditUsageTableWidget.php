@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
 class CreditUsageTableWidget extends TableWidget
@@ -66,9 +67,11 @@ class CreditUsageTableWidget extends TableWidget
 
     private function tableQuery(): Builder
     {
-        ['start' => $start, 'end' => $end] = $this->dateRange();
+        $period = $this->metricsPeriod();
 
-        $tenantId = Filament::getTenant()->id;
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+        $tenantId = $tenant->id;
         $userIds = $this->filteredUserIds();
 
         return UserCredit::query()
@@ -76,7 +79,7 @@ class CreditUsageTableWidget extends TableWidget
             ->join('appointments', 'appointments.id', '=', 'user_credits.appointment_id')
             ->where('user_credits.company_id', $tenantId)
             ->whereIn('user_credits.status', [UserCreditStatusEnum::Used, UserCreditStatusEnum::InUse])
-            ->whereBetween('appointments.appointment_at', [$start, $end])
+            ->whereBetween('appointments.appointment_at', [$period->start, $period->end])
             ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_credits.holder_id', $userIds))
             ->select('user_credits.*')
             ->latest('appointments.appointment_at');

@@ -22,7 +22,7 @@ class GlobalAppointmentStatsWidget extends StatsOverviewWidget
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $category = data_get($this->filters, 'departmentCategory');
+        $category = data_get($this->pageFilters, 'departmentCategory');
 
         $base = Appointment::query()
             ->whereBetween('appointment_at', [$start, $end])
@@ -86,8 +86,8 @@ class GlobalAppointmentStatsWidget extends StatsOverviewWidget
 
     private function dateRange(): array
     {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
 
         return [
             'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),

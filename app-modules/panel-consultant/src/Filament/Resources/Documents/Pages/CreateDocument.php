@@ -7,7 +7,11 @@ namespace TresPontosTech\Consultants\Filament\Resources\Documents\Pages;
 use Filament\Resources\Pages\CreateRecord;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Filament\Resources\Documents\DocumentResource;
+use TresPontosTech\Consultants\Models\Document;
 
+/**
+ * @property-read Document $record
+ */
 class CreateDocument extends CreateRecord
 {
     protected static string $resource = DocumentResource::class;

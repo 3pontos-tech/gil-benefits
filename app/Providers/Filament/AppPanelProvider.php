@@ -43,8 +43,7 @@ class AppPanelProvider extends PanelProvider
             ->sidebarFullyCollapsibleOnDesktop()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
-            ->globalSearch()
-            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearch(false)
             ->navigationItems([
                 NavigationItem::make(__('all.my_profile'))
                     ->icon(Heroicon::UserCircle)

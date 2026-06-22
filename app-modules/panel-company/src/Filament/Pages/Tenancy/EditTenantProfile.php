@@ -90,9 +90,12 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 
     public function table(Table $table): Table
     {
+        /** @var Company $tenant */
+        $tenant = filament()->getTenant();
+
         return $table
             ->query(
-                filament()->getTenant()
+                $tenant
                     ->employees()
                     ->getQuery()
                     ->select([
@@ -181,17 +184,23 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->schema([
                         Select::make('department_id')
                             ->label(__('panel-company::resources.pages.edit_tenant.department'))
-                            ->options(fn (): array => filament()->getTenant()
-                                ->departments()
-                                ->orderBy('name')
-                                ->pluck('name', 'id')
-                                ->toArray()
-                            )
+                            ->options(function (): array {
+                                /** @var Company $tenant */
+                                $tenant = filament()->getTenant();
+
+                                return $tenant
+                                    ->departments()
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id')
+                                    ->toArray();
+                            })
                             ->nullable()
                             ->native(false),
                     ])
                     ->action(function (User $record, array $data): void {
-                        filament()->getTenant()->employees()->updateExistingPivot($record, [
+                        /** @var Company $tenant */
+                        $tenant = filament()->getTenant();
+                        $tenant->employees()->updateExistingPivot($record, [
                             'department_id' => $data['department_id'],
                         ]);
 
@@ -207,7 +216,11 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
 
                         return $record->getKey() !== $company->user_id;
                     })
-                    ->action(fn ($record) => filament()->getTenant()->employees()->detach($record)),
+                    ->action(function ($record): void {
+                        /** @var Company $tenant */
+                        $tenant = filament()->getTenant();
+                        $tenant->employees()->detach($record);
+                    }),
             ])
             ->columns([
                 TextColumn::make('active')

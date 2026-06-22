@@ -51,10 +51,6 @@ return [
         'distributed_description' => 'Créditos transferidos a colaboradores no período',
         'used_in_period' => 'Utilizados',
         'used_in_period_description' => 'Créditos consumidos em consultorias no período',
-        'in_use' => 'Em uso',
-        'in_use_description' => 'Créditos vinculados a consultorias agendadas',
-        'available' => 'Disponíveis',
-        'available_description' => 'Créditos ainda não utilizados',
     ],
     'credit_usage' => [
         'heading' => 'Histórico de uso de créditos',

@@ -10,7 +10,11 @@ use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Filament\Resources\Documents\DocumentResource;
+use TresPontosTech\Consultants\Models\Document;
 
+/**
+ * @property-read Document $record
+ */
 class EditDocument extends EditRecord
 {
     protected static string $resource = DocumentResource::class;

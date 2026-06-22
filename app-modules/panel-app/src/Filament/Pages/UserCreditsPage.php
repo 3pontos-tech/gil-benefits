@@ -33,7 +33,7 @@ class UserCreditsPage extends Page implements HasTable
 
     public function getTitle(): string
     {
-        return __('panel-app::resources.credits.title');
+        return '';
     }
 
     protected function getHeaderWidgets(): array

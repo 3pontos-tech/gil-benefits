@@ -70,7 +70,7 @@ class DocumentResource extends Resource
     }
 
     /**
-     * @return Builder<Document>
+     * @return Builder<Model>
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {

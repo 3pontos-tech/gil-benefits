@@ -10,6 +10,7 @@ use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
+use TresPontosTech\Company\Models\Company;
 
 class UserSubscriptionPage extends Page
 {
@@ -33,7 +34,9 @@ class UserSubscriptionPage extends Page
 
     protected function getViewData(): array
     {
-        $isFlamma = filament()->getTenant()?->slug === 'flamma-company';
+        /** @var Company|null $tenant */
+        $tenant = filament()->getTenant();
+        $isFlamma = $tenant?->slug === 'flamma-company';
         $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user');
 
         if ($isFlamma) {
@@ -116,7 +119,9 @@ class UserSubscriptionPage extends Page
     /** @param PriceEntity[] $prices */
     private function resolvePriceForTenant(array $prices): PriceEntity
     {
-        $isFlamma = filament()->getTenant()?->slug === 'flamma-company';
+        /** @var Company|null $tenant */
+        $tenant = filament()->getTenant();
+        $isFlamma = $tenant?->slug === 'flamma-company';
         $prices = collect($prices);
 
         if ($isFlamma) {

@@ -6,47 +6,59 @@ namespace TresPontosTech\PanelCompany\Filament\Concerns;
 
 use Filament\Facades\Filament;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Actions\Metrics\ResolveScopedUserIds;
+use TresPontosTech\PanelCompany\DTOs\MetricsFilters;
+use TresPontosTech\PanelCompany\Support\MetricsPeriod;
 
 trait HasMetricsDateRange
 {
     private function dateRange(): array
     {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
+        $period = $this->metricsPeriod();
 
-        return [
-            'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
-            'end' => filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay(),
-        ];
+        return ['start' => $period->start, 'end' => $period->end];
+    }
+
+    private function metricsPeriod(): MetricsPeriod
+    {
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
+
+        if (blank($startDate) && blank($endDate)) {
+            return MetricsPeriod::lastMonths(12);
+        }
+
+        $start = filled($startDate)
+            ? now()->parse($startDate)
+            : now()->parse((string) $endDate)->subDays(30);
+        $end = filled($endDate)
+            ? now()->parse($endDate)
+            : now()->parse((string) $startDate)->addDays(30);
+
+        if ($start->gt($end)) {
+            [$start, $end] = [$end, $start];
+        }
+
+        return MetricsPeriod::range($start, $end);
+    }
+
+    private function metricsFilters(): MetricsFilters
+    {
+        $userId = data_get($this->pageFilters, 'userId');
+        $departmentId = data_get($this->pageFilters, 'departmentId');
+
+        return new MetricsFilters(
+            userId: filled($userId) ? (string) $userId : null,
+            departmentId: filled($departmentId) ? (string) $departmentId : null,
+        );
     }
 
     private function filteredUserIds(): ?Collection
     {
-        $userId = data_get($this->filters, 'userId');
-
-        if (filled($userId)) {
-            return collect([$userId]);
-        }
-
-        $departmentId = data_get($this->filters, 'departmentId');
-
-        if (blank($departmentId)) {
-            return null;
-        }
-
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
-        $tenantId = $tenant->getKey();
-        $cacheKey = sprintf('metrics.department_users.%s.%s', $tenantId, $departmentId);
 
-        return Cache::store('array')->rememberForever(
-            $cacheKey,
-            fn () => $tenant
-                ->employees()
-                ->wherePivot('department_id', $departmentId)
-                ->pluck('users.id')
-        );
+        return resolve(ResolveScopedUserIds::class)->handle($tenant, $this->metricsFilters());
     }
 }
