@@ -6,7 +6,7 @@ use App\Models\Users\User;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
-use Stripe\Collection;
+use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -49,7 +49,6 @@ class RedirectUserIfNotSubscribed
 
         // TODO: Employee needs to pick a plan to continue
         // TODO: the plan is already settled up (by pila) so, let them continue
-
         /** @var Collection<string, PlanEntity> $availableEmployeesPlans */
         $availableEmployeesPlans = $this->planRepository->getPlansFor('user');
 

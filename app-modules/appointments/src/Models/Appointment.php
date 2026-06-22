@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
@@ -24,6 +25,24 @@ use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 
+/**
+ * @property string $id
+ * @property string|null $consultant_id
+ * @property string $user_id
+ * @property AppointmentCategoryEnum $category_type
+ * @property Carbon $appointment_at
+ * @property AppointmentStatus $status
+ * @property string|null $notes
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $company_id
+ * @property string|null $meeting_url
+ * @property string|null $google_event_id
+ * @property string|null $cancelled_by
+ * @property CancellationActor|null $cancellation_actor
+ * @property-read AbstractAppointmentTransition $current_transition
+ */
 class Appointment extends Model
 {
     use HasFactory;
@@ -47,36 +66,57 @@ class Appointment extends Model
         'cancellation_actor',
     ];
 
+    /**
+     * @return BelongsTo<Consultant, $this>
+     */
     public function consultant(): BelongsTo
     {
         return $this->belongsTo(Consultant::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function cancelledBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'cancelled_by');
     }
 
+    /**
+     * @return BelongsTo<Company, $this>
+     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * @return HasOne<AppointmentFeedback, $this>
+     */
     public function feedback(): HasOne
     {
         return $this->hasOne(AppointmentFeedback::class);
     }
 
+    /**
+     * @return HasOne<AppointmentRecord, $this>
+     */
     public function record(): HasOne
     {
         return $this->hasOne(AppointmentRecord::class);
     }
 
+    /**
+     * @return HasOne<UserCredit, $this>
+     */
     public function credit(): HasOne
     {
         return $this->hasOne(UserCredit::class);

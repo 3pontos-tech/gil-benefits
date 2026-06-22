@@ -28,6 +28,9 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 
+/**
+ * @property-read Appointment $record
+ */
 class ViewAppointment extends ViewRecord
 {
     protected static string $resource = AppointmentResource::class;
@@ -148,7 +151,7 @@ class ViewAppointment extends ViewRecord
 
     public function getEmployeeDocuments(): Collection
     {
-        $record = $this->getRecord();
+        $record = $this->record;
 
         return Document::query()
             ->whereMorphedTo('documentable', $record->user)
@@ -157,7 +160,7 @@ class ViewAppointment extends ViewRecord
 
     public function getSharedDocuments(): Collection
     {
-        $record = $this->getRecord();
+        $record = $this->record;
 
         return Document::query()
             ->whereHas('shares', function ($query) use ($record): void {
@@ -205,7 +208,7 @@ class ViewAppointment extends ViewRecord
         }
 
         $document = Document::query()
-            ->whereMorphedTo('documentable', $this->getRecord()->user)
+            ->whereMorphedTo('documentable', $this->record->user)
             ->find($documentId);
 
         return $document?->getFirstMedia('documents');
@@ -217,7 +220,7 @@ class ViewAppointment extends ViewRecord
             return null;
         }
 
-        $appointment = $this->getRecord();
+        $appointment = $this->record;
 
         $document = Document::query()
             ->whereHas('shares', function ($query) use ($appointment): void {

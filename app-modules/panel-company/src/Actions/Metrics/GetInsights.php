@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelCompany\Actions\Metrics;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -38,9 +39,10 @@ final class GetInsights
 
             $totalEmployees = (clone $employeesQuery)->count();
             $everUsed = (clone $employeesQuery)
-                ->whereHas('appointments', fn ($q) => $q
-                    ->forCompany($tenant)
-                    ->forUsers($userIds))
+                ->whereHas('appointments', function (Builder $q) use ($tenant, $userIds): void {
+                    /** @var Builder<Appointment> $q */
+                    $q->forCompany($tenant)->forUsers($userIds);
+                })
                 ->count();
 
             $neverUsedCount = max(0, $totalEmployees - $everUsed);

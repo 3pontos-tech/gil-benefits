@@ -5,6 +5,7 @@ namespace TresPontosTech\Consultants\Filament\Pages;
 use App\Filament\Shared\Fields\DocumentIdInput;
 use App\Filament\Shared\Fields\TaxIdInput;
 use App\Filament\Shared\Pages\EditUserProfile as BaseEditUserProfile;
+use App\Models\Users\User;
 use Filament\Schemas\Components\Component;
 
 class EditConsultantProfile extends BaseEditUserProfile
@@ -14,6 +15,9 @@ class EditConsultantProfile extends BaseEditUserProfile
      */
     protected function getExtraDetailFormComponents(): array
     {
+        /** @var User $user */
+        $user = $this->getUser();
+
         return [
             TaxIdInput::make()
                 ->label(__('panel-admin::resources.pages.edit_profile.cpf')),
@@ -24,7 +28,7 @@ class EditConsultantProfile extends BaseEditUserProfile
                 ->unique(
                     table: 'user_details',
                     column: 'document_id',
-                    ignorable: $this->getUser()->detail,
+                    ignorable: $user->detail,
                     ignoreRecord: false
                 ),
         ];

@@ -17,6 +17,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Widgets\CommandDashboard\AdoptionFunnelWidget;
 use TresPontosTech\PanelCompany\Filament\Widgets\CommandDashboard\CategoryMixWidget;
 use TresPontosTech\PanelCompany\Filament\Widgets\CommandDashboard\DepartmentAdoptionWidget;
@@ -68,23 +69,29 @@ class Metrics extends BaseDashboard
                     Select::make('userId')
                         ->label(__('panel-company::resources.pages.metrics.filter_user'))
                         ->placeholder(__('panel-company::resources.pages.metrics.filter_user_placeholder'))
-                        ->options(fn (): array => Filament::getTenant()
-                            ->employees()
-                            ->orderBy('users.name')
-                            ->pluck('users.name', 'users.id')
-                            ->toArray()
-                        )
+                        ->options(function (): array {
+                            /** @var Company $tenant */
+                            $tenant = Filament::getTenant();
+
+                            return $tenant->employees()
+                                ->orderBy('users.name')
+                                ->pluck('users.name', 'users.id')
+                                ->toArray();
+                        })
                         ->searchable()
                         ->native(false),
                     Select::make('departmentId')
                         ->label(__('panel-company::resources.pages.metrics.filter_department'))
                         ->placeholder(__('panel-company::resources.pages.metrics.filter_department_placeholder'))
-                        ->options(fn (): array => Filament::getTenant()
-                            ->departments()
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
-                            ->toArray()
-                        )
+                        ->options(function (): array {
+                            /** @var Company $tenant */
+                            $tenant = Filament::getTenant();
+
+                            return $tenant->departments()
+                                ->orderBy('name')
+                                ->pluck('name', 'id')
+                                ->toArray();
+                        })
                         ->searchable()
                         ->native(false),
                 ]),

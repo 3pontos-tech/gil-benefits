@@ -17,7 +17,18 @@ use TresPontosTech\Appointments\Database\Factories\AppointmentRecordFactory;
 use TresPontosTech\Appointments\Policies\AppointmentRecordPolicy;
 
 /**
+ * @property string $id
+ * @property string $appointment_id
+ * @property string|null $content
+ * @property string|null $internal_summary
+ * @property string|null $model_used
+ * @property int|null $input_tokens
+ * @property int|null $output_tokens
+ * @property Carbon|null $generation_started_at
  * @property Carbon|null $published_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
  */
 #[UsePolicy(AppointmentRecordPolicy::class)]
 class AppointmentRecord extends Model
@@ -52,6 +63,9 @@ class AppointmentRecord extends Model
         return AppointmentRecordFactory::new();
     }
 
+    /**
+     * @return BelongsTo<Appointment, $this>
+     */
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class);
