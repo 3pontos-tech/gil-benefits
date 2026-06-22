@@ -137,7 +137,7 @@ class Metrics extends BaseDashboard
                         ]),
                     Tab::make(__('panel-company::resources.pages.metrics.tab_experience'))
                         ->schema([
-                            Grid::make(6)->schema($this->getWidgetsSchemaComponents([
+                            Grid::make(8)->schema($this->getWidgetsSchemaComponents([
                                 SatisfactionWidget::class,
                                 TopConsultantsWidget::class,
                             ])),

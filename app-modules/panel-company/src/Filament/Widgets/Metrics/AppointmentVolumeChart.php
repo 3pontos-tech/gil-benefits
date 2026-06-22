@@ -22,6 +22,8 @@ class AppointmentVolumeChart extends ChartWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected ?string $maxHeight = '280px';
+
     public function getHeading(): ?string
     {
         return __('panel-company::widgets.appointment_volume.heading');

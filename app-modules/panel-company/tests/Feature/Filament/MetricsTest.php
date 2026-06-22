@@ -40,6 +40,7 @@ it('shows the five metrics tabs', function (): void {
         ->assertOk()
         ->assertSee(__('panel-company::resources.pages.metrics.tab_sessions'))
         ->assertSee(__('panel-company::resources.pages.metrics.tab_adoption'))
+        ->assertSee(__('panel-company::resources.pages.metrics.tab_engagement'))
         ->assertSee(__('panel-company::resources.pages.metrics.tab_experience'))
         ->assertSee(__('panel-company::resources.pages.metrics.tab_credits'));
 });

@@ -55,6 +55,23 @@ it('scopes a reused home widget to the selected date range', function (): void {
         ->assertDontSeeHtml('>3<');
 });
 
+it('anchors the fallback window to the provided bound when only one date is set', function (): void {
+    actingAsCompanyOwner();
+    $company = Filament::getTenant();
+
+    Appointment::factory()->count(3)->create([
+        'company_id' => $company->id,
+        'status' => AppointmentStatus::Completed,
+        'appointment_at' => CarbonImmutable::create(2019, 12, 20),
+    ]);
+
+    // Só endDate preenchido: a janela deve ancorar em endDate-30d..endDate.
+    // Ancorando em now() o range ficaria invertido e zeraria as métricas.
+    livewire(StatusBreakdownWidget::class, ['pageFilters' => ['endDate' => '2020-01-01']])
+        ->assertOk()
+        ->assertSeeHtml('>3<');
+});
+
 it('scopes TopConsultantsWidget to the selected date range', function (): void {
     actingAsCompanyOwner();
     $company = Filament::getTenant();

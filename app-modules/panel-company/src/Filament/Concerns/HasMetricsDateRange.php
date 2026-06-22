@@ -29,10 +29,18 @@ trait HasMetricsDateRange
             return MetricsPeriod::lastMonths(12);
         }
 
-        return MetricsPeriod::range(
-            filled($startDate) ? now()->parse($startDate) : now()->subDays(30),
-            filled($endDate) ? now()->parse($endDate) : now(),
-        );
+        $start = filled($startDate)
+            ? now()->parse($startDate)
+            : now()->parse((string) $endDate)->subDays(30);
+        $end = filled($endDate)
+            ? now()->parse($endDate)
+            : now()->parse((string) $startDate)->addDays(30);
+
+        if ($start->gt($end)) {
+            [$start, $end] = [$end, $start];
+        }
+
+        return MetricsPeriod::range($start, $end);
     }
 
     private function metricsFilters(): MetricsFilters
