@@ -16,7 +16,7 @@ use TresPontosTech\Support\Models\TicketDestination;
 beforeEach(function (): void {
     config([
         'monday.board_id' => '111',
-        'monday.columns' => ['status' => 'status'],
+        'monday.columns' => ['status' => 'status', 'updated_at' => 'date_updated'],
         'monday.status_indexes' => ['pending' => 17, 'in_progress' => 0, 'resolved' => 2, 'closed' => 3],
     ]);
     $this->app->instance(MondayClient::class, $this->fake = new FakeMondayClient);
@@ -49,9 +49,13 @@ it('pushes the status to the ticket Monday card', function (): void {
 
     (new SyncMondayCardStatusJob($ticket->id, SupportTicketStatusEnum::Resolved))->handle();
 
-    expect($this->fake->statusChanges)->toHaveCount(1)
-        ->and($this->fake->statusChanges[0]['itemId'])->toBe('987654')
-        ->and($this->fake->statusChanges[0]['index'])->toBe(2);
+    expect($this->fake->columnValueChanges)->toHaveCount(1);
+
+    $change = $this->fake->columnValueChanges[0];
+
+    expect($change['itemId'])->toBe('987654')
+        ->and($change['columnValues']['status'])->toBe(['index' => 2])
+        ->and($change['columnValues']['date_updated'])->toHaveKey('date');
 });
 
 it('is a no-op when the ticket has no Monday card', function (): void {
@@ -66,5 +70,5 @@ it('is a no-op when the ticket has no Monday card', function (): void {
 
     (new SyncMondayCardStatusJob($ticket->id, SupportTicketStatusEnum::Resolved))->handle();
 
-    expect($this->fake->statusChanges)->toHaveCount(0);
+    expect($this->fake->columnValueChanges)->toHaveCount(0);
 });

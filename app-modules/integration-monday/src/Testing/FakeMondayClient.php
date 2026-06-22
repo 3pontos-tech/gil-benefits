@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationMonday\Testing;
 
-use TresPontosTech\IntegrationMonday\DTO\ChangeStatusDTO;
+use TresPontosTech\IntegrationMonday\DTO\ChangeColumnValuesDTO;
 use TresPontosTech\IntegrationMonday\DTO\CreateItemDTO;
 use TresPontosTech\IntegrationMonday\DTO\UploadFileDTO;
 use TresPontosTech\IntegrationMonday\Exceptions\MondayApiException;
@@ -24,7 +24,7 @@ final class FakeMondayClient extends MondayClient
     public array $createdItems = [];
 
     /** @var list<array<string, mixed>> */
-    public array $statusChanges = [];
+    public array $columnValueChanges = [];
 
     /** @var list<array<string, mixed>> */
     public array $uploadedFiles = [];
@@ -52,11 +52,11 @@ final class FakeMondayClient extends MondayClient
         return new CreateItemResponse($itemId);
     }
 
-    public function changeStatus(ChangeStatusDTO $data): void
+    public function changeColumnValues(ChangeColumnValuesDTO $data): void
     {
         throw_if($this->shouldFail, MondayApiException::class, 'Fake Monday failure.', retryable: false);
 
-        $this->statusChanges[] = ['itemId' => $data->itemId, 'boardId' => $data->boardId, 'columnId' => $data->columnId, 'index' => $data->index];
+        $this->columnValueChanges[] = ['itemId' => $data->itemId, 'boardId' => $data->boardId, 'columnValues' => $data->columnValues];
     }
 
     public function addFileToColumn(UploadFileDTO $data): void

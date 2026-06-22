@@ -39,8 +39,9 @@ class SupportTicketForm
                         ->required()
                         ->rows(5),
 
-                    FileUpload::make('attachment')
+                    FileUpload::make('attachments')
                         ->label(__('support::resources.support_tickets.fields.attachment'))
+                        ->multiple()
                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
                         ->maxSize(5120)
                         ->storeFiles(false)

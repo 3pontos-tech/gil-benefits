@@ -42,6 +42,10 @@ final class MondayTicketSenderAdapter implements TicketChannelSender
                     $columns['category'] => (string) $ticket->category->getLabel(),
                     $columns['requester'] => $ticket->getRequesterEmail() ?? '',
                     $columns['description'] => ['text' => $ticket->description],
+                    $columns['created_at'] => [
+                        'date' => $ticket->created_at?->format('Y-m-d'),
+                        'time' => $ticket->created_at?->format('H:i:s'),
+                    ],
                 ],
             ));
         } catch (Throwable $throwable) {

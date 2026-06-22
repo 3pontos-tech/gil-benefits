@@ -6,7 +6,7 @@ namespace TresPontosTech\IntegrationMonday;
 
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
-use TresPontosTech\IntegrationMonday\DTO\ChangeStatusDTO;
+use TresPontosTech\IntegrationMonday\DTO\ChangeColumnValuesDTO;
 use TresPontosTech\IntegrationMonday\DTO\CreateItemDTO;
 use TresPontosTech\IntegrationMonday\DTO\UploadFileDTO;
 use TresPontosTech\IntegrationMonday\Exceptions\MondayApiException;
@@ -29,9 +29,6 @@ class MondayClient
 
         $this->apiUrl = rtrim((string) config('monday.api_url'), '/');
 
-        // Base request shared by every call: auth + JSON accept, but no body
-        // format. Each method clones this and sets its own format (asJson for
-        // GraphQL, asMultipart for file uploads) so the formats never leak.
         $this->request = Http::baseUrl($this->apiUrl)
             ->withHeaders(['Authorization' => (string) config('monday.token')])
             ->acceptJson();
@@ -58,15 +55,15 @@ class MondayClient
     }
 
     /**
-     * Sets a status column by its label index. Index is stable — it survives
-     * label renames, casing and locale changes, unlike the label text (which
-     * Monday matches exactly and rejects on any mismatch).
+     * Sets one or more columns on an item in a single request. Status columns
+     * should be addressed by index (e.g. ['index' => 3]) — the index is stable,
+     * surviving label renames, casing and locale changes, unlike the label text.
      */
-    public function changeStatus(ChangeStatusDTO $data): void
+    public function changeColumnValues(ChangeColumnValuesDTO $data): void
     {
         $query = <<<'GRAPHQL'
-            mutation ($itemId: ID!, $boardId: ID!, $columnId: String!, $value: JSON!) {
-                change_column_value (item_id: $itemId, board_id: $boardId, column_id: $columnId, value: $value) {
+            mutation ($itemId: ID!, $boardId: ID!, $columnValues: JSON!) {
+                change_multiple_column_values (item_id: $itemId, board_id: $boardId, column_values: $columnValues) {
                     id
                 }
             }
@@ -75,8 +72,7 @@ class MondayClient
         $this->execute($query, [
             'itemId' => $data->itemId,
             'boardId' => $data->boardId,
-            'columnId' => $data->columnId,
-            'value' => json_encode(['index' => $data->index]),
+            'columnValues' => json_encode($data->columnValues),
         ]);
     }
 

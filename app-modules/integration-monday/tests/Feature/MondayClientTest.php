@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Http;
-use TresPontosTech\IntegrationMonday\DTO\ChangeStatusDTO;
+use TresPontosTech\IntegrationMonday\DTO\ChangeColumnValuesDTO;
 use TresPontosTech\IntegrationMonday\DTO\CreateItemDTO;
 use TresPontosTech\IntegrationMonday\DTO\UploadFileDTO;
 use TresPontosTech\IntegrationMonday\Exceptions\MondayApiException;
@@ -34,16 +34,18 @@ it('creates an item and returns its id', function (): void {
         && str_contains((string) $request['query'], 'create_item'));
 });
 
-it('sends a status change mutation by index', function (): void {
+it('sends a multiple column-values mutation', function (): void {
     Http::fake([
-        'api.monday.com/*' => Http::response(['data' => ['change_column_value' => ['id' => '987654']]]),
+        'api.monday.com/*' => Http::response(['data' => ['change_multiple_column_values' => ['id' => '987654']]]),
     ]);
 
-    (new MondayClient)->changeStatus(new ChangeStatusDTO('987654', '111', 'status', 0));
+    (new MondayClient)->changeColumnValues(new ChangeColumnValuesDTO('987654', '111', [
+        'status' => ['index' => 0],
+        'date_col' => ['date' => '2026-06-22'],
+    ]));
 
-    Http::assertSent(fn ($request): bool => $request['variables']['value'] === '{"index":0}'
-        && $request['variables']['columnId'] === 'status'
-        && str_contains((string) $request['query'], 'change_column_value'));
+    Http::assertSent(fn ($request): bool => $request['variables']['columnValues'] === '{"status":{"index":0},"date_col":{"date":"2026-06-22"}}'
+        && str_contains((string) $request['query'], 'change_multiple_column_values'));
 });
 
 it('throws a non-retryable exception when Monday returns GraphQL errors', function (): void {

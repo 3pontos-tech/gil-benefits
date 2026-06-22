@@ -10,7 +10,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\App;
-use TresPontosTech\IntegrationMonday\DTO\ChangeStatusDTO;
+use Illuminate\Support\Facades\Date;
+use TresPontosTech\IntegrationMonday\DTO\ChangeColumnValuesDTO;
 use TresPontosTech\IntegrationMonday\MondayClient;
 use TresPontosTech\IntegrationMonday\Support\MondayStatusMap;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
@@ -51,13 +52,18 @@ class SyncMondayCardStatusJob implements ShouldQueue
             return;
         }
 
+        $now = Date::now();
+
         // Resolve the client only once we know there's a card to update, so the
-        // job is a harmless no-op when Monday isn't configured.
-        App::make(MondayClient::class)->changeStatus(new ChangeStatusDTO(
+        // job is a harmless no-op when Monday isn't configured. Mirror the status
+        // and bump the board's "last updated" date in the same request.
+        App::make(MondayClient::class)->changeColumnValues(new ChangeColumnValuesDTO(
             itemId: (string) $destination->reference_id,
             boardId: (string) config('monday.board_id'),
-            columnId: (string) config('monday.columns.status'),
-            index: MondayStatusMap::index($this->status),
+            columnValues: [
+                (string) config('monday.columns.status') => ['index' => MondayStatusMap::index($this->status)],
+                (string) config('monday.columns.updated_at') => ['date' => $now->format('Y-m-d'), 'time' => $now->format('H:i:s')],
+            ],
         ));
     }
 }

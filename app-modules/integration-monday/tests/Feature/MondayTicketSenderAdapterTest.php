@@ -15,7 +15,7 @@ beforeEach(function (): void {
     config([
         'monday.board_id' => '111',
         'monday.group_id' => 'topics',
-        'monday.columns' => ['status' => 'status', 'protocol' => 'text_protocol', 'category' => 'text_category', 'requester' => 'text_requester', 'description' => 'long_text', 'attachments' => 'file'],
+        'monday.columns' => ['status' => 'status', 'protocol' => 'text_protocol', 'category' => 'text_category', 'requester' => 'text_requester', 'description' => 'long_text', 'attachments' => 'file', 'created_at' => 'date'],
         'monday.status_indexes' => ['pending' => 17, 'in_progress' => 0, 'resolved' => 2, 'closed' => 3],
     ]);
 });
@@ -48,7 +48,8 @@ it('creates a card with the ticket fields and returns a sent result', function (
     expect($created['itemName'])->toContain('SUP-2026-0001')
         ->and($created['columnValues']['long_text'])->toBe(['text' => 'Steps to reproduce...'])
         ->and($created['columnValues']['text_protocol'])->toBe('SUP-2026-0001')
-        ->and($created['columnValues']['text_requester'])->toBe('jane@example.com');
+        ->and($created['columnValues']['text_requester'])->toBe('jane@example.com')
+        ->and($created['columnValues']['date'])->toHaveKey('date');
 });
 
 it('returns a failed result when the Monday request fails', function (): void {

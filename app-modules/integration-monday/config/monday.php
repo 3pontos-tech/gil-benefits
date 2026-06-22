@@ -18,6 +18,8 @@ return [
         'requester' => env('MONDAY_COLUMN_REQUESTER', 'text_requester'),
         'description' => env('MONDAY_COLUMN_DESCRIPTION', 'long_text_description'),
         'attachments' => env('MONDAY_COLUMN_ATTACHMENTS', 'file_attachments'),
+        'created_at' => env('MONDAY_COLUMN_CREATED_AT', 'date_created_at'),
+        'updated_at' => env('MONDAY_COLUMN_UPDATED_AT', 'date_updated_at'),
     ],
 
     // Monday status label INDEX <-> SupportTicketStatusEnum value. Indexes are
