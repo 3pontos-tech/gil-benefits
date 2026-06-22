@@ -5,37 +5,27 @@ namespace TresPontosTech\IntegrationGoogleCalendar\Actions;
 use Illuminate\Support\Facades\DB;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\DTO\GoogleEventDTO;
+use TresPontosTech\IntegrationGoogleCalendar\Support\ConsultantSyncContext;
 use Zap\Enums\ScheduleTypes;
 use Zap\Facades\Zap;
 use Zap\Models\Schedule;
 
 readonly class UpsertBlockedScheduleAction
 {
-    public function handle(Consultant $consultant, GoogleEventDTO $event): void
+    public function handle(Consultant $consultant, GoogleEventDTO $event, ?ConsultantSyncContext $context = null): void
     {
         $startDate = $event->start->toDateString();
         $startTime = $event->start->format('H:i');
 
         [$checkStartTime, $checkEndTime, $checkEndDate] = $this->resolveCheckRange($event, $startTime);
 
-        $hasOverlappingAppointment = Schedule::query()
-            ->where('schedulable_type', $consultant->getMorphClass())
-            ->where('schedulable_id', $consultant->getKey())
-            ->where('schedule_type', ScheduleTypes::APPOINTMENT)
-            ->where('start_date', '<', $checkEndDate)
-            ->where('end_date', '>', $startDate)
-            ->whereHas('periods', fn ($q) => $q
-                ->where('start_time', '<', $checkEndTime)
-                ->where('end_time', '>', $checkStartTime)
-            )
-            ->exists();
+        $hasOverlappingAppointment = $context instanceof ConsultantSyncContext
+            ? $context->hasOverlappingAppointment($startDate, $checkEndDate, $checkStartTime, $checkEndTime)
+            : $this->queryHasOverlappingAppointment($consultant, $startDate, $checkEndDate, $checkStartTime, $checkEndTime);
 
-        $existingMetadata = Schedule::query()
-            ->where('schedulable_type', $consultant->getMorphClass())
-            ->where('schedulable_id', $consultant->getKey())
-            ->where('schedule_type', ScheduleTypes::BLOCKED)
-            ->whereJsonContains('metadata->google_event_id', $event->eventId)
-            ->value('metadata');
+        $existingMetadata = $context instanceof ConsultantSyncContext
+            ? $context->metadataForEvent($event->eventId)
+            : $this->queryExistingMetadata($consultant, $event->eventId);
 
         if ($hasOverlappingAppointment) {
             if ($existingMetadata !== null) {
@@ -122,8 +112,43 @@ readonly class UpsertBlockedScheduleAction
             ->where('schedulable_type', $consultant->getMorphClass())
             ->where('schedulable_id', $consultant->getKey())
             ->where('schedule_type', ScheduleTypes::BLOCKED)
-            ->whereJsonContains('metadata->google_event_id', $eventId)
+            ->where('metadata->google_event_id', $eventId)
             ->delete();
+    }
+
+    private function queryHasOverlappingAppointment(
+        Consultant $consultant,
+        string $startDate,
+        string $checkEndDate,
+        string $checkStartTime,
+        string $checkEndTime,
+    ): bool {
+        return Schedule::query()
+            ->where('schedulable_type', $consultant->getMorphClass())
+            ->where('schedulable_id', $consultant->getKey())
+            ->where('schedule_type', ScheduleTypes::APPOINTMENT)
+            ->where('start_date', '<', $checkEndDate)
+            ->where('end_date', '>', $startDate)
+            ->whereHas('periods', fn ($q) => $q
+                ->where('start_time', '<', $checkEndTime)
+                ->where('end_time', '>', $checkStartTime)
+            )
+            ->exists();
+    }
+
+    /**
+     * @return array<array-key, mixed>|null
+     */
+    private function queryExistingMetadata(Consultant $consultant, string $eventId): ?array
+    {
+        $metadata = Schedule::query()
+            ->where('schedulable_type', $consultant->getMorphClass())
+            ->where('schedulable_id', $consultant->getKey())
+            ->where('schedule_type', ScheduleTypes::BLOCKED)
+            ->where('metadata->google_event_id', $eventId)
+            ->value('metadata');
+
+        return is_array($metadata) ? $metadata : null;
     }
 
     /**
