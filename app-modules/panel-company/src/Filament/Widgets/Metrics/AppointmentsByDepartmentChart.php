@@ -33,7 +33,7 @@ class AppointmentsByDepartmentChart extends ChartWidget
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $selectedDepartmentId = data_get($this->filters, 'departmentId');
+        $selectedDepartmentId = data_get($this->pageFilters, 'departmentId');
 
         $counts = Department::query()
             ->where('departments.company_id', Filament::getTenant()->id)

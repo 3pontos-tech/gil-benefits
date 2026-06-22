@@ -18,6 +18,9 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\HtmlString;
 use TresPontosTech\User\Actions\SaveAnamneseAction;
 
+/**
+ * @property-read Schema $form
+ */
 class AnamneseWizardPage extends Page
 {
     protected static ?string $slug = 'anamnese';

@@ -26,8 +26,8 @@ trait HasMetricsDateRange
             ];
         }
 
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
 
         return [
             'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
@@ -56,7 +56,7 @@ trait HasMetricsDateRange
      */
     private function parsedMonthFilter(): ?array
     {
-        $month = data_get($this->filters, 'month');
+        $month = data_get($this->pageFilters, 'month');
 
         if (blank($month) || preg_match('/^\d{4}-\d{1,2}$/', (string) $month) !== 1) {
             return null;
@@ -74,8 +74,8 @@ trait HasMetricsDateRange
 
     private function metricsFilters(): MetricsFilters
     {
-        $userId = data_get($this->filters, 'userId');
-        $departmentId = data_get($this->filters, 'departmentId');
+        $userId = data_get($this->pageFilters, 'userId');
+        $departmentId = data_get($this->pageFilters, 'departmentId');
 
         return new MetricsFilters(
             userId: filled($userId) ? (string) $userId : null,
