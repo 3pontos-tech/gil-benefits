@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\App\Filament\Pages;
 
 use App\Filament\Shared\Pages\EditUserProfile as BaseEditUserProfile;
+use App\Models\Users\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Tabs;
@@ -95,7 +96,9 @@ class EditUserProfile extends BaseEditUserProfile
     {
         $data = parent::mutateFormDataBeforeFill($data);
 
-        $anamnese = $this->getUser()->anamnese;
+        /** @var User $user */
+        $user = $this->getUser();
+        $anamnese = $user->anamnese;
 
         $data['life_moment'] = $anamnese?->getRawOriginal('life_moment');
         $data['main_motivation'] = $anamnese?->main_motivation;

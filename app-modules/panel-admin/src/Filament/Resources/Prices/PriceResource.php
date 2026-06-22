@@ -236,6 +236,9 @@ class PriceResource extends Resource
         return ['plan.name'];
     }
 
+    /**
+     * @param  Price  $record
+     */
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         $details = [];

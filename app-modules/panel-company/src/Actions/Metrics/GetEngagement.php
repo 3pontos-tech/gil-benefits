@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelCompany\Actions\Metrics;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Actions\Metrics\Concerns\BuildsMetricsCacheKey;
 use TresPontosTech\PanelCompany\DTOs\EngagementData;
@@ -35,24 +37,30 @@ final class GetEngagement
             $totalEmployees = (clone $employeesQuery)->count();
 
             $activeUsers = (clone $employeesQuery)
-                ->whereHas('appointments', fn ($q) => $q
-                    ->forCompany($tenant)
-                    ->betweenDates($period->start, $period->end)
-                    ->forUsers($userIds))
+                ->whereHas('appointments', function (Builder $q) use ($tenant, $period, $userIds): void {
+                    /** @var Builder<Appointment> $q */
+                    $q->forCompany($tenant)
+                        ->betweenDates($period->start, $period->end)
+                        ->forUsers($userIds);
+                })
                 ->count();
 
             $inactiveUsers = $totalEmployees - $activeUsers;
             $utilizationRate = $totalEmployees > 0 ? round($activeUsers / $totalEmployees * 100, 1) : 0.0;
 
             $firstTimeUsers = (clone $employeesQuery)
-                ->whereHas('appointments', fn ($q) => $q
-                    ->forCompany($tenant)
-                    ->betweenDates($period->start, $period->end)
-                    ->forUsers($userIds))
-                ->whereDoesntHave('appointments', fn ($q) => $q
-                    ->forCompany($tenant)
-                    ->forUsers($userIds)
-                    ->where('appointment_at', '<', $period->start))
+                ->whereHas('appointments', function (Builder $q) use ($tenant, $period, $userIds): void {
+                    /** @var Builder<Appointment> $q */
+                    $q->forCompany($tenant)
+                        ->betweenDates($period->start, $period->end)
+                        ->forUsers($userIds);
+                })
+                ->whereDoesntHave('appointments', function (Builder $q) use ($tenant, $period, $userIds): void {
+                    /** @var Builder<Appointment> $q */
+                    $q->forCompany($tenant)
+                        ->forUsers($userIds)
+                        ->where('appointment_at', '<', $period->start);
+                })
                 ->count();
 
             return new EngagementData($totalEmployees, $activeUsers, $inactiveUsers, $utilizationRate, $firstTimeUsers);

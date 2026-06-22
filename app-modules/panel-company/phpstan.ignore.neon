@@ -1,2 +1,21 @@
 parameters:
     ignoreErrors:
+        # role/active são colunas de company_employees trazidas no select do join (users.* + company_employees.*).
+        - message: '#^Access to an undefined property App\\Models\\Users\\User::\$active\.$#'
+          identifier: property.notFound
+          count: 2
+          path: src/Filament/Pages/Tenancy/EditTenantProfile.php
+        - message: '#^Access to an undefined property App\\Models\\Users\\User::\$role\.$#'
+          identifier: property.notFound
+          count: 1
+          path: src/Filament/Pages/Tenancy/EditTenantProfile.php
+        # Coluna agregada dinâmica (COUNT(...) as total) selecionada sobre Department.
+        - message: '#^Access to an undefined property TresPontosTech\\Company\\Models\\Department::\$total\.$#'
+          identifier: property.notFound
+          count: 1
+          path: src/Actions/Metrics/GetDepartmentVolume.php
+        # Coluna agregada dinâmica (count(*) as sessions) selecionada sobre Appointment.
+        - message: '#^Access to an undefined property TresPontosTech\\Appointments\\Models\\Appointment::\$sessions\.$#'
+          identifier: property.notFound
+          count: 1
+          path: src/Actions/Metrics/GetTopConsultants.php

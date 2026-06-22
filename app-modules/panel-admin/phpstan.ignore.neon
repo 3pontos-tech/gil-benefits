@@ -1,2 +1,12 @@
 parameters:
     ignoreErrors:
+        # Cast do pacote Zap declara array|FrequencyConfig; ->days existe em FrequencyConfig.
+        - message: '#^Cannot access property \$days on array\|Zap\\Data\\FrequencyConfig\.$#'
+          identifier: property.nonObject
+          count: 2
+          path: src/Filament/Resources/Consultants/RelationManagers/SchedulesRelationManager.php
+        # Coluna agregada dinâmica (COUNT(...) as total) selecionada sobre Department.
+        - message: '#^Access to an undefined property TresPontosTech\\Company\\Models\\Department::\$total\.$#'
+          identifier: property.notFound
+          count: 1
+          path: src/Filament/Widgets/Metrics/AppointmentsByDepartmentCategoryChart.php
