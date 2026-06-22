@@ -7,6 +7,7 @@ namespace TresPontosTech\PanelCompany\Filament\Widgets\Metrics;
 use Filament\Facades\Filament;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Actions\Metrics\GetSessionsTrend;
 use TresPontosTech\PanelCompany\Filament\Concerns\HasMetricsDateRange;
 
@@ -19,7 +20,7 @@ class AppointmentVolumeChart extends ChartWidget
 
     protected static ?int $sort = 3;
 
-    protected int|string|array $columnSpan = 1;
+    protected int|string|array $columnSpan = 'full';
 
     public function getHeading(): ?string
     {
@@ -28,8 +29,11 @@ class AppointmentVolumeChart extends ChartWidget
 
     protected function getData(): array
     {
+        /** @var Company $tenant */
+        $tenant = Filament::getTenant();
+
         $trend = resolve(GetSessionsTrend::class)->handle(
-            Filament::getTenant(),
+            $tenant,
             $this->metricsPeriod(),
             $this->metricsFilters(),
         );

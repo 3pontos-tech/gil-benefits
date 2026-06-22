@@ -9,7 +9,7 @@
 @endphp
 
 <x-filament-widgets::widget>
-    <section class="{{ $card }}">
+    <section class="{{ $card }} h-full">
         <p class="{{ $label }} mb-4">{{ __('panel-company::resources.pages.command_dashboard.departments.heading') }}</p>
         @if ($departments === [])
             <p class="py-8 text-center text-sm {{ $muted }}">{{ __('panel-company::resources.pages.command_dashboard.departments.empty') }}</p>

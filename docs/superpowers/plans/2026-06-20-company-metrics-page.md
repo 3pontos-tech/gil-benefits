@@ -922,7 +922,7 @@ it('counts distributed in window plus current in-use and available', function ()
 
     expect($flow->distributed)->toBe(2)
         ->and($flow->inUse)->toBe(1)
-        ->and($flow->available)->toBe(1);
+        ->and($flow->available)->toBe(3); // Available conta estoque + entregues-não-usados
 });
 ```
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelCompany\Actions\Metrics;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -34,10 +33,9 @@ final class GetCategoryMix
         $cacheKey = $this->metricsCacheKey('category_mix', $tenant, $period->cacheKey(), $filters->cacheKey());
 
         return Cache::remember($cacheKey, $this->metricsCacheTtl(), function () use ($tenant, $period, $userIds): CategoryMix {
-            $results = Appointment::query()
-                ->where('company_id', $tenant->getKey())
-                ->whereBetween('appointment_at', [$period->start, $period->end])
-                ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
+            $results = Appointment::forCompany($tenant)
+                ->betweenDates($period->start, $period->end)
+                ->forUsers($userIds)
                 ->whereNotNull('category_type')
                 ->selectRaw('category_type, count(*) as total')
                 ->groupBy('category_type')

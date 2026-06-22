@@ -15,7 +15,7 @@
 @endphp
 
 <x-filament-widgets::widget>
-    <section class="{{ $card }}">
+    <section class="{{ $card }} h-full">
         <p class="{{ $label }} mb-3">{{ __('panel-company::resources.pages.command_dashboard.status.heading') }}</p>
         @if ($data->segments === [])
             <p class="py-8 text-center text-sm {{ $muted }}">{{ __('panel-company::resources.pages.command_dashboard.status.empty') }}</p>
@@ -31,8 +31,10 @@
                     <div class="flex items-center gap-2.5">
                         <span class="size-2.5 rounded-sm {{ $dot[$segment->color] ?? 'bg-gray-400' }}"></span>
                         <span class="flex-1 text-xs text-gray-600 dark:text-gray-300">{{ $segment->label }}</span>
-                        <span class="{{ $num }} text-xs font-semibold text-gray-900 dark:text-white">{{ $br($segment->value) }}</span>
-                        <span class="{{ $num }} w-10 text-right text-xs {{ $muted }}">{{ $pct($segment->percent) }}%</span>
+                        <span
+                            class="{{ $num }} text-xs font-semibold text-gray-900 dark:text-white">{{ $br($segment->value) }}</span>
+                        <span
+                            class="{{ $num }} w-10 text-right text-xs {{ $muted }}">{{ $pct($segment->percent) }}%</span>
                     </div>
                 @endforeach
             </div>

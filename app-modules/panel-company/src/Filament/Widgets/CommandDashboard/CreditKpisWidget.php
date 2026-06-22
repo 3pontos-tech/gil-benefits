@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelCompany\Filament\Widgets\CommandDashboard;
 
 use Filament\Facades\Filament;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\Widget;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Company\Models\Company;
@@ -16,6 +17,8 @@ use TresPontosTech\PanelCompany\Support\MetricsPeriod;
 
 class CreditKpisWidget extends Widget
 {
+    use InteractsWithPageFilters;
+
     protected static bool $isDiscovered = false;
 
     protected string $view = 'panel-company::filament.widgets.command-dashboard.credit-kpis';
@@ -43,7 +46,9 @@ class CreditKpisWidget extends Widget
             $this->kpi($labels['used'], $totals->used, $labels['used_caption'], 'neutral', $series->handle($tenant, $period, UserCreditStatusEnum::Used->value)),
         ];
 
-        return ['kpis' => $kpis];
+        return [
+            'kpis' => $kpis,
+        ];
     }
 
     /**

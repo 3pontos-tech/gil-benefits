@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelCompany\Actions\Metrics;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -45,10 +44,9 @@ final class GetStatusBreakdown
         $cacheKey = $this->metricsCacheKey('status_breakdown', $tenant, $period->cacheKey(), $filters->cacheKey());
 
         return Cache::remember($cacheKey, $this->metricsCacheTtl(), function () use ($tenant, $period, $userIds): StatusBreakdown {
-            $results = Appointment::query()
-                ->where('company_id', $tenant->getKey())
-                ->whereBetween('appointment_at', [$period->start, $period->end])
-                ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds))
+            $results = Appointment::forCompany($tenant)
+                ->betweenDates($period->start, $period->end)
+                ->forUsers($userIds)
                 ->selectRaw('status, count(*) as total')
                 ->groupBy('status')
                 ->pluck('total', 'status');

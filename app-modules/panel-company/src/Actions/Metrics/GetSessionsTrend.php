@@ -6,7 +6,6 @@ namespace TresPontosTech\PanelCompany\Actions\Metrics;
 
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
@@ -40,16 +39,14 @@ final class GetSessionsTrend
             $method = $period->granularity->trendMethod();
 
             $totalSeries = Trend::query(
-                Appointment::query()
-                    ->where('company_id', $tenant->getKey())
-                    ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds)),
+                Appointment::forCompany($tenant)
+                    ->forUsers($userIds),
             )->dateColumn('appointment_at')->between(start: $period->start, end: $period->end)->{$method}()->count();
 
             $completedSeries = Trend::query(
-                Appointment::query()
-                    ->where('company_id', $tenant->getKey())
+                Appointment::forCompany($tenant)
                     ->where('status', AppointmentStatus::Completed->value)
-                    ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_id', $userIds)),
+                    ->forUsers($userIds),
             )->dateColumn('appointment_at')->between(start: $period->start, end: $period->end)->{$method}()->count();
 
             $totalValues = $totalSeries->map(fn (TrendValue $v): int => (int) $v->aggregate)->all();

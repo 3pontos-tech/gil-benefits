@@ -23,9 +23,7 @@ final class GetCreditTotals
         $cacheKey = $this->metricsCacheKey('credit_totals', $tenant);
 
         return Cache::remember($cacheKey, $this->metricsCacheTtl(), function () use ($tenant): CreditTotals {
-            $byStatus = UserCredit::query()
-                ->where('company_id', $tenant->getKey())
-                ->where('owner_id', $tenant->owner?->getKey())
+            $byStatus = UserCredit::forCompany($tenant)->ownedBy($tenant)
                 ->selectRaw('status, count(*) as total')
                 ->groupBy('status')
                 ->pluck('total', 'status');
