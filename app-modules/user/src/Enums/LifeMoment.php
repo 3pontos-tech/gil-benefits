@@ -6,7 +6,6 @@ use Filament\Support\Contracts\HasDescription;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Support\Htmlable;
 
 enum LifeMoment: string implements HasDescription, HasIcon, HasLabel
 {
@@ -20,12 +19,12 @@ enum LifeMoment: string implements HasDescription, HasIcon, HasLabel
 
     case Investor = 'investor';
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return __('user::enums.life_moment.' . $this->value . '.label');
     }
 
-    public function getDescription(): string|Htmlable|null
+    public function getDescription(): string
     {
         return __('user::enums.life_moment.' . $this->value . '.description');
     }

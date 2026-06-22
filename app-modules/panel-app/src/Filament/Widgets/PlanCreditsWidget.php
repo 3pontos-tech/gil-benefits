@@ -61,7 +61,7 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
         return [
             'plan' => $plan,
             'monthlyLeft' => $monthlyLeft,
-            'monthlyLimit' => $plan?->monthlyLimit ?? 0,
+            'monthlyLimit' => $plan->monthlyLimit ?? 0,
             'creditsTotal' => $availableCredits->count(),
             'ownCredits' => $ownCredits,
             'companyCredits' => $companyCredits,

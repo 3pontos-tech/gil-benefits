@@ -29,7 +29,7 @@ class UserSubscriptionPage extends Page
     public function mount(): void
     {
         $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user');
-        $this->selectedPlanSlug = $plans->first()?->slug ?? '';
+        $this->selectedPlanSlug = $plans->first()->slug ?? '';
     }
 
     protected function getViewData(): array

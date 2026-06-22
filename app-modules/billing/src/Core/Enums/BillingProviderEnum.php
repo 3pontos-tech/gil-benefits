@@ -2,12 +2,10 @@
 
 namespace TresPontosTech\Billing\Core\Enums;
 
-use BackedEnum;
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
-use Illuminate\Contracts\Support\Htmlable;
 
 enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
 {
@@ -15,7 +13,7 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
     case Contractual = 'contractual';
     case Barte = 'barte';
 
-    public function getColor(): string|array|null
+    public function getColor(): array
     {
         return match ($this) {
             self::Stripe => Color::Indigo,
@@ -24,7 +22,7 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function getIcon(): string|BackedEnum|null
+    public function getIcon(): string
     {
         return match ($this) {
             self::Stripe, self::Barte => 'heroicon-o-credit-card',
@@ -32,7 +30,7 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return $this->name;
     }

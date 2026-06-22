@@ -22,7 +22,7 @@ enum Roles: string implements HasColor, HasLabel
 
     case Consultant = 'consultant';
 
-    public function getColor(): string|array|null
+    public function getColor(): array
     {
         return match ($this) {
             self::CompanyOwner => Color::Red,

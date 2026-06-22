@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Billing\Core\Enums;
 
-use BackedEnum;
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
-use Illuminate\Contracts\Support\Htmlable;
 
 enum CompanyPlanStatusEnum: string implements HasColor, HasIcon, HasLabel
 {
@@ -18,7 +16,7 @@ enum CompanyPlanStatusEnum: string implements HasColor, HasIcon, HasLabel
     case Suspended = 'suspended';
     case Cancelled = 'cancelled';
 
-    public function getColor(): string|array|null
+    public function getColor(): array
     {
         return match ($this) {
             self::Active => Color::Emerald,
@@ -28,7 +26,7 @@ enum CompanyPlanStatusEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function getIcon(): string|BackedEnum|null
+    public function getIcon(): string
     {
         return match ($this) {
             self::Active => 'heroicon-o-check-circle',
@@ -38,7 +36,7 @@ enum CompanyPlanStatusEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return match ($this) {
             self::Active => 'Ativo',

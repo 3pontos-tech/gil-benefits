@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\App\DTOs;
 
 use Carbon\CarbonInterface;
-use Illuminate\Contracts\Support\Htmlable;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\User\Enums\LifeMoment;
 
@@ -32,7 +31,7 @@ final readonly class UserJourney
         return $this->stage instanceof LifeMoment;
     }
 
-    public function stageLabel(): string|Htmlable|null
+    public function stageLabel(): ?string
     {
         return $this->stage?->getLabel();
     }

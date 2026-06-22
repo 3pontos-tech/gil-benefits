@@ -386,7 +386,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
         /** @var Subscription|null $subscription */
         $subscription = $this->activeSubscription()->with('price')->first();
 
-        return (int) ($subscription?->price?->monthly_appointments ?? 0);
+        return (int) ($subscription?->price->monthly_appointments ?? 0);
     }
 
     /**
