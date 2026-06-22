@@ -5,24 +5,20 @@ declare(strict_types=1);
 namespace TresPontosTech\IntegrationMonday\Listeners;
 
 use TresPontosTech\IntegrationMonday\Jobs\SyncMondayCardStatusJob;
-use TresPontosTech\IntegrationMonday\Support\MondaySyncContext;
 use TresPontosTech\Support\Events\SupportTicketStatusChanged;
 
 /**
- * Outbound sync: mirrors an app-side ticket status change onto its Monday card.
+ * Outbound sync: mirrors a ticket status change onto its Monday card.
  *
- * Runs synchronously (not queued) so the MondaySyncContext mute — set while a
- * Monday-originated change is being applied — is still active here and prevents
- * echoing that change back to the board. Only the actual push is queued.
+ * Runs for every status change, including those that originated on Monday. The
+ * echo is harmless: re-pushing the same status is idempotent (and bumps the
+ * card's "last updated" date), and the resulting webhook is dropped because the
+ * ticket is already in that state.
  */
 final class PushTicketStatusToMonday
 {
     public function handle(SupportTicketStatusChanged $event): void
     {
-        if (MondaySyncContext::isMuted()) {
-            return;
-        }
-
         dispatch(new SyncMondayCardStatusJob($event->ticket->id, $event->to));
     }
 }

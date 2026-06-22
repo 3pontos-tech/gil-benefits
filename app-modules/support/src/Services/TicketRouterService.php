@@ -4,42 +4,27 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Support\Services;
 
-use TresPontosTech\Support\Contracts\TicketChannelSender;
-use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
-use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
-use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
+use TresPontosTech\Support\Actions\DispatchTicketToDestinationAction;
 use TresPontosTech\Support\Models\SupportTicket;
-use TresPontosTech\Support\Models\TicketDestination;
 
 /**
- * Orchestrates routing only. For each sector channel, and each delivery type of
- * that channel, it creates the TicketDestination, delegates the send to the
- * resolved channel sender, and persists the outcome. Notifying a sector does not
- * advance the ticket's lifecycle — it stays Pending until an agent picks it up.
+ * Orchestrates routing only: for each sector channel, and each delivery type of
+ * that channel, it delegates the actual dispatch to a single-destination action.
+ * Notifying a sector does not advance the ticket's lifecycle — it stays Pending
+ * until an agent picks it up.
  */
 final class TicketRouterService
 {
+    public function __construct(
+        private readonly DispatchTicketToDestinationAction $dispatchToDestination,
+    ) {}
+
     public function dispatch(SupportTicket $ticket): void
     {
         foreach ($ticket->category->destinationChannels() as $channel) {
             foreach ($channel->getDestinationTypes() as $type) {
-                $this->dispatchTo($ticket, $channel, $type);
+                $this->dispatchToDestination->execute($ticket, $channel, $type);
             }
         }
-    }
-
-    private function dispatchTo(SupportTicket $ticket, TicketDestinationChannelEnum $channel, TicketDestinationTypeEnum $type): void
-    {
-        $destination = TicketDestination::query()->create([
-            'support_ticket_id' => $ticket->id,
-            'type' => $type,
-            'channel' => $channel,
-            'status' => TicketDestinationStatusEnum::Pending,
-        ]);
-
-        /** @var TicketChannelSender $sender */
-        $sender = resolve($type->senderClass());
-
-        $destination->update($sender->send($ticket, $channel)->jsonSerialize());
     }
 }
