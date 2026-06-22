@@ -31,8 +31,8 @@ class CancelSubscriptionAction extends Action
                 return;
             }
 
-            $provider = $subscription->price?->plan?->provider
-                ?? $subscription->plan?->provider
+            $provider = $subscription->price?->plan->provider
+                ?? $subscription->plan->provider
                 ?? BillingCustomer::getActiveProvider($billable)
                 ?? BillingProviderEnum::Barte;
 

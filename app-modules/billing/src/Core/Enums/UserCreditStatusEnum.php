@@ -7,7 +7,6 @@ namespace TresPontosTech\Billing\Core\Enums;
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
-use Illuminate\Contracts\Support\Htmlable;
 
 enum UserCreditStatusEnum: string implements HasColor, HasLabel
 {
@@ -16,7 +15,7 @@ enum UserCreditStatusEnum: string implements HasColor, HasLabel
     case Used = 'used';
     case Expired = 'expired';
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return match ($this) {
             self::Available => __('billing::enums.user_credit_status.available'),
@@ -26,7 +25,7 @@ enum UserCreditStatusEnum: string implements HasColor, HasLabel
         };
     }
 
-    public function getColor(): array|string
+    public function getColor(): array
     {
         return match ($this) {
             self::Available => Color::Emerald,

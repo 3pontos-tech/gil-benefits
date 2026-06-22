@@ -35,7 +35,7 @@ final readonly class BarteAdapter implements BillingContract
             return;
         }
 
-        if ($billable instanceof User && blank($billable?->detail)) {
+        if ($billable instanceof User && blank($billable->detail)) {
             return;
         }
 

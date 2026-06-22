@@ -130,7 +130,7 @@ class ContractualPlansRelationManager extends RelationManager
                 TextColumn::make('status')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.status'))
                     ->badge()
-                    ->color(fn (CompanyPlanStatusEnum $state): string|array => $state->getColor()),
+                    ->color(fn (CompanyPlanStatusEnum $state): array => $state->getColor()),
 
                 TextColumn::make('starts_at')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.starts_at'))

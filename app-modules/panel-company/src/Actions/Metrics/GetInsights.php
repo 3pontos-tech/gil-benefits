@@ -71,7 +71,7 @@ final class GetInsights
                     ->first();
 
                 if ($top !== null) {
-                    $name = (string) ($tenant->employees()->find($top->user_id)?->name ?? '—');
+                    $name = (string) ($tenant->employees()->find($top->user_id)->name ?? '—');
                     $topUser = new TopUser($name, (int) $top->period_count);
                 }
             }
