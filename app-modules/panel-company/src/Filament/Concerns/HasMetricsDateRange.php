@@ -15,61 +15,32 @@ trait HasMetricsDateRange
 {
     private function dateRange(): array
     {
-        $parsedMonth = $this->parsedMonthFilter();
+        $period = $this->metricsPeriod();
 
-        if ($parsedMonth !== null) {
-            $base = now()->setDate($parsedMonth['year'], $parsedMonth['month'], 1);
-
-            return [
-                'start' => $base->copy()->startOfMonth(),
-                'end' => $base->copy()->endOfMonth(),
-            ];
-        }
-
-        $startDate = data_get($this->pageFilters, 'startDate');
-        $endDate = data_get($this->pageFilters, 'endDate');
-
-        return [
-            'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
-            'end' => filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay(),
-        ];
+        return ['start' => $period->start, 'end' => $period->end];
     }
 
     private function metricsPeriod(): MetricsPeriod
     {
-        $parsedMonth = $this->parsedMonthFilter();
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
 
-        if ($parsedMonth !== null) {
-            return MetricsPeriod::month($parsedMonth['year'], $parsedMonth['month']);
+        if (blank($startDate) && blank($endDate)) {
+            return MetricsPeriod::lastMonths(12);
         }
 
-        ['start' => $start, 'end' => $end] = $this->dateRange();
+        $start = filled($startDate)
+            ? now()->parse($startDate)
+            : now()->parse((string) $endDate)->subDays(30);
+        $end = filled($endDate)
+            ? now()->parse($endDate)
+            : now()->parse((string) $startDate)->addDays(30);
+
+        if ($start->gt($end)) {
+            [$start, $end] = [$end, $start];
+        }
 
         return MetricsPeriod::range($start, $end);
-    }
-
-    /**
-     * Parses the `month` filter (expected `YYYY-MM`), returning null when it is
-     * absent or malformed so callers fall back to the default range.
-     *
-     * @return array{year: int, month: int}|null
-     */
-    private function parsedMonthFilter(): ?array
-    {
-        $month = data_get($this->pageFilters, 'month');
-
-        if (blank($month) || preg_match('/^\d{4}-\d{1,2}$/', (string) $month) !== 1) {
-            return null;
-        }
-
-        [$year, $monthNumber] = explode('-', (string) $month);
-        $monthNumber = (int) $monthNumber;
-
-        if ($monthNumber < 1 || $monthNumber > 12) {
-            return null;
-        }
-
-        return ['year' => (int) $year, 'month' => $monthNumber];
     }
 
     private function metricsFilters(): MetricsFilters

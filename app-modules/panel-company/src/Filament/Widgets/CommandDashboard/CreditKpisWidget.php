@@ -43,7 +43,9 @@ class CreditKpisWidget extends Widget
             $this->kpi($labels['used'], $totals->used, $labels['used_caption'], 'neutral', $series->handle($tenant, $period, UserCreditStatusEnum::Used->value)),
         ];
 
-        return ['kpis' => $kpis];
+        return [
+            'kpis' => $kpis,
+        ];
     }
 
     /**

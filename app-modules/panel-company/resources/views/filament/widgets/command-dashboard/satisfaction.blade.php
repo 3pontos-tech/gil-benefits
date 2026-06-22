@@ -10,7 +10,7 @@
 @endphp
 
 <x-filament-widgets::widget>
-    <section class="{{ $card }} flex flex-col items-center">
+    <section class="{{ $card }} flex flex-col items-center h-full">
         <p class="{{ $label }} mb-1 self-start">{{ __('panel-company::resources.pages.command_dashboard.satisfaction.heading') }}</p>
         @if ($data->total === 0)
             <p class="py-10 text-center text-sm {{ $muted }}">{{ __('panel-company::resources.pages.command_dashboard.satisfaction.empty') }}</p>
@@ -27,7 +27,8 @@
                     <p class="text-xs {{ $muted }}">{{ __('panel-company::resources.pages.command_dashboard.satisfaction.nps') }}</p>
                 </div>
                 <div class="text-center">
-                    <p class="{{ $num }} text-xl font-bold text-gray-900 dark:text-white">{{ $pct($data->recommend) }}%</p>
+                    <p class="{{ $num }} text-xl font-bold text-gray-900 dark:text-white">{{ $pct($data->recommend) }}
+                        %</p>
                     <p class="text-xs {{ $muted }}">{{ __('panel-company::resources.pages.command_dashboard.satisfaction.recommend') }}</p>
                 </div>
             </div>

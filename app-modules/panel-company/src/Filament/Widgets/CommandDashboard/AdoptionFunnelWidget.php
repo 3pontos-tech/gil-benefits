@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelCompany\Filament\Widgets\CommandDashboard;
 
 use Filament\Facades\Filament;
+use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\Widget;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Actions\Metrics\GetAdoptionFunnel;
 
 class AdoptionFunnelWidget extends Widget
 {
+    use InteractsWithPageFilters;
+
     protected static bool $isDiscovered = false;
 
     protected string $view = 'panel-company::filament.widgets.command-dashboard.adoption-funnel';
@@ -25,6 +28,8 @@ class AdoptionFunnelWidget extends Widget
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
-        return ['data' => resolve(GetAdoptionFunnel::class)->handle($tenant)];
+        return [
+            'data' => resolve(GetAdoptionFunnel::class)->handle($tenant),
+        ];
     }
 }

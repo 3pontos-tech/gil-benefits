@@ -17,23 +17,25 @@
 @endphp
 
 <x-filament-widgets::widget>
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        @foreach ($kpis as $kpi)
-            <div class="{{ $card }} flex flex-col justify-between">
-                <div class="flex items-start justify-between gap-2">
-                    <div>
-                        <p class="{{ $label }}">{{ $kpi->label }}</p>
-                        <p class="{{ $num }} mt-1 text-3xl font-bold leading-none text-gray-900 dark:text-white">{{ $br($kpi->value) }}</p>
+    <div class="flex h-full flex-col gap-2">
+        <div class="grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2">
+            @foreach ($kpis as $kpi)
+                <div class="{{ $card }} flex flex-col justify-between">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <p class="{{ $label }}">{{ $kpi->label }}</p>
+                            <p class="{{ $num }} mt-1 text-3xl font-bold leading-none text-gray-900 dark:text-white">{{ $br($kpi->value) }}</p>
+                        </div>
+                        @include('panel-company::filament.pages.partials.sparkline', [
+                            'points' => $kpi->sparkline,
+                            'stroke' => $stroke[$kpi->tone] ?? 'stroke-gray-400',
+                            'width' => 84,
+                            'height' => 30,
+                        ])
                     </div>
-                    @include('panel-company::filament.pages.partials.sparkline', [
-                        'points' => $kpi->sparkline,
-                        'stroke' => $stroke[$kpi->tone] ?? 'stroke-gray-400',
-                        'width' => 84,
-                        'height' => 30,
-                    ])
+                    <p class="mt-3 text-xs font-medium {{ $capTone[$kpi->tone] ?? $muted }}">{{ $kpi->caption }}</p>
                 </div>
-                <p class="mt-3 text-xs font-medium {{ $capTone[$kpi->tone] ?? $muted }}">{{ $kpi->caption }}</p>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
     </div>
 </x-filament-widgets::widget>

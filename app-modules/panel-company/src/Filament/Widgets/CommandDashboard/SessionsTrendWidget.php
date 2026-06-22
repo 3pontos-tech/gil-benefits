@@ -18,7 +18,7 @@ class SessionsTrendWidget extends Widget
 
     protected string $view = 'panel-company::filament.widgets.command-dashboard.sessions-trend';
 
-    protected int|string|array $columnSpan = 6;
+    protected int|string|array $columnSpan = 5;
 
     /**
      * @return array<string, mixed>

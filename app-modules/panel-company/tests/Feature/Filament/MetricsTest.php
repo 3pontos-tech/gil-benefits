@@ -15,18 +15,41 @@ it('renders the metrics page for a company owner', function (): void {
     livewire(Metrics::class)->assertOk();
 });
 
-it('filters the metrics by a specific month', function (): void {
+it('filters the metrics by a date range', function (): void {
     actingAsCompanyOwner();
 
     livewire(Metrics::class)
-        ->set('filters.month', now()->format('Y-m'))
+        ->set('filters.startDate', now()->subDays(15)->toDateString())
+        ->set('filters.endDate', now()->toDateString())
         ->assertOk();
 });
 
-it('handles a malformed month filter gracefully', function (): void {
+it('falls back to the default range with no date filters', function (): void {
     actingAsCompanyOwner();
 
     livewire(Metrics::class)
-        ->set('filters.month', 'invalid-month')
+        ->set('filters.startDate')
+        ->set('filters.endDate')
         ->assertOk();
+});
+
+it('shows the five metrics tabs', function (): void {
+    actingAsCompanyOwner();
+
+    livewire(Metrics::class)
+        ->assertOk()
+        ->assertSee(__('panel-company::resources.pages.metrics.tab_sessions'))
+        ->assertSee(__('panel-company::resources.pages.metrics.tab_adoption'))
+        ->assertSee(__('panel-company::resources.pages.metrics.tab_engagement'))
+        ->assertSee(__('panel-company::resources.pages.metrics.tab_experience'))
+        ->assertSee(__('panel-company::resources.pages.metrics.tab_credits'));
+});
+
+it('groups widgets into panorama and period scope sections', function (): void {
+    actingAsCompanyOwner();
+
+    livewire(Metrics::class)
+        ->assertOk()
+        ->assertSee(__('panel-company::resources.pages.metrics.scope_panorama_heading'))
+        ->assertSee(__('panel-company::resources.pages.metrics.scope_period_heading'));
 });

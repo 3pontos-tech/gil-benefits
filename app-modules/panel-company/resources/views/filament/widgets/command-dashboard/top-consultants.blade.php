@@ -14,7 +14,7 @@
 @endphp
 
 <x-filament-widgets::widget>
-    <section class="{{ $card }}">
+    <section class="{{ $card }} h-full">
         <p class="{{ $label }} mb-3">{{ __('panel-company::resources.pages.command_dashboard.consultants.heading') }}</p>
         @if ($consultants === [])
             <p class="py-8 text-center text-sm {{ $muted }}">{{ __('panel-company::resources.pages.command_dashboard.consultants.empty') }}</p>
@@ -22,17 +22,20 @@
             <div class="flex flex-col gap-3">
                 @foreach ($consultants as $consultant)
                     <div class="flex items-center gap-3">
-                        <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 dark:bg-white/5 dark:text-gray-300">{{ $consultant->initials }}</span>
+                        <span
+                            class="flex size-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-600 dark:bg-white/5 dark:text-gray-300">{{ $consultant->initials }}</span>
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-xs font-medium text-gray-800 dark:text-gray-100">{{ $consultant->name }}</p>
                             <div class="mt-1 h-1.5 overflow-hidden rounded-sm bg-gray-100 dark:bg-white/5">
-                                <div class="h-full rounded-sm {{ $dot[$consultant->color] ?? 'bg-primary-500' }}" style="width: {{ $consultant->barWidthPercent }}%"></div>
+                                <div class="h-full rounded-sm {{ $dot[$consultant->color] ?? 'bg-primary-500' }}"
+                                     style="width: {{ $consultant->barWidthPercent }}%"></div>
                             </div>
                         </div>
                         <div class="shrink-0 text-right">
                             <p class="{{ $num }} text-xs font-semibold text-gray-900 dark:text-white">{{ $br($consultant->sessions) }}</p>
                             @if ($consultant->rating !== null)
-                                <p class="text-xs text-amber-500">★ {{ MetricsNumber::decimal($consultant->rating) }}</p>
+                                <p class="text-xs text-amber-500">
+                                    ★ {{ MetricsNumber::decimal($consultant->rating) }}</p>
                             @endif
                         </div>
                     </div>

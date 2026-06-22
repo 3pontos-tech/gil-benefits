@@ -66,7 +66,7 @@ class CreditUsageTableWidget extends TableWidget
 
     private function tableQuery(): Builder
     {
-        ['start' => $start, 'end' => $end] = $this->dateRange();
+        $period = $this->metricsPeriod();
 
         $tenantId = Filament::getTenant()->id;
         $userIds = $this->filteredUserIds();
@@ -76,7 +76,7 @@ class CreditUsageTableWidget extends TableWidget
             ->join('appointments', 'appointments.id', '=', 'user_credits.appointment_id')
             ->where('user_credits.company_id', $tenantId)
             ->whereIn('user_credits.status', [UserCreditStatusEnum::Used, UserCreditStatusEnum::InUse])
-            ->whereBetween('appointments.appointment_at', [$start, $end])
+            ->whereBetween('appointments.appointment_at', [$period->start, $period->end])
             ->when($userIds instanceof Collection, fn ($q) => $q->whereIn('user_credits.holder_id', $userIds))
             ->select('user_credits.*')
             ->latest('appointments.appointment_at');

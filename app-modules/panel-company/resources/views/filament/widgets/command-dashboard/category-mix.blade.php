@@ -20,7 +20,7 @@
 @endphp
 
 <x-filament-widgets::widget>
-    <section class="{{ $card }}">
+    <section class="{{ $card }} h-full">
         <p class="{{ $label }} mb-2">{{ __('panel-company::resources.pages.command_dashboard.categories.heading') }}</p>
         @if ($mix->items === [])
             <p class="py-8 text-center text-sm {{ $muted }}">{{ __('panel-company::resources.pages.command_dashboard.categories.empty') }}</p>

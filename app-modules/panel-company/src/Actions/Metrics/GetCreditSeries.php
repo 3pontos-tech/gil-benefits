@@ -28,9 +28,7 @@ final class GetCreditSeries
         $cacheKey = $this->metricsCacheKey('credit_series', $tenant, $period->cacheKey(), $status ?? 'all');
 
         return Cache::remember($cacheKey, $this->metricsCacheTtl(), function () use ($tenant, $period, $status): array {
-            $query = UserCredit::query()
-                ->where('company_id', $tenant->getKey())
-                ->where('owner_id', $tenant->owner?->getKey())
+            $query = UserCredit::forCompany($tenant)->ownedBy($tenant)
                 ->when($status !== null, fn ($q) => $q->where('status', $status));
 
             return Trend::query($query)

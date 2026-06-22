@@ -29,17 +29,14 @@ class CompanyCreditStatsWidget extends StatsOverviewWidget
                 ->color('gray'),
             Stat::make(__('panel-company::widgets.credit_stats.available'), $totals->available)
                 ->description(__('panel-company::widgets.credit_stats.available_description'))
-                ->descriptionIcon('heroicon-o-check-circle')
                 ->icon('heroicon-o-check-circle')
                 ->color('success'),
             Stat::make(__('panel-company::widgets.credit_stats.in_use'), $totals->inUse)
                 ->description(__('panel-company::widgets.credit_stats.in_use_description'))
-                ->descriptionIcon('heroicon-o-clock')
                 ->icon('heroicon-o-clock')
                 ->color('info'),
             Stat::make(__('panel-company::widgets.credit_stats.used'), $totals->used)
                 ->description(__('panel-company::widgets.credit_stats.used_description'))
-                ->descriptionIcon('heroicon-o-check-badge')
                 ->icon('heroicon-o-check-badge')
                 ->color('gray'),
         ];
