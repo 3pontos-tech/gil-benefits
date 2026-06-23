@@ -1,14 +1,14 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Companies\RelationManagers;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers;
 
 use Filament\Actions\AttachAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use TresPontosTech\Admin\Filament\Resources\Permissions\Actions\AssignRoleAction;
-use TresPontosTech\Admin\Filament\Resources\Users\UserResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Actions\AssignRoleAction;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\UserResource;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Concerns\ChecksImportCompletion;
 use TresPontosTech\User\Filament\Actions\ImportUsersAction;

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Providers;
+namespace TresPontosTech\PanelApp\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use TresPontosTech\App\Actions\BuildUserJourneyAction;
+use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
 
 class PanelAppServiceProvider extends ServiceProvider
 {

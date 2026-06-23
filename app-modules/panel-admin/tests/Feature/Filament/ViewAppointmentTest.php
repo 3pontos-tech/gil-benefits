@@ -5,10 +5,10 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\Storage;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\User\Models\UserAnamnese;
 
 use function Pest\Livewire\livewire;

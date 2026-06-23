@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Resources\SharedDocuments\Pages;
+namespace TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\SharedDocumentResource;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\SharedDocumentResource;
 
 class EditSharedDocument extends EditRecord
 {

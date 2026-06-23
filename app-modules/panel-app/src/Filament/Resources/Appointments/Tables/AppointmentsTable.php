@@ -1,13 +1,13 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Resources\Appointments\Tables;
+namespace TresPontosTech\PanelApp\Filament\Resources\Appointments\Tables;
 
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use TresPontosTech\App\Filament\Actions\CancelAppointmentAction;
-use TresPontosTech\App\Filament\Actions\FeedbackAction;
-use TresPontosTech\App\Filament\Actions\ViewAppointmentRecordAction;
+use TresPontosTech\PanelApp\Filament\Actions\CancelAppointmentAction;
+use TresPontosTech\PanelApp\Filament\Actions\FeedbackAction;
+use TresPontosTech\PanelApp\Filament\Actions\ViewAppointmentRecordAction;
 
 class AppointmentsTable
 {

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Plans\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Plans\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Admin\Filament\Resources\Plans\PlanResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Plans\PlanResource;
 
 class ListPlans extends ListRecords
 {

@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Plans\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Plans\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
-use TresPontosTech\Admin\Filament\Resources\Plans\PlanResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Plans\PlanResource;
 
 class EditPlan extends EditRecord
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Resources\Documents;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\Documents;
 
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -10,14 +10,14 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\CreateDocument;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\EditDocument;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\ListDocuments;
-use TresPontosTech\Consultants\Filament\Resources\Documents\RelationManagers\SharedDocumentRelationManager;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Schemas\DocumentForm;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Tables\DocumentsTable;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\CreateDocument;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\EditDocument;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\ListDocuments;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\RelationManagers\SharedDocumentRelationManager;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Schemas\DocumentForm;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Tables\DocumentsTable;
 use UnitEnum;
 
 class DocumentResource extends Resource

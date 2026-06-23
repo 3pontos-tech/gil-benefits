@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\ContractualPlans;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\ContractualPlans;
 
 use BackedEnum;
 use Filament\Actions\DeleteAction;
@@ -16,12 +16,12 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
-use TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages\CreateContractualPlan;
-use TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages\EditContractualPlan;
-use TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages\ListContractualPlans;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\PanelAdmin\Filament\Resources\ContractualPlans\Pages\CreateContractualPlan;
+use TresPontosTech\PanelAdmin\Filament\Resources\ContractualPlans\Pages\EditContractualPlan;
+use TresPontosTech\PanelAdmin\Filament\Resources\ContractualPlans\Pages\ListContractualPlans;
 
 class ContractualPlanResource extends Resource
 {

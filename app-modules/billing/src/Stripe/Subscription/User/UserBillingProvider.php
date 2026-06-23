@@ -5,10 +5,10 @@ namespace TresPontosTech\Billing\Stripe\Subscription\User;
 use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
 use Illuminate\Http\RedirectResponse;
-use TresPontosTech\App\Filament\Pages\UserDashboard;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
+use TresPontosTech\PanelApp\Filament\Pages\UserDashboard;
 
 class UserBillingProvider implements BillingProvider
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Appointments\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 
 use Filament\Resources\Pages\CreateRecord;
-use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 
 class CreateAppointment extends CreateRecord
 {

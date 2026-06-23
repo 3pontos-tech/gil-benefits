@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use Filament\Widgets\AccountWidget;
 

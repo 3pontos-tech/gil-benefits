@@ -1,9 +1,9 @@
 <?php
 
 use Filament\Facades\Filament;
-use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\EditConsultant;
-use TresPontosTech\Admin\Filament\Resources\Consultants\RelationManagers\SchedulesRelationManager;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Pages\EditConsultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\RelationManagers\SchedulesRelationManager;
 
 use function Pest\Livewire\livewire;
 

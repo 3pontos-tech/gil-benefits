@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Pages;
 
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Admin\Filament\Resources\SupportTickets\SupportTicketResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\SupportTicketResource;
 
 class ListSupportTickets extends ListRecords
 {

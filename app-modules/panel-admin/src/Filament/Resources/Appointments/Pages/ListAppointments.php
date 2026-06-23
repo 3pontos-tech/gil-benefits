@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Appointments\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
-use TresPontosTech\Admin\Filament\Widgets\AppointmentsStatsOverview;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelAdmin\Filament\Widgets\AppointmentsStatsOverview;
 
 class ListAppointments extends ListRecords
 {

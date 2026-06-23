@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 use Filament\Support\Enums\Width;
 use Illuminate\Support\Facades\DB;
-use TresPontosTech\App\DTOs\PlanSummary;
-use TresPontosTech\App\Enums\PlanStatus;
-use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
-use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\PanelApp\DTOs\PlanSummary;
+use TresPontosTech\PanelApp\Enums\PlanStatus;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
 
 use function Pest\Laravel\travelTo;
 use function Pest\Livewire\livewire;

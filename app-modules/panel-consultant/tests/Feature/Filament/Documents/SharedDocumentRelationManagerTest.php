@@ -7,10 +7,10 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Livewire\Features\SupportTesting\Testable;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\EditDocument;
-use TresPontosTech\Consultants\Filament\Resources\Documents\RelationManagers\SharedDocumentRelationManager;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\EditDocument;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\RelationManagers\SharedDocumentRelationManager;
 
 use function Pest\Laravel\assertDatabaseMissing;
 use function Pest\Livewire\livewire;

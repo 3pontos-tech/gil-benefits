@@ -1,11 +1,11 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Widgets;
+namespace TresPontosTech\PanelConsultant\Filament\Widgets;
 
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Tables\AppointmentsTable;
 
 class ConsultantAppointmentHistoryWidget extends TableWidget
 {

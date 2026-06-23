@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Companies\Tables;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\Tables;
 
 use App\Filament\Tables\Columns\CnpjColumn;
 use Filament\Actions\Action;

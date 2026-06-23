@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Pages;
 
 use App\Filament\Shared\Fields\DocumentIdInput;
 use App\Filament\Shared\Fields\TaxIdInput;

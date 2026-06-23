@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Appointments\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
-use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
@@ -27,6 +26,7 @@ use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 
 /**
  * @property-read Appointment $record

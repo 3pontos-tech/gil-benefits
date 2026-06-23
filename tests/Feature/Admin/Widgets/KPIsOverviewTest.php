@@ -1,10 +1,10 @@
 <?php
 
-use TresPontosTech\Admin\Filament\Widgets\Metrics\KPIsOverview;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\KPIsOverview;
 
 use function Pest\Livewire\livewire;
 

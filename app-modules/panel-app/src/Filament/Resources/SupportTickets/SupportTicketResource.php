@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Resources\SupportTickets;
+namespace TresPontosTech\PanelApp\Filament\Resources\SupportTickets;
 
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -11,12 +11,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use TresPontosTech\App\Filament\Resources\SupportTickets\Pages\CreateSupportTicket;
-use TresPontosTech\App\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
-use TresPontosTech\App\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
-use TresPontosTech\App\Filament\Resources\SupportTickets\Schemas\SupportTicketForm;
-use TresPontosTech\App\Filament\Resources\SupportTickets\Schemas\SupportTicketInfolist;
-use TresPontosTech\App\Filament\Resources\SupportTickets\Tables\SupportTicketsTable;
+use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Pages\CreateSupportTicket;
+use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
+use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
+use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Schemas\SupportTicketForm;
+use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Schemas\SupportTicketInfolist;
+use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Tables\SupportTicketsTable;
 use TresPontosTech\Support\Models\SupportTicket;
 use UnitEnum;
 

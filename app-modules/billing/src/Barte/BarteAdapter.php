@@ -3,7 +3,6 @@
 namespace TresPontosTech\Billing\Barte;
 
 use App\Models\Users\User;
-use TresPontosTech\App\Filament\Pages\UserBillingManagePage;
 use TresPontosTech\Billing\Barte\DTOs\CreateBuyerDto;
 use TresPontosTech\Billing\Barte\DTOs\CreatePaymentLinkDto;
 use TresPontosTech\Billing\Barte\DTOs\PaymentOrderDto;
@@ -20,6 +19,7 @@ use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
 
 final readonly class BarteAdapter implements BillingContract
 {

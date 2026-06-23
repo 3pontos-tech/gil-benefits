@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Forms\Components;
+namespace TresPontosTech\PanelApp\Filament\Forms\Components;
 
 use Filament\Forms\Components\Field;
 

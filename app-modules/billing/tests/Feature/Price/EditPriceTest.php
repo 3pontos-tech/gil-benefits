@@ -1,8 +1,8 @@
 <?php
 
-use TresPontosTech\Admin\Filament\Resources\Prices\Pages\EditPrice;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\EditPrice;
 
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;

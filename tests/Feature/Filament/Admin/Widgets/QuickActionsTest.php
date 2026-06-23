@@ -1,10 +1,10 @@
 <?php
 
-use TresPontosTech\Admin\Filament\Widgets\QuickActions;
+use TresPontosTech\PanelAdmin\Filament\Widgets\QuickActions;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     actingAsAdmin();
 });
 

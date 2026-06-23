@@ -1,15 +1,15 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Resources\Appointments;
+namespace TresPontosTech\PanelApp\Filament\Resources\Appointments;
 
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use TresPontosTech\App\Filament\Resources\Appointments\Pages\CreateAppointment;
-use TresPontosTech\App\Filament\Resources\Appointments\Pages\ListAppointments;
-use TresPontosTech\App\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages\CreateAppointment;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Tables\AppointmentsTable;
 
 class AppointmentResource extends Resource
 {

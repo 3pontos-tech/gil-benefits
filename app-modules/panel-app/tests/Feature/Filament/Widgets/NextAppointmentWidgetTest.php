@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
-use TresPontosTech\App\Filament\Widgets\NextAppointmentWidget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelApp\Filament\Widgets\NextAppointmentWidget;
 
 use function Pest\Livewire\livewire;
 

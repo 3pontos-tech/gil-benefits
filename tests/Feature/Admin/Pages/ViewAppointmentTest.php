@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Storage;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ViewAppointment;
 
 use function Pest\Livewire\livewire;
 

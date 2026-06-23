@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Pages;
+namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use Filament\Pages\Dashboard;
-use TresPontosTech\App\Filament\Widgets\FinancialTopicsWidget;
-use TresPontosTech\App\Filament\Widgets\JourneyHeroWidget;
-use TresPontosTech\App\Filament\Widgets\NextAppointmentWidget;
-use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
-use TresPontosTech\App\Filament\Widgets\SharedMaterialsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\FinancialTopicsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\NextAppointmentWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\SharedMaterialsWidget;
 
 class UserDashboard extends Dashboard
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Widgets\Metrics;
+namespace TresPontosTech\PanelAdmin\Filament\Widgets\Metrics;
 
 use Carbon\CarbonInterface;
 use Filament\Actions\Action;

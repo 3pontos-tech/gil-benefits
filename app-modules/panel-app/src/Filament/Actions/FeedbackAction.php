@@ -1,13 +1,13 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Actions;
+namespace TresPontosTech\PanelApp\Filament\Actions;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
-use TresPontosTech\App\Filament\Forms\Components\StarRating;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
+use TresPontosTech\PanelApp\Filament\Forms\Components\StarRating;
 
 class FeedbackAction extends Action
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Resources\SupportTickets\Pages;
+namespace TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Pages;
 
 use Filament\Resources\Pages\ViewRecord;
-use TresPontosTech\App\Filament\Resources\SupportTickets\SupportTicketResource;
+use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\SupportTicketResource;
 
 class ViewSupportTicket extends ViewRecord
 {

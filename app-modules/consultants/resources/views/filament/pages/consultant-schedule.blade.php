@@ -1,5 +1,5 @@
 @php
-    use TresPontosTech\Admin\Filament\Resources\Consultants\RelationManagers\SchedulesRelationManager;
+    use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\RelationManagers\SchedulesRelationManager;
     use  TresPontosTech\Consultants\Models\Consultant;
  @endphp
 <x-filament-panels::page>

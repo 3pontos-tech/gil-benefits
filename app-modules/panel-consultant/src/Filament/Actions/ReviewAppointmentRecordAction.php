@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Consultants\Filament\Actions;
+namespace TresPontosTech\PanelConsultant\Filament\Actions;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\MarkdownEditor;

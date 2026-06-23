@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Widgets;
+namespace TresPontosTech\PanelConsultant\Filament\Widgets;
 
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;

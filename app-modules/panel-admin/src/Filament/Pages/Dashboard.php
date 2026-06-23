@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Pages;
 
 use Filament\Pages\Dashboard as BaseDashboard;
-use TresPontosTech\Admin\Filament\Widgets\LatestCompanies;
-use TresPontosTech\Admin\Filament\Widgets\QuickActions;
-use TresPontosTech\Admin\Filament\Widgets\StatsOverview;
+use TresPontosTech\PanelAdmin\Filament\Widgets\LatestCompanies;
+use TresPontosTech\PanelAdmin\Filament\Widgets\QuickActions;
+use TresPontosTech\PanelAdmin\Filament\Widgets\StatsOverview;
 
 class Dashboard extends BaseDashboard
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Actions;
+namespace TresPontosTech\PanelConsultant\Filament\Actions;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;

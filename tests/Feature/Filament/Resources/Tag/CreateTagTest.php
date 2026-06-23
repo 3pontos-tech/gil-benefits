@@ -4,13 +4,13 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Facades\Filament;
 use Spatie\Tags\Tag;
-use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Pages\CreateTag;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Pages\CreateTag;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     actingAs(User::factory()->admin()->create());
     Filament::setCurrentPanel(FilamentPanel::Admin->value);
 });
@@ -41,7 +41,7 @@ it('should be able to create tags', function (): void {
 
 describe('validation tests', function (): void {
 
-    test('name field', function ($value, $rule) {
+    test('name field', function ($value, $rule): void {
         livewire(CreateTag::class)
             ->assertOk()
             ->fillForm([
@@ -53,7 +53,7 @@ describe('validation tests', function (): void {
         'required' => ['', 'required'],
     ]);
 
-    test('slug field', function ($value, $rule) {
+    test('slug field', function ($value, $rule): void {
         livewire(CreateTag::class)
             ->assertOk()
             ->fillForm([
@@ -65,7 +65,7 @@ describe('validation tests', function (): void {
         'required' => ['', 'required'],
     ]);
 
-    test('order_column field', function ($value, $rule) {
+    test('order_column field', function ($value, $rule): void {
         livewire(CreateTag::class)
             ->assertOk()
             ->fillForm([

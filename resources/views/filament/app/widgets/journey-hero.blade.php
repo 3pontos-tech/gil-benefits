@@ -1,6 +1,6 @@
-@php use TresPontosTech\App\DTOs\UserJourney; @endphp
-@php use TresPontosTech\App\Filament\Pages\AnamneseWizardPage; @endphp
-@php use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource; @endphp
+@php use TresPontosTech\PanelApp\DTOs\UserJourney; @endphp
+@php use TresPontosTech\PanelApp\Filament\Pages\AnamneseWizardPage; @endphp
+@php use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource; @endphp
 @php /** @var UserJourney $journey */ @endphp
 <x-filament-widgets::widget class="h-full">
     <div

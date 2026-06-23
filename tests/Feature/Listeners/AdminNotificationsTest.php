@@ -2,14 +2,14 @@
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\DB;
-use TresPontosTech\Admin\Listeners\NotifyAdminsOfAppointmentBookedListener;
-use TresPontosTech\Admin\Listeners\NotifyAdminsOfAppointmentCancelledListener;
-use TresPontosTech\Admin\Listeners\NotifyAdminsOfAppointmentCompletedListener;
-use TresPontosTech\Admin\Listeners\NotifyAdminsOfUserRegisteredListener;
 use TresPontosTech\Appointments\Events\AppointmentBooked;
 use TresPontosTech\Appointments\Events\AppointmentCancelled;
 use TresPontosTech\Appointments\Events\AppointmentCompleted;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelAdmin\Listeners\NotifyAdminsOfAppointmentBookedListener;
+use TresPontosTech\PanelAdmin\Listeners\NotifyAdminsOfAppointmentCancelledListener;
+use TresPontosTech\PanelAdmin\Listeners\NotifyAdminsOfAppointmentCompletedListener;
+use TresPontosTech\PanelAdmin\Listeners\NotifyAdminsOfUserRegisteredListener;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
 

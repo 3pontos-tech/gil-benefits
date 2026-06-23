@@ -5,12 +5,12 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use STS\FilamentImpersonate\Events\EnterImpersonation;
 use STS\FilamentImpersonate\Events\LeaveImpersonation;
-use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\ListConsultants;
-use TresPontosTech\Admin\Listeners\LogImpersonationEndedListener;
-use TresPontosTech\Admin\Listeners\LogImpersonationStartedListener;
-use TresPontosTech\Admin\Models\ImpersonationLog;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Pages\ListConsultants;
+use TresPontosTech\PanelAdmin\Listeners\LogImpersonationEndedListener;
+use TresPontosTech\PanelAdmin\Listeners\LogImpersonationStartedListener;
+use TresPontosTech\PanelAdmin\Models\ImpersonationLog;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\assertDatabaseHas;
@@ -29,6 +29,7 @@ describe('canAccessTenant', function (): void {
     it('blocks non-admin from accessing a company they are not a member of', function (): void {
         $user = User::factory()->create();
         $user->assignRole(Roles::User->value);
+
         $company = Company::factory()->create();
 
         expect($user->canAccessTenant($company))->toBeFalse();
@@ -109,7 +110,7 @@ describe('impersonation logs', function (): void {
         $listener = new LogImpersonationStartedListener;
         $listener->handle(new EnterImpersonation($admin, $consultant));
 
-        $log = ImpersonationLog::first();
+        $log = ImpersonationLog::query()->first();
         expect($log->started_at)->not->toBeNull()
             ->and($log->ended_at)->toBeNull();
     });
@@ -118,7 +119,7 @@ describe('impersonation logs', function (): void {
         $admin = User::factory()->admin()->create();
         $consultant = User::factory()->create();
 
-        ImpersonationLog::create([
+        ImpersonationLog::query()->create([
             'admin_id' => $admin->id,
             'impersonated_user_id' => $consultant->id,
             'started_at' => now()->subMinutes(5),
@@ -127,7 +128,7 @@ describe('impersonation logs', function (): void {
         $listener = new LogImpersonationEndedListener;
         $listener->handle(new LeaveImpersonation($admin, $consultant));
 
-        expect(ImpersonationLog::first()->ended_at)->not->toBeNull();
+        expect(ImpersonationLog::query()->first()->ended_at)->not->toBeNull();
     });
 
     it('only closes the most recent open log when leaving', function (): void {
@@ -136,7 +137,7 @@ describe('impersonation logs', function (): void {
 
         $closedAt = now()->subMinutes(50);
 
-        $old = ImpersonationLog::create([
+        $old = ImpersonationLog::query()->create([
             'admin_id' => $admin->id,
             'impersonated_user_id' => $consultant->id,
             'started_at' => now()->subHour(),
@@ -144,7 +145,7 @@ describe('impersonation logs', function (): void {
         $old->ended_at = $closedAt;
         $old->save();
 
-        $open = ImpersonationLog::create([
+        $open = ImpersonationLog::query()->create([
             'admin_id' => $admin->id,
             'impersonated_user_id' => $consultant->id,
             'started_at' => now()->subMinutes(5),

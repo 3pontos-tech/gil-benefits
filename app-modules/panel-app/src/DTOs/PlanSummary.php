@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\DTOs;
+namespace TresPontosTech\PanelApp\DTOs;
 
-use TresPontosTech\App\Enums\PlanStatus;
+use TresPontosTech\PanelApp\Enums\PlanStatus;
 
 final readonly class PlanSummary
 {

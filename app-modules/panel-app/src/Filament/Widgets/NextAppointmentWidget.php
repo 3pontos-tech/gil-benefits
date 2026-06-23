@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;
@@ -13,10 +13,10 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
-use TresPontosTech\App\Filament\Actions\CancelAppointmentAction;
-use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Actions\CancelAppointmentAction;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 
 class NextAppointmentWidget extends Widget implements HasActions, HasSchemas
 {

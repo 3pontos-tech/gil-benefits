@@ -1,10 +1,10 @@
 <?php
 
-use TresPontosTech\Admin\Filament\Widgets\StatsOverview;
+use TresPontosTech\PanelAdmin\Filament\Widgets\StatsOverview;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     actingAsAdmin();
 });
 

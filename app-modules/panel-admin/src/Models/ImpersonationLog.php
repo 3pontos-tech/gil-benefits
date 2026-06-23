@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Models;
+namespace TresPontosTech\PanelAdmin\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Model;

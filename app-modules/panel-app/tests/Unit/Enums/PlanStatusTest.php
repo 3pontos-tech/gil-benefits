@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Enums\PlanStatus;
+use TresPontosTech\PanelApp\Enums\PlanStatus;
 
 it('is a string-backed enum with the expected cases', function (): void {
     expect(PlanStatus::Active->value)->toBe('active')

@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Mail\AppointmentRecordPublishedMail;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
-use TresPontosTech\Consultants\Filament\Actions\ReviewAppointmentRecordAction;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\PanelConsultant\Filament\Actions\ReviewAppointmentRecordAction;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListAppointments;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;

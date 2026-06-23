@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Resources\SharedDocuments;
+namespace TresPontosTech\PanelApp\Filament\Resources\SharedDocuments;
 
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -9,12 +9,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\CreateSharedDocument;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Schemas\SharedDocumentForm;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\CreateSharedDocument;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Schemas\SharedDocumentForm;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
 
 class SharedDocumentResource extends Resource
 {

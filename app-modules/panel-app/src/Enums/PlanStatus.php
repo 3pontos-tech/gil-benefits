@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Enums;
+namespace TresPontosTech\PanelApp\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 

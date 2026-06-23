@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Permissions\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Admin\Filament\Resources\Permissions\RoleResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\RoleResource;
 
 class ListRoles extends ListRecords
 {

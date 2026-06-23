@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Consultants\Schemas;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Schemas;
 
 use App\Enums\AvailableTagsEnum;
 use Filament\Forms\Components\KeyValue;

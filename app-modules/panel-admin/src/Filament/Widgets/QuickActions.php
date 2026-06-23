@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Widgets;
+namespace TresPontosTech\PanelAdmin\Filament\Widgets;
 
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
-use TresPontosTech\Admin\Filament\Resources\Companies\Pages\CreateCompany;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\CreateUser;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\ListUsers;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\CreateCompany;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\CreateUser;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\ListUsers;
 
 class QuickActions extends Widget
 {

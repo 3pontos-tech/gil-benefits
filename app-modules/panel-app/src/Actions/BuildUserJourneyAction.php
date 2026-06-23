@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Actions;
+namespace TresPontosTech\PanelApp\Actions;
 
 use App\Models\Users\User;
-use TresPontosTech\App\DTOs\UserJourney;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
+use TresPontosTech\PanelApp\DTOs\UserJourney;
 use TresPontosTech\User\Enums\LifeMoment;
 
 class BuildUserJourneyAction

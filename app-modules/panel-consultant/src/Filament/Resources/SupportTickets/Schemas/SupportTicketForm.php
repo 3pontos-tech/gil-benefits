@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Consultants\Filament\Resources\SupportTickets\Schemas;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\SupportTickets\Schemas;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;

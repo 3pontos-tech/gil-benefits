@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Consultants\RelationManagers;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Consultants\RelationManagers;
 
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;

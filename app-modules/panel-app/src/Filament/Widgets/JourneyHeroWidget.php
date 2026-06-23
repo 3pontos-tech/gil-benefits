@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\On;
-use TresPontosTech\App\Actions\BuildUserJourneyAction;
+use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
 
 class JourneyHeroWidget extends Widget
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Listeners;
+namespace TresPontosTech\PanelAdmin\Listeners;
 
 use STS\FilamentImpersonate\Events\EnterImpersonation;
-use TresPontosTech\Admin\Models\ImpersonationLog;
+use TresPontosTech\PanelAdmin\Models\ImpersonationLog;
 
 class LogImpersonationStartedListener
 {

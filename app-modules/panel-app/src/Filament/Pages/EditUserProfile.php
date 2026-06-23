@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Pages;
+namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use App\Filament\Shared\Pages\EditUserProfile as BaseEditUserProfile;
 use App\Models\Users\User;
