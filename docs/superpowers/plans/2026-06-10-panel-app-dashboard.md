@@ -12,7 +12,7 @@
 
 ## Decisões de arquitetura travadas (ler antes de começar)
 
-1. **Namespace do módulo:** `TresPontosTech\App\` → `app-modules/panel-app/src/`. Logo: Actions em `src/Actions/`, DTOs em `src/DTOs/`, Widgets em `src/Filament/Widgets/`.
+1. **Namespace do módulo:** `TresPontosTech\PanelApp\` → `app-modules/panel-app/src/`. Logo: Actions em `src/Actions/`, DTOs em `src/DTOs/`, Widgets em `src/Filament/Widgets/`.
 2. **Onde ficam as views dos widgets:** **NÃO** em `app-modules/panel-app/resources/views`. O `theme.css` do painel só faz `@source '../../../../resources/views/**/*'` (nível app) e `app/**`. Views dentro do módulo **não são varridas** pelo Tailwind → classes utilitárias seriam purgadas. Portanto as views novas vão em `resources/views/filament/app/widgets/` (nível app), exatamente como os widgets atuais usam `resources/views/filament/admin/widgets/`.
 3. **Estilo:** as classes visuais (`.hub-card`, `.hub-tile`, etc.) são **CSS puro** em `theme.css` (imunes ao purge). As views usam essas classes + utilitários Tailwind de layout (`grid`, `gap`, `flex`) que são varridos por estarem em `resources/views/**`.
 4. **Sem caching na Action** nesta entrega (evita testes intermitentes). O `monthly_appointments_left` já tem seu próprio cache de 1 min no model.
@@ -151,7 +151,7 @@ Crie `app-modules/panel-app/tests/Unit/Actions/BuildUserJourneyActionTest.php`:
 declare(strict_types=1);
 
 use App\Models\Users\User;
-use TresPontosTech\App\Actions\BuildUserJourneyAction;
+use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -233,7 +233,7 @@ Crie `app-modules/panel-app/src/DTOs/UserJourney.php`:
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\DTOs;
+namespace TresPontosTech\PanelApp\DTOs;
 
 use Carbon\CarbonInterface;
 use Illuminate\Contracts\Support\Htmlable;
@@ -294,10 +294,10 @@ Crie `app-modules/panel-app/src/Actions/BuildUserJourneyAction.php`:
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Actions;
+namespace TresPontosTech\PanelApp\Actions;
 
 use App\Models\Users\User;
-use TresPontosTech\App\DTOs\UserJourney;
+use TresPontosTech\PanelApp\DTOs\UserJourney;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
@@ -383,7 +383,7 @@ Crie `app-modules/panel-app/tests/Feature/Filament/Widgets/JourneyHeroWidgetTest
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Widgets\JourneyHeroWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\User\Enums\LifeMoment;
@@ -426,12 +426,12 @@ Crie `app-modules/panel-app/src/Filament/Widgets/JourneyHeroWidget.php`:
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\On;
-use TresPontosTech\App\Actions\BuildUserJourneyAction;
+use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
 
 class JourneyHeroWidget extends Widget
 {
@@ -459,7 +459,7 @@ class JourneyHeroWidget extends Widget
 Crie `resources/views/filament/app/widgets/journey-hero.blade.php`:
 
 ```blade
-@php use TresPontosTech\App\DTOs\UserJourney; @endphp
+@php use TresPontosTech\PanelApp\DTOs\UserJourney; @endphp
 @php /** @var UserJourney $journey */ @endphp
 <x-filament-widgets::widget>
     <div class="hub">
@@ -491,7 +491,7 @@ Crie `resources/views/filament/app/widgets/journey-hero.blade.php`:
                         <p style="font-size:13px;color:var(--hub-muted);margin-bottom:14px">
                             Complete sua anamnese para descobrir seu momento financeiro.
                         </p>
-                        <a class="hub-btn" href="{{ \TresPontosTech\App\Filament\Pages\AnamneseWizardPage::getUrl() }}">
+                        <a class="hub-btn" href="{{ \TresPontosTech\PanelApp\Filament\Pages\AnamneseWizardPage::getUrl() }}">
                             Complete sua anamnese
                         </a>
                     @endif
@@ -545,7 +545,7 @@ Crie `app-modules/panel-app/tests/Feature/Filament/Widgets/NextAppointmentWidget
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Widgets\NextAppointmentWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\NextAppointmentWidget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -596,12 +596,12 @@ Crie `app-modules/panel-app/src/Filament/Widgets/NextAppointmentWidget.php`:
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\On;
-use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 
@@ -725,7 +725,7 @@ Crie `app-modules/panel-app/tests/Feature/Filament/Widgets/PlanCreditsWidgetTest
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 
 use function Pest\Livewire\livewire;
@@ -761,14 +761,14 @@ Crie `app-modules/panel-app/src/Filament/Widgets/PlanCreditsWidget.php`:
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
-use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -933,7 +933,7 @@ Crie `app-modules/panel-app/tests/Feature/Filament/Widgets/FinancialTopicsWidget
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Widgets\FinancialTopicsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\FinancialTopicsWidget;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -972,12 +972,12 @@ Crie `app-modules/panel-app/src/Filament/Widgets/FinancialTopicsWidget.php`:
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\On;
-use TresPontosTech\App\Actions\BuildUserJourneyAction;
+use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 
 class FinancialTopicsWidget extends Widget
@@ -1009,7 +1009,7 @@ class FinancialTopicsWidget extends Widget
 Crie `resources/views/filament/app/widgets/financial-topics.blade.php`:
 
 ```blade
-@php use TresPontosTech\App\DTOs\UserJourney; @endphp
+@php use TresPontosTech\PanelApp\DTOs\UserJourney; @endphp
 @php /** @var UserJourney $journey */ @endphp
 <x-filament-widgets::widget>
     <div class="hub">
@@ -1063,7 +1063,7 @@ Crie `app-modules/panel-app/tests/Feature/Filament/Widgets/SharedMaterialsWidget
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Widgets\SharedMaterialsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\SharedMaterialsWidget;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
@@ -1113,7 +1113,7 @@ Crie `app-modules/panel-app/src/Filament/Widgets/SharedMaterialsWidget.php`:
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Widgets\Widget;
@@ -1216,13 +1216,13 @@ Crie `app-modules/panel-app/tests/Feature/Filament/Pages/UserDashboardTest.php`:
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Pages\UserDashboard;
-use TresPontosTech\App\Filament\Widgets\AppointmentHistoryWidget;
-use TresPontosTech\App\Filament\Widgets\FinancialTopicsWidget;
-use TresPontosTech\App\Filament\Widgets\JourneyHeroWidget;
-use TresPontosTech\App\Filament\Widgets\NextAppointmentWidget;
-use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
-use TresPontosTech\App\Filament\Widgets\SharedMaterialsWidget;
+use TresPontosTech\PanelApp\Filament\Pages\UserDashboard;
+use TresPontosTech\PanelApp\Filament\Widgets\AppointmentHistoryWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\FinancialTopicsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\NextAppointmentWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\SharedMaterialsWidget;
 
 use function Pest\Livewire\livewire;
 
@@ -1256,15 +1256,15 @@ Substitua o conteúdo de `app-modules/panel-app/src/Filament/Pages/UserDashboard
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Pages;
+namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use Filament\Pages\Dashboard;
-use TresPontosTech\App\Filament\Widgets\AppointmentHistoryWidget;
-use TresPontosTech\App\Filament\Widgets\FinancialTopicsWidget;
-use TresPontosTech\App\Filament\Widgets\JourneyHeroWidget;
-use TresPontosTech\App\Filament\Widgets\NextAppointmentWidget;
-use TresPontosTech\App\Filament\Widgets\PlanCreditsWidget;
-use TresPontosTech\App\Filament\Widgets\SharedMaterialsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\AppointmentHistoryWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\FinancialTopicsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\NextAppointmentWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\SharedMaterialsWidget;
 
 class UserDashboard extends Dashboard
 {

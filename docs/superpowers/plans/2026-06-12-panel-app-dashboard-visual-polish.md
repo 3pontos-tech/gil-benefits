@@ -118,7 +118,7 @@ Crie `app-modules/panel-app/src/DTOs/PlanSummary.php`:
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\DTOs;
+namespace TresPontosTech\PanelApp\DTOs;
 
 final readonly class PlanSummary
 {
@@ -181,7 +181,7 @@ Substitua todo o conteúdo de `app-modules/panel-app/src/Filament/Widgets/PlanCr
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;
@@ -194,8 +194,8 @@ use Filament\Widgets\Widget;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
-use TresPontosTech\App\DTOs\PlanSummary;
-use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelApp\DTOs\PlanSummary;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -488,7 +488,7 @@ Expected: FAIL (view do modal ainda não existe → erro de view não encontrada
 Crie `resources/views/filament/app/widgets/partials/plan-details.blade.php`:
 
 ```blade
-@php /** @var \TresPontosTech\App\DTOs\PlanSummary $plan */ @endphp
+@php /** @var \TresPontosTech\PanelApp\DTOs\PlanSummary $plan */ @endphp
 <div class="space-y-4 text-sm text-gray-700 dark:text-gray-300">
     @if($plan->description)
         <p>{{ $plan->description }}</p>
