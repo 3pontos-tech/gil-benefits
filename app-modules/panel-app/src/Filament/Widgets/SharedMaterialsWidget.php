@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Widgets;
+namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;
@@ -15,8 +15,8 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\SharedDocumentResource;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\SharedDocumentResource;
 
 class SharedMaterialsWidget extends Widget implements HasActions, HasSchemas
 {

@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Widgets\FinancialTopicsWidget;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Widgets\FinancialTopicsWidget;
 
 use function Pest\Livewire\livewire;
 

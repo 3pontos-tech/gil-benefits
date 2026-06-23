@@ -2,7 +2,6 @@
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
-use TresPontosTech\App\Filament\Resources\Appointments\Pages\CreateAppointment;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -10,6 +9,7 @@ use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages\CreateAppointment;
 use Zap\Facades\Zap;
 
 use function Pest\Laravel\actingAs;

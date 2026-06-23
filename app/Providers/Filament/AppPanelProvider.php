@@ -19,11 +19,11 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use TresPontosTech\App\Filament\Pages\EditUserProfile;
-use TresPontosTech\App\Filament\Pages\UserRegistration;
-use TresPontosTech\App\Http\Middleware\RedirectIfAnamneseNotCompleted;
 use TresPontosTech\Billing\Stripe\Subscription\User\UserBillingProvider;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelApp\Filament\Pages\EditUserProfile;
+use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;
+use TresPontosTech\PanelApp\Http\Middleware\RedirectIfAnamneseNotCompleted;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -59,10 +59,10 @@ class AppPanelProvider extends PanelProvider
                     })
                     ->url(fn (): string => route('filament.app.tenant.billing', ['tenant' => Filament::getTenant()])),
             ])
-            ->discoverResources(in: base_path('app-modules/panel-app/src/Filament/Resources'), for: 'TresPontosTech\\App\\Filament\\Resources')
-            ->discoverPages(in: base_path('app-modules/panel-app/src/Filament/Pages'), for: 'TresPontosTech\\App\\Filament\\Pages')
-            ->discoverWidgets(in: base_path('app-modules/panel-app/src/Filament/Widgets'), for: 'TresPontosTech\\App\\Filament\\Widgets')
-            ->discoverClusters(in: base_path('app-modules/panel-app/src/Filament/Clusters'), for: 'TresPontosTech\\App\\Filament\\Clusters')
+            ->discoverResources(in: base_path('app-modules/panel-app/src/Filament/Resources'), for: 'TresPontosTech\\PanelApp\\Filament\\Resources')
+            ->discoverPages(in: base_path('app-modules/panel-app/src/Filament/Pages'), for: 'TresPontosTech\\PanelApp\\Filament\\Pages')
+            ->discoverWidgets(in: base_path('app-modules/panel-app/src/Filament/Widgets'), for: 'TresPontosTech\\PanelApp\\Filament\\Widgets')
+            ->discoverClusters(in: base_path('app-modules/panel-app/src/Filament/Clusters'), for: 'TresPontosTech\\PanelApp\\Filament\\Clusters')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

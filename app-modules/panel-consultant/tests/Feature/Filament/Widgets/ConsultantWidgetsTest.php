@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Consultants\Filament\Widgets\ConsultantAppointmentHistoryWidget;
-use TresPontosTech\Consultants\Filament\Widgets\ConsultantLatestAppointmentWidget;
-use TresPontosTech\Consultants\Filament\Widgets\ConsultantStatsOverview;
+use TresPontosTech\PanelConsultant\Filament\Widgets\ConsultantAppointmentHistoryWidget;
+use TresPontosTech\PanelConsultant\Filament\Widgets\ConsultantLatestAppointmentWidget;
+use TresPontosTech\PanelConsultant\Filament\Widgets\ConsultantStatsOverview;
 
 use function Pest\Livewire\livewire;
 

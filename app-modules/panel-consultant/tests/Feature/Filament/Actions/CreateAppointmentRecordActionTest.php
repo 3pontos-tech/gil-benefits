@@ -10,8 +10,8 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Jobs\GenerateAppointmentRecordJob;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
-use TresPontosTech\Consultants\Filament\Actions\CreateAppointmentRecordAction;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\PanelConsultant\Filament\Actions\CreateAppointmentRecordAction;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListAppointments;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;

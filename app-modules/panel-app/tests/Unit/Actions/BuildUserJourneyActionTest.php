@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\DB;
-use TresPontosTech\App\Actions\BuildUserJourneyAction;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
+use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
 use TresPontosTech\User\Enums\LifeMoment;
 use TresPontosTech\User\Models\UserAnamnese;
 

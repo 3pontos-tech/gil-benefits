@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\SupportTickets\Tables;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Tables;
 
 use Filament\Actions\ViewAction;
 use Filament\Support\Icons\Heroicon;
@@ -10,7 +10,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Database\Eloquent\Builder;
-use TresPontosTech\Admin\Filament\Resources\SupportTickets\Actions\UpdateStatusAction;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Actions\UpdateStatusAction;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Models\SupportTicket;

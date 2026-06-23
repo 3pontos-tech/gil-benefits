@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Widgets;
+namespace TresPontosTech\PanelAdmin\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Support\Colors\Color;

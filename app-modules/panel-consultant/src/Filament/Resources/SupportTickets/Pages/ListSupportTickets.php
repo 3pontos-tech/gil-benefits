@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Consultants\Filament\Resources\SupportTickets\Pages;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\SupportTickets\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Icons\Heroicon;
-use TresPontosTech\Consultants\Filament\Resources\SupportTickets\SupportTicketResource;
+use TresPontosTech\PanelConsultant\Filament\Resources\SupportTickets\SupportTicketResource;
 
 class ListSupportTickets extends ListRecords
 {

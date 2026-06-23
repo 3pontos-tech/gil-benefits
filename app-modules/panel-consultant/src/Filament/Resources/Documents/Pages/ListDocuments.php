@@ -1,10 +1,10 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Resources\Documents\Pages;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Consultants\Filament\Resources\Documents\DocumentResource;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\DocumentResource;
 
 class ListDocuments extends ListRecords
 {

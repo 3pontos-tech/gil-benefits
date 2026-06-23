@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Resources\Documents\Tables;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\Documents\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -14,7 +14,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use TresPontosTech\Consultants\Filament\Actions\ShareDocumentFilamentAction;
+use TresPontosTech\PanelConsultant\Filament\Actions\ShareDocumentFilamentAction;
 
 class DocumentsTable
 {

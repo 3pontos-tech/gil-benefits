@@ -8,10 +8,10 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
-use TresPontosTech\Consultants\Filament\Actions\DownloadDocumentFilamentAction;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\PanelConsultant\Filament\Actions\DownloadDocumentFilamentAction;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ViewAppointment;
 
 use function Pest\Livewire\livewire;
 

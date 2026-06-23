@@ -4,14 +4,14 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Facades\Filament;
 use Spatie\Tags\Tag;
-use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Pages\EditTag;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Pages\EditTag;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertDatabaseMissing;
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     actingAs(User::factory()->admin()->create());
     Filament::setCurrentPanel(FilamentPanel::Admin->value);
 

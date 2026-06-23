@@ -2,7 +2,7 @@
 
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\ListUsers;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\ListUsers;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Livewire\livewire;

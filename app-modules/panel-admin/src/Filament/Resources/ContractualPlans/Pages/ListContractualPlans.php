@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\ContractualPlans\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Admin\Filament\Resources\ContractualPlans\ContractualPlanResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\ContractualPlans\ContractualPlanResource;
 
 class ListContractualPlans extends ListRecords
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\SupportTickets\RelationManagers;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\RelationManagers;
 
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;

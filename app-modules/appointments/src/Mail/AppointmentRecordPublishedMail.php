@@ -10,8 +10,8 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 
 final class AppointmentRecordPublishedMail extends Mailable implements ShouldQueue
 {

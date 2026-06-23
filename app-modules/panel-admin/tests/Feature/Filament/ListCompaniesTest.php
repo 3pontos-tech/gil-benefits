@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Admin\Filament\Resources\Companies\Pages\ListCompanies;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\ListCompanies;
 
 use function Pest\Livewire\livewire;
 

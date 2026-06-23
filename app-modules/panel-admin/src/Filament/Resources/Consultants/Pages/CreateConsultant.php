@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Consultants\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Pages;
 
 use Filament\Resources\Pages\CreateRecord;
-use TresPontosTech\Admin\Filament\Resources\Consultants\ConsultantResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\ConsultantResource;
 
 class CreateConsultant extends CreateRecord
 {

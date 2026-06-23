@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;

@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Users\User;
-use TresPontosTech\App\Filament\Pages\UserRegistration;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;
 
 use function Pest\Laravel\assertAuthenticatedAs;
 use function Pest\Laravel\assertDatabaseCount;

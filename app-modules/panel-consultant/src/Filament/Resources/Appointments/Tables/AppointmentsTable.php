@@ -1,15 +1,15 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Resources\Appointments\Tables;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Tables;
 
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use TresPontosTech\Consultants\Filament\Actions\CreateAppointmentRecordAction;
-use TresPontosTech\Consultants\Filament\Actions\ReviewAppointmentRecordAction;
-use TresPontosTech\Consultants\Filament\Actions\ViewPreviousRecordSummaryAction;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelConsultant\Filament\Actions\CreateAppointmentRecordAction;
+use TresPontosTech\PanelConsultant\Filament\Actions\ReviewAppointmentRecordAction;
+use TresPontosTech\PanelConsultant\Filament\Actions\ViewPreviousRecordSummaryAction;
 
 class AppointmentsTable
 {

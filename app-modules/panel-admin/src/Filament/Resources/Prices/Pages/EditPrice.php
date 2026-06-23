@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Prices\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
-use TresPontosTech\Admin\Filament\Resources\Prices\PriceResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Prices\PriceResource;
 
 class EditPrice extends EditRecord
 {

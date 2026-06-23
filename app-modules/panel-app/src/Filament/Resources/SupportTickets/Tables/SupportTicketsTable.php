@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Resources\SupportTickets\Tables;
+namespace TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Tables;
 
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;

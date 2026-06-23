@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\App\Http\Middleware;
+namespace TresPontosTech\PanelApp\Http\Middleware;
 
 use Closure;
 use Illuminate\Database\Eloquent\Model;

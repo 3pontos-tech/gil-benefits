@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Listeners;
+namespace TresPontosTech\PanelAdmin\Listeners;
 
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use TresPontosTech\Admin\Actions\GetAdminUsersAction;
 use TresPontosTech\Appointments\Events\AppointmentBooked;
+use TresPontosTech\PanelAdmin\Actions\GetAdminUsersAction;
 
 class NotifyAdminsOfAppointmentBookedListener implements ShouldQueue
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Companies;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies;
 
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -9,14 +9,14 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Admin\Filament\Resources\Companies\Pages\CreateCompany;
-use TresPontosTech\Admin\Filament\Resources\Companies\Pages\EditCompany;
-use TresPontosTech\Admin\Filament\Resources\Companies\Pages\ListCompanies;
-use TresPontosTech\Admin\Filament\Resources\Companies\RelationManagers\ContractualPlansRelationManager;
-use TresPontosTech\Admin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
-use TresPontosTech\Admin\Filament\Resources\Companies\Schemas\CompanyForm;
-use TresPontosTech\Admin\Filament\Resources\Companies\Tables\CompaniesTable;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\CreateCompany;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\EditCompany;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\ListCompanies;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\ContractualPlansRelationManager;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Schemas\CompanyForm;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Tables\CompaniesTable;
 
 class CompanyResource extends Resource
 {

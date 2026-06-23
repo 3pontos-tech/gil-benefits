@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\SupportTickets\Schemas;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Schemas;
 
 use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use Filament\Infolists\Components\TextEntry;

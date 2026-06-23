@@ -204,22 +204,22 @@
             "dist": {
                 "type": "path",
                 "url": "app-modules/panel-admin",
-                "reference": "66273fa43e82920d9ebcfb04e3ca6fda2353625f"
+                "reference": "0ee6ff11766b7c30e64ab0f8e7349efb4e5c35a5"
             },
             "type": "library",
             "extra": {
                 "laravel": {
                     "providers": [
-                        "TresPontosTech\\Admin\\Providers\\PanelAdminServiceProvider"
+                        "TresPontosTech\\PanelAdmin\\Providers\\PanelAdminServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "TresPontosTech\\Admin\\": "src/",
-                    "TresPontosTech\\Admin\\Tests\\": "tests/",
-                    "TresPontosTech\\Admin\\Database\\Factories\\": "database/factories/",
-                    "TresPontosTech\\Admin\\Database\\Seeders\\": "database/seeders/"
+                    "TresPontosTech\\PanelAdmin\\": "src/",
+                    "TresPontosTech\\PanelAdmin\\Tests\\": "tests/",
+                    "TresPontosTech\\PanelAdmin\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\PanelAdmin\\Database\\Seeders\\": "database/seeders/"
                 }
             },
             "license": [
@@ -236,22 +236,22 @@
             "dist": {
                 "type": "path",
                 "url": "app-modules/panel-app",
-                "reference": "79582c9fdba66fefb45c455a71d7ffa96210a381"
+                "reference": "0fe2d4bf12a1a0835e9dfb375ada272237d505bf"
             },
             "type": "library",
             "extra": {
                 "laravel": {
                     "providers": [
-                        "TresPontosTech\\App\\Providers\\PanelAppServiceProvider"
+                        "TresPontosTech\\PanelApp\\Providers\\PanelAppServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "TresPontosTech\\App\\": "src/",
-                    "TresPontosTech\\App\\Tests\\": "tests/",
-                    "TresPontosTech\\App\\Database\\Factories\\": "database/factories/",
-                    "TresPontosTech\\App\\Database\\Seeders\\": "database/seeders/"
+                    "TresPontosTech\\PanelApp\\": "src/",
+                    "TresPontosTech\\PanelApp\\Tests\\": "tests/",
+                    "TresPontosTech\\PanelApp\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\PanelApp\\Database\\Seeders\\": "database/seeders/"
                 }
             },
             "license": [
@@ -300,22 +300,22 @@
             "dist": {
                 "type": "path",
                 "url": "app-modules/panel-consultant",
-                "reference": "b4951f304c53ba097208b1bb4fe1642af17aa850"
+                "reference": "f41251825306c46fb15324f6dce44fb8823702b0"
             },
             "type": "library",
             "extra": {
                 "laravel": {
                     "providers": [
-                        "TresPontosTech\\Consultants\\Providers\\PanelConsultantServiceProvider"
+                        "TresPontosTech\\PanelConsultant\\Providers\\PanelConsultantServiceProvider"
                     ]
                 }
             },
             "autoload": {
                 "psr-4": {
-                    "TresPontosTech\\Consultants\\": "src/",
-                    "TresPontosTech\\Consultants\\Tests\\": "tests/",
-                    "TresPontosTech\\Consultants\\Database\\Factories\\": "database/factories/",
-                    "TresPontosTech\\Consultants\\Database\\Seeders\\": "database/seeders/"
+                    "TresPontosTech\\PanelConsultant\\": "src/",
+                    "TresPontosTech\\PanelConsultant\\Tests\\": "tests/",
+                    "TresPontosTech\\PanelConsultant\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\PanelConsultant\\Database\\Seeders\\": "database/seeders/"
                 }
             },
             "license": [

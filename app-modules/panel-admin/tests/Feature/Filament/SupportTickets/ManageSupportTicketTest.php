@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
-use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
-use TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
-use TresPontosTech\Admin\Filament\Resources\SupportTickets\RelationManagers\DestinationsRelationManager;
-use TresPontosTech\Admin\Filament\Resources\SupportTickets\SupportTicketResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\RelationManagers\DestinationsRelationManager;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;

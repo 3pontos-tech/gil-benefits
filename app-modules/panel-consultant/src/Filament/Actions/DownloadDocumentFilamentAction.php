@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Actions;
+namespace TresPontosTech\PanelConsultant\Filament\Actions;
 
 use Filament\Actions\Action;
 use Filament\Support\Icons\Heroicon;

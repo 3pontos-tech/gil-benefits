@@ -1,11 +1,11 @@
 <?php
 
 use App\Models\Users\User;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\ListUsers;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\ListUsers;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     actingAsAdmin();
 });
 
@@ -14,7 +14,7 @@ it('should render', function (): void {
         ->assertOk();
 });
 
-it('should render all the users', function () {
+it('should render all the users', function (): void {
     $users = User::factory()->count(8)->create();
     livewire(ListUsers::class)
         ->assertOk()

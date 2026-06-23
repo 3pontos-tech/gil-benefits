@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Pages;
 
 use Filament\Pages\Page;
 use Filament\Schemas\Components\EmbeddedTable;

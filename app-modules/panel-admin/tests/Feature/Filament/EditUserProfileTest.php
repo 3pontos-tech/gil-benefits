@@ -2,7 +2,7 @@
 
 use App\Models\Users\Detail;
 use App\Models\Users\User;
-use TresPontosTech\Admin\Filament\Pages\EditUserProfile;
+use TresPontosTech\PanelAdmin\Filament\Pages\EditUserProfile;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;

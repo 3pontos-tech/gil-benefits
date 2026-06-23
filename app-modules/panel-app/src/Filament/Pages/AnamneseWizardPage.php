@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Pages;
+namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use App\Filament\Shared\Fields\LifeMomentSelector;
 use App\Models\Users\User;

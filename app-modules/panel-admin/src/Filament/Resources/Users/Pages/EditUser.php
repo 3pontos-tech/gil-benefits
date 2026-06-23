@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Users\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
-use TresPontosTech\Admin\Filament\Resources\Users\UserResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\UserResource;
 
 class EditUser extends EditRecord
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Pages;
+namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -11,9 +11,9 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use TresPontosTech\App\Filament\Widgets\UserCreditStatsWidget;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\PanelApp\Filament\Widgets\UserCreditStatsWidget;
 use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
 
 class UserCreditsPage extends Page implements HasTable

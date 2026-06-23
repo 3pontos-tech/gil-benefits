@@ -2,11 +2,11 @@
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
-use TresPontosTech\App\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages\ListAppointments;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseHas;

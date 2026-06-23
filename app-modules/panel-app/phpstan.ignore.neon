@@ -3,19 +3,19 @@ parameters:
         # 'full' é valor responsivo válido no array de $columnSpan (Filament resolve 'full' => '1 / -1',
         # e o próprio columnSpanFull() faz columnSpan(['default' => 'full'])), mas o PHPDoc do Widget
         # tipa o array como array<string, int|null>, sem prever a string. Imprecisão do pacote.
-        - message: '#^Property TresPontosTech\\App\\Filament\\Widgets\\FinancialTopicsWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
+        - message: '#^Property TresPontosTech\\PanelApp\\Filament\\Widgets\\FinancialTopicsWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
           identifier: property.defaultValue
           count: 1
           path: src/Filament/Widgets/FinancialTopicsWidget.php
-        - message: '#^Property TresPontosTech\\App\\Filament\\Widgets\\NextAppointmentWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
+        - message: '#^Property TresPontosTech\\PanelApp\\Filament\\Widgets\\NextAppointmentWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
           identifier: property.defaultValue
           count: 1
           path: src/Filament/Widgets/NextAppointmentWidget.php
-        - message: '#^Property TresPontosTech\\App\\Filament\\Widgets\\PlanCreditsWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
+        - message: '#^Property TresPontosTech\\PanelApp\\Filament\\Widgets\\PlanCreditsWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
           identifier: property.defaultValue
           count: 1
           path: src/Filament/Widgets/PlanCreditsWidget.php
-        - message: '#^Property TresPontosTech\\App\\Filament\\Widgets\\SharedMaterialsWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
+        - message: '#^Property TresPontosTech\\PanelApp\\Filament\\Widgets\\SharedMaterialsWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
           identifier: property.defaultValue
           count: 1
           path: src/Filament/Widgets/SharedMaterialsWidget.php

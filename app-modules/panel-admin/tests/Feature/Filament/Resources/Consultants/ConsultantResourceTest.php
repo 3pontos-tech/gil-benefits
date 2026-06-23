@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\CreateConsultant;
-use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\EditConsultant;
-use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\ListConsultants;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Pages\CreateConsultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Pages\EditConsultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Pages\ListConsultants;
 
 use function Pest\Livewire\livewire;
 

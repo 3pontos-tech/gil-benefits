@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Admin\Filament\Pages\Metrics;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketsByCategory;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketsBySector;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketsByStatus;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketStatsWidget;
+use TresPontosTech\PanelAdmin\Filament\Pages\Metrics;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketsByCategory;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketsBySector;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketsByStatus;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketStatsWidget;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Models\SupportTicket;

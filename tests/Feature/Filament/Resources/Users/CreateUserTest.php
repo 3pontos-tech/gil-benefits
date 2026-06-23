@@ -2,13 +2,13 @@
 
 use App\Models\Users\Detail;
 use App\Models\Users\User;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\CreateUser;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\CreateUser;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     actingAsAdmin();
 });
 
@@ -17,7 +17,7 @@ it('should render', function (): void {
         ->assertOk();
 });
 
-it('should be able to register a user', function () {
+it('should be able to register a user', function (): void {
     $company = Company::factory()->createOne();
 
     livewire(CreateUser::class)
@@ -48,7 +48,7 @@ it('should be able to register a user', function () {
     ]);
 });
 
-describe('validation tests', function () {
+describe('validation tests', function (): void {
 
     test('name field', function ($value, $rule): void {
         livewire(CreateUser::class)

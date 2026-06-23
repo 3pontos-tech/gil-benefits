@@ -1,7 +1,7 @@
 <?php
 
-use TresPontosTech\Admin\Filament\Resources\Prices\Pages\ListPrices;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\ListPrices;
 
 use function Pest\Livewire\livewire;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Clusters\Management;
+namespace TresPontosTech\PanelAdmin\Filament\Clusters\Management;
 
 use BackedEnum;
 use Filament\Clusters\Cluster;

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Appointments\Schemas;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;

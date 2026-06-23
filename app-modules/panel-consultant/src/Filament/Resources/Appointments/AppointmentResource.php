@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Resources\Appointments;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\Appointments;
 
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -8,10 +8,10 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ListAppointments;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ViewAppointment;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Schemas\AppointmentInfolist;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Tables\AppointmentsTable;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ViewAppointment;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Schemas\AppointmentInfolist;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use UnitEnum;
 
 class AppointmentResource extends Resource

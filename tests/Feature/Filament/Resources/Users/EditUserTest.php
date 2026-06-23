@@ -2,13 +2,13 @@
 
 use App\Models\Users\Detail;
 use App\Models\Users\User;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\EditUser;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\EditUser;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     actingAsAdmin();
     $this->user = User::factory()->create();
 });
@@ -18,7 +18,7 @@ it('should render', function (): void {
         ->assertOk();
 });
 
-it('should be able to register an user', function () {
+it('should be able to register an user', function (): void {
     $company = Company::factory()->createOne();
 
     livewire(EditUser::class, ['record' => $this->user->getKey()])

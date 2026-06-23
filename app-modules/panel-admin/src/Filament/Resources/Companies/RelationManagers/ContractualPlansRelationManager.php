@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Companies\RelationManagers;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers;
 
 use Closure;
 use Filament\Actions\CreateAction;

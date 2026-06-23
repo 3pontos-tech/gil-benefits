@@ -1,4 +1,4 @@
-@php /** @var \TresPontosTech\App\DTOs\PlanSummary $plan */ @endphp
+@php /** @var \TresPontosTech\PanelApp\DTOs\PlanSummary $plan */ @endphp
 <div class="space-y-4 text-sm text-gray-700 dark:text-gray-300">
     @if($plan->description)
         <p>{{ $plan->description }}</p>

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Resources\Appointments\Pages;
+namespace TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;
@@ -10,10 +10,10 @@ use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Illuminate\Contracts\Support\Arrayable;
 use Throwable;
-use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
-use TresPontosTech\App\Filament\Resources\Appointments\Schemas\AppointmentWizard;
 use TresPontosTech\Appointments\Actions\BookAppointmentAction;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\AppointmentWizard;
 
 class CreateAppointment extends CreateRecord
 {

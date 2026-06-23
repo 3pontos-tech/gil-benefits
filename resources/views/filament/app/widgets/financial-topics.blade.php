@@ -1,4 +1,4 @@
-@php use TresPontosTech\App\DTOs\UserJourney; @endphp
+@php use TresPontosTech\PanelApp\DTOs\UserJourney; @endphp
 @php /** @var UserJourney $journey */ @endphp
 <x-filament-widgets::widget class="h-full">
     <div class="h-full rounded-2xl border border-gray-200 bg-white p-5 dark:border-white/10 dark:bg-gray-900">

@@ -3,11 +3,11 @@
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Cache;
-use TresPontosTech\App\Filament\Pages\UserSubscriptionPage;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelApp\Filament\Pages\UserSubscriptionPage;
 
 use function Pest\Livewire\livewire;
 

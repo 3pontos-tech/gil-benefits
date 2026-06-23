@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Clusters\Partners;
+namespace TresPontosTech\PanelAdmin\Filament\Clusters\Partners;
 
 use BackedEnum;
 use Filament\Clusters\Cluster;

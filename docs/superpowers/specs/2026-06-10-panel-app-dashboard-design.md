@@ -3,7 +3,7 @@
 - **Data:** 2026-06-10
 - **Módulo:** `app-modules/panel-app`
 - **Painel:** `app` (id `app`, path `/app`) — usuário **Employee** (colaborador/cliente B2C)
-- **Página alvo:** `TresPontosTech\App\Filament\Pages\UserDashboard`
+- **Página alvo:** `TresPontosTech\PanelApp\Filament\Pages\UserDashboard`
 - **Estética escolhida:** Editorial Quente (light) — Fraunces (display) + Hanken Grotesk (texto), paleta creme/coral sobre `#F1785A`
 - **Abordagem de layout:** A — "Jornada em destaque" (hero → ação → apoio → histórico)
 

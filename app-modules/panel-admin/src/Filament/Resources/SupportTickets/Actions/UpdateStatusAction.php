@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\SupportTickets\Actions;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Actions;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;

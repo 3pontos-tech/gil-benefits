@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Consultants\Filament\Resources\SupportTickets\Pages;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\SupportTickets\Pages;
 
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Request;
-use TresPontosTech\Consultants\Filament\Resources\SupportTickets\SupportTicketResource;
+use TresPontosTech\PanelConsultant\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Models\SupportTicket;

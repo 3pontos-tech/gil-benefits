@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Permissions;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Permissions;
 
 use BackedEnum;
 use Filament\Pages\Enums\SubNavigationPosition;
@@ -11,13 +11,13 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
-use TresPontosTech\Admin\Filament\Clusters\Management\ManagementCluster;
-use TresPontosTech\Admin\Filament\Resources\Permissions\Pages\CreateRole;
-use TresPontosTech\Admin\Filament\Resources\Permissions\Pages\EditRole;
-use TresPontosTech\Admin\Filament\Resources\Permissions\Pages\ListRoles;
-use TresPontosTech\Admin\Filament\Resources\Permissions\Schemas\RoleForm;
-use TresPontosTech\Admin\Filament\Resources\Permissions\Schemas\RoleInfolist;
-use TresPontosTech\Admin\Filament\Resources\Permissions\Tables\RolesTable;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Management\ManagementCluster;
+use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Pages\CreateRole;
+use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Pages\EditRole;
+use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Pages\ListRoles;
+use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Schemas\RoleForm;
+use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Schemas\RoleInfolist;
+use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Tables\RolesTable;
 use TresPontosTech\Permissions\Role;
 use TresPontosTech\Permissions\Roles;
 

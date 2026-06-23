@@ -1,19 +1,19 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Appointments;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments;
 
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\CreateAppointment;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\EditAppointment;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ListAppointments;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ViewAppointment;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Schemas\AppointmentForm;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\CreateAppointment;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\EditAppointment;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ViewAppointment;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Schemas\AppointmentForm;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Tables\AppointmentsTable;
 
 class AppointmentResource extends Resource
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Consultants;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Consultants;
 
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -9,13 +9,13 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\CreateConsultant;
-use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\EditConsultant;
-use TresPontosTech\Admin\Filament\Resources\Consultants\Pages\ListConsultants;
-use TresPontosTech\Admin\Filament\Resources\Consultants\RelationManagers\SchedulesRelationManager;
-use TresPontosTech\Admin\Filament\Resources\Consultants\Schemas\ConsultantForm;
-use TresPontosTech\Admin\Filament\Resources\Consultants\Tables\ConsultantsTable;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Pages\CreateConsultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Pages\EditConsultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Pages\ListConsultants;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\RelationManagers\SchedulesRelationManager;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Schemas\ConsultantForm;
+use TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Tables\ConsultantsTable;
 
 class ConsultantResource extends Resource
 {

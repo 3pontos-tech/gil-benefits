@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Prices;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Prices;
 
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -29,10 +29,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Admin\Filament\Resources\Prices\Pages\CreatePrice;
-use TresPontosTech\Admin\Filament\Resources\Prices\Pages\EditPrice;
-use TresPontosTech\Admin\Filament\Resources\Prices\Pages\ListPrices;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\CreatePrice;
+use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\EditPrice;
+use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\ListPrices;
 
 class PriceResource extends Resource
 {

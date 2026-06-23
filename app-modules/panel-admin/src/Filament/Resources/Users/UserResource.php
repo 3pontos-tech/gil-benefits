@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Users;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Users;
 
 use App\Models\Users\User;
 use BackedEnum;
@@ -11,12 +11,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Admin\Filament\Clusters\Management\ManagementCluster;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\CreateUser;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\EditUser;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\ListUsers;
-use TresPontosTech\Admin\Filament\Resources\Users\Schemas\UserForm;
-use TresPontosTech\Admin\Filament\Resources\Users\Tables\UsersTable;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Management\ManagementCluster;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\CreateUser;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\EditUser;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\ListUsers;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Schemas\UserForm;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Tables\UsersTable;
 
 class UserResource extends Resource
 {

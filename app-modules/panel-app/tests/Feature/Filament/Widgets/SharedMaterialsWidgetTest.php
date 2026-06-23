@@ -3,11 +3,11 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\DB;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\SharedDocumentResource;
-use TresPontosTech\App\Filament\Widgets\SharedMaterialsWidget;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\SharedDocumentResource;
+use TresPontosTech\PanelApp\Filament\Widgets\SharedMaterialsWidget;
 
 use function Pest\Livewire\livewire;
 

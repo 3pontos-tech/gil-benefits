@@ -2,7 +2,7 @@
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
-use TresPontosTech\Admin\Filament\Resources\Users\Pages\CreateUser;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\CreateUser;
 use TresPontosTech\User\Mail\WelcomeUserMail;
 
 use function Pest\Laravel\assertDatabaseHas;

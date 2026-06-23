@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Widgets\JourneyHeroWidget;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
+use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
 use TresPontosTech\User\Enums\LifeMoment;
 use TresPontosTech\User\Models\UserAnamnese;
 

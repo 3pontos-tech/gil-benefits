@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\SupportTickets\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Pages;
 
 use Filament\Resources\Pages\ViewRecord;
-use TresPontosTech\Admin\Filament\Resources\SupportTickets\Actions\UpdateStatusAction;
-use TresPontosTech\Admin\Filament\Resources\SupportTickets\SupportTicketResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Actions\UpdateStatusAction;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\SupportTicketResource;
 
 class ViewSupportTicket extends ViewRecord
 {

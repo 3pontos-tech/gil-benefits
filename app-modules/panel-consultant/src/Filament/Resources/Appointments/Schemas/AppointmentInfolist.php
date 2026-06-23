@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Resources\Appointments\Schemas;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Schemas;
 
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
@@ -11,8 +11,8 @@ use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Collection;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Consultants\Filament\Actions\DownloadDocumentFilamentAction;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\PanelConsultant\Filament\Actions\DownloadDocumentFilamentAction;
 
 class AppointmentInfolist
 {

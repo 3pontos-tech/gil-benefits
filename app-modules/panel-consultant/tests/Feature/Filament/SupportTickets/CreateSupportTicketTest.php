@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
-use TresPontosTech\Consultants\Filament\Resources\SupportTickets\Pages\CreateSupportTicket;
-use TresPontosTech\Consultants\Filament\Resources\SupportTickets\SupportTicketResource;
+use TresPontosTech\PanelConsultant\Filament\Resources\SupportTickets\Pages\CreateSupportTicket;
+use TresPontosTech\PanelConsultant\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Pages;
 
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -13,17 +13,17 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use Livewire\Attributes\Url;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\AppointmentsByCategory;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\AppointmentsByDepartmentCategoryChart;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\AppointmentVolume;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\GlobalAppointmentStatsWidget;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\KPIsOverview;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\RankingsWidget;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketsByCategory;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketsBySector;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketsByStatus;
-use TresPontosTech\Admin\Filament\Widgets\Metrics\SupportTicketStatsWidget;
 use TresPontosTech\Company\Enums\DepartmentCategory;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\AppointmentsByCategory;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\AppointmentsByDepartmentCategoryChart;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\AppointmentVolume;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\GlobalAppointmentStatsWidget;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\KPIsOverview;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\RankingsWidget;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketsByCategory;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketsBySector;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketsByStatus;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketStatsWidget;
 
 class Metrics extends BaseDashboard
 {

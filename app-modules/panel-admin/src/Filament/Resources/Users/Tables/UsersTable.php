@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Users\Tables;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Users\Tables;
 
 use App\Filament\Tables\Columns\CPFColumn;
 use App\Filament\Tables\Columns\RGColumn;
@@ -14,7 +14,7 @@ use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use TresPontosTech\Admin\Filament\Resources\Permissions\Actions\AssignRoleAction;
+use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Actions\AssignRoleAction;
 
 class UsersTable
 {
