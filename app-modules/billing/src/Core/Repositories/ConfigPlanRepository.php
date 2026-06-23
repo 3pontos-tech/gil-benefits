@@ -16,6 +16,9 @@ final readonly class ConfigPlanRepository implements PlanRepository
         private Repository $config,
     ) {}
 
+    /**
+     * @return array<string, PlanEntity>
+     */
     #[Override]
     public function all(): array
     {

@@ -1,7 +1,2 @@
 parameters:
     ignoreErrors:
-        # Coluna agregada dinâmica (COUNT(...) as total) selecionada sobre Department.
-        - message: '#^Access to an undefined property TresPontosTech\\Company\\Models\\Department::\$total\.$#'
-          identifier: property.notFound
-          count: 1
-          path: src/Filament/Widgets/Metrics/AppointmentsByDepartmentCategoryChart.php
