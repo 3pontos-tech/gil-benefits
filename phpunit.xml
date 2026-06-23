@@ -43,5 +43,8 @@
         <env name="CLOUDFLARE_R2_BUCKET" value="fake-bucket"/>
         <env name="CLOUDFLARE_R2_URL" value="http://localhost"/>
         <env name="CLOUDFLARE_R2_ENDPOINT" value="http://localhost"/>
+
+        <env name="MONDAY_BOARD_ID" value=""/>
+        <env name="MONDAY_API_TOKEN" value=""/>
     </php>
 </phpunit>

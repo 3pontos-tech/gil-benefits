@@ -1,0 +1,617 @@
+<title>Integração Monday ⇄ Suporte</title>
+<style>
+  :root {
+    --ink: #141038;
+    --ink-2: #0F0C2B;
+    --panel: #1E1850;
+    --panel-2: #251E60;
+    --line: rgba(173, 165, 232, 0.14);
+    --line-strong: rgba(173, 165, 232, 0.30);
+    --txt: #ECE9FB;
+    --muted: #A9A2D6;
+    --faint: #7E78AC;
+    --primary: #8B7BFF;     /* periwinkle — Monday-adjacent */
+    --primary-soft: rgba(139, 123, 255, 0.14);
+
+    /* Cores REAIS dos labels do board */
+    --pendente: #5559df;
+    --andamento: #fdab3d;
+    --resolvido: #df2f4a;
+    --encerrado: #1f9bd6;
+
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, Roboto, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1100px 700px at 82% -8%, rgba(139,123,255,0.16), transparent 60%),
+      radial-gradient(900px 600px at 5% 8%, rgba(31,155,214,0.10), transparent 55%),
+      var(--ink);
+    color: var(--txt);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin: 0 0 18px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--primary); opacity: 0.7; }
+
+  h2 {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: clamp(22px, 3vw, 30px);
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    line-height: 1.15;
+  }
+  .section-sub { color: var(--muted); max-width: 60ch; margin: 0 0 36px; }
+
+  /* ---------- HERO ---------- */
+  header.hero { padding: clamp(72px, 11vw, 132px) 0 56px; position: relative; }
+  .hero-kicker {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--faint); margin: 0 0 26px;
+  }
+  .hero h1 {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: clamp(32px, 6vw, 60px);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    margin: 0 0 24px;
+    max-width: 17ch;
+  }
+  .hero h1 em { font-style: normal; color: var(--primary); }
+  .hero p.lede {
+    font-size: clamp(16px, 2vw, 19px);
+    color: var(--muted);
+    max-width: 64ch;
+    margin: 0 0 44px;
+  }
+
+  /* ---------- HERO schematic ---------- */
+  .schematic {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: linear-gradient(160deg, var(--panel), var(--ink-2));
+    padding: 30px clamp(20px, 4vw, 44px);
+    position: relative;
+    overflow: hidden;
+  }
+  .rail-row {
+    display: grid;
+    grid-template-columns: 1fr minmax(160px, 2.2fr) 1fr;
+    align-items: center;
+    gap: 14px;
+  }
+  .node {
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .node .tag { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }
+  .node .name { font-family: var(--mono); font-weight: 600; font-size: 17px; margin-top: 6px; }
+  .node .meta { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .node.app { box-shadow: inset 0 0 0 1px rgba(31,155,214,0.18); }
+  .node.monday { box-shadow: inset 0 0 0 1px rgba(139,123,255,0.22); }
+
+  .flows { display: flex; flex-direction: column; gap: 16px; }
+  .flowline { position: relative; }
+  .flowline svg { display: block; width: 100%; height: 46px; }
+  .flowline .lbl {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.04em;
+    fill: var(--muted);
+  }
+  .dash { stroke-dasharray: 7 9; animation: flow 1.1s linear infinite; }
+  .dash.rev { animation-direction: reverse; }
+  @keyframes flow { to { stroke-dashoffset: -32; } }
+
+  /* ---------- generic section ---------- */
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+
+  /* ---------- callout (switch) ---------- */
+  .switch {
+    display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start;
+    border: 1px solid var(--line-strong);
+    border-left: 3px solid var(--primary);
+    border-radius: 14px;
+    background: var(--primary-soft);
+    padding: 22px 24px;
+  }
+  .switch .icon { font-size: 26px; line-height: 1; }
+  .switch code { color: var(--txt); }
+  .switch p { margin: 0; color: var(--muted); }
+  .switch strong { color: var(--txt); }
+
+  /* ---------- env / patch panel ---------- */
+  .panelcard {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--panel);
+    overflow: hidden;
+  }
+  .panelcard + .panelcard { margin-top: 18px; }
+  .panelcard > .head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+  }
+  .panelcard > .head .t { font-family: var(--mono); font-size: 13px; letter-spacing: 0.06em; }
+  .panelcard > .head .badge {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  .badge.req { color: #ffd9b0; background: rgba(253,171,61,0.14); border: 1px solid rgba(253,171,61,0.4); }
+  .badge.opt { color: var(--muted); background: rgba(173,165,232,0.08); border: 1px solid var(--line-strong); }
+
+  .kv { display: grid; grid-template-columns: 1fr; }
+  .kv .row {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.1fr) 1fr;
+    gap: 8px 22px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--line);
+    align-items: baseline;
+  }
+  .kv .row:first-child { border-top: none; }
+  .kv .key { font-family: var(--mono); font-size: 13px; color: var(--txt); word-break: break-all; }
+  .kv .val { font-family: var(--mono); font-size: 12.5px; color: var(--andamento); word-break: break-all; }
+  .kv .desc { grid-column: 1 / -1; font-size: 13px; color: var(--faint); margin-top: -2px; }
+
+  .note { font-size: 13.5px; color: var(--faint); margin: 16px 2px 0; }
+  .note code { color: var(--muted); }
+
+  code, .code {
+    font-family: var(--mono);
+    background: rgba(0,0,0,0.28);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1px 6px;
+    font-size: 0.9em;
+    color: var(--primary);
+  }
+
+  /* ---------- board checklist ---------- */
+  .checklist { display: grid; gap: 12px; counter-reset: step; }
+  .check {
+    display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--panel);
+    padding: 16px 18px;
+  }
+  .check .n {
+    counter-increment: step;
+    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    width: 30px; height: 30px; flex: none;
+    display: grid; place-items: center;
+    border-radius: 8px; color: var(--primary);
+    background: var(--primary-soft); border: 1px solid var(--line-strong);
+  }
+  .check .n::before { content: counter(step, decimal-leading-zero); }
+  .check .b h4 { margin: 2px 0 4px; font-size: 15px; font-family: var(--sans); font-weight: 600; }
+  .check .b p { margin: 0; font-size: 13.5px; color: var(--muted); }
+
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .pill {
+    font-family: var(--mono); font-size: 12px; font-weight: 600;
+    padding: 4px 12px; border-radius: 999px; color: #fff;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .pill .idx { font-size: 10px; opacity: 0.8; font-weight: 400; }
+  .pill.pendente { background: var(--pendente); }
+  .pill.andamento { background: var(--andamento); color: #3a2400; }
+  .pill.resolvido { background: var(--resolvido); }
+  .pill.encerrado { background: var(--encerrado); }
+
+  /* ---------- flow pipelines ---------- */
+  .flow {
+    border: 1px solid var(--line); border-radius: 16px; background: var(--panel);
+    padding: 22px clamp(18px, 3vw, 28px); margin-top: 20px;
+    position: relative;
+  }
+  .flow::before {
+    content: ""; position: absolute; left: 0; top: 22px; bottom: 22px; width: 3px;
+    border-radius: 3px;
+  }
+  .flow.a::before { background: var(--encerrado); }   /* App → Monday */
+  .flow.b::before { background: var(--andamento); }    /* push status */
+  .flow.c::before { background: var(--primary); }      /* webhook */
+  .flow-head { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; flex-wrap: wrap; }
+  .flow-head .dir {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line-strong); color: var(--muted);
+  }
+  .flow h3 { margin: 0; font-family: var(--mono); font-weight: 600; font-size: 18px; }
+  .flow .gist { color: var(--muted); font-size: 13.5px; margin: 6px 0 18px; }
+
+  .stages { display: grid; gap: 10px; counter-reset: st; }
+  .stage {
+    display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: start;
+    padding-left: 4px;
+  }
+  .stage .dot {
+    counter-increment: st;
+    font-family: var(--mono); font-size: 11px;
+    width: 24px; height: 24px; flex: none; margin-top: 2px;
+    display: grid; place-items: center; border-radius: 6px;
+    color: var(--faint); border: 1px solid var(--line);
+    background: var(--ink-2);
+  }
+  .stage .dot::before { content: counter(st); }
+  .stage .sbody .where { font-family: var(--mono); font-size: 13px; color: var(--txt); word-break: break-word; }
+  .stage .sbody .what { font-size: 13px; color: var(--muted); margin-top: 1px; }
+  .stage .sbody .what code { font-size: 11.5px; }
+
+  /* ---------- state machine ---------- */
+  .machine { display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch; }
+  .state {
+    border: 1px solid var(--line-strong); border-radius: 12px; background: var(--panel);
+    padding: 16px 18px; flex: 1 1 200px;
+  }
+  .state .sname { font-family: var(--mono); font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+  .state .swatch { width: 11px; height: 11px; border-radius: 3px; }
+  .state .to { font-size: 12.5px; color: var(--muted); margin-top: 8px; font-family: var(--mono); }
+  .state .to .arrow { color: var(--faint); }
+  .state.terminal { opacity: 0.85; border-style: dashed; }
+
+  /* ---------- loop note ---------- */
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .mini { border: 1px solid var(--line); border-radius: 12px; background: var(--panel); padding: 18px 20px; }
+  .mini h4 { margin: 0 0 6px; font-size: 14px; font-family: var(--mono); font-weight: 600; }
+  .mini p { margin: 0; font-size: 13.5px; color: var(--muted); }
+  .mini .k { color: var(--primary); font-family: var(--mono); }
+
+  footer { padding: 48px 0 80px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13px; }
+  footer .path { font-family: var(--mono); color: var(--muted); }
+
+  a { color: var(--primary); }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 4px; }
+
+  /* reveal */
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 720px) {
+    .rail-row { grid-template-columns: 1fr; gap: 10px; }
+    .flows { order: 3; }
+    .kv .row { grid-template-columns: 1fr; gap: 2px; }
+    .duo { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dash { animation: none; }
+    .reveal { transition: none; opacity: 1; transform: none; }
+  }
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="hero-kicker">app-modules / integration-monday</p>
+    <h1>Os chamados de TI viram <em>cards</em>. Os cards falam de <em>volta</em>.</h1>
+    <p class="lede">
+      Guia da integração entre o módulo <strong>Support</strong> e um board da
+      <strong>Monday</strong>: como configurar, e como o status anda nos dois sentidos —
+      da abertura do chamado ao webhook que volta quando alguém mexe no board.
+    </p>
+
+    <div class="schematic">
+      <div class="rail-row">
+        <div class="node app">
+          <div class="tag">Aplicação</div>
+          <div class="name">Support</div>
+          <div class="meta">ticket · state machine</div>
+        </div>
+
+        <div class="flows" aria-hidden="true">
+          <div class="flowline">
+            <svg viewBox="0 0 400 46" preserveAspectRatio="none">
+              <text x="200" y="12" text-anchor="middle" class="lbl">cria card · empurra status</text>
+              <line x1="6" y1="28" x2="378" y2="28" stroke="var(--encerrado)" stroke-width="2" opacity="0.35"/>
+              <line x1="6" y1="28" x2="378" y2="28" stroke="var(--encerrado)" stroke-width="2" class="dash"/>
+              <polygon points="378,28 368,23 368,33" fill="var(--encerrado)"/>
+            </svg>
+          </div>
+          <div class="flowline">
+            <svg viewBox="0 0 400 46" preserveAspectRatio="none">
+              <polygon points="6,28 16,23 16,33" fill="var(--primary)"/>
+              <line x1="16" y1="28" x2="394" y2="28" stroke="var(--primary)" stroke-width="2" opacity="0.35"/>
+              <line x1="16" y1="28" x2="394" y2="28" stroke="var(--primary)" stroke-width="2" class="dash rev"/>
+              <text x="200" y="44" text-anchor="middle" class="lbl">webhook · muda status</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="node monday">
+          <div class="tag">Board</div>
+          <div class="name">Monday</div>
+          <div class="meta">coluna de status</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">O interruptor</p>
+    <h2 class="reveal">Sem board configurado, nada vai pra Monday</h2>
+    <p class="section-sub reveal">A integração liga e desliga por uma única variável.</p>
+    <div class="switch reveal">
+      <div class="icon">🔌</div>
+      <div>
+        <p>
+          O canal de <strong>TI</strong> só roteia para a Monday quando
+          <code>MONDAY_BOARD_ID</code> está preenchido. Sem ela — em dev, testes ou qualquer
+          ambiente sem credenciais — o TI cai de volta para <strong>e-mail</strong>, e os
+          demais setores (Financeiro, Comercial, CS, Produto) <strong>sempre</strong> vão por e-mail.
+        </p>
+        <p style="margin-top:10px">
+          Quando ligada, o TI recebe <strong>os dois</strong>: e-mail para o setor <em>e</em> um card no board.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">Configuração · .env</p>
+    <h2 class="reveal">As variáveis</h2>
+    <p class="section-sub reveal">
+      Token e segredo são do vendor; board, grupo e colunas dizem onde gravar. Os valores ao lado
+      são os do board real “Suporte TI FLAMMA”.
+    </p>
+
+    <div class="panelcard reveal">
+      <div class="head"><span class="t">Vendor — credenciais</span><span class="badge req">obrigatório</span></div>
+      <div class="kv">
+        <div class="row"><span class="key">MONDAY_API_TOKEN</span><span class="val">eyJhbG…&nbsp;(token da API)</span>
+          <span class="desc">Header <code>Authorization</code> em toda chamada. Rotacionável.</span></div>
+        <div class="row"><span class="key">MONDAY_WEBHOOK_SECRET</span><span class="val">&lt;hex aleatório&gt;</span>
+          <span class="desc">Validado como <code>?token=</code> na URL do webhook (401 se não bater).</span></div>
+        <div class="row"><span class="key">MONDAY_API_URL</span><span class="val">https://api.monday.com/v2</span>
+          <span class="desc">Default — só sobrescreva se necessário.</span></div>
+      </div>
+    </div>
+
+    <div class="panelcard reveal">
+      <div class="head"><span class="t">Board &amp; colunas</span><span class="badge req">obrigatório</span></div>
+      <div class="kv">
+        <div class="row"><span class="key">MONDAY_BOARD_ID</span><span class="val">18418561505</span>
+          <span class="desc">O board de chamados — e o interruptor da integração.</span></div>
+        <div class="row"><span class="key">MONDAY_GROUP_ID</span><span class="val">topics</span></div>
+        <div class="row"><span class="key">MONDAY_COLUMN_STATUS</span><span class="val">color_mm4fmdpe</span></div>
+        <div class="row"><span class="key">MONDAY_COLUMN_PROTOCOL</span><span class="val">text_mm4ff3sk</span></div>
+        <div class="row"><span class="key">MONDAY_COLUMN_CATEGORY</span><span class="val">text_mm4fm9r3</span></div>
+        <div class="row"><span class="key">MONDAY_COLUMN_REQUESTER</span><span class="val">text_mm4f3013</span>
+          <span class="desc">Recebe o <strong>e-mail</strong> do solicitante (identifica melhor que o nome).</span></div>
+        <div class="row"><span class="key">MONDAY_COLUMN_DESCRIPTION</span><span class="val">long_text_mm4f4eb3</span></div>
+        <div class="row"><span class="key">MONDAY_COLUMN_ATTACHMENTS</span><span class="val">file_mm4f481d</span>
+          <span class="desc">Coluna de arquivo — recebe N anexos (um upload por arquivo).</span></div>
+        <div class="row"><span class="key">MONDAY_COLUMN_CREATED_AT</span><span class="val">date_mm4fsm94</span></div>
+        <div class="row"><span class="key">MONDAY_COLUMN_UPDATED_AT</span><span class="val">date_mm4fmx8y</span></div>
+      </div>
+    </div>
+
+    <div class="panelcard reveal">
+      <div class="head"><span class="t">Índices do status</span><span class="badge opt">com defaults</span></div>
+      <div class="kv">
+        <div class="row"><span class="key">MONDAY_STATUS_INDEX_PENDING</span><span class="val">17</span></div>
+        <div class="row"><span class="key">MONDAY_STATUS_INDEX_IN_PROGRESS</span><span class="val">0</span></div>
+        <div class="row"><span class="key">MONDAY_STATUS_INDEX_RESOLVED</span><span class="val">2</span></div>
+        <div class="row"><span class="key">MONDAY_STATUS_INDEX_CLOSED</span><span class="val">3</span></div>
+      </div>
+    </div>
+
+    <p class="note reveal">
+      Os IDs de coluna são os <strong>técnicos</strong> (ex.: <code>text_mm4ff3sk</code>), não os títulos.
+      O status é mapeado por <strong>índice</strong>, não pelo texto do label — então renomear, mudar
+      maiúsculas ou traduzir os labels no board <strong>não quebra</strong> a sincronização.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">No board da Monday</p>
+    <h2 class="reveal">O que criar lá</h2>
+    <p class="section-sub reveal">Uma vez, na configuração do board.</p>
+
+    <div class="checklist">
+      <div class="check reveal"><span class="n"></span><div class="b">
+        <h4>Board + grupo</h4>
+        <p>Um board para os chamados e um grupo onde os cards são criados (<code>topics</code>).</p>
+      </div></div>
+      <div class="check reveal"><span class="n"></span><div class="b">
+        <h4>Coluna de status com 4 labels</h4>
+        <p>Os textos podem ser o que você quiser — a sync usa o índice. Hoje:</p>
+        <div class="pills">
+          <span class="pill pendente">Pendente <span class="idx">#17</span></span>
+          <span class="pill andamento">Em Andamento <span class="idx">#0</span></span>
+          <span class="pill resolvido">Resolvido <span class="idx">#2</span></span>
+          <span class="pill encerrado">Encerrado <span class="idx">#3</span></span>
+        </div>
+      </div></div>
+      <div class="check reveal"><span class="n"></span><div class="b">
+        <h4>Colunas de dados</h4>
+        <p>Texto: protocolo, categoria, solicitante (e-mail). Texto longo: descrição.
+           Arquivo: anexos. Data: criação e última atualização.</p>
+      </div></div>
+      <div class="check reveal"><span class="n"></span><div class="b">
+        <h4>Token da API</h4>
+        <p>Admin → API. Vira <code>MONDAY_API_TOKEN</code>.</p>
+      </div></div>
+      <div class="check reveal"><span class="n"></span><div class="b">
+        <h4>Webhook no board</h4>
+        <p>Evento de mudança de valor de coluna, apontando para
+           <code>https://SEU_DOMINIO/webhooks/monday?token=&lt;MONDAY_WEBHOOK_SECRET&gt;</code>.
+           A Monday faz o <em>challenge</em> no registro — o endpoint responde sozinho.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">Os fluxos</p>
+    <h2 class="reveal">Como o status anda</h2>
+    <p class="section-sub reveal">
+      Três caminhos. Cada estágio nomeia a classe real onde ele acontece — siga na ordem.
+    </p>
+
+    <!-- FLOW 1 -->
+    <div class="flow a reveal">
+      <div class="flow-head">
+        <span class="dir">App → Monday</span>
+        <h3>1 · Criação do card</h3>
+      </div>
+      <p class="gist">Um chamado de TI é aberto → vira um card com protocolo, categoria, solicitante, descrição, data e anexos.</p>
+      <div class="stages">
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">CreateSupportTicketAction</div>
+          <div class="what">Cria o ticket (protocolo único), guarda os anexos na media collection e enfileira o despacho.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">DispatchSupportTicketJob → TicketRouterService</div>
+          <div class="what">Itera <code>setor × tipo de entrega</code>. TI resolve para <code>[Email, Monday]</code>.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">DispatchTicketToDestinationAction</div>
+          <div class="what">Por destino: cria o <code>TicketDestination</code> (pending), resolve o sender, envia, persiste o desfecho.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">MondayTicketSenderAdapter → MondayClient.createItem</div>
+          <div class="what">Monta as colunas (status por índice, protocolo, categoria, e-mail, descrição, data de criação) e cria o item. O <code>item id</code> volta como <code>reference_id</code>.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">MondayClient.addFileToColumn</div>
+          <div class="what">Best-effort: um upload por anexo, acumulando na coluna de arquivo. Falha de anexo não derruba o card.</div></div></div>
+      </div>
+    </div>
+
+    <!-- FLOW 2 -->
+    <div class="flow b reveal">
+      <div class="flow-head">
+        <span class="dir">App → Monday</span>
+        <h3>2 · Push de status</h3>
+      </div>
+      <p class="gist">O status muda na aplicação (agente/solicitante) → reflete no card, junto com a “última atualização”.</p>
+      <div class="stages">
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">TransitionSupportTicketStatusAction</div>
+          <div class="what">Ponto único de transição. Valida contra a state machine e dispara o evento de domínio.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">event · SupportTicketStatusChanged</div>
+          <div class="what">Evento agnóstico do support (de → para). Não conhece a Monday.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">PushTicketStatusToMonday</div>
+          <div class="what">Listener da integração; enfileira o push.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">SyncMondayCardStatusJob → MondayClient.changeColumnValues</div>
+          <div class="what">Numa só chamada: status (por índice) <strong>+ última atualização</strong> (agora). No-op se o ticket não tiver card.</div></div></div>
+      </div>
+    </div>
+
+    <!-- FLOW 3 -->
+    <div class="flow c reveal">
+      <div class="flow-head">
+        <span class="dir">Monday → App</span>
+        <h3>3 · Volta do webhook</h3>
+      </div>
+      <p class="gist">Alguém muda o status no board → a Monday chama o webhook → o ticket transiciona, respeitando a state machine.</p>
+      <div class="stages">
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">POST /webhooks/monday · ValidateMondayWebhookSecret</div>
+          <div class="what">Valida o <code>?token=</code> (401 se errado). No registro, responde o <em>challenge</em>.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">MondayWebhookController</div>
+          <div class="what">Enfileira <code>HandleMondayWebhookJob</code> e grava a auditoria (<code>StoreInboundWebhook</code>). Resposta rápida.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">HandleMondayWebhookJob → HandleMondayWebhook</div>
+          <div class="what">Parseia o payload (<code>MondayWebhookDTO</code>) e dispara <code>event MondayItemColumnChanged</code>.</div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">SyncTicketStatusFromMonday</div>
+          <div class="what">Filtra a coluna de status, mapeia índice → status e emite <code>ExternalTicketStatusChanged</code>. <strong>Não toca em model de suporte.</strong></div></div></div>
+        <div class="stage"><span class="dot"></span><div class="sbody">
+          <div class="where">ApplyExternalTicketStatus · (support)</div>
+          <div class="what">Resolve o ticket pelo <code>reference_id</code> do destino e aplica via <code>TransitionSupportTicketStatusAction</code> — ignorando no-op e transição proibida.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">State machine</p>
+    <h2 class="reveal">O que o board pode (e não pode) mandar</h2>
+    <p class="section-sub reveal">
+      O webhook respeita o grafo de transições. Movimentos que a Monday permite mas o grafo proíbe
+      são <strong>logados e ignorados</strong> — não “somem” por bug.
+    </p>
+    <div class="machine">
+      <div class="state reveal"><div class="sname"><span class="swatch" style="background:var(--pendente)"></span>Pendente</div>
+        <div class="to"><span class="arrow">→</span> Em Andamento · Encerrado</div></div>
+      <div class="state reveal"><div class="sname"><span class="swatch" style="background:var(--andamento)"></span>Em Andamento</div>
+        <div class="to"><span class="arrow">→</span> Resolvido · Encerrado</div></div>
+      <div class="state reveal"><div class="sname"><span class="swatch" style="background:var(--resolvido)"></span>Resolvido</div>
+        <div class="to"><span class="arrow">→</span> Em Andamento · Encerrado</div></div>
+      <div class="state terminal reveal"><div class="sname"><span class="swatch" style="background:var(--encerrado)"></span>Encerrado</div>
+        <div class="to">terminal</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow reveal">Por que não entra em loop</p>
+    <h2 class="reveal">Idempotência, sem flag global</h2>
+    <p class="section-sub reveal">
+      A mudança vinda da Monday também dispara o push de volta — e mesmo assim não há loop.
+    </p>
+    <div class="duo">
+      <div class="mini reveal">
+        <h4>O eco do status morre sozinho</h4>
+        <p>O push reescreve o <span class="k">mesmo</span> status. Se a Monday devolver um webhook, o ticket já está naquele estado → <span class="k">$ticket->status === $status</span> → ignora.</p>
+      </div>
+      <div class="mini reveal">
+        <h4>O eco da data é filtrado</h4>
+        <p>O push também bumpa a “última atualização”. Esse webhook chega numa coluna que <span class="k">não</span> é a de status → o listener descarta.</p>
+      </div>
+    </div>
+    <p class="note reveal">
+      É exatamente por isso que mudar o status no board agora também atualiza a “última atualização”
+      lá — o inbound deixou de ser silenciado.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="path">app-modules/integration-monday/docs/integration-guide.html</p>
+    <p>Módulo <strong>integration-monday</strong> · folha de dependência (depende do Support, nunca o contrário).
+       Mapeamento de status por índice · inbound agnóstico via eventos de domínio · sync bidirecional.</p>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12 });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>

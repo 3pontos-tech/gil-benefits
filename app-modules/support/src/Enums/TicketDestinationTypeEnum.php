@@ -6,9 +6,9 @@ namespace TresPontosTech\Support\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 use Illuminate\Contracts\Support\Htmlable;
+use TresPontosTech\IntegrationMonday\Senders\MondayTicketSenderAdapter;
 use TresPontosTech\Support\Contracts\TicketChannelSender;
 use TresPontosTech\Support\Senders\EmailTicketSender;
-use TresPontosTech\Support\Senders\MondayTicketSender;
 
 enum TicketDestinationTypeEnum: string implements HasLabel
 {
@@ -30,7 +30,7 @@ enum TicketDestinationTypeEnum: string implements HasLabel
     {
         return match ($this) {
             self::Email => EmailTicketSender::class,
-            self::Monday => MondayTicketSender::class,
+            self::Monday => MondayTicketSenderAdapter::class,
         };
     }
 }

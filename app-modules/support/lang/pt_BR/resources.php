@@ -23,6 +23,7 @@ return [
             'status' => 'Status',
             'requester' => 'Solicitante',
             'created_at' => 'Aberto em',
+            'updated_at' => 'Atualizado em',
         ],
 
         'fields' => [
@@ -40,6 +41,7 @@ return [
             'device' => 'Dispositivo',
             'environment' => 'Ambiente',
             'created_at' => 'Aberto em',
+            'updated_at' => 'Última atualização',
         ],
 
         'actions' => [

@@ -6,6 +6,7 @@ namespace TresPontosTech\Support\Actions;
 
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Events\SupportTicketStatusChanged;
 use TresPontosTech\Support\Exceptions\InvalidTransitionException;
 use TresPontosTech\Support\Mail\SupportTicketStatusUpdatedMail;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -33,7 +34,11 @@ class TransitionSupportTicketStatusAction
             throw InvalidTransitionException::between($ticket->status, $to);
         }
 
+        $from = $ticket->status;
+
         $ticket->update(['status' => $to]);
+
+        event(new SupportTicketStatusChanged($ticket, $from, $to));
 
         $requesterEmail = $ticket->getRequesterEmail();
 

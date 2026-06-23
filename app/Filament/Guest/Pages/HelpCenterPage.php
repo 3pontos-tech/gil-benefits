@@ -99,8 +99,9 @@ class HelpCenterPage extends Page
                             ->required()
                             ->rows(5),
 
-                        FileUpload::make('attachment')
+                        FileUpload::make('attachments')
                             ->label(__('support::pages.help_center.fields.attachment'))
+                            ->multiple()
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
                             ->maxSize(5120)
                             ->storeFiles(false)

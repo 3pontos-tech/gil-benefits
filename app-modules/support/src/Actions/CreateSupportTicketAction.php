@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\Support\Actions;
 
 use Illuminate\Database\QueryException;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -26,12 +25,11 @@ class CreateSupportTicketAction
     {
         $ticket = $this->createWithProtocol($dto);
 
-        if ($dto->attachment instanceof UploadedFile) {
-            $ticket->addMedia($dto->attachment)
+        foreach ($dto->attachments as $attachment) {
+            $ticket->addMedia($attachment)
                 ->toMediaCollection('attachments');
         }
 
-        // Acknowledge receipt to the requester once, regardless of the routing channel.
         $requesterEmail = $ticket->getRequesterEmail();
         if ($requesterEmail !== null) {
             Mail::to($requesterEmail)->queue(new SupportTicketConfirmationMail($ticket));

@@ -23,6 +23,7 @@ return [
             'status' => 'Status',
             'requester' => 'Requester',
             'created_at' => 'Opened at',
+            'updated_at' => 'Updated at',
         ],
 
         'fields' => [
@@ -40,6 +41,7 @@ return [
             'device' => 'Device',
             'environment' => 'Environment',
             'created_at' => 'Opened at',
+            'updated_at' => 'Updated at',
         ],
 
         'actions' => [
