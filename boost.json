@@ -3,6 +3,7 @@
         "opencode",
         "claude_code"
     ],
+    "cloud": false,
     "guidelines": true,
     "mcp": true,
     "nightwatch_mcp": false,
@@ -15,7 +16,9 @@
     ],
     "sail": false,
     "skills": [
+        "cashier-stripe-development",
         "laravel-best-practices",
+        "configure-nightwatch",
         "pest-testing",
         "tailwindcss-development",
         "modular",
