@@ -60,7 +60,7 @@ class SubscriptionWebhookController extends WebhookController
 
         $company = Company::query()->find($companyId);
 
-        if (! $company) {
+        if (! $company instanceof Company) {
             return $this->successMethod();
         }
 
@@ -68,7 +68,7 @@ class SubscriptionWebhookController extends WebhookController
             ? User::query()->find($ownerId)
             : $company->owner;
 
-        if (! $owner) {
+        if (! $owner instanceof User) {
             return $this->successMethod();
         }
 

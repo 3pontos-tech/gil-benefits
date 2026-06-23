@@ -191,9 +191,17 @@ readonly class GenerateRecordDraftAction
 
             $response = $builder->withPrompt($fullPrompt)->asStructured();
         } else {
+            $rawContent = $file->get();
+
+            throw_if(
+                $rawContent === false,
+                PrismException::class,
+                sprintf('Failed to read uploaded document "%s".', $file->getClientOriginalName()),
+            );
+
             $response = $builder->withPrompt($promptHeader, [
                 Document::fromRawContent(
-                    rawContent: $file->get(),
+                    rawContent: $rawContent,
                     mimeType: $file->getMimeType(),
                 ),
             ])->asStructured();

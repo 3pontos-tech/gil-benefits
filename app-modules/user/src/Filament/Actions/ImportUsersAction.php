@@ -8,6 +8,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\HtmlString;
+use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Actions\ParseUsersFromFileAction;
@@ -74,6 +75,7 @@ class ImportUsersAction extends Action
             /** @var TemporaryUploadedFile $file */
             $file = $data['file'];
             $company = $this->resolveCompany();
+            $livewire = $this->getLivewire();
 
             $rows = resolve(ParseUsersFromFileAction::class)->execute(
                 $file->getRealPath(),
@@ -93,27 +95,35 @@ class ImportUsersAction extends Action
             $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
 
             if ($errors !== []) {
-                $this->getLivewire()->dispatch('import-errors', errors: collect($errors)
-                    ->map(fn (ImportErrorDTO $e): array => [
-                        'row' => $e->row,
-                        'email' => $e->email,
-                        'message' => $e->message,
-                    ])
-                    ->values()
-                    ->all()
-                );
+                if ($livewire instanceof Component) {
+                    $livewire->dispatch('import-errors', errors: collect($errors)
+                        ->map(fn (ImportErrorDTO $e): array => [
+                            'row' => $e->row,
+                            'email' => $e->email,
+                            'message' => $e->message,
+                        ])
+                        ->values()
+                        ->all()
+                    );
+                }
 
                 return;
             }
 
+            $userId = auth()->id();
+
+            throw_if($userId === null, \RuntimeException::class, 'Cannot import users without an authenticated user.');
+
             dispatch(new ImportUsersJob(
                 rows: $rows,
-                companyId: $company->getKey(),
-                userId: auth()->id()
+                companyId: (string) $company->getKey(),
+                userId: (string) $userId
             ))
                 ->onQueue('users-import');
 
-            $this->getLivewire()->dispatch('import-started');
+            if ($livewire instanceof Component) {
+                $livewire->dispatch('import-started');
+            }
 
             Notification::make()
                 ->info()

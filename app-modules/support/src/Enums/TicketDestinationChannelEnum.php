@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\Support\Enums;
 
 use Filament\Support\Contracts\HasLabel;
-use Illuminate\Contracts\Support\Htmlable;
 
 enum TicketDestinationChannelEnum: string implements HasLabel
 {
@@ -15,7 +14,7 @@ enum TicketDestinationChannelEnum: string implements HasLabel
     case Cs = 'cs';
     case Product = 'product';
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return __('support::enums.destination_channel.' . $this->value);
     }

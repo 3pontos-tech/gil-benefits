@@ -8,6 +8,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
+use Illuminate\Contracts\Support\Arrayable;
 use Throwable;
 use TresPontosTech\App\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\App\Filament\Resources\Appointments\Schemas\AppointmentWizard;
@@ -57,7 +58,13 @@ class CreateAppointment extends CreateRecord
 
     public function submit(): void
     {
-        $appointmentDTO = BookAppointmentDTO::make(auth()->user()->getKey(), $this->form->getRawState());
+        $rawState = $this->form->getRawState();
+        $payload = $rawState instanceof Arrayable ? $rawState->toArray() : $rawState;
+
+        /** @var User $user */
+        $user = auth()->user();
+
+        $appointmentDTO = BookAppointmentDTO::make($user->getKey(), $payload);
 
         try {
             resolve(BookAppointmentAction::class)->handle($appointmentDTO);

@@ -28,7 +28,7 @@ class CompanyBillingProvider implements BillingProvider
 
             $driver = $providerEnum instanceof BillingProviderEnum
                 ? $billing->getDriver(BillingProviderEnum::from($providerEnum->value))
-                : $billing->getDefaultDriver();
+                : $billing->getDriver();
 
             $driver->ensureCustomerExists($tenant);
 

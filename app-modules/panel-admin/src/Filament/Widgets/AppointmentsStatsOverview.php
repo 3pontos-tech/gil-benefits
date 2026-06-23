@@ -20,6 +20,9 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
      */
     public array $tableFilterState = [];
 
+    /**
+     * @var object{total: int, scheduled: int, pending: int, cancelled: int, completed: int}|null
+     */
     private ?object $aggregates = null;
 
     /**
@@ -43,9 +46,16 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
         ];
     }
 
+    /**
+     * @return object{total: int, scheduled: int, pending: int, cancelled: int, completed: int}
+     */
     private function aggregates(): object
     {
-        return $this->aggregates ??= Appointment::query()
+        if ($this->aggregates !== null) {
+            return $this->aggregates;
+        }
+
+        $row = Appointment::query()
             ->when(
                 filled(data_get($this->tableFilterState, 'company_id.value')),
                 fn (Builder $q) => $q->where('company_id', data_get($this->tableFilterState, 'company_id.value'))
@@ -92,7 +102,16 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
                     AppointmentStatus::Completed->value,
                 ]
             )
+            ->toBase()
             ->first();
+
+        return $this->aggregates = (object) [
+            'total' => (int) ($row->total ?? 0),
+            'scheduled' => (int) ($row->scheduled ?? 0),
+            'pending' => (int) ($row->pending ?? 0),
+            'cancelled' => (int) ($row->cancelled ?? 0),
+            'completed' => (int) ($row->completed ?? 0),
+        ];
     }
 
     private function totalRequestsStat(): Stat

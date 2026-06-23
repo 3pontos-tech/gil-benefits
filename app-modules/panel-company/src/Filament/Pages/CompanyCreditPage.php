@@ -120,7 +120,7 @@ class CompanyCreditPage extends Page implements HasTable
                             ->required(),
                     ])
                     ->action(function (array $data, UserCredit $record): void {
-                        $employee = User::query()->findOrFail($data['employee_id']);
+                        $employee = User::query()->findOrFail((string) $data['employee_id']);
                         resolve(TransferCreditBetweenEmployees::class)->handle($record, $employee);
                     }),
             ])
@@ -134,7 +134,7 @@ class CompanyCreditPage extends Page implements HasTable
                     ->disabled(fn (): bool => ! $this->hasDistributedCredits())
                     ->tooltip(fn (): ?string => $this->hasDistributedCredits()
                         ? null
-                        : __('panel-company::resources.actions.revoke_all_credits.disabled_tooltip'))
+                        : (string) __('panel-company::resources.actions.revoke_all_credits.disabled_tooltip'))
                     ->action(function (): void {
                         /** @var Company $tenant */
                         $tenant = filament()->getTenant();
@@ -152,7 +152,7 @@ class CompanyCreditPage extends Page implements HasTable
                     ->disabled(fn (): bool => ! $this->canDistributeEqually())
                     ->tooltip(fn (): ?string => $this->canDistributeEqually()
                         ? null
-                        : __('panel-company::resources.actions.distribute_equally.disabled_tooltip'))
+                        : (string) __('panel-company::resources.actions.distribute_equally.disabled_tooltip'))
                     ->action(function (): void {
                         /** @var Company $tenant */
                         $tenant = filament()->getTenant();
@@ -170,7 +170,7 @@ class CompanyCreditPage extends Page implements HasTable
                     ->disabled(fn (): bool => ! $this->hasOwnerAvailableCredits())
                     ->tooltip(fn (): ?string => $this->hasOwnerAvailableCredits()
                         ? null
-                        : __('panel-company::resources.actions.distribute_manually.disabled_tooltip'))
+                        : (string) __('panel-company::resources.actions.distribute_manually.disabled_tooltip'))
                     ->schema(fn (): array => [
                         TextEntry::make('notice')
                             ->label('')
@@ -194,7 +194,7 @@ class CompanyCreditPage extends Page implements HasTable
                     ])
                     ->successNotificationTitle(__('panel-company::resources.actions.distribute_manually.success_notification'))
                     ->action(function (array $data, Action $action): void {
-                        $employee = User::query()->findOrFail($data['employee_id']);
+                        $employee = User::query()->findOrFail((string) $data['employee_id']);
                         /** @var Company $tenant */
                         $tenant = filament()->getTenant();
                         resolve(AllocateCreditToEmployee::class)->handle(

@@ -9,7 +9,6 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Support\Htmlable;
 
 enum SupportTicketCategoryEnum: string implements HasColor, HasIcon, HasLabel
 {
@@ -26,7 +25,7 @@ enum SupportTicketCategoryEnum: string implements HasColor, HasIcon, HasLabel
     case GeneralQuestion = 'general_question';
     case Other = 'other';
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return __('support::enums.category.' . $this->value);
     }

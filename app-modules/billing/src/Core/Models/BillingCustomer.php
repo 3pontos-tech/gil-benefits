@@ -61,7 +61,7 @@ class BillingCustomer extends Model
             ->value('provider_customer_id');
     }
 
-    public static function getActiveProvider(Model $billable): null|BillingProviderEnum|string
+    public static function getActiveProvider(Model $billable): ?BillingProviderEnum
     {
         $provider = Subscription::query()
             ->where('subscriptionable_type', $billable->getMorphClass())
@@ -76,10 +76,14 @@ class BillingCustomer extends Model
             return BillingProviderEnum::from($provider);
         }
 
-        return static::query()
+        $fallbackProvider = static::query()
             ->where('billable_type', $billable->getMorphClass())
             ->where('billable_id', $billable->getKey())
             ->latest()
             ->value('provider');
+
+        return $fallbackProvider !== null
+            ? BillingProviderEnum::from($fallbackProvider)
+            : null;
     }
 }

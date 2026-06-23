@@ -6,6 +6,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\Tenant\Actions\TenantSecretKeyRotationAction;
 
 class TenantSecretKeyRotationPanelAction extends Action
@@ -30,7 +31,11 @@ class TenantSecretKeyRotationPanelAction extends Action
         $company = filament()->getTenant();
         $key = resolve(TenantSecretKeyRotationAction::class)->generate($company);
 
-        $this->getLivewire()->data['integration_access_key'] = $key;
+        $livewire = $this->getLivewire();
+
+        if ($livewire instanceof EditTenantProfile) {
+            $livewire->data['integration_access_key'] = $key;
+        }
 
         Notification::make('rotateKey')
             ->success()
