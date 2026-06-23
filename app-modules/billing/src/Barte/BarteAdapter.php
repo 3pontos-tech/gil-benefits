@@ -105,7 +105,7 @@ final readonly class BarteAdapter implements BillingContract
 
         $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
             uuidSellerClient: $customerId,
-            scheduledDate: now()->addDay()->toDateString(),
+            scheduledDate: now()->toDateString(),
             metadata: [
                 ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
                 ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
