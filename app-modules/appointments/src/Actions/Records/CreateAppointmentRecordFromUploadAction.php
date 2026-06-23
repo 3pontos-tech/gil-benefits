@@ -35,6 +35,10 @@ final readonly class CreateAppointmentRecordFromUploadAction
         $path = $file->storeAs(self::STORAGE_DIRECTORY, $filename, self::STORAGE_DISK);
 
         if ($path === false) {
+            // Remove o registro recém-criado para não travar novos uploads: na próxima
+            // chamada o firstOrCreate o encontraria e o early-return pularia o reprocessamento.
+            $record->forceDelete();
+
             throw new RuntimeException(sprintf('Failed to store appointment record file "%s".', $filename));
         }
 

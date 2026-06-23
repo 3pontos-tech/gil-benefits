@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -56,4 +58,28 @@ it('returns the same record and does not dispatch a new job on repeated calls (i
     expect($second->getKey())->toBe($first->getKey());
 
     Queue::assertPushed(GenerateAppointmentRecordJob::class, 1);
+});
+
+it('deletes the orphan record and does not dispatch the job when storage fails', function (): void {
+    $appointment = Appointment::factory()->create([
+        'status' => AppointmentStatus::Completed,
+    ]);
+
+    // Faz o storeAs() devolver false (falha de gravação) sem tocar no disco real.
+    $disk = Mockery::mock(Filesystem::class);
+    $disk->shouldReceive('putFileAs')->once()->andReturnFalse();
+    $factory = Mockery::mock(Factory::class);
+    $factory->shouldReceive('disk')->andReturn($disk);
+    app()->instance(Factory::class, $factory);
+
+    $file = UploadedFile::fake()->create('reuniao.pdf', 100, 'application/pdf');
+
+    expect(fn (): AppointmentRecord => resolve(CreateAppointmentRecordFromUploadAction::class)
+        ->execute($appointment, $file))
+        ->toThrow(RuntimeException::class);
+
+    // Nem soft-deleted deve sobrar: o forceDelete remove de vez, liberando novo upload.
+    expect(AppointmentRecord::withTrashed()->count())->toBe(0);
+
+    Queue::assertNotPushed(GenerateAppointmentRecordJob::class);
 });
