@@ -15,14 +15,8 @@ final readonly class FetchConsultants
      */
     public function populateAction(): array
     {
-        sprintf(
-            '%s_company_employees',
-            config('services.highlevel.company')
-        );
-
         return collect($this->client->getCompanyEmployees()['users'])
             ->mapWithKeys(fn (array $employee): array => [$employee['id'] => $employee['name']])
             ->toArray();
-
     }
 }
