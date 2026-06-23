@@ -149,6 +149,9 @@ class ViewAppointment extends ViewRecord
         ];
     }
 
+    /**
+     * @return Collection<int, Document>
+     */
     public function getEmployeeDocuments(): Collection
     {
         $record = $this->record;
@@ -158,6 +161,9 @@ class ViewAppointment extends ViewRecord
             ->get();
     }
 
+    /**
+     * @return Collection<int, Document>
+     */
     public function getSharedDocuments(): Collection
     {
         $record = $this->record;

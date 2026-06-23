@@ -23,11 +23,16 @@ use TresPontosTech\Billing\Database\Factories\BillingCustomerFactory;
  */
 class BillingCustomer extends Model
 {
+    /** @use HasFactory<BillingCustomerFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     protected $table = 'billing_customers';
 
+    /**
+     * @return BillingCustomerFactory
+     */
     protected static function newFactory(): Factory
     {
         return BillingCustomerFactory::new();

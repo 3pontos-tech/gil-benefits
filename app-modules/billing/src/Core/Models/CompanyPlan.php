@@ -28,7 +28,9 @@ use TresPontosTech\Company\Models\Company;
  */
 class CompanyPlan extends Model
 {
+    /** @use HasFactory<CompanyPlanFactory> */
     use HasFactory;
+
     use HasUuids;
     use SoftDeletes;
 

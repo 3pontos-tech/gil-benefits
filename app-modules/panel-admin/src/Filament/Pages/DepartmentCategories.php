@@ -61,6 +61,9 @@ class DepartmentCategories extends Page implements HasTable
             ->paginated(false);
     }
 
+    /**
+     * @return array<int, array{case: DepartmentCategory, total: mixed}>
+     */
     private function getCategoryData(): array
     {
         $counts = Department::query()

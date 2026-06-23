@@ -16,7 +16,10 @@ class ValidateUserImportAction
     /** @var list<ImportErrorDTO> */
     private array $errors = [];
 
-    /** @return list<ImportErrorDTO> */
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     * @return list<ImportErrorDTO>
+     */
     public function execute(Collection $rows, Company $company): array
     {
         $this->errors = [];
@@ -191,6 +194,9 @@ class ValidateUserImportAction
         }
     }
 
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     */
     private function validateDuplicateEmails(Collection $rows): void
     {
         $emails = $rows->map(fn (array $row): string => strtolower(trim((string) ($row['email'] ?? ''))));
@@ -206,6 +212,9 @@ class ValidateUserImportAction
             });
     }
 
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     */
     private function validateExistingEmails(Collection $rows): void
     {
         $emails = $rows->map(fn (array $row): string => strtolower(trim((string) ($row['email'] ?? ''))));
@@ -227,6 +236,9 @@ class ValidateUserImportAction
             });
     }
 
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     */
     private function validateDuplicateTaxIds(Collection $rows): void
     {
         $taxIds = $rows->map(fn (array $row): string => trim((string) ($row['tax_id'] ?? '')));
@@ -242,6 +254,9 @@ class ValidateUserImportAction
             });
     }
 
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     */
     private function validateExistingTaxIds(Collection $rows): void
     {
         $taxIds = $rows->map(fn (array $row): string => trim((string) ($row['tax_id'] ?? '')));
@@ -263,6 +278,9 @@ class ValidateUserImportAction
             });
     }
 
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     */
     private function validateDuplicatePhoneNumbers(Collection $rows): void
     {
         $phoneNumbers = $rows->map(fn (array $row): string => trim((string) ($row['phone_number'] ?? '')));

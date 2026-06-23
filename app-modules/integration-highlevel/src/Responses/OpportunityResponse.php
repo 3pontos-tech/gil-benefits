@@ -22,6 +22,9 @@ class OpportunityResponse
         public ?string $lastActionDate,
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     public static function make(array $payload): self
     {
         return new self(

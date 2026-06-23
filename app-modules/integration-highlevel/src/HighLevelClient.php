@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\IntegrationHighlevel;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use TresPontosTech\IntegrationHighlevel\Requests\CreateAppointmentDTO;
 use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
@@ -13,7 +14,7 @@ use TresPontosTech\IntegrationHighlevel\Responses\UpsertOpportunityResponse;
 
 class HighLevelClient
 {
-    public function searchContacts(string $query = '')
+    public function searchContacts(string $query = ''): Response
     {
         return Http::withToken(config('highlevel.secret'))
             ->withLocation()
@@ -33,6 +34,9 @@ class HighLevelClient
         return ContactResponse::make($response->json());
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getLocationPipelines(): array
     {
         return Http::withToken(config('highlevel.secret'))
@@ -42,7 +46,10 @@ class HighLevelClient
             ->json();
     }
 
-    public function getCompanyEmployees()
+    /**
+     * @return array{users?: array<int, array<string, mixed>>}
+     */
+    public function getCompanyEmployees(): array
     {
         return Http::withToken(config('highlevel.secret'))
             ->withLocation()
@@ -67,7 +74,10 @@ class HighLevelClient
         return UpsertOpportunityResponse::make($response->json());
     }
 
-    public function getCalendarFreeSlots(FetchCalendarSlotsDTO $dto)
+    /**
+     * @return array<string, mixed>
+     */
+    public function getCalendarFreeSlots(FetchCalendarSlotsDTO $dto): array
     {
         $url = sprintf('https://services.leadconnectorhq.com/calendars/%s/free-slots', $dto->calendarId);
 

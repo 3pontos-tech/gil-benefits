@@ -17,6 +17,9 @@ use TresPontosTech\PanelCompany\DTOs\MetricsFilters;
  */
 final class ResolveScopedUserIds
 {
+    /**
+     * @return Collection<int, string>|null
+     */
     public function handle(Company $tenant, MetricsFilters $filters): ?Collection
     {
         if (filled($filters->userId)) {

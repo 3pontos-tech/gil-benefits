@@ -6,6 +6,7 @@ namespace TresPontosTech\PanelCompany\Actions\Metrics;
 
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
@@ -38,11 +39,13 @@ final class GetSessionsTrend
         return Cache::remember($cacheKey, $this->metricsCacheTtl(), function () use ($tenant, $period, $userIds): SessionsTrendData {
             $method = $period->granularity->trendMethod();
 
+            /** @var Collection<int, TrendValue> $totalSeries */
             $totalSeries = Trend::query(
                 Appointment::forCompany($tenant)
                     ->forUsers($userIds),
             )->dateColumn('appointment_at')->between(start: $period->start, end: $period->end)->{$method}()->count();
 
+            /** @var Collection<int, TrendValue> $completedSeries */
             $completedSeries = Trend::query(
                 Appointment::forCompany($tenant)
                     ->where('status', AppointmentStatus::Completed->value)
@@ -58,7 +61,7 @@ final class GetSessionsTrend
                 ->all();
 
             $firstNonZero = collect($completedValues)->first(fn (int $v): bool => $v > 0);
-            $last = $completedValues === [] ? 0 : (int) end($completedValues);
+            $last = $completedValues === [] ? 0 : end($completedValues);
             $growthFactor = null;
 
             if (($firstNonZero ?? 0) > 0 && $last > 0) {

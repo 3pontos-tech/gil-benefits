@@ -16,6 +16,9 @@ class BookAppointmentDTO implements JsonSerializable
         public ?string $notes = null,
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     public static function make(int|string $userId, array $payload): self
     {
         return new self(

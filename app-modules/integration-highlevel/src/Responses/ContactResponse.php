@@ -9,6 +9,9 @@ readonly class ContactResponse
         public bool $isNewContact
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $json
+     */
     public static function make(array $json): self
     {
         return new self(

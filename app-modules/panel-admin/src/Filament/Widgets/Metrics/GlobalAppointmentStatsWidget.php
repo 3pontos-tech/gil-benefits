@@ -5,6 +5,7 @@ namespace TresPontosTech\Admin\Filament\Widgets\Metrics;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -84,6 +85,9 @@ class GlobalAppointmentStatsWidget extends StatsOverviewWidget
         ]);
     }
 
+    /**
+     * @return array{start: Carbon, end: Carbon}
+     */
     private function dateRange(): array
     {
         $startDate = data_get($this->pageFilters, 'startDate');

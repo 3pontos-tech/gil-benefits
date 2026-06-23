@@ -16,6 +16,9 @@ class ScheduledAppointmentResponse
         public string $traceId
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     public static function make(array $payload): self
     {
         return new self(
