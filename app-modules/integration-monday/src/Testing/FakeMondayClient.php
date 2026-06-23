@@ -43,7 +43,7 @@ final class FakeMondayClient extends MondayClient
 
     public function createItem(CreateItemDTO $data): CreateItemResponse
     {
-        throw_if($this->shouldFail, MondayApiException::class, 'Fake Monday failure.', retryable: false);
+        throw_if($this->shouldFail, MondayApiException::class, 'Fake Monday failure.', 0, false);
 
         $itemId = $this->nextItemId !== '' ? $this->nextItemId : (string) (++$this->sequence);
 
@@ -54,14 +54,14 @@ final class FakeMondayClient extends MondayClient
 
     public function changeColumnValues(ChangeColumnValuesDTO $data): void
     {
-        throw_if($this->shouldFail, MondayApiException::class, 'Fake Monday failure.', retryable: false);
+        throw_if($this->shouldFail, MondayApiException::class, 'Fake Monday failure.', 0, false);
 
         $this->columnValueChanges[] = ['itemId' => $data->itemId, 'boardId' => $data->boardId, 'columnValues' => $data->columnValues];
     }
 
     public function addFileToColumn(UploadFileDTO $data): void
     {
-        throw_if($this->shouldFail || $this->shouldFailUpload, MondayApiException::class, 'Fake Monday upload failure.', retryable: false);
+        throw_if($this->shouldFail || $this->shouldFailUpload, MondayApiException::class, 'Fake Monday upload failure.', 0, false);
 
         $this->uploadedFiles[] = ['itemId' => $data->itemId, 'columnId' => $data->columnId, 'filename' => $data->filename, 'size' => strlen($data->contents)];
     }

@@ -24,7 +24,8 @@ class MondayClient
             blank(config('monday.token')),
             MondayApiException::class,
             'Monday API token is not configured.',
-            retryable: false,
+            0,
+            false,
         );
 
         $this->apiUrl = rtrim((string) config('monday.api_url'), '/');
