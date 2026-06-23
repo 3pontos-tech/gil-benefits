@@ -14,6 +14,9 @@ final readonly class CompanyDTO implements JsonSerializable
         public string $userId,
     ) {}
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     public static function make(array $data): self
     {
         return new self(
@@ -25,6 +28,9 @@ final readonly class CompanyDTO implements JsonSerializable
         );
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function jsonSerialize(): array
     {
         return [

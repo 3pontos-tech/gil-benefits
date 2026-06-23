@@ -7,6 +7,9 @@ use Spatie\SimpleExcel\SimpleExcelReader;
 
 class ParseUsersFromFileAction
 {
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
     public function execute(string $filePath, string $fileExtension): Collection
     {
         return SimpleExcelReader::create($filePath, $fileExtension)
@@ -18,6 +21,10 @@ class ParseUsersFromFileAction
             ->values();
     }
 
+    /**
+     * @param  array<string, mixed>  $row
+     * @return array<string, mixed>
+     */
     private function sanitizeRow(array $row): array
     {
         foreach (['phone_number', 'tax_id'] as $field) {

@@ -10,6 +10,9 @@ use TresPontosTech\IntegrationGoogleCalendar\Responses\CreateEventResponse;
 
 class GoogleCalendarClient
 {
+    /**
+     * @var array<string, mixed>
+     */
     private array $credentials;
 
     public function __construct()

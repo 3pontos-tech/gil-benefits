@@ -12,6 +12,9 @@ use Zap\Models\Schedule;
 
 readonly class RemoveStaleBlockedSchedulesAction
 {
+    /**
+     * @param  array<int, string>  $syncedEventIds
+     */
     public function handle(Consultant $consultant, array $syncedEventIds): void
     {
         DB::transaction(function () use ($consultant, $syncedEventIds): void {

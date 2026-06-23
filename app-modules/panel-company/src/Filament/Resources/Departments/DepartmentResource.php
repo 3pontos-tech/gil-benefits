@@ -109,6 +109,10 @@ class DepartmentResource extends Resource
         ];
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
     public static function mutateFormDataBeforeCreate(array $data): array
     {
         $data['company_id'] = Filament::getTenant()?->getKey();

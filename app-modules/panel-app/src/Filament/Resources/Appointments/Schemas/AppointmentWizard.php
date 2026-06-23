@@ -16,9 +16,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Actions\GetAvailableSlotsAction;
 
-// use TresPontosTech\IntegrationHighlevel\HighLevelClient;
-// use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
-
 class AppointmentWizard
 {
     public static function make(): Wizard
@@ -74,6 +71,9 @@ class AppointmentWizard
                 ->action('start'));
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function availableSlots(?string $date): array
     {
         if (is_null($date)) {
@@ -89,22 +89,11 @@ class AppointmentWizard
         return self::getAvailableTimeSlots($startDate);
     }
 
+    /**
+     * @return array<string, string>
+     */
     private static function getAvailableTimeSlots(Carbon $startDate): array
     {
         return resolve(GetAvailableSlotsAction::class)->handle($startDate);
-
-        // HighLevel integration (commented for Laravel Zap migration)
-        // $endDate = $startDate->clone()->endOfDay();
-        // $response = resolve(HighLevelClient::class)
-        //     ->getCalendarFreeSlots(FetchCalendarSlotsDTO::make($startDate, $endDate));
-        //
-        // $formattedDate = $startDate->format('Y-m-d');
-        //
-        // $response = $response[$formattedDate]['slots'];
-        //
-        // return collect($response)
-        //     ->mapWithKeys(fn ($slot): array => [
-        //         $slot => Date::parse($slot)->format('H:i'),
-        //     ])->all();
     }
 }

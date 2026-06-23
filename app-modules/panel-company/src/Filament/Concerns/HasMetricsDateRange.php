@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelCompany\Filament\Concerns;
 
+use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
 use Illuminate\Support\Collection;
 use TresPontosTech\Company\Models\Company;
@@ -13,6 +14,9 @@ use TresPontosTech\PanelCompany\Support\MetricsPeriod;
 
 trait HasMetricsDateRange
 {
+    /**
+     * @return array{start: CarbonImmutable, end: CarbonImmutable}
+     */
     private function dateRange(): array
     {
         $period = $this->metricsPeriod();
@@ -54,6 +58,9 @@ trait HasMetricsDateRange
         );
     }
 
+    /**
+     * @return Collection<int, string>|null
+     */
     private function filteredUserIds(): ?Collection
     {
         /** @var Company $tenant */

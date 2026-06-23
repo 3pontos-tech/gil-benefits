@@ -5,6 +5,7 @@ namespace TresPontosTech\Admin\Filament\Widgets\Metrics;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Carbon;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -26,6 +27,9 @@ class KPIsOverview extends StatsOverviewWidget
         ];
     }
 
+    /**
+     * @return array{start: Carbon, end: Carbon}
+     */
     private function dateRange(): array
     {
         $startDate = data_get($this->pageFilters, 'startDate');

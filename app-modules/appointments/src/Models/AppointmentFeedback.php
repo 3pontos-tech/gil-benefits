@@ -20,6 +20,7 @@ use TresPontosTech\Appointments\Database\Factories\AppointmentFeedbackFactory;
  */
 class AppointmentFeedback extends Model
 {
+    /** @use HasFactory<AppointmentFeedbackFactory> */
     use HasFactory;
 
     protected $table = 'appointment_feedbacks';

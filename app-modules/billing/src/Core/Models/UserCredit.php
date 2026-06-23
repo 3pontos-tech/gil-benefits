@@ -33,7 +33,9 @@ use TresPontosTech\Company\Models\Company;
  */
 class UserCredit extends Model
 {
+    /** @use HasFactory<UserCreditFactory> */
     use HasFactory;
+
     use HasUuids;
     use SoftDeletes;
 
@@ -86,12 +88,21 @@ class UserCredit extends Model
         return $this->belongsTo(Appointment::class);
     }
 
+    /**
+     * @param  Builder<UserCredit>  $query
+     * @return Builder<UserCredit>
+     */
     #[Scope]
     protected function forCompany(Builder $query, Company $company): Builder
     {
         return $query->where('company_id', $company->getKey());
     }
 
+    /**
+     * @param  Builder<UserCredit>  $query
+     * @param  Collection<int, string>|null  $userIds
+     * @return Builder<UserCredit>
+     */
     #[Scope]
     protected function heldBy(Builder $query, ?Collection $userIds): Builder
     {
@@ -102,6 +113,10 @@ class UserCredit extends Model
         return $query->whereIn('holder_id', $userIds);
     }
 
+    /**
+     * @param  Builder<UserCredit>  $query
+     * @return Builder<UserCredit>
+     */
     #[Scope]
     protected function ownedBy(Builder $query, Company $company): Builder
     {

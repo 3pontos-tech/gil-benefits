@@ -7,7 +7,10 @@ use TresPontosTech\IntegrationHighlevel\HighLevelClient;
 
 final readonly class FetchOpportunityPipelines
 {
-    public function populateAction()
+    /**
+     * @return array<array-key, mixed>
+     */
+    public function populateAction(): array
     {
         $baseTtl = 60 * 60;
         $cacheKey = sprintf(

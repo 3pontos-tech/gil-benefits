@@ -19,6 +19,9 @@ class PersistImportedUsersAction
 {
     private const int CHUNK_SIZE = 100;
 
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     */
     public function execute(Collection $rows, Company $company): ImportUsersResultDTO
     {
         $imported = 0;

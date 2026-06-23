@@ -86,6 +86,9 @@ final class GetInsights
         });
     }
 
+    /**
+     * @param  Collection<int, string>|null  $userIds
+     */
     private function volume(Company $tenant, ?Collection $userIds, CarbonImmutable $start, CarbonImmutable $end): int
     {
         return Appointment::forCompany($tenant)

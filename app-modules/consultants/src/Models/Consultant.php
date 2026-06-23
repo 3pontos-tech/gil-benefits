@@ -22,6 +22,7 @@ use Spatie\Tags\HasTags;
 use Spatie\Tags\Tag;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
+use TresPontosTech\Consultants\Database\Factories\ConsultantFactory;
 use TresPontosTech\Consultants\Observers\ConsultantObserver;
 use TresPontosTech\Consultants\Policies\ConsultantPolicy;
 use Zap\Models\Concerns\HasSchedules;
@@ -37,7 +38,7 @@ use Zap\Models\Concerns\HasSchedules;
  * @property string $short_description
  * @property string $biography
  * @property string $readme
- * @property array $socials_urls
+ * @property array<string, string> $socials_urls
  * @property Carbon|null $google_calendar_synced_at
  * @property string|null $google_calendar_sync_token
  * @property Carbon|null $created_at
@@ -50,7 +51,9 @@ use Zap\Models\Concerns\HasSchedules;
 #[UsePolicy(ConsultantPolicy::class)]
 class Consultant extends Model implements HasMedia
 {
+    /** @use HasFactory<ConsultantFactory> */
     use HasFactory;
+
     use HasSchedules;
     use HasTags;
     use HasUuids;

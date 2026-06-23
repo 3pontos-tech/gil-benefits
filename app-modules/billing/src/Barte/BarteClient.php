@@ -19,6 +19,9 @@ final class BarteClient
             ->timeout(30);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getPlans(): array
     {
         $response = $this->http->get('/v2/plans');
@@ -33,6 +36,9 @@ final class BarteClient
         return $response->json();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function createBuyer(CreateBuyerDto $dto): array
     {
         $response = $this->http->post('/v2/buyers', $dto->toArray());
@@ -47,6 +53,9 @@ final class BarteClient
         return $response->json();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function createPaymentLink(CreatePaymentLinkDto $dto): array
     {
         $response = $this->http->post('/v2/payment-links', $dto->toArray());

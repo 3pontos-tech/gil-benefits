@@ -38,6 +38,8 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
     /**
      * Providers whose existing subscriptions are considered valid for access.
      * Includes legacy providers while their plans have not yet expired.
+     *
+     * @return list<self>
      */
     public static function activeCases(): array
     {
@@ -46,6 +48,8 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
 
     /**
      * Available Providers for NEW Subscriptions.
+     *
+     * @return list<self>
      */
     public static function checkoutCases(): array
     {

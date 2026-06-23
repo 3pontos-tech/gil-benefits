@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
+use TresPontosTech\Appointments\Database\Factories\AppointmentFactory;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
@@ -45,7 +46,9 @@ use TresPontosTech\Consultants\Models\Consultant;
  */
 class Appointment extends Model
 {
+    /** @use HasFactory<AppointmentFactory> */
     use HasFactory;
+
     use HasUuids;
     use SoftDeletes;
 
@@ -132,23 +135,39 @@ class Appointment extends Model
         ];
     }
 
+    /**
+     * @return Attribute<AbstractAppointmentTransition, never>
+     */
     protected function currentTransition(): Attribute
     {
         return Attribute::make(get: fn (): AbstractAppointmentTransition => $this->status->transition($this));
     }
 
+    /**
+     * @param  Builder<Appointment>  $query
+     * @return Builder<Appointment>
+     */
     #[Scope]
     protected function forCompany(Builder $query, Company $company): Builder
     {
         return $query->where('company_id', $company->getKey());
     }
 
+    /**
+     * @param  Builder<Appointment>  $query
+     * @return Builder<Appointment>
+     */
     #[Scope]
     protected function betweenDates(Builder $query, CarbonInterface $start, CarbonInterface $end): Builder
     {
         return $query->whereBetween('appointment_at', [$start, $end]);
     }
 
+    /**
+     * @param  Builder<Appointment>  $query
+     * @param  Collection<int, string>|null  $userIds
+     * @return Builder<Appointment>
+     */
     #[Scope]
     protected function forUsers(Builder $query, ?Collection $userIds): Builder
     {

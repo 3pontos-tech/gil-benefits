@@ -81,6 +81,10 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
         return $this->buildChartData($counts);
     }
 
+    /**
+     * @param  Collection<int, mixed>  $counts
+     * @return array<string, mixed>
+     */
     private function buildChartData(
         Collection $counts,
         string $color = 'rgba(59, 130, 246, 0.7)',

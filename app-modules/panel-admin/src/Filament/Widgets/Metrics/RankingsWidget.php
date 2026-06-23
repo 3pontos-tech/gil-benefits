@@ -85,6 +85,7 @@ class RankingsWidget extends TableWidget
 
     /**
      * @param  class-string<Company|Consultant>  $model
+     * @return Builder<Company>|Builder<Consultant>
      */
     private function rankingQuery(string $model, CarbonInterface $start, CarbonInterface $end): Builder
     {
