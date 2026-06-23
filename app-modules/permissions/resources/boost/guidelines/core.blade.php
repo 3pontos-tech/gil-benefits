@@ -1,5 +1,5 @@
 ## Permissions - RBAC system built on Spatie/laravel-permission with custom table names and sync commands. - Namespace:
-`He4rt\Permissions\`. No translation namespace (uses config-driven labels). ### Models - **Permission** (extends
+`TresPontosTech\Permissions\`. No translation namespace (uses config-driven labels). ### Models - **Permission** (extends
 `Spatie\Permission\Models\Permission`) — Custom permission model using `rbac_permissions` table. - Extra fields:
 `resource`, `action`, `resource_group`. - Computed attributes: `formatted_name`, `resource_model`. - **Role** (extends
 `Spatie\Permission\Models\Role`) — Custom role model using `rbac_roles` table. - Uses UUID primary key. Relationships:
