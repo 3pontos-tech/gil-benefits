@@ -51,6 +51,11 @@ class SupportTicketsTable
                     ->label(__('support::resources.support_tickets.columns.created_at'))
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label(__('support::resources.support_tickets.columns.updated_at'))
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

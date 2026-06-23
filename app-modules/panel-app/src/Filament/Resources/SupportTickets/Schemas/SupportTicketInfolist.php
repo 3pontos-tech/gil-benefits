@@ -63,6 +63,10 @@ class SupportTicketInfolist
                     TextEntry::make('created_at')
                         ->label(__('support::resources.support_tickets.fields.created_at'))
                         ->dateTime('d/m/Y H:i'),
+
+                    TextEntry::make('created_at')
+                        ->label(__('support::resources.support_tickets.fields.updated_at'))
+                        ->dateTime('d/m/Y H:i'),
                 ]),
 
             Section::make(__('support::resources.support_tickets.sections.attachments'))
