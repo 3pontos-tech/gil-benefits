@@ -130,15 +130,20 @@ class GoogleCalendarClient
     {
         $now = Date::now()->getTimestamp();
 
-        $header = $this->base64url(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
-        $claimSet = $this->base64url(json_encode([
+        $encodedHeader = json_encode(['alg' => 'RS256', 'typ' => 'JWT']);
+        $encodedClaimSet = json_encode([
             'iss' => $this->credentials['client_email'],
             'sub' => $email,
             'scope' => 'https://www.googleapis.com/auth/calendar',
             'aud' => 'https://oauth2.googleapis.com/token',
             'iat' => $now,
             'exp' => $now + 3600,
-        ]));
+        ]);
+
+        throw_if($encodedHeader === false || $encodedClaimSet === false, GoogleCalendarApiException::class, 'Failed to encode JWT payload', 0, false);
+
+        $header = $this->base64url($encodedHeader);
+        $claimSet = $this->base64url($encodedClaimSet);
 
         $signatureInput = sprintf('%s.%s', $header, $claimSet);
         $signed = openssl_sign($signatureInput, $signature, $this->credentials['private_key'], 'SHA256');
@@ -169,10 +174,14 @@ class GoogleCalendarClient
             );
         }
 
-        $credentials = json_decode(file_get_contents($credentialsPath), true);
+        $rawCredentials = file_get_contents($credentialsPath);
 
         // throw_unless/throw_if repassam os args ao construtor da exception; `0, false` = (code, retryable),
         // posicional porque named arg em parâmetro variádico quebra no PHPStan e o Rector reverte o if/throw.
+        throw_if($rawCredentials === false, GoogleCalendarApiException::class, sprintf('Failed to read Google service account credentials file at %s', $credentialsPath), 0, false);
+
+        $credentials = json_decode($rawCredentials, true);
+
         throw_unless(is_array($credentials), GoogleCalendarApiException::class, 'Google service account credentials file contains invalid JSON', 0, false);
 
         throw_if(blank($credentials['client_email'] ?? null) || blank($credentials['private_key'] ?? null), GoogleCalendarApiException::class, 'Google service account credentials file is missing required fields (client_email, private_key)', 0, false);

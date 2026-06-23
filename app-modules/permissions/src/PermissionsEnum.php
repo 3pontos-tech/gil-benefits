@@ -19,6 +19,10 @@ enum PermissionsEnum: string
 
     public function buildPermissionFor(string $classPath): string
     {
-        return $this->value . '_' . Str::snake(Relation::getMorphAlias($classPath));
+        $morphAlias = array_search($classPath, Relation::morphMap(), strict: true);
+
+        $resource = $morphAlias === false ? $classPath : $morphAlias;
+
+        return $this->value . '_' . Str::snake($resource);
     }
 }

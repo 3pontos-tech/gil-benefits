@@ -15,7 +15,7 @@ final readonly class FetchConsultants
      */
     public function populateAction(): array
     {
-        return collect($this->client->getCompanyEmployees()['users'])
+        return collect($this->client->getCompanyEmployees()['users'] ?? [])
             ->mapWithKeys(fn (array $employee): array => [$employee['id'] => $employee['name']])
             ->toArray();
     }

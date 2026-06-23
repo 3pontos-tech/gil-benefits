@@ -74,7 +74,7 @@ class UserSubscriptionPage extends Page
             collectTaxIds: $plan->collectTaxIds,
             successUrl: UserDashboard::getUrl(),
             cancelUrl: UserDashboard::getUrl(),
-            metadata: ['model' => Relation::getMorphAlias(User::class)],
+            metadata: ['model' => (string) Relation::getMorphAlias(User::class)],
         );
 
         $driver = resolve(BillingManager::class)->getDriver($plan->provider);

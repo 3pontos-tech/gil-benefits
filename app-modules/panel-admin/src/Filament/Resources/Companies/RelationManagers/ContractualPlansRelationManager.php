@@ -73,7 +73,8 @@ class ContractualPlansRelationManager extends RelationManager
                             }
 
                             $companyId = $this->getOwnerRecord()->getKey();
-                            $recordId = $this->getMountedAction()?->getRecord()?->getKey();
+                            $mountedRecord = $this->getMountedAction()?->getRecord();
+                            $recordId = $mountedRecord instanceof Model ? $mountedRecord->getKey() : null;
                             $startsAt = $get('starts_at') ?? now()->toDateString();
                             $endsAt = $get('ends_at') ?? '9999-12-31';
 

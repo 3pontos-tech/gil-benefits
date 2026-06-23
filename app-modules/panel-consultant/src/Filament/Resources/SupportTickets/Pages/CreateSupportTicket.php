@@ -22,9 +22,11 @@ class CreateSupportTicket extends CreateRecord
      */
     protected function handleRecordCreation(array $data): Model
     {
+        $userId = auth()->id();
+
         $dto = CreateSupportTicketDTO::fromFormState(
             $data,
-            userId: auth()->id(),
+            userId: $userId !== null ? (string) $userId : null,
             companyId: filament()->getTenant()?->getKey(),
             url: Request::header('referer'),
             userAgent: Request::userAgent(),

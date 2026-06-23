@@ -112,7 +112,13 @@ class EditUserProfile extends BaseEditUserProfile
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return DB::transaction(function () use ($record, $data): Model {
-            $anamneseData = Arr::only($data, self::ANAMNESE_FIELDS);
+            $anamneseData = [
+                'life_moment' => (string) $data['life_moment'],
+                'main_motivation' => (string) $data['main_motivation'],
+                'money_relationship' => (string) $data['money_relationship'],
+                'plans_monthly_expenses' => (string) $data['plans_monthly_expenses'],
+                'tried_financial_strategies' => (string) $data['tried_financial_strategies'],
+            ];
             $profileData = Arr::except($data, self::ANAMNESE_FIELDS);
 
             /** @var User $updatedRecord */
