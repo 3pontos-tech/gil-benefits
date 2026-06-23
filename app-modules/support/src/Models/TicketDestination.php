@@ -8,10 +8,21 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
 
+/**
+ * @property string $id
+ * @property string $support_ticket_id
+ * @property TicketDestinationTypeEnum $type
+ * @property TicketDestinationChannelEnum $channel
+ * @property string|null $reference_id
+ * @property TicketDestinationStatusEnum $status
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ */
 class TicketDestination extends Model
 {
     use HasFactory;

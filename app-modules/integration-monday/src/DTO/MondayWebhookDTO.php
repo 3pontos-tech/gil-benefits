@@ -27,10 +27,10 @@ final readonly class MondayWebhookDTO
         $index = $event['value']['label']['index'] ?? null;
 
         return new self(
-            type: (string) ($event['type'] ?? ''),
-            boardId: (string) ($event['boardId'] ?? ''),
-            itemId: (string) ($event['pulseId'] ?? ''),
-            columnId: (string) ($event['columnId'] ?? ''),
+            type: (string) $event['type'],
+            boardId: (string) $event['boardId'],
+            itemId: (string) $event['pulseId'],
+            columnId: (string) $event['columnId'],
             index: $index === null ? null : (int) $index,
         );
     }
