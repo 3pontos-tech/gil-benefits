@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Appointments\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -30,6 +31,7 @@ use TresPontosTech\Appointments\Policies\AppointmentRecordPolicy;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
+#[UseFactory(AppointmentRecordFactory::class)]
 #[UsePolicy(AppointmentRecordPolicy::class)]
 class AppointmentRecord extends Model
 {
@@ -58,11 +60,6 @@ class AppointmentRecord extends Model
             'input_tokens' => 'integer',
             'output_tokens' => 'integer',
         ];
-    }
-
-    protected static function newFactory(): AppointmentRecordFactory
-    {
-        return AppointmentRecordFactory::new();
     }
 
     /**

@@ -5,6 +5,7 @@ namespace TresPontosTech\Company\Models;
 use App\Models\Users\User;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -49,6 +50,7 @@ use TresPontosTech\Tenant\Policies\CompanyPolicy;
  * @property Carbon|null $trial_ends_at
  * @property string $panel
  */
+#[UseFactory(CompanyFactory::class)]
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model implements HasAvatar, HasMedia
 {
@@ -158,11 +160,6 @@ class Company extends Model implements HasAvatar, HasMedia
     protected function onlyEmployees(): BelongsToMany
     {
         return $this->employees()->wherePivot('active', true)->whereNot('id', $this->user_id);
-    }
-
-    protected static function newFactory(): CompanyFactory
-    {
-        return CompanyFactory::new();
     }
 
     /**

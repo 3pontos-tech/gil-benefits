@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelAdmin\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use TresPontosTech\PanelAdmin\Database\Factories\ImpersonationLogFactory;
 
 /**
  * @property int $id
@@ -19,8 +22,12 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
+#[UseFactory(ImpersonationLogFactory::class)]
 class ImpersonationLog extends Model
 {
+    /** @use HasFactory<ImpersonationLogFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'admin_id',
         'impersonated_user_id',

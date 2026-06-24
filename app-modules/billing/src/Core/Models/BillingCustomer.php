@@ -2,7 +2,7 @@
 
 namespace TresPontosTech\Billing\Core\Models;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,6 +21,7 @@ use TresPontosTech\Billing\Database\Factories\BillingCustomerFactory;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
+#[UseFactory(BillingCustomerFactory::class)]
 class BillingCustomer extends Model
 {
     /** @use HasFactory<BillingCustomerFactory> */
@@ -29,14 +30,6 @@ class BillingCustomer extends Model
     use SoftDeletes;
 
     protected $table = 'billing_customers';
-
-    /**
-     * @return BillingCustomerFactory
-     */
-    protected static function newFactory(): Factory
-    {
-        return BillingCustomerFactory::new();
-    }
 
     protected $fillable = [
         'billable_type',

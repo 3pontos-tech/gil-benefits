@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Permissions;
 
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\Permission\Models\Permission as BasePermission;
@@ -18,6 +19,7 @@ use TresPontosTech\Permissions\Database\Factories\PermissionFactory;
  * @property-read string $formatted_name
  * @property-read string $resource_model
  */
+#[UseFactory(PermissionFactory::class)]
 class Permission extends BasePermission
 {
     /** @use HasFactory<PermissionFactory> */

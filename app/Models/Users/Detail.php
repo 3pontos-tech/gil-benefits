@@ -4,6 +4,7 @@ namespace App\Models\Users;
 
 use App\Policies\Users\DetailPolicy;
 use Database\Factories\Users\DetailFactory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read User $user
  */
+#[UseFactory(DetailFactory::class)]
 #[UsePolicy(DetailPolicy::class)]
 class Detail extends Model
 {

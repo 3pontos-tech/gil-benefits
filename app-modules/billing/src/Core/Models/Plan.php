@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Billing\Core\Models;
 
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -30,6 +31,7 @@ use TresPontosTech\Billing\Database\Factories\PlanFactory;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
+#[UseFactory(PlanFactory::class)]
 class Plan extends Model
 {
     /** @use HasFactory<PlanFactory> */
@@ -72,10 +74,5 @@ class Plan extends Model
     public function prices(): HasMany
     {
         return $this->hasMany(Price::class, 'billing_plan_id');
-    }
-
-    protected static function newFactory(): PlanFactory
-    {
-        return PlanFactory::new();
     }
 }

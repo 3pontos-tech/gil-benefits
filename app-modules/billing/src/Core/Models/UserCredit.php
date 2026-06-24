@@ -6,6 +6,7 @@ namespace TresPontosTech\Billing\Core\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,6 +32,7 @@ use TresPontosTech\Company\Models\Company;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
+#[UseFactory(UserCreditFactory::class)]
 class UserCredit extends Model
 {
     /** @use HasFactory<UserCreditFactory> */
@@ -121,10 +123,5 @@ class UserCredit extends Model
     protected function ownedBy(Builder $query, Company $company): Builder
     {
         return $query->where('owner_id', $company->owner?->getKey());
-    }
-
-    protected static function newFactory(): UserCreditFactory
-    {
-        return UserCreditFactory::new();
     }
 }

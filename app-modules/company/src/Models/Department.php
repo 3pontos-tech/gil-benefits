@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Company\Models;
 
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ use TresPontosTech\Company\Enums\DepartmentCategory;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
+#[UseFactory(DepartmentFactory::class)]
 class Department extends Model
 {
     /** @use HasFactory<DepartmentFactory> */

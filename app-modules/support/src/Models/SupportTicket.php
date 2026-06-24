@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Support\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Support\Database\Factories\SupportTicketFactory;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 
@@ -37,6 +39,7 @@ use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
+#[UseFactory(SupportTicketFactory::class)]
 class SupportTicket extends Model implements HasMedia
 {
     use HasFactory;
