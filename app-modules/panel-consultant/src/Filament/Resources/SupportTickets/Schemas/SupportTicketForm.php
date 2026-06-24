@@ -11,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Filament\Schemas\Components\CategoryHint;
 
 class SupportTicketForm
 {
@@ -24,7 +25,10 @@ class SupportTicketForm
                         ->options(SupportTicketCategoryEnum::class)
                         ->required()
                         ->searchable()
-                        ->native(false),
+                        ->native(false)
+                        ->live(),
+
+                    CategoryHint::make(),
                 ]),
 
             Section::make(__('support::pages.help_center.section_details'))

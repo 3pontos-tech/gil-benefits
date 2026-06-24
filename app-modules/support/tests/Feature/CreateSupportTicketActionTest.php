@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Users\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Mail;
@@ -74,6 +75,36 @@ it('stores every uploaded attachment in the media collection', function (): void
     ));
 
     expect($ticket->getMedia('attachments'))->toHaveCount(2);
+});
+
+it('attaches a guest ticket to the registered user whose email matches the visitor email', function (): void {
+    $user = User::factory()->create(['email' => 'visitor@example.com']);
+
+    $ticket = resolve(CreateSupportTicketAction::class)->execute(dto());
+
+    expect($ticket->user_id)->toBe($user->id);
+});
+
+it('leaves the ticket without a user when no registered email matches', function (): void {
+    $ticket = resolve(CreateSupportTicketAction::class)->execute(dto());
+
+    expect($ticket->user_id)->toBeNull();
+});
+
+it('keeps an explicit user id over the visitor email lookup', function (): void {
+    $explicit = User::factory()->create();
+    User::factory()->create(['email' => 'visitor@example.com']);
+
+    $ticket = resolve(CreateSupportTicketAction::class)->execute(new CreateSupportTicketDTO(
+        category: SupportTicketCategoryEnum::Bug,
+        subject: 'subject',
+        description: 'description',
+        userId: $explicit->id,
+        visitorEmail: 'visitor@example.com',
+        environment: 'testing',
+    ));
+
+    expect($ticket->user_id)->toBe($explicit->id);
 });
 
 it('does not collide with an existing protocol hidden by the tenant scope (regression)', function (): void {

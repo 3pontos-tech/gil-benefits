@@ -105,3 +105,24 @@ it('only lists tickets owned by the current user', function (): void {
     expect($visible)->toHaveCount(1)
         ->and($visible->first())->toBe($mine->getKey());
 });
+
+it('lists the user own tickets regardless of company tenancy', function (): void {
+    $user = actingAsCompanyOwner();
+
+    // A ticket opened as a guest and attached to the user by email carries no company_id.
+    // The listing is scoped only by user_id, so it must surface outside the current tenant.
+    $guestTicket = SupportTicket::query()->create([
+        'protocol' => 'SUP-2026-0003',
+        'user_id' => $user->getKey(),
+        'company_id' => null,
+        'category' => SupportTicketCategoryEnum::Bug,
+        'subject' => 'aberto como visitante',
+        'description' => 'd',
+        'status' => SupportTicketStatusEnum::Pending,
+        'environment' => 'testing',
+    ]);
+
+    $visible = SupportTicketResource::getEloquentQuery()->pluck('id');
+
+    expect($visible)->toContain($guestTicket->getKey());
+});

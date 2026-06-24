@@ -48,7 +48,7 @@ class SupportTicketResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->where('user_id', auth()->id());
+        return parent::getEloquentQuery()->where('user_id', auth()->id())->withoutGlobalScopes();
     }
 
     public static function canEdit(Model $record): bool

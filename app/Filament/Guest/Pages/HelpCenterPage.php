@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Request;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Filament\Schemas\Components\CategoryHint;
 
 /**
  * @property-read Schema $form
@@ -84,7 +85,10 @@ class HelpCenterPage extends Page
                             ->options(SupportTicketCategoryEnum::class)
                             ->required()
                             ->searchable()
-                            ->native(false),
+                            ->native(false)
+                            ->live(),
+
+                        CategoryHint::make(),
                     ]),
 
                 Section::make(__('support::pages.help_center.section_details'))
