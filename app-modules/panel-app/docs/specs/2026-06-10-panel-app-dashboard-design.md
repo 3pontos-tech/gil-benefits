@@ -1,3 +1,12 @@
+---
+type: spec
+title: "Redesign do Dashboard do panel-app (Hub de Bem-estar Financeiro)"
+module: panel-app
+date: 2026-06-10
+related:
+  plan: panel-app/2026-06-10-panel-app-dashboard
+---
+
 # Spec — Redesign do Dashboard do `panel-app` (Hub de Bem-estar Financeiro)
 
 - **Data:** 2026-06-10

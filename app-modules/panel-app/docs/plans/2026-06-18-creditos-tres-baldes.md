@@ -1,3 +1,13 @@
+---
+type: plan
+title: "Card \"Plano & créditos\" — três baldes"
+module: panel-app
+status: completed
+date: 2026-06-18
+related:
+  spec: panel-app/2026-06-18-creditos-tres-baldes-design
+---
+
 # Card "Plano & créditos" — três baldes — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
