@@ -1,3 +1,13 @@
+---
+type: plan
+title: "Dashboard panel-app (Hub de Bem-estar Financeiro)"
+module: panel-app
+status: completed
+date: 2026-06-10
+related:
+  spec: panel-app/2026-06-10-panel-app-dashboard-design
+---
+
 # Dashboard panel-app (Hub de Bem-estar Financeiro) — Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

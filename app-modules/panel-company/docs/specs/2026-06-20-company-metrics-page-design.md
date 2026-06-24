@@ -1,3 +1,12 @@
+---
+type: spec
+title: "Refatoração e melhoria da página de Métricas (/company/metrics)"
+module: panel-company
+date: 2026-06-20
+related:
+  plan: panel-company/2026-06-20-company-metrics-page
+---
+
 # Design — Refatoração e melhoria da página de Métricas (`/company/metrics`)
 
 > Branch: `feature/company-metrics-page` · Data: 2026-06-20 · Módulo: `app-modules/panel-company`

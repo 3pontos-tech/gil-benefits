@@ -1,3 +1,12 @@
+---
+type: spec
+title: "Polimento visual do dashboard do colaborador"
+module: panel-app
+date: 2026-06-12
+related:
+  plan: panel-app/2026-06-12-panel-app-dashboard-visual-polish
+---
+
 # Spec — Polimento visual do dashboard do colaborador (`panel-app`)
 
 - **Data:** 2026-06-12

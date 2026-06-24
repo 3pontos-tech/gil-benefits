@@ -1,3 +1,13 @@
+---
+type: plan
+title: "Página de Métricas — Plano de Implementação"
+module: panel-company
+status: completed
+date: 2026-06-20
+related:
+  spec: panel-company/2026-06-20-company-metrics-page-design
+---
+
 # Página de Métricas — Plano de Implementação
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

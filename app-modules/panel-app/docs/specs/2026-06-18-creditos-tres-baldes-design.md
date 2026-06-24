@@ -1,3 +1,12 @@
+---
+type: spec
+title: "Widget \"Plano & créditos\" — três baldes de crédito"
+module: panel-app
+date: 2026-06-18
+related:
+  plan: panel-app/2026-06-18-creditos-tres-baldes
+---
+
 # Widget "Plano & créditos" — três baldes de crédito
 
 Data: 2026-06-18
