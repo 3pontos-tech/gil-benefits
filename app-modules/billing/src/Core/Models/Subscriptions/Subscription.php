@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Billing\Core\Models\Subscriptions;
 
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
@@ -10,6 +11,7 @@ use Illuminate\Support\Carbon;
 use Laravel\Cashier\Subscription as BaseSubscriptionModel;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Billing\Database\Factories\SubscriptionFactory;
 
 /**
  * @property string $subscriptionable_type
@@ -24,6 +26,7 @@ use TresPontosTech\Billing\Core\Models\Price;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
+#[UseFactory(SubscriptionFactory::class)]
 class Subscription extends BaseSubscriptionModel
 {
     protected $table = 'billing_subscriptions';

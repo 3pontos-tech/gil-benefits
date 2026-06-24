@@ -5,6 +5,7 @@ namespace TresPontosTech\Consultants\Models;
 use App\Enums\AvailableTagsEnum;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -48,6 +49,7 @@ use Zap\Models\Concerns\HasSchedules;
  * @property-read User|null $user
  */
 #[ObservedBy(ConsultantObserver::class)]
+#[UseFactory(ConsultantFactory::class)]
 #[UsePolicy(ConsultantPolicy::class)]
 class Consultant extends Model implements HasMedia
 {

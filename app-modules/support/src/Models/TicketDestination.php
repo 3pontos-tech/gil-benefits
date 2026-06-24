@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Support\Models;
 
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Support\Database\Factories\TicketDestinationFactory;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
@@ -23,6 +25,7 @@ use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
+#[UseFactory(TicketDestinationFactory::class)]
 class TicketDestination extends Model
 {
     use HasFactory;

@@ -3,6 +3,7 @@
 namespace TresPontosTech\User\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -23,6 +24,7 @@ use TresPontosTech\User\Enums\LifeMoment;
  * @property Carbon $updated_at
  * @property-read User $user
  */
+#[UseFactory(UserAnamneseFactory::class)]
 class UserAnamnese extends Model
 {
     /** @use HasFactory<UserAnamneseFactory> */

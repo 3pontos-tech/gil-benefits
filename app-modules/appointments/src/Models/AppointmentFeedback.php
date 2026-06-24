@@ -3,6 +3,7 @@
 namespace TresPontosTech\Appointments\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,6 +19,7 @@ use TresPontosTech\Appointments\Database\Factories\AppointmentFeedbackFactory;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
+#[UseFactory(AppointmentFeedbackFactory::class)]
 class AppointmentFeedback extends Model
 {
     /** @use HasFactory<AppointmentFeedbackFactory> */
@@ -37,11 +39,6 @@ class AppointmentFeedback extends Model
         return [
             'rating' => 'integer',
         ];
-    }
-
-    protected static function newFactory(): AppointmentFeedbackFactory
-    {
-        return AppointmentFeedbackFactory::new();
     }
 
     /**

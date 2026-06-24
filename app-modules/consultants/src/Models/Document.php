@@ -3,6 +3,7 @@
 namespace TresPontosTech\Consultants\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,6 +31,7 @@ use TresPontosTech\Consultants\Policies\DocumentPolicy;
  * @property Carbon|null $deleted_at
  * @property-read Consultant|User|null $documentable
  */
+#[UseFactory(DocumentFactory::class)]
 #[UsePolicy(DocumentPolicy::class)]
 class Document extends Model implements HasMedia
 {

@@ -7,6 +7,7 @@ namespace TresPontosTech\Appointments\Models;
 use App\Models\Users\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -44,6 +45,7 @@ use TresPontosTech\Consultants\Models\Consultant;
  * @property CancellationActor|null $cancellation_actor
  * @property-read AbstractAppointmentTransition $current_transition
  */
+#[UseFactory(AppointmentFactory::class)]
 class Appointment extends Model
 {
     /** @use HasFactory<AppointmentFactory> */

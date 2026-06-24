@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Billing\Core\Models;
 
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,6 +28,7 @@ use TresPontosTech\Billing\Database\Factories\PriceFactory;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
+#[UseFactory(PriceFactory::class)]
 class Price extends Model
 {
     /** @use HasFactory<PriceFactory> */
@@ -57,11 +59,6 @@ class Price extends Model
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class, 'billing_plan_id');
-    }
-
-    protected static function newFactory(): PriceFactory
-    {
-        return PriceFactory::new();
     }
 
     protected function casts(): array

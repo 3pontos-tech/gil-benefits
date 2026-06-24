@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Billing\Core\Models;
 
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,6 +27,7 @@ use TresPontosTech\Company\Models\Company;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  */
+#[UseFactory(CompanyPlanFactory::class)]
 class CompanyPlan extends Model
 {
     /** @use HasFactory<CompanyPlanFactory> */
@@ -71,10 +73,5 @@ class CompanyPlan extends Model
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class, 'plan_id');
-    }
-
-    protected static function newFactory(): CompanyPlanFactory
-    {
-        return CompanyPlanFactory::new();
     }
 }
