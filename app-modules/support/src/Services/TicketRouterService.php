@@ -4,37 +4,27 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Support\Services;
 
-use TresPontosTech\Support\Contracts\TicketChannelSender;
-use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
+use TresPontosTech\Support\Actions\DispatchTicketToDestinationAction;
 use TresPontosTech\Support\Models\SupportTicket;
-use TresPontosTech\Support\Models\TicketDestination;
 
 /**
- * Orchestrates routing only. For each destination channel it creates the
- * TicketDestination, delegates the actual send to the resolved channel sender, and
- * persists the outcome on the destination. Notifying a sector does not advance the
- * ticket's lifecycle — it stays Pending until an agent moves it into progress.
+ * Orchestrates routing only: for each sector channel, and each delivery type of
+ * that channel, it delegates the actual dispatch to a single-destination action.
+ * Notifying a sector does not advance the ticket's lifecycle — it stays Pending
+ * until an agent picks it up.
  */
 final class TicketRouterService
 {
+    public function __construct(
+        private readonly DispatchTicketToDestinationAction $dispatchToDestination,
+    ) {}
+
     public function dispatch(SupportTicket $ticket): void
     {
         foreach ($ticket->category->destinationChannels() as $channel) {
-            $type = $channel->getDestinationType();
-
-            $destination = TicketDestination::query()->create([
-                'support_ticket_id' => $ticket->id,
-                'type' => $type,
-                'channel' => $channel,
-                'status' => TicketDestinationStatusEnum::Pending,
-            ]);
-
-            /** @var TicketChannelSender $sender */
-            $sender = resolve($type->senderClass());
-
-            $result = $sender->send($ticket, $channel);
-
-            $destination->update($result->jsonSerialize());
+            foreach ($channel->getDestinationTypes() as $type) {
+                $this->dispatchToDestination->execute($ticket, $channel, $type);
+            }
         }
     }
 }

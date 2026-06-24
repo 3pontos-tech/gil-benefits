@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Support\Database\Factories\SupportTicketFactory;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
@@ -80,8 +79,6 @@ class SupportTicket extends Model implements HasMedia
                 'application/pdf',
             ]);
     }
-
-    public function registerMediaConversions(?Media $media = null): void {}
 
     public function user(): BelongsTo
     {

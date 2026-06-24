@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
@@ -39,6 +41,39 @@ it('creates tickets with sequential global protocols', function (): void {
 
     expect($first->protocol)->toBe('SUP-2026-0001')
         ->and($second->protocol)->toBe('SUP-2026-0002');
+});
+
+it('narrows a multiple FileUpload state into a list of uploads', function (): void {
+    $dto = CreateSupportTicketDTO::fromFormState([
+        'category' => SupportTicketCategoryEnum::Bug,
+        'subject' => 'subject',
+        'description' => 'description',
+        'attachments' => [
+            UploadedFile::fake()->image('a.png'),
+            UploadedFile::fake()->image('b.png'),
+        ],
+    ]);
+
+    expect($dto->attachments)->toHaveCount(2);
+});
+
+it('stores every uploaded attachment in the media collection', function (): void {
+    Storage::fake('r2');
+
+    $ticket = resolve(CreateSupportTicketAction::class)->execute(new CreateSupportTicketDTO(
+        category: SupportTicketCategoryEnum::Bug,
+        subject: 'subject',
+        description: 'description',
+        visitorName: 'Visitor',
+        visitorEmail: 'visitor@example.com',
+        environment: 'testing',
+        attachments: [
+            UploadedFile::fake()->image('first.png'),
+            UploadedFile::fake()->image('second.png'),
+        ],
+    ));
+
+    expect($ticket->getMedia('attachments'))->toHaveCount(2);
 });
 
 it('does not collide with an existing protocol hidden by the tenant scope (regression)', function (): void {

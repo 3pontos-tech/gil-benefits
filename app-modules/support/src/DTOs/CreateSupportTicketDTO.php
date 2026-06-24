@@ -10,6 +10,9 @@ use UnexpectedValueException;
 
 final readonly class CreateSupportTicketDTO
 {
+    /**
+     * @param  list<UploadedFile>  $attachments
+     */
     public function __construct(
         public SupportTicketCategoryEnum $category,
         public string $subject,
@@ -23,7 +26,7 @@ final readonly class CreateSupportTicketDTO
         public ?string $browser = null,
         public ?string $device = null,
         public ?string $environment = null,
-        public ?UploadedFile $attachment = null,
+        public array $attachments = [],
     ) {}
 
     /**
@@ -43,7 +46,6 @@ final readonly class CreateSupportTicketDTO
         ?string $environment = null,
     ): self {
         $category = $state['category'] ?? null;
-        $attachment = $state['attachment'] ?? null;
 
         return new self(
             category: $category instanceof SupportTicketCategoryEnum
@@ -60,8 +62,24 @@ final readonly class CreateSupportTicketDTO
             browser: self::parseBrowser($userAgent),
             device: self::parseDevice($userAgent),
             environment: $environment,
-            attachment: $attachment instanceof UploadedFile ? $attachment : null,
+            attachments: self::uploadedFiles($state['attachments'] ?? null),
         );
+    }
+
+    /**
+     * A multiple FileUpload yields an array of files; narrow it to actual
+     * uploads (dropping nulls / stray values) so the domain gets a clean list.
+     *
+     * @return list<UploadedFile>
+     */
+    private static function uploadedFiles(mixed $value): array
+    {
+        $files = is_array($value) ? $value : [$value];
+
+        return array_values(array_filter(
+            $files,
+            static fn (mixed $file): bool => $file instanceof UploadedFile,
+        ));
     }
 
     private static function requiredString(mixed $value): string
