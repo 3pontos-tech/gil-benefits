@@ -15,6 +15,7 @@ use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\EditSharedD
 use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
 use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Schemas\SharedDocumentForm;
 use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
+use UnitEnum;
 
 class SharedDocumentResource extends Resource
 {
@@ -27,6 +28,11 @@ class SharedDocumentResource extends Resource
     protected static bool $isScopedToTenant = false;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Document;
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('panel-admin::resources.navigation_group.appointments');
+    }
 
     public static function form(Schema $schema): Schema
     {

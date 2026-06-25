@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Support\Actions;
 
+use App\Models\Users\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -49,11 +50,13 @@ class CreateSupportTicketAction
      */
     private function createWithProtocol(CreateSupportTicketDTO $dto): SupportTicket
     {
+        $userId = $dto->userId ?? $this->resolveUserIdByEmail($dto->visitorEmail);
+
         return retry(
             times: 5,
             callback: fn (): SupportTicket => DB::transaction(fn (): SupportTicket => SupportTicket::query()->create([
                 'protocol' => $this->protocols->generate(),
-                'user_id' => $dto->userId,
+                'user_id' => $userId,
                 'company_id' => $dto->companyId,
                 'visitor_name' => $dto->visitorName,
                 'visitor_email' => $dto->visitorEmail,
@@ -71,5 +74,21 @@ class CreateSupportTicketAction
             when: static fn (Throwable $e): bool => $e instanceof QueryException
                 && (int) ($e->errorInfo[0] ?? 0) === 23505,
         );
+    }
+
+    /**
+     * Tickets opened from the public help center carry only a visitor email. When that
+     * email belongs to a registered user we attach the ticket to them, so it shows up
+     * tied to their account instead of as an anonymous visitor submission.
+     */
+    private function resolveUserIdByEmail(?string $email): ?string
+    {
+        if ($email === null) {
+            return null;
+        }
+
+        return User::query()
+            ->where('email', $email)
+            ->value('id');
     }
 }

@@ -30,6 +30,32 @@ enum SupportTicketCategoryEnum: string implements HasColor, HasIcon, HasLabel
         return __('support::enums.category.' . $this->value);
     }
 
+    /**
+     * Hardcoded self-service tips shown under the category select, so requesters can
+     * resolve common cases (password reset, rescheduling) before opening a ticket.
+     * Each entry renders as its own line; categories without tips return an empty list.
+     *
+     * @return list<string>
+     */
+    public function getHint(): array
+    {
+        return match ($this) {
+            self::LoginAccess => [
+                self::hintLine('login_access.password'),
+                self::hintLine('login_access.plan'),
+            ],
+            self::SchedulingIssue => [
+                self::hintLine('scheduling_issue'),
+            ],
+            default => [],
+        };
+    }
+
+    private static function hintLine(string $key): string
+    {
+        return __('support::enums.category_hint.' . $key);
+    }
+
     public function getIcon(): Heroicon
     {
         return match ($this) {

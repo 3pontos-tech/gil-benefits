@@ -17,6 +17,14 @@ return [
         'general_question' => 'Dúvida operacional',
         'other' => 'Outros',
     ],
+    'category_hint' => [
+        'login_access' => [
+            'password' => 'Para problemas de login ou acesso, você mesmo pode redefinir sua senha pelo link "Esqueci minha senha" na tela de login, sem abrir um chamado.',
+            'plan' => 'Se a senha estiver correta e ainda assim não conseguir acessar, verifique se a sua empresa não cancelou o plano.',
+        ],
+        'login_access_profile_link' => 'Alterar minha senha no perfil',
+        'scheduling_issue' => 'Para reagendar, cancele o agendamento atual e crie um novo na data desejada. Cancelamentos feitos com menos de 24 horas de antecedência consomem o agendamento mensal ou o crédito utilizado, sem devolução. Com 24 horas ou mais de antecedência, nada é descontado.',
+    ],
     'ticket_status' => [
         'pending' => 'Pendente',
         'in_progress' => 'Em andamento',
