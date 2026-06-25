@@ -29,13 +29,17 @@ final readonly class SubscriptionDTO
         int|string $quantity,
         ?Carbon $endsAt = null,
         string $planSlug = 'default',
+        ?string $priceId = null,
     ): self {
         return new self(
             billableType: $billingCustomer->billable_type,
             billableId: $billingCustomer->billable_id,
             subscriptionExternalId: $subscriptionExternalId,
             status: $status,
-            planExternalId: $planUuid ? ($cycleType ? sprintf('%s-%s', $planUuid, $cycleType) : $planUuid) : null,
+            // Persist the exact price the buyer checked out with (e.g. flamma's
+            // standalone-user price) so tenant-specific pricing is not collapsed onto
+            // the shared plan id. Falls back to the plan id when no price was provided.
+            planExternalId: $priceId ?? ($planUuid ? ($cycleType ? sprintf('%s-%s', $planUuid, $cycleType) : $planUuid) : null),
             planSlug: $planSlug,
             quantity: (int) $quantity,
             endsAt: $endsAt,

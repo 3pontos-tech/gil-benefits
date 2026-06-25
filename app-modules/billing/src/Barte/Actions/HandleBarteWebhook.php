@@ -54,6 +54,7 @@ class HandleBarteWebhook
 
         $planUuid = $dto->metadata->get('barte_plan_uuid');
         $cycleType = $dto->metadata->get('barte_cycle_type');
+        $priceId = $dto->metadata->get('barte_price_id');
 
         $quantity = $dto->metadata->get('quantity');
 
@@ -62,10 +63,10 @@ class HandleBarteWebhook
             : 'default';
 
         $event = match ($dto->event) {
-            BarteWebhookEventEnum::SubscriptionPending => new SubscriptionCreated(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'pending', $planUuid, $cycleType, $quantity, planSlug: $planSlug)),
-            BarteWebhookEventEnum::SubscriptionActive => new SubscriptionActivated(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'active', $planUuid, $cycleType, $quantity, planSlug: $planSlug)),
-            BarteWebhookEventEnum::SubscriptionDefaulter => new SubscriptionDefaulted(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'defaulter', $planUuid, $cycleType, $quantity, planSlug: $planSlug)),
-            BarteWebhookEventEnum::SubscriptionInactive => new SubscriptionCancelled(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'inactive', $planUuid, $cycleType, $quantity, Date::now(), $planSlug)),
+            BarteWebhookEventEnum::SubscriptionPending => new SubscriptionCreated(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'pending', $planUuid, $cycleType, $quantity, planSlug: $planSlug, priceId: $priceId)),
+            BarteWebhookEventEnum::SubscriptionActive => new SubscriptionActivated(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'active', $planUuid, $cycleType, $quantity, planSlug: $planSlug, priceId: $priceId)),
+            BarteWebhookEventEnum::SubscriptionDefaulter => new SubscriptionDefaulted(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'defaulter', $planUuid, $cycleType, $quantity, planSlug: $planSlug, priceId: $priceId)),
+            BarteWebhookEventEnum::SubscriptionInactive => new SubscriptionCancelled(SubscriptionDTO::make($billingCustomer, $dto->uuid, 'inactive', $planUuid, $cycleType, $quantity, Date::now(), $planSlug, priceId: $priceId)),
             default => null,
         };
 

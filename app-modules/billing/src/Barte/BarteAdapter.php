@@ -110,6 +110,7 @@ final readonly class BarteAdapter implements BillingContract
                 ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
                 ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
                 ['key' => 'barte_plan_uuid', 'value' => $planUuid],
+                ['key' => 'barte_price_id', 'value' => $data->priceId],
                 ['key' => 'quantity', 'value' => (string) $data->quantity],
             ],
             paymentSubscription: new PaymentSubscriptionDto(
