@@ -163,6 +163,40 @@ return [
             ],
         ],
     ],
+    'credit_grants' => [
+        'navigation_label' => 'Créditos Extras',
+        'model_label' => 'Crédito Extra',
+        'plural_model_label' => 'Créditos Extras',
+        'target_company' => 'Empresa',
+        'relation_manager' => [
+            'title' => 'Histórico de Créditos',
+        ],
+        'fields' => [
+            'created_at' => 'Data',
+            'quantity' => 'Quantidade',
+            'justification' => 'Justificativa',
+            'target' => 'Destinatário',
+            'company' => 'Empresa',
+            'admin' => 'Admin responsável',
+        ],
+        'filters' => [
+            'from' => 'Data início',
+            'until' => 'Data fim',
+        ],
+        'actions' => [
+            'grant' => [
+                'label' => 'Atribuir Crédito Extra',
+            ],
+            'revoke' => [
+                'label' => 'Estornar',
+                'description' => 'Os créditos ainda disponíveis deste lançamento serão revogados. Créditos já utilizados permanecem.',
+            ],
+        ],
+        'notifications' => [
+            'granted' => 'Créditos atribuídos com sucesso.',
+            'user_without_company' => 'O usuário não está vinculado a nenhuma empresa.',
+        ],
+    ],
     'users' => [
         'navigation_label' => 'Usuários',
         'model_label' => 'Usuário',

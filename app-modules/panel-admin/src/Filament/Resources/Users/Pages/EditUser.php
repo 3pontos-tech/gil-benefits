@@ -8,6 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
+use TresPontosTech\PanelAdmin\Filament\Actions\GrantExtraCreditAction;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\UserResource;
 
 class EditUser extends EditRecord
@@ -17,6 +18,7 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            GrantExtraCreditAction::forUser(),
             DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),

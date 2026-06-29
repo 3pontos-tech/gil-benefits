@@ -25,6 +25,7 @@ use TresPontosTech\Company\Models\Company;
  * @property string $owner_id
  * @property string $holder_id
  * @property string $company_id
+ * @property string|null $grant_id
  * @property UserCreditStatusEnum $status
  * @property string|null $appointment_id
  * @property Carbon|null $transferred_at
@@ -45,6 +46,7 @@ class UserCredit extends Model
         'owner_id',
         'holder_id',
         'company_id',
+        'grant_id',
         'status',
         'appointment_id',
         'transferred_at',
@@ -88,6 +90,14 @@ class UserCredit extends Model
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class);
+    }
+
+    /**
+     * @return BelongsTo<CreditGrant, $this>
+     */
+    public function grant(): BelongsTo
+    {
+        return $this->belongsTo(CreditGrant::class, 'grant_id');
     }
 
     /**

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Billing\Core\DTOs;
 
+use Illuminate\Support\Carbon;
+
 final readonly class CreditDTO
 {
     public function __construct(
@@ -12,5 +14,7 @@ final readonly class CreditDTO
         public string|int|null $companyId = null,
         public string|int|null $appointmentId = null,
         public int $quantity = 1,
+        public string|int|null $grantId = null,
+        public ?Carbon $transferredAt = null,
     ) {}
 }

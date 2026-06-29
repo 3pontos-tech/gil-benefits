@@ -14,6 +14,7 @@ use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\CreateCompany;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\EditCompany;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\ListCompanies;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\ContractualPlansRelationManager;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\CreditGrantsRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Schemas\CompanyForm;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Tables\CompaniesTable;
@@ -76,6 +77,7 @@ class CompanyResource extends Resource
         return [
             EmployeesRelationManager::class,
             ContractualPlansRelationManager::class,
+            CreditGrantsRelationManager::class,
         ];
     }
 }

@@ -7,6 +7,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use TresPontosTech\PanelAdmin\Filament\Actions\GrantExtraCreditAction;
 use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Actions\AssignRoleAction;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\UserResource;
 use TresPontosTech\Permissions\Roles;
@@ -46,6 +47,7 @@ class EmployeesRelationManager extends RelationManager
                     ->company(fn (): Model => $this->getOwnerRecord()),
             ])
             ->recordActions([
+                GrantExtraCreditAction::forEmployee(),
                 AssignRoleAction::make(),
             ]);
     }

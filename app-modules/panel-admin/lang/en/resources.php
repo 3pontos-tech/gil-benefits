@@ -163,6 +163,40 @@ return [
             ],
         ],
     ],
+    'credit_grants' => [
+        'navigation_label' => 'Extra Credits',
+        'model_label' => 'Extra Credit',
+        'plural_model_label' => 'Extra Credits',
+        'target_company' => 'Company',
+        'relation_manager' => [
+            'title' => 'Credits History',
+        ],
+        'fields' => [
+            'created_at' => 'Date',
+            'quantity' => 'Quantity',
+            'justification' => 'Justification',
+            'target' => 'Recipient',
+            'company' => 'Company',
+            'admin' => 'Admin',
+        ],
+        'filters' => [
+            'from' => 'From',
+            'until' => 'Until',
+        ],
+        'actions' => [
+            'grant' => [
+                'label' => 'Grant Extra Credit',
+            ],
+            'revoke' => [
+                'label' => 'Revoke',
+                'description' => 'The still-available credits from this grant will be revoked. Already-used credits remain.',
+            ],
+        ],
+        'notifications' => [
+            'granted' => 'Credits granted successfully.',
+            'user_without_company' => 'The user is not linked to any company.',
+        ],
+    ],
     'users' => [
         'navigation_label' => 'Users',
         'model_label' => 'User',

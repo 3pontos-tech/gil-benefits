@@ -28,6 +28,7 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
@@ -113,6 +114,14 @@ class Company extends Model implements HasAvatar, HasMedia
     public function companyPlans(): HasMany
     {
         return $this->hasMany(CompanyPlan::class);
+    }
+
+    /**
+     * @return HasMany<CreditGrant, $this>
+     */
+    public function creditGrants(): HasMany
+    {
+        return $this->hasMany(CreditGrant::class)->latest();
     }
 
     /**
