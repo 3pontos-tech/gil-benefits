@@ -753,12 +753,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/basementdevs/filament-better-mail.git",
-                "reference": "1dbfa7e2de8724dedf942e89d808b075e57779d7"
+                "reference": "71a7c873c68242208e25e1848315cea63607437b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/basementdevs/filament-better-mail/zipball/1dbfa7e2de8724dedf942e89d808b075e57779d7",
-                "reference": "1dbfa7e2de8724dedf942e89d808b075e57779d7",
+                "url": "https://api.github.com/repos/basementdevs/filament-better-mail/zipball/71a7c873c68242208e25e1848315cea63607437b",
+                "reference": "71a7c873c68242208e25e1848315cea63607437b",
                 "shasum": ""
             },
             "require": {
@@ -838,7 +838,7 @@
                 "laravel"
             ],
             "support": {
-                "source": "https://github.com/basementdevs/filament-better-mail/tree/5.1.6",
+                "source": "https://github.com/basementdevs/filament-better-mail/tree/5.2.0",
                 "issues": "https://github.com/basementdevs/filament-better-mail/issues"
             },
             "funding": [
@@ -847,7 +847,7 @@
                     "url": "https://github.com/Basement Developers"
                 }
             ],
-            "time": "2026-05-25T18:21:05+00:00"
+            "time": "2026-06-30T18:29:24+00:00"
         },
         {
             "name": "basementdevs/filament-webhooks",
