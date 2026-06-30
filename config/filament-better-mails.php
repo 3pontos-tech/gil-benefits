@@ -43,6 +43,11 @@ return [
     'webhooks' => [
         'provider' => env('MAILS_WEBHOOK_PROVIDER', 'resend'),
 
+        'allowed_senders' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('MAILS_WEBHOOK_ALLOWED_SENDERS', ''))
+        ))),
+
         'drivers' => [
             'resend' => [
                 'driver' => ResendDriver::class,
