@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0f44c67246caaa03d4d024bd64c137b1",
+    "content-hash": "4a1abe4513ca510ea2e889bdaeb39961",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -749,7 +749,7 @@
         },
         {
             "name": "basementdevs/filament-better-mails",
-            "version": "5.1.6",
+            "version": "5.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/basementdevs/filament-better-mail.git",
