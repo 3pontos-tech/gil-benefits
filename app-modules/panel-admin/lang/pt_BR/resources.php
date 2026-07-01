@@ -189,7 +189,8 @@ return [
             ],
             'revoke' => [
                 'label' => 'Estornar',
-                'description' => 'Os créditos ainda disponíveis deste lançamento serão revogados. Créditos já utilizados permanecem.',
+                'will_revoke' => 'Serão revogados :available crédito(s) ainda disponível(is) deste lançamento.',
+                'locked_notice' => ':locked já está(ão) em consultas e permanece(m) — cancele a consulta antes para revogá-los.',
             ],
         ],
         'notifications' => [

@@ -15,6 +15,7 @@ use TresPontosTech\Billing\Core\Commands\SyncBillingCustomersCommand;
 use TresPontosTech\Billing\Core\Commands\SyncStripeResourcesCommand;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Models\Subscriptions\SubscriptionItem;
+use TresPontosTech\Billing\Core\Observers\CompanyCreditsObserver;
 use TresPontosTech\Billing\Core\Repositories\EloquentPlanRepository;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Billing\Stripe\Subscription\SubscriptionWebhookController;
@@ -53,5 +54,7 @@ class BillingServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/billing-routes.php');
         $this->loadTranslationsFrom(__DIR__ . '/../lang', 'billing');
+
+        Company::observe(CompanyCreditsObserver::class);
     }
 }

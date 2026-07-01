@@ -189,7 +189,8 @@ return [
             ],
             'revoke' => [
                 'label' => 'Revoke',
-                'description' => 'The still-available credits from this grant will be revoked. Already-used credits remain.',
+                'will_revoke' => ':available still-available credit(s) from this grant will be revoked.',
+                'locked_notice' => ':locked already in appointments and will remain — cancel the appointment first to revoke them.',
             ],
         ],
         'notifications' => [

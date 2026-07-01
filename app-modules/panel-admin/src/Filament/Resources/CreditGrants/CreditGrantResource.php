@@ -15,6 +15,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Billing\Core\Actions\Credit\RevokeCreditGrant;
+use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\PanelAdmin\Filament\Resources\CreditGrants\Pages\ListCreditGrants;
 
@@ -121,9 +122,28 @@ class CreditGrantResource extends Resource
                     ->icon(Heroicon::OutlinedArrowUturnLeft)
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->modalDescription(__('panel-admin::resources.credit_grants.actions.revoke.description'))
+                    ->modalDescription(fn (CreditGrant $record): string => self::revokeDescription($record))
                     ->action(fn (CreditGrant $record) => resolve(RevokeCreditGrant::class)->handle($record)),
             ]);
+    }
+
+    private static function revokeDescription(CreditGrant $record): string
+    {
+        $available = $record->userCredits()
+            ->where('status', UserCreditStatusEnum::Available)
+            ->count();
+
+        $locked = $record->userCredits()
+            ->whereIn('status', [UserCreditStatusEnum::InUse, UserCreditStatusEnum::Used])
+            ->count();
+
+        $message = (string) __('panel-admin::resources.credit_grants.actions.revoke.will_revoke', ['available' => $available]);
+
+        if ($locked > 0) {
+            $message .= ' ' . __('panel-admin::resources.credit_grants.actions.revoke.locked_notice', ['locked' => $locked]);
+        }
+
+        return $message;
     }
 
     public static function getPages(): array
