@@ -15,7 +15,8 @@ use TresPontosTech\Billing\Core\Models\CreditGrant;
 /**
  * Admin-only: gift extra consultancy credits to a company (owner pool) or to a
  * specific user. Records a {@see CreditGrant} (audit) and spawns N {@see UserCredit}
- * rows owned by the admin, so balance and consumption stay unified with purchases.
+ * rows owned by the company owner, so they behave like purchased/distributed credits.
+ * The granting admin is tracked on the grant, not on the credit.
  */
 final readonly class GrantExtraCredit
 {
@@ -34,9 +35,15 @@ final readonly class GrantExtraCredit
             throw CannotGrantCreditException::emptyJustification();
         }
 
+        // The credit belongs to the company account, so its owner is the company
+        // owner (like a purchased/distributed credit). The granting admin lives on
+        // the CreditGrant, not on the credit.
+        $companyOwnerId = (string) $dto->company->user_id;
+
+        // Company grant lands in the owner pool; a directed grant lands on the user.
         $holderId = (string) ($dto->targetUser?->getKey() ?? $dto->company->user_id);
 
-        return DB::transaction(function () use ($dto, $holderId): CreditGrant {
+        return DB::transaction(function () use ($dto, $companyOwnerId, $holderId): CreditGrant {
             $grant = CreditGrant::query()->create([
                 'admin_user_id' => $dto->adminUserId,
                 'company_id' => $dto->company->getKey(),
@@ -47,7 +54,7 @@ final readonly class GrantExtraCredit
 
             $this->issueCredits->handle(new CreditDTO(
                 holderId: $holderId,
-                ownerId: $dto->adminUserId,
+                ownerId: $companyOwnerId,
                 companyId: (string) $dto->company->getKey(),
                 quantity: $dto->quantity,
                 grantId: (string) $grant->getKey(),

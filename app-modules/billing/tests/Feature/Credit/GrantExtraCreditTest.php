@@ -30,14 +30,15 @@ it('grants extra credits to a company into the owner pool', function (): void {
 
     expect($grant->target_user_id)->toBeNull()
         ->and($grant->quantity)->toBe(3)
-        ->and($grant->admin_user_id)->toBe((string) $admin->getKey());
+        ->and($grant->admin_user_id)->toBe((string) $admin->getKey()); // granter tracked on the grant
 
     $credits = UserCredit::query()->where('grant_id', $grant->getKey())->get();
 
     expect($credits)->toHaveCount(3);
-    $credits->each(function (UserCredit $credit) use ($company, $admin): void {
+    $credits->each(function (UserCredit $credit) use ($company): void {
+        // Owner is the company owner (pool), not the granting admin.
         expect($credit->holder_id)->toBe($company->user_id)
-            ->and($credit->owner_id)->toBe((string) $admin->getKey())
+            ->and($credit->owner_id)->toBe($company->user_id)
             ->and($credit->status)->toBe(UserCreditStatusEnum::Available)
             ->and($credit->transferred_at)->toBeNull(); // pool: not yet distributed
     });
@@ -63,6 +64,7 @@ it('grants extra credits directly to a user, held by the user', function (): voi
 
     expect($credits)->toHaveCount(2);
     $credits->each(fn (UserCredit $credit): Expectation => expect($credit->holder_id)->toBe((string) $user->getKey())
+        ->and($credit->owner_id)->toBe($company->user_id) // belongs to the company account
         ->and($credit->transferred_at)->not->toBeNull()); // allocated to the user
 });
 
