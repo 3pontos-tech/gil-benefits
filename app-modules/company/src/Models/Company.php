@@ -4,6 +4,7 @@ namespace TresPontosTech\Company\Models;
 
 use App\Models\Users\User;
 use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
@@ -28,8 +29,10 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Billing\Core\Observers\CompanyCreditsObserver;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
@@ -50,6 +53,7 @@ use TresPontosTech\Tenant\Policies\CompanyPolicy;
  * @property Carbon|null $trial_ends_at
  * @property string $panel
  */
+#[ObservedBy(CompanyCreditsObserver::class)]
 #[UseFactory(CompanyFactory::class)]
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model implements HasAvatar, HasMedia
@@ -113,6 +117,14 @@ class Company extends Model implements HasAvatar, HasMedia
     public function companyPlans(): HasMany
     {
         return $this->hasMany(CompanyPlan::class);
+    }
+
+    /**
+     * @return HasMany<CreditGrant, $this>
+     */
+    public function creditGrants(): HasMany
+    {
+        return $this->hasMany(CreditGrant::class)->latest();
     }
 
     /**

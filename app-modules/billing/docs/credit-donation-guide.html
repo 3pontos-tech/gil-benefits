@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Doação de Créditos — Regras & Fluxos</title>
+<meta name="description" content="Regras de negócio e fluxos da doação de créditos extras pelo admin no Flamma.">
+<style>
+  :root {
+    --ground:#161210; --surface:#1F1916; --surface-2:#271F1A;
+    --line:#3A2E26; --line-soft:#2C231D; --text:#ECE3D8; --muted:#9C8B79;
+    --ember:#F2843B; --ember-soft:rgba(242,132,59,.14);
+    --teal:#58C9BC; --teal-soft:rgba(88,201,188,.12);
+    --green:#6BCB8B; --red:#E06A5C; --slate:#8A7E72;
+    --mono:ui-monospace,"JetBrains Mono","SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+  }
+  * { box-sizing:border-box; }
+  html { -webkit-text-size-adjust:100%; }
+  img { max-width:100%; }
+  body {
+    margin:0;
+    background:radial-gradient(120% 70% at 88% -8%, rgba(242,132,59,.10), transparent 55%), var(--ground);
+    color:var(--text); font-family:var(--sans); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:940px; margin:0 auto; padding:clamp(2.2rem,5vw,4.5rem) clamp(1.1rem,4vw,2rem) 5rem; display:flex; flex-direction:column; gap:clamp(2.8rem,5vw,4rem); }
+  .eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.24em; text-transform:uppercase; color:var(--ember); margin:0; }
+  h1 { font-family:var(--mono); font-weight:800; font-size:clamp(1.9rem,5vw,3rem); line-height:1.05; letter-spacing:-.01em; text-wrap:balance; margin:.7rem 0 0; }
+  h2 { font-family:var(--mono); font-weight:700; font-size:1.35rem; letter-spacing:-.005em; margin:0; }
+  p { margin:0; }
+  .lead { color:#D8CDBF; font-size:clamp(1.02rem,2vw,1.15rem); max-width:62ch; margin-top:1.2rem; }
+  code { font-family:var(--mono); font-size:.85em; background:var(--surface-2); border:1px solid var(--line-soft); border-radius:4px; padding:.05em .36em; color:#F0C39B; }
+  strong { color:#FBEFE2; font-weight:600; }
+  section { display:flex; flex-direction:column; gap:1.4rem; }
+  .sec-head { display:flex; flex-direction:column; gap:.5rem; }
+  .sec-head .eyebrow { color:var(--muted); }
+
+  /* ---- signature: the fork ---- */
+  .fork { display:flex; flex-direction:column; align-items:center; gap:0; }
+  .fork-head {
+    font-family:var(--mono); font-weight:700; font-size:.9rem;
+    border:1px solid var(--line); background:var(--surface); color:#FBEFE2;
+    border-radius:10px; padding:.7rem 1.1rem; text-align:center;
+  }
+  .stem { width:2px; height:1.4rem; background:var(--line); }
+  .split { display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; width:100%; }
+  .lane { display:flex; flex-direction:column; gap:.55rem; border:1px solid var(--line); border-top-width:3px; border-radius:12px; padding:1.1rem; background:var(--surface); }
+  .lane.company { border-top-color:var(--ember); }
+  .lane.user { border-top-color:var(--teal); }
+  .lane-tag { font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; }
+  .company .lane-tag { color:var(--ember); }
+  .user .lane-tag { color:var(--teal); }
+  .lane h3 { margin:0 0 .2rem; font-size:1.02rem; font-weight:600; color:#FBEFE2; }
+  .step { border:1px solid var(--line-soft); background:var(--surface-2); border-radius:8px; padding:.6rem .75rem; font-size:.86rem; }
+  .step b { color:var(--text); font-weight:600; }
+  .step .meta { display:block; font-family:var(--mono); font-size:.72rem; color:var(--muted); margin-top:.15rem; }
+  .arrow { text-align:center; color:var(--slate); font-size:.85rem; line-height:1; }
+
+  /* ---- rules ---- */
+  .rules { display:flex; flex-direction:column; gap:.7rem; }
+  .rule { display:grid; grid-template-columns:11rem 1fr; gap:1rem; border:1px solid var(--line); border-radius:10px; background:var(--surface); padding:.9rem 1.1rem; }
+  .rule .k { font-family:var(--mono); font-size:.78rem; color:var(--ember); letter-spacing:.02em; padding-top:.05rem; }
+  .rule .v { font-size:.9rem; color:var(--muted); line-height:1.55; }
+  .rule .v b { color:var(--text); font-weight:600; }
+
+  /* ---- visibility ---- */
+  .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+  .card { border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:1.1rem 1.15rem; display:flex; flex-direction:column; gap:.5rem; }
+  .card h4 { margin:0; font-family:var(--mono); font-size:.95rem; font-weight:700; color:#FBEFE2; }
+  .card .loc { font-family:var(--mono); font-size:.72rem; color:var(--teal); }
+  .card p { font-size:.86rem; color:var(--muted); line-height:1.5; }
+
+  /* ---- revoke strip ---- */
+  .revoke { border:1px solid var(--line); border-left:3px solid var(--green); border-radius:12px; background:var(--surface); padding:1.2rem 1.3rem; display:flex; flex-direction:column; gap:.8rem; }
+  .revoke .chips { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; }
+  .cr { font-family:var(--mono); font-size:.72rem; width:2rem; height:2rem; display:grid; place-items:center; border-radius:7px; border:1px solid; }
+  .cr.a { color:var(--green); border-color:rgba(107,203,139,.45); background:rgba(107,203,139,.1); }
+  .cr.u { color:var(--slate); border-color:var(--line); background:var(--surface-2); }
+  .cr.x { color:var(--red); border-color:rgba(224,106,92,.45); background:rgba(224,106,92,.1); text-decoration:line-through; }
+  .revoke .sep { color:var(--slate); font-family:var(--mono); font-size:.8rem; padding:0 .3rem; }
+  .revoke p { font-size:.88rem; color:var(--muted); }
+
+  footer { border-top:1px solid var(--line-soft); padding-top:1.5rem; font-family:var(--mono); font-size:.74rem; color:var(--slate); letter-spacing:.03em; display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+
+  @media (max-width:720px) { .split{grid-template-columns:1fr;} .cards{grid-template-columns:1fr;} .rule{grid-template-columns:1fr; gap:.3rem;} }
+  @media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Flamma · Billing · Regras & Fluxos</p>
+    <h1>Doação de Créditos</h1>
+    <p class="lead">O admin do Flamma presenteia créditos de consultoria pelo painel, sem pagamento. Para onde o crédito vai — e a quem pertence — depende de uma única escolha no lançamento: <strong>a empresa</strong> ou <strong>um usuário</strong>.</p>
+  </header>
+
+  <!-- SIGNATURE: the fork -->
+  <section>
+    <div class="fork">
+      <div class="fork-head">Admin lança a doação<br><span style="font-family:var(--mono);font-weight:400;font-size:.74rem;color:var(--muted)">quantidade + justificativa</span></div>
+      <div class="stem"></div>
+      <div class="split">
+        <div class="lane company">
+          <span class="lane-tag">Para a empresa</span>
+          <h3>Vai para o pool</h3>
+          <div class="step"><b>Nasce no pool do dono</b><span class="meta">owner = holder = dono · transferred_at null</span></div>
+          <div class="arrow">↓</div>
+          <div class="step"><b>Dono distribui</b> aos funcionários<span class="meta">pela página de créditos da empresa</span></div>
+          <div class="arrow">↓</div>
+          <div class="step"><b>Funcionário consome</b> ao agendar</div>
+        </div>
+        <div class="lane user">
+          <span class="lane-tag">Para um usuário</span>
+          <h3>É um presente pessoal</h3>
+          <div class="step"><b>Nasce com o usuário</b><span class="meta">owner = holder = usuário · transferred_at null</span></div>
+          <div class="arrow">↓</div>
+          <div class="step"><b>É dele</b> — usável em qualquer empresa<span class="meta">fora do saldo/métricas da empresa</span></div>
+          <div class="arrow">↓</div>
+          <div class="step"><b>Usuário consome</b> ao agendar, direto</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Regras de negócio</p>
+      <h2>O que vale para toda doação</h2>
+    </div>
+    <div class="rules">
+      <div class="rule"><span class="k">Quem pode doar</span><span class="v">Quem acessa o painel admin (Admin / Super Admin). Não há permissão dedicada — o acesso ao painel é o controle.</span></div>
+      <div class="rule"><span class="k">Unidade</span><span class="v"><b>Crédito</b> — 1 crédito = 1 consulta. Não existe "horas".</span></div>
+      <div class="rule"><span class="k">Validações</span><span class="v">Quantidade <b>maior que zero</b> (inteiro) e <b>justificativa obrigatória</b>. Validadas no backend, não só no formulário.</span></div>
+      <div class="rule"><span class="k">Auditoria</span><span class="v">Cada lançamento gera <b>um registro</b> (<code>credit_grant</code>) com admin, empresa, alvo, quantidade, justificativa e data. <code>created_at</code> = quando foi doado. Os créditos apontam para ele via <code>grant_id</code>.</span></div>
+      <div class="rule"><span class="k">Origem</span><span class="v">Um crédito é doação do admin quando tem <code>grant_id</code>. Sem depender de e-mail ou papel de quem deu.</span></div>
+      <div class="rule"><span class="k">Consumo</span><span class="v">Sempre por quem segura o crédito (holder), <b>independente da empresa</b>. Ordem: cota mensal primeiro, depois avulso mais antigo. O crédito doado consome igual aos demais.</span></div>
+      <div class="rule"><span class="k">Estorno</span><span class="v">Revoga <b>apenas os créditos ainda disponíveis</b>; os já usados permanecem. A revogação é por crédito (cada um guarda quando foi revogado). O lançamento continua no histórico.</span></div>
+      <div class="rule"><span class="k">Troca de dono</span><span class="v">Ao mudar o dono da empresa, os créditos <b>da empresa</b> (pool e distribuídos) migram para o novo dono. Presentes pessoais <b>não</b> migram — são do usuário.</span></div>
+    </div>
+  </section>
+
+  <!-- ESTORNO detail -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Estorno passo a passo</p>
+      <h2>Parcial e sem quebrar consultas</h2>
+    </div>
+    <div class="revoke">
+      <div class="chips">
+        <span class="cr a">✓</span><span class="cr a">✓</span><span class="cr a">✓</span>
+        <span class="cr u">●</span><span class="cr u">●</span>
+        <span class="sep">→ estornar →</span>
+        <span class="cr x">✕</span><span class="cr x">✕</span><span class="cr x">✕</span>
+        <span class="cr u">●</span><span class="cr u">●</span>
+      </div>
+      <p>Lançamento de 5: <b>3 disponíveis</b> são revogados; os <b>2 já em consultas</b> permanecem — uma consulta marcada não se desfaz por um estorno. Para reverter uma consulta, cancele-a pelo fluxo próprio (que avisa o consultor e libera a agenda); o crédito volta a ficar disponível e aí pode ser estornado.</p>
+    </div>
+  </section>
+
+  <!-- VISIBILITY -->
+  <section>
+    <div class="sec-head">
+      <p class="eyebrow">Onde cada doação aparece</p>
+      <h2>Visibilidade por ator</h2>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <h4>Empresa</h4>
+        <span class="loc">Empresa › Histórico de Créditos</span>
+        <p>Mostra os créditos <b>da empresa</b> (pool). Um filtro alterna para ver os <b>presentes aos usuários</b> daquela empresa, sem sair da página.</p>
+      </div>
+      <div class="card">
+        <h4>Usuário</h4>
+        <span class="loc">Usuário › Créditos Recebidos</span>
+        <p>Lista os <b>presentes pessoais</b> que o usuário recebeu (com empresa de contexto, justificativa e admin responsável).</p>
+      </div>
+      <div class="card">
+        <h4>Global</h4>
+        <span class="loc">Menu › Créditos Extras</span>
+        <p>Todos os lançamentos, com filtros por empresa, usuário, admin e período — e a ação de estorno.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Flamma · doação de créditos extras</span>
+    <span>empresa = pool · usuário = presente</span>
+  </footer>
+
+</div>
+</body>
+</html>

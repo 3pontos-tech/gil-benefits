@@ -15,6 +15,7 @@ use TresPontosTech\PanelAdmin\Filament\Clusters\Management\ManagementCluster;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\CreateUser;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\EditUser;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\ListUsers;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\RelationManagers\CreditGrantsRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Schemas\UserForm;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Tables\UsersTable;
 
@@ -61,6 +62,13 @@ class UserResource extends Resource
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
             ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            CreditGrantsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

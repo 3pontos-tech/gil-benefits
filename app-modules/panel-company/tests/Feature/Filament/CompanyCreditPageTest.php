@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\Testing\TestAction;
+use TresPontosTech\Billing\Core\Actions\Credit\GrantExtraCredit;
+use TresPontosTech\Billing\Core\DTOs\GrantCreditDTO;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\PanelCompany\Filament\Pages\CompanyCreditPage;
 
@@ -25,6 +27,22 @@ beforeEach(function (): void {
     ])
         ->count(11)->create();
 
+});
+
+it('lists credits granted by an admin to the company', function (): void {
+    $grant = resolve(GrantExtraCredit::class)->handle(new GrantCreditDTO(
+        adminUserId: (string) User::factory()->create()->getKey(),
+        company: $this->company,
+        quantity: 2,
+        justification: 'Cortesia do admin',
+    ));
+
+    $adminCredits = UserCredit::query()->where('grant_id', $grant->getKey())->get();
+
+    livewire(CompanyCreditPage::class)
+        ->assertOk()
+        ->set('tableRecordsPerPage', 50)
+        ->assertCanSeeTableRecords($adminCredits);
 });
 
 describe('transfer action', function (): void {

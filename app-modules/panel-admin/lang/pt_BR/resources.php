@@ -163,6 +163,47 @@ return [
             ],
         ],
     ],
+    'credit_grants' => [
+        'navigation_label' => 'Créditos Extras',
+        'model_label' => 'Crédito Extra',
+        'plural_model_label' => 'Créditos Extras',
+        'target_company' => 'Empresa',
+        'relation_manager' => [
+            'title' => 'Histórico de Créditos',
+            'user_title' => 'Créditos Recebidos',
+        ],
+        'fields' => [
+            'created_at' => 'Data',
+            'quantity' => 'Quantidade',
+            'justification' => 'Justificativa',
+            'target' => 'Destinatário',
+            'company' => 'Empresa',
+            'admin' => 'Admin responsável',
+            'revoked' => 'Estornados',
+        ],
+        'filters' => [
+            'from' => 'Data início',
+            'until' => 'Data fim',
+            'recipient_company' => 'Créditos da empresa',
+            'recipient_users' => 'Presentes a usuários',
+        ],
+        'actions' => [
+            'grant' => [
+                'label' => 'Atribuir Crédito Extra',
+                'hint_company' => 'O crédito vai para o dono da empresa, que depois distribui aos funcionários.',
+                'hint_user' => 'O presente pertence ao usuário e pode ser usado independente da empresa.',
+            ],
+            'revoke' => [
+                'label' => 'Estornar',
+                'will_revoke' => 'Serão revogados :available crédito(s) ainda disponível(is) deste lançamento.',
+                'locked_notice' => ':locked já está(ão) em consultas e permanece(m) — cancele a consulta antes para revogá-los.',
+            ],
+        ],
+        'notifications' => [
+            'granted' => 'Créditos atribuídos com sucesso.',
+            'user_without_company' => 'O usuário não está vinculado a nenhuma empresa.',
+        ],
+    ],
     'users' => [
         'navigation_label' => 'Usuários',
         'model_label' => 'Usuário',
