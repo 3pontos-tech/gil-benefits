@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('credit_grants', function (Blueprint $table): void {
             $table->uuid('id')->primary();
-            $table->foreignUuid('admin_user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignUuid('admin_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignUuid('company_id')->constrained('companies')->cascadeOnDelete();
             $table->foreignUuid('target_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedInteger('quantity');

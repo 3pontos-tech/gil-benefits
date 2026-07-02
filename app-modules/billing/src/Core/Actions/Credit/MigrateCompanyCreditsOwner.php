@@ -25,17 +25,20 @@ final readonly class MigrateCompanyCreditsOwner
         }
 
         DB::transaction(function () use ($company, $previousOwnerId, $newOwnerId): void {
-            $companyCredits = UserCredit::query()
-                ->where('company_id', $company->getKey())
-                ->where('owner_id', $previousOwnerId);
-
             // Credits still in the previous owner's pool move with the ownership.
-            (clone $companyCredits)
+            // Run this first: afterwards these rows carry the new owner and fall
+            // out of the second query's owner_id = previousOwnerId filter.
+            UserCredit::query()
+                ->where('company_id', $company->getKey())
+                ->where('owner_id', $previousOwnerId)
                 ->where('holder_id', $previousOwnerId)
                 ->update(['owner_id' => $newOwnerId, 'holder_id' => $newOwnerId]);
 
             // Already-distributed company credits only change owner; the employee keeps them.
-            (clone $companyCredits)->update(['owner_id' => $newOwnerId]);
+            UserCredit::query()
+                ->where('company_id', $company->getKey())
+                ->where('owner_id', $previousOwnerId)
+                ->update(['owner_id' => $newOwnerId]);
         });
     }
 }

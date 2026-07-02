@@ -21,7 +21,7 @@ use TresPontosTech\Company\Models\Company;
  * One grant produces N {@see UserCredit} rows (linked via grant_id).
  *
  * @property string $id
- * @property string $admin_user_id
+ * @property string|null $admin_user_id
  * @property string $company_id
  * @property string|null $target_user_id
  * @property int $quantity

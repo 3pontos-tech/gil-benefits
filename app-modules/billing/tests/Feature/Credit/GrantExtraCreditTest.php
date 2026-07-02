@@ -97,3 +97,21 @@ it('rejects an empty justification', function (): void {
 
     expect(UserCredit::query()->count())->toBe(0);
 });
+
+it('preserves the grant as audit when the granting admin is force-deleted', function (): void {
+    $admin = User::factory()->create();
+    $company = Company::factory()->create();
+
+    $grant = grantExtraCredit(new GrantCreditDTO(
+        adminUserId: (string) $admin->getKey(),
+        company: $company,
+        quantity: 2,
+        justification: 'Cortesia',
+    ));
+
+    $admin->forceDelete();
+
+    // The grant survives (nullOnDelete), keeping the donation history.
+    expect(CreditGrant::query()->find($grant->getKey()))->not->toBeNull()
+        ->and($grant->fresh()->admin_user_id)->toBeNull();
+});
