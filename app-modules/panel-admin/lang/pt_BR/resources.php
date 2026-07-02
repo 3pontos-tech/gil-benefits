@@ -170,6 +170,7 @@ return [
         'target_company' => 'Empresa',
         'relation_manager' => [
             'title' => 'Histórico de Créditos',
+            'user_title' => 'Créditos Recebidos',
         ],
         'fields' => [
             'created_at' => 'Data',
@@ -178,14 +179,19 @@ return [
             'target' => 'Destinatário',
             'company' => 'Empresa',
             'admin' => 'Admin responsável',
+            'revoked' => 'Estornados',
         ],
         'filters' => [
             'from' => 'Data início',
             'until' => 'Data fim',
+            'recipient_company' => 'Créditos da empresa',
+            'recipient_users' => 'Presentes a usuários',
         ],
         'actions' => [
             'grant' => [
                 'label' => 'Atribuir Crédito Extra',
+                'hint_company' => 'O crédito vai para o dono da empresa, que depois distribui aos funcionários.',
+                'hint_user' => 'O presente pertence ao usuário e pode ser usado independente da empresa.',
             ],
             'revoke' => [
                 'label' => 'Estornar',

@@ -63,9 +63,10 @@ it('grants extra credits directly to a user, held by the user', function (): voi
     $credits = UserCredit::query()->where('grant_id', $grant->getKey())->get();
 
     expect($credits)->toHaveCount(2);
+    // Personal gift: owner and holder are the user; not a pool distribution.
     $credits->each(fn (UserCredit $credit): Expectation => expect($credit->holder_id)->toBe((string) $user->getKey())
-        ->and($credit->owner_id)->toBe($company->user_id) // belongs to the company account
-        ->and($credit->transferred_at)->not->toBeNull()); // allocated to the user
+        ->and($credit->owner_id)->toBe((string) $user->getKey())
+        ->and($credit->transferred_at)->toBeNull());
 });
 
 it('rejects a quantity of zero or less and creates nothing', function (): void {

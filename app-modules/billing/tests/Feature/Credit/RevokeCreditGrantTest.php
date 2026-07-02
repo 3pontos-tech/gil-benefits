@@ -32,11 +32,10 @@ it('revokes only the still-available credits and keeps consumed ones', function 
 
     // The 3 available credits are soft-deleted; the 2 used ones remain.
     expect(UserCredit::query()->where('grant_id', $grant->getKey())->count())->toBe(2)
-        ->and(UserCredit::withTrashed()->where('grant_id', $grant->getKey())->whereNotNull('deleted_at')->count())->toBe(3);
+        ->and(UserCredit::onlyTrashed()->where('grant_id', $grant->getKey())->count())->toBe(3);
 
-    // The grant itself is soft-deleted (history preserved).
-    expect(CreditGrant::query()->find($grant->getKey()))->toBeNull()
-        ->and(CreditGrant::withTrashed()->find($grant->getKey())->trashed())->toBeTrue();
+    // The grant stays as the permanent donation record — revocation lives per credit.
+    expect(CreditGrant::query()->find($grant->getKey()))->not->toBeNull();
 });
 
 it('keeps grant_id on a donated credit after it is consumed', function (): void {

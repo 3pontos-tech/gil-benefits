@@ -170,6 +170,7 @@ return [
         'target_company' => 'Company',
         'relation_manager' => [
             'title' => 'Credits History',
+            'user_title' => 'Received Credits',
         ],
         'fields' => [
             'created_at' => 'Date',
@@ -178,14 +179,19 @@ return [
             'target' => 'Recipient',
             'company' => 'Company',
             'admin' => 'Admin',
+            'revoked' => 'Revoked',
         ],
         'filters' => [
             'from' => 'From',
             'until' => 'Until',
+            'recipient_company' => 'Company credits',
+            'recipient_users' => 'Gifts to users',
         ],
         'actions' => [
             'grant' => [
                 'label' => 'Grant Extra Credit',
+                'hint_company' => 'The credit goes to the company owner, who then distributes it to employees.',
+                'hint_user' => 'The gift belongs to the user and can be used regardless of the company.',
             ],
             'revoke' => [
                 'label' => 'Revoke',

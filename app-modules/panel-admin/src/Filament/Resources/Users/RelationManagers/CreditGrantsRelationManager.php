@@ -2,25 +2,28 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Users\RelationManagers;
 
 use Filament\Forms\Components\DatePicker;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Personal extra-credit gifts the admin donated directly to this user
+ * ({@see CreditGrant} with target_user_id set).
+ */
 class CreditGrantsRelationManager extends RelationManager
 {
-    protected static string $relationship = 'creditGrants';
+    protected static string $relationship = 'receivedCreditGrants';
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return __('panel-admin::resources.credit_grants.relation_manager.title');
+        return __('panel-admin::resources.credit_grants.relation_manager.user_title');
     }
 
     public function form(Schema $schema): Schema
@@ -42,10 +45,8 @@ class CreditGrantsRelationManager extends RelationManager
                     ->label(__('panel-admin::resources.credit_grants.fields.quantity'))
                     ->numeric(),
 
-                TextColumn::make('targetUser.name')
-                    ->label(__('panel-admin::resources.credit_grants.fields.target'))
-                    ->placeholder(__('panel-admin::resources.credit_grants.target_company'))
-                    ->badge(),
+                TextColumn::make('company.name')
+                    ->label(__('panel-admin::resources.credit_grants.fields.company')),
 
                 TextColumn::make('justification')
                     ->label(__('panel-admin::resources.credit_grants.fields.justification'))
@@ -56,19 +57,6 @@ class CreditGrantsRelationManager extends RelationManager
                     ->label(__('panel-admin::resources.credit_grants.fields.admin')),
             ])
             ->filters([
-                SelectFilter::make('recipient_scope')
-                    ->label(__('panel-admin::resources.credit_grants.fields.target'))
-                    ->options([
-                        'company' => __('panel-admin::resources.credit_grants.filters.recipient_company'),
-                        'users' => __('panel-admin::resources.credit_grants.filters.recipient_users'),
-                    ])
-                    ->default('company')
-                    ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? null) {
-                        'users' => $query->whereNotNull('target_user_id'),
-                        'company' => $query->whereNull('target_user_id'),
-                        default => $query,
-                    }),
-
                 Filter::make('period')
                     ->schema([
                         DatePicker::make('from')

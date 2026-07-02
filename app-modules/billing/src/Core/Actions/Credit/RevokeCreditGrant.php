@@ -12,8 +12,10 @@ use TresPontosTech\Billing\Core\Models\UserCredit;
 /**
  * Admin-only: revoke a credit grant. Soft-deletes only the credits still
  * Available; credits already consumed (in_use/used) are kept intact, since a
- * booked appointment cannot be undone. The grant itself is soft-deleted, so the
- * audit history is preserved.
+ * booked appointment cannot be undone. The grant itself stays as the permanent
+ * donation record — revocation lives per credit (each revoked credit's
+ * deleted_at is the moment it was revoked), so partial revokes are represented
+ * accurately and the history is never hidden.
  */
 final readonly class RevokeCreditGrant
 {
@@ -25,8 +27,6 @@ final readonly class RevokeCreditGrant
                 ->where('status', UserCreditStatusEnum::Available)
                 ->get()
                 ->each(fn (UserCredit $credit) => $credit->delete());
-
-            $grant->delete();
         });
     }
 }

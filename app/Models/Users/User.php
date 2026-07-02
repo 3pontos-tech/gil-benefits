@@ -42,6 +42,7 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
@@ -307,6 +308,16 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     public function credits(): HasMany
     {
         return $this->hasMany(UserCredit::class, 'holder_id');
+    }
+
+    /**
+     * Extra-credit grants the admin donated directly to this user (personal gifts).
+     *
+     * @return HasMany<CreditGrant, $this>
+     */
+    public function receivedCreditGrants(): HasMany
+    {
+        return $this->hasMany(CreditGrant::class, 'target_user_id')->latest();
     }
 
     /**

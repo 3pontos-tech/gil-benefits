@@ -14,6 +14,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use TresPontosTech\Billing\Core\Actions\Credit\RevokeCreditGrant;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CreditGrant;
@@ -76,6 +77,12 @@ class CreditGrantResource extends Resource
                     ->numeric()
                     ->sortable(),
 
+                TextColumn::make('revoked_credits_count')
+                    ->label(__('panel-admin::resources.credit_grants.fields.revoked'))
+                    ->badge()
+                    ->color('danger')
+                    ->formatStateUsing(fn (int $state): string => $state > 0 ? (string) $state : '—'),
+
                 TextColumn::make('justification')
                     ->label(__('panel-admin::resources.credit_grants.fields.justification'))
                     ->wrap()
@@ -122,8 +129,21 @@ class CreditGrantResource extends Resource
                     ->icon(Heroicon::OutlinedArrowUturnLeft)
                     ->color('danger')
                     ->requiresConfirmation()
+                    ->visible(fn (CreditGrant $record): bool => $record->userCredits()
+                        ->where('status', UserCreditStatusEnum::Available)
+                        ->exists())
                     ->modalDescription(fn (CreditGrant $record): string => self::revokeDescription($record))
                     ->action(fn (CreditGrant $record) => resolve(RevokeCreditGrant::class)->handle($record)),
+            ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->withCount([
+                'userCredits as revoked_credits_count' => fn (Builder $query): Builder => $query
+                    ->withoutGlobalScope(SoftDeletingScope::class)
+                    ->whereNotNull('deleted_at'),
             ]);
     }
 

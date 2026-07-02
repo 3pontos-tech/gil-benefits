@@ -51,6 +51,7 @@ class GrantExtraCreditAction extends Action
     public static function forCompany(): static
     {
         return static::make()
+            ->modalDescription(__('panel-admin::resources.credit_grants.actions.grant.hint_company'))
             ->action(fn (array $data, Company $record) => self::grant($record, $data));
     }
 
@@ -61,6 +62,7 @@ class GrantExtraCreditAction extends Action
     public static function forUser(): static
     {
         return static::make()
+            ->modalDescription(__('panel-admin::resources.credit_grants.actions.grant.hint_user'))
             ->action(function (array $data, User $record): void {
                 /** @var Company|null $company */
                 $company = $record->companies()->first();
@@ -85,6 +87,7 @@ class GrantExtraCreditAction extends Action
     public static function forEmployee(): static
     {
         return static::make()
+            ->modalDescription(__('panel-admin::resources.credit_grants.actions.grant.hint_user'))
             ->action(function (array $data, User $record, RelationManager $livewire): void {
                 $company = $livewire->getOwnerRecord();
 
