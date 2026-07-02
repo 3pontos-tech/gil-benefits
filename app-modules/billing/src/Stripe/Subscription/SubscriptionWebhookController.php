@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Symfony\Component\HttpFoundation\Response;
-use TresPontosTech\Billing\Core\Actions\Credit\PurchaseCredits;
+use TresPontosTech\Billing\Core\Actions\Credit\IssueCredits;
 use TresPontosTech\Billing\Core\DTOs\CreditDTO;
 use TresPontosTech\Company\Models\Company;
 
@@ -72,7 +72,7 @@ class SubscriptionWebhookController extends WebhookController
             return $this->successMethod();
         }
 
-        resolve(PurchaseCredits::class)->handle(new CreditDTO(
+        resolve(IssueCredits::class)->handle(new CreditDTO(
             holderId: $owner->getKey(),
             ownerId: $owner->getKey(),
             companyId: $company->getKey(),
