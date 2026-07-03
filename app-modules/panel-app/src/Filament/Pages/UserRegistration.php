@@ -10,6 +10,7 @@ use Closure;
 use Filament\Auth\Pages\Register;
 use Filament\Forms\Components\Field;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Override;
 use TresPontosTech\Permissions\Roles;
@@ -41,9 +42,11 @@ final class UserRegistration extends Register
      * distinct), so this application rule is what actually enforces it.
      * tax_id passes withTrashed to mirror its plain column-level constraint.
      */
-    private function uniqueDetailRule(string $column, ?string $attributeLabel, bool $withTrashed = false): Closure
+    private function uniqueDetailRule(string $column, Htmlable|string|null $attributeLabel, bool $withTrashed = false): Closure
     {
-        return static function (string $attribute, mixed $value, Closure $fail) use ($column, $attributeLabel, $withTrashed): void {
+        $label = $attributeLabel instanceof Htmlable ? $attributeLabel->toHtml() : $attributeLabel;
+
+        return static function (string $attribute, mixed $value, Closure $fail) use ($column, $label, $withTrashed): void {
             $normalized = preg_replace('/\D/', '', (string) $value);
 
             if ($normalized === null || $normalized === '') {
@@ -57,7 +60,7 @@ final class UserRegistration extends Register
             }
 
             if ($query->exists()) {
-                $fail(__('validation.unique', ['attribute' => $attributeLabel ?? $attribute]));
+                $fail(__('validation.unique', ['attribute' => $label ?? $attribute]));
             }
         };
     }
