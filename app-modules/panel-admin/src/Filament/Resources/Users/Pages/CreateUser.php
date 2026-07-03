@@ -1,12 +1,16 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Users\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages;
 
+use App\Models\Users\User;
 use Filament\Resources\Pages\CreateRecord;
-use TresPontosTech\Admin\Filament\Resources\Users\UserResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\UserResource;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
 
+/**
+ * @property-read User $record
+ */
 class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;

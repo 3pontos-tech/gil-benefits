@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Consultants\Filament\Widgets;
+namespace TresPontosTech\PanelConsultant\Filament\Widgets;
 
 use App\Models\Users\User;
 use Filament\Widgets\Widget;

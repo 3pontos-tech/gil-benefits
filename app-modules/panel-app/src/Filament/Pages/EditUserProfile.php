@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Pages;
+namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use App\Filament\Shared\Pages\EditUserProfile as BaseEditUserProfile;
+use App\Models\Users\User;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Tabs;
@@ -21,6 +22,11 @@ use TresPontosTech\User\Enums\LifeMoment;
 class EditUserProfile extends BaseEditUserProfile
 {
     protected Width|string|null $maxWidth = Width::FourExtraLarge;
+
+    public function getTitle(): string
+    {
+        return '';
+    }
 
     /** @var list<string> */
     private const array ANAMNESE_FIELDS = [
@@ -90,7 +96,9 @@ class EditUserProfile extends BaseEditUserProfile
     {
         $data = parent::mutateFormDataBeforeFill($data);
 
-        $anamnese = $this->getUser()->anamnese;
+        /** @var User $user */
+        $user = $this->getUser();
+        $anamnese = $user->anamnese;
 
         $data['life_moment'] = $anamnese?->getRawOriginal('life_moment');
         $data['main_motivation'] = $anamnese?->main_motivation;
@@ -104,9 +112,16 @@ class EditUserProfile extends BaseEditUserProfile
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return DB::transaction(function () use ($record, $data): Model {
-            $anamneseData = Arr::only($data, self::ANAMNESE_FIELDS);
+            $anamneseData = [
+                'life_moment' => (string) $data['life_moment'],
+                'main_motivation' => (string) $data['main_motivation'],
+                'money_relationship' => (string) $data['money_relationship'],
+                'plans_monthly_expenses' => (string) $data['plans_monthly_expenses'],
+                'tried_financial_strategies' => (string) $data['tried_financial_strategies'],
+            ];
             $profileData = Arr::except($data, self::ANAMNESE_FIELDS);
 
+            /** @var User $updatedRecord */
             $updatedRecord = parent::handleRecordUpdate($record, $profileData);
 
             resolve(SaveAnamneseAction::class)->handle($updatedRecord, $anamneseData);

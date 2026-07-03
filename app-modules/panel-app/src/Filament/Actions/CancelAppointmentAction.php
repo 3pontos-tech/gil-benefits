@@ -1,10 +1,11 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Actions;
+namespace TresPontosTech\PanelApp\Filament\Actions;
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Livewire\Component;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
@@ -52,7 +53,10 @@ class CancelAppointmentAction extends Action
                 cancelledBy: auth()->user(),
             ));
 
-            $this->getLivewire()->dispatch('appointment-cancelled');
+            $livewire = $this->getLivewire();
+            if ($livewire instanceof Component) {
+                $livewire->dispatch('appointment-cancelled');
+            }
 
             Notification::make()
                 ->title(__('panel-app::resources.appointments.cancel.success'))

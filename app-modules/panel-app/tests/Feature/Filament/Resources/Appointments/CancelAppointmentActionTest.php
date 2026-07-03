@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\App\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages\ListAppointments;
 
 use function Pest\Livewire\livewire;
 

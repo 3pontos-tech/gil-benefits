@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Symfony\Component\HttpFoundation\Response;
-use TresPontosTech\Billing\Core\Actions\Credit\PurchaseCredits;
+use TresPontosTech\Billing\Core\Actions\Credit\IssueCredits;
 use TresPontosTech\Billing\Core\DTOs\CreditDTO;
 use TresPontosTech\Company\Models\Company;
 
@@ -23,14 +23,20 @@ class SubscriptionWebhookController extends WebhookController
             $metadata = $objectPayload['metadata'];
 
             if (array_key_exists('model', $metadata)) {
-                $model = $metadata['model'];
-                Cashier::useCustomerModel(Relation::getMorphedModel($model));
+                $morphedModel = Relation::getMorphedModel($metadata['model']);
+
+                if ($morphedModel !== null) {
+                    Cashier::useCustomerModel($morphedModel);
+                }
             }
         }
 
         return parent::handleWebhook($request);
     }
 
+    /**
+     * @param  array<string, mixed>  $payload
+     */
     protected function handleCheckoutSessionCompleted(array $payload): Response
     {
         $session = $payload['data']['object'];
@@ -54,7 +60,7 @@ class SubscriptionWebhookController extends WebhookController
 
         $company = Company::query()->find($companyId);
 
-        if (! $company) {
+        if (! $company instanceof Company) {
             return $this->successMethod();
         }
 
@@ -62,11 +68,11 @@ class SubscriptionWebhookController extends WebhookController
             ? User::query()->find($ownerId)
             : $company->owner;
 
-        if (! $owner) {
+        if (! $owner instanceof User) {
             return $this->successMethod();
         }
 
-        resolve(PurchaseCredits::class)->handle(new CreditDTO(
+        resolve(IssueCredits::class)->handle(new CreditDTO(
             holderId: $owner->getKey(),
             ownerId: $owner->getKey(),
             companyId: $company->getKey(),

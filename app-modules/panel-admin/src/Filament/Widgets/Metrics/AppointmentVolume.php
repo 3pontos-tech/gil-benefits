@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Widgets\Metrics;
+namespace TresPontosTech\PanelAdmin\Filament\Widgets\Metrics;
 
 use Filament\Widgets\ChartWidget;
 use Flowframe\Trend\Trend;

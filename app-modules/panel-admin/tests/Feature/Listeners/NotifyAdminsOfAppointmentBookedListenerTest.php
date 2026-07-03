@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\DB;
-use TresPontosTech\Admin\Listeners\NotifyAdminsOfAppointmentBookedListener;
 use TresPontosTech\Appointments\Events\AppointmentBooked;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelAdmin\Listeners\NotifyAdminsOfAppointmentBookedListener;
 
 beforeEach(function (): void {
     $this->admin1 = actingAsSuperAdmin();

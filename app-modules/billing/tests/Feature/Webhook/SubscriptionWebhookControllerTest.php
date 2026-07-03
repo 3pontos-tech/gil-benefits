@@ -60,13 +60,13 @@ it('does not change customer model when model key is absent from metadata', func
     expect(currentCashierModel())->toBe(User::class);
 });
 
-it('calls useCustomerModel with null when morph key is not registered', function (): void {
+it('keeps the current customer model when morph key is not registered', function (): void {
     $this->withoutMiddleware(VerifyWebhookSignature::class)
         ->postJson(route('cashier.webhook'), webhookPayload(metadata: ['model' => 'unregistered_morph']))
         ->assertSuccessful();
 
     expect(Relation::getMorphedModel('unregistered_morph'))->toBeNull()
-        ->and(currentCashierModel())->toBeNull();
+        ->and(currentCashierModel())->toBe(User::class);
 });
 
 it('returns 403 when stripe signature is invalid', function (): void {

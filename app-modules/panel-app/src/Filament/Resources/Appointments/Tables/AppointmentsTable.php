@@ -1,13 +1,13 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Resources\Appointments\Tables;
+namespace TresPontosTech\PanelApp\Filament\Resources\Appointments\Tables;
 
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use TresPontosTech\App\Filament\Actions\CancelAppointmentAction;
-use TresPontosTech\App\Filament\Actions\FeedbackAction;
-use TresPontosTech\App\Filament\Actions\ViewAppointmentRecordAction;
+use TresPontosTech\PanelApp\Filament\Actions\CancelAppointmentAction;
+use TresPontosTech\PanelApp\Filament\Actions\FeedbackAction;
+use TresPontosTech\PanelApp\Filament\Actions\ViewAppointmentRecordAction;
 
 class AppointmentsTable
 {
@@ -29,7 +29,7 @@ class AppointmentsTable
                     ->searchable(),
                 TextColumn::make('appointment_at')
                     ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(__('appointments::resources.appointments.table.columns.status'))
@@ -37,12 +37,12 @@ class AppointmentsTable
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->label(__('appointments::resources.appointments.table.columns.created_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label(__('appointments::resources.appointments.table.columns.updated_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

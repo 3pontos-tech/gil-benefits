@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\TagResource;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\TagResource;
 
 class ListTags extends ListRecords
 {

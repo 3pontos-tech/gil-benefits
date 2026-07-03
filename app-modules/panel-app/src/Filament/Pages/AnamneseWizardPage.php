@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Pages;
+namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use App\Filament\Shared\Fields\LifeMomentSelector;
 use App\Models\Users\User;
@@ -18,6 +18,9 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\HtmlString;
 use TresPontosTech\User\Actions\SaveAnamneseAction;
 
+/**
+ * @property-read Schema $form
+ */
 class AnamneseWizardPage extends Page
 {
     protected static ?string $slug = 'anamnese';
@@ -35,6 +38,9 @@ class AnamneseWizardPage extends Page
         return false;
     }
 
+    /**
+     * @var array<string, mixed>
+     */
     public array $data = [];
 
     public function mount(): void
@@ -112,7 +118,15 @@ class AnamneseWizardPage extends Page
 
     public function submit(): void
     {
-        $data = $this->form->getState();
+        $state = $this->form->getState();
+
+        $data = [
+            'life_moment' => (string) $state['life_moment'],
+            'main_motivation' => (string) $state['main_motivation'],
+            'money_relationship' => (string) $state['money_relationship'],
+            'plans_monthly_expenses' => (string) $state['plans_monthly_expenses'],
+            'tried_financial_strategies' => (string) $state['tried_financial_strategies'],
+        ];
 
         /** @var User $user */
         $user = auth()->user();

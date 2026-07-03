@@ -1,13 +1,17 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Companies\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages;
 
 use App\Models\Users\User;
 use Filament\Resources\Pages\CreateRecord;
 use Ramsey\Uuid\Uuid;
-use TresPontosTech\Admin\Filament\Resources\Companies\CompanyResource;
+use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\CompanyResource;
 use TresPontosTech\Permissions\Roles;
 
+/**
+ * @property-read Company $record
+ */
 class CreateCompany extends CreateRecord
 {
     protected static string $resource = CompanyResource::class;

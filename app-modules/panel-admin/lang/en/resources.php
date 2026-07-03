@@ -163,6 +163,47 @@ return [
             ],
         ],
     ],
+    'credit_grants' => [
+        'navigation_label' => 'Extra Credits',
+        'model_label' => 'Extra Credit',
+        'plural_model_label' => 'Extra Credits',
+        'target_company' => 'Company',
+        'relation_manager' => [
+            'title' => 'Credits History',
+            'user_title' => 'Received Credits',
+        ],
+        'fields' => [
+            'created_at' => 'Date',
+            'quantity' => 'Quantity',
+            'justification' => 'Justification',
+            'target' => 'Recipient',
+            'company' => 'Company',
+            'admin' => 'Admin',
+            'revoked' => 'Revoked',
+        ],
+        'filters' => [
+            'from' => 'From',
+            'until' => 'Until',
+            'recipient_company' => 'Company credits',
+            'recipient_users' => 'Gifts to users',
+        ],
+        'actions' => [
+            'grant' => [
+                'label' => 'Grant Extra Credit',
+                'hint_company' => 'The credit goes to the company owner, who then distributes it to employees.',
+                'hint_user' => 'The gift belongs to the user and can be used regardless of the company.',
+            ],
+            'revoke' => [
+                'label' => 'Revoke',
+                'will_revoke' => ':available still-available credit(s) from this grant will be revoked.',
+                'locked_notice' => ':locked already in appointments and will remain — cancel the appointment first to revoke them.',
+            ],
+        ],
+        'notifications' => [
+            'granted' => 'Credits granted successfully.',
+            'user_without_company' => 'The user is not linked to any company.',
+        ],
+    ],
     'users' => [
         'navigation_label' => 'Users',
         'model_label' => 'User',
@@ -202,6 +243,7 @@ return [
             'filter_department_category_placeholder' => 'All categories',
             'tab_consultants' => 'Consultants',
             'tab_appointments' => 'Appointments',
+            'tab_support' => 'Support',
         ],
         'edit_profile' => [
             'cpf' => 'CPF',

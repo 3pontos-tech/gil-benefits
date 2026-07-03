@@ -9,7 +9,6 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Contracts\Support\Htmlable;
 use TresPontosTech\Company\Models\Company;
 
 enum BillableTypeEnum: string implements HasColor, HasIcon, HasLabel
@@ -18,7 +17,7 @@ enum BillableTypeEnum: string implements HasColor, HasIcon, HasLabel
 
     case Company = Company::class;
 
-    public function getColor(): string|array|null
+    public function getColor(): array
     {
         return match ($this) {
             self::User => Color::Blue,
@@ -26,7 +25,7 @@ enum BillableTypeEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function getIcon(): string|BackedEnum|null
+    public function getIcon(): BackedEnum
     {
         return match ($this) {
             self::User => Heroicon::User,
@@ -34,7 +33,7 @@ enum BillableTypeEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
-    public function getLabel(): string|Htmlable|null
+    public function getLabel(): string
     {
         return $this->name;
     }

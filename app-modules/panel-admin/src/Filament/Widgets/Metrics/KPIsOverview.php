@@ -1,10 +1,11 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Widgets\Metrics;
+namespace TresPontosTech\PanelAdmin\Filament\Widgets\Metrics;
 
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Carbon;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -26,10 +27,13 @@ class KPIsOverview extends StatsOverviewWidget
         ];
     }
 
+    /**
+     * @return array{start: Carbon, end: Carbon}
+     */
     private function dateRange(): array
     {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
 
         return [
             'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),
@@ -47,8 +51,8 @@ class KPIsOverview extends StatsOverviewWidget
             ->toBase()
             ->first();
 
-        $avg = round((float) ($result?->avg_rating ?? 0), 1);
-        $total = (int) ($result?->total ?? 0);
+        $avg = round((float) ($result->avg_rating ?? 0), 1);
+        $total = (int) ($result->total ?? 0);
 
         return Stat::make(__('panel-admin::widgets.metrics.kpis_overview.avg_rating'), $avg . '/5')
             ->description(__('panel-admin::widgets.metrics.kpis_overview.avg_rating_description', ['total' => $total]))
@@ -67,8 +71,8 @@ class KPIsOverview extends StatsOverviewWidget
             ->toBase()
             ->first();
 
-        $consultantCount = (int) ($result?->consultant_count ?? 0);
-        $total = (int) ($result?->total ?? 0);
+        $consultantCount = (int) ($result->consultant_count ?? 0);
+        $total = (int) ($result->total ?? 0);
 
         $avg = $consultantCount > 0
             ? round($total / $consultantCount, 1)

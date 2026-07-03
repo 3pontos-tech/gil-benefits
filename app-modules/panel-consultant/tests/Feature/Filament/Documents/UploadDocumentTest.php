@@ -5,8 +5,8 @@ declare(strict_types=1);
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\CreateDocument;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\CreateDocument;
 
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;

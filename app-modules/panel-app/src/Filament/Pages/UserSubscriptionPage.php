@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Pages;
+namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use App\Models\Users\User;
 use Filament\Pages\Page;
@@ -10,6 +10,7 @@ use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
+use TresPontosTech\Company\Models\Company;
 
 class UserSubscriptionPage extends Page
 {
@@ -28,12 +29,14 @@ class UserSubscriptionPage extends Page
     public function mount(): void
     {
         $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user');
-        $this->selectedPlanSlug = $plans->first()?->slug ?? '';
+        $this->selectedPlanSlug = $plans->first()->slug ?? '';
     }
 
     protected function getViewData(): array
     {
-        $isFlamma = filament()->getTenant()?->slug === 'flamma-company';
+        /** @var Company|null $tenant */
+        $tenant = filament()->getTenant();
+        $isFlamma = $tenant?->slug === 'flamma-company';
         $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user');
 
         if ($isFlamma) {
@@ -71,7 +74,7 @@ class UserSubscriptionPage extends Page
             collectTaxIds: $plan->collectTaxIds,
             successUrl: UserDashboard::getUrl(),
             cancelUrl: UserDashboard::getUrl(),
-            metadata: ['model' => Relation::getMorphAlias(User::class)],
+            metadata: ['model' => (string) Relation::getMorphAlias(User::class)],
         );
 
         $driver = resolve(BillingManager::class)->getDriver($plan->provider);
@@ -116,7 +119,9 @@ class UserSubscriptionPage extends Page
     /** @param PriceEntity[] $prices */
     private function resolvePriceForTenant(array $prices): PriceEntity
     {
-        $isFlamma = filament()->getTenant()?->slug === 'flamma-company';
+        /** @var Company|null $tenant */
+        $tenant = filament()->getTenant();
+        $isFlamma = $tenant?->slug === 'flamma-company';
         $prices = collect($prices);
 
         if ($isFlamma) {

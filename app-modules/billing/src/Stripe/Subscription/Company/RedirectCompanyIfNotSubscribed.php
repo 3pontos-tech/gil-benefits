@@ -5,20 +5,21 @@ namespace TresPontosTech\Billing\Stripe\Subscription\Company;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
-class RedirectCompanyIfNotSubscribed
+readonly class RedirectCompanyIfNotSubscribed
 {
     public function __construct(
-        private readonly BillingManager $billingManager,
+        private BillingManager $billingManager,
     ) {}
 
-    public function handle(Request $request, Closure $next, string ...$plans)
+    public function handle(Request $request, Closure $next, string ...$plans): Response
     {
-        /** @var Company|Filament $tenant */
+        /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
         if ($tenant->slug === 'flamma-company') {

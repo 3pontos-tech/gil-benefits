@@ -1,15 +1,15 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Resources\Appointments;
+namespace TresPontosTech\PanelApp\Filament\Resources\Appointments;
 
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use TresPontosTech\App\Filament\Resources\Appointments\Pages\CreateAppointment;
-use TresPontosTech\App\Filament\Resources\Appointments\Pages\ListAppointments;
-use TresPontosTech\App\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages\CreateAppointment;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use UnitEnum;
 
 class AppointmentResource extends Resource
@@ -23,11 +23,6 @@ class AppointmentResource extends Resource
         return __('appointments::resources.appointments.label');
     }
 
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('panel-admin::resources.navigation_group.appointments');
-    }
-
     public static function getPluralModelLabel(): string
     {
         return __('appointments::resources.appointments.plural');
@@ -36,6 +31,11 @@ class AppointmentResource extends Resource
     public static function getNavigationLabel(): string
     {
         return __('appointments::resources.appointments.navigation');
+    }
+
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('panel-admin::resources.navigation_group.appointments');
     }
 
     public static function table(Table $table): Table

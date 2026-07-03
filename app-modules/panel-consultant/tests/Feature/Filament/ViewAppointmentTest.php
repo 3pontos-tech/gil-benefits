@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ViewAppointment;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\User\Models\UserAnamnese;
 
 use function Pest\Livewire\livewire;

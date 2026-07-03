@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Tables;
+namespace TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;

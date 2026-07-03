@@ -23,7 +23,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use TresPontosTech\Admin\Filament\Pages\EditUserProfile;
+use TresPontosTech\PanelAdmin\Filament\Pages\EditUserProfile;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -42,10 +42,10 @@ class AdminPanelProvider extends PanelProvider
                 'zinc' => Color::Zinc,
                 'slate' => Color::Slate,
             ])
-            ->discoverClusters(in: base_path('app-modules/panel-admin/src/Filament/Clusters'), for: 'TresPontosTech\\Admin\\Filament\\Clusters')
-            ->discoverPages(in: base_path('app-modules/panel-admin/src/Filament/Pages'), for: 'TresPontosTech\\Admin\\Filament\\Pages')
-            ->discoverResources(in: base_path('app-modules/panel-admin/src/Filament/Resources'), for: 'TresPontosTech\\Admin\\Filament\\Resources')
-            ->discoverWidgets(in: base_path('app-modules/panel-admin/src/Filament/Widgets'), for: 'TresPontosTech\\Admin\\Filament\\Widgets')
+            ->discoverClusters(in: base_path('app-modules/panel-admin/src/Filament/Clusters'), for: 'TresPontosTech\\PanelAdmin\\Filament\\Clusters')
+            ->discoverPages(in: base_path('app-modules/panel-admin/src/Filament/Pages'), for: 'TresPontosTech\\PanelAdmin\\Filament\\Pages')
+            ->discoverResources(in: base_path('app-modules/panel-admin/src/Filament/Resources'), for: 'TresPontosTech\\PanelAdmin\\Filament\\Resources')
+            ->discoverWidgets(in: base_path('app-modules/panel-admin/src/Filament/Widgets'), for: 'TresPontosTech\\PanelAdmin\\Filament\\Widgets')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->plugins([
                 FilamentWebhookPlugin::make(),

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Consultants\Filament\Resources\Documents\RelationManagers;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\Documents\RelationManagers;
 
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
@@ -20,8 +20,8 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Consultants\Filament\Actions\ShareDocumentFilamentAction;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\PanelConsultant\Filament\Actions\ShareDocumentFilamentAction;
 
 class SharedDocumentRelationManager extends RelationManager
 {

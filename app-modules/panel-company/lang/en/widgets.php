@@ -51,10 +51,6 @@ return [
         'distributed_description' => 'Credits transferred to employees in period',
         'used_in_period' => 'Used',
         'used_in_period_description' => 'Credits consumed in consultations in period',
-        'in_use' => 'In use',
-        'in_use_description' => 'Credits linked to scheduled consultations',
-        'available' => 'Available',
-        'available_description' => 'Credits not yet used',
     ],
     'credit_usage' => [
         'heading' => 'Credit usage history',

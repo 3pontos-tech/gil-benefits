@@ -6,6 +6,9 @@ namespace TresPontosTech\Billing\Barte\DTOs;
 
 readonly class PaymentOrderDto
 {
+    /**
+     * @param  list<array<string, mixed>>  $customInstallmentsValues
+     */
     public function __construct(
         public string $title,
         public float $value,
@@ -18,6 +21,9 @@ readonly class PaymentOrderDto
         public bool $requiresLiabilityShift = false,
     ) {}
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

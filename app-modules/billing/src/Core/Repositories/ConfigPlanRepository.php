@@ -16,6 +16,9 @@ final readonly class ConfigPlanRepository implements PlanRepository
         private Repository $config,
     ) {}
 
+    /**
+     * @return array<string, PlanEntity>
+     */
     #[Override]
     public function all(): array
     {
@@ -34,9 +37,15 @@ final readonly class ConfigPlanRepository implements PlanRepository
         );
     }
 
+    /**
+     * @param  array<string, mixed>  $plan
+     */
     private function createPlanFromArray(array $plan, string $name): PlanEntity
     {
-        $prices = collect(Arr::get($plan, key: 'prices', default: []))
+        /** @var list<array<string, mixed>> $pricesConfig */
+        $pricesConfig = Arr::get($plan, key: 'prices', default: []);
+
+        $prices = collect($pricesConfig)
             ->map(fn (array $price): PriceEntity => PriceEntity::make($price));
 
         return new PlanEntity(
@@ -53,12 +62,18 @@ final readonly class ConfigPlanRepository implements PlanRepository
         );
     }
 
+    /**
+     * @return Collection<string, PlanEntity>
+     */
     public function getPlansFor(string $name = 'user_'): Collection
     {
         return collect($this->all())
             ->filter(fn ($plan, $key): bool => str_starts_with($key, $name));
     }
 
+    /**
+     * @return Collection<string, PlanEntity>
+     */
     public function getCheckoutPlansFor(string $name): Collection
     {
         return $this->getPlansFor($name);

@@ -11,13 +11,18 @@ use TresPontosTech\Billing\Core\Models\Plan;
 
 class EloquentPlanRepository implements PlanRepository
 {
+    /**
+     * @return array<string, PlanEntity>
+     */
     public function all(): array
     {
         return Plan::query()
             ->where('active', true)
             ->whereIn('provider', BillingProviderEnum::activeCases())
             ->get()
-            ->map(fn (Plan $plan): PlanEntity => PlanEntity::fromEloquent($plan))
+            // Chave composta provider:slug — slug não é único entre providers (constraint unique(['provider','slug'])),
+            // então keyar só por slug colapsaria planos homônimos de Stripe/Barte (ambos em activeCases()).
+            ->mapWithKeys(fn (Plan $plan): array => [sprintf('%s:%s', $plan->provider->value, $plan->slug) => PlanEntity::fromEloquent($plan)])
             ->all();
     }
 
@@ -26,6 +31,9 @@ class EloquentPlanRepository implements PlanRepository
         return collect($this->all())->firstOrFail(fn (PlanEntity $plan): bool => $plan->slug === $name);
     }
 
+    /**
+     * @return Collection<int, PlanEntity>
+     */
     public function getPlansFor(string $name = 'user_'): Collection
     {
         return Cache::remember('active_user_plans', 15, fn () => Plan::query()
@@ -37,6 +45,9 @@ class EloquentPlanRepository implements PlanRepository
         );
     }
 
+    /**
+     * @return Collection<int, PlanEntity>
+     */
     public function getCheckoutPlansFor(string $name): Collection
     {
         return Cache::remember('checkout_user_plans', 15, fn () => Plan::query()

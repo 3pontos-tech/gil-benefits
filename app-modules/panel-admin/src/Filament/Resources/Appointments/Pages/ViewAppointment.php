@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Appointments\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
-use TresPontosTech\Admin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
@@ -27,7 +26,11 @@ use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 
+/**
+ * @property-read Appointment $record
+ */
 class ViewAppointment extends ViewRecord
 {
     protected static string $resource = AppointmentResource::class;
@@ -146,18 +149,24 @@ class ViewAppointment extends ViewRecord
         ];
     }
 
+    /**
+     * @return Collection<int, Document>
+     */
     public function getEmployeeDocuments(): Collection
     {
-        $record = $this->getRecord();
+        $record = $this->record;
 
         return Document::query()
             ->whereMorphedTo('documentable', $record->user)
             ->get();
     }
 
+    /**
+     * @return Collection<int, Document>
+     */
     public function getSharedDocuments(): Collection
     {
-        $record = $this->getRecord();
+        $record = $this->record;
 
         return Document::query()
             ->whereHas('shares', function ($query) use ($record): void {
@@ -205,7 +214,7 @@ class ViewAppointment extends ViewRecord
         }
 
         $document = Document::query()
-            ->whereMorphedTo('documentable', $this->getRecord()->user)
+            ->whereMorphedTo('documentable', $this->record->user)
             ->find($documentId);
 
         return $document?->getFirstMedia('documents');
@@ -217,7 +226,7 @@ class ViewAppointment extends ViewRecord
             return null;
         }
 
-        $appointment = $this->getRecord();
+        $appointment = $this->record;
 
         $document = Document::query()
             ->whereHas('shares', function ($query) use ($appointment): void {

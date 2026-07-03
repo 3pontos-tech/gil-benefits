@@ -1,10 +1,10 @@
 <?php
 
-use TresPontosTech\Admin\Filament\Widgets\LatestCompanies;
+use TresPontosTech\PanelAdmin\Filament\Widgets\LatestCompanies;
 
 use function Pest\Livewire\livewire;
 
-beforeEach(function () {
+beforeEach(function (): void {
     actingAsAdmin();
 });
 

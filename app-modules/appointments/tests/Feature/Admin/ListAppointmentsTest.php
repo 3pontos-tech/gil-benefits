@@ -1,8 +1,8 @@
 <?php
 
-use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ListAppointments;
 
 use function Pest\Livewire\livewire;
 

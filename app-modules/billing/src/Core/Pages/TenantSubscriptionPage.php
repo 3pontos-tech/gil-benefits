@@ -76,7 +76,7 @@ class TenantSubscriptionPage extends Page
             collectTaxIds: $plan->collectTaxIds,
             successUrl: Dashboard::getUrl(),
             cancelUrl: Dashboard::getUrl(),
-            metadata: ['model' => Relation::getMorphAlias(Company::class)],
+            metadata: ['model' => (string) Relation::getMorphAlias(Company::class)],
         );
 
         $driver = resolve(BillingManager::class)->getDriver($this->checkoutProvider());

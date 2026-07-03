@@ -33,11 +33,13 @@
         "3pontos-tech/consultants": "*",
         "3pontos-tech/integration-google-calendar": "*",
         "3pontos-tech/integration-highlevel": "*",
+        "3pontos-tech/integration-monday": "*",
         "3pontos-tech/panel-admin": "*",
         "3pontos-tech/panel-app": "*",
         "3pontos-tech/panel-company": "*",
         "3pontos-tech/panel-consultant": "*",
         "3pontos-tech/permissions": "^1.0",
+        "3pontos-tech/support": "^1.0",
         "3pontos-tech/tenant": "*",
         "3pontos-tech/user": "*",
         "basementdevs/filament-better-mails": "^5.0",
@@ -72,6 +74,7 @@
         "larastan/larastan": "^3.0",
         "laravel/boost": "^2.0",
         "laravel/pail": "^1.2.2",
+        "laravel/pao": "^1.1",
         "laravel/pint": "^1.13",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
@@ -79,6 +82,7 @@
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
         "pestphp/pest-plugin-livewire": "^4.0",
+        "phpstan/extension-installer": "^1.4",
         "rector/rector": "^2.1"
     },
     "autoload": {
@@ -116,7 +120,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=300\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=300 --queue=emails,default\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite"
         ],
         "pint": "vendor/bin/pint",
         "test:pint": "vendor/bin/pint --test",
@@ -144,7 +148,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
         }
     },
     "minimum-stability": "stable",

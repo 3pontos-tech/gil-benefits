@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Schemas;
+namespace TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Schemas;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;

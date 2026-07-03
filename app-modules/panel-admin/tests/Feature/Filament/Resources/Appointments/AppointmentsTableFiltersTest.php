@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
-use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ListAppointments;
 
 use function Pest\Livewire\livewire;
 

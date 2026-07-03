@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Consultants\Filament\Pages;
+namespace TresPontosTech\PanelConsultant\Filament\Pages;
 
 use BackedEnum;
 use Filament\Pages\Page;

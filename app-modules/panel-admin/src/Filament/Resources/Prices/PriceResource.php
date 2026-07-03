@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Prices;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Prices;
 
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -29,10 +29,10 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Admin\Filament\Resources\Prices\Pages\CreatePrice;
-use TresPontosTech\Admin\Filament\Resources\Prices\Pages\EditPrice;
-use TresPontosTech\Admin\Filament\Resources\Prices\Pages\ListPrices;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\CreatePrice;
+use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\EditPrice;
+use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\ListPrices;
 
 class PriceResource extends Resource
 {
@@ -140,8 +140,8 @@ class PriceResource extends Resource
                             ->schema([
                                 CodeEditor::make('metadata')
                                     ->formatStateUsing(fn (mixed $state): string => match (true) {
-                                        is_array($state) => json_encode($state, JSON_PRETTY_PRINT),
-                                        is_string($state) && filled($state) => json_encode(json_decode($state), JSON_PRETTY_PRINT),
+                                        is_array($state) => json_encode($state, JSON_PRETTY_PRINT) ?: '',
+                                        is_string($state) && filled($state) => json_encode(json_decode($state), JSON_PRETTY_PRINT) ?: '',
                                         default => '',
                                     })
                                     ->dehydrateStateUsing(fn (?string $state): ?array => $state ? json_decode($state, true) : null)
@@ -236,6 +236,9 @@ class PriceResource extends Resource
         return ['plan.name'];
     }
 
+    /**
+     * @param  Price  $record
+     */
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         $details = [];

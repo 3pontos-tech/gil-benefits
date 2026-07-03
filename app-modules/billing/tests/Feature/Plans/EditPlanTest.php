@@ -1,8 +1,8 @@
 <?php
 
-use TresPontosTech\Admin\Filament\Resources\Plans\Pages\EditPlan;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\PanelAdmin\Filament\Resources\Plans\Pages\EditPlan;
 
 use function Pest\Livewire\livewire;
 

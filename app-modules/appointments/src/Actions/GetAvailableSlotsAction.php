@@ -7,6 +7,9 @@ use TresPontosTech\Consultants\Models\Consultant;
 
 readonly class GetAvailableSlotsAction
 {
+    /**
+     * @return array<string, string>
+     */
     public function handle(Carbon $date, int $durationMinutes = 60, int $bufferMinutes = 0): array
     {
         $consultants = Consultant::all();

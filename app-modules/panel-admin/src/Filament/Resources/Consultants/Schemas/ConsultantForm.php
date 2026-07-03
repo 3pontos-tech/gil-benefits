@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Consultants\Schemas;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Consultants\Schemas;
 
 use App\Enums\AvailableTagsEnum;
 use Filament\Forms\Components\KeyValue;
@@ -44,7 +44,7 @@ class ConsultantForm
                                         })
                                         ->required(),
                                     TextInput::make('slug')
-                                        ->formatStateUsing(fn ($get) => str($get('name'))->slug),
+                                        ->formatStateUsing(fn ($get) => str($get('name'))->slug()),
                                     PhoneInput::make('phone')
                                         ->defaultCountry('BR')
                                         ->initialCountry('BR')

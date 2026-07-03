@@ -23,10 +23,13 @@ readonly class CreateBuyerDto
             documentNumber: $billable instanceof Company ? $billable->tax_id : $billable->detail->tax_id,
             documentType: $billable instanceof Company ? 'cnpj' : 'cpf',
             name: $billable->name,
-            email: $billable->email ?? $billable->owner->email,
+            email: $billable instanceof Company ? $billable->owner->email : $billable->email,
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

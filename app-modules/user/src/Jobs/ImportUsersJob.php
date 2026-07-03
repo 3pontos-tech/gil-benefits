@@ -17,6 +17,9 @@ class ImportUsersJob implements ShouldQueue
 
     public int $timeout = 600;
 
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     */
     public function __construct(
         public readonly Collection $rows,
         public readonly string $companyId,

@@ -29,6 +29,9 @@ class SyncBillingCustomersCommand extends Command
         $this->info('Done.');
     }
 
+    /**
+     * @param  iterable<int, Company|User>  $billables
+     */
     private function syncBillables(iterable $billables, string $label): void
     {
         $created = 0;

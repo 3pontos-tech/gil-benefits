@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\ContractualPlans\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\ContractualPlans\Pages;
 
 use Filament\Resources\Pages\CreateRecord;
-use TresPontosTech\Admin\Filament\Resources\ContractualPlans\ContractualPlanResource;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\PanelAdmin\Filament\Resources\ContractualPlans\ContractualPlanResource;
 
 class CreateContractualPlan extends CreateRecord
 {

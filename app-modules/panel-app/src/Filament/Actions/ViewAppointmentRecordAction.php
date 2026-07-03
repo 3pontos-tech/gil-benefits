@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Actions;
+namespace TresPontosTech\PanelApp\Filament\Actions;
 
 use Filament\Actions\Action;
 use Filament\Support\Icons\Heroicon;

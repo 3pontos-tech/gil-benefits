@@ -1,11 +1,12 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Permissions\Actions;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Actions;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Component;
 use Filament\Support\Icons\Heroicon;
 use TresPontosTech\Permissions\Roles;
 
@@ -26,6 +27,9 @@ class AssignRoleAction extends Action
         return 'assign-role-action';
     }
 
+    /**
+     * @return array<Component>
+     */
     private function roleSchema(): array
     {
         return [

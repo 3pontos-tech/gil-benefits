@@ -1,6 +1,6 @@
 <?php
 
-use TresPontosTech\Admin\Filament\Resources\Plans\Pages\ListPlans;
+use TresPontosTech\PanelAdmin\Filament\Resources\Plans\Pages\ListPlans;
 
 use function Pest\Livewire\livewire;
 

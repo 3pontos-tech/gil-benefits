@@ -12,6 +12,9 @@ readonly class PaymentSubscriptionDto
         public string $type = 'MONTHLY',
     ) {}
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         return [

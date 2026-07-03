@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Pages;
+namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use Filament\Actions\Action;
 use Filament\Pages\Page;

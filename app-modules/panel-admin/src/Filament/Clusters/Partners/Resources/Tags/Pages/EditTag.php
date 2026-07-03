@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
-use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\TagResource;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\TagResource;
 
 class EditTag extends EditRecord
 {

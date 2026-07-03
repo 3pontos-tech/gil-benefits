@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Resources\SharedDocuments;
+namespace TresPontosTech\PanelApp\Filament\Resources\SharedDocuments;
 
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -9,12 +9,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\CreateSharedDocument;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Schemas\SharedDocumentForm;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\CreateSharedDocument;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Schemas\SharedDocumentForm;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
 use UnitEnum;
 
 class SharedDocumentResource extends Resource
@@ -29,6 +29,11 @@ class SharedDocumentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Document;
 
+    public static function getNavigationGroup(): string|UnitEnum|null
+    {
+        return __('panel-admin::resources.navigation_group.appointments');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return SharedDocumentForm::configure($schema);
@@ -37,11 +42,6 @@ class SharedDocumentResource extends Resource
     public static function table(Table $table): Table
     {
         return SharedDocumentsTable::table($table);
-    }
-
-    public static function getNavigationGroup(): string|UnitEnum|null
-    {
-        return __('panel-admin::resources.navigation_group.appointments');
     }
 
     public static function getPages(): array
@@ -54,16 +54,16 @@ class SharedDocumentResource extends Resource
     }
 
     /**
-     * @return Builder<Document>
+     * @return Builder<Model>
      */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['consultant']);
+        return parent::getGlobalSearchEloquentQuery()->with(['documentable']);
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['title', 'consultant.name'];
+        return ['title', 'documentable.name'];
     }
 
     /**
@@ -73,8 +73,8 @@ class SharedDocumentResource extends Resource
     {
         $details = [];
 
-        if ($record->consultant) {
-            $details['Consultant'] = $record->consultant->name;
+        if ($record->documentable) {
+            $details['Consultant'] = $record->documentable->name;
         }
 
         return $details;

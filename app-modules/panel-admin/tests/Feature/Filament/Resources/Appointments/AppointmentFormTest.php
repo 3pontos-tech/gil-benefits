@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Admin\Filament\Resources\Appointments\Pages\CreateAppointment;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\CreateAppointment;
 
 use function Pest\Livewire\livewire;
 

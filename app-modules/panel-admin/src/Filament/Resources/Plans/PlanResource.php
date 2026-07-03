@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Plans;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Plans;
 
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -26,12 +26,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
-use TresPontosTech\Admin\Filament\Resources\Plans\Pages\CreatePlan;
-use TresPontosTech\Admin\Filament\Resources\Plans\Pages\EditPlan;
-use TresPontosTech\Admin\Filament\Resources\Plans\Pages\ListPlans;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\PanelAdmin\Filament\Resources\Plans\Pages\CreatePlan;
+use TresPontosTech\PanelAdmin\Filament\Resources\Plans\Pages\EditPlan;
+use TresPontosTech\PanelAdmin\Filament\Resources\Plans\Pages\ListPlans;
 
 class PlanResource extends Resource
 {

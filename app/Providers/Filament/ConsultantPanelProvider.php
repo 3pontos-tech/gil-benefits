@@ -18,8 +18,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use TresPontosTech\Consultants\Filament\Pages\ConsultantDashboard;
-use TresPontosTech\Consultants\Filament\Pages\EditConsultantProfile;
+use TresPontosTech\PanelConsultant\Filament\Pages\ConsultantDashboard;
+use TresPontosTech\PanelConsultant\Filament\Pages\EditConsultantProfile;
 
 class ConsultantPanelProvider extends PanelProvider
 {
@@ -37,10 +37,10 @@ class ConsultantPanelProvider extends PanelProvider
                 ConsultantDashboard::class,
             ])
             ->passwordReset()
-            ->discoverResources(in: base_path('app-modules/panel-consultant/src/Filament/Resources'), for: 'TresPontosTech\\Consultants\\Filament\\Resources')
-            ->discoverPages(in: base_path('app-modules/panel-consultant/src/Filament/Pages'), for: 'TresPontosTech\\Consultants\\Filament\\Pages')
-            ->discoverWidgets(in: base_path('app-modules/panel-consultant/src/Filament/Widgets'), for: 'TresPontosTech\\Consultants\\Filament\\Widgets')
-            ->discoverClusters(in: base_path('app-modules/panel-consultant/src/Filament/Clusters'), for: 'TresPontosTech\\Consultants\\Filament\\Clusters')
+            ->discoverResources(in: base_path('app-modules/panel-consultant/src/Filament/Resources'), for: 'TresPontosTech\\PanelConsultant\\Filament\\Resources')
+            ->discoverPages(in: base_path('app-modules/panel-consultant/src/Filament/Pages'), for: 'TresPontosTech\\PanelConsultant\\Filament\\Pages')
+            ->discoverWidgets(in: base_path('app-modules/panel-consultant/src/Filament/Widgets'), for: 'TresPontosTech\\PanelConsultant\\Filament\\Widgets')
+            ->discoverClusters(in: base_path('app-modules/panel-consultant/src/Filament/Clusters'), for: 'TresPontosTech\\PanelConsultant\\Filament\\Clusters')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->navigationItems([
                 NavigationItem::make(__('all.my_profile'))

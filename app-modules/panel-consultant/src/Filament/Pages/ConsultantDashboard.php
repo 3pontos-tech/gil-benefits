@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Consultants\Filament\Pages;
+namespace TresPontosTech\PanelConsultant\Filament\Pages;
 
 use Filament\Pages\Dashboard;
-use TresPontosTech\Consultants\Filament\Widgets\ConsultantAppointmentHistoryWidget;
-use TresPontosTech\Consultants\Filament\Widgets\ConsultantLatestAppointmentWidget;
-use TresPontosTech\Consultants\Filament\Widgets\ConsultantStatsOverview;
+use TresPontosTech\PanelConsultant\Filament\Widgets\ConsultantAppointmentHistoryWidget;
+use TresPontosTech\PanelConsultant\Filament\Widgets\ConsultantLatestAppointmentWidget;
+use TresPontosTech\PanelConsultant\Filament\Widgets\ConsultantStatsOverview;
 
 class ConsultantDashboard extends Dashboard
 {

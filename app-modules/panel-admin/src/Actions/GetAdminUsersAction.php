@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Actions;
+namespace TresPontosTech\PanelAdmin\Actions;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Collection;

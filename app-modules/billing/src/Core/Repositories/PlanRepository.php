@@ -11,15 +11,22 @@ use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 interface PlanRepository
 {
     /**
-     * @return array<int, PlanEntity>
+     * @return array<string, PlanEntity>
      */
     public function all(): array;
 
     public function get(string $name): PlanEntity;
 
+    /**
+     * @return Collection<array-key, PlanEntity>
+     */
     public function getPlansFor(string $name = 'user_'): Collection;
 
-    /** Planos disponíveis para NOVAS assinaturas (usa checkoutCases). */
+    /**
+     * Planos disponíveis para NOVAS assinaturas (usa checkoutCases).
+     *
+     * @return Collection<array-key, PlanEntity>
+     */
     public function getCheckoutPlansFor(string $name): Collection;
 
     public function getActiveTenantPlan(BillingProviderEnum $provider): PlanEntity;

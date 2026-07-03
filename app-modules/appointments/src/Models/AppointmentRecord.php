@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Appointments\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -12,13 +13,31 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use TresPontosTech\Appointments\Database\Factories\AppointmentRecordFactory;
 use TresPontosTech\Appointments\Policies\AppointmentRecordPolicy;
 
+/**
+ * @property string $id
+ * @property string $appointment_id
+ * @property string|null $content
+ * @property string|null $internal_summary
+ * @property string|null $model_used
+ * @property int|null $input_tokens
+ * @property int|null $output_tokens
+ * @property Carbon|null $generation_started_at
+ * @property Carbon|null $published_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ */
+#[UseFactory(AppointmentRecordFactory::class)]
 #[UsePolicy(AppointmentRecordPolicy::class)]
 class AppointmentRecord extends Model
 {
+    /** @use HasFactory<AppointmentRecordFactory> */
     use HasFactory;
+
     use HasUuids;
     use SoftDeletes;
 
@@ -43,11 +62,9 @@ class AppointmentRecord extends Model
         ];
     }
 
-    protected static function newFactory(): AppointmentRecordFactory
-    {
-        return AppointmentRecordFactory::new();
-    }
-
+    /**
+     * @return BelongsTo<Appointment, $this>
+     */
     public function appointment(): BelongsTo
     {
         return $this->belongsTo(Appointment::class);
@@ -68,6 +85,10 @@ class AppointmentRecord extends Model
         $this->update(['generation_started_at' => null]);
     }
 
+    /**
+     * @param  Builder<AppointmentRecord>  $query
+     * @return Builder<AppointmentRecord>
+     */
     #[Scope]
     protected function published(Builder $query): Builder
     {

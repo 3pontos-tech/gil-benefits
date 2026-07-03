@@ -2,8 +2,8 @@
 
 use App\Models\Users\User;
 use Illuminate\Support\Str;
-use TresPontosTech\Admin\Filament\Resources\Companies\Pages\CreateCompany;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\CreateCompany;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\assertDatabaseHas;

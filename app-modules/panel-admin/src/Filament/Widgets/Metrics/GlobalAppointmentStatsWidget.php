@@ -1,10 +1,11 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Widgets\Metrics;
+namespace TresPontosTech\PanelAdmin\Filament\Widgets\Metrics;
 
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -22,7 +23,7 @@ class GlobalAppointmentStatsWidget extends StatsOverviewWidget
     {
         ['start' => $start, 'end' => $end] = $this->dateRange();
 
-        $category = data_get($this->filters, 'departmentCategory');
+        $category = data_get($this->pageFilters, 'departmentCategory');
 
         $base = Appointment::query()
             ->whereBetween('appointment_at', [$start, $end])
@@ -56,7 +57,7 @@ class GlobalAppointmentStatsWidget extends StatsOverviewWidget
             ->first();
 
         $topCompany = $topCompanyData
-            ? Company::query()->find($topCompanyData->company_id)
+            ? Company::query()->whereKey($topCompanyData->company_id)->first()
             : null;
 
         return array_filter([
@@ -84,10 +85,13 @@ class GlobalAppointmentStatsWidget extends StatsOverviewWidget
         ]);
     }
 
+    /**
+     * @return array{start: Carbon, end: Carbon}
+     */
     private function dateRange(): array
     {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
 
         return [
             'start' => filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay(),

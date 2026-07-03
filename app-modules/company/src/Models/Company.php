@@ -4,7 +4,9 @@ namespace TresPontosTech\Company\Models;
 
 use App\Models\Users\User;
 use Filament\Models\Contracts\HasAvatar;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -16,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Laravel\Cashier\Billable;
 use Ramsey\Uuid\Uuid;
 use Spatie\Image\Enums\Fit;
@@ -26,24 +29,40 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Billing\Core\Observers\CompanyCreditsObserver;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
 
 /**
+ * @property string $id
  * @property string $user_id
- * @property string $panel
+ * @property string $name
+ * @property string $integration_access_key
  * @property string $slug
  * @property string $tax_id
- * @property string $integration_access_key
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $stripe_id
+ * @property string|null $pm_type
+ * @property string|null $pm_last_four
+ * @property Carbon|null $trial_ends_at
+ * @property string $panel
  */
+#[ObservedBy(CompanyCreditsObserver::class)]
+#[UseFactory(CompanyFactory::class)]
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model implements HasAvatar, HasMedia
 {
     use Billable;
+
+    /** @use HasFactory<CompanyFactory> */
     use HasFactory;
+
     use HasUuids;
     use InteractsWithMedia;
     use SoftDeletes;
@@ -76,21 +95,41 @@ class Company extends Model implements HasAvatar, HasMedia
             ->first();
     }
 
+    /**
+     * @return HasMany<Appointment, $this>
+     */
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
     }
 
+    /**
+     * @return HasManyThrough<AppointmentFeedback, Appointment, $this>
+     */
     public function feedbacks(): HasManyThrough
     {
         return $this->hasManyThrough(AppointmentFeedback::class, Appointment::class);
     }
 
+    /**
+     * @return HasMany<CompanyPlan, $this>
+     */
     public function companyPlans(): HasMany
     {
         return $this->hasMany(CompanyPlan::class);
     }
 
+    /**
+     * @return HasMany<CreditGrant, $this>
+     */
+    public function creditGrants(): HasMany
+    {
+        return $this->hasMany(CreditGrant::class)->latest();
+    }
+
+    /**
+     * @return BelongsToMany<Plan, $this>
+     */
     public function plans(): BelongsToMany
     {
         return $this->belongsToMany(Plan::class, 'company_plans', 'company_id', 'plan_id')
@@ -99,11 +138,17 @@ class Company extends Model implements HasAvatar, HasMedia
             ->wherePivotNull('deleted_at');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * @return BelongsToMany<User, $this, TenantMember>
+     */
     public function employees(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'company_employees', 'company_id', 'user_id')
@@ -112,22 +157,26 @@ class Company extends Model implements HasAvatar, HasMedia
             ->using(TenantMember::class);
     }
 
+    /**
+     * @return HasMany<Department, $this>
+     */
     public function departments(): HasMany
     {
         return $this->hasMany(Department::class);
     }
 
+    /**
+     * @return BelongsToMany<User, $this, TenantMember>
+     */
     #[Scope]
-    protected function onlyEmployees()
+    protected function onlyEmployees(): BelongsToMany
     {
         return $this->employees()->wherePivot('active', true)->whereNot('id', $this->user_id);
     }
 
-    protected static function newFactory(): CompanyFactory
-    {
-        return CompanyFactory::new();
-    }
-
+    /**
+     * @return MorphMany<Subscription, $this>
+     */
     public function subscriptions(): MorphMany
     {
         return $this->morphMany(Subscription::class, 'subscriptionable');
@@ -148,10 +197,10 @@ class Company extends Model implements HasAvatar, HasMedia
     {
         $this->addMediaConversion('company-logo-avatar')
             ->performOnCollections('company_logo')
+            ->nonQueued()
             ->width(32)
             ->height(32)
-            ->fit(Fit::Crop, 32, 32)
-            ->nonQueued();
+            ->fit(Fit::Crop, 32, 32);
 
     }
 

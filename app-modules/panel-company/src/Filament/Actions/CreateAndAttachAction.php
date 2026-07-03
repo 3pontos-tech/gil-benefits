@@ -9,10 +9,11 @@ use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
-use Laravel\Cashier\Subscription;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Rules\UniqueAtCompany;
 use TresPontosTech\Permissions\Roles;
@@ -54,7 +55,9 @@ class CreateAndAttachAction extends CreateAction
 
         $this->after(
             function (User $record): void {
-                filament()->getTenant()->employees()->syncWithoutDetaching($record);
+                /** @var Company $tenant */
+                $tenant = filament()->getTenant();
+                $tenant->employees()->syncWithoutDetaching($record);
                 $record->assignRole(Roles::Employee);
                 event(new UserRegistered($record, Roles::Employee, $this->plainPassword));
             }
@@ -64,6 +67,9 @@ class CreateAndAttachAction extends CreateAction
 
     }
 
+    /**
+     * @return array<Component>
+     */
     private function buildFormSchema(): array
     {
         return [

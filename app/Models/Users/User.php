@@ -13,6 +13,7 @@ use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Cashier\Billable;
 use Spatie\Image\Enums\Fit;
@@ -40,6 +42,7 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
@@ -52,8 +55,24 @@ use TresPontosTech\Tenant\Models\Traits\HasTenant;
 use TresPontosTech\User\Models\UserAnamnese;
 
 /**
+ * @property string $id
+ * @property string $name
+ * @property string $email
+ * @property Carbon|null $email_verified_at
+ * @property string $password
+ * @property string|null $crm_id
+ * @property string|null $external_id
+ * @property string|null $stripe_id
+ * @property string|null $pm_type
+ * @property string|null $pm_last_four
+ * @property Carbon|null $trial_ends_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property string|null $remember_token
  * @property-read int $monthly_appointments_left
  */
+#[UseFactory(UserFactory::class)]
 #[UsePolicy(UserPolicy::class)]
 #[ObservedBy(UserObserver::class)]
 class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasMedia, HasTenants
@@ -207,7 +226,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
      * @return Builder<User>
      */
     #[Scope]
-    public function whereNotSharedWith(Builder $query, string $documentId): Builder
+    protected function whereNotSharedWith(Builder $query, string $documentId): Builder
     {
         return $query->whereDoesntHave('sharedDocuments', function (Builder $subquery) use ($documentId): void {
             $subquery->where('document_id', $documentId);
@@ -292,6 +311,16 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
+     * Extra-credit grants the admin donated directly to this user (personal gifts).
+     *
+     * @return HasMany<CreditGrant, $this>
+     */
+    public function receivedCreditGrants(): HasMany
+    {
+        return $this->hasMany(CreditGrant::class, 'target_user_id')->latest();
+    }
+
+    /**
      * Determine if the user currently has any appointment that is not completed or cancelled.
      */
     public function hasOngoingAppointment(): bool
@@ -330,47 +359,14 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
 
                 /** @var int $result */
                 $result = Cache::remember($cacheKey, now()->addMinute(), function (): int {
-                    /** @var Subscription|null $subscription */
-                    $subscription = $this->activeSubscription()
-                        ->with('price')
-                        ->first();
+                    $monthlyLimit = $this->resolveMonthlyAppointmentLimit();
 
-                    if ($subscription === null || $subscription->price === null) {
-                        $contractualPlan = CompanyPlan::query()
-                            ->whereIn('company_id', $this->companies()->select('companies.id'))
-                            ->where('status', CompanyPlanStatusEnum::Active->value)
-                            ->whereNull('deleted_at')
-                            ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-                            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
-                            ->first();
-
-                        if ($contractualPlan === null) {
-                            return 0;
-                        }
-
-                        $monthlyLimit = $contractualPlan->monthly_appointments_per_employee;
-                        if ($monthlyLimit <= 0) {
-                            return 0;
-                        }
-
-                        $since = now()->subDays(30);
-                        $used = (int) $this->appointments()
-                            ->where('created_at', '>=', $since)
-                            ->where('status', '!=', AppointmentStatus::Cancelled->value)
-                            ->count();
-
-                        return max($monthlyLimit - $used, 0);
-                    }
-
-                    $monthlyLimit = $subscription->price->monthly_appointments;
                     if ($monthlyLimit <= 0) {
                         return 0;
                     }
 
-                    $since = now()->subDays(30);
-
                     $used = (int) $this->appointments()
-                        ->where('created_at', '>=', $since)
+                        ->where('created_at', '>=', now()->subDays(30))
                         ->where('status', '!=', AppointmentStatus::Cancelled->value)
                         ->count();
 
@@ -380,6 +376,30 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
                 return $result;
             }
         )->shouldCache();
+    }
+
+    /**
+     * Cota mensal de agendamentos, priorizando o plano da empresa (CompanyPlan)
+     * sobre a assinatura individual quando ambos existirem.
+     */
+    private function resolveMonthlyAppointmentLimit(): int
+    {
+        $contractualPlan = CompanyPlan::query()
+            ->whereIn('company_id', $this->companies()->select('companies.id'))
+            ->where('status', CompanyPlanStatusEnum::Active->value)
+            ->whereNull('deleted_at')
+            ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
+            ->first();
+
+        if ($contractualPlan !== null) {
+            return (int) $contractualPlan->monthly_appointments_per_employee;
+        }
+
+        /** @var Subscription|null $subscription */
+        $subscription = $this->activeSubscription()->with('price')->first();
+
+        return (int) ($subscription?->price->monthly_appointments ?? 0);
     }
 
     /**

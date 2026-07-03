@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Companies\RelationManagers;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers;
 
 use Closure;
 use Filament\Actions\CreateAction;
@@ -73,7 +73,8 @@ class ContractualPlansRelationManager extends RelationManager
                             }
 
                             $companyId = $this->getOwnerRecord()->getKey();
-                            $recordId = $this->getMountedAction()?->getRecord()?->getKey();
+                            $mountedRecord = $this->getMountedAction()?->getRecord();
+                            $recordId = $mountedRecord instanceof Model ? $mountedRecord->getKey() : null;
                             $startsAt = $get('starts_at') ?? now()->toDateString();
                             $endsAt = $get('ends_at') ?? '9999-12-31';
 
@@ -130,7 +131,7 @@ class ContractualPlansRelationManager extends RelationManager
                 TextColumn::make('status')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.status'))
                     ->badge()
-                    ->color(fn (CompanyPlanStatusEnum $state): string|array => $state->getColor()),
+                    ->color(fn (CompanyPlanStatusEnum $state): array => $state->getColor()),
 
                 TextColumn::make('starts_at')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.starts_at'))

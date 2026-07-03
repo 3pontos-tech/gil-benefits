@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Companies\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use TresPontosTech\Admin\Filament\Resources\Companies\CompanyResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\CompanyResource;
 
 class ListCompanies extends ListRecords
 {

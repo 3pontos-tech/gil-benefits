@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Resources\Consultants\RelationManagers;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Consultants\RelationManagers;
 
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -10,10 +10,12 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Component;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Zap\Enums\Frequency;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
@@ -24,7 +26,7 @@ class SchedulesRelationManager extends RelationManager
 
     protected static ?string $title = null;
 
-    public static function getTitle($ownerRecord, string $pageClass): string
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('consultants::resources.schedules.title');
     }
@@ -40,10 +42,14 @@ class SchedulesRelationManager extends RelationManager
                     ->searchable(),
                 TextColumn::make('frequency_config')
                     ->label(__('consultants::resources.schedules.table.columns.days'))
-                    ->state(fn (Schedule $record): string => collect($record->frequency_config?->days ?? [])
-                        ->map(fn (string $day): string => __('consultants::resources.schedules.days.' . $day))
-                        ->join(', ')
-                    ),
+                    ->state(function (Schedule $record): string {
+                        /** @var array<int, string> $days */
+                        $days = $record->frequency_config->days ?? [];
+
+                        return collect($days)
+                            ->map(fn (string $day): string => __('consultants::resources.schedules.days.' . $day))
+                            ->join(', ');
+                    }),
                 TextColumn::make('periods_summary')
                     ->label(__('consultants::resources.schedules.table.columns.periods'))
                     ->state(fn (Schedule $record): string => $record->periods
@@ -63,7 +69,7 @@ class SchedulesRelationManager extends RelationManager
                     ->form($this->availabilityFormSchema())
                     ->mutateRecordDataUsing(function (array $data, Schedule $record): array {
                         $data['frequency_config'] = [
-                            'days' => $record->frequency_config?->days ?? [],
+                            'days' => $record->frequency_config->days ?? [],
                         ];
 
                         $data['periods'] = $record->periods
@@ -100,6 +106,9 @@ class SchedulesRelationManager extends RelationManager
             ]);
     }
 
+    /**
+     * @return array<Component>
+     */
     private function availabilityFormSchema(): array
     {
         return [

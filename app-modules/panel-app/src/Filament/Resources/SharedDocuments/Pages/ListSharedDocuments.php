@@ -2,17 +2,22 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\App\Filament\Resources\SharedDocuments\Pages;
+namespace TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Tabs\Tab;
 use Illuminate\Database\Eloquent\Builder;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\SharedDocumentResource;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\SharedDocumentResource;
 
 class ListSharedDocuments extends ListRecords
 {
     protected static string $resource = SharedDocumentResource::class;
+
+    public function getTitle(): string
+    {
+        return '';
+    }
 
     protected function getHeaderActions(): array
     {

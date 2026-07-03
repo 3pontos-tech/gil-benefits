@@ -1,12 +1,12 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Resources\Appointments\Schemas;
+namespace TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas;
 
 use App\Filament\Shared\Fields\AppointmentCategorySelector;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard;
@@ -15,9 +15,6 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Actions\GetAvailableSlotsAction;
-
-// use TresPontosTech\IntegrationHighlevel\HighLevelClient;
-// use TresPontosTech\IntegrationHighlevel\Requests\FetchCalendarSlotsDTO;
 
 class AppointmentWizard
 {
@@ -38,6 +35,7 @@ class AppointmentWizard
                         ->label(__('appointments::resources.appointments.wizard.labels.date'))
                         ->required()
                         ->native(false)
+                        ->displayFormat('d/m/Y')
                         ->minDate(now()->addDays(2)->format('Y-m-d'))
                         ->reactive()
                         ->afterStateUpdated(fn (callable $set) => $set('appointment_at', null)),
@@ -50,11 +48,9 @@ class AppointmentWizard
                         ->required()
                         ->reactive(),
 
-                    TextInput::make('duration')
+                    Placeholder::make('duration')
                         ->label(__('appointments::resources.appointments.wizard.labels.duration'))
-                        ->default(__('appointments::resources.appointments.wizard.labels.duration_default'))
-                        ->disabled()
-                        ->dehydrated(false),
+                        ->content(__('appointments::resources.appointments.wizard.labels.duration_default')),
                 ]),
 
             Step::make(__('appointments::resources.appointments.wizard.steps.review_confirm'))
@@ -74,6 +70,9 @@ class AppointmentWizard
                 ->action('start'));
     }
 
+    /**
+     * @return array<string, string>
+     */
     public static function availableSlots(?string $date): array
     {
         if (is_null($date)) {
@@ -89,22 +88,11 @@ class AppointmentWizard
         return self::getAvailableTimeSlots($startDate);
     }
 
+    /**
+     * @return array<string, string>
+     */
     private static function getAvailableTimeSlots(Carbon $startDate): array
     {
         return resolve(GetAvailableSlotsAction::class)->handle($startDate);
-
-        // HighLevel integration (commented for Laravel Zap migration)
-        // $endDate = $startDate->clone()->endOfDay();
-        // $response = resolve(HighLevelClient::class)
-        //     ->getCalendarFreeSlots(FetchCalendarSlotsDTO::make($startDate, $endDate));
-        //
-        // $formattedDate = $startDate->format('Y-m-d');
-        //
-        // $response = $response[$formattedDate]['slots'];
-        //
-        // return collect($response)
-        //     ->mapWithKeys(fn ($slot): array => [
-        //         $slot => Date::parse($slot)->format('H:i'),
-        //     ])->all();
     }
 }

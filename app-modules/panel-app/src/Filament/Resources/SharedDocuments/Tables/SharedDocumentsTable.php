@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\App\Filament\Resources\SharedDocuments\Tables;
+namespace TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Tables;
 
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -9,9 +9,9 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use TresPontosTech\App\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
-use TresPontosTech\Consultants\Filament\Actions\DownloadDocumentFilamentAction;
 use TresPontosTech\Consultants\Models\Document;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
+use TresPontosTech\PanelConsultant\Filament\Actions\DownloadDocumentFilamentAction;
 
 class SharedDocumentsTable
 {

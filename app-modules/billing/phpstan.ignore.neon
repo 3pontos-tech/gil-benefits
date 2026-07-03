@@ -1,0 +1,7 @@
+parameters:
+    ignoreErrors:
+        # Cashier Checkout expõe ->url via __get mágico (encaminha para a Stripe Session).
+        - message: '#^Access to an undefined property Laravel\\Cashier\\Checkout::\$url\.$#'
+          identifier: property.notFound
+          count: 1
+          path: src/Stripe/Subscription/StripeAdapter.php

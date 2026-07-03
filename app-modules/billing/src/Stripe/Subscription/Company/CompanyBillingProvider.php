@@ -9,7 +9,6 @@ use Filament\Billing\Providers\Contracts\BillingProvider;
 use Filament\Facades\Filament;
 use Filament\Pages\Dashboard;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Routing\Redirector;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
@@ -19,7 +18,7 @@ class CompanyBillingProvider implements BillingProvider
 {
     public function getRouteAction(): string|Closure|array
     {
-        return static function (): Redirector|RedirectResponse {
+        return static function (): RedirectResponse {
             /** @var Company $tenant */
             $tenant = Filament::getTenant();
 
@@ -29,7 +28,7 @@ class CompanyBillingProvider implements BillingProvider
 
             $driver = $providerEnum instanceof BillingProviderEnum
                 ? $billing->getDriver(BillingProviderEnum::from($providerEnum->value))
-                : $billing->getDefaultDriver();
+                : $billing->getDriver();
 
             $driver->ensureCustomerExists($tenant);
 

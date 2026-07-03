@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Widgets\Metrics;
+namespace TresPontosTech\PanelAdmin\Filament\Widgets\Metrics;
 
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
@@ -21,7 +21,7 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
 
     public function getHeading(): ?string
     {
-        $category = data_get($this->filters, 'departmentCategory');
+        $category = data_get($this->pageFilters, 'departmentCategory');
 
         if (filled($category)) {
             $enum = DepartmentCategory::tryFrom($category);
@@ -36,9 +36,9 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
 
     protected function getData(): array
     {
-        $startDate = data_get($this->filters, 'startDate');
-        $endDate = data_get($this->filters, 'endDate');
-        $category = data_get($this->filters, 'departmentCategory');
+        $startDate = data_get($this->pageFilters, 'startDate');
+        $endDate = data_get($this->pageFilters, 'endDate');
+        $category = data_get($this->pageFilters, 'departmentCategory');
 
         $start = filled($startDate) ? now()->parse($startDate)->startOfDay() : now()->subDays(30)->startOfDay();
         $end = filled($endDate) ? now()->parse($endDate)->endOfDay() : now()->endOfDay();
@@ -73,14 +73,18 @@ class AppointmentsByDepartmentCategoryChart extends ChartWidget
                 DB::raw('COUNT(appointments.id) as total'),
             ])
             ->get()
-            ->map(fn ($row) => (object) [
+            ->map(fn (Department $row): object => (object) [
                 'name' => $row->category->getLabel(),
-                'total' => $row->total,
+                'total' => $row->getAttribute('total'),
             ]);
 
         return $this->buildChartData($counts);
     }
 
+    /**
+     * @param  Collection<int, mixed>  $counts
+     * @return array<string, mixed>
+     */
     private function buildChartData(
         Collection $counts,
         string $color = 'rgba(59, 130, 246, 0.7)',

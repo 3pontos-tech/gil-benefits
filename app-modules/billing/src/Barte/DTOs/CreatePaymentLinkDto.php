@@ -6,6 +6,10 @@ namespace TresPontosTech\Billing\Barte\DTOs;
 
 readonly class CreatePaymentLinkDto
 {
+    /**
+     * @param  list<array<string, mixed>>  $metadata
+     * @param  list<string>  $paymentMethods
+     */
     public function __construct(
         public string $uuidSellerClient,
         public string $scheduledDate,
@@ -16,6 +20,9 @@ readonly class CreatePaymentLinkDto
         public ?PaymentOrderDto $paymentOrder = null,
     ) {}
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(): array
     {
         $data = [

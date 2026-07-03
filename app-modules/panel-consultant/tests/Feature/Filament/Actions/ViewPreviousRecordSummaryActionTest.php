@@ -6,8 +6,8 @@ use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
-use TresPontosTech\Consultants\Filament\Actions\ViewPreviousRecordSummaryAction;
-use TresPontosTech\Consultants\Filament\Resources\Appointments\Pages\ListAppointments;
+use TresPontosTech\PanelConsultant\Filament\Actions\ViewPreviousRecordSummaryAction;
+use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListAppointments;
 
 use function Pest\Livewire\livewire;
 

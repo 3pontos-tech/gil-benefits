@@ -25,9 +25,13 @@ use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Jobs\DistributeCreditsEquallyJob;
 use TresPontosTech\Billing\Core\Jobs\RevokeCreditsFromEmployeesJob;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
 use TresPontosTech\PanelCompany\Filament\Widgets\CompanyCreditStatsWidget;
 
+/**
+ * @property-read int $ownerAvailableCreditsCount
+ */
 class CompanyCreditPage extends Page implements HasTable
 {
     use InteractsWithTable;
@@ -70,6 +74,7 @@ class CompanyCreditPage extends Page implements HasTable
 
     public function table(Table $table): Table
     {
+        /** @var Company $tenant */
         $tenant = filament()->getTenant();
         $records = UserCredit::query()
             ->where('company_id', $tenant->getKey())
@@ -115,7 +120,7 @@ class CompanyCreditPage extends Page implements HasTable
                             ->required(),
                     ])
                     ->action(function (array $data, UserCredit $record): void {
-                        $employee = User::query()->findOrFail($data['employee_id']);
+                        $employee = User::query()->findOrFail((string) $data['employee_id']);
                         resolve(TransferCreditBetweenEmployees::class)->handle($record, $employee);
                     }),
             ])
@@ -129,9 +134,11 @@ class CompanyCreditPage extends Page implements HasTable
                     ->disabled(fn (): bool => ! $this->hasDistributedCredits())
                     ->tooltip(fn (): ?string => $this->hasDistributedCredits()
                         ? null
-                        : __('panel-company::resources.actions.revoke_all_credits.disabled_tooltip'))
+                        : (string) __('panel-company::resources.actions.revoke_all_credits.disabled_tooltip'))
                     ->action(function (): void {
-                        dispatch(new RevokeCreditsFromEmployeesJob(filament()->getTenant()));
+                        /** @var Company $tenant */
+                        $tenant = filament()->getTenant();
+                        dispatch(new RevokeCreditsFromEmployeesJob($tenant));
 
                         Notification::make()
                             ->title(__('panel-company::resources.actions.revoke_all_credits.queued_notification'))
@@ -145,9 +152,11 @@ class CompanyCreditPage extends Page implements HasTable
                     ->disabled(fn (): bool => ! $this->canDistributeEqually())
                     ->tooltip(fn (): ?string => $this->canDistributeEqually()
                         ? null
-                        : __('panel-company::resources.actions.distribute_equally.disabled_tooltip'))
+                        : (string) __('panel-company::resources.actions.distribute_equally.disabled_tooltip'))
                     ->action(function (): void {
-                        dispatch(new DistributeCreditsEquallyJob(filament()->getTenant()));
+                        /** @var Company $tenant */
+                        $tenant = filament()->getTenant();
+                        dispatch(new DistributeCreditsEquallyJob($tenant));
 
                         Notification::make()
                             ->title(__('panel-company::resources.actions.distribute_equally.queued_notification'))
@@ -161,7 +170,7 @@ class CompanyCreditPage extends Page implements HasTable
                     ->disabled(fn (): bool => ! $this->hasOwnerAvailableCredits())
                     ->tooltip(fn (): ?string => $this->hasOwnerAvailableCredits()
                         ? null
-                        : __('panel-company::resources.actions.distribute_manually.disabled_tooltip'))
+                        : (string) __('panel-company::resources.actions.distribute_manually.disabled_tooltip'))
                     ->schema(fn (): array => [
                         TextEntry::make('notice')
                             ->label('')
@@ -185,9 +194,11 @@ class CompanyCreditPage extends Page implements HasTable
                     ])
                     ->successNotificationTitle(__('panel-company::resources.actions.distribute_manually.success_notification'))
                     ->action(function (array $data, Action $action): void {
-                        $employee = User::query()->findOrFail($data['employee_id']);
+                        $employee = User::query()->findOrFail((string) $data['employee_id']);
+                        /** @var Company $tenant */
+                        $tenant = filament()->getTenant();
                         resolve(AllocateCreditToEmployee::class)->handle(
-                            filament()->getTenant(),
+                            $tenant,
                             $employee,
                             (int) $data['quantity'],
                         );
@@ -199,6 +210,7 @@ class CompanyCreditPage extends Page implements HasTable
     #[Computed]
     public function ownerAvailableCreditsCount(): int
     {
+        /** @var Company $company */
         $company = filament()->getTenant();
 
         return UserCredit::query()
@@ -217,6 +229,7 @@ class CompanyCreditPage extends Page implements HasTable
     #[Computed]
     public function hasDistributedCredits(): bool
     {
+        /** @var Company $company */
         $company = filament()->getTenant();
 
         return UserCredit::query()
@@ -229,6 +242,7 @@ class CompanyCreditPage extends Page implements HasTable
     #[Computed]
     public function canDistributeEqually(): bool
     {
+        /** @var Company $company */
         $company = filament()->getTenant();
 
         $availableCredits = UserCredit::query()
@@ -245,7 +259,10 @@ class CompanyCreditPage extends Page implements HasTable
     /** @return array<string, string> */
     private function getActiveEmployeeOptions(): array
     {
-        return filament()->getTenant()
+        /** @var Company $tenant */
+        $tenant = filament()->getTenant();
+
+        return $tenant
             ->onlyEmployees()
             ->get()
             ->pluck('name', 'id')

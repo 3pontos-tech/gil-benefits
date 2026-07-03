@@ -7,17 +7,17 @@
 	"require": {},
 	"autoload": {
 		"psr-4": {
-			"TresPontosTech\\App\\": "src/",
-			"TresPontosTech\\App\\Tests\\": "tests/",
-			"TresPontosTech\\App\\Database\\Factories\\": "database/factories/",
-			"TresPontosTech\\App\\Database\\Seeders\\": "database/seeders/"
+			"TresPontosTech\\PanelApp\\": "src/",
+			"TresPontosTech\\PanelApp\\Tests\\": "tests/",
+			"TresPontosTech\\PanelApp\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\PanelApp\\Database\\Seeders\\": "database/seeders/"
 		}
 	},
 	"minimum-stability": "stable",
 	"extra": {
 		"laravel": {
 			"providers": [
-				"TresPontosTech\\App\\Providers\\PanelAppServiceProvider"
+				"TresPontosTech\\PanelApp\\Providers\\PanelAppServiceProvider"
 			]
 		}
 	}

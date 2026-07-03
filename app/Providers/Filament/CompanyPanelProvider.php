@@ -11,7 +11,6 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationItem;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -30,6 +29,7 @@ use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\Billing\Stripe\Subscription\Company\CompanyBillingProvider;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Pages\CommandDashboard;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\RegisterTenant;
 
@@ -54,7 +54,7 @@ class CompanyPanelProvider extends PanelProvider
             ->discoverWidgets(in: base_path('app-modules/panel-company/src/Filament/Widgets'), for: 'TresPontosTech\\PanelCompany\\Filament\\Widgets')
             ->discoverClusters(in: base_path('app-modules/panel-company/src/Filament/Clusters'), for: 'TresPontosTech\\PanelCompany\\Filament\\Clusters')
             ->pages([
-                Dashboard::class,
+                CommandDashboard::class,
                 TenantSubscriptionPage::class,
                 BillingManagePage::class,
             ])

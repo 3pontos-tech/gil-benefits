@@ -20,6 +20,9 @@ interface BillingContract
 
     public function checkoutOpensInNewTab(): bool;
 
+    /**
+     * @param  array<string, mixed>  $options
+     */
     public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string;
 
     public function hasActiveSubscription(Company|User $billable): bool;

@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Widgets;
+namespace TresPontosTech\PanelAdmin\Filament\Widgets;
 
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -15,10 +15,19 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
 
     protected int|string|array $columnSpan = 'full';
 
+    /**
+     * @var array<string, mixed>
+     */
     public array $tableFilterState = [];
 
+    /**
+     * @var object{total: int, scheduled: int, pending: int, cancelled: int, completed: int}|null
+     */
     private ?object $aggregates = null;
 
+    /**
+     * @param  array<string, mixed>  $filters
+     */
     #[On('appointments-table-filters-changed')]
     public function syncFilters(array $filters): void
     {
@@ -37,9 +46,16 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
         ];
     }
 
+    /**
+     * @return object{total: int, scheduled: int, pending: int, cancelled: int, completed: int}
+     */
     private function aggregates(): object
     {
-        return $this->aggregates ??= Appointment::query()
+        if ($this->aggregates !== null) {
+            return $this->aggregates;
+        }
+
+        $row = Appointment::query()
             ->when(
                 filled(data_get($this->tableFilterState, 'company_id.value')),
                 fn (Builder $q) => $q->where('company_id', data_get($this->tableFilterState, 'company_id.value'))
@@ -86,7 +102,16 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
                     AppointmentStatus::Completed->value,
                 ]
             )
+            ->toBase()
             ->first();
+
+        return $this->aggregates = (object) [
+            'total' => (int) ($row->total ?? 0),
+            'scheduled' => (int) ($row->scheduled ?? 0),
+            'pending' => (int) ($row->pending ?? 0),
+            'cancelled' => (int) ($row->cancelled ?? 0),
+            'completed' => (int) ($row->completed ?? 0),
+        ];
     }
 
     private function totalRequestsStat(): Stat

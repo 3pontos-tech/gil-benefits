@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
-use TresPontosTech\Admin\Filament\Resources\Companies\Pages\EditCompany;
-use TresPontosTech\Admin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\EditCompany;
+use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;

@@ -17,4 +17,9 @@ return [
         'timeout' => 70,
         'connect_timeout' => 10,
     ],
+
+    'admin_notification_recipients' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('APPOINTMENTS_ADMIN_NOTIFICATION_RECIPIENTS', '')),
+    ))),
 ];

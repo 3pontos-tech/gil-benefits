@@ -6,7 +6,8 @@ use App\Models\Users\User;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
-use Stripe\Collection;
+use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -15,16 +16,16 @@ use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
-class RedirectUserIfNotSubscribed
+readonly class RedirectUserIfNotSubscribed
 {
     public function __construct(
-        private readonly PlanRepository $planRepository,
-        private readonly BillingManager $billingManager,
+        private PlanRepository $planRepository,
+        private BillingManager $billingManager,
     ) {}
 
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        /** @var Company|Filament $tenant */
+        /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
         if ($tenant->hasActivePlan()) {
@@ -49,7 +50,6 @@ class RedirectUserIfNotSubscribed
 
         // TODO: Employee needs to pick a plan to continue
         // TODO: the plan is already settled up (by pila) so, let them continue
-
         /** @var Collection<string, PlanEntity> $availableEmployeesPlans */
         $availableEmployeesPlans = $this->planRepository->getPlansFor('user');
 

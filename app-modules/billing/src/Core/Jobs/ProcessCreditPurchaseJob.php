@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use TresPontosTech\Billing\Core\Actions\Credit\PurchaseCredits;
+use TresPontosTech\Billing\Core\Actions\Credit\IssueCredits;
 use TresPontosTech\Billing\Core\DTOs\CreditDTO;
 use TresPontosTech\Billing\Core\Events\Credit\CreditsDelivered;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
@@ -38,7 +38,7 @@ class ProcessCreditPurchaseJob implements ShouldBeUnique, ShouldQueue
         return $this->event->orderUuid;
     }
 
-    public function handle(PurchaseCredits $action): void
+    public function handle(IssueCredits $action): void
     {
         $modelClass = Relation::getMorphedModel($this->event->billableType);
         $billable = $modelClass::findOrFail($this->event->billableId);

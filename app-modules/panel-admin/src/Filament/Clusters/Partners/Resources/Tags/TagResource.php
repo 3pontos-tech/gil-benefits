@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags;
+namespace TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags;
 
 use BackedEnum;
 use Filament\Pages\Enums\SubNavigationPosition;
@@ -11,12 +11,12 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Spatie\Tags\Tag;
-use TresPontosTech\Admin\Filament\Clusters\Partners\PartnersCluster;
-use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Pages\CreateTag;
-use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Pages\EditTag;
-use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Pages\ListTags;
-use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Schemas\TagForm;
-use TresPontosTech\Admin\Filament\Clusters\Partners\Resources\Tags\Tables\TagsTable;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\PartnersCluster;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Pages\CreateTag;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Pages\EditTag;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Pages\ListTags;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Schemas\TagForm;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Tags\Tables\TagsTable;
 
 class TagResource extends Resource
 {

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Resources\Users\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Support\Enums\Width;
-use TresPontosTech\Admin\Filament\Resources\Users\UserResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Users\UserResource;
 
 class ListUsers extends ListRecords
 {

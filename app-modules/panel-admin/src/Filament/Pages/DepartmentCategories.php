@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Filament\Pages;
+namespace TresPontosTech\PanelAdmin\Filament\Pages;
 
 use Filament\Pages\Page;
 use Filament\Schemas\Components\EmbeddedTable;
@@ -61,6 +61,9 @@ class DepartmentCategories extends Page implements HasTable
             ->paginated(false);
     }
 
+    /**
+     * @return array<int, array{case: DepartmentCategory, total: mixed}>
+     */
     private function getCategoryData(): array
     {
         $counts = Department::query()

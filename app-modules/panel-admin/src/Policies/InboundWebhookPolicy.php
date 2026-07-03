@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Policies;
+namespace TresPontosTech\PanelAdmin\Policies;
 
 use App\Models\Users\User;
 

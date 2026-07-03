@@ -2,25 +2,34 @@
 
 namespace TresPontosTech\Billing\Core\Models;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Database\Factories\BillingCustomerFactory;
 
+/**
+ * @property int $id
+ * @property string $billable_type
+ * @property string $billable_id
+ * @property BillingProviderEnum $provider
+ * @property string $provider_customer_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ */
+#[UseFactory(BillingCustomerFactory::class)]
 class BillingCustomer extends Model
 {
+    /** @use HasFactory<BillingCustomerFactory> */
     use HasFactory;
+
     use SoftDeletes;
 
     protected $table = 'billing_customers';
-
-    protected static function newFactory(): Factory
-    {
-        return BillingCustomerFactory::new();
-    }
 
     protected $fillable = [
         'billable_type',
@@ -45,7 +54,7 @@ class BillingCustomer extends Model
             ->value('provider_customer_id');
     }
 
-    public static function getActiveProvider(Model $billable): null|BillingProviderEnum|string
+    public static function getActiveProvider(Model $billable): ?BillingProviderEnum
     {
         $provider = Subscription::query()
             ->where('subscriptionable_type', $billable->getMorphClass())
@@ -60,10 +69,14 @@ class BillingCustomer extends Model
             return BillingProviderEnum::from($provider);
         }
 
-        return static::query()
+        $fallbackProvider = static::query()
             ->where('billable_type', $billable->getMorphClass())
             ->where('billable_id', $billable->getKey())
             ->latest()
             ->value('provider');
+
+        return $fallbackProvider !== null
+            ? BillingProviderEnum::from($fallbackProvider)
+            : null;
     }
 }

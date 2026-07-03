@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Admin\Providers;
+namespace TresPontosTech\PanelAdmin\Providers;
 
 use Basement\BetterMails\Core\Models\BetterEmail;
 use Basement\Webhooks\Models\InboundWebhook;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use TresPontosTech\Admin\Policies\BetterMailPolicy;
-use TresPontosTech\Admin\Policies\InboundWebhookPolicy;
+use TresPontosTech\PanelAdmin\Policies\BetterMailPolicy;
+use TresPontosTech\PanelAdmin\Policies\InboundWebhookPolicy;
 
 class PanelAdminServiceProvider extends ServiceProvider
 {

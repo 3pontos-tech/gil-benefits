@@ -6,13 +6,13 @@ use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Consultants\Filament\Actions\ShareDocumentFilamentAction;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\EditDocument;
-use TresPontosTech\Consultants\Filament\Resources\Documents\Pages\ListDocuments;
-use TresPontosTech\Consultants\Filament\Resources\Documents\RelationManagers\SharedDocumentRelationManager;
 use TresPontosTech\Consultants\Mail\DocumentSharedMail;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\PanelConsultant\Filament\Actions\ShareDocumentFilamentAction;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\EditDocument;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\ListDocuments;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\RelationManagers\SharedDocumentRelationManager;
 
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;

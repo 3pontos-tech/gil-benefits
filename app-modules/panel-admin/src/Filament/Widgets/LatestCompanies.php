@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Admin\Filament\Widgets;
+namespace TresPontosTech\PanelAdmin\Filament\Widgets;
 
 use App\Filament\Tables\Columns\CnpjColumn;
 use Filament\Tables\Columns\TextColumn;

@@ -1,11 +1,12 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Actions;
+namespace TresPontosTech\PanelConsultant\Filament\Actions;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Component;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Consultants\Actions\UpsertDocumentShareAction;
@@ -35,6 +36,9 @@ class ShareDocumentFilamentAction extends Action
             });
     }
 
+    /**
+     * @return array<Component>
+     */
     public static function getCustomForm(): array
     {
         return [
@@ -57,7 +61,10 @@ class ShareDocumentFilamentAction extends Action
         ];
     }
 
-    public static function handleExecution(Document $record, array $data, $action): void
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public static function handleExecution(Document $record, array $data, Action $action): void
     {
         $consultantId = auth()->user()->consultant->getKey();
 
@@ -82,7 +89,7 @@ class ShareDocumentFilamentAction extends Action
             ])
         );
 
-        $employee = User::query()->find($data['employee_id']);
+        $employee = User::query()->whereKey($data['employee_id'])->first();
 
         if ($employee) {
             Mail::to($employee->email)->queue(new DocumentSharedMail($record, $employee));

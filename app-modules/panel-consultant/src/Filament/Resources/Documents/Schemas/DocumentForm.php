@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Consultants\Filament\Resources\Documents\Schemas;
+namespace TresPontosTech\PanelConsultant\Filament\Resources\Documents\Schemas;
 
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
-use TresPontosTech\Consultants\Filament\Pages\ConsultantDashboard;
-use TresPontosTech\Consultants\Filament\Pages\ConsultantSchedule;
-use TresPontosTech\Consultants\Filament\Pages\EditConsultantProfile;
+use TresPontosTech\PanelConsultant\Filament\Pages\ConsultantDashboard;
+use TresPontosTech\PanelConsultant\Filament\Pages\ConsultantSchedule;
+use TresPontosTech\PanelConsultant\Filament\Pages\EditConsultantProfile;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;

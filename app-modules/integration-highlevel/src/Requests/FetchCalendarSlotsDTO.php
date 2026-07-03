@@ -26,6 +26,9 @@ class FetchCalendarSlotsDTO implements JsonSerializable
         );
     }
 
+    /**
+     * @return array{startDate: int, endDate: int, timezone: string|null}
+     */
     public function jsonSerialize(): array
     {
         return [
