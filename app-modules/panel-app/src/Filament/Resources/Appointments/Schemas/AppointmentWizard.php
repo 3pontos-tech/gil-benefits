@@ -5,8 +5,8 @@ namespace TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas;
 use App\Filament\Shared\Fields\AppointmentCategorySelector;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard;
@@ -35,6 +35,7 @@ class AppointmentWizard
                         ->label(__('appointments::resources.appointments.wizard.labels.date'))
                         ->required()
                         ->native(false)
+                        ->displayFormat('d/m/Y')
                         ->minDate(now()->addDays(2)->format('Y-m-d'))
                         ->reactive()
                         ->afterStateUpdated(fn (callable $set) => $set('appointment_at', null)),
@@ -47,11 +48,9 @@ class AppointmentWizard
                         ->required()
                         ->reactive(),
 
-                    TextInput::make('duration')
+                    Placeholder::make('duration')
                         ->label(__('appointments::resources.appointments.wizard.labels.duration'))
-                        ->default(__('appointments::resources.appointments.wizard.labels.duration_default'))
-                        ->disabled()
-                        ->dehydrated(false),
+                        ->content(__('appointments::resources.appointments.wizard.labels.duration_default')),
                 ]),
 
             Step::make(__('appointments::resources.appointments.wizard.steps.review_confirm'))

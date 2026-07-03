@@ -6,8 +6,10 @@ use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Arrayable;
 use Throwable;
 use TresPontosTech\Appointments\Actions\BookAppointmentAction;
@@ -49,6 +51,15 @@ class CreateAppointment extends CreateRecord
     {
         return $schema
             ->schema([
+                Actions::make([
+                    Action::make('back-to-list')
+                        ->label(__('panel-app::resources.appointments.pages.create.back_to_list'))
+                        ->icon(Heroicon::ArrowLeft)
+                        ->color('gray')
+                        ->link()
+                        ->url(AppointmentResource::getUrl('index')),
+                ]),
+
                 AppointmentWizard::make()
                     ->submitAction(Action::make('appointment-submit')
                         ->label(__('panel-app::resources.appointments.pages.create.book_appointment'))

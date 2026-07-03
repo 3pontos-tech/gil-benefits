@@ -29,7 +29,7 @@ class AppointmentsTable
                     ->searchable(),
                 TextColumn::make('appointment_at')
                     ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
                 TextColumn::make('status')
                     ->label(__('appointments::resources.appointments.table.columns.status'))
@@ -37,12 +37,12 @@ class AppointmentsTable
                     ->searchable(),
                 TextColumn::make('created_at')
                     ->label(__('appointments::resources.appointments.table.columns.created_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->label(__('appointments::resources.appointments.table.columns.updated_at'))
-                    ->dateTime()
+                    ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
