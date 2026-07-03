@@ -49,7 +49,7 @@ class SupportTicketsTable
 
                 TextColumn::make('created_at')
                     ->label(__('support::resources.support_tickets.columns.created_at'))
-                    ->dateTime('d/m/Y H:i')
+                    ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('updated_at')
@@ -68,7 +68,8 @@ class SupportTicketsTable
                     ->options(SupportTicketCategoryEnum::class),
             ])
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->iconButton(),
 
                 Action::make('close')
                     ->label(__('support::resources.support_tickets.actions.close'))

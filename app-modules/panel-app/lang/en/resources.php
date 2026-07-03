@@ -39,6 +39,7 @@ return [
                 'book_appointment' => 'Book Appointment',
                 'booked_successfully' => 'Appointment booked successfully',
                 'booking_failed' => 'Failed to book appointment',
+                'back_to_list' => 'Back to list',
             ],
         ],
     ],

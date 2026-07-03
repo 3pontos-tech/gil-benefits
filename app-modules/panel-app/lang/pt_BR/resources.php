@@ -39,6 +39,7 @@ return [
                 'book_appointment' => 'Agendar Consultoria',
                 'booked_successfully' => 'Consultoria agendada com sucesso',
                 'booking_failed' => 'Falha ao agendar consultoria',
+                'back_to_list' => 'Voltar para a listagem',
             ],
         ],
     ],
