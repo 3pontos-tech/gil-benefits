@@ -30,7 +30,7 @@ class CompanyServiceProvider extends ServiceProvider
     {
         Gate::define('register_company', function (User $user) {
 
-            if ($user->isAdmin() || $user->isCompanyOwner()) {
+            if ($user->isAdmin() || $user->ownsAnyCompany()) {
                 return true;
             }
 

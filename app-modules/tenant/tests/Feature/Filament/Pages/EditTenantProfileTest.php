@@ -101,8 +101,9 @@ describe('authorization', function (): void {
 
         actingAs($anotherCompanyOwner);
 
+        // No relationship with the current tenant: Filament denies at the tenant level (404).
         livewire(EditTenantProfile::class)
-            ->assertForbidden();
+            ->assertNotFound();
     });
 
     test('company owner can see the page', function (): void {

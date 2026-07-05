@@ -14,8 +14,8 @@ final class CreateCompanyAction
         $user = User::query()->where('id', $dto->userId)->firstOrFail();
         $company = Company::query()->create($dto->jsonSerialize());
 
-        $user->companies()->attach($company);
-        $user->assignRole(Roles::CompanyOwner);
+        // Owner role lives in the pivot (and is also derived from companies.user_id).
+        $user->companies()->attach($company, ['role' => Roles::CompanyOwner->value]);
 
         return $company;
     }
