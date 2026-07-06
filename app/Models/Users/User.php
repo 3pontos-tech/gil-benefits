@@ -141,6 +141,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             if (! $tenant instanceof Company) {
                 return false;
             }
+
             if ($this->isCompanyOwner($tenant)) {
                 return true;
             }
