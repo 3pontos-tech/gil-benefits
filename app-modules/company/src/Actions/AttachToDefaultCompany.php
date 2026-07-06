@@ -11,13 +11,6 @@ final class AttachToDefaultCompany
 {
     public function execute(User $user, Roles $role): void
     {
-        // Consultants are not members of the shared company.
-        if ($role === Roles::Consultant) {
-            $user->assignRole(Roles::Consultant->value);
-
-            return;
-        }
-
         $company = Company::query()->firstOrCreate(
             [
                 'slug' => 'flamma-company',
@@ -30,11 +23,13 @@ final class AttachToDefaultCompany
             ]
         );
 
-        // The company role lives in the pivot; the global role stays the baseline "user".
+        // Everyone (including consultants) joins the shared company; the company
+        // role lives in the pivot as employee.
         $company->employees()->syncWithoutDetaching([
             $user->getKey() => ['role' => Roles::Employee->value],
         ]);
 
-        $user->assignRole(Roles::User->value);
+        // Global identity role: consultants keep theirs, everyone else is a baseline user.
+        $user->assignRole(($role === Roles::Consultant ? Roles::Consultant : Roles::User)->value);
     }
 }

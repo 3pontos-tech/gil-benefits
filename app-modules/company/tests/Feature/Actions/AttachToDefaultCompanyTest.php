@@ -37,12 +37,18 @@ it('does not create a duplicate company when called multiple times (idempotent)'
     expect($company->employees()->count())->toBe(2);
 });
 
-it('does not attach consultants to the shared company', function (): void {
+it('attaches consultants to the shared company as employee while keeping the consultant global role', function (): void {
     $user = User::factory()->create();
 
     resolve(AttachToDefaultCompany::class)->execute($user, Roles::Consultant);
 
-    expect($user->fresh()->hasRole(Roles::Consultant))->toBeTrue()
-        ->and($user->companies()->count())->toBe(0)
-        ->and(Company::query()->where('slug', 'flamma-company')->exists())->toBeFalse();
+    $company = Company::query()->where('slug', 'flamma-company')->first();
+
+    expect($user->fresh()->hasRole(Roles::Consultant))->toBeTrue();
+    expect(
+        $company->employees()
+            ->wherePivot('user_id', $user->id)
+            ->wherePivot('role', Roles::Employee->value)
+            ->exists()
+    )->toBeTrue();
 });

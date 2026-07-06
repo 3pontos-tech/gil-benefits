@@ -25,12 +25,12 @@ it('attaches the user to the default company as an employee when the event is ha
     expect($user->fresh()->hasRole(Roles::User))->toBeTrue();
 });
 
-it('does not attach a consultant to the default company', function (): void {
+it('attaches a consultant to the default company while keeping the consultant role', function (): void {
     $user = User::factory()->create();
     $event = new UserRegistered($user, Roles::Consultant);
 
     resolve(AttachUserToDefaultCompanyListener::class)->handle($event);
 
     expect($user->fresh()->hasRole(Roles::Consultant))->toBeTrue()
-        ->and($user->companies()->count())->toBe(0);
+        ->and($user->companies()->wherePivot('role', Roles::Employee->value)->exists())->toBeTrue();
 });

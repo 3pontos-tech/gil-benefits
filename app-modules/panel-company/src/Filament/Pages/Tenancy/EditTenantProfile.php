@@ -117,11 +117,11 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
             ])
             ->recordActions([
                 Action::make('toggle-manager')
-                    ->label(fn (User $record): string => $record->role === Roles::CompanyManager->value
+                    ->label(fn (User $record): string => $record->getAttribute('role') === Roles::CompanyManager->value
                         ? __('panel-company::resources.pages.edit_tenant.remove_manager')
                         : __('panel-company::resources.pages.edit_tenant.make_manager'))
                     ->icon(Heroicon::OutlinedShieldCheck)
-                    ->color(fn (User $record): string => $record->role === Roles::CompanyManager->value ? 'danger' : 'warning')
+                    ->color(fn (User $record): string => $record->getAttribute('role') === Roles::CompanyManager->value ? 'danger' : 'warning')
                     ->requiresConfirmation()
                     ->visible(function (User $record): bool {
                         /** @var User $actingUser */
@@ -137,13 +137,13 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                             return false;
                         }
 
-                        return ! ($actingUser->isCompanyManager() && $record->role === Roles::CompanyManager->value);
+                        return ! ($actingUser->isCompanyManager() && $record->getAttribute('role') === Roles::CompanyManager->value);
                     })
                     ->action(function (User $record): void {
                         /** @var Company $company */
                         $company = filament()->getTenant();
 
-                        if ($record->role === Roles::CompanyManager->value) {
+                        if ($record->getAttribute('role') === Roles::CompanyManager->value) {
                             $company->employees()->updateExistingPivot($record, ['role' => Roles::Employee->value]);
 
                             Notification::make()

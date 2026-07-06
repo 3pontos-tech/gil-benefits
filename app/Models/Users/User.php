@@ -134,15 +134,20 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
         if ($this->isAdmin()) {
             return true;
         }
+
         // The management (company) panel is for owners/managers of that specific
         // company. Being merely an employee there is not enough.
         if (Filament::getCurrentPanel()?->getId() === FilamentPanel::Company->value) {
+            if (! $tenant instanceof Company) {
+                return false;
+            }
             if ($this->isCompanyOwner($tenant)) {
                 return true;
             }
 
             return $this->isCompanyManager($tenant);
         }
+
         // Other panels (app): any active membership of that company.
         if ($this->ownedCompanies()->whereKey($tenant)->exists()) {
             return true;
@@ -266,8 +271,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * Papel efetivo do usuário DENTRO de uma empresa (a fonte da verdade é o pivot).
-     * Sem argumento, usa o tenant atual do Filament.
+     * Effective role of the user WITHIN a company (the pivot is the source of truth).
+     * Without an argument, uses the current Filament tenant.
      */
     public function tenantRole(?Company $company = null): ?Roles
     {
@@ -277,7 +282,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             return null;
         }
 
-        // Dono real da empresa precede o pivot.
+        // The real company owner takes precedence over the pivot.
         if ($company->user_id === $this->getKey()) {
             return Roles::CompanyOwner;
         }
@@ -301,7 +306,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * Possui alguma empresa (é dono em `companies.user_id`).
+     * Owns at least one company (is the owner in `companies.user_id`).
      */
     public function ownsAnyCompany(): bool
     {
@@ -309,7 +314,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * É gerente em alguma empresa (papel no pivot).
+     * Owns or manages at least one company (manager role in the pivot).
      */
     public function managesAnyCompany(): bool
     {
@@ -321,28 +326,31 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * Verifica uma permissão POR-TENANT.
+     * Checks a PER-TENANT permission.
      *
-     * Papéis globais (super_admin, admin, consultant, user) concedem permissão em qualquer lugar.
-     * Papéis de empresa (owner, manager, employee) só valem dentro da empresa correspondente,
-     * lidos do pivot — nunca da role global (que pode estar obsoleta).
+     * Truly global roles (super_admin, admin, consultant) grant permission anywhere.
+     * Company roles (owner, manager, employee) only apply within their company,
+     * read from the pivot — never from a global role (which may be stale).
      */
     public function hasTenantPermission(string $permission, ?Company $company = null): bool
     {
-        // Apenas papéis genuinamente globais concedem permissão fora de uma empresa.
-        // "user"/"employee" NÃO entram aqui: são baseline/por-tenant e suas permissões
-        // vêm do papel no pivot da empresa — senão a role global "user" (que todos têm)
-        // reabriria o vazamento (ex.: view_any_users).
+        // Only truly global roles grant permission outside a company.
+        // "user"/"employee" are excluded: they are baseline/per-tenant and their
+        // permissions come from the company pivot — otherwise the global "user"
+        // role (which everyone has) would reopen the leak (e.g. view_any_users).
         $globalRoles = [
             Roles::SuperAdmin->value,
             Roles::Admin->value,
             Roles::Consultant->value,
         ];
 
-        foreach ($this->roles()->whereIn('name', $globalRoles)->get() as $role) {
-            if ($role->hasPermissionTo($permission)) {
-                return true;
-            }
+        $grantedByGlobalRole = $this->roles()
+            ->whereIn('name', $globalRoles)
+            ->whereHas('permissions', fn (Builder $query): Builder => $query->where('name', $permission))
+            ->exists();
+
+        if ($grantedByGlobalRole) {
+            return true;
         }
 
         $tenantRole = $this->tenantRole($company);
@@ -351,7 +359,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             return false;
         }
 
-        return Role::findByName($tenantRole->value, 'web')->hasPermissionTo($permission);
+        return Role::query()
+            ->where('name', $tenantRole->value)
+            ->whereHas('permissions', fn (Builder $query): Builder => $query->where('name', $permission))
+            ->exists();
     }
 
     public function forgetMonthlyAppointmentsLeftCache(): void
@@ -467,8 +478,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * Cota mensal de agendamentos, priorizando o plano da empresa (CompanyPlan)
-     * sobre a assinatura individual quando ambos existirem.
+     * Monthly appointment quota, prioritizing the company plan (CompanyPlan)
+     * over the individual subscription when both exist.
      */
     private function resolveMonthlyAppointmentLimit(): int
     {
