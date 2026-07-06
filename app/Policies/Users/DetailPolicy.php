@@ -15,36 +15,36 @@ class DetailPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::ViewAny->buildPermissionFor(Detail::class));
+        return $user->hasTenantPermission(PermissionsEnum::ViewAny->buildPermissionFor(Detail::class));
     }
 
     public function view(User $user, Detail $detail): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::View->buildPermissionFor(Detail::class));
+        return $user->hasTenantPermission(PermissionsEnum::View->buildPermissionFor(Detail::class));
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Create->buildPermissionFor(Detail::class));
+        return $user->hasTenantPermission(PermissionsEnum::Create->buildPermissionFor(Detail::class));
     }
 
     public function update(User $user, Detail $detail): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Update->buildPermissionFor(Detail::class));
+        return $user->hasTenantPermission(PermissionsEnum::Update->buildPermissionFor(Detail::class));
     }
 
     public function delete(User $user, Detail $detail): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Delete->buildPermissionFor(Detail::class));
+        return $user->hasTenantPermission(PermissionsEnum::Delete->buildPermissionFor(Detail::class));
     }
 
     public function restore(User $user, Detail $detail): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Restore->buildPermissionFor(Detail::class));
+        return $user->hasTenantPermission(PermissionsEnum::Restore->buildPermissionFor(Detail::class));
     }
 
     public function forceDelete(User $user, Detail $detail): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::ForceDelete->buildPermissionFor(Detail::class));
+        return $user->hasTenantPermission(PermissionsEnum::ForceDelete->buildPermissionFor(Detail::class));
     }
 }

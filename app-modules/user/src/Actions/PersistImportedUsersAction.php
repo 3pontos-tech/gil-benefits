@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Permissions\Role;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\DTOs\ImportUsersResultDTO;
 use TresPontosTech\User\Mail\WelcomeUserMail;
@@ -26,12 +25,9 @@ class PersistImportedUsersAction
     {
         $imported = 0;
         $now = now();
-        $roleId = Role::findByName(Roles::Employee->value)->id;
-        $userMorphClass = (new User)->getMorphClass();
-        $roleTable = config('permission.table_names.model_has_roles');
 
         $rows->chunk(self::CHUNK_SIZE)->each(
-            function (Collection $chunk) use ($company, &$imported, $now, $roleId, $userMorphClass, $roleTable): void {
+            function (Collection $chunk) use ($company, &$imported, $now): void {
                 $items = $chunk->values()->map(fn (array $row): array => [
                     'id' => (string) Str::uuid(),
                     'plain_password' => Str::password(12),
@@ -43,7 +39,7 @@ class PersistImportedUsersAction
                 ]));
 
                 DB::transaction(
-                    function () use ($items, $company, &$imported, $now, $roleId, $userMorphClass, $roleTable): void {
+                    function () use ($items, $company, &$imported, $now): void {
                         User::query()->insert($items->map(fn (array $item): array => [
                             'id' => $item['id'],
                             'name' => trim($item['row']['name']),
@@ -65,13 +61,9 @@ class PersistImportedUsersAction
 
                         $userIds = $items->pluck('id')->all();
 
-                        $company->employees()->syncWithoutDetaching($userIds);
-
-                        DB::table($roleTable)->insert(
-                            collect($userIds)->map(fn (string $id): array => [
-                                'role_id' => $roleId,
-                                'model_type' => $userMorphClass,
-                                'model_id' => $id,
+                        $company->employees()->syncWithoutDetaching(
+                            collect($userIds)->mapWithKeys(fn (string $id): array => [
+                                $id => ['role' => Roles::Employee->value],
                             ])->all()
                         );
 

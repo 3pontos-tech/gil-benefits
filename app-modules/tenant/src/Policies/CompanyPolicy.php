@@ -15,12 +15,12 @@ class CompanyPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::ViewAny->buildPermissionFor(Company::class));
+        return $user->hasTenantPermission(PermissionsEnum::ViewAny->buildPermissionFor(Company::class));
     }
 
     public function view(User $user, Company $company): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::View->buildPermissionFor(Company::class));
+        return $user->hasTenantPermission(PermissionsEnum::View->buildPermissionFor(Company::class));
     }
 
     public function create(User $user): bool
@@ -30,21 +30,21 @@ class CompanyPolicy
 
     public function update(User $user, Company $company): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Update->buildPermissionFor(Company::class));
+        return $user->hasTenantPermission(PermissionsEnum::Update->buildPermissionFor(Company::class));
     }
 
     public function delete(User $user, Company $company): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Delete->buildPermissionFor(Company::class));
+        return $user->hasTenantPermission(PermissionsEnum::Delete->buildPermissionFor(Company::class));
     }
 
     public function restore(User $user, Company $company): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Restore->buildPermissionFor(Company::class));
+        return $user->hasTenantPermission(PermissionsEnum::Restore->buildPermissionFor(Company::class));
     }
 
     public function forceDelete(User $user, Company $company): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::ForceDelete->buildPermissionFor(Company::class));
+        return $user->hasTenantPermission(PermissionsEnum::ForceDelete->buildPermissionFor(Company::class));
     }
 }

@@ -5,6 +5,7 @@ namespace TresPontosTech\Tenant\Actions;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\DB;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\DTOs\UserDTO;
 
 class CreateExternalUserAction
@@ -22,7 +23,7 @@ class CreateExternalUserAction
                 'crm_id' => $userDTO->crm_id,
             ]);
 
-            $company->employees()->save($user);
+            $company->employees()->save($user, ['role' => Roles::Employee->value]);
         });
     }
 }

@@ -6,6 +6,7 @@ use App\Filament\FilamentPanel;
 use App\Observers\UserObserver;
 use App\Policies\Users\UserPolicy;
 use Database\Factories\Users\UserFactory;
+use Filament\Facades\Filament;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasDefaultTenant;
@@ -49,6 +50,7 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\Permissions\Role;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
@@ -133,15 +135,26 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             return true;
         }
 
-        if ($this->isCompanyOwner()) {
-            return $this->ownedCompanies()->whereKey($tenant)->exists();
+        // The management (company) panel is for owners/managers of that specific
+        // company. Being merely an employee there is not enough.
+        if (Filament::getCurrentPanel()?->getId() === FilamentPanel::Company->value) {
+            if (! $tenant instanceof Company) {
+                return false;
+            }
+
+            if ($this->isCompanyOwner($tenant)) {
+                return true;
+            }
+
+            return $this->isCompanyManager($tenant);
         }
 
-        if ($this->isCompanyManager()) {
-            return $this->companies()->whereKey($tenant)->exists();
+        // Other panels (app): any active membership of that company.
+        if ($this->ownedCompanies()->whereKey($tenant)->exists()) {
+            return true;
         }
 
-        return $this->companies()->whereKey($tenant)->exists();
+        return (bool) $this->companies()->whereKey($tenant)->wherePivot('active', true)->exists();
     }
 
     /**
@@ -153,15 +166,22 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             return Company::query()->orderBy('name')->get();
         }
 
-        if ($this->isCompanyOwner()) {
-            return $this->ownedCompanies()->orderBy('name')->get();
+        // Management panel lists only companies the user owns or manages.
+        if ($panel->getId() === FilamentPanel::Company->value) {
+            return $this->ownedCompanies()
+                ->orWhereIn('id', $this->companies()
+                    ->wherePivot('active', true)
+                    ->wherePivot('role', Roles::CompanyManager->value)
+                    ->select('companies.id'))
+                ->orderBy('name')
+                ->get();
         }
 
-        if ($this->isCompanyManager()) {
-            return $this->companies;
-        }
-
-        return $this->companies;
+        // App panel lists every company the user is an active member of.
+        return $this->ownedCompanies()
+            ->orWhereIn('id', $this->companies()->wherePivot('active', true)->select('companies.id'))
+            ->orderBy('name')
+            ->get();
     }
 
     /**
@@ -251,19 +271,99 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
         return $this->hasRole(Roles::SuperAdmin);
     }
 
-    public function isCompanyOwner(): bool
+    /**
+     * Effective role of the user WITHIN a company (the pivot is the source of truth).
+     * Without an argument, uses the current Filament tenant.
+     */
+    public function tenantRole(?Company $company = null): ?Roles
     {
-        return $this->hasRole([Roles::CompanyOwner]);
+        $company ??= Filament::getTenant();
+
+        if (! $company instanceof Company) {
+            return null;
+        }
+
+        // The real company owner takes precedence over the pivot.
+        if ($company->user_id === $this->getKey()) {
+            return Roles::CompanyOwner;
+        }
+
+        return $this->companies()->whereKey($company)->first()?->pivot?->role;
     }
 
-    public function isCompanyManager(): bool
+    public function isCompanyOwner(?Company $company = null): bool
     {
-        return $this->hasRole([Roles::CompanyManager]);
+        return $this->tenantRole($company) === Roles::CompanyOwner;
     }
 
-    public function isEmployee(): bool
+    public function isCompanyManager(?Company $company = null): bool
     {
-        return $this->hasRole(Roles::Employee);
+        return $this->tenantRole($company) === Roles::CompanyManager;
+    }
+
+    public function isEmployee(?Company $company = null): bool
+    {
+        return $this->tenantRole($company) === Roles::Employee;
+    }
+
+    /**
+     * Owns at least one company (is the owner in `companies.user_id`).
+     */
+    public function ownsAnyCompany(): bool
+    {
+        return $this->ownedCompanies()->exists();
+    }
+
+    /**
+     * Owns or manages at least one company (manager role in the pivot).
+     */
+    public function managesAnyCompany(): bool
+    {
+        if ($this->ownsAnyCompany()) {
+            return true;
+        }
+
+        return $this->companies()->wherePivot('role', Roles::CompanyManager->value)->exists();
+    }
+
+    /**
+     * Checks a PER-TENANT permission.
+     *
+     * Truly global roles (super_admin, admin, consultant) grant permission anywhere.
+     * Company roles (owner, manager, employee) only apply within their company,
+     * read from the pivot — never from a global role (which may be stale).
+     */
+    public function hasTenantPermission(string $permission, ?Company $company = null): bool
+    {
+        // Only truly global roles grant permission outside a company.
+        // "user"/"employee" are excluded: they are baseline/per-tenant and their
+        // permissions come from the company pivot — otherwise the global "user"
+        // role (which everyone has) would reopen the leak (e.g. view_any_users).
+        $globalRoles = [
+            Roles::SuperAdmin->value,
+            Roles::Admin->value,
+            Roles::Consultant->value,
+        ];
+
+        $grantedByGlobalRole = $this->roles()
+            ->whereIn('name', $globalRoles)
+            ->whereHas('permissions', fn (Builder $query): Builder => $query->where('name', $permission))
+            ->exists();
+
+        if ($grantedByGlobalRole) {
+            return true;
+        }
+
+        $tenantRole = $this->tenantRole($company);
+
+        if (! $tenantRole instanceof Roles) {
+            return false;
+        }
+
+        return Role::query()
+            ->where('name', $tenantRole->value)
+            ->whereHas('permissions', fn (Builder $query): Builder => $query->where('name', $permission))
+            ->exists();
     }
 
     public function forgetMonthlyAppointmentsLeftCache(): void
@@ -379,8 +479,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * Cota mensal de agendamentos, priorizando o plano da empresa (CompanyPlan)
-     * sobre a assinatura individual quando ambos existirem.
+     * Monthly appointment quota, prioritizing the company plan (CompanyPlan)
+     * over the individual subscription when both exist.
      */
     private function resolveMonthlyAppointmentLimit(): int
     {

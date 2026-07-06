@@ -8,6 +8,7 @@ use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
+use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
@@ -26,10 +27,10 @@ beforeEach(function (): void {
     ]);
 
     $this->manager = User::factory()->companyManager()->create();
-    $this->company->employees()->attach($this->manager->getKey());
+    $this->company->employees()->attach($this->manager->getKey(), ['role' => Roles::CompanyManager->value]);
 
     $this->employee = User::factory()->employee()->create();
-    $this->company->employees()->attach($this->employee->getKey());
+    $this->company->employees()->attach($this->employee->getKey(), ['role' => Roles::Employee->value]);
 });
 
 describe('toggle-active action', function (): void {

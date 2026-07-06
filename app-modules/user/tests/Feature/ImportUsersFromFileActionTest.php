@@ -51,7 +51,12 @@ it('imports all users and creates details and roles', function (): void {
 
     $user = User::query()->where('email', 'joao@empresa.com')->first();
     expect($company->employees()->where('user_id', $user->getKey())->exists())->toBeTrue();
-    expect($user->hasRole(Roles::Employee))->toBeTrue();
+    expect(
+        $company->employees()
+            ->wherePivot('user_id', $user->getKey())
+            ->wherePivot('role', Roles::Employee->value)
+            ->exists()
+    )->toBeTrue();
 });
 
 it('imports users without document_id', function (): void {

@@ -26,10 +26,14 @@ it('creates a company, attaches the user, and assigns the CompanyOwner role', fu
         ->and($company->slug)->toBe('test-company');
 
     expect(
-        $company->fresh()->employees()->wherePivot('user_id', $user->id)->exists()
+        $company->fresh()->employees()
+            ->wherePivot('user_id', $user->id)
+            ->wherePivot('role', Roles::CompanyOwner->value)
+            ->exists()
     )->toBeTrue();
 
-    expect($user->fresh()->hasRole(Roles::CompanyOwner))->toBeTrue();
+    // Owner role lives in the pivot / is derived from companies.user_id — not a global role.
+    expect($user->fresh()->isCompanyOwner($company->fresh()))->toBeTrue();
 });
 
 it('throws an exception when the user does not exist', function (): void {

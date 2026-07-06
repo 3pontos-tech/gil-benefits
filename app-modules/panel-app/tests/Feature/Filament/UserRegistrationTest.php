@@ -4,6 +4,7 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;
+use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\assertAuthenticatedAs;
 use function Pest\Laravel\assertDatabaseCount;
@@ -39,8 +40,13 @@ it('should register user to flamma company', function (): void {
     $flammaCompany = Company::query()->where('slug', 'flamma-company')->first();
 
     assertAuthenticatedAs($user);
-    expect($user->companies()->first()->slug)->toBe($flammaCompany->slug)
-        ->and($user->isEmployee())->toBeTrue();
+
+    // The registrant is attached to Flamma with the employee role in the pivot.
+    // (In this isolated test they are the first user, so they also become Flamma's
+    // derived owner via companies.user_id — hence we assert the pivot role directly.)
+    $membership = $user->companies()->where('slug', $flammaCompany->slug)->first();
+    expect($membership)->not->toBeNull()
+        ->and($membership->pivot->role)->toBe(Roles::Employee);
 });
 
 it('should not register a user with a tax_id that already exists', function (): void {
