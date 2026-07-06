@@ -44,7 +44,12 @@ it('persists users, details, company pivot, and roles in batch', function (): vo
         $user = User::query()->where('email', $row['email'])->first();
 
         expect($company->employees()->wherePivot('user_id', $user->id)->exists())->toBeTrue();
-        expect($user->hasRole(Roles::Employee))->toBeTrue();
+        expect(
+            $company->employees()
+                ->wherePivot('user_id', $user->id)
+                ->wherePivot('role', Roles::Employee->value)
+                ->exists()
+        )->toBeTrue();
     }
 });
 

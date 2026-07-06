@@ -1,8 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages;
 
-use App\Models\Users\User;
 use Filament\Resources\Pages\CreateRecord;
 use Ramsey\Uuid\Uuid;
 use TresPontosTech\Company\Models\Company;
@@ -18,14 +19,13 @@ class CreateCompany extends CreateRecord
 
     protected function afterCreate(): void
     {
+        // Owner role lives in the pivot (and is also derived from companies.user_id).
         $this->record->employees()->sync([
             $this->record->user_id => [
+                'role' => Roles::CompanyOwner->value,
                 'active' => true,
             ],
         ]);
-        $owner = User::query()->find($this->record->user_id);
-
-        $owner->assignRole(Roles::CompanyOwner);
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
