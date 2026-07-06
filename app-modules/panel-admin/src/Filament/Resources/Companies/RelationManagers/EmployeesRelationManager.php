@@ -47,7 +47,12 @@ class EmployeesRelationManager extends RelationManager
             ])
             ->headerActions([
                 AttachAction::make()
-                    ->recordTitleAttribute('name'),
+                    ->recordTitleAttribute('name')
+                    ->mutateDataUsing(function (array $data): array {
+                        $data['role'] = Roles::Employee->value;
+
+                        return $data;
+                    }),
                 ImportUsersAction::make()
                     ->company(fn (): Model => $this->getOwnerRecord()),
             ])

@@ -8,7 +8,6 @@ use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
-use function PHPUnit\Framework\assertFalse;
 use function PHPUnit\Framework\assertTrue;
 
 beforeEach(function (): void {
@@ -59,7 +58,6 @@ it('company slug should be unique', function (): void {
 
 test('after creating should assign company owner role to the owner', function (): void {
     $companyOwner = User::factory()->createQuietly();
-    assertFalse($companyOwner->hasRole(Roles::CompanyOwner));
 
     livewire(CreateCompany::class)
         ->assertOk()
@@ -77,12 +75,16 @@ test('after creating should assign company owner role to the owner', function ()
         'tax_id' => '57181164000180',
     ]);
 
-    $companyOwner->refresh();
-    assertTrue($companyOwner->hasRole(Roles::CompanyOwner));
+    // The company owner role lives in the company_employees pivot, not as a global role.
+    $company = Company::query()->where('tax_id', '57181164000180')->first();
+    assertTrue(
+        $company->employees()
+            ->wherePivot('user_id', $companyOwner->getKey())
+            ->wherePivot('role', Roles::CompanyOwner->value)
+            ->exists()
+    );
 });
 test('should attach owner after creating', function (): void {
-    assertFalse(auth()->user()->hasRole(Roles::CompanyOwner));
-
     livewire(CreateCompany::class)
         ->assertOk()
         ->fillForm([
@@ -99,8 +101,11 @@ test('should attach owner after creating', function (): void {
         'tax_id' => '57181164000180',
     ]);
 
-    auth()->user()->refresh();
-    assertTrue(auth()->user()->hasRole(Roles::CompanyOwner));
     $company = Company::query()->where('tax_id', '57181164000180')->first();
-    assertTrue($company->employees()->where('user_id', auth()->user()->getKey())->exists());
+    assertTrue(
+        $company->employees()
+            ->wherePivot('user_id', auth()->user()->getKey())
+            ->wherePivot('role', Roles::CompanyOwner->value)
+            ->exists()
+    );
 });

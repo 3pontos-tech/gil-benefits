@@ -237,7 +237,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                 TextColumn::make('name')
                     ->label(__('panel-company::resources.pages.edit_tenant.member_name'))
                     ->searchable(),
-                TextColumn::make('roles.name')
+                TextColumn::make('role')
                     ->label(__('panel-company::resources.pages.edit_tenant.member_role'))
                     ->color(fn ($state) => Roles::from($state)->getColor())
                     ->formatStateUsing(fn ($state) => Roles::from($state)->getLabel())
