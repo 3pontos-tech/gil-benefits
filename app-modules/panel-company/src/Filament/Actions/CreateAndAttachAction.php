@@ -57,8 +57,9 @@ class CreateAndAttachAction extends CreateAction
             function (User $record): void {
                 /** @var Company $tenant */
                 $tenant = filament()->getTenant();
-                $tenant->employees()->syncWithoutDetaching($record);
-                $record->assignRole(Roles::Employee);
+                $tenant->employees()->syncWithoutDetaching([
+                    $record->getKey() => ['role' => Roles::Employee->value],
+                ]);
                 event(new UserRegistered($record, Roles::Employee, $this->plainPassword));
             }
         );

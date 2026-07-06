@@ -6,7 +6,7 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
 
-it('attaches the user to the default company when the event is handled', function (): void {
+it('attaches the user to the default company as an employee when the event is handled', function (): void {
     $user = User::factory()->create();
     $event = new UserRegistered($user, Roles::Employee);
 
@@ -16,17 +16,21 @@ it('attaches the user to the default company when the event is handled', functio
 
     expect($company)->not->toBeNull();
     expect(
-        $company->employees()->wherePivot('user_id', $user->id)->exists()
+        $company->employees()
+            ->wherePivot('user_id', $user->id)
+            ->wherePivot('role', Roles::Employee->value)
+            ->exists()
     )->toBeTrue();
-    expect($user->fresh()->hasRole(Roles::Employee))->toBeTrue();
+
+    expect($user->fresh()->hasRole(Roles::User))->toBeTrue();
 });
 
-it('uses the role provided in the event when attaching the user', function (): void {
+it('attaches a consultant to the default company while keeping the consultant role', function (): void {
     $user = User::factory()->create();
-    $event = new UserRegistered($user, Roles::CompanyOwner);
+    $event = new UserRegistered($user, Roles::Consultant);
 
     resolve(AttachUserToDefaultCompanyListener::class)->handle($event);
 
-    expect($user->fresh()->hasRole(Roles::CompanyOwner))->toBeTrue();
-    expect($user->fresh()->hasRole(Roles::Employee))->toBeFalse();
+    expect($user->fresh()->hasRole(Roles::Consultant))->toBeTrue()
+        ->and($user->companies()->wherePivot('role', Roles::Employee->value)->exists())->toBeTrue();
 });

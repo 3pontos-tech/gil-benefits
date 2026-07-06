@@ -59,7 +59,7 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function something(): void
 {
     // ..
 }
@@ -112,7 +112,8 @@ function actingAsEmployee(): User
     $employee = User::factory()->employee()->create();
 
     $company = Company::factory()->recycle($companyOwner)->create();
-    $company->employees()->attach([$companyOwner->getKey(), $employee->getKey()]);
+    $company->employees()->attach($companyOwner->getKey());
+    $company->employees()->attach($employee->getKey(), ['role' => Roles::Employee->value]);
 
     $plan = Plan::factory()->createOne([
         'provider' => BillingProviderEnum::Stripe->value,
@@ -126,7 +127,7 @@ function actingAsEmployee(): User
         'statement_descriptor' => 'PLANO TESTE',
     ]);
 
-    CompanyPlan::create([
+    CompanyPlan::query()->create([
         'company_id' => $company->id,
         'plan_id' => $plan->id,
         'status' => CompanyPlanStatusEnum::Active->value,
@@ -146,14 +147,14 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
 {
     $user = User::factory()->employee()->create();
     $company = Company::factory()->create();
-    $company->employees()->attach($user->getKey());
+    $company->employees()->attach($user->getKey(), ['role' => Roles::Employee->value]);
 
     $plan = Plan::factory()->createOne([
         'type' => BillableTypeEnum::User->value,
         'active' => true,
     ]);
 
-    $price = Price::create([
+    $price = Price::query()->create([
         'billing_plan_id' => $plan->id,
         'billing_scheme' => 'per_unit',
         'tiers_mode' => 'volume',
@@ -174,7 +175,7 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
         'quantity' => 1,
     ]);
 
-    CompanyPlan::where('company_id', $company->id)->delete();
+    CompanyPlan::query()->where('company_id', $company->id)->delete();
 
     filament()->setCurrentPanel(FilamentPanel::User->value);
     actingAs($user);

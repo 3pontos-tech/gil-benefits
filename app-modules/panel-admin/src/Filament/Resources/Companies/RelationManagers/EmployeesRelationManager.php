@@ -34,11 +34,16 @@ class EmployeesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('name'),
                 TextColumn::make('email'),
-                TextColumn::make('roles.name')
+                TextColumn::make('pivot.role')
                     ->label(__('panel-admin::resources.companies.relation_managers.employees.role'))
-                    ->formatStateUsing(fn ($state): string => Roles::from($state)->getLabel())
-                    ->color(fn ($state): array => Roles::from($state)->getColor())
-                    ->badge(),
+                    ->badge()
+                    ->placeholder('—')
+                    ->formatStateUsing(fn ($state): ?string => $state instanceof Roles
+                        ? $state->getLabel()
+                        : (filled($state) ? Roles::from($state)->getLabel() : null))
+                    ->color(fn ($state): string|array => $state instanceof Roles
+                        ? $state->getColor()
+                        : (filled($state) ? Roles::from($state)->getColor() : 'gray')),
             ])
             ->headerActions([
                 AttachAction::make()
@@ -48,7 +53,8 @@ class EmployeesRelationManager extends RelationManager
             ])
             ->recordActions([
                 GrantExtraCreditAction::forEmployee(),
-                AssignRoleAction::make(),
+                AssignRoleAction::make()
+                    ->company(fn (): Model => $this->getOwnerRecord()),
             ]);
     }
 }

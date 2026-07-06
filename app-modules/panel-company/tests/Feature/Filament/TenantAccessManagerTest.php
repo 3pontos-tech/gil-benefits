@@ -7,6 +7,7 @@ use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -28,7 +29,10 @@ describe('company manager tenant isolation', function (): void {
         ]);
 
         $this->manager = User::factory()->companyManager()->create();
-        $this->managedCompany->employees()->attach($this->manager->getKey());
+        $this->managedCompany->employees()->attach(
+            $this->manager->getKey(),
+            ['role' => Roles::CompanyManager->value],
+        );
 
         $otherOwner = User::factory()->companyOwner()->create();
         $this->otherCompany = Company::factory()->recycle($otherOwner)->create();

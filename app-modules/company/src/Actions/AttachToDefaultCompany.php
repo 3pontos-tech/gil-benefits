@@ -23,7 +23,13 @@ final class AttachToDefaultCompany
             ]
         );
 
-        $company->employees()->syncWithoutDetaching($user);
-        $user->assignRole($role->value);
+        // Everyone (including consultants) joins the shared company; the company
+        // role lives in the pivot as employee.
+        $company->employees()->syncWithoutDetaching([
+            $user->getKey() => ['role' => Roles::Employee->value],
+        ]);
+
+        // Global identity role: consultants keep theirs, everyone else is a baseline user.
+        $user->assignRole(($role === Roles::Consultant ? Roles::Consultant : Roles::User)->value);
     }
 }

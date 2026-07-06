@@ -52,7 +52,7 @@ it('should assign the authenticated user as the company owner', function (): voi
     assertDatabaseCount(Company::class, 1);
 
     expect(Company::query()->first()->owner->getKey())->toBe(auth()->user()->getKey())
-        ->and(auth()->user()->isCompanyOwner())->toBeTrue();
+        ->and(auth()->user()->isCompanyOwner(Company::query()->first()))->toBeTrue();
 });
 
 describe('canView', function (): void {
