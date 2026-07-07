@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 
-use Filament\Notifications\Notification;
+use App\Models\Users\User;
 use Filament\Resources\Pages\CreateRecord;
-use Throwable;
-use TresPontosTech\Appointments\Actions\AssignConsultantAction;
-use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
+use TresPontosTech\Billing\Core\DTOs\CreditDTO;
+use TresPontosTech\Billing\Core\Events\Credit\CreditConsumed;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 
 class CreateAppointment extends CreateRecord
 {
     protected static string $resource = AppointmentResource::class;
+
+    protected bool $consumesCredit = false;
 
     /**
      * @param  array<string, mixed>  $data
@@ -25,54 +24,33 @@ class CreateAppointment extends CreateRecord
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // Respect the appointment state machine: admin-created appointments start as
+        // Pending. The consultant is assigned later through the confirmation step
+        // (ViewAppointment::confirm_appointment), which handles the agenda booking,
+        // the transition to Active and the Google Calendar event.
         $data['status'] = AppointmentStatus::Pending;
+
+        // Mirror BookAppointmentAction: when the user has no monthly quota left, the
+        // appointment consumes a credit. Resolved before creation, since the new
+        // appointment itself counts toward the monthly quota.
+        $user = User::query()->find($data['user_id'] ?? null);
+        $this->consumesCredit = $user instanceof User && $user->monthly_appointments_left <= 0;
 
         return $data;
     }
 
-    /**
-     * Book the appointment end-to-end when a consultant is assigned on creation:
-     * block the consultant's agenda, move it to Active and create the Google
-     * Calendar event (attendee + meeting link). Mirrors ViewAppointment's confirm action.
-     */
     protected function afterCreate(): void
     {
+        if (! $this->consumesCredit) {
+            return;
+        }
+
         /** @var Appointment $appointment */
         $appointment = $this->record;
 
-        if (blank($appointment->consultant_id)) {
-            return;
-        }
-
-        try {
-            resolve(AssignConsultantAction::class)->handle($appointment);
-        } catch (SlotUnavailableException) {
-            Notification::make()
-                ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))
-                ->danger()
-                ->send();
-
-            return;
-        }
-
-        $appointment->refresh();
-        $appointment->current_transition->handle(new TransitionData);
-
-        $appointment->loadMissing('consultant');
-
-        $consultant = $appointment->consultant;
-
-        if (filled($consultant) && filled($consultant->email) && blank($appointment->google_event_id)) {
-            try {
-                dispatch_sync(new CreateAppointmentCalendarEventJob($appointment));
-            } catch (Throwable) {
-                Notification::make()
-                    ->title(__('panel-admin::resources.appointments.actions.calendar_event_failed'))
-                    ->warning()
-                    ->send();
-            }
-        }
-
-        $this->record->refresh();
+        event(new CreditConsumed(new CreditDTO(
+            holderId: $appointment->user_id,
+            appointmentId: $appointment->getKey(),
+        )));
     }
 }

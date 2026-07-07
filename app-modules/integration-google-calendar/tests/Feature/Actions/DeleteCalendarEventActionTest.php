@@ -47,6 +47,38 @@ it('does nothing when google_event_id is null', function (): void {
     $action->handle($appointment);
 });
 
+it('deletes the event from the explicitly provided calendar, ignoring the current consultant', function (): void {
+    $previousConsultant = Consultant::factory()->create(['email' => 'previous@workspace.com']);
+    $newConsultant = Consultant::factory()->create(['email' => 'new@workspace.com']);
+
+    // The appointment already points to the new consultant, but the event still
+    // lives on the previous consultant's calendar.
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $newConsultant->id,
+        'status' => AppointmentStatus::Active,
+        'google_event_id' => 'event-on-previous-calendar',
+        'meeting_url' => 'https://meet.google.com/abc-defg-hij',
+    ]);
+
+    $mockClient = Mockery::mock(GoogleCalendarClient::class);
+    $mockClient->shouldReceive('getAccessToken')
+        ->once()
+        ->with('previous@workspace.com')
+        ->andReturn('fake-access-token');
+
+    $mockClient->shouldReceive('deleteEvent')
+        ->once()
+        ->with('fake-access-token', 'previous@workspace.com', 'event-on-previous-calendar');
+
+    $action = new DeleteCalendarEventAction($mockClient);
+    $action->handle($appointment, 'previous@workspace.com');
+
+    $appointment->refresh();
+
+    expect($appointment->google_event_id)->toBeNull()
+        ->and($appointment->meeting_url)->toBeNull();
+});
+
 it('does nothing when consultant has no email', function (): void {
     $consultant = Consultant::factory()->create(['email' => '']);
     $appointment = Appointment::factory()->create([

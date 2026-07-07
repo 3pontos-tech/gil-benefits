@@ -56,12 +56,21 @@ return [
             'support' => 'If you have any questions, please contact support.',
             'thanks' => 'Thank you',
         ],
+        'consultant_unassigned' => [
+            'title' => 'Appointment Reassigned',
+            'greeting' => 'Hello, **:name**!',
+            'body' => 'The appointment with **:name** has been reassigned to another consultant and removed from your agenda.',
+            'date_time' => 'Date and time:',
+            'panel_description' => 'Access the panel to view your updated appointments.',
+            'button' => 'Access panel',
+            'thanks' => 'Thank you',
+        ],
     ],
     'users' => [
         'welcome' => [
             'title' => 'Welcome to :app!',
             'greeting' => 'Hello, **:name**!',
-            'intro' => 'We are happy to have you with us. Your account was successfully created and you can now access your company\'s benefits platform.',
+            'intro' => "We are happy to have you with us. Your account was successfully created and you can now access your company's benefits platform.",
             'features_title' => 'What you can do',
             'feature_appointments' => 'Schedule appointments with specialized consultants',
             'feature_documents' => 'View documents shared by your team',
