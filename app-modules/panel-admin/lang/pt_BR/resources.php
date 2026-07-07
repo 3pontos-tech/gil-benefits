@@ -23,6 +23,7 @@ return [
             'complete_appointment' => 'Concluir Consulta',
             'cancel_appointment' => 'Cancelar Agendamento',
             'calendar_event_failed' => 'Não foi possível criar o evento no calendário. O agendamento foi confirmado, mas o link da reunião pode demorar alguns instantes para aparecer.',
+            'calendar_event_delete_failed' => 'Não foi possível remover o evento do calendário do consultor anterior. Verifique a integração com o Google Calendar.',
         ],
     ],
     'consultants' => [
