@@ -23,7 +23,7 @@ return [
             'complete_appointment' => 'Complete Appointment',
             'cancel_appointment' => 'Cancel Appointment',
             'calendar_event_failed' => 'Could not create the calendar event. The appointment was confirmed, but the meeting link may take a moment to appear.',
-            'calendar_event_delete_failed' => "Could not remove the event from the previous consultant's calendar. Please check the Google Calendar integration.",
+            'calendar_sync_failed' => 'The appointment was saved, but the calendar event/meeting link could not be updated. Please check the integration.',
         ],
     ],
     'consultants' => [

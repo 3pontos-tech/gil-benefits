@@ -13,6 +13,7 @@ use TresPontosTech\Appointments\Mail\AppointmentConsultantUnassignedMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
 use TresPontosTech\IntegrationGoogleCalendar\GoogleCalendarClient;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\EditAppointment;
@@ -107,6 +108,40 @@ it('moves the agenda and calendar event to the new consultant when reassigned', 
         AppointmentConsultantUnassignedMail::class,
         fn (AppointmentConsultantUnassignedMail $mail): bool => $mail->hasTo('previous@workspace.com')
     );
+});
+
+it('warns on the screen when a calendar operation fails during reassignment', function (): void {
+    $date = Date::now()->addDays(3)->setTime(10, 0);
+
+    $previousConsultant = Consultant::factory()->create(['email' => 'previous@workspace.com']);
+    $newConsultant = Consultant::factory()->create(['email' => 'new@workspace.com']);
+
+    ($this->makeAvailable)($date, $previousConsultant);
+    ($this->makeAvailable)($date, $newConsultant);
+
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $previousConsultant->id,
+        'appointment_at' => $date,
+        'status' => AppointmentStatus::Active,
+        'google_event_id' => 'event-on-previous-calendar',
+        'meeting_url' => 'https://meet.google.com/abc-defg-hij',
+    ]);
+    resolve(AssignConsultantAction::class)->handle($appointment);
+
+    // Google Calendar is failing: the appointment still saves, but the user must be warned.
+    $mockClient = Mockery::mock(GoogleCalendarClient::class);
+    $mockClient->shouldReceive('getAccessToken')->andReturn('fake-access-token');
+    $mockClient->shouldReceive('deleteEvent')->andThrow(new GoogleCalendarApiException('boom', 500));
+    app()->instance(GoogleCalendarClient::class, $mockClient);
+
+    livewire(EditAppointment::class, ['record' => $appointment->getRouteKey()])
+        ->fillForm(['consultant_id' => $newConsultant->id])
+        ->call('save')
+        ->assertHasNoFormErrors()
+        ->assertNotified(__('panel-admin::resources.appointments.actions.calendar_sync_failed'));
+
+    // The consultant swap still persisted (calendar is best-effort, not blocking).
+    expect($appointment->refresh()->consultant_id)->toBe($newConsultant->id);
 });
 
 it('does not touch the calendar when the consultant is unchanged', function (): void {

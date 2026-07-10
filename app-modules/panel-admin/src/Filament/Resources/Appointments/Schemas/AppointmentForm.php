@@ -36,8 +36,6 @@ class AppointmentForm
                     ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
                 Select::make('consultant_id')
                     ->label(__('appointments::resources.appointments.table.columns.consultant'))
-                    // Consultant is assigned on confirmation, not creation (state machine),
-                    // so it is only editable when reassigning an existing appointment.
                     ->visibleOn('edit')
                     ->options(function (Get $get, ?Appointment $record): array {
                         $appointmentAt = $get('appointment_at');
