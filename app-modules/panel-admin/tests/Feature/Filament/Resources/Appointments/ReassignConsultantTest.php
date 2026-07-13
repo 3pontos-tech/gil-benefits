@@ -175,3 +175,43 @@ it('does not touch the calendar when the consultant is unchanged', function (): 
     Mail::assertNotQueued(AppointmentScheduledMail::class);
     Mail::assertNotQueued(AppointmentConsultantUnassignedMail::class);
 });
+
+it('changes appointment status to pending when removes a consultant from an appointment', function (): void {
+    $date = Date::now()->addDays(3)->setTime(10, 0);
+
+    $previousConsultant = Consultant::factory()->create(['email' => 'previous@workspace.com']);
+    $newConsultant = Consultant::factory()->create(['email' => 'new@workspace.com']);
+
+    ($this->makeAvailable)($date, $previousConsultant);
+    ($this->makeAvailable)($date, $newConsultant);
+
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $previousConsultant->id,
+        'appointment_at' => $date,
+        'status' => AppointmentStatus::Active,
+        'google_event_id' => 'event-on-previous-calendar',
+        'meeting_url' => 'https://meet.google.com/abc-defg-hij',
+    ]);
+
+    $mockClient = Mockery::mock(GoogleCalendarClient::class);
+    $mockClient->shouldReceive('getAccessToken')
+        ->with('previous@workspace.com')
+        ->andReturn('fake-access-token');
+
+    $mockClient->shouldReceive('deleteEvent')
+        ->once()
+        ->with('fake-access-token', 'previous@workspace.com', 'event-on-previous-calendar');
+
+    app()->instance(GoogleCalendarClient::class, $mockClient);
+
+    livewire(EditAppointment::class, ['record' => $appointment->getRouteKey()])
+        ->fillForm(['consultant_id' => null])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $appointment->refresh();
+    expect($appointment->consultant_id)->toBe(null)
+        ->and($appointment->status)->toBe(AppointmentStatus::Pending)
+        ->and($appointment->google_event_id)->toBe(null)
+        ->and($appointment->meeting_url)->toBe(null);
+});
