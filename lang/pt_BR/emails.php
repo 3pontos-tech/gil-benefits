@@ -56,6 +56,15 @@ return [
             'support' => 'Se tiver dúvidas, entre em contato com o suporte.',
             'thanks' => 'Obrigado',
         ],
+        'consultant_unassigned' => [
+            'title' => 'Consulta Reatribuída',
+            'greeting' => 'Olá, **:name**!',
+            'body' => 'A consulta com **:name** foi reatribuída a outro consultor e removida da sua agenda.',
+            'date_time' => 'Data e hora:',
+            'panel_description' => 'Acesse o painel para visualizar suas consultas atualizadas.',
+            'button' => 'Acessar painel',
+            'thanks' => 'Obrigado',
+        ],
     ],
     'users' => [
         'welcome' => [

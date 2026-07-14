@@ -4,6 +4,7 @@ use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
+use TresPontosTech\Appointments\Mail\AppointmentConsultantUnassignedMail;
 use TresPontosTech\Appointments\Mail\AppointmentRequestedAdminMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
@@ -244,5 +245,42 @@ describe('AppointmentUserCancelledLateMail', function (): void {
         $mailable = new AppointmentUserCancelledLateMail($appointment);
 
         $mailable->assertSeeInHtml(__('appointments::mail.no_consultant'));
+    });
+});
+
+describe('AppointmentConsultantUnassignedMail', function (): void {
+    it('has correct subject', function (): void {
+        $appointment = Appointment::factory()->create();
+        $previous = Consultant::factory()->create();
+
+        $mailable = new AppointmentConsultantUnassignedMail($appointment, $previous);
+
+        $mailable->assertHasSubject(__('appointments::mail.consultant_unassigned.subject'));
+    });
+
+    it('renders the previous consultant name, the user name and the appointment date', function (): void {
+        $user = User::factory()->create(['name' => 'Joao Silva']);
+        $previous = Consultant::factory()->create(['name' => 'Ana Lima']);
+        $appointment = Appointment::factory()->recycle($user)->create();
+
+        $mailable = new AppointmentConsultantUnassignedMail($appointment, $previous);
+
+        $mailable->assertSeeInHtml('Ana Lima');
+        $mailable->assertSeeInHtml('Joao Silva');
+        $mailable->assertSeeInHtml($appointment->appointment_at->format('d/m/Y'));
+    });
+
+    it('is queued to the previous consultant email', function (): void {
+        Mail::fake();
+
+        $previous = Consultant::factory()->create(['email' => 'previous@workspace.com']);
+        $appointment = Appointment::factory()->create();
+
+        Mail::to($previous->email)->queue(new AppointmentConsultantUnassignedMail($appointment, $previous));
+
+        Mail::assertQueued(
+            AppointmentConsultantUnassignedMail::class,
+            fn ($mail): bool => $mail->hasTo('previous@workspace.com')
+        );
     });
 });

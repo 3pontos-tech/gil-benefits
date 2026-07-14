@@ -108,6 +108,27 @@ class GoogleCalendarClient
         return CreateEventResponse::make($response->json());
     }
 
+    /**
+     * @param  array<string, mixed>  $eventData
+     */
+    public function patchEvent(string $accessToken, string $calendarId, string $eventId, array $eventData): void
+    {
+        $url = sprintf(
+            'https://www.googleapis.com/calendar/v3/calendars/%s/events/%s?sendUpdates=all',
+            urlencode($calendarId),
+            urlencode($eventId)
+        );
+
+        $response = Http::withToken($accessToken)->patch($url, $eventData);
+
+        if ($response->failed()) {
+            throw new GoogleCalendarApiException(
+                sprintf('Failed to patch event %s for %s: %s', $eventId, $calendarId, $response->body()),
+                $response->status(),
+            );
+        }
+    }
+
     public function deleteEvent(string $accessToken, string $calendarId, string $eventId): void
     {
         $url = sprintf(

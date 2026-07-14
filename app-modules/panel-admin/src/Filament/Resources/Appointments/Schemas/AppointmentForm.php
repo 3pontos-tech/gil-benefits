@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
+use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Models\Appointment;
 
 class AppointmentForm
@@ -21,6 +22,12 @@ class AppointmentForm
                     ->label(__('appointments::resources.appointments.table.columns.user'))
                     ->relationship('user', 'name')
                     ->required(),
+                Select::make('category_type')
+                    ->label(__('appointments::resources.appointments.table.columns.category_type'))
+                    ->options(fn (): array => collect(AppointmentCategoryEnum::cases())
+                        ->mapWithKeys(fn (AppointmentCategoryEnum $case): array => [$case->value => $case->getLabel()])
+                        ->all())
+                    ->required(),
                 DateTimePicker::make('appointment_at')
                     ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
                     ->required()
@@ -29,7 +36,7 @@ class AppointmentForm
                     ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
                 Select::make('consultant_id')
                     ->label(__('appointments::resources.appointments.table.columns.consultant'))
-                    ->disabled(fn (?Appointment $record): bool => $record instanceof Appointment)
+                    ->visibleOn('edit')
                     ->options(function (Get $get, ?Appointment $record): array {
                         $appointmentAt = $get('appointment_at');
 
@@ -45,8 +52,7 @@ class AppointmentForm
                             ->pluck('name', 'id')
                             ->all();
                     })
-                    ->reactive()
-                    ->required(fn (?Appointment $record): bool => ! $record instanceof Appointment),
+                    ->reactive(),
                 TextInput::make('meeting_url')
                     ->label(__('appointments::resources.appointments.form.meeting_url'))
                     ->dehydrateStateUsing(function (?string $state): ?string {
