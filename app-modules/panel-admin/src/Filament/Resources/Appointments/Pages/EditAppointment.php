@@ -20,6 +20,8 @@ class EditAppointment extends EditRecord
 
     protected ?CarbonInterface $previousAppointmentAt = null;
 
+    protected ?Appointment $appointment = null;
+
     protected function getHeaderActions(): array
     {
         return [

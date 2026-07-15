@@ -6,6 +6,9 @@ namespace TresPontosTech\Appointments\Actions;
 
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Mail;
+use TresPontosTech\Appointments\Actions\AppointmentHistory\StoreAppointmentHistoryAction;
+use TresPontosTech\Appointments\DTO\StoreAppointmentHistoryDTO;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Mail\AppointmentConsultantUnassignedMail;
@@ -23,11 +26,12 @@ use Zap\Models\Schedule;
  * back). The Google Calendar side is delegated to the synchronizer, whose best-effort result is
  * bubbled up so the caller can warn the user when the calendar ends up out of sync.
  */
-final class SyncAppointmentScheduleAction
+final readonly class SyncAppointmentScheduleAction
 {
     public function __construct(
-        private readonly AssignConsultantAction $assignConsultant,
-        private readonly AppointmentCalendarSynchronizer $calendar,
+        private AssignConsultantAction $assignConsultant,
+        private AppointmentCalendarSynchronizer $calendar,
+        private StoreAppointmentHistoryAction $storeAppointmentHistory,
     ) {}
 
     /**
@@ -45,7 +49,26 @@ final class SyncAppointmentScheduleAction
             return true;
         }
 
+        if ($timeChanged) {
+            $this->storeAppointmentHistory->execute(StoreAppointmentHistoryDTO::make([
+                'appointment_id' => $appointment->id,
+                'admin_id' => auth()->user()->getKey(),
+                'action_type' => AppointmentHistoryActionType::ReScheduled->value,
+                'old_values' => $appointment->getPrevious(),
+                'new_values' => $appointment->getChanges(),
+            ]));
+        }
+
         if ($consultantChanged && blank($appointment->consultant_id)) {
+
+            $this->storeAppointmentHistory->execute(StoreAppointmentHistoryDTO::make([
+                'appointment_id' => $appointment->id,
+                'admin_id' => auth()->user()->getKey(),
+                'action_type' => AppointmentHistoryActionType::ConsultantLeft->value,
+                'old_values' => $appointment->getPrevious(),
+                'new_values' => $appointment->getChanges(),
+            ]));
+
             return $this->unassign($appointment, $previousConsultantId);
         }
 
@@ -79,6 +102,14 @@ final class SyncAppointmentScheduleAction
 
     private function reassign(Appointment $appointment, ?string $previousConsultantId): bool
     {
+        $this->storeAppointmentHistory->execute(StoreAppointmentHistoryDTO::make([
+            'appointment_id' => $appointment->id,
+            'admin_id' => auth()->user()->getKey(),
+            'action_type' => AppointmentHistoryActionType::ConsultantChanged->value,
+            'old_values' => $appointment->getPrevious(),
+            'new_values' => $appointment->getChanges(),
+        ]));
+
         $previousConsultant = $this->resolveConsultant($previousConsultantId);
 
         $synced = $this->calendar->removeFrom($appointment, $previousConsultant);

@@ -12,6 +12,7 @@ use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\CreateAppoin
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\EditAppointment;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ViewAppointment;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\RelationManagers\AppointmentHistoryRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Schemas\AppointmentForm;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Tables\AppointmentsTable;
 
@@ -54,7 +55,7 @@ class AppointmentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            AppointmentHistoryRelationManager::class,
         ];
     }
 

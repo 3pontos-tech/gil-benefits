@@ -17,9 +17,12 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
+use TresPontosTech\Appointments\Actions\AppointmentHistory\StoreAppointmentHistoryAction;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
+use TresPontosTech\Appointments\DTO\StoreAppointmentHistoryDTO;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
@@ -89,6 +92,13 @@ class ViewAppointment extends ViewRecord
 
                     try {
                         resolve(AssignConsultantAction::class)->handle($appointment);
+                        resolve(StoreAppointmentHistoryAction::class)->execute(StoreAppointmentHistoryDTO::make([
+                            'appointment_id' => $appointment->id,
+                            'admin_id' => auth()->user()->getKey(),
+                            'action_type' => AppointmentHistoryActionType::ConsultantAssigned->value,
+                            'old_values' => $appointment->getPrevious(),
+                            'new_values' => $appointment->getChanges(),
+                        ]));
                     } catch (SlotUnavailableException) {
                         Notification::make()
                             ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))
