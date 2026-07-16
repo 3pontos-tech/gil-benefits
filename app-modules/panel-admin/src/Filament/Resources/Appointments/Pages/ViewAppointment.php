@@ -6,23 +6,15 @@ namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
-use TresPontosTech\Appointments\Actions\AppointmentHistory\StoreAppointmentHistoryAction;
-use TresPontosTech\Appointments\Actions\AssignConsultantAction;
-use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
+use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
-use TresPontosTech\Appointments\DTO\StoreAppointmentHistoryDTO;
-use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
@@ -30,6 +22,7 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Schemas\AppointmentScheduleFields;
 
 /**
  * @property-read Appointment $record
@@ -55,35 +48,22 @@ class ViewAppointment extends ViewRecord
                     'appointment_at' => $this->record->appointment_at,
                     'consultant_id' => $this->record->consultant_id,
                 ])
-                ->schema([
-                    DateTimePicker::make('appointment_at')
-                        ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
-                        ->required()
-                        ->live()
-                        ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
-                    Select::make('consultant_id')
-                        ->label(__('appointments::resources.appointments.table.columns.consultant'))
-                        ->options(function (Get $get): array {
-                            $appointmentAt = $get('appointment_at');
-
-                            if (! $appointmentAt) {
-                                return [];
-                            }
-
-                            return resolve(GetAvailableConsultantsAction::class)
-                                ->handle(
-                                    appointmentAt: Date::parse($appointmentAt),
-                                    alwaysIncludeConsultantId: $this->record->consultant_id,
-                                )
-                                ->pluck('name', 'id')
-                                ->all();
-                        })
-                        ->live()
-                        ->required(),
-                ])
+                ->schema(AppointmentScheduleFields::make(editOnly: false))
                 ->action(function (array $data): void {
+                    if (blank($data['consultant_id'])) {
+                        Notification::make()
+                            ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
                     /** @var Appointment $appointment */
                     $appointment = $this->record;
+
+                    $previousConsultantId = $appointment->consultant_id;
+                    $previousAppointmentAt = $appointment->appointment_at;
 
                     $appointment->update([
                         'appointment_at' => $data['appointment_at'],
@@ -91,14 +71,8 @@ class ViewAppointment extends ViewRecord
                     ]);
 
                     try {
-                        resolve(AssignConsultantAction::class)->handle($appointment);
-                        resolve(StoreAppointmentHistoryAction::class)->execute(StoreAppointmentHistoryDTO::make([
-                            'appointment_id' => $appointment->id,
-                            'admin_id' => auth()->user()->getKey(),
-                            'action_type' => AppointmentHistoryActionType::ConsultantAssigned->value,
-                            'old_values' => $appointment->getPrevious(),
-                            'new_values' => $appointment->getChanges(),
-                        ]));
+                        resolve(SyncAppointmentScheduleAction::class)
+                            ->handle($appointment, $previousConsultantId, $previousAppointmentAt);
                     } catch (SlotUnavailableException) {
                         Notification::make()
                             ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))
