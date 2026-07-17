@@ -7,6 +7,7 @@ namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Schemas;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -20,6 +21,11 @@ class AppointmentScheduleFields
     {
         $consultantField = Select::make('consultant_id')
             ->label(__('appointments::resources.appointments.table.columns.consultant'))
+            ->hintIcon(fn (?Appointment $record): ?Heroicon => $record instanceof Appointment && $record->isActive() ? Heroicon::InformationCircle : null)
+            ->searchable()
+            ->hint(fn (?Appointment $record): ?string => $record instanceof Appointment && $record->isActive()
+                ? __('panel-admin::resources.appointments.hints.consultant_removal')
+                : null)
             ->options(function (Get $get, ?Appointment $record): array {
                 $appointmentAt = $get('appointment_at');
 

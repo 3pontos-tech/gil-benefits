@@ -136,6 +136,11 @@ class Appointment extends Model
         return $this->hasMany(AppointmentHistory::class);
     }
 
+    public function isActive(): bool
+    {
+        return $this->status === AppointmentStatus::Active;
+    }
+
     protected function casts(): array
     {
         return [

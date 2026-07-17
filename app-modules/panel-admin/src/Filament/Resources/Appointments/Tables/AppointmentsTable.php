@@ -14,6 +14,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Models\Appointment;
 
 class AppointmentsTable
 {
@@ -140,7 +141,8 @@ class AppointmentsTable
             ->persistSortInSession()
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn (Appointment $record): bool => $record->isActive()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

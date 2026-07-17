@@ -13,8 +13,19 @@ return [
         'navigation_label' => 'Agendamentos',
         'model_label' => 'Agendamento',
         'plural_model_label' => 'Agendamentos',
+        'sections' => [
+            'user' => 'Usuário',
+            'scheduling' => 'Agendamento',
+            'details' => 'Detalhes',
+        ],
+        'hints' => [
+            'consultant_removal' => 'Desvincular consultor reverte o agendamento para Pendente.',
+        ],
         'view' => [
             'processing' => 'Ata em processamento pela IA…',
+        ],
+        'notifications' => [
+            'consultant_removed' => 'O consultor foi removido. O agendamento voltou para Pendente e deve ser confirmado novamente pela página de visualização.',
         ],
         'actions' => [
             'advance_to_scheduling' => 'Iniciar Agendamento',

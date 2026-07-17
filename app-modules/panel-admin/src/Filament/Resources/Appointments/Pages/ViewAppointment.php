@@ -22,6 +22,7 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\RelationManagers\AppointmentHistoryRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Schemas\AppointmentScheduleFields;
 
 /**
@@ -36,7 +37,8 @@ class ViewAppointment extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            EditAction::make()
+                ->visible(fn (Appointment $record): bool => $record->isActive()),
 
             Action::make('confirm_appointment')
                 ->label(__('panel-admin::resources.appointments.actions.confirm_appointment'))
@@ -229,5 +231,12 @@ class ViewAppointment extends ViewRecord
             now()->addMinutes(5),
             ['ResponseContentDisposition' => sprintf('attachment; filename="%s"', $media->file_name)],
         );
+    }
+
+    protected function getAllRelationManagers(): array
+    {
+        return [
+            AppointmentHistoryRelationManager::class,
+        ];
     }
 }

@@ -24,5 +24,11 @@
         </div>
     </div>
 
-    <x-filament-actions::modals />
+    <x-filament-actions::modals/>
+
+    @livewire(\TresPontosTech\PanelAdmin\Filament\Resources\Appointments\RelationManagers\AppointmentHistoryRelationManager::class, [
+        'ownerRecord' => $appointment,
+        'pageClass' => static::class,
+    ])
+
 </x-filament-panels::page>
