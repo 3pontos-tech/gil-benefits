@@ -26,6 +26,14 @@ class AppointmentHistoryRelationManager extends RelationManager
 
     protected static string|BackedEnum|null $icon = Heroicon::ClipboardDocumentList;
 
+    /**
+     * Request-scoped cache of consultant id => resolved name (or the unknown-consultant fallback),
+     * so a consultant referenced across many history rows is only queried once per render.
+     *
+     * @var array<string, string>
+     */
+    private array $consultantNames = [];
+
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return (string) __('panel-admin::resources.appointments.history.title');
@@ -159,11 +167,13 @@ class AppointmentHistoryRelationManager extends RelationManager
             return $this->emptyPlaceholder();
         }
 
-        $consultant = Consultant::query()->whereKey($consultantId)->first();
+        return $this->consultantNames[$consultantId] ??= (function () use ($consultantId): string {
+            $consultant = Consultant::query()->whereKey($consultantId)->first();
 
-        return $consultant instanceof Consultant
-            ? $consultant->name
-            : (string) __('panel-admin::resources.appointments.history.placeholders.unknown_consultant');
+            return $consultant instanceof Consultant
+                ? $consultant->name
+                : (string) __('panel-admin::resources.appointments.history.placeholders.unknown_consultant');
+        })();
     }
 
     private function formatDate(mixed $value): string

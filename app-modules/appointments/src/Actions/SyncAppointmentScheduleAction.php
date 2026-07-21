@@ -50,24 +50,11 @@ final readonly class SyncAppointmentScheduleAction
         }
 
         if ($timeChanged) {
-            $this->storeAppointmentHistory->execute(StoreAppointmentHistoryDTO::make([
-                'appointment_id' => $appointment->id,
-                'admin_id' => auth()->user()->getKey(),
-                'action_type' => AppointmentHistoryActionType::ReScheduled->value,
-                'old_values' => $appointment->getPrevious(),
-                'new_values' => $appointment->getChanges(),
-            ]));
+            $this->recordHistory($appointment, AppointmentHistoryActionType::ReScheduled);
         }
 
         if ($consultantChanged && blank($appointment->consultant_id)) {
-
-            $this->storeAppointmentHistory->execute(StoreAppointmentHistoryDTO::make([
-                'appointment_id' => $appointment->id,
-                'admin_id' => auth()->user()->getKey(),
-                'action_type' => AppointmentHistoryActionType::ConsultantLeft->value,
-                'old_values' => $appointment->getPrevious(),
-                'new_values' => $appointment->getChanges(),
-            ]));
+            $this->recordHistory($appointment, AppointmentHistoryActionType::ConsultantLeft);
 
             return $this->unassign($appointment, $previousConsultantId);
         }
@@ -81,6 +68,17 @@ final readonly class SyncAppointmentScheduleAction
         return $consultantChanged
             ? $this->reassign($appointment, $previousConsultantId)
             : $this->reschedule($appointment);
+    }
+
+    private function recordHistory(Appointment $appointment, AppointmentHistoryActionType $type): void
+    {
+        $this->storeAppointmentHistory->execute(StoreAppointmentHistoryDTO::make([
+            'appointment_id' => $appointment->id,
+            'admin_id' => auth()->user()->getKey(),
+            'action_type' => $type->value,
+            'old_values' => $appointment->getPrevious(),
+            'new_values' => $appointment->getChanges(),
+        ]));
     }
 
     private function blockAgenda(
@@ -102,17 +100,9 @@ final readonly class SyncAppointmentScheduleAction
 
     private function reassign(Appointment $appointment, ?string $previousConsultantId): bool
     {
-        $actionType = blank($previousConsultantId)
+        $this->recordHistory($appointment, blank($previousConsultantId)
             ? AppointmentHistoryActionType::ConsultantAssigned
-            : AppointmentHistoryActionType::ConsultantChanged;
-
-        $this->storeAppointmentHistory->execute(StoreAppointmentHistoryDTO::make([
-            'appointment_id' => $appointment->id,
-            'admin_id' => auth()->user()->getKey(),
-            'action_type' => $actionType->value,
-            'old_values' => $appointment->getPrevious(),
-            'new_values' => $appointment->getChanges(),
-        ]));
+            : AppointmentHistoryActionType::ConsultantChanged);
 
         $previousConsultant = $this->resolveConsultant($previousConsultantId);
 

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('appointment_histories', function (Blueprint $table): void {
-            $table->uuid('id');
+            $table->uuid('id')->primary();
             $table->string('action_type');
             $table->uuid('appointment_id')->constrained('appointments');
             $table->uuid('admin_id')->constrained('users');
