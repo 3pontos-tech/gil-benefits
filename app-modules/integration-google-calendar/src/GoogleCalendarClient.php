@@ -188,7 +188,9 @@ class GoogleCalendarClient
     {
         $credentialsPath = storage_path(config('google-calendar.service_account_credentials'));
 
-        if (! file_exists($credentialsPath)) {
+        // is_file (not file_exists) so an unset/blank config path — which resolves to the storage
+        // directory itself — is rejected here instead of blowing up on file_get_contents() below.
+        if (! is_file($credentialsPath)) {
             throw new GoogleCalendarApiException(
                 sprintf('Google service account credentials file not found at %s', $credentialsPath),
                 retryable: false,
