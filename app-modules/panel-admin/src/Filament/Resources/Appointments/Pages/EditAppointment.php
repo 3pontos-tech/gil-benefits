@@ -12,6 +12,9 @@ use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 
+/**
+ * @property-read Appointment $record
+ */
 class EditAppointment extends EditRecord
 {
     protected static string $resource = AppointmentResource::class;
@@ -19,6 +22,8 @@ class EditAppointment extends EditRecord
     protected ?string $previousConsultantId = null;
 
     protected ?CarbonInterface $previousAppointmentAt = null;
+
+    protected ?Appointment $appointment = null;
 
     protected function getHeaderActions(): array
     {
@@ -64,13 +69,22 @@ class EditAppointment extends EditRecord
             return;
         }
 
-        if ($calendarSynced) {
-            return;
+        $appointment->refresh();
+
+        if (blank($appointment->consultant_id)) {
+            Notification::make()
+                ->title(__('panel-admin::resources.appointments.notifications.consultant_removed'))
+                ->warning()
+                ->send();
         }
 
-        Notification::make()
-            ->title(__('panel-admin::resources.appointments.actions.calendar_sync_failed'))
-            ->warning()
-            ->send();
+        if (! $calendarSynced) {
+            Notification::make()
+                ->title(__('panel-admin::resources.appointments.actions.calendar_sync_failed'))
+                ->warning()
+                ->send();
+        }
+
+        $this->redirect(AppointmentResource::getUrl('view', ['record' => $this->record]));
     }
 }

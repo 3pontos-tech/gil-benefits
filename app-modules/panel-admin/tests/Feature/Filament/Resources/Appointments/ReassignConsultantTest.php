@@ -8,19 +8,23 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification as LaravelNotification;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Mail\AppointmentConsultantUnassignedMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Models\AppointmentHistory;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
 use TresPontosTech\IntegrationGoogleCalendar\GoogleCalendarClient;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\EditAppointment;
 use Zap\Enums\ScheduleTypes;
 use Zap\Facades\Zap;
 use Zap\Models\Schedule;
 
+use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -180,10 +184,7 @@ it('changes appointment status to pending when removes a consultant from an appo
     $date = Date::now()->addDays(3)->setTime(10, 0);
 
     $previousConsultant = Consultant::factory()->create(['email' => 'previous@workspace.com']);
-    $newConsultant = Consultant::factory()->create(['email' => 'new@workspace.com']);
-
     ($this->makeAvailable)($date, $previousConsultant);
-    ($this->makeAvailable)($date, $newConsultant);
 
     $appointment = Appointment::factory()->create([
         'consultant_id' => $previousConsultant->id,
@@ -214,4 +215,42 @@ it('changes appointment status to pending when removes a consultant from an appo
         ->and($appointment->status)->toBe(AppointmentStatus::Pending)
         ->and($appointment->google_event_id)->toBe(null)
         ->and($appointment->meeting_url)->toBe(null);
+
+    assertDatabaseHas(AppointmentHistory::class, [
+        'appointment_id' => $appointment->id,
+        'action_type' => AppointmentHistoryActionType::ConsultantLeft,
+        'old_values' => json_encode([
+            'consultant_id' => $previousConsultant->id,
+        ]),
+        'new_values' => json_encode([
+            'consultant_id' => null,
+        ]),
+    ]);
+});
+
+it('warns and redirects to the view page after removing the consultant', function (): void {
+    $date = Date::now()->addDays(3)->setTime(10, 0);
+
+    $previousConsultant = Consultant::factory()->create(['email' => 'previous@workspace.com']);
+    ($this->makeAvailable)($date, $previousConsultant);
+
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $previousConsultant->id,
+        'appointment_at' => $date,
+        'status' => AppointmentStatus::Active,
+        'google_event_id' => 'event-on-previous-calendar',
+        'meeting_url' => 'https://meet.google.com/abc-defg-hij',
+    ]);
+
+    $mockClient = Mockery::mock(GoogleCalendarClient::class);
+    $mockClient->shouldReceive('getAccessToken')->andReturn('fake-access-token');
+    $mockClient->shouldReceive('deleteEvent')->andReturnNull();
+    app()->instance(GoogleCalendarClient::class, $mockClient);
+
+    livewire(EditAppointment::class, ['record' => $appointment->getRouteKey()])
+        ->fillForm(['consultant_id' => null])
+        ->call('save')
+        ->assertHasNoFormErrors()
+        ->assertNotified(__('panel-admin::resources.appointments.notifications.consultant_removed'))
+        ->assertRedirect(AppointmentResource::getUrl('view', ['record' => $appointment]));
 });
