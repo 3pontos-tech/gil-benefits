@@ -11,6 +11,9 @@ use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
 
+/**
+ * @extends Factory<AppointmentHistory>
+ */
 class AppointmentHistoryFactory extends Factory
 {
     protected $model = AppointmentHistory::class;
@@ -18,14 +21,19 @@ class AppointmentHistoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'action_type' => $this->faker->randomElements(AppointmentHistoryActionType::cases()),
-            'old_values' => $this->faker->words(),
-            'new_values' => $this->faker->words(),
+            'action_type' => $this->faker->randomElement(AppointmentHistoryActionType::cases()),
+            'old_values' => ['consultant_id' => $this->faker->uuid()],
+            'new_values' => ['consultant_id' => $this->faker->uuid()],
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
 
             'appointment_id' => Appointment::factory(),
-            'admin_Id' => User::factory(),
+            'admin_id' => User::factory(),
         ];
+    }
+
+    public function actionType(AppointmentHistoryActionType $actionType): static
+    {
+        return $this->state(fn (): array => ['action_type' => $actionType]);
     }
 }

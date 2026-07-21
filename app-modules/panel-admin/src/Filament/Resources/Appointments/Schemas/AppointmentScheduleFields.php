@@ -24,7 +24,7 @@ class AppointmentScheduleFields
             ->hintIcon(fn (?Appointment $record): ?Heroicon => $record instanceof Appointment && $record->isActive() ? Heroicon::InformationCircle : null)
             ->searchable()
             ->hint(fn (?Appointment $record): ?string => $record instanceof Appointment && $record->isActive()
-                ? __('panel-admin::resources.appointments.hints.consultant_removal')
+                ? (string) __('panel-admin::resources.appointments.hints.consultant_removal')
                 : null)
             ->options(function (Get $get, ?Appointment $record): array {
                 $appointmentAt = $get('appointment_at');

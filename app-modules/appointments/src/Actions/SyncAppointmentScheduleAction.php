@@ -102,10 +102,14 @@ final readonly class SyncAppointmentScheduleAction
 
     private function reassign(Appointment $appointment, ?string $previousConsultantId): bool
     {
+        $actionType = blank($previousConsultantId)
+            ? AppointmentHistoryActionType::ConsultantAssigned
+            : AppointmentHistoryActionType::ConsultantChanged;
+
         $this->storeAppointmentHistory->execute(StoreAppointmentHistoryDTO::make([
             'appointment_id' => $appointment->id,
             'admin_id' => auth()->user()->getKey(),
-            'action_type' => AppointmentHistoryActionType::ConsultantChanged->value,
+            'action_type' => $actionType->value,
             'old_values' => $appointment->getPrevious(),
             'new_values' => $appointment->getChanges(),
         ]));

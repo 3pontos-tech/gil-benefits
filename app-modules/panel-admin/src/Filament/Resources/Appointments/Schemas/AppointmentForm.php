@@ -39,6 +39,7 @@ class AppointmentForm
                             ->columns(2)
                             ->schema(AppointmentScheduleFields::make()),
                         Section::make(__('panel-admin::resources.appointments.sections.details'))
+                            ->visibleOn('edit')
                             ->schema([
                                 TextInput::make('meeting_url')
                                     ->label(__('appointments::resources.appointments.form.meeting_url'))

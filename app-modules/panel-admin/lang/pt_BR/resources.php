@@ -21,6 +21,35 @@ return [
         'hints' => [
             'consultant_removal' => 'Desvincular consultor reverte o agendamento para Pendente.',
         ],
+        'history' => [
+            'title' => 'Histórico',
+            'columns' => [
+                'admin' => 'Responsável',
+                'action_type' => 'Ação',
+                'summary' => 'Detalhes',
+                'created_at' => 'Quando',
+            ],
+            'labels' => [
+                'previous_consultant' => 'Consultor anterior',
+                'current_consultant' => 'Consultor atual',
+                'consultant' => 'Consultor',
+                'previous_date' => 'Data anterior',
+                'new_date' => 'Nova data',
+                'action' => 'Ação',
+                'performed_by' => 'Realizado por',
+                'happened_at' => 'Data e hora',
+            ],
+            'sections' => [
+                'consultant_assigned' => 'Consultor Atribuído',
+                'consultant_left' => 'Consultor Removido',
+                'consultant_changed' => 'Alteração de Consultor',
+                're_scheduled' => 'Reagendamento',
+            ],
+            'placeholders' => [
+                'empty' => '—',
+                'unknown_consultant' => 'Consultor desconhecido',
+            ],
+        ],
         'view' => [
             'processing' => 'Ata em processamento pela IA…',
         ],

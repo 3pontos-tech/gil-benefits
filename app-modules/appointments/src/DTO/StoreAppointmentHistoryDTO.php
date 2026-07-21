@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TresPontosTech\Appointments\DTO;
 
 use JsonSerializable;
@@ -7,6 +9,10 @@ use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 
 final readonly class StoreAppointmentHistoryDTO implements JsonSerializable
 {
+    /**
+     * @param  array<string, mixed>  $oldValues
+     * @param  array<string, mixed>  $newValues
+     */
     public function __construct(
         public string $appointmentId,
         public string $adminId,
@@ -15,6 +21,9 @@ final readonly class StoreAppointmentHistoryDTO implements JsonSerializable
         public array $newValues,
     ) {}
 
+    /**
+     * @param  array{appointment_id: string, admin_id: string, action_type: string, old_values: array<string, mixed>, new_values: array<string, mixed>}  $data
+     */
     public static function make(array $data): self
     {
         return new self(
@@ -26,6 +35,9 @@ final readonly class StoreAppointmentHistoryDTO implements JsonSerializable
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return [
