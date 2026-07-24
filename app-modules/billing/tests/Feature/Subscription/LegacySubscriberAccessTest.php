@@ -8,7 +8,6 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\Fakes\FakeBillingContract;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
@@ -218,14 +217,16 @@ describe('user access during gateway migration', function (): void {
         expect($response->getContent())->toBe('ok');
     });
 
-    it('blocks with 403 when the company itself has no active subscription on any provider', function (): void {
+    it('redirects to the plan-inactive page when the company has no active subscription on any provider', function (): void {
         $middleware = makeUserMiddleware(
             stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
             barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
         );
 
-        expect(fn (): Symfony\Component\HttpFoundation\Response => $middleware->handle(fakeRequest(), passThrough()))
-            ->toThrow(HttpException::class);
+        $response = $middleware->handle(fakeRequest(), passThrough());
+
+        expect($response->getStatusCode())->toBe(302)
+            ->and($response->headers->get('Location'))->toContain('company-plan-inactive');
     });
 
     it('redirects a user to the plans page when the company is subscribed but the user has not picked a plan yet', function (): void {

@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Laravel\Cashier\Cashier;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -51,29 +50,38 @@ it('allows access when company has an active contractual plan', function (): voi
     expect($response->getContent())->toBe('ok');
 });
 
-it('aborts with 403 when company has no stripe subscription', function (): void {
-    $this->middleware->handle($this->request, $this->next);
-})->throws(HttpException::class);
+it('redirects to the plan-inactive page when company has no stripe subscription', function (): void {
+    $response = $this->middleware->handle($this->request, $this->next);
 
-it('aborts with 403 when company subscription is past_due', function (): void {
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('company-plan-inactive');
+});
+
+it('redirects to the plan-inactive page when company subscription is past_due', function (): void {
     $this->company->subscriptions()->create([
         'type' => 'company',
         'stripe_id' => 'sub_pastdue_' . uniqid(),
         'stripe_status' => 'past_due',
     ]);
 
-    $this->middleware->handle($this->request, $this->next);
-})->throws(HttpException::class);
+    $response = $this->middleware->handle($this->request, $this->next);
 
-it('aborts with 403 when company subscription is canceled', function (): void {
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('company-plan-inactive');
+});
+
+it('redirects to the plan-inactive page when company subscription is canceled', function (): void {
     $this->company->subscriptions()->create([
         'type' => 'company',
         'stripe_id' => 'sub_canceled_' . uniqid(),
         'stripe_status' => 'canceled',
     ]);
 
-    $this->middleware->handle($this->request, $this->next);
-})->throws(HttpException::class);
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('company-plan-inactive');
+});
 
 it('bypasses 403 check for flamma-company tenant', function (): void {
     $flammaCompany = Company::factory()->create([

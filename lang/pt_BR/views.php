@@ -19,4 +19,17 @@ return [
         'per_month' => '/mês',
         'complete_subscription' => 'Finalizar Assinatura',
     ],
+    'company_plan_inactive' => [
+        'title' => 'Plano da empresa inativo',
+        'heading' => 'O plano da sua empresa está inativo',
+        'description' => 'No momento :company não possui um plano ativo, por isso o acesso à plataforma está temporariamente suspenso.',
+        'instruction' => 'Fale com o administrador ou gestor da sua empresa para regularizar a assinatura. Assim que o plano for reativado, seu acesso volta automaticamente.',
+        'logout' => 'Sair da conta',
+    ],
+    'no_company' => [
+        'title' => 'Nenhuma empresa ativa',
+        'heading' => 'Você não está em nenhuma empresa ativa',
+        'body' => 'Seu vínculo com uma empresa não está ativo no momento, por isso não há uma área de colaborador para exibir. Fale com o administrador ou gestor da sua empresa para regularizar seu acesso.',
+        'logout' => 'Sair da conta',
+    ],
 ];
