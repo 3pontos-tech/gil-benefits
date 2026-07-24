@@ -34,9 +34,7 @@ trait RedirectsToProfileHome
         }
 
         // Defensive loop guard: never redirect a request onto itself.
-        if (rtrim($request->url(), '/') === rtrim((string) strtok($homeUrl, '?'), '/')) {
-            abort(Response::HTTP_FORBIDDEN);
-        }
+        abort_if(rtrim($request->url(), '/') === rtrim((string) strtok($homeUrl, '?'), '/'), Response::HTTP_FORBIDDEN);
 
         return redirect()->to($homeUrl);
     }

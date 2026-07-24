@@ -38,15 +38,11 @@ class IdentifyTenantOrRedirectHome extends IdentifyTenant
 
         $user = $panel->auth()->user();
 
-        if (! $user instanceof HasTenants) {
-            abort(Response::HTTP_NOT_FOUND);
-        }
+        abort_unless($user instanceof HasTenants, Response::HTTP_NOT_FOUND);
 
         $tenantKey = $request->route()->parameter('tenant');
 
-        if (! is_string($tenantKey)) {
-            abort(Response::HTTP_NOT_FOUND);
-        }
+        abort_unless(is_string($tenantKey), Response::HTTP_NOT_FOUND);
 
         $tenant = $panel->getTenant($tenantKey);
 

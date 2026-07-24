@@ -27,6 +27,7 @@ it('redirects a member of an unpaid company to the plan-inactive page instead of
     $response = get(route('filament.app.pages.user-dashboard', ['tenant' => $this->company->slug]));
 
     $response->assertStatus(302);
+
     expect($response->headers->get('Location'))->toContain('company-plan-inactive');
 });
 

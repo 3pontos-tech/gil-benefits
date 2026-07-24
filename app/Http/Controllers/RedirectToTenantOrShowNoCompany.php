@@ -32,7 +32,7 @@ class RedirectToTenantOrShowNoCompany extends RedirectToTenantController
         if ($tenant) {
             $url = $panel->getUrl($tenant);
 
-            if (! blank($url)) {
+            if (filled($url)) {
                 return redirect()->to($url);
             }
         }

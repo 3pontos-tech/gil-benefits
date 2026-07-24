@@ -70,7 +70,7 @@ enum FilamentPanel: string
     {
         $panel = self::homePanelFor($user);
 
-        if ($panel === null) {
+        if (! $panel instanceof FilamentPanel) {
             return null;
         }
 
