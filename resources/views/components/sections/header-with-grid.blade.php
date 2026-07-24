@@ -16,7 +16,7 @@
         ],
         [
             'title' => 'Reuniões',
-            'description' => 'A Flamma disponibiliza um time de consultores especializados para atender online ou presencialmente com duração de 60 minutos.'
+            'description' => 'A Flamma disponibiliza um time de consultores especializados para atender por meio de reuniões on-line com duração de 60 minutos.'
         ],
         [
             'title' => 'Acompanhamento',
