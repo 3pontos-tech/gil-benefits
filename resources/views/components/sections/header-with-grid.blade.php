@@ -2,7 +2,7 @@
     $title = 'Como funciona?';
     $description = 'A empresa contrata um pacote de horas de atendimento (mensal, semestral ou anual). Os colaboradores
         agendam seus atendimentos diretamente pela plataforma Flamma. Você tem acesso à atendimentos individuais com
-        até 60 minutos, online ou presenciais.  Relatórios consolidados de uso para acompanhamento da adesão e
+        até 60 minutos, on-line.  Relatórios consolidados de uso para acompanhamento da adesão e
         impacto.';
 
     $cards = [
