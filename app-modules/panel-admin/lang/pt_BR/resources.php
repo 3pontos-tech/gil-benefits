@@ -13,8 +13,48 @@ return [
         'navigation_label' => 'Agendamentos',
         'model_label' => 'Agendamento',
         'plural_model_label' => 'Agendamentos',
+        'sections' => [
+            'user' => 'Usuário',
+            'scheduling' => 'Agendamento',
+            'details' => 'Detalhes',
+        ],
+        'hints' => [
+            'consultant_removal' => 'Desvincular consultor reverte o agendamento para Pendente.',
+        ],
+        'history' => [
+            'title' => 'Histórico',
+            'columns' => [
+                'admin' => 'Responsável',
+                'action_type' => 'Ação',
+                'summary' => 'Detalhes',
+                'created_at' => 'Quando',
+            ],
+            'labels' => [
+                'previous_consultant' => 'Consultor anterior',
+                'current_consultant' => 'Consultor atual',
+                'consultant' => 'Consultor',
+                'previous_date' => 'Data anterior',
+                'new_date' => 'Nova data',
+                'action' => 'Ação',
+                'performed_by' => 'Realizado por',
+                'happened_at' => 'Data e hora',
+            ],
+            'sections' => [
+                'consultant_assigned' => 'Consultor Atribuído',
+                'consultant_left' => 'Consultor Removido',
+                'consultant_changed' => 'Alteração de Consultor',
+                're_scheduled' => 'Reagendamento',
+            ],
+            'placeholders' => [
+                'empty' => '—',
+                'unknown_consultant' => 'Consultor desconhecido',
+            ],
+        ],
         'view' => [
             'processing' => 'Ata em processamento pela IA…',
+        ],
+        'notifications' => [
+            'consultant_removed' => 'O consultor foi removido. O agendamento voltou para Pendente e deve ser confirmado novamente pela página de visualização.',
         ],
         'actions' => [
             'advance_to_scheduling' => 'Iniciar Agendamento',
@@ -23,6 +63,7 @@ return [
             'complete_appointment' => 'Concluir Consulta',
             'cancel_appointment' => 'Cancelar Agendamento',
             'calendar_event_failed' => 'Não foi possível criar o evento no calendário. O agendamento foi confirmado, mas o link da reunião pode demorar alguns instantes para aparecer.',
+            'calendar_sync_failed' => 'O agendamento foi salvo, mas não foi possível atualizar o evento/link no Google Calendar. Verifique a integração.',
         ],
     ],
     'consultants' => [

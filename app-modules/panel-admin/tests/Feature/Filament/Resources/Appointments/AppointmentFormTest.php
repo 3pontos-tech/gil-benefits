@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\CreateAppointment;
+use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\EditAppointment;
 
 use function Pest\Livewire\livewire;
 
@@ -12,11 +12,11 @@ beforeEach(function (): void {
 });
 
 it('clears consultant_id when appointment_at is changed', function (): void {
-    $consultant = Consultant::factory()->create();
+    // The consultant field only exists on the edit form (assigned via confirmation on create).
+    $appointment = Appointment::factory()->create();
 
-    livewire(CreateAppointment::class)
-        ->set('data.consultant_id', $consultant->id)
-        ->assertSet('data.consultant_id', $consultant->id)
+    livewire(EditAppointment::class, ['record' => $appointment->getRouteKey()])
+        ->assertSet('data.consultant_id', $appointment->consultant_id)
         ->set('data.appointment_at', now()->addDays(3)->toDateTimeString())
         ->assertSet('data.consultant_id', null);
 });

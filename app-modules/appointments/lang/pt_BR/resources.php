@@ -12,6 +12,7 @@ return [
             'columns' => [
                 'consultant' => 'Consultor',
                 'user' => 'Usuário',
+                'category_type' => 'Categoria',
                 'appointment_at' => 'Data e Hora',
                 'status' => 'Status',
                 'created_at' => 'Criado em',

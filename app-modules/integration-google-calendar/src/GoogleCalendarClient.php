@@ -108,6 +108,27 @@ class GoogleCalendarClient
         return CreateEventResponse::make($response->json());
     }
 
+    /**
+     * @param  array<string, mixed>  $eventData
+     */
+    public function patchEvent(string $accessToken, string $calendarId, string $eventId, array $eventData): void
+    {
+        $url = sprintf(
+            'https://www.googleapis.com/calendar/v3/calendars/%s/events/%s?sendUpdates=all',
+            urlencode($calendarId),
+            urlencode($eventId)
+        );
+
+        $response = Http::withToken($accessToken)->patch($url, $eventData);
+
+        if ($response->failed()) {
+            throw new GoogleCalendarApiException(
+                sprintf('Failed to patch event %s for %s: %s', $eventId, $calendarId, $response->body()),
+                $response->status(),
+            );
+        }
+    }
+
     public function deleteEvent(string $accessToken, string $calendarId, string $eventId): void
     {
         $url = sprintf(
@@ -167,7 +188,9 @@ class GoogleCalendarClient
     {
         $credentialsPath = storage_path(config('google-calendar.service_account_credentials'));
 
-        if (! file_exists($credentialsPath)) {
+        // is_file (not file_exists) so an unset/blank config path — which resolves to the storage
+        // directory itself — is rejected here instead of blowing up on file_get_contents() below.
+        if (! is_file($credentialsPath)) {
             throw new GoogleCalendarApiException(
                 sprintf('Google service account credentials file not found at %s', $credentialsPath),
                 retryable: false,

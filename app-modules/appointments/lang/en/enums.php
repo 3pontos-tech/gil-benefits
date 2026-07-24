@@ -10,4 +10,10 @@ return [
         'cancelled' => 'Cancelled',
         'cancelled_late' => 'Cancelled (Late)',
     ],
+    'appointment_history_action_type' => [
+        'consultant_assigned' => 'Consultant assigned',
+        'consultant_left' => 'Consultant removed',
+        'consultant_changed' => 'Consultant changed',
+        're_scheduled' => 'Rescheduled',
+    ],
 ];

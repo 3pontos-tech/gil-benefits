@@ -11,23 +11,29 @@ readonly class DeleteCalendarEventAction
         private GoogleCalendarClient $client,
     ) {}
 
-    public function handle(Appointment $appointment): void
+    /**
+     * @param  string|null  $calendarEmail  Calendar to delete the event from. Defaults to the appointment's
+     *                                      current consultant. Pass an explicit email when the consultant has
+     *                                      already been reassigned and the event still lives on the previous one.
+     */
+    public function handle(Appointment $appointment, ?string $calendarEmail = null): void
     {
         if (blank($appointment->google_event_id)) {
             return;
         }
 
-        $appointment->loadMissing('consultant');
+        if (blank($calendarEmail)) {
+            $appointment->loadMissing('consultant');
+            $calendarEmail = $appointment->consultant?->email;
+        }
 
-        $consultant = $appointment->consultant;
-
-        if (blank($consultant) || blank($consultant->email)) {
+        if (blank($calendarEmail)) {
             return;
         }
 
-        $accessToken = $this->client->getAccessToken($consultant->email);
+        $accessToken = $this->client->getAccessToken($calendarEmail);
 
-        $this->client->deleteEvent($accessToken, $consultant->email, $appointment->google_event_id);
+        $this->client->deleteEvent($accessToken, $calendarEmail, $appointment->google_event_id);
 
         $appointment->update([
             'google_event_id' => null,

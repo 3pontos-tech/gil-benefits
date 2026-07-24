@@ -6,19 +6,14 @@ namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
-use TresPontosTech\Appointments\Actions\AssignConsultantAction;
-use TresPontosTech\Appointments\Actions\GetAvailableConsultantsAction;
+use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
@@ -27,6 +22,8 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\RelationManagers\AppointmentHistoryRelationManager;
+use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Schemas\AppointmentScheduleFields;
 
 /**
  * @property-read Appointment $record
@@ -40,7 +37,8 @@ class ViewAppointment extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            EditAction::make()
+                ->visible(fn (Appointment $record): bool => $record->isActive()),
 
             Action::make('confirm_appointment')
                 ->label(__('panel-admin::resources.appointments.actions.confirm_appointment'))
@@ -52,35 +50,22 @@ class ViewAppointment extends ViewRecord
                     'appointment_at' => $this->record->appointment_at,
                     'consultant_id' => $this->record->consultant_id,
                 ])
-                ->schema([
-                    DateTimePicker::make('appointment_at')
-                        ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
-                        ->required()
-                        ->live()
-                        ->afterStateUpdated(fn (callable $set) => $set('consultant_id', null)),
-                    Select::make('consultant_id')
-                        ->label(__('appointments::resources.appointments.table.columns.consultant'))
-                        ->options(function (Get $get): array {
-                            $appointmentAt = $get('appointment_at');
-
-                            if (! $appointmentAt) {
-                                return [];
-                            }
-
-                            return resolve(GetAvailableConsultantsAction::class)
-                                ->handle(
-                                    appointmentAt: Date::parse($appointmentAt),
-                                    alwaysIncludeConsultantId: $this->record->consultant_id,
-                                )
-                                ->pluck('name', 'id')
-                                ->all();
-                        })
-                        ->live()
-                        ->required(),
-                ])
+                ->schema(AppointmentScheduleFields::make(editOnly: false))
                 ->action(function (array $data): void {
+                    if (blank($data['consultant_id'])) {
+                        Notification::make()
+                            ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
                     /** @var Appointment $appointment */
                     $appointment = $this->record;
+
+                    $previousConsultantId = $appointment->consultant_id;
+                    $previousAppointmentAt = $appointment->appointment_at;
 
                     $appointment->update([
                         'appointment_at' => $data['appointment_at'],
@@ -88,7 +73,8 @@ class ViewAppointment extends ViewRecord
                     ]);
 
                     try {
-                        resolve(AssignConsultantAction::class)->handle($appointment);
+                        resolve(SyncAppointmentScheduleAction::class)
+                            ->handle($appointment, $previousConsultantId, $previousAppointmentAt);
                     } catch (SlotUnavailableException) {
                         Notification::make()
                             ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))
@@ -245,5 +231,12 @@ class ViewAppointment extends ViewRecord
             now()->addMinutes(5),
             ['ResponseContentDisposition' => sprintf('attachment; filename="%s"', $media->file_name)],
         );
+    }
+
+    protected function getAllRelationManagers(): array
+    {
+        return [
+            AppointmentHistoryRelationManager::class,
+        ];
     }
 }
