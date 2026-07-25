@@ -30,11 +30,18 @@ class CreateAppointment extends CreateRecord
         // the transition to Active and the Google Calendar event.
         $data['status'] = AppointmentStatus::Pending;
 
+        $userId = $data['user_id'] ?? null;
+        $user = is_string($userId) ? User::query()->find($userId) : null;
+
         // Mirror BookAppointmentAction: when the user has no monthly quota left, the
         // appointment consumes a credit. Resolved before creation, since the new
         // appointment itself counts toward the monthly quota.
-        $user = User::query()->find($data['user_id'] ?? null);
-        $this->consumesCredit = $user instanceof User && $user->monthly_appointments_left <= 0;
+        $this->consumesCredit = $user !== null && $user->monthly_appointments_left <= 0;
+
+        // Record which company's benefit programme this session belongs to, otherwise it
+        // lands in no company's reporting. The admin panel has no tenant to read, so it
+        // comes from the employee's own company rather than the shared default one.
+        $data['company_id'] = $user?->employerCompanyId();
 
         return $data;
     }

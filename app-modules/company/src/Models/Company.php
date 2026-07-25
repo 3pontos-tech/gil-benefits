@@ -67,6 +67,13 @@ class Company extends Model implements HasAvatar, HasMedia
     use InteractsWithMedia;
     use SoftDeletes;
 
+    /**
+     * The shared company every registered user is attached to (see AttachToDefaultCompany).
+     * Because everyone belongs to it, it is never on its own a reliable answer to "which
+     * company is this person from" — see User::employerCompanyId().
+     */
+    public const DEFAULT_SLUG = 'flamma-company';
+
     protected $fillable = [
         'user_id',
         'name',
