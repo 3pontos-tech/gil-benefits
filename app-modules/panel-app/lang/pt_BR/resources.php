@@ -12,7 +12,7 @@ return [
             'modal_heading_ontime' => 'Cancelar Agendamento',
             'modal_description_ontime' => 'Tem certeza que deseja cancelar? Seu crédito será restaurado.',
             'modal_heading_late' => 'Cancelar Agendamento',
-            'modal_description_late' => 'Atenção: este agendamento ocorre em menos de 24 horas. Ao cancelar, seu crédito do período será consumido. Deseja continuar?',
+            'modal_description_late' => 'Atenção: este agendamento ocorre em menos de :hours horas. Ao cancelar, seu crédito do período será consumido. Deseja continuar?',
             'modal_submit_label' => 'Sim, cancelar',
             'success' => 'Agendamento cancelado com sucesso.',
         ],

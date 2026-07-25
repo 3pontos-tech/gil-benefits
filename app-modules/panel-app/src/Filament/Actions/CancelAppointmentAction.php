@@ -31,13 +31,13 @@ class CancelAppointmentAction extends Action
             AppointmentStatus::Active,
         ], strict: true) && $record->appointment_at->isFuture());
 
-        $this->modalHeading(fn (Appointment $record): string => now()->diffInHours($record->appointment_at, absolute: false) >= 24
-            ? __('panel-app::resources.appointments.cancel.modal_heading_ontime')
-            : __('panel-app::resources.appointments.cancel.modal_heading_late'));
+        $this->modalHeading(fn (Appointment $record): string => $record->isLateCancellation()
+            ? __('panel-app::resources.appointments.cancel.modal_heading_late')
+            : __('panel-app::resources.appointments.cancel.modal_heading_ontime'));
 
-        $this->modalDescription(fn (Appointment $record): string => now()->diffInHours($record->appointment_at, absolute: false) >= 24
-            ? __('panel-app::resources.appointments.cancel.modal_description_ontime')
-            : __('panel-app::resources.appointments.cancel.modal_description_late'));
+        $this->modalDescription(fn (Appointment $record): string => $record->isLateCancellation()
+            ? __('panel-app::resources.appointments.cancel.modal_description_late', ['hours' => Appointment::CANCELLATION_WINDOW_HOURS])
+            : __('panel-app::resources.appointments.cancel.modal_description_ontime'));
 
         $this->modalSubmitActionLabel(__('panel-app::resources.appointments.cancel.modal_submit_label'));
 

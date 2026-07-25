@@ -12,7 +12,7 @@ return [
             'modal_heading_ontime' => 'Cancel Appointment',
             'modal_description_ontime' => 'Are you sure you want to cancel? Your credit will be restored.',
             'modal_heading_late' => 'Cancel Appointment',
-            'modal_description_late' => 'Warning: this appointment is within 24 hours. Cancelling now will consume your credit for this period. Do you wish to continue?',
+            'modal_description_late' => 'Warning: this appointment is within :hours hours. Cancelling now will consume your credit for this period. Do you wish to continue?',
             'modal_submit_label' => 'Yes, cancel',
             'success' => 'Appointment cancelled successfully.',
         ],

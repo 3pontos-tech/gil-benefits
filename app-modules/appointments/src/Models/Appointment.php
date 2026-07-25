@@ -55,6 +55,13 @@ class Appointment extends Model
     use HasUuids;
     use SoftDeletes;
 
+    /**
+     * Notice a user must give to cancel without losing the credit or the monthly
+     * quota. Public because the notices, e-mails and help hints that spell the
+     * rule out quote this number without an appointment in hand.
+     */
+    public const CANCELLATION_WINDOW_HOURS = 4;
+
     protected $fillable = [
         'user_id',
         'consultant_id',
@@ -139,6 +146,16 @@ class Appointment extends Model
     public function isActive(): bool
     {
         return $this->status === AppointmentStatus::Active;
+    }
+
+    /**
+     * Whether cancelling right now would fall inside the penalty window: the user
+     * loses the credit and the monthly quota. Admin and system cancellations are
+     * never penalised, so they do not consult this.
+     */
+    public function isLateCancellation(): bool
+    {
+        return now()->diffInHours($this->appointment_at, absolute: false) < self::CANCELLATION_WINDOW_HOURS;
     }
 
     protected function casts(): array

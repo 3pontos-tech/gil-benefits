@@ -73,8 +73,6 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
             return self::Cancelled;
         }
 
-        $hoursUntil = now()->diffInHours($appointment->appointment_at, absolute: false);
-
-        return $hoursUntil >= 24 ? self::Cancelled : self::CancelledLate;
+        return $appointment->isLateCancellation() ? self::CancelledLate : self::Cancelled;
     }
 }

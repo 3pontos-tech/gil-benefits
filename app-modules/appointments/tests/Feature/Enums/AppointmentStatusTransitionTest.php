@@ -103,15 +103,15 @@ it('resolves to Cancelled for Admin actor regardless of time', function (): void
         ->toBe(AppointmentStatus::Cancelled);
 });
 
-it('resolves to Cancelled for User actor >= 24h before appointment', function (): void {
-    $appointment = Appointment::factory()->create(['appointment_at' => now()->addHours(25)]);
+it('resolves to Cancelled for User actor >= 4h before appointment', function (): void {
+    $appointment = Appointment::factory()->create(['appointment_at' => now()->addHours(5)]);
 
     expect(AppointmentStatus::resolveCancellationStatus($appointment, CancellationActor::User))
         ->toBe(AppointmentStatus::Cancelled);
 });
 
-it('resolves to CancelledLate for User actor < 24h before appointment', function (): void {
-    $appointment = Appointment::factory()->create(['appointment_at' => now()->addHours(23)]);
+it('resolves to CancelledLate for User actor < 4h before appointment', function (): void {
+    $appointment = Appointment::factory()->create(['appointment_at' => now()->addHours(1)]);
 
     expect(AppointmentStatus::resolveCancellationStatus($appointment, CancellationActor::User))
         ->toBe(AppointmentStatus::CancelledLate);
