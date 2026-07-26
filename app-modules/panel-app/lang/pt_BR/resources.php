@@ -16,6 +16,17 @@ return [
             'modal_submit_label' => 'Sim, cancelar',
             'success' => 'Agendamento cancelado com sucesso.',
         ],
+        'reschedule' => [
+            'action_label' => 'Reagendar',
+            'modal_heading' => 'Reagendar Atendimento',
+            'modal_description' => 'Escolha uma nova data e horário. Se o seu consultor não estiver disponível no horário escolhido, o agendamento voltará para a fila de atribuição.',
+            'modal_submit_label' => 'Confirmar novo horário',
+            'success' => 'Agendamento remarcado com sucesso.',
+            'success_body_kept_consultant' => 'Seu consultor está disponível e foi mantido.',
+            'success_body_unassigned' => 'Seu consultor não estava disponível neste horário. Vamos atribuir um novo consultor e avisaremos você em breve.',
+            'slot_unavailable' => 'Este horário não está mais disponível. Escolha outro.',
+            'calendar_sync_failed' => 'O agendamento foi remarcado, mas a agenda do consultor pode estar dessincronizada.',
+        ],
         'records' => [
             'view' => [
                 'label' => 'Ver Ata',

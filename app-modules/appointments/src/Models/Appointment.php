@@ -62,6 +62,14 @@ class Appointment extends Model
      */
     public const CANCELLATION_WINDOW_HOURS = 4;
 
+    /**
+     * How much notice a user must give to move an appointment themselves. Below it the
+     * reschedule button is gone and they have to cancel (paying the late penalty) or talk
+     * to support. Deliberately its own constant: it happens to match the cancellation
+     * window today, but the two answer different questions and may drift apart.
+     */
+    public const RESCHEDULE_WINDOW_HOURS = 4;
+
     protected $fillable = [
         'user_id',
         'consultant_id',
@@ -156,6 +164,17 @@ class Appointment extends Model
     public function isLateCancellation(): bool
     {
         return now()->diffInHours($this->appointment_at, absolute: false) < self::CANCELLATION_WINDOW_HOURS;
+    }
+
+    /**
+     * Whether the user may still move this appointment themselves. Rescheduling drops the
+     * consultant and sends the appointment back to Pending, so it is only offered while
+     * there is enough notice to find another slot.
+     */
+    public function canBeRescheduled(): bool
+    {
+        return in_array($this->status, [AppointmentStatus::Pending, AppointmentStatus::Active], strict: true)
+            && now()->diffInHours($this->appointment_at, absolute: false) >= self::RESCHEDULE_WINDOW_HOURS;
     }
 
     protected function casts(): array

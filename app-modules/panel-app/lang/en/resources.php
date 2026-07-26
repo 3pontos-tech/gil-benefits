@@ -16,6 +16,17 @@ return [
             'modal_submit_label' => 'Yes, cancel',
             'success' => 'Appointment cancelled successfully.',
         ],
+        'reschedule' => [
+            'action_label' => 'Reschedule',
+            'modal_heading' => 'Reschedule Appointment',
+            'modal_description' => 'Pick a new date and time. If your consultant is not available at the chosen time, the appointment goes back to the assignment queue.',
+            'modal_submit_label' => 'Confirm new time',
+            'success' => 'Appointment rescheduled successfully.',
+            'success_body_kept_consultant' => 'Your consultant is available and has been kept.',
+            'success_body_unassigned' => 'Your consultant was not available at this time. We will assign a new one and let you know shortly.',
+            'slot_unavailable' => 'This time is no longer available. Please pick another one.',
+            'calendar_sync_failed' => 'The appointment was rescheduled, but the consultant calendar may be out of sync.',
+        ],
         'records' => [
             'view' => [
                 'label' => 'View Record',
