@@ -56,7 +56,7 @@ it('falls back to a placeholder when no consultant has been assigned yet', funct
         ->assertSee(__('panel-app::widgets.plan_credits.no_consultant'));
 });
 
-it('splits extra credits by origin (yours vs company)', function (): void {
+it('counts credits from both origins in the card total', function (): void {
     $employee = actingAsEmployee(); // CompanyPlan ativo
     $tenant = filament()->getTenant();
 
@@ -74,22 +74,13 @@ it('splits extra credits by origin (yours vs company)', function (): void {
         'company_id' => $tenant->getKey(),
     ]);
 
+    // O cartão mostra só o total disponível para o cliente, sem separar origem.
     livewire(PlanCreditsWidget::class)
         ->assertOk()
         ->assertSee(__('panel-app::widgets.plan_credits.credits_available'))
         ->assertSeeText('7')
-        ->assertSeeText('2 seus')
-        ->assertSeeText('5 da empresa');
-});
-
-it('omits the breakdown legend when there are no extra credits', function (): void {
-    actingAsEmployee();
-
-    livewire(PlanCreditsWidget::class)
-        ->assertOk()
-        ->assertSee(__('panel-app::widgets.plan_credits.credits_available'))
-        ->assertDontSeeText('seus')
-        ->assertDontSeeText('da empresa');
+        ->assertDontSeeText('2 seus')
+        ->assertDontSeeText('5 da empresa');
 });
 
 it('reaches the plan name through the access-plan modal', function (): void {

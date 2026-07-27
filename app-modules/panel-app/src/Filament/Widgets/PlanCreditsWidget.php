@@ -49,16 +49,15 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
 
         $plan = $this->plan();
 
+        // O cartão mostra só quantos créditos o cliente tem disponíveis, sem
+        // distinguir origem, por isso basta a contagem.
         $availableCredits = UserCredit::query()
             ->where('holder_id', $user->getKey())
             ->where('status', UserCreditStatusEnum::Available)
-            ->get(['owner_id']);
-
-        $ownCredits = $availableCredits->where('owner_id', $user->getKey())->count();
-        $companyCredits = $availableCredits->count() - $ownCredits;
+            ->count();
 
         $monthlyLeft = $user->monthly_appointments_left;
-        $hasCredit = $availableCredits->isNotEmpty();
+        $hasCredit = $availableCredits > 0;
         $hasOngoingAppointment = $user->hasOngoingAppointment();
         $canCreateAppointment = ($monthlyLeft > 0 || $hasCredit) && ! $hasOngoingAppointment;
 
@@ -66,9 +65,7 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             'plan' => $plan,
             'monthlyLeft' => $monthlyLeft,
             'monthlyLimit' => $plan->monthlyLimit ?? 0,
-            'creditsTotal' => $availableCredits->count(),
-            'ownCredits' => $ownCredits,
-            'companyCredits' => $companyCredits,
+            'creditsTotal' => $availableCredits,
             'canCreateAppointment' => $canCreateAppointment,
             'blockReasons' => $this->blockReasons($hasOngoingAppointment, $monthlyLeft, $hasCredit),
             'holderName' => str($user->name)->trim()->upper()->value(),

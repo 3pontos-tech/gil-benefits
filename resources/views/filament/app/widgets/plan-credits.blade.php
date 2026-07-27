@@ -1,5 +1,7 @@
-<x-filament-widgets::widget class="h-full">
-    <div class="flex h-full flex-col gap-4 border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-900">
+{{-- self-start impede o card de esticar junto com a lista de consultorias ao
+     lado: ele termina no próprio conteúdo, como no layout de referência. --}}
+<x-filament-widgets::widget class="self-start">
+    <div class="flex flex-col gap-4 border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-900">
         <div class="flex items-center justify-between gap-2">
             <h2 class="whitespace-nowrap text-sm font-bold text-gray-950 dark:text-white">
                 {{ __('panel-app::widgets.plan_credits.title') }}
@@ -28,17 +30,6 @@
                 <span class="text-2xl font-bold leading-none">{{ $creditsTotal }}</span>
                 <span class="text-xs text-white/80">{{ __('panel-app::widgets.plan_credits.credits_available') }}</span>
             </p>
-
-            @if($ownCredits > 0 || $companyCredits > 0)
-                <p class="mt-1 flex flex-wrap items-center gap-x-3 text-[11px] text-white/70">
-                    @if($ownCredits > 0)
-                        <span>{{ trans_choice('panel-app::widgets.plan_credits.credits_own', $ownCredits, ['count' => $ownCredits]) }}</span>
-                    @endif
-                    @if($companyCredits > 0)
-                        <span>{{ trans_choice('panel-app::widgets.plan_credits.credits_company', $companyCredits, ['count' => $companyCredits]) }}</span>
-                    @endif
-                </p>
-            @endif
 
             <p class="mt-4 text-[10px] uppercase tracking-wide text-white/70">
                 {{ __('panel-app::widgets.plan_credits.holder') }}
@@ -73,7 +64,7 @@
             </p>
         </div>
 
-        <div class="mt-auto">
+        <div>
             {{-- Quando o agendamento está bloqueado o botão sai sem wire:click:
                  desabilitar no HTML não impediria a chamada Livewire. --}}
             @if($canCreateAppointment)

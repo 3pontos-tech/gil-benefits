@@ -47,8 +47,6 @@ return [
         'onboarding_title' => 'Start your journey',
         'onboarding_description' => 'Complete your anamnesis to discover your financial moment.',
         'onboarding_cta' => 'Complete your anamnesis',
-        'pending_ratings' => '{1} :count consultation awaiting your rating|[2,*] :count consultations awaiting your rating',
-        'rate_now' => 'Rate now',
     ],
 
     'latest_appointments' => [
@@ -72,9 +70,6 @@ return [
         'consultant' => 'Consultant',
         'no_consultant' => 'No consultant yet',
         'appointments_remaining' => 'appointments remaining this month',
-        'extra_credits' => 'Extra credits',
-        'credits_own' => '{1} :count yours|[2,*] :count yours',
-        'credits_company' => '{1} :count from the company|[2,*] :count from the company',
         'book_appointment' => 'Book Consultation',
     ],
 

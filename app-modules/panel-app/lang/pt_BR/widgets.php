@@ -47,8 +47,6 @@ return [
         'onboarding_title' => 'Comece sua jornada',
         'onboarding_description' => 'Complete sua anamnese para descobrir seu momento financeiro.',
         'onboarding_cta' => 'Complete sua anamnese',
-        'pending_ratings' => '{1} :count consultoria aguardando sua avaliação|[2,*] :count consultorias aguardando sua avaliação',
-        'rate_now' => 'Avaliar agora',
     ],
 
     'latest_appointments' => [
@@ -72,9 +70,6 @@ return [
         'consultant' => 'Consultor',
         'no_consultant' => 'Nenhum consultor ainda',
         'appointments_remaining' => 'agendamentos restantes este mês',
-        'extra_credits' => 'Créditos avulsos',
-        'credits_own' => '{1} :count seu|[2,*] :count seus',
-        'credits_company' => '{1} :count da empresa|[2,*] :count da empresa',
         'book_appointment' => 'Agendar Consultoria',
     ],
 

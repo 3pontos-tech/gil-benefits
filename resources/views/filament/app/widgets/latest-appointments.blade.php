@@ -29,7 +29,8 @@
             @else
                 <ul class="flex flex-col gap-3">
                     @foreach($rows as $row)
-                        <li class="flex items-center gap-3 border border-gray-200 px-3 py-3 dark:border-white/10">
+                        {{-- 139px é a altura da linha no Figma. --}}
+                        <li class="fi-dash-appointment flex min-h-[139px] items-center gap-4 border border-gray-200 px-4 py-4 dark:border-white/10">
                             <div class="w-10 shrink-0 text-center">
                                 <p class="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                                     {{ $row['month'] }}
@@ -51,7 +52,9 @@
                             </div>
 
                             <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-bold text-gray-950 dark:text-white">
+                                {{-- Com a linha em 139px há espaço vertical, então o título
+                                     quebra em duas linhas em vez de truncar. --}}
+                                <p class="line-clamp-2 text-sm font-bold text-gray-950 dark:text-white">
                                     {{ $row['title'] }}
                                 </p>
                                 <p class="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">

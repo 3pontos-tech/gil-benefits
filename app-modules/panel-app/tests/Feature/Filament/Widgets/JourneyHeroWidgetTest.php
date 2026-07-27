@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
 use TresPontosTech\User\Enums\LifeMoment;
 use TresPontosTech\User\Models\UserAnamnese;
@@ -59,28 +58,4 @@ it('shows an onboarding CTA when the user has no anamnese', function (): void {
     livewire(JourneyHeroWidget::class)
         ->assertSuccessful()
         ->assertSee(__('panel-app::widgets.journey_hero.onboarding_cta'));
-});
-
-it('shows the pending-review banner when a completed consultation has no feedback', function (): void {
-    UserAnamnese::factory()->create(['user_id' => $this->employee->id, 'life_moment' => LifeMoment::Saver]);
-    Appointment::factory()->withStatus(AppointmentStatus::Completed)->create(['user_id' => $this->employee->id]);
-
-    livewire(JourneyHeroWidget::class)
-        ->assertSuccessful()
-        ->assertSeeText(trans_choice('panel-app::widgets.journey_hero.pending_ratings', 1, ['count' => 1]))
-        ->assertSee(__('panel-app::widgets.journey_hero.rate_now'));
-});
-
-it('hides the pending-review banner when every consultation is rated', function (): void {
-    UserAnamnese::factory()->create(['user_id' => $this->employee->id, 'life_moment' => LifeMoment::Saver]);
-    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Completed)->create(['user_id' => $this->employee->id]);
-    AppointmentFeedback::factory()->create([
-        'user_id' => $this->employee->id,
-        'appointment_id' => $appointment->id,
-        'rating' => 5,
-    ]);
-
-    livewire(JourneyHeroWidget::class)
-        ->assertSuccessful()
-        ->assertDontSee(__('panel-app::widgets.journey_hero.rate_now'));
 });

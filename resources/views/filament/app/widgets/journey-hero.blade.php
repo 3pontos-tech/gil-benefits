@@ -95,30 +95,6 @@
         @endforeach
     </div>
 
-    {{-- Fora do layout de referência, mas só aparece quando há o que avaliar:
-         sem pendência a tela fica idêntica ao desenho. --}}
-    @if($journey->pendingRatings > 0)
-        <div class="mt-4 flex flex-col items-start gap-3 border border-warning-500/30 bg-warning-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
-            <span class="flex items-start gap-2 text-sm font-medium text-warning-700 dark:text-warning-300">
-                <x-filament::icon icon="heroicon-s-star" class="mt-0.5 size-5 shrink-0 text-warning-500"/>
-                <span>
-                    {{ trans_choice('panel-app::widgets.journey_hero.pending_ratings', $journey->pendingRatings, ['count' => $journey->pendingRatings]) }}
-                </span>
-            </span>
-            <x-filament::button
-                tag="a"
-                :href="$appointmentsUrl"
-                color="warning"
-                icon="heroicon-m-arrow-right"
-                icon-position="after"
-                size="sm"
-                class="w-full shrink-0 justify-center sm:w-auto"
-            >
-                {{ __('panel-app::widgets.journey_hero.rate_now') }}
-            </x-filament::button>
-        </div>
-    @endif
-
     @unless($journey->isOnboarded())
         <div class="mt-4 flex flex-col items-start gap-3 border border-gray-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/10 dark:bg-gray-900">
             <div>
