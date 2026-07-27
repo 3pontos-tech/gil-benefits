@@ -39,7 +39,6 @@ class AppPanelProvider extends PanelProvider
             ])
             ->registration(UserRegistration::class)
             ->passwordReset()
-            ->topbar(false)
             ->sidebarFullyCollapsibleOnDesktop()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
