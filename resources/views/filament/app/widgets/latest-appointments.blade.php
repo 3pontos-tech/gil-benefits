@@ -29,39 +29,58 @@
             @else
                 <ul class="flex flex-col gap-3">
                     @foreach($rows as $row)
-                        {{-- 139px é a altura da linha no Figma. --}}
-                        <li class="fi-dash-appointment flex min-h-[139px] items-center gap-4 border border-gray-200 px-4 py-4 dark:border-white/10">
-                            <div class="w-10 shrink-0 text-center">
-                                <p class="text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                        @php
+                            // Tom do marcador de status, reutilizado pela bolinha e pelo halo.
+                            $dot = match (true) {
+                                $row['needsRescheduling'] => 'danger',
+                                $row['isCompleted'] => 'success',
+                                default => 'info',
+                            };
+                        @endphp
+                        {{-- min-h é piso, não altura fixa: com as fontes do layout a linha
+                             fecha em ~121px, abaixo dos 139px do Figma, e o piso garante a
+                             medida sem impedir que ela cresça quando o texto precisa. --}}
+                        <li class="fi-dash-appointment flex min-h-[139px] items-center gap-4 border border-gray-200 p-4 dark:border-white/10">
+                            <div class="w-14 shrink-0 text-center">
+                                <p class="text-[14px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                                     {{ $row['month'] }}
                                 </p>
-                                <p class="text-lg font-bold leading-tight text-gray-950 dark:text-white">
+                                <p class="text-[32px] font-bold leading-tight text-gray-950 dark:text-white">
                                     {{ $row['day'] }}
                                 </p>
                             </div>
 
-                            {{-- Régua vertical com o marcador de status, como no layout. --}}
-                            <div class="relative self-stretch">
-                                <span class="block h-full w-px bg-gray-200 dark:bg-white/10"></span>
+                            {{-- Régua vertical: dois traços de 2px com folga até a bolinha,
+                                 que ganha um halo do mesmo tom. --}}
+                            <div class="flex shrink-0 flex-col items-center gap-2 self-stretch">
+                                <span class="w-0.5 flex-1 bg-gray-200 dark:bg-white/10"></span>
                                 <span @class([
-                                    'absolute left-1/2 top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full',
-                                    'bg-danger-500' => $row['needsRescheduling'],
-                                    'bg-success-500' => $row['isCompleted'],
-                                    'bg-info-500' => ! $row['needsRescheduling'] && ! $row['isCompleted'],
-                                ])></span>
+                                    'flex size-5 shrink-0 items-center justify-center rounded-full',
+                                    'bg-danger-500/20' => $dot === 'danger',
+                                    'bg-success-500/20' => $dot === 'success',
+                                    'bg-info-500/20' => $dot === 'info',
+                                ])>
+                                    <span @class([
+                                        'size-2 rounded-full',
+                                        'bg-danger-500' => $dot === 'danger',
+                                        'bg-success-500' => $dot === 'success',
+                                        'bg-info-500' => $dot === 'info',
+                                    ])></span>
+                                </span>
+                                <span class="w-0.5 flex-1 bg-gray-200 dark:bg-white/10"></span>
                             </div>
 
                             <div class="min-w-0 flex-1">
-                                {{-- Com a linha em 139px há espaço vertical, então o título
-                                     quebra em duas linhas em vez de truncar. --}}
-                                <p class="line-clamp-2 text-sm font-bold text-gray-950 dark:text-white">
+                                {{-- Teto de 2 linhas: sem ele, em telas estreitas o título de
+                                     24px chega a 4 linhas e estica a linha para ~204px. --}}
+                                <p class="line-clamp-2 text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
                                     {{ $row['title'] }}
                                 </p>
-                                <p class="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                                <p class="mt-1 flex items-center gap-1.5 text-[16px] text-gray-500 dark:text-gray-400">
                                     <x-filament::icon
                                         :icon="$row['needsRescheduling'] ? 'heroicon-o-exclamation-circle' : 'heroicon-o-clock'"
                                         @class([
-                                            'size-3.5 shrink-0',
+                                            'size-4 shrink-0',
                                             'text-danger-500' => $row['needsRescheduling'],
                                         ])
                                     />
@@ -72,8 +91,16 @@
                             <div class="flex shrink-0 items-center gap-2">
                                 {{ ($this->cancelAppointmentAction)(['appointment' => $row['id']]) }}
 
+                                {{-- Os tamanhos do fi-btn param em text-sm (14px), então o
+                                     16px pedido vem de uma classe explícita. --}}
                                 @if($row['needsRescheduling'])
-                                    <x-filament::button tag="a" :href="$createUrl" size="xs" color="danger">
+                                    <x-filament::button
+                                        tag="a"
+                                        :href="$createUrl"
+                                        size="sm"
+                                        color="danger"
+                                        class="text-[16px]"
+                                    >
                                         {{ __('panel-app::widgets.latest_appointments.reschedule') }}
                                     </x-filament::button>
                                 @elseif($row['meetingUrl'])
@@ -81,20 +108,21 @@
                                         tag="a"
                                         :href="$row['meetingUrl']"
                                         target="_blank"
-                                        size="xs"
+                                        size="sm"
                                         color="info"
                                         icon="heroicon-o-video-camera"
+                                        class="text-[16px]"
                                     >
                                         {{ __('panel-app::widgets.latest_appointments.join') }}
                                     </x-filament::button>
                                 @else
                                     <span @class([
-                                        'inline-flex items-center gap-1.5 whitespace-nowrap px-2 py-1 text-[11px] font-medium',
+                                        'inline-flex items-center gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-[16px] font-medium',
                                         'bg-info-500/10 text-info-600 dark:text-info-400' => $row['isPending'],
                                         'bg-success-500/10 text-success-600 dark:text-success-400' => ! $row['isPending'],
                                     ])>
                                         @if($row['isPending'])
-                                            <x-filament::loading-indicator class="size-3 shrink-0"/>
+                                            <x-filament::loading-indicator class="size-4 shrink-0"/>
                                         @endif
                                         {{ $row['status']->getLabel() }}
                                     </span>

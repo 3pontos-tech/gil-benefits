@@ -51,7 +51,9 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas
             ->icon(null)
             ->color('gray')
             ->outlined()
-            ->size(Size::ExtraSmall)
+            ->size(Size::Small)
+            // Os tamanhos do fi-btn param em 14px; o 16px do layout vem daqui.
+            ->extraAttributes(['class' => 'text-[16px]'])
             ->record(fn (array $arguments): ?Appointment => $this->appointments()
                 ->firstWhere('id', $arguments['appointment'] ?? null));
     }
