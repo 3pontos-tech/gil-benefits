@@ -40,26 +40,27 @@
         </div>
 
         <div class="border border-gray-200 px-4 py-3 dark:border-white/10">
-            <p class="text-[11px] text-gray-500 dark:text-gray-400">
+            <p class="text-[16px] text-gray-500 dark:text-gray-400">
                 {{ __('panel-app::widgets.plan_credits.monthly_appointments') }}
             </p>
             <p class="mt-1 flex items-baseline gap-1">
-                <span class="text-xl font-bold leading-none text-gray-950 dark:text-white">{{ $monthlyLeft }}</span>
-                <span class="text-xs font-medium text-gray-400 dark:text-gray-500">/{{ $monthlyLimit }}</span>
+                <span class="text-[24px] font-bold leading-none text-gray-950 dark:text-white">{{ $monthlyLeft }}</span>
+                {{-- O total fica subordinado, como o "/100" dos cards de indicador. --}}
+                <span class="text-[16px] font-medium text-gray-400 dark:text-gray-500">/{{ $monthlyLimit }}</span>
             </p>
         </div>
 
         <div class="border border-gray-200 px-4 py-3 dark:border-white/10">
-            <p class="text-[11px] text-gray-500 dark:text-gray-400">
+            <p class="text-[16px] text-gray-500 dark:text-gray-400">
                 {{ __('panel-app::widgets.plan_credits.consultant') }}
             </p>
             <p class="mt-1 flex items-center gap-2">
                 @if($consultantName)
                     <span class="size-2 shrink-0 rounded-full bg-success-500"></span>
-                    <span class="truncate text-sm font-semibold text-gray-950 dark:text-white">{{ $consultantName }}</span>
+                    <span class="truncate text-[24px] font-semibold leading-tight text-gray-950 dark:text-white">{{ $consultantName }}</span>
                 @else
                     <span class="size-2 shrink-0 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                    <span class="truncate text-sm text-gray-500 dark:text-gray-400">
+                    <span class="truncate text-[24px] text-gray-500 dark:text-gray-400">
                         {{ __('panel-app::widgets.plan_credits.no_consultant') }}
                     </span>
                 @endif
