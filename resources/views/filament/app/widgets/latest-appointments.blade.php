@@ -5,7 +5,7 @@
     <div class="flex h-full flex-col">
         {{-- 19 + 1 (borda do container) + 12 (p-3 do container) = os 32px pedidos
              entre o subtítulo e o primeiro card de agendamento. --}}
-        <div class="mb-[19px] flex flex-wrap items-end justify-between gap-3">
+        <div class="mb-[19px] flex flex-wrap items-center justify-between gap-3">
             <div>
                 <h2 class="text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
                     {{ __('panel-app::widgets.latest_appointments.title') }}
@@ -15,7 +15,8 @@
                 </p>
             </div>
 
-            <x-filament::button tag="a" :href="$createUrl" size="sm" class="shrink-0">
+            {{-- Sem size: o padding padrão do fi-btn já é px-3 py-2, o pedido. --}}
+            <x-filament::button tag="a" :href="$createUrl" class="shrink-0">
                 {{ __('panel-app::widgets.latest_appointments.new_appointment') }}
             </x-filament::button>
         </div>
