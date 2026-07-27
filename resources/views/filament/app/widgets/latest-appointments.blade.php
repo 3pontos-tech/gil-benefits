@@ -3,9 +3,11 @@
      cair embaixo da lista. --}}
 <x-filament-widgets::widget class="h-full md:row-span-2">
     <div class="flex h-full flex-col">
-        <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+        {{-- 19 + 1 (borda do container) + 12 (p-3 do container) = os 32px pedidos
+             entre o subtítulo e o primeiro card de agendamento. --}}
+        <div class="mb-[19px] flex flex-wrap items-end justify-between gap-3">
             <div>
-                <h2 class="text-base font-bold text-gray-950 dark:text-white">
+                <h2 class="text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
                     {{ __('panel-app::widgets.latest_appointments.title') }}
                 </h2>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">

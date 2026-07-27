@@ -99,7 +99,7 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             ->label(__('panel-app::widgets.plan_credits.access_plan'))
             ->icon(Heroicon::ArrowRight)
             ->iconPosition(IconPosition::After)
-            ->color('gray')
+            ->color('primary')
             ->size(Size::ExtraSmall)
             ->extraAttributes(['class' => 'whitespace-nowrap'])
             ->visible($plan instanceof PlanSummary)

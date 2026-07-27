@@ -1,9 +1,11 @@
-{{-- self-start impede o card de esticar junto com a lista de consultorias ao
-     lado: ele termina no próprio conteúdo, como no layout de referência. --}}
-<x-filament-widgets::widget class="self-start">
-    <div class="flex flex-col gap-4 border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-900">
+{{-- O card preenche a própria linha da grade em vez de abraçar o conteúdo: com
+     self-start sobrava ~99px de linha entre ele e o card de materiais abaixo.
+     Preenchendo, resta só o row-gap da grade, e a sobra vira respiro acima do
+     botão, que fica ancorado no rodapé. --}}
+<x-filament-widgets::widget class="h-full">
+    <div class="flex h-full flex-col gap-4 border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-900">
         <div class="flex items-center justify-between gap-2">
-            <h2 class="whitespace-nowrap text-sm font-bold text-gray-950 dark:text-white">
+            <h2 class="whitespace-nowrap text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
                 {{ __('panel-app::widgets.plan_credits.title') }}
             </h2>
             @if($plan)
@@ -11,7 +13,7 @@
             @else
                 <a
                     href="{{ $creditsUrl }}"
-                    class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 transition hover:text-gray-950 dark:text-gray-400 dark:hover:text-white"
+                    class="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-primary-600 transition hover:text-primary-500 dark:text-primary-400"
                 >
                     {{ __('panel-app::widgets.plan_credits.access_plan') }}
                     <x-filament::icon icon="heroicon-m-arrow-right" class="size-3.5"/>
@@ -64,7 +66,7 @@
             </p>
         </div>
 
-        <div>
+        <div class="mt-auto">
             {{-- Quando o agendamento está bloqueado o botão sai sem wire:click:
                  desabilitar no HTML não impediria a chamada Livewire. --}}
             @if($canCreateAppointment)
