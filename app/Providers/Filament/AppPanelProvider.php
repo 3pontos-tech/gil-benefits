@@ -12,6 +12,7 @@ use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -39,6 +40,9 @@ class AppPanelProvider extends PanelProvider
             ])
             ->registration(UserRegistration::class)
             ->passwordReset()
+            // Sem isso o layout do Filament cai no fallback de 7xl (80rem) e sobra
+            // uma faixa vazia entre a sidebar e o conteúdo nas telas largas.
+            ->maxContentWidth(Width::Full)
             ->sidebarFullyCollapsibleOnDesktop()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
