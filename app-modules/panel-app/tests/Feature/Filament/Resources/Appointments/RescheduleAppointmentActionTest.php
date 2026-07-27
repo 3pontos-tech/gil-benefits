@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification as LaravelNotification;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -252,6 +253,21 @@ it('records the reschedule in the appointment history', function (): void {
 
     expect($appointment->histories()->pluck('action_type'))
         ->toContain(AppointmentHistoryActionType::ReScheduled);
+});
+
+it('attributes the history entry to the client side, not to an admin', function (): void {
+    availableConsultant($this->targetAt);
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->withoutConsultant()
+        ->create(['user_id' => $this->employee->id, 'appointment_at' => $this->originalAt]);
+
+    reschedule($appointment, $this->targetAt);
+
+    $history = $appointment->histories()->firstOrFail();
+
+    expect($history->actor_type)->toBe(AppointmentHistoryActor::User)
+        ->and($history->actor_id)->toBe($this->employee->getKey());
 });
 
 it('rejects a slot that is not on offer for the chosen date', function (): void {

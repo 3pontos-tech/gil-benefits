@@ -15,6 +15,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Throwable;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
@@ -74,7 +75,7 @@ class ViewAppointment extends ViewRecord
 
                     try {
                         resolve(SyncAppointmentScheduleAction::class)
-                            ->handle($appointment, $previousConsultantId, $previousAppointmentAt);
+                            ->handle($appointment, $previousConsultantId, $previousAppointmentAt, AppointmentHistoryActor::Admin);
                     } catch (SlotUnavailableException) {
                         Notification::make()
                             ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))

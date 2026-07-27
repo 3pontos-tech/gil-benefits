@@ -14,6 +14,7 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Date;
 use Livewire\Component;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -95,7 +96,7 @@ class RescheduleAppointmentAction extends Action
 
             try {
                 $calendarSynced = resolve(SyncAppointmentScheduleAction::class)
-                    ->handle($record, $previousConsultantId, $previousAppointmentAt);
+                    ->handle($record, $previousConsultantId, $previousAppointmentAt, AppointmentHistoryActor::User);
             } catch (SlotUnavailableException) {
                 // The consultant lost the slot between our check and the locking re-check;
                 // SyncAppointmentScheduleAction already restored the original time.
