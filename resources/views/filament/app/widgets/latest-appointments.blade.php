@@ -33,7 +33,7 @@
                     </p>
                 </div>
             @else
-                <ul class="flex flex-col gap-3">
+                <ul class="flex flex-col gap-8">
                     @foreach($rows as $row)
                         @php
                             // Tom do marcador de status, reutilizado pela bolinha e pelo halo.

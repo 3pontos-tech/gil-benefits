@@ -48,6 +48,19 @@
     border-radius: 0;
 }
 
+/*
+ * Espaçamento entre os widgets do dashboard: o layout pede 32px no mínimo, e o
+ * Filament aplica gap-6 (24px) em .fi-sc.fi-sc-has-gap.
+ *
+ * O :has() restringe a regra às grades que contêm widgets. Sem ele, a mesma
+ * classe alcançaria os schemas de formulário do painel, que devem manter o gap
+ * padrão. A especificidade que ele acrescenta também é o que faz esta regra
+ * vencer a do pacote.
+ */
+.fi-sc-has-gap:has(.fi-wi-widget) {
+    gap: 32px;
+}
+
 .scrollbar-hidden::-webkit-scrollbar {
     display: none;
 }

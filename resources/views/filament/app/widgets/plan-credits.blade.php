@@ -3,7 +3,7 @@
      Preenchendo, resta só o row-gap da grade, e a sobra vira respiro acima do
      botão, que fica ancorado no rodapé. --}}
 <x-filament-widgets::widget class="h-full">
-    <div class="flex h-full flex-col gap-4 border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-900">
+    <div class="flex h-full flex-col gap-8 border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-900">
         <div class="flex items-center justify-between gap-2">
             <h2 class="whitespace-nowrap text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
                 {{ __('panel-app::widgets.plan_credits.title') }}
