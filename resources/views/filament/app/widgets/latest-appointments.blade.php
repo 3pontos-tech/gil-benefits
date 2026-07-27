@@ -1,4 +1,7 @@
-<x-filament-widgets::widget class="h-full">
+{{-- row-span-2 reserva duas linhas da grade para a lista, de modo que o card de
+     plano e o de materiais se empilhem na coluna ao lado em vez de o segundo
+     cair embaixo da lista. --}}
+<x-filament-widgets::widget class="h-full md:row-span-2">
     <div class="flex h-full flex-col">
         <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>

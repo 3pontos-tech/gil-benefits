@@ -26,7 +26,7 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas
     use InteractsWithSchemas;
 
     /**
-     * Quantas linhas cabem na coluna sem competir em altura com o card de plano.
+     * Quantas consultorias a lista mostra: as mais próximas de agora.
      */
     private const LIMIT = 5;
 
@@ -61,7 +61,9 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas
     #[On('appointment-cancelled')]
     public function refresh(): void
     {
-        unset($this->cachedAppointments);
+        // Atribuição em vez de unset(): unset() numa propriedade tipada a deixa
+        // não inicializada e a próxima leitura lançaria Error.
+        $this->cachedAppointments = null;
     }
 
     /**
@@ -72,16 +74,48 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas
     /**
      * @return Collection<int, Appointment>
      */
+    /**
+     * As consultorias mais próximas de agora — as que estão por vir e as que
+     * acabaram de passar.
+     *
+     * São duas queries em vez de ordenar pela distância até agora no banco,
+     * porque a expressão para isso muda entre Postgres e o SQLite dos testes.
+     * Cada lado traz no máximo LIMIT, então nunca passam de 2 × LIMIT linhas.
+     *
+     * @return Collection<int, Appointment>
+     */
     private function appointments(): Collection
     {
+        if ($this->cachedAppointments instanceof Collection) {
+            return $this->cachedAppointments;
+        }
+
         /** @var User $user */
         $user = auth()->user();
+        $now = now();
 
-        return $this->cachedAppointments ??= $user->appointments()
+        $upcoming = $user->appointments()
             ->with('consultant')
-            ->latest('appointment_at')
+            ->where('appointment_at', '>=', $now)
+            ->orderBy('appointment_at')
             ->limit(self::LIMIT)
             ->get();
+
+        $past = $user->appointments()
+            ->with('consultant')
+            ->where('appointment_at', '<', $now)
+            ->orderByDesc('appointment_at')
+            ->limit(self::LIMIT)
+            ->get();
+
+        return $this->cachedAppointments = $upcoming
+            ->concat($past)
+            // Seleciona por proximidade, mas exibe da mais recente para a mais
+            // antiga, que é a leitura esperada de uma lista de "últimas".
+            ->sortBy(fn (Appointment $appointment): float => abs($appointment->appointment_at->diffInSeconds($now)))
+            ->take(self::LIMIT)
+            ->sortByDesc(fn (Appointment $appointment): string => $appointment->appointment_at->toDateTimeString())
+            ->values();
     }
 
     /**

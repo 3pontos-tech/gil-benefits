@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use Filament\Pages\Dashboard;
-use TresPontosTech\PanelApp\Filament\Widgets\FinancialTopicsWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\LatestAppointmentsWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
@@ -40,8 +39,9 @@ class UserDashboard extends Dashboard
         return [
             JourneyHeroWidget::make(),
             LatestAppointmentsWidget::make(),
+            // A ordem importa: a lista de consultorias ocupa duas linhas da
+            // grade, então plano e materiais se empilham na coluna à direita.
             PlanCreditsWidget::make(),
-            FinancialTopicsWidget::make(),
             SharedMaterialsWidget::make(),
         ];
     }

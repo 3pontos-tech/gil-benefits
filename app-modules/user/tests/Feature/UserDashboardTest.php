@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use TresPontosTech\Billing\Stripe\Subscription\User\RedirectUserIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\UserDashboard;
-use TresPontosTech\PanelApp\Filament\Widgets\FinancialTopicsWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\LatestAppointmentsWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
@@ -45,7 +44,6 @@ it('should have the hub widgets', function (): void {
         ->assertSeeLivewire(JourneyHeroWidget::class)
         ->assertSeeLivewire(LatestAppointmentsWidget::class)
         ->assertSeeLivewire(PlanCreditsWidget::class)
-        ->assertSeeLivewire(FinancialTopicsWidget::class)
         ->assertSeeLivewire(SharedMaterialsWidget::class);
 });
 

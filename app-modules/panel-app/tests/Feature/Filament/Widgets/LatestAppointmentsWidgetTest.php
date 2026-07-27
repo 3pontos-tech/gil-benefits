@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Widgets\LatestAppointmentsWidget;
@@ -128,4 +129,54 @@ it('caps the list at five appointments', function (): void {
         ->viewData('rows');
 
     expect($rows)->toHaveCount(5);
+});
+
+/**
+ * Distâncias em dias até agora, todas distintas para não haver empate na
+ * seleção: as cinco mais próximas são -2, +1, +5, -20 e +40.
+ */
+function appointmentsAtDayOffsets(string $userId): Collection
+{
+    return collect([-50, -20, -2, 1, 5, 40, 80])->mapWithKeys(fn (int $days): array => [
+        $days => Appointment::factory()
+            ->withStatus(AppointmentStatus::Pending)
+            ->create([
+                'user_id' => $userId,
+                'appointment_at' => now()->addDays($days),
+            ]),
+    ]);
+}
+
+it('picks the appointments closest to now, in both directions', function (): void {
+    $byOffset = appointmentsAtDayOffsets($this->employee->getKey());
+
+    $ids = livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->viewData('rows')
+        ->pluck('id')
+        ->all();
+
+    expect($ids)->toHaveCount(5)
+        ->and($ids)->toContain(
+            $byOffset[1]->getKey(),
+            $byOffset[-2]->getKey(),
+            $byOffset[5]->getKey(),
+            $byOffset[-20]->getKey(),
+            $byOffset[40]->getKey(),
+        )
+        // Descartadas por estarem mais longe, apesar de uma delas ser a mais futura.
+        ->and($ids)->not->toContain($byOffset[80]->getKey())
+        ->and($ids)->not->toContain($byOffset[-50]->getKey());
+});
+
+it('lists the selected appointments from the newest to the oldest', function (): void {
+    appointmentsAtDayOffsets($this->employee->getKey());
+
+    $dates = livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->viewData('rows')
+        ->map(fn (array $row): string => $row['record']->appointment_at->toDateTimeString())
+        ->all();
+
+    expect($dates)->toBe(collect($dates)->sortDesc()->values()->all());
 });
