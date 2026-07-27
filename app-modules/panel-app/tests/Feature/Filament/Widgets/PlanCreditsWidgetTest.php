@@ -27,9 +27,33 @@ it('renders plan name, monthly allowance and available credits', function (): vo
 
     livewire(PlanCreditsWidget::class)
         ->assertSuccessful()
-        ->assertSee('Plano & créditos')
-        ->assertSee('Agendar consultoria')
+        ->assertSee(__('panel-app::widgets.plan_credits.title'))
+        ->assertSee(__('panel-app::widgets.plan_credits.credits_card_title'))
+        ->assertSee(__('panel-app::widgets.plan_credits.book_appointment'))
+        ->assertSee(__('panel-app::widgets.plan_credits.monthly_appointments'))
         ->assertSee('3'); // créditos disponíveis
+});
+
+it('shows the holder name and the consultant of the latest appointment', function (): void {
+    $employee = actingAsSubscribedEmployee();
+
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::Completed)
+        ->create(['user_id' => $employee->getKey()]);
+
+    livewire(PlanCreditsWidget::class)
+        ->assertSuccessful()
+        ->assertSee(__('panel-app::widgets.plan_credits.holder'))
+        ->assertSee(mb_strtoupper($employee->name))
+        ->assertSee($appointment->consultant->name);
+});
+
+it('falls back to a placeholder when no consultant has been assigned yet', function (): void {
+    actingAsSubscribedEmployee();
+
+    livewire(PlanCreditsWidget::class)
+        ->assertSuccessful()
+        ->assertSee(__('panel-app::widgets.plan_credits.no_consultant'));
 });
 
 it('splits extra credits by origin (yours vs company)', function (): void {
@@ -52,7 +76,7 @@ it('splits extra credits by origin (yours vs company)', function (): void {
 
     livewire(PlanCreditsWidget::class)
         ->assertOk()
-        ->assertSee(__('panel-app::widgets.plan_credits.extra_credits'))
+        ->assertSee(__('panel-app::widgets.plan_credits.credits_available'))
         ->assertSeeText('7')
         ->assertSeeText('2 seus')
         ->assertSeeText('5 da empresa');
@@ -63,12 +87,12 @@ it('omits the breakdown legend when there are no extra credits', function (): vo
 
     livewire(PlanCreditsWidget::class)
         ->assertOk()
-        ->assertSee(__('panel-app::widgets.plan_credits.extra_credits'))
+        ->assertSee(__('panel-app::widgets.plan_credits.credits_available'))
         ->assertDontSeeText('seus')
         ->assertDontSeeText('da empresa');
 });
 
-it('shows the plan name on the card', function (): void {
+it('reaches the plan name through the access-plan modal', function (): void {
     $employee = actingAsEmployee();
 
     $companyPlan = CompanyPlan::query()
@@ -76,9 +100,13 @@ it('shows the plan name on the card', function (): void {
         ->with('plan')
         ->first();
 
-    livewire(PlanCreditsWidget::class)
+    $component = livewire(PlanCreditsWidget::class)
         ->assertSuccessful()
-        ->assertSee($companyPlan->plan->name);
+        ->assertSee(__('panel-app::widgets.plan_credits.access_plan'))
+        ->assertActionVisible('viewPlan');
+
+    expect($component->instance()->viewPlanAction()->getModalHeading())
+        ->toBe($companyPlan->plan->name);
 });
 
 it('exposes the view-plan action and renders description and features in the modal partial', function (): void {

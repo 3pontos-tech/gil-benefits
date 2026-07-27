@@ -37,13 +37,45 @@ return [
         'materials' => 'Materiais exclusivos',
     ],
 
+    'journey_hero' => [
+        'welcome' => 'Bem-vindo!',
+        'this_month' => 'Este mês',
+        'completed_consultations' => 'Consultorias Realizadas',
+        'topics_covered' => 'Temas Abordados',
+        'ratings_given' => 'Avaliações Dadas',
+        'financial_health' => 'Saúde Financeira',
+        'onboarding_title' => 'Comece sua jornada',
+        'onboarding_description' => 'Complete sua anamnese para descobrir seu momento financeiro.',
+        'onboarding_cta' => 'Complete sua anamnese',
+        'pending_ratings' => '{1} :count consultoria aguardando sua avaliação|[2,*] :count consultorias aguardando sua avaliação',
+        'rate_now' => 'Avaliar agora',
+    ],
+
+    'latest_appointments' => [
+        'title' => 'Últimas Consultorias Agendadas',
+        'subtitle' => 'Visão geral dos seus agendamentos mais recentes.',
+        'new_appointment' => 'Novo agendamento',
+        'with_consultant' => 'Consultoria com :name',
+        'reschedule' => 'Reagendar',
+        'join' => 'Entrar',
+        'empty_title' => 'Nenhuma consultoria por aqui ainda',
+        'empty_description' => 'Agende a primeira para acompanhar tudo por esta lista.',
+    ],
+
     'plan_credits' => [
-        'title' => 'Plano & créditos',
+        'title' => 'Meu Plano & Créditos',
+        'access_plan' => 'Acessar meu plano',
+        'credits_card_title' => 'Créditos Flamma',
+        'credits_available' => 'Créditos disponíveis',
+        'holder' => 'Titular',
+        'monthly_appointments' => 'Agendamentos/mês',
+        'consultant' => 'Consultor',
+        'no_consultant' => 'Nenhum consultor ainda',
         'appointments_remaining' => 'agendamentos restantes este mês',
         'extra_credits' => 'Créditos avulsos',
         'credits_own' => '{1} :count seu|[2,*] :count seus',
         'credits_company' => '{1} :count da empresa|[2,*] :count da empresa',
-        'book_appointment' => 'Agendar consultoria',
+        'book_appointment' => 'Agendar Consultoria',
     ],
 
     'next_appointment' => [

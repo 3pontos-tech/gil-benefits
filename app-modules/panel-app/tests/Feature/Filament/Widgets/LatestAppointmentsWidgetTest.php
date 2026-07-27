@@ -1,0 +1,131 @@
+<?php
+
+declare(strict_types=1);
+
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Widgets\LatestAppointmentsWidget;
+
+use function Pest\Livewire\livewire;
+
+beforeEach(function (): void {
+    $this->employee = actingAsSubscribedEmployee();
+});
+
+it('shows an empty state when the user has no appointments', function (): void {
+    livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->assertSee(__('panel-app::widgets.latest_appointments.title'))
+        ->assertSee(__('panel-app::widgets.latest_appointments.new_appointment'))
+        ->assertSee(__('panel-app::widgets.latest_appointments.empty_title'));
+});
+
+it('lists the appointment with its consultant and date', function (): void {
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->addWeek(),
+        ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->assertSee(__('panel-app::widgets.latest_appointments.with_consultant', [
+            'name' => $appointment->consultant->name,
+        ]))
+        ->assertSeeText($appointment->appointment_at->format('d/m/Y'))
+        ->assertSee(AppointmentStatus::Pending->getLabel());
+});
+
+it('falls back to the category label when no consultant is assigned', function (): void {
+    $appointment = Appointment::factory()
+        ->withoutConsultant()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->addWeek(),
+        ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->assertSee($appointment->category_type->getLabel());
+});
+
+it('offers rescheduling for a cancelled appointment', function (): void {
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Cancelled)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->addWeek(),
+        ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->assertSee(__('panel-app::widgets.latest_appointments.reschedule'));
+});
+
+it('offers rescheduling when a pending appointment went past its slot', function (): void {
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->subWeek(),
+        ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->assertSee(__('panel-app::widgets.latest_appointments.reschedule'));
+});
+
+it('does not offer rescheduling for a completed appointment', function (): void {
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Completed)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->subWeek(),
+        ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->assertDontSee(__('panel-app::widgets.latest_appointments.reschedule'))
+        ->assertSee(AppointmentStatus::Completed->getLabel());
+});
+
+it('cancels the appointment picked by the row action', function (): void {
+    $target = Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->addWeek(),
+        ]);
+
+    $untouched = Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->addWeeks(2),
+        ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('cancelAppointment', arguments: ['appointment' => $target->getKey()])
+        ->assertSuccessful();
+
+    expect($target->refresh()->status)->not->toBe(AppointmentStatus::Pending)
+        ->and($untouched->refresh()->status)->toBe(AppointmentStatus::Pending);
+});
+
+it('caps the list at five appointments', function (): void {
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->count(7)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->addWeek(),
+        ]);
+
+    $rows = livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->viewData('rows');
+
+    expect($rows)->toHaveCount(5);
+});

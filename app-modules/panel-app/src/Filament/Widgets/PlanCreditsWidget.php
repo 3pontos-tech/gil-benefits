@@ -11,7 +11,10 @@ use Filament\Actions\Contracts\HasActions;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Support\Enums\IconPosition;
+use Filament\Support\Enums\Size;
 use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,6 +26,7 @@ use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\PanelApp\DTOs\PlanSummary;
 use TresPontosTech\PanelApp\Enums\PlanStatus;
+use TresPontosTech\PanelApp\Filament\Pages\UserCreditsPage;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 
 class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
@@ -32,7 +36,7 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
 
     protected string $view = 'filament.app.widgets.plan-credits';
 
-    protected int|string|array $columnSpan = ['default' => 'full', 'md' => 3];
+    protected int|string|array $columnSpan = ['default' => 'full', 'md' => 5];
 
     private ?PlanSummary $resolvedPlan = null;
 
@@ -67,7 +71,24 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             'companyCredits' => $companyCredits,
             'canCreateAppointment' => $canCreateAppointment,
             'blockReasons' => $this->blockReasons($hasOngoingAppointment, $monthlyLeft, $hasCredit),
+            'holderName' => str($user->name)->trim()->upper()->value(),
+            'consultantName' => $this->currentConsultantName($user),
+            'creditsUrl' => UserCreditsPage::getUrl(),
         ];
+    }
+
+    /**
+     * Consultor da consultoria mais recente — é o vínculo que o usuário
+     * reconhece como "o meu consultor"; não há atribuição fixa no modelo.
+     */
+    private function currentConsultantName(User $user): ?string
+    {
+        return $user->appointments()
+            ->with('consultant')
+            ->latest('appointment_at')
+            ->first()
+            ?->consultant
+            ?->name;
     }
 
     public function viewPlanAction(): Action
@@ -76,7 +97,14 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
 
         return Action::make('viewPlan')
             ->link()
-            ->label(__('panel-app::widgets.plan_details.view_plan'))
+            // O layout pede um "Acessar meu plano →" no topo do card; em vez de
+            // um link novo, reaproveita o modal que já descreve o plano.
+            ->label(__('panel-app::widgets.plan_credits.access_plan'))
+            ->icon(Heroicon::ArrowRight)
+            ->iconPosition(IconPosition::After)
+            ->color('gray')
+            ->size(Size::ExtraSmall)
+            ->extraAttributes(['class' => 'whitespace-nowrap'])
             ->visible($plan instanceof PlanSummary)
             ->modalHeading($plan?->name)
             ->modalWidth(Width::Medium)

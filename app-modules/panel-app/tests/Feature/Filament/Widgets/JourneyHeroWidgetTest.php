@@ -15,21 +15,50 @@ beforeEach(function (): void {
     $this->employee = actingAsSubscribedEmployee();
 });
 
-it('renders the hero with the journey momentum', function (): void {
+it('greets the user and renders the four indicator cards', function (): void {
     UserAnamnese::factory()->create(['user_id' => $this->employee->id, 'life_moment' => LifeMoment::Saver]);
     Appointment::factory()->withStatus(AppointmentStatus::Completed)->count(2)->create(['user_id' => $this->employee->id]);
 
     livewire(JourneyHeroWidget::class)
         ->assertSuccessful()
-        ->assertSee('Sua jornada financeira')
-        ->assertSee('2') // consultorias concluídas
-        ->assertSee('etapa 4 de 5'); // resumo mobile do progresso (Saver = índice 3)
+        ->assertSee(__('panel-app::widgets.journey_hero.welcome'))
+        ->assertSee($this->employee->name)
+        ->assertSee(__('panel-app::widgets.journey_hero.completed_consultations'))
+        ->assertSee(__('panel-app::widgets.journey_hero.topics_covered'))
+        ->assertSee(__('panel-app::widgets.journey_hero.ratings_given'))
+        ->assertSee(__('panel-app::widgets.journey_hero.financial_health'))
+        ->assertSee('2'); // consultorias concluídas
+});
+
+it('shows the month-over-month delta only for indicators that moved', function (): void {
+    UserAnamnese::factory()->create(['user_id' => $this->employee->id, 'life_moment' => LifeMoment::Saver]);
+    Appointment::factory()->withStatus(AppointmentStatus::Completed)->count(2)->create([
+        'user_id' => $this->employee->id,
+        'appointment_at' => now(),
+    ]);
+
+    // Duas consultorias neste mês e nenhuma avaliação: o card de avaliações
+    // fica sem indicador, em vez de mostrar "+0".
+    livewire(JourneyHeroWidget::class)
+        ->assertSuccessful()
+        ->assertSeeText('+2 ' . __('panel-app::widgets.journey_hero.this_month'))
+        ->assertDontSeeText('+0 ' . __('panel-app::widgets.journey_hero.this_month'));
+});
+
+it('scores financial health out of one hundred', function (): void {
+    UserAnamnese::factory()->create(['user_id' => $this->employee->id, 'life_moment' => LifeMoment::Saver]);
+
+    livewire(JourneyHeroWidget::class)
+        ->assertSuccessful()
+        // Saver é o 4º de 5 estágios: 4/5 * 60 = 48, sem temas nem avaliações.
+        ->assertSee('48')
+        ->assertSee('/100');
 });
 
 it('shows an onboarding CTA when the user has no anamnese', function (): void {
     livewire(JourneyHeroWidget::class)
         ->assertSuccessful()
-        ->assertSee('Complete sua anamnese');
+        ->assertSee(__('panel-app::widgets.journey_hero.onboarding_cta'));
 });
 
 it('shows the pending-review banner when a completed consultation has no feedback', function (): void {
@@ -38,8 +67,8 @@ it('shows the pending-review banner when a completed consultation has no feedbac
 
     livewire(JourneyHeroWidget::class)
         ->assertSuccessful()
-        ->assertSee('aguardando sua avaliação')
-        ->assertSee('Avaliar agora');
+        ->assertSeeText(trans_choice('panel-app::widgets.journey_hero.pending_ratings', 1, ['count' => 1]))
+        ->assertSee(__('panel-app::widgets.journey_hero.rate_now'));
 });
 
 it('hides the pending-review banner when every consultation is rated', function (): void {
@@ -53,5 +82,5 @@ it('hides the pending-review banner when every consultation is rated', function 
 
     livewire(JourneyHeroWidget::class)
         ->assertSuccessful()
-        ->assertDontSee('aguardando sua avaliação');
+        ->assertDontSee(__('panel-app::widgets.journey_hero.rate_now'));
 });

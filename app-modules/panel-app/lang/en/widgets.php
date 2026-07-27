@@ -37,13 +37,45 @@ return [
         'materials' => 'Exclusive materials',
     ],
 
+    'journey_hero' => [
+        'welcome' => 'Welcome!',
+        'this_month' => 'This month',
+        'completed_consultations' => 'Consultations Completed',
+        'topics_covered' => 'Topics Covered',
+        'ratings_given' => 'Ratings Given',
+        'financial_health' => 'Financial Health',
+        'onboarding_title' => 'Start your journey',
+        'onboarding_description' => 'Complete your anamnesis to discover your financial moment.',
+        'onboarding_cta' => 'Complete your anamnesis',
+        'pending_ratings' => '{1} :count consultation awaiting your rating|[2,*] :count consultations awaiting your rating',
+        'rate_now' => 'Rate now',
+    ],
+
+    'latest_appointments' => [
+        'title' => 'Latest Scheduled Consultations',
+        'subtitle' => 'An overview of your most recent bookings.',
+        'new_appointment' => 'New appointment',
+        'with_consultant' => 'Consultation with :name',
+        'reschedule' => 'Reschedule',
+        'join' => 'Join',
+        'empty_title' => 'No consultations here yet',
+        'empty_description' => 'Book your first one to follow everything from this list.',
+    ],
+
     'plan_credits' => [
-        'title' => 'Plan & credits',
+        'title' => 'My Plan & Credits',
+        'access_plan' => 'Access my plan',
+        'credits_card_title' => 'Flamma Credits',
+        'credits_available' => 'Credits available',
+        'holder' => 'Holder',
+        'monthly_appointments' => 'Appointments/month',
+        'consultant' => 'Consultant',
+        'no_consultant' => 'No consultant yet',
         'appointments_remaining' => 'appointments remaining this month',
         'extra_credits' => 'Extra credits',
         'credits_own' => '{1} :count yours|[2,*] :count yours',
         'credits_company' => '{1} :count from the company|[2,*] :count from the company',
-        'book_appointment' => 'Book consultation',
+        'book_appointment' => 'Book Consultation',
     ],
 
     'next_appointment' => [

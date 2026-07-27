@@ -25,7 +25,7 @@ class SharedMaterialsWidget extends Widget implements HasActions, HasSchemas
 
     protected string $view = 'filament.app.widgets.shared-materials';
 
-    protected int|string|array $columnSpan = ['default' => 'full', 'md' => 3];
+    protected int|string|array $columnSpan = ['default' => 'full', 'md' => 6];
 
     private const PREVIEW_LIMIT = 4;
 

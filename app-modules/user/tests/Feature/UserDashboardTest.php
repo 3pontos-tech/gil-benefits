@@ -9,7 +9,7 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\UserDashboard;
 use TresPontosTech\PanelApp\Filament\Widgets\FinancialTopicsWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
-use TresPontosTech\PanelApp\Filament\Widgets\NextAppointmentWidget;
+use TresPontosTech\PanelApp\Filament\Widgets\LatestAppointmentsWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\SharedMaterialsWidget;
 
@@ -43,7 +43,7 @@ it('should have the hub widgets', function (): void {
     $this->get(route('filament.app.pages.user-dashboard', ['tenant' => filament()->getTenant()->slug]))
         ->assertOk()
         ->assertSeeLivewire(JourneyHeroWidget::class)
-        ->assertSeeLivewire(NextAppointmentWidget::class)
+        ->assertSeeLivewire(LatestAppointmentsWidget::class)
         ->assertSeeLivewire(PlanCreditsWidget::class)
         ->assertSeeLivewire(FinancialTopicsWidget::class)
         ->assertSeeLivewire(SharedMaterialsWidget::class);
