@@ -10,7 +10,7 @@
                 <h2 class="text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
                     {{ __('panel-app::widgets.latest_appointments.title') }}
                 </h2>
-                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-[16px] text-gray-500 dark:text-gray-400">
                     {{ __('panel-app::widgets.latest_appointments.subtitle') }}
                 </p>
             </div>
