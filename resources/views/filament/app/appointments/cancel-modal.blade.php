@@ -3,7 +3,7 @@
     $consultant = $appointment->consultant;
 @endphp
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-8">
     <div class="flex items-center gap-3 border border-gray-200 p-4 dark:border-white/10">
         {{-- Ícone discreto, como no layout: preenchimento suave e sem contorno. --}}
         <span class="flex size-9 shrink-0 items-center justify-center rounded-[4px] bg-danger-500/15 text-danger-500/80">

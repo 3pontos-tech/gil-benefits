@@ -94,14 +94,26 @@
         height: 1.125rem;
     }
 
-    /* Régua separando o cabeçalho do corpo, como no layout. */
+    /* Padding e gap de 32px no lugar dos 24/16px padrão do Filament. */
+    & .fi-modal-header {
+        padding-inline: 32px;
+        padding-top: 32px;
+    }
+
     & .fi-modal-content {
+        padding: 32px;
+        gap: 32px;
+        /* Régua separando o cabeçalho do corpo, como no layout. */
         border-top: 1px solid var(--gray-200);
-        padding-top: 1.5rem;
     }
 
     &:where(.dark, .dark *) .fi-modal-content {
         border-top-color: rgb(255 255 255 / 0.1);
+    }
+
+    & .fi-modal-footer {
+        padding-inline: 32px;
+        padding-bottom: 32px;
     }
 
     /* No layout os dois botões dividem a largura do rodapé em partes iguais. */
