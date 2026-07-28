@@ -23,24 +23,24 @@
 
         {{-- Cartão de créditos: único ponto com gradiente, nos tons da marca. --}}
         <div
-            class="p-6 text-white"
+            class="p-8 text-white"
             style="background-image: linear-gradient(135deg, var(--danger-600) 0%, var(--danger-500) 40%, var(--primary-500) 100%);"
         >
             <p class="text-[24px] font-bold leading-tight">
                 {{ __('panel-app::widgets.plan_credits.credits_card_title') }}
             </p>
 
-            <p class="mt-5 flex items-baseline gap-2">
+            <p class="mt-8 flex items-baseline gap-2">
                 <span class="text-[32px] font-bold leading-none">{{ $creditsTotal }}</span>
                 <span class="text-[16px] text-white/80">{{ __('panel-app::widgets.plan_credits.credits_available') }}</span>
             </p>
 
             {{-- Rótulo e nome ficam próximos entre si e afastados do bloco acima,
                  para lerem como um par. --}}
-            <p class="mt-7 text-[16px] uppercase tracking-wide text-white/70">
+            <p class="mt-10 text-[16px] uppercase tracking-wide text-white/70">
                 {{ __('panel-app::widgets.plan_credits.holder') }}
             </p>
-            <p class="mt-1 text-[20px] font-bold leading-tight">{{ $holderName }}</p>
+            <p class="mt-2 text-[20px] font-bold leading-tight">{{ $holderName }}</p>
         </div>
 
         <div class="border border-gray-200 px-4 py-3 dark:border-white/10">
