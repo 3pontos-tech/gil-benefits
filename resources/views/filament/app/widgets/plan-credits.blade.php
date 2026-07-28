@@ -21,10 +21,12 @@
             @endif
         </div>
 
-        {{-- Cartão de créditos: único ponto com gradiente, nos tons da marca. --}}
+        {{-- Cartão de créditos: gradiente e raio vêm literais do design. São os
+             únicos valores de cor fora da paleta do painel, então não acompanham
+             uma eventual mudança de tema. --}}
         <div
             class="p-8 text-white"
-            style="background-image: linear-gradient(135deg, var(--danger-600) 0%, var(--danger-500) 40%, var(--primary-500) 100%);"
+            style="border-radius: 4px; background: linear-gradient(114deg, #FD0342 15.42%, #FF803C 84.58%);"
         >
             <p class="text-[24px] font-bold leading-tight">
                 {{ __('panel-app::widgets.plan_credits.credits_card_title') }}
