@@ -5,8 +5,9 @@
 
 <div class="flex flex-col gap-4">
     <div class="flex items-center gap-3 border border-gray-200 p-4 dark:border-white/10">
-        <span class="flex size-10 shrink-0 items-center justify-center border border-danger-500/30 bg-danger-500/10 text-danger-500">
-            <x-filament::icon icon="heroicon-o-calendar-days" class="size-5"/>
+        {{-- Ícone discreto, como no layout: preenchimento suave e sem contorno. --}}
+        <span class="flex size-9 shrink-0 items-center justify-center rounded-[4px] bg-danger-500/15 text-danger-500/80">
+            <x-filament::icon icon="heroicon-o-calendar-days" class="size-4"/>
         </span>
 
         <div class="min-w-0">
@@ -24,12 +25,10 @@
         </div>
     </div>
 
-    {{-- O aviso muda de tom: antes do prazo o crédito volta, depois dele é consumido. --}}
-    <div @class([
-        'flex items-start gap-3 border p-4',
-        'border-warning-500/30 bg-warning-500/10' => $keepsCredit,
-        'border-danger-500/30 bg-danger-500/10' => ! $keepsCredit,
-    ])>
+    {{-- Aviso sem caixa nem preenchimento, como no layout: só o ícone e o texto
+         no tom correspondente. O tom muda porque antes do prazo o crédito volta
+         e depois dele é consumido. --}}
+    <div class="flex items-start gap-3">
         <x-filament::icon
             icon="heroicon-o-exclamation-circle"
             @class([
@@ -40,8 +39,8 @@
         />
         <p @class([
             'text-[16px] leading-snug',
-            'text-warning-700 dark:text-warning-300' => $keepsCredit,
-            'text-danger-700 dark:text-danger-300' => ! $keepsCredit,
+            'text-warning-600 dark:text-warning-400' => $keepsCredit,
+            'text-danger-600 dark:text-danger-400' => ! $keepsCredit,
         ])>
             {{ $keepsCredit
                 ? __('panel-app::resources.appointments.cancel.notice_keeps_credit', ['hours' => $noticeHours])

@@ -115,6 +115,41 @@ it('cancels the appointment picked by the row action', function (): void {
         ->and($untouched->refresh()->status)->toBe(AppointmentStatus::Pending);
 });
 
+it('offers cancelling only for appointments that can still be cancelled', function (): void {
+    $future = Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create(['user_id' => $this->employee->getKey(), 'appointment_at' => now()->addWeek()]);
+
+    $past = Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create(['user_id' => $this->employee->getKey(), 'appointment_at' => now()->subWeek()]);
+
+    $completed = Appointment::factory()
+        ->withStatus(AppointmentStatus::Completed)
+        ->create(['user_id' => $this->employee->getKey(), 'appointment_at' => now()->subDay()]);
+
+    $rows = livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->viewData('rows')
+        ->keyBy('id');
+
+    // Regressão: a consultoria passada rendia um botão desabilitado em vez de
+    // nenhum botão, e o usuário via um "Cancelar" que não fazia nada.
+    expect($rows[$future->getKey()]['canCancel'])->toBeTrue()
+        ->and($rows[$past->getKey()]['canCancel'])->toBeFalse()
+        ->and($rows[$completed->getKey()]['canCancel'])->toBeFalse();
+});
+
+it('renders no cancel button once the appointment has passed', function (): void {
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create(['user_id' => $this->employee->getKey(), 'appointment_at' => now()->subWeek()]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->assertDontSee('mountAction(\'cancelAppointment\'', false);
+});
+
 it('caps the list at five appointments', function (): void {
     Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)

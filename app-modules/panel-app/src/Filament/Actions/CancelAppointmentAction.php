@@ -38,7 +38,9 @@ class CancelAppointmentAction extends Action
 
         $this->modalIcon(Heroicon::OutlinedCalendarDays);
         $this->modalIconColor('danger');
-        $this->modalWidth(Width::TwoExtraLarge);
+        // No layout o título de 32px ocupa cerca de metade da largura do modal,
+        // o que coloca a janela perto de 900px — 2xl (672px) ficava apertado.
+        $this->modalWidth(Width::FourExtraLarge);
         // Start em vez do centro padrão: o layout põe o ícone à esquerda do
         // título, com título e descrição alinhados à esquerda.
         $this->modalAlignment(Alignment::Start);

@@ -95,7 +95,9 @@
                             </div>
 
                             <div class="flex shrink-0 items-center gap-2">
-                                {{ ($this->cancelAppointmentAction)(['appointment' => $row['id']]) }}
+                                @if($row['canCancel'])
+                                    {{ ($this->cancelAppointmentAction)(['appointment' => $row['id']]) }}
+                                @endif
 
                                 {{-- Os tamanhos do fi-btn param em text-sm (14px), então o
                                      16px pedido vem de uma classe explícita. --}}

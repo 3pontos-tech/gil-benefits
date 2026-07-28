@@ -142,9 +142,18 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas
                 AppointmentStatus::Active,
             ], strict: true));
 
+        $isCancellable = ! $isPast && in_array($appointment->status, [
+            AppointmentStatus::Pending,
+            AppointmentStatus::Active,
+        ], strict: true);
+
         return [
             'id' => $appointment->getKey(),
             'record' => $appointment,
+            // A linha decide se mostra o botão. Deixar isso só para o visible()
+            // da Action fazia o Filament renderizar um botão desabilitado nas
+            // consultorias que já passaram, em vez de omiti-lo.
+            'canCancel' => $isCancellable,
             'month' => Str::upper(rtrim($appointment->appointment_at->translatedFormat('M'), '.')),
             'day' => $appointment->appointment_at->format('d'),
             'title' => $consultant !== null

@@ -76,11 +76,22 @@
         font-size: 16px;
     }
 
-    /* O ícone do Filament é um círculo; no layout é um quadrado contornado,
-       igual ao das caixas do dashboard. */
+    /* O ícone do Filament é um círculo grande; no layout é um quadrado pequeno
+       de contorno fino, alinhado ao topo do título. */
     & .fi-modal-icon-bg {
-        border: 1px solid var(--danger-500);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border: 1px solid rgb(from var(--danger-500) r g b / 0.4);
         border-radius: 4px;
+    }
+
+    & .fi-modal-icon-bg .fi-icon {
+        width: 1.125rem;
+        height: 1.125rem;
     }
 
     /* Régua separando o cabeçalho do corpo, como no layout. */
