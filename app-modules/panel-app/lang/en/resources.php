@@ -9,11 +9,12 @@ return [
         ],
         'cancel' => [
             'action_label' => 'Cancel',
-            'modal_heading_ontime' => 'Cancel Appointment',
-            'modal_description_ontime' => 'Are you sure you want to cancel? Your credit will be restored.',
-            'modal_heading_late' => 'Cancel Appointment',
-            'modal_description_late' => 'Warning: this appointment is within 24 hours. Cancelling now will consume your credit for this period. Do you wish to continue?',
-            'modal_submit_label' => 'Yes, cancel',
+            'modal_heading' => 'Cancel your appointment?',
+            'modal_description' => 'Once confirmed, the appointment is cancelled and cannot be restored automatically.',
+            'notice_keeps_credit' => 'You can cancel up to :hours hours before the scheduled time. Cancel within that window and your credit is returned.',
+            'notice_loses_credit' => 'Less than :hours hours remain before the scheduled time. Cancelling now will not return your credit.',
+            'modal_submit_label' => 'Confirm',
+            'modal_cancel_label' => 'Cancel',
             'success' => 'Appointment cancelled successfully.',
         ],
         'records' => [

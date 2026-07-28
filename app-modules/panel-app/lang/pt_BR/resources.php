@@ -9,11 +9,12 @@ return [
         ],
         'cancel' => [
             'action_label' => 'Cancelar',
-            'modal_heading_ontime' => 'Cancelar Agendamento',
-            'modal_description_ontime' => 'Tem certeza que deseja cancelar? Seu crédito será restaurado.',
-            'modal_heading_late' => 'Cancelar Agendamento',
-            'modal_description_late' => 'Atenção: este agendamento ocorre em menos de 24 horas. Ao cancelar, seu crédito do período será consumido. Deseja continuar?',
-            'modal_submit_label' => 'Sim, cancelar',
+            'modal_heading' => 'Deseja cancelar sua consulta?',
+            'modal_description' => 'Após a confirmação, a consulta será cancelada e não poderá ser restaurada automaticamente.',
+            'notice_keeps_credit' => 'Você pode cancelar sua consulta até :hours horas antes do horário agendado. Em cancelamentos dentro desse prazo, seu crédito será restituído.',
+            'notice_loses_credit' => 'Faltam menos de :hours horas para o horário agendado. Ao cancelar agora, seu crédito não será restituído.',
+            'modal_submit_label' => 'Confirmar',
+            'modal_cancel_label' => 'Cancelar',
             'success' => 'Agendamento cancelado com sucesso.',
         ],
         'records' => [

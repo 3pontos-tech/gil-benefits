@@ -4,7 +4,10 @@ namespace TresPontosTech\PanelApp\Filament\Actions;
 
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -31,17 +34,33 @@ class CancelAppointmentAction extends Action
             AppointmentStatus::Active,
         ], strict: true) && $record->appointment_at->isFuture());
 
-        $this->modalHeading(fn (Appointment $record): string => now()->diffInHours($record->appointment_at, absolute: false) >= 24
-            ? __('panel-app::resources.appointments.cancel.modal_heading_ontime')
-            : __('panel-app::resources.appointments.cancel.modal_heading_late'));
-
-        $this->modalDescription(fn (Appointment $record): string => now()->diffInHours($record->appointment_at, absolute: false) >= 24
-            ? __('panel-app::resources.appointments.cancel.modal_description_ontime')
-            : __('panel-app::resources.appointments.cancel.modal_description_late'));
-
-        $this->modalSubmitActionLabel(__('panel-app::resources.appointments.cancel.modal_submit_label'));
-
         $this->requiresConfirmation();
+
+        $this->modalIcon(Heroicon::OutlinedCalendarDays);
+        $this->modalIconColor('danger');
+        $this->modalWidth(Width::TwoExtraLarge);
+        // Start em vez do centro padrão: o layout põe o ícone à esquerda do
+        // título, com título e descrição alinhados à esquerda.
+        $this->modalAlignment(Alignment::Start);
+        $this->modalHeading(__('panel-app::resources.appointments.cancel.modal_heading'));
+        $this->modalDescription(__('panel-app::resources.appointments.cancel.modal_description'));
+        $this->modalSubmitActionLabel(__('panel-app::resources.appointments.cancel.modal_submit_label'));
+        $this->modalCancelActionLabel(__('panel-app::resources.appointments.cancel.modal_cancel_label'));
+
+        // Classe só para o CSS do tema alcançar este modal sem atingir os demais.
+        $this->extraModalWindowAttributes(['class' => 'fi-cancel-appointment-modal']);
+
+        $this->modalContent(fn (Appointment $record): View => view(
+            'filament.app.appointments.cancel-modal',
+            [
+                'appointment' => $record,
+                // O aviso muda conforme o crédito volte ou não, e o prazo citado
+                // vem da mesma constante que decide isso.
+                'keepsCredit' => AppointmentStatus::resolveCancellationStatus($record, CancellationActor::User)
+                    === AppointmentStatus::Cancelled,
+                'noticeHours' => AppointmentStatus::CANCELLATION_NOTICE_HOURS,
+            ],
+        ));
 
         $this->action(function (Appointment $record): void {
             if ($record->user_id !== auth()->id()) {

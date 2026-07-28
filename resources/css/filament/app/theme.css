@@ -61,6 +61,51 @@
     gap: 32px;
 }
 
+/*
+ * Modal de cancelamento de consultoria. As classes abaixo só existem dentro
+ * dele — a Action adiciona .fi-cancel-appointment-modal na janela — para que os
+ * tamanhos do design não vazem para os outros modais do painel.
+ */
+.fi-cancel-appointment-modal {
+    & .fi-modal-heading {
+        font-size: 32px;
+        line-height: 1.2;
+    }
+
+    & .fi-modal-description {
+        font-size: 16px;
+    }
+
+    /* O ícone do Filament é um círculo; no layout é um quadrado contornado,
+       igual ao das caixas do dashboard. */
+    & .fi-modal-icon-bg {
+        border: 1px solid var(--danger-500);
+        border-radius: 4px;
+    }
+
+    /* Régua separando o cabeçalho do corpo, como no layout. */
+    & .fi-modal-content {
+        border-top: 1px solid var(--gray-200);
+        padding-top: 1.5rem;
+    }
+
+    &:where(.dark, .dark *) .fi-modal-content {
+        border-top-color: rgb(255 255 255 / 0.1);
+    }
+
+    /* No layout os dois botões dividem a largura do rodapé em partes iguais. */
+    & .fi-modal-footer-actions {
+        & > * {
+            flex: 1 1 0%;
+        }
+
+        & .fi-btn {
+            width: 100%;
+            font-size: 16px;
+        }
+    }
+}
+
 .scrollbar-hidden::-webkit-scrollbar {
     display: none;
 }
