@@ -105,6 +105,7 @@ it('does an incremental sync when consultant has a recent sync token', function 
     $this->consultant->update([
         'google_calendar_sync_token' => 'existing-token',
         'google_calendar_synced_at' => Date::now()->subMinutes(10),
+        'last_full_sync_at' => Date::now()->subMinutes(10),
     ]);
 
     $client = Mockery::mock(GoogleCalendarClient::class);
@@ -121,10 +122,11 @@ it('does an incremental sync when consultant has a recent sync token', function 
     expect($this->consultant->refresh()->google_calendar_sync_token)->toBe('next-token');
 });
 
-it('forces full sync when last sync is older than 24h', function (): void {
+it('forces full sync when last full sync is older than 24h', function (): void {
     $this->consultant->update([
         'google_calendar_sync_token' => 'stale-token',
-        'google_calendar_synced_at' => Date::now()->subHours(25),
+        'google_calendar_synced_at' => Date::now()->subMinutes(10),
+        'last_full_sync_at' => Date::now()->subHours(25),
     ]);
 
     $client = Mockery::mock(GoogleCalendarClient::class);
@@ -145,6 +147,7 @@ it('falls back to full sync when token expires (410)', function (): void {
     $this->consultant->update([
         'google_calendar_sync_token' => 'expired-token',
         'google_calendar_synced_at' => Date::now()->subMinutes(5),
+        'last_full_sync_at' => Date::now()->subMinutes(5),
     ]);
 
     $client = Mockery::mock(GoogleCalendarClient::class);
@@ -221,6 +224,7 @@ it('does not run stale cleanup during incremental sync', function (): void {
     $this->consultant->update([
         'google_calendar_sync_token' => 'token',
         'google_calendar_synced_at' => Date::now()->subMinutes(5),
+        'last_full_sync_at' => Date::now()->subMinutes(5),
     ]);
 
     Zap::for($this->consultant)
@@ -433,6 +437,7 @@ it('runs a constant number of queries regardless of unchanged event count (no N+
             'email' => 'steady@workspace.com',
             'google_calendar_sync_token' => 'existing-token',
             'google_calendar_synced_at' => Date::now()->subMinutes(10),
+            'last_full_sync_at' => Date::now()->subMinutes(10),
         ]);
 
         $events = collect(range(1, $eventCount))->map(function (int $i) use ($consultant): GoogleEventDTO {
@@ -459,4 +464,132 @@ it('runs a constant number of queries regardless of unchanged event count (no N+
     // Steady-state sync (every event already exists, unchanged) must not run a
     // single per-event query: the count for 8 events equals the count for 3.
     expect($measure(8))->toBe($measure(3));
+});
+
+it('stamps last_full_sync_at when a full sync succeeds', function (): void {
+    Date::setTestNow('2026-05-01 04:00:00');
+
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')->once()->andReturn(emptyResponse('fresh-token'));
+
+    buildAction($client)->handle($this->consultant);
+
+    expect($this->consultant->fresh()->last_full_sync_at->toDateTimeString())->toBe('2026-05-01 04:00:00');
+});
+
+it('does not touch last_full_sync_at during an incremental sync', function (): void {
+    $lastFullSync = Date::now()->subHours(3);
+
+    $this->consultant->update([
+        'google_calendar_sync_token' => 'existing-token',
+        'google_calendar_synced_at' => Date::now()->subMinutes(10),
+        'last_full_sync_at' => $lastFullSync,
+    ]);
+
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')->once()->andReturn(emptyResponse('next-token'));
+
+    buildAction($client)->handle($this->consultant);
+
+    expect($this->consultant->fresh()->last_full_sync_at->toDateTimeString())
+        ->toBe($lastFullSync->toDateTimeString());
+});
+
+it('runs a full sync when forced even though the consultant was just synced', function (): void {
+    $this->consultant->update([
+        'google_calendar_sync_token' => 'fresh-token',
+        'google_calendar_synced_at' => Date::now()->subMinutes(2),
+        'last_full_sync_at' => Date::now()->subMinutes(2),
+    ]);
+
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')
+        ->once()
+        ->withArgs(fn ($accessToken, $calendarId, $timeMin = null, $timeMax = null, $pageToken = null, $syncToken = null): bool => $syncToken === null && filled($timeMin) && filled($timeMax))
+        ->andReturn(emptyResponse('forced-token'));
+
+    buildAction($client)->handle($this->consultant, forceFullSync: true);
+
+    expect($this->consultant->fresh()->google_calendar_sync_token)->toBe('forced-token');
+});
+
+it('keeps last_full_sync_at untouched when the full sync fails', function (): void {
+    $lastFullSync = Date::now()->subHours(30);
+
+    $this->consultant->update([
+        'google_calendar_sync_token' => 'stale-token',
+        'last_full_sync_at' => $lastFullSync,
+    ]);
+
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')->andThrow(new GoogleCalendarApiException('Rate limit exceeded', 429));
+
+    expect(fn () => buildAction($client)->handle($this->consultant))
+        ->toThrow(GoogleCalendarApiException::class);
+
+    expect($this->consultant->fresh()->last_full_sync_at->toDateTimeString())
+        ->toBe($lastFullSync->toDateTimeString());
+});
+
+it('ignores a stale google_calendar_synced_at bumped by incremental syncs when deciding to full sync', function (): void {
+    $this->consultant->update([
+        'google_calendar_sync_token' => 'token-kept-alive',
+        'google_calendar_synced_at' => Date::now()->subMinutes(1),
+        'last_full_sync_at' => Date::now()->subHours(48),
+    ]);
+
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')
+        ->once()
+        ->withArgs(fn ($accessToken, $calendarId, $timeMin = null, $timeMax = null, $pageToken = null, $syncToken = null): bool => $syncToken === null && filled($timeMin) && filled($timeMax))
+        ->andReturn(emptyResponse('rebuilt-token'));
+
+    buildAction($client)->handle($this->consultant);
+
+    expect($this->consultant->fresh()->google_calendar_sync_token)->toBe('rebuilt-token');
+});
+
+it('honours the configured full sync interval when deciding to full sync', function (): void {
+    config()->set('google-calendar.full_sync_interval_hours', 6);
+
+    $this->consultant->update([
+        'google_calendar_sync_token' => 'token',
+        'last_full_sync_at' => Date::now()->subHours(8),
+    ]);
+
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')
+        ->once()
+        ->withArgs(fn ($accessToken, $calendarId, $timeMin = null, $timeMax = null, $pageToken = null, $syncToken = null): bool => $syncToken === null && filled($timeMin))
+        ->andReturn(emptyResponse('rebuilt-token'));
+
+    buildAction($client)->handle($this->consultant);
+
+    expect($this->consultant->fresh()->google_calendar_sync_token)->toBe('rebuilt-token');
+});
+
+it('stays incremental when the configured full sync interval has not elapsed', function (): void {
+    config()->set('google-calendar.full_sync_interval_hours', 48);
+
+    $this->consultant->update([
+        'google_calendar_sync_token' => 'token',
+        'last_full_sync_at' => Date::now()->subHours(30),
+    ]);
+
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('access');
+    $client->shouldReceive('listEvents')
+        ->once()
+        ->withArgs(fn ($accessToken, $calendarId, $timeMin = null, $timeMax = null, $pageToken = null, $syncToken = null): bool => $syncToken === 'token' && $timeMin === null)
+        ->andReturn(emptyResponse('next-token'));
+
+    buildAction($client)->handle($this->consultant);
+
+    expect($this->consultant->fresh()->google_calendar_sync_token)->toBe('next-token');
 });
