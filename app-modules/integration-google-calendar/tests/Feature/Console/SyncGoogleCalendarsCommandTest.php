@@ -45,7 +45,7 @@ it('forces a full sync for every consultant when --full is passed', function ():
     Queue::assertPushed(SyncConsultantCalendarJob::class, 2);
     Queue::assertPushed(
         SyncConsultantCalendarJob::class,
-        fn (SyncConsultantCalendarJob $job): bool => $job->forceFullSync === true,
+        fn (SyncConsultantCalendarJob $job): bool => $job->forceFullSync,
     );
 });
 

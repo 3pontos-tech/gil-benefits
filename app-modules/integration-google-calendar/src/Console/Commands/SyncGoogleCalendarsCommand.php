@@ -81,7 +81,7 @@ class SyncGoogleCalendarsCommand extends Command
         return Consultant::query()
             ->whereNotNull('email')
             ->orderByRaw('last_full_sync_at IS NULL DESC')
-            ->orderBy('last_full_sync_at');
+            ->oldest('last_full_sync_at');
     }
 
     /**
