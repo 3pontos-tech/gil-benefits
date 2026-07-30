@@ -42,6 +42,7 @@ use Zap\Models\Concerns\HasSchedules;
  * @property array<string, string> $socials_urls
  * @property Carbon|null $google_calendar_synced_at
  * @property string|null $google_calendar_sync_token
+ * @property Carbon|null $last_full_sync_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -74,12 +75,14 @@ class Consultant extends Model implements HasMedia
         'crm_id',
         'google_calendar_synced_at',
         'google_calendar_sync_token',
+        'last_full_sync_at',
         'user_id',
     ];
 
     protected $casts = [
         'socials_urls' => 'array',
         'google_calendar_synced_at' => 'datetime',
+        'last_full_sync_at' => 'datetime',
     ];
 
     /**

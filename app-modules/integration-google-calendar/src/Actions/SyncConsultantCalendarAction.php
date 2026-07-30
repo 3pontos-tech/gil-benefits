@@ -11,8 +11,6 @@ use TresPontosTech\IntegrationGoogleCalendar\Support\ConsultantSyncContext;
 
 readonly class SyncConsultantCalendarAction
 {
-    private const FULL_SYNC_INTERVAL_HOURS = 24;
-
     public function __construct(
         private GoogleCalendarClient $client,
         private UpsertBlockedScheduleAction $upsertAction,
@@ -20,12 +18,12 @@ readonly class SyncConsultantCalendarAction
         private RemoveStaleBlockedSchedulesAction $removeStaleAction,
     ) {}
 
-    public function handle(Consultant $consultant): void
+    public function handle(Consultant $consultant, bool $forceFullSync = false): void
     {
         $accessToken = $this->client->getAccessToken($consultant->email);
 
         try {
-            if ($this->shouldFullSync($consultant)) {
+            if ($forceFullSync || $this->shouldFullSync($consultant)) {
                 $this->fullSync($consultant, $accessToken);
 
                 return;
@@ -65,12 +63,13 @@ readonly class SyncConsultantCalendarAction
             return true;
         }
 
-        if (blank($consultant->google_calendar_synced_at)) {
+        if (blank($consultant->last_full_sync_at)) {
             return true;
         }
 
-        return $consultant->google_calendar_synced_at
-            ->lt(Date::now()->subHours(self::FULL_SYNC_INTERVAL_HOURS));
+        return $consultant->last_full_sync_at->lt(
+            Date::now()->subHours(config()->integer('google-calendar.full_sync_interval_hours')),
+        );
     }
 
     private function fullSync(Consultant $consultant, string $accessToken): void
@@ -115,6 +114,7 @@ readonly class SyncConsultantCalendarAction
 
         $consultant->update([
             'google_calendar_synced_at' => $now,
+            'last_full_sync_at' => $now,
             'google_calendar_sync_token' => $nextSyncToken,
         ]);
 
