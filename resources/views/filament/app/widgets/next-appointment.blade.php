@@ -61,6 +61,12 @@
                     @endif
                 </div>
 
+                @if($appointment->canBeRescheduledByUser())
+                    <div class="shrink-0">
+                        {{ ($this->rescheduleAppointmentAction)(['appointment' => $appointment->getKey()]) }}
+                    </div>
+                @endif
+
                 <div class="shrink-0">
                     {{ $this->cancelAppointmentAction }}
                 </div>

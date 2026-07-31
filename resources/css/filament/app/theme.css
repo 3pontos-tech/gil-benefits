@@ -185,6 +185,93 @@
     }
 }
 
+/*
+ * Wizards de agendamento e reagendamento. Mesma métrica dos modais de
+ * cancelamento (títulos de 32px, respiro de 32px, régua sob o cabeçalho,
+ * botões dividindo o rodapé); as variantes só trocam a cor do quadrado do
+ * ícone e o desenho do rodapé nos passos de sucesso.
+ */
+.fi-apt-wizard-modal {
+    & .fi-modal-heading {
+        font-size: 32px;
+        line-height: 1.2;
+    }
+
+    & .fi-modal-description {
+        font-size: 16px;
+    }
+
+    & .fi-modal-icon-bg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border: 1px solid rgb(from var(--gray-400) r g b / 0.4);
+        border-radius: 4px;
+    }
+
+    & .fi-modal-icon-bg .fi-icon {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+
+    & .fi-modal-header {
+        padding-inline: 32px;
+        padding-top: 32px;
+    }
+
+    & .fi-modal-content {
+        padding: 32px;
+        gap: 32px;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    &:where(.dark, .dark *) .fi-modal-content {
+        border-top-color: rgb(255 255 255 / 0.1);
+    }
+
+    & .fi-modal-footer {
+        padding-inline: 32px;
+        padding-bottom: 32px;
+    }
+
+    & .fi-modal-footer-actions {
+        & > * {
+            flex: 1 1 0%;
+        }
+
+        & .fi-btn {
+            width: 100%;
+            font-size: 16px;
+        }
+    }
+
+    & .fi-modal-close-btn {
+        color: var(--danger-500);
+    }
+}
+
+.fi-apt-wizard-modal-danger .fi-modal-icon-bg {
+    border-color: rgb(from var(--danger-500) r g b / 0.4);
+}
+
+.fi-apt-wizard-modal-success .fi-modal-icon-bg {
+    border-color: rgb(from var(--success-500) r g b / 0.4);
+}
+
+/* Sucesso do reagendamento: um único "Finalizar" compacto, à direita. */
+.fi-apt-wizard-modal-footer-end .fi-modal-footer-actions {
+    & > * {
+        flex: 0 0 auto;
+    }
+
+    & .fi-btn {
+        width: auto;
+    }
+}
+
 .scrollbar-hidden::-webkit-scrollbar {
     display: none;
 }

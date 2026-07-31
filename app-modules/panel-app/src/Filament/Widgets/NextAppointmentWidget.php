@@ -17,6 +17,7 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Actions\CancelAppointmentAction;
 use TresPontosTech\PanelApp\Filament\Concerns\ConfirmsAppointmentCancellation;
+use TresPontosTech\PanelApp\Filament\Concerns\ReschedulesAppointments;
 use TresPontosTech\PanelApp\Filament\Contracts\ShowsCancelledConfirmation;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 
@@ -25,6 +26,7 @@ class NextAppointmentWidget extends Widget implements HasActions, HasSchemas, Sh
     use ConfirmsAppointmentCancellation;
     use InteractsWithActions;
     use InteractsWithSchemas;
+    use ReschedulesAppointments;
 
     protected string $view = 'filament.app.widgets.next-appointment';
 
@@ -52,6 +54,8 @@ class NextAppointmentWidget extends Widget implements HasActions, HasSchemas, Sh
     }
 
     #[On('appointment-cancelled')]
+    #[On('appointment-booked')]
+    #[On('appointment-rescheduled')]
     public function refresh(): void {}
 
     private function resolveAppointment(): ?Appointment

@@ -8,7 +8,6 @@ use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Enums\IconPosition;
@@ -26,13 +25,14 @@ use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\PanelApp\DTOs\PlanSummary;
 use TresPontosTech\PanelApp\Enums\PlanStatus;
+use TresPontosTech\PanelApp\Filament\Concerns\SchedulesAppointments;
 use TresPontosTech\PanelApp\Filament\Pages\UserCreditsPage;
-use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 
 class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
+    use SchedulesAppointments;
 
     protected string $view = 'filament.app.widgets.plan-credits';
 
@@ -113,25 +113,9 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
     }
 
     #[On('appointment-cancelled')]
+    #[On('appointment-booked')]
+    #[On('appointment-rescheduled')]
     public function refresh(): void {}
-
-    public function redirectToAppointmentCreation(): void
-    {
-        /** @var User $user */
-        $user = auth()->user();
-
-        if (! $user->canCreateAppointment()) {
-            Notification::make()
-                ->title(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
-                ->body(__('panel-app::resources.appointments.pages.create.no_appointments_available'))
-                ->danger()
-                ->send();
-
-            return;
-        }
-
-        redirect()->intended(AppointmentResource::getUrl('create'));
-    }
 
     /**
      * @return list<string>

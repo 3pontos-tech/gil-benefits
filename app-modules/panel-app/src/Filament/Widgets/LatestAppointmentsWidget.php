@@ -19,6 +19,8 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Actions\CancelAppointmentAction;
 use TresPontosTech\PanelApp\Filament\Concerns\ConfirmsAppointmentCancellation;
+use TresPontosTech\PanelApp\Filament\Concerns\ReschedulesAppointments;
+use TresPontosTech\PanelApp\Filament\Concerns\SchedulesAppointments;
 use TresPontosTech\PanelApp\Filament\Contracts\ShowsCancelledConfirmation;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 
@@ -27,6 +29,8 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
     use ConfirmsAppointmentCancellation;
     use InteractsWithActions;
     use InteractsWithSchemas;
+    use ReschedulesAppointments;
+    use SchedulesAppointments;
 
     /**
      * Quantas consultorias a lista mostra: as mais próximas de agora.
@@ -41,7 +45,6 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
     {
         return [
             'rows' => $this->appointments()->map(fn (Appointment $appointment): array => $this->toRow($appointment)),
-            'createUrl' => AppointmentResource::getUrl('create'),
             'listUrl' => AppointmentResource::getUrl('index'),
         ];
     }
@@ -62,6 +65,8 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
     }
 
     #[On('appointment-cancelled')]
+    #[On('appointment-booked')]
+    #[On('appointment-rescheduled')]
     public function refresh(): void
     {
         // Atribuição em vez de unset(): unset() numa propriedade tipada a deixa
@@ -157,6 +162,7 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
             // da Action fazia o Filament renderizar um botão desabilitado nas
             // consultorias que já passaram, em vez de omiti-lo.
             'canCancel' => $isCancellable,
+            'canReschedule' => $appointment->canBeRescheduledByUser(),
             'month' => Str::upper(rtrim($appointment->appointment_at->translatedFormat('M'), '.')),
             'day' => $appointment->appointment_at->format('d'),
             'title' => $consultant !== null

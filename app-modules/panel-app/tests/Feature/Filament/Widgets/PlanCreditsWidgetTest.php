@@ -10,7 +10,6 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\PanelApp\DTOs\PlanSummary;
 use TresPontosTech\PanelApp\Enums\PlanStatus;
-use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
 
 use function Pest\Laravel\travelTo;
@@ -183,8 +182,9 @@ describe('appointment guard', function (): void {
         livewire(PlanCreditsWidget::class)
             ->assertOk()
             ->assertSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
-            ->call('redirectToAppointmentCreation')
-            ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'));
+            ->mountAction('scheduleAppointment')
+            ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+            ->assertActionNotMounted();
 
         $appointment->update(['status' => AppointmentStatus::Cancelled]);
 
@@ -194,8 +194,8 @@ describe('appointment guard', function (): void {
         livewire(PlanCreditsWidget::class)
             ->assertOk()
             ->assertDontSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
-            ->call('redirectToAppointmentCreation')
-            ->assertRedirect(AppointmentResource::getUrl('create'));
+            ->mountAction('scheduleAppointment')
+            ->assertActionMounted('scheduleAppointment');
     });
 
     it('disables the booking button and unbinds the action when the user cannot book', function (): void {
@@ -207,7 +207,7 @@ describe('appointment guard', function (): void {
         livewire(PlanCreditsWidget::class)
             ->assertOk()
             ->assertSee('aria-disabled', false)
-            ->assertDontSee('redirectToAppointmentCreation', false);
+            ->assertDontSee("mountAction('scheduleAppointment')", false);
 
         $appointment->update(['status' => AppointmentStatus::Cancelled]);
         travelTo(now()->addMinutes(2));
@@ -215,7 +215,7 @@ describe('appointment guard', function (): void {
 
         livewire(PlanCreditsWidget::class)
             ->assertOk()
-            ->assertSee('redirectToAppointmentCreation', false)
+            ->assertSee("mountAction('scheduleAppointment')", false)
             ->assertDontSee('aria-disabled', false);
     });
 
@@ -228,8 +228,9 @@ describe('appointment guard', function (): void {
         livewire(PlanCreditsWidget::class)
             ->assertOk()
             ->assertSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
-            ->call('redirectToAppointmentCreation')
-            ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'));
+            ->mountAction('scheduleAppointment')
+            ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+            ->assertActionNotMounted();
 
         $appointment->update(['status' => AppointmentStatus::Cancelled]);
 
@@ -239,7 +240,7 @@ describe('appointment guard', function (): void {
         livewire(PlanCreditsWidget::class)
             ->assertOk()
             ->assertDontSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
-            ->call('redirectToAppointmentCreation')
-            ->assertRedirect(AppointmentResource::getUrl('create'));
+            ->mountAction('scheduleAppointment')
+            ->assertActionMounted('scheduleAppointment');
     });
 });

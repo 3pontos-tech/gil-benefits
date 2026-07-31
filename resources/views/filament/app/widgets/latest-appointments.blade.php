@@ -15,10 +15,9 @@
                 </p>
             </div>
 
-            {{-- Sem size: o padding padrão do fi-btn já é px-3 py-2, o pedido. --}}
-            <x-filament::button tag="a" :href="$createUrl" class="shrink-0">
-                {{ __('panel-app::widgets.latest_appointments.new_appointment') }}
-            </x-filament::button>
+            {{-- Abre o wizard de agendamento em modal, no lugar da antiga
+                 navegação para a página de criação. --}}
+            {{ $this->scheduleAppointmentAction }}
         </div>
 
         <div class="flex-1 border border-gray-200 bg-white p-3 dark:border-white/10 dark:bg-gray-900">
@@ -95,6 +94,10 @@
                             </div>
 
                             <div class="flex shrink-0 items-center gap-2">
+                                @if($row['canReschedule'])
+                                    {{ ($this->rescheduleAppointmentAction)(['appointment' => $row['id']]) }}
+                                @endif
+
                                 @if($row['canCancel'])
                                     {{ ($this->cancelAppointmentAction)(['appointment' => $row['id']]) }}
                                 @endif
@@ -102,9 +105,10 @@
                                 {{-- Os tamanhos do fi-btn param em text-sm (14px), então o
                                      16px pedido vem de uma classe explícita. --}}
                                 @if($row['needsRescheduling'])
+                                    {{-- Cancelada ou perdida não tem horário a mover:
+                                         "reagendar" aqui abre o wizard de novo agendamento. --}}
                                     <x-filament::button
-                                        tag="a"
-                                        :href="$createUrl"
+                                        wire:click="mountAction('scheduleAppointment')"
                                         size="sm"
                                         color="danger"
                                         class="text-[16px]"

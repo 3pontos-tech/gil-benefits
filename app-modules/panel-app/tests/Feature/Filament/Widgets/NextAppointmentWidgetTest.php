@@ -90,6 +90,34 @@ it('exposes the cancel action on the upcoming appointment', function (): void {
         ->assertActionVisible('cancelAppointment');
 });
 
+it('offers rescheduling the upcoming appointment while the notice period holds', function (): void {
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->withoutConsultant()
+        ->create([
+            'user_id' => $this->employee->id,
+            'appointment_at' => now()->addDays(3),
+        ]);
+
+    livewire(NextAppointmentWidget::class)
+        ->assertSee("mountAction('rescheduleAppointment'", false)
+        ->callAction('rescheduleAppointment', arguments: ['appointment' => $appointment->getKey()])
+        ->assertActionMounted('reschedulePickSlot');
+});
+
+it('hides the reschedule trigger once inside the notice period', function (): void {
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create([
+            'user_id' => $this->employee->id,
+            'appointment_at' => now()->addHours(AppointmentStatus::RESCHEDULE_NOTICE_HOURS - 1),
+        ]);
+
+    livewire(NextAppointmentWidget::class)
+        ->assertSuccessful()
+        ->assertDontSee("mountAction('rescheduleAppointment'", false);
+});
+
 it('shows a tooltip on the awaiting-confirmation button', function (): void {
     Appointment::factory()
         ->withStatus(AppointmentStatus::Active)

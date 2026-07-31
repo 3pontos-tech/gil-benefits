@@ -78,7 +78,7 @@
                  desabilitar no HTML não impediria a chamada Livewire. --}}
             @if($canCreateAppointment)
                 <x-filament::button
-                    wire:click="redirectToAppointmentCreation"
+                    wire:click="mountAction('scheduleAppointment')"
                     icon="heroicon-o-calendar-days"
                     class="w-full justify-center"
                 >
