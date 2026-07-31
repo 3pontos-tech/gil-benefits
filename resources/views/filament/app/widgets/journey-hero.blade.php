@@ -59,18 +59,18 @@
             <div class="fi-dash-stat border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-900">
                 <div class="flex items-start justify-between gap-2">
                     <span @class([
-                        'flex size-10 shrink-0 items-center justify-center border',
+                        'flex size-12 shrink-0 items-center justify-center border',
                         'border-danger-500/30 bg-danger-500/10 text-danger-500' => $card['tone'] === 'danger',
                         'border-warning-500/30 bg-warning-500/10 text-warning-500' => $card['tone'] === 'warning',
                         'border-info-500/30 bg-info-500/10 text-info-500' => $card['tone'] === 'info',
                         'border-success-500/30 bg-success-500/10 text-success-500' => $card['tone'] === 'success',
                     ])>
-                        <x-filament::icon :icon="$card['icon']" class="size-5"/>
+                        <x-filament::icon :icon="$card['icon']" class="size-8"/>
                     </span>
 
                     @if($hasDelta)
                         <span @class([
-                            'inline-flex items-center gap-1 text-xs font-medium',
+                            'inline-flex items-center gap-1 text-[16px] font-medium',
                             'text-success-600 dark:text-success-400' => $isPositive,
                             'text-danger-600 dark:text-danger-400' => ! $isPositive,
                         ])>
@@ -84,13 +84,13 @@
                 </div>
 
                 <p class="mt-6 flex items-baseline gap-1">
-                    <span class="text-2xl font-bold leading-none text-gray-950 dark:text-white">{{ $card['value'] }}</span>
+                    <span class="text-[32px] font-bold leading-none text-gray-950 dark:text-white">{{ $card['value'] }}</span>
                     @if($card['total'] !== null)
                         <span class="text-sm font-medium text-gray-400 dark:text-gray-500">/{{ $card['total'] }}</span>
                     @endif
                 </p>
 
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ $card['label'] }}</p>
+                <p class="mt-2 text-[20px] text-gray-500 dark:text-gray-400">{{ $card['label'] }}</p>
             </div>
         @endforeach
     </div>
