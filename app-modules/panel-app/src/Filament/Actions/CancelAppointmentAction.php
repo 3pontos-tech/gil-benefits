@@ -13,6 +13,7 @@ use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Contracts\ShowsCancelledConfirmation;
 
 class CancelAppointmentAction extends Action
 {
@@ -69,14 +70,30 @@ class CancelAppointmentAction extends Action
                 return;
             }
 
+            // Resolvido antes da transição para o modal de sucesso saber se o
+            // crédito volta; a resposta depende do prazo, não do status novo.
+            $keepsCredit = AppointmentStatus::resolveCancellationStatus($record, CancellationActor::User)
+                === AppointmentStatus::Cancelled;
+
             $record->current_transition->handle(new TransitionData(
                 cancellationActor: CancellationActor::User,
                 cancelledBy: auth()->user(),
             ));
 
             $livewire = $this->getLivewire();
-            if ($livewire instanceof Component) {
-                $livewire->dispatch('appointment-cancelled');
+            if (! $livewire instanceof Component) {
+                return;
+            }
+
+            // Atualiza a lista por baixo antes de abrir a confirmação de sucesso.
+            $livewire->dispatch('appointment-cancelled');
+
+            // Onde o host oferece a tela de sucesso, ela substitui este modal;
+            // do contrário caímos no toast para não deixar a ação sem retorno.
+            if ($livewire instanceof ShowsCancelledConfirmation) {
+                $livewire->confirmAppointmentCancellation($record, $keepsCredit);
+
+                return;
             }
 
             Notification::make()

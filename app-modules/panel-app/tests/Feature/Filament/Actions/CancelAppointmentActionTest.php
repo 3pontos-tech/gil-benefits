@@ -117,3 +117,45 @@ it('consumes the credit when cancelled inside the notice period', function (): v
     expect($appointment->refresh()->status)->toBe(AppointmentStatus::CancelledLate)
         ->and($credit->refresh()->status)->not->toBe(UserCreditStatusEnum::Available);
 });
+
+it('opens the success confirmation carrying the kept-credit flag once cancelled in time', function (): void {
+    $appointment = appointmentIn(AppointmentStatus::CANCELLATION_NOTICE_HOURS + 1);
+
+    $component = livewire(LatestAppointmentsWidget::class)
+        ->callAction('cancelAppointment', arguments: ['appointment' => $appointment->getKey()])
+        ->assertActionMounted('cancelledConfirmation');
+
+    $arguments = $component->instance()->mountedActions[0]['arguments'];
+
+    expect($arguments['appointment'])->toBe($appointment->getKey())
+        ->and($arguments['keepsCredit'])->toBeTrue();
+});
+
+it('flags the confirmation to consume the credit once cancelled late', function (): void {
+    $appointment = appointmentIn(AppointmentStatus::CANCELLATION_NOTICE_HOURS - 1);
+
+    $component = livewire(LatestAppointmentsWidget::class)
+        ->callAction('cancelAppointment', arguments: ['appointment' => $appointment->getKey()])
+        ->assertActionMounted('cancelledConfirmation');
+
+    expect($component->instance()->mountedActions[0]['arguments']['keepsCredit'])->toBeFalse();
+});
+
+it('shows the cancelled appointment and credit state on the confirmation content', function (): void {
+    $appointment = appointmentIn(AppointmentStatus::CANCELLATION_NOTICE_HOURS + 1);
+
+    $render = fn (bool $keepsCredit): string => view('filament.app.appointments.cancelled-confirmation-modal', [
+        'appointment' => $appointment,
+        'keepsCredit' => $keepsCredit,
+    ])->render();
+
+    expect($render(true))
+        ->toContain(__('panel-app::resources.appointments.cancel.confirmed.appointment_cancelled'))
+        ->toContain($appointment->category_type->getLabel())
+        ->toContain($appointment->appointment_at->format('d/m/y - H:i'))
+        ->toContain(__('panel-app::resources.appointments.cancel.confirmed.credit_processing'));
+
+    // Fora do prazo o crédito não volta, então a linha de crédito some.
+    expect($render(false))
+        ->not->toContain(__('panel-app::resources.appointments.cancel.confirmed.credit_processing'));
+});

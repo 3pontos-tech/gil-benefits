@@ -18,10 +18,13 @@ use Livewire\Attributes\On;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Actions\CancelAppointmentAction;
+use TresPontosTech\PanelApp\Filament\Concerns\ConfirmsAppointmentCancellation;
+use TresPontosTech\PanelApp\Filament\Contracts\ShowsCancelledConfirmation;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 
-class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas
+class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas, ShowsCancelledConfirmation
 {
+    use ConfirmsAppointmentCancellation;
     use InteractsWithActions;
     use InteractsWithSchemas;
 

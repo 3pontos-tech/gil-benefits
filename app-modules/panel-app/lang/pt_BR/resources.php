@@ -16,6 +16,13 @@ return [
             'modal_submit_label' => 'Confirmar',
             'modal_cancel_label' => 'Cancelar',
             'success' => 'Agendamento cancelado com sucesso.',
+            'confirmed' => [
+                'heading' => 'Cancelamento confirmado!',
+                'description' => 'Sua consulta foi cancelada com sucesso. Caso aplicável, o crédito será restituído conforme as regras de cancelamento.',
+                'appointment_cancelled' => 'Consulta cancelada.',
+                'credit_processing' => 'Crédito em processamento',
+                'finish' => 'Finalizar',
+            ],
         ],
         'records' => [
             'view' => [

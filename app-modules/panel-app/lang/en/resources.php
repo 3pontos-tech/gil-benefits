@@ -16,6 +16,13 @@ return [
             'modal_submit_label' => 'Confirm',
             'modal_cancel_label' => 'Cancel',
             'success' => 'Appointment cancelled successfully.',
+            'confirmed' => [
+                'heading' => 'Cancellation confirmed!',
+                'description' => 'Your appointment was cancelled successfully. Where applicable, the credit will be refunded according to the cancellation rules.',
+                'appointment_cancelled' => 'Appointment cancelled.',
+                'credit_processing' => 'Credit processing',
+                'finish' => 'Finish',
+            ],
         ],
         'records' => [
             'view' => [
