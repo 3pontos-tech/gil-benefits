@@ -141,6 +141,16 @@ class Appointment extends Model
         return $this->status === AppointmentStatus::Active;
     }
 
+    /**
+     * O usuário pode remarcar enquanto a consulta ainda não aconteceu e falta
+     * mais que o aviso mínimo — depois disso o caminho é cancelar.
+     */
+    public function canBeRescheduledByUser(): bool
+    {
+        return in_array($this->status, [AppointmentStatus::Pending, AppointmentStatus::Active], strict: true)
+            && now()->diffInHours($this->appointment_at, absolute: false) >= AppointmentStatus::RESCHEDULE_NOTICE_HOURS;
+    }
+
     protected function casts(): array
     {
         return [

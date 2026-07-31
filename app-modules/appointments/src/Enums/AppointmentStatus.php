@@ -25,6 +25,12 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
      */
     public const CANCELLATION_NOTICE_HOURS = 24;
 
+    /**
+     * Antecedência mínima para o usuário reagendar. Com menos que isso do
+     * horário marcado, o reagendamento fecha e resta cancelar.
+     */
+    public const RESCHEDULE_NOTICE_HOURS = 4;
+
     case Pending = 'pending';
 
     case Active = 'active';
