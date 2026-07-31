@@ -2,14 +2,20 @@
 
 namespace TresPontosTech\IntegrationGoogleCalendar;
 
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Http;
+use Throwable;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
 use TresPontosTech\IntegrationGoogleCalendar\Responses\CalendarEventsResponse;
 use TresPontosTech\IntegrationGoogleCalendar\Responses\CreateEventResponse;
 
 class GoogleCalendarClient
 {
+    private const int CONNECT_TIMEOUT_SECONDS = 5;
+
     /**
      * @var array<string, mixed>
      */
@@ -22,10 +28,11 @@ class GoogleCalendarClient
 
     public function getAccessToken(string $email): string
     {
-        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
-            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion' => $this->buildJwt($email),
-        ]);
+        $response = $this->retryOnConnectionFailure(Http::asForm())
+            ->post('https://oauth2.googleapis.com/token', [
+                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                'assertion' => $this->buildJwt($email),
+            ]);
 
         $error = $response->json('error');
 
@@ -74,12 +81,12 @@ class GoogleCalendarClient
             urlencode($calendarId)
         );
 
-        $response = Http::withToken($accessToken)->get($url, $params);
+        $response = $this->retryOnConnectionFailure(Http::withToken($accessToken))->get($url, $params);
 
         if ($response->failed()) {
-            throw new GoogleCalendarApiException(
+            throw $this->apiException(
+                $response,
                 sprintf('Failed to list events for %s: %s', $calendarId, $response->body()),
-                $response->status(),
             );
         }
 
@@ -87,6 +94,10 @@ class GoogleCalendarClient
     }
 
     /**
+     * Deliberately not retried on connection failure: the payload carries no event id, so a timed
+     * out request that Google actually processed would be turned into a duplicate event on the
+     * consultant's calendar. A lost create is recovered by the queue instead.
+     *
      * @param  array<string, mixed>  $eventData
      */
     public function createEvent(string $accessToken, string $calendarId, array $eventData): CreateEventResponse
@@ -99,9 +110,9 @@ class GoogleCalendarClient
         $response = Http::withToken($accessToken)->post($url, $eventData);
 
         if ($response->failed()) {
-            throw new GoogleCalendarApiException(
+            throw $this->apiException(
+                $response,
                 sprintf('Failed to create event for %s: %s', $calendarId, $response->body()),
-                $response->status(),
             );
         }
 
@@ -119,12 +130,12 @@ class GoogleCalendarClient
             urlencode($eventId)
         );
 
-        $response = Http::withToken($accessToken)->patch($url, $eventData);
+        $response = $this->retryOnConnectionFailure(Http::withToken($accessToken))->patch($url, $eventData);
 
         if ($response->failed()) {
-            throw new GoogleCalendarApiException(
+            throw $this->apiException(
+                $response,
                 sprintf('Failed to patch event %s for %s: %s', $eventId, $calendarId, $response->body()),
-                $response->status(),
             );
         }
     }
@@ -137,14 +148,73 @@ class GoogleCalendarClient
             urlencode($eventId)
         );
 
-        $response = Http::withToken($accessToken)->delete($url);
+        $response = $this->retryOnConnectionFailure(Http::withToken($accessToken))->delete($url);
 
         if ($response->failed() && $response->status() !== 410) {
-            throw new GoogleCalendarApiException(
+            throw $this->apiException(
+                $response,
                 sprintf('Failed to delete event %s for %s: %s', $eventId, $calendarId, $response->body()),
-                $response->status(),
             );
         }
+    }
+
+    /**
+     * Retry the request in-process when the connection itself fails (DNS, TLS handshake or read
+     * timeout), so a transient blip is healed within the same job attempt instead of failing it.
+     *
+     * Only network failures are retried: `throw: false` plus the callback below keep HTTP error
+     * responses flowing back to the callers, which classify them via apiException(). Callers must
+     * only use this for requests that are safe to repeat.
+     *
+     * The handshake timeout is tightened from the framework's 10s default to bound the total retry
+     * budget: a hanging TLS connect costs the full timeout on every attempt, so 3 attempts at 10s
+     * would leave a panel request pending for half a minute. The read timeout keeps its default —
+     * the failure being retried here is the connection, and a full page of events is legitimately
+     * slower than a handshake.
+     */
+    private function retryOnConnectionFailure(PendingRequest $request): PendingRequest
+    {
+        return $request
+            ->connectTimeout(self::CONNECT_TIMEOUT_SECONDS)
+            ->retry(
+                times: max(1, config()->integer('google-calendar.connection_retry_times')),
+                sleepMilliseconds: max(0, config()->integer('google-calendar.connection_retry_delay_ms')),
+                when: fn (Throwable $throwable): bool => $throwable instanceof ConnectionException,
+                throw: false,
+            );
+    }
+
+    /**
+     * Wrap a failed API response, marking permanent Google-side conditions as non-retryable so
+     * queued jobs skip them instead of burning every attempt and alerting.
+     */
+    private function apiException(Response $response, string $message): GoogleCalendarApiException
+    {
+        return new GoogleCalendarApiException(
+            $message,
+            $response->status(),
+            retryable: ! $this->isNotACalendarUser($response),
+        );
+    }
+
+    /**
+     * The consultant exists in the Workspace directory (token exchange succeeded) but Google
+     * Calendar is not enabled for the account — suspended, unlicensed, or service turned off.
+     * Retrying never resolves it.
+     */
+    private function isNotACalendarUser(Response $response): bool
+    {
+        if ($response->status() !== 403) {
+            return false;
+        }
+
+        $errors = $response->json('error.errors', []);
+
+        if (! is_array($errors)) {
+            return false;
+        }
+
+        return in_array('notACalendarUser', array_column($errors, 'reason'), true);
     }
 
     private function buildJwt(string $email): string
