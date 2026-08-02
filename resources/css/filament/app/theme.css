@@ -272,6 +272,26 @@
     }
 }
 
+/*
+ * Botões primary preenchidos no tema claro.
+ *
+ * O primary da marca (#F1785A) é claro, então o algoritmo de contraste do
+ * Filament escolhe fundo 400 com texto escuro no claro — enquanto o danger
+ * (Reagendar) sai 600 com texto branco. Resultado: "Novo agendamento" pálido
+ * ao lado de um "Reagendar" vivo. Aqui os preenchidos primary passam a usar as
+ * MESMAS variáveis do danger no claro; por serem var(), não há como divergirem.
+ *
+ * Só os preenchidos: links (.fi-link) não têm .fi-btn e os contornados ficam
+ * de fora pelo :not(.fi-outlined). O escuro não muda (lá 600 já dá contraste
+ * com texto branco e o par com o Reagendar sempre foi próximo).
+ */
+:root:not(.dark) .fi-btn.fi-color-primary:not(.fi-outlined) {
+    --bg: var(--danger-600);
+    --hover-bg: var(--danger-500);
+    --text: #fff;
+    --hover-text: #fff;
+}
+
 .scrollbar-hidden::-webkit-scrollbar {
     display: none;
 }
