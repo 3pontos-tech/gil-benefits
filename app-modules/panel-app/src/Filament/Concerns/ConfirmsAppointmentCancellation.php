@@ -55,7 +55,7 @@ trait ConfirmsAppointmentCancellation
             ->extraModalWindowAttributes(['class' => 'fi-cancelled-confirmation-modal'])
             ->modalContent(fn (array $arguments): ?View => $this->cancelledConfirmationContent($arguments))
             // O único papel do "Finalizar" é fechar; o cancelamento já ocorreu.
-            ->action(fn () => null);
+            ->action(fn (): null => null);
     }
 
     /**

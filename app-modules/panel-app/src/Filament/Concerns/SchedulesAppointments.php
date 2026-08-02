@@ -173,7 +173,7 @@ trait SchedulesAppointments
                 ]);
             })
             // Fechar é o único papel do botão; o agendamento já foi criado.
-            ->action(fn () => null);
+            ->action(fn (): null => null);
     }
 
     /**

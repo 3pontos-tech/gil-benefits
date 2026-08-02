@@ -28,7 +28,7 @@ return [
             'action_label' => 'New appointment',
             'next' => 'Next',
             'category' => [
-                'heading' => 'Let\'s book your consultation?',
+                'heading' => "Let's book your consultation?",
                 'description' => 'Choose the category of your appointment.',
             ],
             'slot' => [
@@ -64,7 +64,7 @@ return [
             'slot_unavailable' => 'The chosen time is no longer available. Pick another time.',
             'failed' => 'Failed to reschedule the consultation.',
             'intro' => [
-                'heading' => 'Let\'s reschedule your consultation?',
+                'heading' => "Let's reschedule your consultation?",
                 'description' => 'You can reschedule your consultation up to :hours hours before the scheduled time.',
                 'keeps_current_slot' => 'Your current time is kept until the new booking is confirmed',
             ],

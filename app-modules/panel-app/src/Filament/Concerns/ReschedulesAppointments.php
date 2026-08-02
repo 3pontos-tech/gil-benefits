@@ -195,7 +195,7 @@ trait ReschedulesAppointments
                 ]);
             })
             // Fechar é o único papel do botão; o reagendamento já aconteceu.
-            ->action(fn () => null);
+            ->action(fn (): null => null);
     }
 
     /**

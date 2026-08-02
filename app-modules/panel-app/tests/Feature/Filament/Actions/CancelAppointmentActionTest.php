@@ -27,10 +27,7 @@ function appointmentIn(int $hours): Appointment
 
 function cancelActionFor(Appointment $appointment): CancelAppointmentAction
 {
-    /** @var CancelAppointmentAction $action */
-    $action = CancelAppointmentAction::make('cancelAppointment')->record($appointment);
-
-    return $action;
+    return CancelAppointmentAction::make('cancelAppointment')->record($appointment);
 }
 
 it('renders the heading, description and button labels from the design', function (): void {

@@ -147,7 +147,7 @@ it('renders no cancel button once the appointment has passed', function (): void
 
     livewire(LatestAppointmentsWidget::class)
         ->assertSuccessful()
-        ->assertDontSee('mountAction(\'cancelAppointment\'', false);
+        ->assertDontSee("mountAction('cancelAppointment'", false);
 });
 
 it('caps the list at five appointments', function (): void {

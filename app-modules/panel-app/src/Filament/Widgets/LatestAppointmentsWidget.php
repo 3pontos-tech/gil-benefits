@@ -80,9 +80,6 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
     private ?Collection $cachedAppointments = null;
 
     /**
-     * @return Collection<int, Appointment>
-     */
-    /**
      * As consultorias mais próximas de agora — as que estão por vir e as que
      * acabaram de passar.
      *
@@ -105,14 +102,14 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
         $upcoming = $user->appointments()
             ->with('consultant')
             ->where('appointment_at', '>=', $now)
-            ->orderBy('appointment_at')
+            ->oldest('appointment_at')
             ->limit(self::LIMIT)
             ->get();
 
         $past = $user->appointments()
             ->with('consultant')
             ->where('appointment_at', '<', $now)
-            ->orderByDesc('appointment_at')
+            ->latest('appointment_at')
             ->limit(self::LIMIT)
             ->get();
 
