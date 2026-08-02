@@ -14,6 +14,8 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -47,6 +49,11 @@ class AppPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->globalSearch(false)
+            // Alternador claro/escuro na topbar, entre o sino e o avatar.
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn (): ViewContract => view('filament.app.topbar.theme-toggle'),
+            )
             ->navigationItems([
                 NavigationItem::make(__('all.my_profile'))
                     ->icon(Heroicon::UserCircle)
