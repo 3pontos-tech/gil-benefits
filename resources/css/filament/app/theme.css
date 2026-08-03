@@ -130,6 +130,13 @@
     }
 }
 
+/* Passos dos wizards de agendamento e reagendamento: a descrição encostava na
+   régua do conteúdo. Variante própria para não alcançar os modais de
+   cancelamento, que compartilham o esqueleto. */
+.fi-apt-wizard-modal-roomy-header .fi-modal-header {
+    padding-bottom: 32px;
+}
+
 .fi-apt-wizard-modal-danger .fi-modal-icon-bg {
     border-color: rgb(from var(--danger-500) r g b / 0.4);
 }

@@ -49,7 +49,7 @@ trait SchedulesAppointments
             ->modalDescription(__('panel-app::resources.appointments.schedule.category.description'))
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.schedule.next'))
             ->modalCancelActionLabel(__('panel-app::resources.appointments.cancel.modal_cancel_label'))
-            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal'])
+            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-roomy-header'])
             ->mountUsing(function (Schema $schema): void {
                 /** @var User $user */
                 $user = auth()->user();
@@ -87,7 +87,7 @@ trait SchedulesAppointments
             ->modalDescription(__('panel-app::resources.appointments.schedule.slot.description'))
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.schedule.next'))
             ->modalCancelActionLabel(__('panel-app::resources.appointments.cancel.modal_cancel_label'))
-            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal'])
+            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-roomy-header'])
             ->schema(PickSlotStep::fields())
             ->action(function (array $data, array $arguments): void {
                 $this->replaceMountedAction('scheduleReview', [
@@ -108,7 +108,7 @@ trait SchedulesAppointments
             ->modalDescription(__('panel-app::resources.appointments.schedule.review.description'))
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.schedule.review.submit'))
             ->modalCancelActionLabel(__('panel-app::resources.appointments.cancel.modal_cancel_label'))
-            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal'])
+            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-roomy-header'])
             ->modalContent(fn (array $arguments): View => view(
                 'filament.app.appointments.wizard.review-rows',
                 [
@@ -172,7 +172,7 @@ trait SchedulesAppointments
             ->modalDescription(__('panel-app::resources.appointments.schedule.confirmed.description'))
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.schedule.confirmed.back_home'))
             ->modalCancelAction(false)
-            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-success fi-apt-wizard-modal-footer-full'])
+            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-success fi-apt-wizard-modal-footer-full fi-apt-wizard-modal-roomy-header'])
             ->modalContent(function (array $arguments): ?View {
                 $category = AppointmentCategoryEnum::tryFrom($arguments['category_type'] ?? '');
 

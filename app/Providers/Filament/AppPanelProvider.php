@@ -37,28 +37,27 @@ class AppPanelProvider extends PanelProvider
             ->login(LoginPage::class)
             ->profile(EditUserProfile::class)
             ->colors([
-                // Vermelho forte da marca (#FD0342, o --brand-primary do tema
-                // guest e o início do gradiente do cartão de créditos).
+                // Laranja da marca (#E2410A, o orange-primary do tema guest).
                 //
-                // A paleta é manual porque Color::hex() só aproveita o matiz do
-                // hex — luminosidade e croma vêm de uma régua fixa que satura em
-                // ~0.17, então o #FD0342 (croma 0.252) nunca apareceria e os
-                // botões reprovariam no contraste AA, caindo em fundo claro com
-                // texto escuro. Esta régua copia L/C da Color::Red (cujo 600
-                // passa AA com texto branco) no matiz da marca, com o 500
-                // pinado no #FD0342 exato.
+                // Régua manual pelo mesmo motivo da paleta vermelha anterior:
+                // Color::hex() só aproveita o matiz e não devolveria o tom exato.
+                // Esta régua copia L/C da Color::Orange no matiz da marca, mas o
+                // hex é pinado no 600 — não no 500, como no vermelho — porque a
+                // luminosidade do #E2410A (0.608) é de um 600; no 500 a régua
+                // sairia da ordem. O 600 também é o tom dos botões no tema claro,
+                // então a cor da marca aparece literal onde mais se vê.
                 'primary' => [
-                    50 => 'oklch(0.971 0.013 20.328)',
-                    100 => 'oklch(0.936 0.032 20.328)',
-                    200 => 'oklch(0.885 0.062 20.328)',
-                    300 => 'oklch(0.808 0.114 20.328)',
-                    400 => 'oklch(0.704 0.191 20.328)',
-                    500 => 'oklch(0.629 0.252 20.328)',
-                    600 => 'oklch(0.577 0.245 20.328)',
-                    700 => 'oklch(0.505 0.213 20.328)',
-                    800 => 'oklch(0.444 0.177 20.328)',
-                    900 => 'oklch(0.396 0.141 20.328)',
-                    950 => 'oklch(0.258 0.092 20.328)',
+                    50 => 'oklch(0.980 0.016 35.769)',
+                    100 => 'oklch(0.954 0.038 35.769)',
+                    200 => 'oklch(0.901 0.076 35.769)',
+                    300 => 'oklch(0.837 0.128 35.769)',
+                    400 => 'oklch(0.750 0.183 35.769)',
+                    500 => 'oklch(0.705 0.213 35.769)',
+                    600 => 'oklch(0.608 0.205 35.769)',
+                    700 => 'oklch(0.553 0.195 35.769)',
+                    800 => 'oklch(0.470 0.157 35.769)',
+                    900 => 'oklch(0.408 0.123 35.769)',
+                    950 => 'oklch(0.266 0.079 35.769)',
                 ],
             ])
             ->registration(UserRegistration::class)

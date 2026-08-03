@@ -51,7 +51,7 @@ trait ReschedulesAppointments
             ]))
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.reschedule.next'))
             ->modalCancelActionLabel(__('panel-app::resources.appointments.cancel.modal_cancel_label'))
-            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-danger'])
+            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-danger fi-apt-wizard-modal-roomy-header'])
             ->modalContent(function (array $arguments): ?View {
                 $appointment = $this->resolveReschedulable($arguments);
 
@@ -85,7 +85,7 @@ trait ReschedulesAppointments
             ->modalDescription(__('panel-app::resources.appointments.reschedule.slot.description'))
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.reschedule.next'))
             ->modalCancelActionLabel(__('panel-app::resources.appointments.cancel.modal_cancel_label'))
-            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-danger'])
+            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-danger fi-apt-wizard-modal-roomy-header'])
             ->modalContent(function (array $arguments): ?View {
                 $appointment = $this->resolveReschedulable($arguments);
 
@@ -123,7 +123,7 @@ trait ReschedulesAppointments
             ->modalDescription(__('panel-app::resources.appointments.reschedule.review.description'))
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.reschedule.review.submit'))
             ->modalCancelActionLabel(__('panel-app::resources.appointments.cancel.modal_cancel_label'))
-            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-danger'])
+            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-danger fi-apt-wizard-modal-roomy-header'])
             ->modalContent(fn (array $arguments): View => view(
                 'filament.app.appointments.wizard.review-rows',
                 [
@@ -223,7 +223,7 @@ trait ReschedulesAppointments
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.reschedule.confirmed.finish'))
             ->modalCancelAction(false)
             ->modalFooterActionsAlignment(Alignment::End)
-            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-success fi-apt-wizard-modal-footer-end'])
+            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-success fi-apt-wizard-modal-footer-end fi-apt-wizard-modal-roomy-header'])
             ->modalContent(function (array $arguments): ?View {
                 $appointment = $this->resolveOwnedAppointment($arguments);
 
