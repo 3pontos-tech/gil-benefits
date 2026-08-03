@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
@@ -28,8 +29,8 @@ function reschedulableAppointment(int $hoursAhead = 72): Appointment
 }
 
 it('offers rescheduling only while the notice period still holds', function (): void {
-    $open = reschedulableAppointment(AppointmentStatus::RESCHEDULE_NOTICE_HOURS + 2);
-    $closed = reschedulableAppointment(AppointmentStatus::RESCHEDULE_NOTICE_HOURS - 1);
+    $open = reschedulableAppointment(Appointment::RESCHEDULE_WINDOW_HOURS + 2);
+    $closed = reschedulableAppointment(Appointment::RESCHEDULE_WINDOW_HOURS - 1);
 
     $completed = Appointment::factory()
         ->withStatus(AppointmentStatus::Completed)
@@ -85,7 +86,8 @@ it('reschedules on the summary confirmation and records the history', function (
         ->firstOrFail();
 
     expect($history->action_type)->toBe(AppointmentHistoryActionType::ReScheduled)
-        ->and($history->admin_id)->toBe($this->employee->getKey());
+        ->and($history->actor_id)->toBe($this->employee->getKey())
+        ->and($history->actor_type)->toBe(AppointmentHistoryActor::User);
 });
 
 it('restores the appointment when the schedule sync fails unexpectedly', function (): void {
@@ -137,7 +139,7 @@ it('keeps the current time until the summary is confirmed', function (): void {
 });
 
 it('refuses to reschedule inside the notice period', function (): void {
-    $appointment = reschedulableAppointment(AppointmentStatus::RESCHEDULE_NOTICE_HOURS - 1);
+    $appointment = reschedulableAppointment(Appointment::RESCHEDULE_WINDOW_HOURS - 1);
     $previousAt = $appointment->appointment_at->toDateTimeString();
 
     livewire(LatestAppointmentsWidget::class)

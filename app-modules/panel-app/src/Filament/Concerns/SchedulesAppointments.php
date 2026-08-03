@@ -19,7 +19,7 @@ use Throwable;
 use TresPontosTech\Appointments\Actions\BookAppointmentAction;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
-use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\PickSlotStep;
 
 /**
@@ -113,7 +113,7 @@ trait SchedulesAppointments
                 [
                     'rows' => $this->scheduleReviewRows($arguments),
                     'notice' => __('panel-app::resources.appointments.schedule.review.notice', [
-                        'hours' => AppointmentStatus::RESCHEDULE_NOTICE_HOURS,
+                        'hours' => Appointment::RESCHEDULE_WINDOW_HOURS,
                     ]),
                 ],
             ))

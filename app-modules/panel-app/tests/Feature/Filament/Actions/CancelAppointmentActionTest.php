@@ -56,7 +56,7 @@ it('shows which appointment is about to be cancelled', function (): void {
 });
 
 it('promises the credit back while the notice period still holds', function (): void {
-    $hours = AppointmentStatus::CANCELLATION_NOTICE_HOURS;
+    $hours = Appointment::CANCELLATION_WINDOW_HOURS;
 
     $html = cancelActionFor(appointmentIn($hours + 1))->getModalContent()->render();
 
@@ -67,7 +67,7 @@ it('promises the credit back while the notice period still holds', function (): 
 });
 
 it('warns the credit is lost once inside the notice period', function (): void {
-    $hours = AppointmentStatus::CANCELLATION_NOTICE_HOURS;
+    $hours = Appointment::CANCELLATION_WINDOW_HOURS;
 
     $html = cancelActionFor(appointmentIn($hours - 1))->getModalContent()->render();
 
@@ -78,7 +78,7 @@ it('warns the credit is lost once inside the notice period', function (): void {
 });
 
 it('returns the credit when cancelled before the notice period', function (): void {
-    $appointment = appointmentIn(AppointmentStatus::CANCELLATION_NOTICE_HOURS + 1);
+    $appointment = appointmentIn(Appointment::CANCELLATION_WINDOW_HOURS + 1);
 
     $credit = UserCredit::factory()->create([
         'owner_id' => $this->employee->getKey(),
@@ -98,7 +98,7 @@ it('returns the credit when cancelled before the notice period', function (): vo
 });
 
 it('consumes the credit when cancelled inside the notice period', function (): void {
-    $appointment = appointmentIn(AppointmentStatus::CANCELLATION_NOTICE_HOURS - 1);
+    $appointment = appointmentIn(Appointment::CANCELLATION_WINDOW_HOURS - 1);
 
     $credit = UserCredit::factory()->create([
         'owner_id' => $this->employee->getKey(),
@@ -117,7 +117,7 @@ it('consumes the credit when cancelled inside the notice period', function (): v
 });
 
 it('opens the success confirmation for the cancelled appointment', function (): void {
-    $appointment = appointmentIn(AppointmentStatus::CANCELLATION_NOTICE_HOURS + 1);
+    $appointment = appointmentIn(Appointment::CANCELLATION_WINDOW_HOURS + 1);
 
     $component = livewire(LatestAppointmentsWidget::class)
         ->callAction('cancelAppointment', arguments: ['appointment' => $appointment->getKey()])
@@ -176,7 +176,7 @@ it('refuses to render the confirmation while the appointment is not cancelled', 
 });
 
 it('shows the cancelled appointment and credit state on the confirmation content', function (): void {
-    $appointment = appointmentIn(AppointmentStatus::CANCELLATION_NOTICE_HOURS + 1);
+    $appointment = appointmentIn(Appointment::CANCELLATION_WINDOW_HOURS + 1);
 
     $render = fn (bool $keepsCredit): string => view('filament.app.appointments.cancelled-confirmation-modal', [
         'appointment' => $appointment,

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Notification as LaravelNotification;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\CreateAppointment;
 use Zap\Enums\ScheduleTypes;
@@ -51,6 +52,44 @@ it('creates a pending appointment without requiring a consultant', function (): 
     )->toBeFalse();
 
     Bus::assertNotDispatched(CreateAppointmentCalendarEventJob::class);
+});
+
+function createAppointmentViaAdmin(User $user): void
+{
+    livewire(CreateAppointment::class)
+        ->fillForm([
+            'user_id' => $user->id,
+            'category_type' => AppointmentCategoryEnum::PersonalFinance->value,
+            'appointment_at' => Date::now()->addDays(3)->setTime(10, 0)->toDateTimeString(),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+}
+
+it('attributes the appointment to the employer, not to the default company', function (): void {
+    // Every registered user is also attached to the shared default company, so the
+    // employer is only unambiguous once that one is discarded.
+    $user = User::factory()->create();
+    $flamma = Company::factory()->create(['slug' => Company::DEFAULT_SLUG]);
+    $employer = Company::factory()->create();
+    $flamma->employees()->attach($user->getKey());
+    $employer->employees()->attach($user->getKey());
+
+    createAppointmentViaAdmin($user);
+
+    expect(Appointment::query()->where('user_id', $user->id)->value('company_id'))
+        ->toBe($employer->getKey());
+});
+
+it('falls back to the default company when the user belongs to nothing else', function (): void {
+    $user = User::factory()->create();
+    $flamma = Company::factory()->create(['slug' => Company::DEFAULT_SLUG]);
+    $flamma->employees()->attach($user->getKey());
+
+    createAppointmentViaAdmin($user);
+
+    expect(Appointment::query()->where('user_id', $user->id)->value('company_id'))
+        ->toBe($flamma->getKey());
 });
 
 it('does not expose the consultant field on the create form', function (): void {

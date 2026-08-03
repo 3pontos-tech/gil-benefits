@@ -104,9 +104,10 @@
 
                                 {{-- Os tamanhos do fi-btn param em text-sm (14px), então o
                                      16px pedido vem de uma classe explícita. --}}
-                                @if($row['needsRescheduling'])
-                                    {{-- Cancelada ou perdida não tem horário a mover:
-                                         "reagendar" aqui abre o wizard de novo agendamento. --}}
+                                @if($row['canRebook'])
+                                    {{-- Cancelada com data ainda futura: "reagendar" abre o
+                                         wizard de novo agendamento. Data passada não oferece
+                                         ação — a linha mostra só o estado. --}}
                                     <x-filament::button
                                         wire:click="mountAction('scheduleAppointment')"
                                         size="sm"
@@ -130,8 +131,9 @@
                                 @else
                                     <span @class([
                                         'inline-flex items-center gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-[16px] font-medium',
+                                        'bg-danger-500/10 text-danger-600 dark:text-danger-400' => $row['needsRescheduling'],
                                         'bg-info-500/10 text-info-600 dark:text-info-400' => $row['isPending'],
-                                        'bg-success-500/10 text-success-600 dark:text-success-400' => ! $row['isPending'],
+                                        'bg-success-500/10 text-success-600 dark:text-success-400' => ! $row['isPending'] && ! $row['needsRescheduling'],
                                     ])>
                                         @if($row['isPending'])
                                             <x-filament::loading-indicator class="size-4 shrink-0"/>

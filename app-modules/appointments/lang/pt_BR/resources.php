@@ -102,7 +102,7 @@ return [
             ],
             'user_cancelled_late' => [
                 'title' => 'Agendamento Cancelado',
-                'body' => 'Seu agendamento foi cancelado. Como o cancelamento foi feito com menos de 24 horas de antecedência, o crédito foi consumido.',
+                'body' => 'Seu agendamento foi cancelado. Como o cancelamento foi feito com menos de :hours horas de antecedência, o crédito foi consumido.',
             ],
             'pending' => [
                 'title' => 'Agendamento em Andamento',

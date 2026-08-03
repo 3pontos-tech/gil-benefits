@@ -17,20 +17,6 @@ use TresPontosTech\Appointments\Models\Appointment;
 
 enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
 {
-    /**
-     * Antecedência mínima para o cancelamento devolver o crédito. Cancelar com
-     * menos que isso consome o crédito (CancelledLate).
-     *
-     * É constante para que a tela possa citar o prazo sem repetir o número.
-     */
-    public const CANCELLATION_NOTICE_HOURS = 24;
-
-    /**
-     * Antecedência mínima para o usuário reagendar. Com menos que isso do
-     * horário marcado, o reagendamento fecha e resta cancelar.
-     */
-    public const RESCHEDULE_NOTICE_HOURS = 4;
-
     case Pending = 'pending';
 
     case Active = 'active';
@@ -87,8 +73,6 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
             return self::Cancelled;
         }
 
-        $hoursUntil = now()->diffInHours($appointment->appointment_at, absolute: false);
-
-        return $hoursUntil >= self::CANCELLATION_NOTICE_HOURS ? self::Cancelled : self::CancelledLate;
+        return $appointment->isLateCancellation() ? self::CancelledLate : self::Cancelled;
     }
 }

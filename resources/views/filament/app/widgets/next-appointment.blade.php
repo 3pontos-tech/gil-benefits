@@ -61,7 +61,7 @@
                     @endif
                 </div>
 
-                @if($appointment->canBeRescheduledByUser())
+                @if($appointment->canBeRescheduled())
                     <div class="shrink-0">
                         {{ ($this->rescheduleAppointmentAction)(['appointment' => $appointment->getKey()]) }}
                     </div>

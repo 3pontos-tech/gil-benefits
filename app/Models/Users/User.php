@@ -185,6 +185,19 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
+     * The company this person actually belongs to.
+     *
+     * Every registered user is also attached to the shared default company, so a plain
+     * "first company" would be a coin flip. Skip it and the real employer is what is
+     * left; users who have nothing else fall back to the default company itself.
+     */
+    public function employerCompanyId(): ?string
+    {
+        return $this->companies()->where('slug', '!=', Company::DEFAULT_SLUG)->value('companies.id')
+            ?? $this->companies()->value('companies.id');
+    }
+
+    /**
      * @return BelongsToMany<Company, $this, TenantMember>
      */
     public function companies(): BelongsToMany

@@ -45,7 +45,19 @@ readonly class RedirectUserIfNotSubscribed
             $hasActiveSubscription = true;
         }
 
-        abort_unless($hasActiveSubscription, 403);
+        // Company never paid or cancelled its plan: the member cannot fix the
+        // billing themselves, so instead of a bare 403 we send them to a page
+        // that explains the situation (ÉPICO 56).
+        if (! $hasActiveSubscription) {
+            $inactiveRoute = 'filament.app.pages.company-plan-inactive';
+
+            if ($request->routeIs($inactiveRoute)) {
+                return $next($request);
+            }
+
+            return to_route($inactiveRoute, ['tenant' => $tenant->slug]);
+        }
+
         $employee = auth()->user();
 
         // TODO: Employee needs to pick a plan to continue

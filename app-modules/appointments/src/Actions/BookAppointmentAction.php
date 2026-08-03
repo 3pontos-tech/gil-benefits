@@ -25,6 +25,10 @@ readonly class BookAppointmentAction
         $appointment = $user->appointments()->create([
             ...$payload->jsonSerialize(),
             'status' => AppointmentStatus::Pending,
+            // Which company's benefit programme this session belongs to, so it reaches that
+            // company's reporting. The panel passes the tenant being booked under; fall back
+            // to the employee's membership for callers with no tenant in hand.
+            'company_id' => $payload->companyId ?? $user->employerCompanyId(),
         ]);
 
         if (! $hasMonthlyQuota) {

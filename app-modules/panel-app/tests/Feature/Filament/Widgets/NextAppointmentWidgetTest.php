@@ -110,7 +110,7 @@ it('hides the reschedule trigger once inside the notice period', function (): vo
         ->withStatus(AppointmentStatus::Pending)
         ->create([
             'user_id' => $this->employee->id,
-            'appointment_at' => now()->addHours(AppointmentStatus::RESCHEDULE_NOTICE_HOURS - 1),
+            'appointment_at' => now()->addHours(Appointment::RESCHEDULE_WINDOW_HOURS - 1),
         ]);
 
     livewire(NextAppointmentWidget::class)

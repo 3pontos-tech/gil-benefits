@@ -14,7 +14,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Date;
 use Throwable;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
-use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\PickSlotStep;
@@ -46,7 +46,7 @@ trait ReschedulesAppointments
             ->modalAlignment(Alignment::Start)
             ->modalHeading(__('panel-app::resources.appointments.reschedule.intro.heading'))
             ->modalDescription(__('panel-app::resources.appointments.reschedule.intro.description', [
-                'hours' => AppointmentStatus::RESCHEDULE_NOTICE_HOURS,
+                'hours' => Appointment::RESCHEDULE_WINDOW_HOURS,
             ]))
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.reschedule.next'))
             ->modalCancelActionLabel(__('panel-app::resources.appointments.cancel.modal_cancel_label'))
@@ -151,7 +151,7 @@ trait ReschedulesAppointments
                     // Calendar. Num horário indisponível a action reverte o
                     // registro antes de relançar.
                     resolve(SyncAppointmentScheduleAction::class)
-                        ->handle($appointment, $previousConsultantId, $previousAppointmentAt);
+                        ->handle($appointment, $previousConsultantId, $previousAppointmentAt, AppointmentHistoryActor::User);
                 } catch (SlotUnavailableException) {
                     Notification::make()
                         ->title(__('panel-app::resources.appointments.reschedule.slot_unavailable'))
@@ -270,7 +270,7 @@ trait ReschedulesAppointments
     {
         $appointment = $this->resolveOwnedAppointment($arguments);
 
-        if (! $appointment instanceof Appointment || ! $appointment->canBeRescheduledByUser()) {
+        if (! $appointment instanceof Appointment || ! $appointment->canBeRescheduled()) {
             return null;
         }
 

@@ -52,7 +52,7 @@ it('falls back to the category label when no consultant is assigned', function (
         ->assertSee($appointment->category_type->getLabel());
 });
 
-it('offers rescheduling for a cancelled appointment', function (): void {
+it('offers rebooking for a cancelled appointment whose date has not passed', function (): void {
     Appointment::factory()
         ->withStatus(AppointmentStatus::Cancelled)
         ->create([
@@ -65,7 +65,9 @@ it('offers rescheduling for a cancelled appointment', function (): void {
         ->assertSee(__('panel-app::widgets.latest_appointments.reschedule'));
 });
 
-it('offers rescheduling when a pending appointment went past its slot', function (): void {
+it('offers no reschedule button once the date has passed', function (): void {
+    // Perdida (pendente com horário vencido) e cancelada no passado: nos dois
+    // casos a linha mostra só o estado, sem ação de reagendar.
     Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)
         ->create([
@@ -73,9 +75,18 @@ it('offers rescheduling when a pending appointment went past its slot', function
             'appointment_at' => now()->subWeek(),
         ]);
 
-    livewire(LatestAppointmentsWidget::class)
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Cancelled)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->subDay(),
+        ]);
+
+    $component = livewire(LatestAppointmentsWidget::class)
         ->assertSuccessful()
-        ->assertSee(__('panel-app::widgets.latest_appointments.reschedule'));
+        ->assertDontSee(__('panel-app::widgets.latest_appointments.reschedule'));
+
+    expect($component->viewData('rows')->pluck('canRebook')->filter())->toBeEmpty();
 });
 
 it('does not offer rescheduling for a completed appointment', function (): void {

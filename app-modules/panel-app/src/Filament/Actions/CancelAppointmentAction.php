@@ -3,7 +3,6 @@
 namespace TresPontosTech\PanelApp\Filament\Actions;
 
 use Filament\Actions\Action;
-use Filament\Notifications\Notification;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
@@ -59,9 +58,8 @@ class CancelAppointmentAction extends Action
                 'appointment' => $record,
                 // O aviso muda conforme o crédito volte ou não, e o prazo citado
                 // vem da mesma constante que decide isso.
-                'keepsCredit' => AppointmentStatus::resolveCancellationStatus($record, CancellationActor::User)
-                    === AppointmentStatus::Cancelled,
-                'noticeHours' => AppointmentStatus::CANCELLATION_NOTICE_HOURS,
+                'keepsCredit' => ! $record->isLateCancellation(),
+                'noticeHours' => Appointment::CANCELLATION_WINDOW_HOURS,
             ],
         ));
 
@@ -83,18 +81,11 @@ class CancelAppointmentAction extends Action
             // Atualiza a lista por baixo antes de abrir a confirmação de sucesso.
             $livewire->dispatch('appointment-cancelled');
 
-            // Onde o host oferece a tela de sucesso, ela substitui este modal;
-            // do contrário caímos no toast para não deixar a ação sem retorno.
+            // O modal de sucesso é a confirmação; todos os hosts da action
+            // implementam o contrato, então o toast antigo saiu.
             if ($livewire instanceof ShowsCancelledConfirmation) {
                 $livewire->confirmAppointmentCancellation($record);
-
-                return;
             }
-
-            Notification::make()
-                ->title(__('panel-app::resources.appointments.cancel.success'))
-                ->success()
-                ->send();
         });
     }
 }
