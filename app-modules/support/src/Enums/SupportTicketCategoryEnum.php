@@ -9,6 +9,7 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 use Filament\Support\Icons\Heroicon;
+use TresPontosTech\Appointments\Models\Appointment;
 
 enum SupportTicketCategoryEnum: string implements HasColor, HasIcon, HasLabel
 {
@@ -45,15 +46,16 @@ enum SupportTicketCategoryEnum: string implements HasColor, HasIcon, HasLabel
                 self::hintLine('login_access.plan'),
             ],
             self::SchedulingIssue => [
-                self::hintLine('scheduling_issue'),
+                self::hintLine('scheduling_issue', ['hours' => Appointment::CANCELLATION_WINDOW_HOURS]),
             ],
             default => [],
         };
     }
 
-    private static function hintLine(string $key): string
+    /** @param  array<string, string|int>  $replace */
+    private static function hintLine(string $key, array $replace = []): string
     {
-        return __('support::enums.category_hint.' . $key);
+        return __('support::enums.category_hint.' . $key, $replace);
     }
 
     public function getIcon(): Heroicon

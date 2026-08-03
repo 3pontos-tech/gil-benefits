@@ -53,8 +53,9 @@ class AppointmentHistoryRelationManager extends RelationManager
                     ->label(__('panel-admin::resources.appointments.history.columns.summary'))
                     ->state(fn (AppointmentHistory $record): string => $this->summarize($record))
                     ->wrap(),
-                TextColumn::make('admin.name')
-                    ->label(__('panel-admin::resources.appointments.history.columns.admin'))
+                TextColumn::make('author.name')
+                    ->label(__('panel-admin::resources.appointments.history.columns.author'))
+                    ->description(fn (AppointmentHistory $record): string => $record->actor_type->getLabel())
                     ->searchable()
                     ->placeholder($this->emptyPlaceholder()),
                 TextColumn::make('created_at')
@@ -93,7 +94,7 @@ class AppointmentHistoryRelationManager extends RelationManager
                     'actionLabel' => $record->action_type->getLabel(),
                     'actionIcon' => $record->action_type->getIcon(),
                     'actionColor' => $record->action_type->getColor(),
-                    'adminName' => $record->admin->name,
+                    'adminName' => $record->author->name,
                     'happenedAt' => $record->created_at?->format('d/m/Y H:i') ?? $this->emptyPlaceholder(),
                     'changes' => $this->buildChangeRows($record),
                 ]),

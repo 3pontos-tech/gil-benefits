@@ -12,9 +12,20 @@ return [
             'modal_heading_ontime' => 'Cancelar Agendamento',
             'modal_description_ontime' => 'Tem certeza que deseja cancelar? Seu crédito será restaurado.',
             'modal_heading_late' => 'Cancelar Agendamento',
-            'modal_description_late' => 'Atenção: este agendamento ocorre em menos de 24 horas. Ao cancelar, seu crédito do período será consumido. Deseja continuar?',
+            'modal_description_late' => 'Atenção: este agendamento ocorre em menos de :hours horas. Ao cancelar, seu crédito do período será consumido. Deseja continuar?',
             'modal_submit_label' => 'Sim, cancelar',
             'success' => 'Agendamento cancelado com sucesso.',
+        ],
+        'reschedule' => [
+            'action_label' => 'Reagendar',
+            'modal_heading' => 'Reagendar Atendimento',
+            'modal_description' => 'Escolha uma nova data e horário. Se o seu consultor não estiver disponível no horário escolhido, o agendamento voltará para a fila de atribuição.',
+            'modal_submit_label' => 'Confirmar novo horário',
+            'success' => 'Agendamento remarcado com sucesso.',
+            'success_body_kept_consultant' => 'Seu consultor está disponível e foi mantido.',
+            'success_body_unassigned' => 'Seu consultor não estava disponível neste horário. Vamos atribuir um novo consultor e avisaremos você em breve.',
+            'slot_unavailable' => 'Este horário não está mais disponível. Escolha outro.',
+            'calendar_sync_failed' => 'O agendamento foi remarcado, mas a agenda do consultor pode estar dessincronizada.',
         ],
         'records' => [
             'view' => [

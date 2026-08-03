@@ -4,6 +4,7 @@ namespace TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Components\Actions;
@@ -75,7 +76,11 @@ class CreateAppointment extends CreateRecord
         /** @var User $user */
         $user = auth()->user();
 
-        $appointmentDTO = BookAppointmentDTO::make($user->getKey(), $payload);
+        $appointmentDTO = BookAppointmentDTO::make(
+            $user->getKey(),
+            $payload,
+            Filament::getTenant()?->getKey(),
+        );
 
         try {
             resolve(BookAppointmentAction::class)->handle($appointmentDTO);

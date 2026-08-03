@@ -8,6 +8,7 @@ use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
@@ -57,7 +58,7 @@ class EditAppointment extends EditRecord
 
         try {
             $calendarSynced = resolve(SyncAppointmentScheduleAction::class)
-                ->handle($appointment, $this->previousConsultantId, $this->previousAppointmentAt);
+                ->handle($appointment, $this->previousConsultantId, $this->previousAppointmentAt, AppointmentHistoryActor::Admin);
         } catch (SlotUnavailableException) {
             Notification::make()
                 ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))

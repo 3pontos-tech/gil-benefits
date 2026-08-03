@@ -131,10 +131,10 @@ it('queues AppointmentCancelledMail on admin cancellation', function (): void {
     Mail::assertNotQueued(AppointmentUserCancelledLateMail::class);
 });
 
-it('sets status to Cancelled when user cancels >= 24h before appointment', function (): void {
+it('sets status to Cancelled when user cancels >= 4h before appointment', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)
-        ->create(['appointment_at' => now()->addHours(25)]);
+        ->create(['appointment_at' => now()->addHours(5)]);
     actingAs($appointment->user);
 
     (new PendingTransition($appointment))->handle(new TransitionData(
@@ -148,7 +148,7 @@ it('sets status to Cancelled when user cancels >= 24h before appointment', funct
 it('queues AppointmentCancelledMail on user on-time cancellation', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)
-        ->create(['appointment_at' => now()->addHours(25)]);
+        ->create(['appointment_at' => now()->addHours(5)]);
     actingAs($appointment->user);
 
     (new PendingTransition($appointment))->handle(new TransitionData(
@@ -160,10 +160,10 @@ it('queues AppointmentCancelledMail on user on-time cancellation', function (): 
     Mail::assertNotQueued(AppointmentUserCancelledLateMail::class);
 });
 
-it('sets status to CancelledLate when user cancels < 24h before appointment', function (): void {
+it('sets status to CancelledLate when user cancels < 4h before appointment', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)
-        ->create(['appointment_at' => now()->addHours(23)]);
+        ->create(['appointment_at' => now()->addHours(1)]);
     actingAs($appointment->user);
 
     (new PendingTransition($appointment))->handle(new TransitionData(
@@ -177,7 +177,7 @@ it('sets status to CancelledLate when user cancels < 24h before appointment', fu
 it('queues AppointmentUserCancelledLateMail on user late cancellation', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)
-        ->create(['appointment_at' => now()->addHours(23)]);
+        ->create(['appointment_at' => now()->addHours(1)]);
     actingAs($appointment->user);
 
     (new PendingTransition($appointment))->handle(new TransitionData(
@@ -192,7 +192,7 @@ it('queues AppointmentUserCancelledLateMail on user late cancellation', function
 it('fires AppointmentCancelled event on user late cancellation', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)
-        ->create(['appointment_at' => now()->addHours(23)]);
+        ->create(['appointment_at' => now()->addHours(1)]);
     actingAs($appointment->user);
 
     (new PendingTransition($appointment))->handle(new TransitionData(

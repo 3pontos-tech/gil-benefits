@@ -7,6 +7,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\PanelApp\Filament\Actions\CancelAppointmentAction;
 use TresPontosTech\PanelApp\Filament\Actions\FeedbackAction;
+use TresPontosTech\PanelApp\Filament\Actions\RescheduleAppointmentAction;
 use TresPontosTech\PanelApp\Filament\Actions\ViewAppointmentRecordAction;
 
 class AppointmentsTable
@@ -53,6 +54,7 @@ class AppointmentsTable
             ->recordActions([
                 ViewAppointmentRecordAction::make(),
                 FeedbackAction::make(),
+                RescheduleAppointmentAction::make(),
                 CancelAppointmentAction::make(),
             ]);
 

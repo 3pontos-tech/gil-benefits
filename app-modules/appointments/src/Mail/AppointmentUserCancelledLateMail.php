@@ -24,7 +24,7 @@ class AppointmentUserCancelledLateMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('appointments::mail.user_cancelled_late.subject'),
+            subject: __('appointments::mail.user_cancelled_late.subject', ['hours' => Appointment::CANCELLATION_WINDOW_HOURS]),
         );
     }
 
@@ -37,6 +37,7 @@ class AppointmentUserCancelledLateMail extends Mailable implements ShouldQueue
                 'consultantName' => $this->appointment->consultant->name ?? __('appointments::mail.no_consultant'),
                 'appointmentAt' => $this->appointment->appointment_at,
                 'panelUrl' => $this->resolvePanelUrl(),
+                'freeWindowHours' => Appointment::CANCELLATION_WINDOW_HOURS,
             ],
         );
     }
