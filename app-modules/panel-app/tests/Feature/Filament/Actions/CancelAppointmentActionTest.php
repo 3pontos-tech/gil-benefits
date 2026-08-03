@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Users\User;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
@@ -115,7 +116,7 @@ it('consumes the credit when cancelled inside the notice period', function (): v
         ->and($credit->refresh()->status)->not->toBe(UserCreditStatusEnum::Available);
 });
 
-it('opens the success confirmation carrying the kept-credit flag once cancelled in time', function (): void {
+it('opens the success confirmation for the cancelled appointment', function (): void {
     $appointment = appointmentIn(AppointmentStatus::CANCELLATION_NOTICE_HOURS + 1);
 
     $component = livewire(LatestAppointmentsWidget::class)
@@ -124,18 +125,54 @@ it('opens the success confirmation carrying the kept-credit flag once cancelled 
 
     $arguments = $component->instance()->mountedActions[0]['arguments'];
 
-    expect($arguments['appointment'])->toBe($appointment->getKey())
-        ->and($arguments['keepsCredit'])->toBeTrue();
+    // O destino do crédito não viaja mais nos argumentos: ele é derivado do
+    // status persistido ao renderizar, para não confiar em payload do cliente.
+    expect($arguments)->toBe(['appointment' => $appointment->getKey()]);
 });
 
-it('flags the confirmation to consume the credit once cancelled late', function (): void {
-    $appointment = appointmentIn(AppointmentStatus::CANCELLATION_NOTICE_HOURS - 1);
+/**
+ * Renderiza o conteúdo da confirmação como o modal faz, com acesso ao método
+ * privado do trait a partir do escopo do próprio componente.
+ */
+function cancelledConfirmationHtml(array $arguments): ?string
+{
+    $widget = livewire(LatestAppointmentsWidget::class)->instance();
 
-    $component = livewire(LatestAppointmentsWidget::class)
-        ->callAction('cancelAppointment', arguments: ['appointment' => $appointment->getKey()])
-        ->assertActionMounted('cancelledConfirmation');
+    $content = (fn (): mixed => $this->cancelledConfirmationContent($arguments))->call($widget);
 
-    expect($component->instance()->mountedActions[0]['arguments']['keepsCredit'])->toBeFalse();
+    return $content?->render();
+}
+
+it('derives the credit destiny from the persisted status', function (): void {
+    $returned = appointmentIn(72);
+    $returned->update(['status' => AppointmentStatus::Cancelled]);
+
+    $consumed = appointmentIn(72);
+    $consumed->update(['status' => AppointmentStatus::CancelledLate]);
+
+    expect(cancelledConfirmationHtml(['appointment' => $returned->getKey()]))
+        ->toContain(__('panel-app::resources.appointments.cancel.confirmed.credit_processing'))
+        ->and(cancelledConfirmationHtml(['appointment' => $consumed->getKey()]))
+        ->not->toContain(__('panel-app::resources.appointments.cancel.confirmed.credit_processing'));
+});
+
+it('refuses to render the confirmation for an appointment of another user', function (): void {
+    $stranger = User::factory()->employee()->create();
+
+    $foreign = Appointment::factory()
+        ->withStatus(AppointmentStatus::Cancelled)
+        ->create([
+            'user_id' => $stranger->getKey(),
+            'appointment_at' => now()->addWeek(),
+        ]);
+
+    expect(cancelledConfirmationHtml(['appointment' => $foreign->getKey()]))->toBeNull();
+});
+
+it('refuses to render the confirmation while the appointment is not cancelled', function (): void {
+    $appointment = appointmentIn(72);
+
+    expect(cancelledConfirmationHtml(['appointment' => $appointment->getKey()]))->toBeNull();
 });
 
 it('shows the cancelled appointment and credit state on the confirmation content', function (): void {

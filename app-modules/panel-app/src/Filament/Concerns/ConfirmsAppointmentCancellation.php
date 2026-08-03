@@ -9,6 +9,7 @@ use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\View\View;
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 
 /**
@@ -29,11 +30,10 @@ trait ConfirmsAppointmentCancellation
      */
     abstract public function replaceMountedAction(string $name, array $arguments = [], array $context = []): void;
 
-    public function confirmAppointmentCancellation(Appointment $appointment, bool $keepsCredit): void
+    public function confirmAppointmentCancellation(Appointment $appointment): void
     {
         $this->replaceMountedAction('cancelledConfirmation', [
             'appointment' => $appointment->getKey(),
-            'keepsCredit' => $keepsCredit,
         ]);
     }
 
@@ -59,19 +59,31 @@ trait ConfirmsAppointmentCancellation
     }
 
     /**
+     * Os argumentos de uma action montada chegam do cliente, então nada aqui
+     * confia neles: a consulta é restrita ao usuário autenticado e precisa
+     * estar de fato cancelada, e o destino do crédito sai do status persistido
+     * (Cancelled devolve, CancelledLate consome) em vez de vir do payload.
+     *
      * @param  array<string, mixed>  $arguments
      */
     private function cancelledConfirmationContent(array $arguments): ?View
     {
-        $appointment = Appointment::query()->find($arguments['appointment'] ?? null);
+        $appointment = Appointment::query()
+            ->whereKey($arguments['appointment'] ?? null)
+            ->where('user_id', auth()->id())
+            ->first();
 
         if (! $appointment instanceof Appointment) {
             return null;
         }
 
+        if (! in_array($appointment->status, [AppointmentStatus::Cancelled, AppointmentStatus::CancelledLate], strict: true)) {
+            return null;
+        }
+
         return view('filament.app.appointments.cancelled-confirmation-modal', [
             'appointment' => $appointment,
-            'keepsCredit' => (bool) ($arguments['keepsCredit'] ?? false),
+            'keepsCredit' => $appointment->status === AppointmentStatus::Cancelled,
         ]);
     }
 }

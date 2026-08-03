@@ -75,6 +75,13 @@
         select(cell) {
             if (cell.disabled) return
             this.selected = cell.iso
+            if (! cell.inMonth) {
+                // Dia visível do mês vizinho: acompanha a navegação, senão o
+                // cabeçalho continua mostrando o mês anterior à seleção.
+                const date = this.parse(cell.iso)
+                this.viewYear = date.getFullYear()
+                this.viewMonth = date.getMonth()
+            }
             $wire.set('{{ $slotStatePath }}', null, false)
             $wire.set('{{ $statePath }}', cell.iso)
         },

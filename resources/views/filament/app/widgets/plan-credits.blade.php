@@ -15,7 +15,7 @@
                     href="{{ $creditsUrl }}"
                     class="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-medium text-primary-600 transition hover:text-primary-500 dark:text-primary-400"
                 >
-                    {{ __('panel-app::widgets.plan_credits.access_plan') }}
+                    {{ __('panel-app::widgets.plan_credits.access_credits') }}
                     <x-filament::icon icon="heroicon-m-arrow-right" class="size-3.5"/>
                 </a>
             @endif

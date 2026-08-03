@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -87,6 +88,37 @@ it('reschedules on the summary confirmation and records the history', function (
         ->and($history->admin_id)->toBe($this->employee->getKey());
 });
 
+it('restores the appointment when the schedule sync fails unexpectedly', function (): void {
+    $appointment = reschedulableAppointment();
+    $previousAt = $appointment->appointment_at->toDateTimeString();
+    $newAt = now()->addDays(6)->setTime(8, 0);
+
+    // Só o horário indisponível reverte dentro da sync; qualquer outra falha
+    // precisa do catch-all do wizard para o registro não ficar pela metade.
+    // Classe anônima porque a action é final e o Mockery não a substitui.
+    app()->instance(SyncAppointmentScheduleAction::class, new class
+    {
+        public function handle(): bool
+        {
+            throw new RuntimeException('schedule sync exploded');
+        }
+    });
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('rescheduleAppointment', arguments: ['appointment' => $appointment->getKey()])
+        ->setActionData([
+            'date' => $newAt->toDateString(),
+            'appointment_at' => $newAt->toDateTimeString(),
+        ])
+        ->callMountedAction()
+        ->assertActionMounted('rescheduleReview')
+        ->callMountedAction()
+        ->assertNotified(__('panel-app::resources.appointments.reschedule.failed'))
+        ->assertNotDispatched('appointment-rescheduled');
+
+    expect($appointment->refresh()->appointment_at->toDateTimeString())->toBe($previousAt);
+});
+
 it('keeps the current time until the summary is confirmed', function (): void {
     $appointment = reschedulableAppointment();
     $previousAt = $appointment->appointment_at->toDateTimeString();
@@ -127,13 +159,16 @@ it('refuses to reschedule an appointment that belongs to someone else', function
             'appointment_at' => now()->addWeek(),
         ]);
 
+    // Capturado antes: refresh() muta o objeto, e comparar depois seria
+    // comparar o valor recarregado com ele mesmo.
+    $previousAt = $foreign->appointment_at->toDateTimeString();
+
     livewire(LatestAppointmentsWidget::class)
         ->callAction('rescheduleAppointment', arguments: ['appointment' => $foreign->getKey()])
         ->assertNotified(__('panel-app::resources.appointments.reschedule.cannot_reschedule'))
         ->assertActionNotMounted();
 
-    expect($foreign->refresh()->appointment_at->toDateTimeString())
-        ->toBe($foreign->appointment_at->toDateTimeString());
+    expect($foreign->refresh()->appointment_at->toDateTimeString())->toBe($previousAt);
 });
 
 it('shows the before and after times on the confirmation content', function (): void {

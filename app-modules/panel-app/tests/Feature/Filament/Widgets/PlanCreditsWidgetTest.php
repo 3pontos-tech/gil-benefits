@@ -8,6 +8,7 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\DTOs\PlanSummary;
 use TresPontosTech\PanelApp\Enums\PlanStatus;
 use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
@@ -53,6 +54,27 @@ it('falls back to a placeholder when no consultant has been assigned yet', funct
     livewire(PlanCreditsWidget::class)
         ->assertSuccessful()
         ->assertSee(__('panel-app::widgets.plan_credits.no_consultant'));
+});
+
+it('counts only credits of the current tenant', function (): void {
+    $employee = actingAsEmployee();
+    $tenant = filament()->getTenant();
+
+    UserCredit::factory()->available()->count(2)->create([
+        'owner_id' => $employee->id,
+        'holder_id' => $employee->id,
+        'company_id' => $tenant->getKey(),
+    ]);
+
+    // Crédito do mesmo usuário em outra empresa: fora do total do cartão,
+    // como já acontece na página "Meus Créditos".
+    UserCredit::factory()->available()->create([
+        'owner_id' => $employee->id,
+        'holder_id' => $employee->id,
+        'company_id' => Company::factory()->create()->getKey(),
+    ]);
+
+    expect(livewire(PlanCreditsWidget::class)->assertOk()->viewData('creditsTotal'))->toBe(2);
 });
 
 it('counts credits from both origins in the card total', function (): void {

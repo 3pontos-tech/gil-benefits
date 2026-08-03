@@ -50,9 +50,12 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
         $plan = $this->plan();
 
         // O cartão mostra só quantos créditos o cliente tem disponíveis, sem
-        // distinguir origem, por isso basta a contagem.
+        // distinguir origem, por isso basta a contagem. O filtro de tenant
+        // acompanha a página "Meus Créditos" — sem ele, quem tem crédito em
+        // mais de uma empresa veria aqui um total diferente do da listagem.
         $availableCredits = UserCredit::query()
             ->where('holder_id', $user->getKey())
+            ->where('company_id', filament()->getTenant()?->getKey())
             ->where('status', UserCreditStatusEnum::Available)
             ->count();
 

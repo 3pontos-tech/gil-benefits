@@ -12,6 +12,7 @@ use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Date;
+use Throwable;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
@@ -154,6 +155,24 @@ trait ReschedulesAppointments
                 } catch (SlotUnavailableException) {
                     Notification::make()
                         ->title(__('panel-app::resources.appointments.reschedule.slot_unavailable'))
+                        ->danger()
+                        ->send();
+
+                    return;
+                } catch (Throwable $throwable) {
+                    // A sync reverte sozinha só no horário indisponível; em
+                    // qualquer outra falha o registro ficaria com o horário novo
+                    // e os efeitos colaterais pela metade. Restaura para manter
+                    // a promessa do wizard e reporta para investigação.
+                    $appointment->update([
+                        'appointment_at' => $previousAppointmentAt,
+                        'consultant_id' => $previousConsultantId,
+                    ]);
+
+                    report($throwable);
+
+                    Notification::make()
+                        ->title(__('panel-app::resources.appointments.reschedule.failed'))
                         ->danger()
                         ->send();
 

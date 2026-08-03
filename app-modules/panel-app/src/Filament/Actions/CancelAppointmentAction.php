@@ -70,11 +70,6 @@ class CancelAppointmentAction extends Action
                 return;
             }
 
-            // Resolvido antes da transição para o modal de sucesso saber se o
-            // crédito volta; a resposta depende do prazo, não do status novo.
-            $keepsCredit = AppointmentStatus::resolveCancellationStatus($record, CancellationActor::User)
-                === AppointmentStatus::Cancelled;
-
             $record->current_transition->handle(new TransitionData(
                 cancellationActor: CancellationActor::User,
                 cancelledBy: auth()->user(),
@@ -91,7 +86,7 @@ class CancelAppointmentAction extends Action
             // Onde o host oferece a tela de sucesso, ela substitui este modal;
             // do contrário caímos no toast para não deixar a ação sem retorno.
             if ($livewire instanceof ShowsCancelledConfirmation) {
-                $livewire->confirmAppointmentCancellation($record, $keepsCredit);
+                $livewire->confirmAppointmentCancellation($record);
 
                 return;
             }

@@ -63,6 +63,7 @@ return [
     'plan_credits' => [
         'title' => 'My Plan & Credits',
         'access_plan' => 'Access my plan',
+        'access_credits' => 'Access my credits',
         'credits_card_title' => 'Flamma Credits',
         'credits_available' => 'Credits available',
         'holder' => 'Holder',

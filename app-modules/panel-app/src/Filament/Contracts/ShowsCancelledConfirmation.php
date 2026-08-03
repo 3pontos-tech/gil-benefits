@@ -13,5 +13,5 @@ use TresPontosTech\Appointments\Models\Appointment;
  */
 interface ShowsCancelledConfirmation
 {
-    public function confirmAppointmentCancellation(Appointment $appointment, bool $keepsCredit): void;
+    public function confirmAppointmentCancellation(Appointment $appointment): void;
 }
