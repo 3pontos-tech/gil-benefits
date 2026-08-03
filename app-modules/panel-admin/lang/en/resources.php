@@ -289,7 +289,7 @@ return [
         'engagement' => [
             'title' => 'Engagement',
             'navigation_label' => 'Engagement',
-            'subheading' => 'Benefit adoption funnel per company. Seats and registrations are cumulative up to the end date; bookings and consultancies only count the selected period.',
+            'subheading' => 'Benefit adoption funnel per company. Seats reflect the capacity contracted today; registrations are cumulative up to the end date; bookings and consultancies only count the selected period.',
             'filter_start_date' => 'Start date',
             'filter_end_date' => 'End date',
             'filter_companies' => 'Companies',

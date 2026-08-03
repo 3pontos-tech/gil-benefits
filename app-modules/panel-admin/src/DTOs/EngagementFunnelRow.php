@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelAdmin\DTOs;
 
-use TresPontosTech\PanelAdmin\Support\EngagementNumber;
+use TresPontosTech\PanelAdmin\DTOs\Concerns\CalculatesEngagementRates;
 
 /**
  * Engagement funnel of a single company: from contracted seats down to the
@@ -26,6 +26,8 @@ use TresPontosTech\PanelAdmin\Support\EngagementNumber;
  */
 final readonly class EngagementFunnelRow
 {
+    use CalculatesEngagementRates;
+
     public function __construct(
         public string $companyId,
         public string $companyName,
@@ -35,26 +37,6 @@ final readonly class EngagementFunnelRow
         public int $withCompletedAppointment,
         public int $withRecurrence,
     ) {}
-
-    public function registrationRate(): ?float
-    {
-        return EngagementNumber::rate($this->registered, $this->seats);
-    }
-
-    public function schedulingRate(): ?float
-    {
-        return EngagementNumber::rate($this->withAppointment, $this->registered);
-    }
-
-    public function completionRate(): ?float
-    {
-        return EngagementNumber::rate($this->withCompletedAppointment, $this->withAppointment);
-    }
-
-    public function recurrenceRate(): ?float
-    {
-        return EngagementNumber::rate($this->withRecurrence, $this->withCompletedAppointment);
-    }
 
     /**
      * Row shape consumed by the funnel table widget and the CSV export.

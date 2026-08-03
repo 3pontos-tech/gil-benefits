@@ -24,6 +24,13 @@ final class ExportEngagementCsv
     private const string DELIMITER = ';';
 
     /**
+     * Leading characters that make a spreadsheet evaluate a cell as a formula.
+     *
+     * @var array<int, string>
+     */
+    private const array FORMULA_TRIGGERS = ['=', '+', '-', '@', "\t", "\r", "\n"];
+
+    /**
      * @param  Collection<int, EngagementFunnelRow>  $rows
      */
     public function handle(EngagementFilters $filters, Collection $rows): StreamedResponse
@@ -74,15 +81,27 @@ final class ExportEngagementCsv
     private function line(EngagementFunnelRow $row, EngagementFilters $filters): array
     {
         return [
-            $row->companyName,
+            $this->asText($row->companyName),
             (string) $row->seats,
             (string) $row->registered,
             (string) $row->withAppointment,
             (string) $row->withCompletedAppointment,
             (string) $row->withRecurrence,
             EngagementNumber::percent($row->completionRate()),
-            $filters->start->format('d/m/Y'),
-            $filters->end->format('d/m/Y'),
+            $filters->start->isoFormat('L'),
+            $filters->end->isoFormat('L'),
         ];
+    }
+
+    /**
+     * Keeps a spreadsheet from evaluating a company name as a formula. Names are
+     * typed by people, so a company called "=HYPERLINK(...)" would otherwise run
+     * as soon as the business team opens the file.
+     */
+    private function asText(string $value): string
+    {
+        return in_array(mb_substr($value, 0, 1), self::FORMULA_TRIGGERS, true)
+            ? "'" . $value
+            : $value;
     }
 }

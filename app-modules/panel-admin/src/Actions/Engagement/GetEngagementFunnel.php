@@ -23,9 +23,19 @@ use TresPontosTech\PanelAdmin\DTOs\EngagementFunnelRow;
  * registered beneficiaries, beneficiaries who booked, who actually had the
  * consultancy and who came back for more than one.
  *
- * Seats and registrations are cumulative up to the end of the period (a
- * beneficiary registered earlier still occupies a seat), while the booking and
- * completion steps only count appointments held inside the period.
+ * Each step is measured on its own clock, because the sources allow no better:
+ *
+ * - seats reflect the capacity contracted **today**. Neither an active
+ *   contractual plan nor a platform subscription keeps a trail of how many seats
+ *   were contracted at an arbitrary past date, so a historical seat count is not
+ *   reconstructible;
+ * - registrations are cumulative up to the end of the period, since a
+ *   beneficiary who joined earlier still occupies a seat;
+ * - booking and completion only count appointments held inside the period.
+ *
+ * For a period that ended in the past this means dividing historical
+ * registrations by today's capacity. Stated here so nobody reads the
+ * registration rate as a point-in-time occupancy.
  */
 final class GetEngagementFunnel
 {
@@ -85,10 +95,10 @@ final class GetEngagementFunnel
     }
 
     /**
-     * Seats available to each company: the active contractual plan when there is
-     * one, otherwise the active platform subscription. Mirrors the precedence of
-     * the seat counter the company itself sees in its own panel, so the two
-     * screens never disagree on the same number.
+     * Seats available to each company as of today: the active contractual plan
+     * when there is one, otherwise the active platform subscription. Mirrors the
+     * precedence of the seat counter the company itself sees in its own panel, so
+     * the two screens never disagree on the same number.
      *
      * @param  array<int, string>  $companyIds
      * @return array<string, int>

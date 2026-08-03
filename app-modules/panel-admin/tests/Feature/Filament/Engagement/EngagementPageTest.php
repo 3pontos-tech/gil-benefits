@@ -210,6 +210,16 @@ it('exports the funnel of the filtered companies to csv', function (): void {
         ->toContain('Empresa;Cadeiras;Cadastrados');
 });
 
+it('keeps a company name from running as a spreadsheet formula', function (): void {
+    Company::factory()->create(['name' => '=HYPERLINK("http://exemplo.test","clique")']);
+
+    $csv = exportedCsv(engagementPageFilters());
+
+    expect($csv)->toContain("'=HYPERLINK")
+        ->and($csv)->not->toContain(';=HYPERLINK')
+        ->and($csv)->not->toStartWith('=HYPERLINK');
+});
+
 it('stamps the analysed period on every exported row', function (): void {
     seedEngagementCompanies();
 
@@ -220,7 +230,7 @@ it('stamps the analysed period on every exported row', function (): void {
     ]);
 
     $lines = array_values(array_filter(explode("\n", trim($csv))));
-    $period = sprintf('%s;%s', $start->format('d/m/Y'), now()->format('d/m/Y'));
+    $period = sprintf('%s;%s', $start->isoFormat('L'), now()->isoFormat('L'));
 
     expect($lines[0])
         ->toContain(__('panel-admin::resources.pages.engagement.filter_start_date'))

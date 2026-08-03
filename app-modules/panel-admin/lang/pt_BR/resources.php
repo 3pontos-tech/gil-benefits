@@ -289,7 +289,7 @@ return [
         'engagement' => [
             'title' => 'Engajamento',
             'navigation_label' => 'Engajamento',
-            'subheading' => 'Funil de uso do benefício por empresa. Cadeiras e cadastros refletem o acumulado até a data final; agendamentos e consultorias consideram apenas o período selecionado.',
+            'subheading' => 'Funil de uso do benefício por empresa. Cadeiras refletem a capacidade contratada hoje; cadastros, o acumulado até a data final; agendamentos e consultorias, apenas o período selecionado.',
             'filter_start_date' => 'Data inicial',
             'filter_end_date' => 'Data final',
             'filter_companies' => 'Empresas',
