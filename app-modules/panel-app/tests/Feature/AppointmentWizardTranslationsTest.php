@@ -42,6 +42,6 @@ it('resolves every appointment wizard translation key', function (string $locale
     ];
 
     foreach ($keys as $key) {
-        expect(trans()->has($key, $locale))->toBeTrue("Chave de tradução ausente em {$locale}: {$key}");
+        expect(trans()->has($key, $locale))->toBeTrue(sprintf('Chave de tradução ausente em %s: %s', $locale, $key));
     }
 })->with(['pt_BR', 'en']);
