@@ -102,21 +102,11 @@
                                     {{ ($this->cancelAppointmentAction)(['appointment' => $row['id']]) }}
                                 @endif
 
-                                {{-- Os tamanhos do fi-btn param em text-sm (14px), então o
+                                {{-- Cancelada ou perdida não oferece ação na linha: a única
+                                     saída é um agendamento novo, pelo botão do cabeçalho.
+                                     Os tamanhos do fi-btn param em text-sm (14px), então o
                                      16px pedido vem de uma classe explícita. --}}
-                                @if($row['canRebook'])
-                                    {{-- Cancelada com data ainda futura: "reagendar" abre o
-                                         wizard de novo agendamento. Data passada não oferece
-                                         ação — a linha mostra só o estado. --}}
-                                    <x-filament::button
-                                        wire:click="mountAction('scheduleAppointment')"
-                                        size="sm"
-                                        color="danger"
-                                        class="text-[16px]"
-                                    >
-                                        {{ __('panel-app::widgets.latest_appointments.reschedule') }}
-                                    </x-filament::button>
-                                @elseif($row['meetingUrl'])
+                                @if($row['meetingUrl'])
                                     <x-filament::button
                                         tag="a"
                                         :href="$row['meetingUrl']"

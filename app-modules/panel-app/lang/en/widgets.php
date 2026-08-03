@@ -54,7 +54,6 @@ return [
         'subtitle' => 'An overview of your most recent bookings.',
         'new_appointment' => 'New appointment',
         'with_consultant' => 'Consultation with :name',
-        'reschedule' => 'Reschedule',
         'join' => 'Join',
         'empty_title' => 'No consultations here yet',
         'empty_description' => 'Book your first one to follow everything from this list.',

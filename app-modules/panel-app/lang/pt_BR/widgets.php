@@ -54,7 +54,6 @@ return [
         'subtitle' => 'Visão geral dos seus agendamentos mais recentes.',
         'new_appointment' => 'Novo agendamento',
         'with_consultant' => 'Consultoria com :name',
-        'reschedule' => 'Reagendar',
         'join' => 'Entrar',
         'empty_title' => 'Nenhuma consultoria por aqui ainda',
         'empty_description' => 'Agende a primeira para acompanhar tudo por esta lista.',

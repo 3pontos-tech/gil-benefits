@@ -52,7 +52,7 @@ it('falls back to the category label when no consultant is assigned', function (
         ->assertSee($appointment->category_type->getLabel());
 });
 
-it('offers rebooking for a cancelled appointment whose date has not passed', function (): void {
+it('does not offer rescheduling for a cancelled appointment whose date has not passed', function (): void {
     Appointment::factory()
         ->withStatus(AppointmentStatus::Cancelled)
         ->create([
@@ -60,9 +60,12 @@ it('offers rebooking for a cancelled appointment whose date has not passed', fun
             'appointment_at' => now()->addWeek(),
         ]);
 
-    livewire(LatestAppointmentsWidget::class)
+    $component = livewire(LatestAppointmentsWidget::class)
         ->assertSuccessful()
-        ->assertSee(__('panel-app::widgets.latest_appointments.reschedule'));
+        ->assertDontSee(__('panel-app::resources.appointments.reschedule.action_label'))
+        ->assertSee(AppointmentStatus::Cancelled->getLabel());
+
+    expect($component->viewData('rows')->pluck('canReschedule')->filter())->toBeEmpty();
 });
 
 it('offers no reschedule button once the date has passed', function (): void {
@@ -84,9 +87,9 @@ it('offers no reschedule button once the date has passed', function (): void {
 
     $component = livewire(LatestAppointmentsWidget::class)
         ->assertSuccessful()
-        ->assertDontSee(__('panel-app::widgets.latest_appointments.reschedule'));
+        ->assertDontSee(__('panel-app::resources.appointments.reschedule.action_label'));
 
-    expect($component->viewData('rows')->pluck('canRebook')->filter())->toBeEmpty();
+    expect($component->viewData('rows')->pluck('canReschedule')->filter())->toBeEmpty();
 });
 
 it('does not offer rescheduling for a completed appointment', function (): void {
@@ -99,7 +102,7 @@ it('does not offer rescheduling for a completed appointment', function (): void 
 
     livewire(LatestAppointmentsWidget::class)
         ->assertSuccessful()
-        ->assertDontSee(__('panel-app::widgets.latest_appointments.reschedule'))
+        ->assertDontSee(__('panel-app::resources.appointments.reschedule.action_label'))
         ->assertSee(AppointmentStatus::Completed->getLabel());
 });
 

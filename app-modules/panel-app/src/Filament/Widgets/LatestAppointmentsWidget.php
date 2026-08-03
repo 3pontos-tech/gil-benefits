@@ -160,9 +160,6 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
             // consultorias que já passaram, em vez de omiti-lo.
             'canCancel' => $isCancellable,
             'canReschedule' => $appointment->canBeRescheduled(),
-            // O botão de refazer o agendamento só aparece enquanto a data não
-            // passou: consulta perdida não oferece ação nenhuma, só o estado.
-            'canRebook' => $needsRescheduling && ! $isPast,
             'month' => Str::upper(rtrim($appointment->appointment_at->translatedFormat('M'), '.')),
             'day' => $appointment->appointment_at->format('d'),
             'title' => $consultant !== null
