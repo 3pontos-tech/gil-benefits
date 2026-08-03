@@ -122,6 +122,75 @@ it('excludes the company owner from the registered beneficiaries', function (): 
     expect($row->registered)->toBe(1);
 });
 
+it('counts the platform subscription as seats when there is no contractual plan', function (): void {
+    $company = Company::factory()->create();
+    $company->subscriptions()->create([
+        'type' => 'company',
+        'stripe_id' => 'sub_seats_123',
+        'stripe_status' => 'active',
+        'quantity' => 25,
+    ]);
+
+    $row = resolve(GetEngagementFunnel::class)->handle(engagementFilters([$company->id]))->first();
+
+    expect($row->seats)->toBe(25);
+});
+
+it('prefers the contractual plan over the subscription when the company has both', function (): void {
+    $company = Company::factory()->create();
+    CompanyPlan::factory()->active()->create(['company_id' => $company->id, 'seats' => 40]);
+    $company->subscriptions()->create([
+        'type' => 'company',
+        'stripe_id' => 'sub_seats_456',
+        'stripe_status' => 'active',
+        'quantity' => 25,
+    ]);
+
+    $row = resolve(GetEngagementFunnel::class)->handle(engagementFilters([$company->id]))->first();
+
+    expect($row->seats)->toBe(40);
+});
+
+it('keeps the shared default company in the report without its synthetic seats', function (): void {
+    // A assinatura da empresa padrão é criada pelo app:sync-subscription-to-flamma-company
+    // como sentinela de "ilimitado" — não é capacidade contratada.
+    $default = Company::factory()->create([
+        'name' => 'Flamma',
+        'slug' => Company::DEFAULT_SLUG,
+    ]);
+    $default->subscriptions()->create([
+        'type' => 'company',
+        'stripe_id' => 'sub_sentinel',
+        'stripe_status' => 'active',
+        'quantity' => 100000,
+    ]);
+
+    $employee = User::factory()->create();
+    $default->employees()->attach($employee->id);
+
+    $row = resolve(GetEngagementFunnel::class)->handle(engagementFilters([$default->id]))->first();
+
+    expect($row->companyName)->toBe('Flamma')
+        ->and($row->seats)->toBe(0)
+        ->and($row->registered)->toBe(1)
+        ->and($row->registrationRate())->toBeNull();
+});
+
+it('ignores subscriptions that are no longer active', function (): void {
+    $company = Company::factory()->create();
+    $company->subscriptions()->create([
+        'type' => 'company',
+        'stripe_id' => 'sub_seats_789',
+        'stripe_status' => 'canceled',
+        'quantity' => 25,
+    ]);
+
+    $row = resolve(GetEngagementFunnel::class)->handle(engagementFilters([$company->id]))->first();
+
+    expect($row->seats)->toBe(0)
+        ->and($row->registrationRate())->toBeNull();
+});
+
 it('narrows the funnel down to the selected companies', function (): void {
     $selected = Company::factory()->create(['name' => 'Selected']);
     Company::factory()->create(['name' => 'Other']);

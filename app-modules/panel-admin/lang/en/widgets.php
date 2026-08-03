@@ -124,7 +124,7 @@ return [
             'heading' => 'Consolidated view',
             'description' => 'Indicators of the selected companies within the period',
             'seats' => 'Available Seats',
-            'seats_description' => 'Sum of the active contractual plans',
+            'seats_description' => 'Active contracts and subscriptions',
             'registered' => 'Registered Users',
             'registered_description' => 'Active beneficiaries of the companies',
             'registration_rate' => 'Registration Rate',

@@ -124,7 +124,7 @@ return [
             'heading' => 'Visão consolidada',
             'description' => 'Indicadores das empresas selecionadas no período',
             'seats' => 'Cadeiras Disponíveis',
-            'seats_description' => 'Soma dos planos contratuais ativos',
+            'seats_description' => 'Contratos e assinaturas ativas',
             'registered' => 'Usuários Cadastrados',
             'registered_description' => 'Beneficiários ativos das empresas',
             'registration_rate' => 'Taxa de Cadastro',

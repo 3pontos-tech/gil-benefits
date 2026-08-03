@@ -12,6 +12,7 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelAdmin\Actions\Engagement\Concerns\BuildsEngagementCacheKey;
 use TresPontosTech\PanelAdmin\DTOs\EngagementFilters;
@@ -29,6 +30,9 @@ use TresPontosTech\PanelAdmin\DTOs\EngagementFunnelRow;
 final class GetEngagementFunnel
 {
     use BuildsEngagementCacheKey;
+
+    /** Same status the company panel treats as a paying subscription. */
+    private const string ACTIVE_SUBSCRIPTION_STATUS = 'active';
 
     /**
      * @return Collection<int, EngagementFunnelRow>
@@ -81,12 +85,33 @@ final class GetEngagementFunnel
     }
 
     /**
-     * Contracted seats of the active contractual plans of each company.
+     * Seats available to each company: the active contractual plan when there is
+     * one, otherwise the active platform subscription. Mirrors the precedence of
+     * the seat counter the company itself sees in its own panel, so the two
+     * screens never disagree on the same number.
      *
      * @param  array<int, string>  $companyIds
      * @return array<string, int>
      */
     private function seatsByCompany(array $companyIds): array
+    {
+        $contractual = $this->contractedSeatsByCompany($companyIds);
+        $subscribed = $this->subscribedSeatsByCompany($companyIds);
+
+        return collect($companyIds)
+            ->mapWithKeys(fn (string $companyId): array => [
+                $companyId => $contractual[$companyId] ?? $subscribed[$companyId] ?? 0,
+            ])
+            ->all();
+    }
+
+    /**
+     * Seats negotiated in the active contractual plans of each company.
+     *
+     * @param  array<int, string>  $companyIds
+     * @return array<string, int>
+     */
+    private function contractedSeatsByCompany(array $companyIds): array
     {
         return CompanyPlan::query()
             ->whereIn('company_id', $companyIds)
@@ -96,6 +121,38 @@ final class GetEngagementFunnel
             ->groupBy('company_id')
             ->selectRaw('company_id, SUM(seats) as total')
             ->pluck('total', 'company_id')
+            ->map(fn (mixed $total): int => (int) $total)
+            ->all();
+    }
+
+    /**
+     * Seats bought by each company through the platform, for the companies that
+     * pay a subscription instead of a negotiated contract.
+     *
+     * The shared default company is left out on purpose: its company-level
+     * subscription is a synthetic "unlimited" record created by
+     * app:sync-subscription-to-flamma-company — a random UUID as the Stripe id
+     * and a hardcoded quantity — not contracted capacity. Its members pay
+     * individually, and counting it would swamp the consolidated registration
+     * rate. The company itself stays in the report, with no seats.
+     *
+     * @param  array<int, string>  $companyIds
+     * @return array<string, int>
+     */
+    private function subscribedSeatsByCompany(array $companyIds): array
+    {
+        return Subscription::query()
+            ->whereMorphedTo('owner', Company::class)
+            ->whereIn('subscriptionable_id', $companyIds)
+            ->whereNotIn(
+                'subscriptionable_id',
+                Company::query()->where('slug', Company::DEFAULT_SLUG)->select('id'),
+            )
+            ->where('stripe_status', self::ACTIVE_SUBSCRIPTION_STATUS)
+            ->whereNotNull('quantity')
+            ->groupBy('subscriptionable_id')
+            ->selectRaw('subscriptionable_id, SUM(quantity) as total')
+            ->pluck('total', 'subscriptionable_id')
             ->map(fn (mixed $total): int => (int) $total)
             ->all();
     }
