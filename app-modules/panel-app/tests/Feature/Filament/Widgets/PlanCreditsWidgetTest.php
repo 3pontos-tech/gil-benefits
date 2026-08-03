@@ -48,6 +48,22 @@ it('shows the holder name and the consultant of the latest appointment', functio
         ->assertSee($appointment->consultant->name);
 });
 
+it('ignores cancelled appointments when naming the current consultant', function (): void {
+    $employee = actingAsSubscribedEmployee();
+
+    $kept = Appointment::factory()
+        ->withStatus(AppointmentStatus::Completed)
+        ->create(['user_id' => $employee->getKey(), 'appointment_at' => now()->subWeek()]);
+
+    // Mais recente, porem cancelada: nao representa vinculo com consultor.
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Cancelled)
+        ->create(['user_id' => $employee->getKey(), 'appointment_at' => now()->subDay()]);
+
+    expect(livewire(PlanCreditsWidget::class)->assertOk()->viewData('consultantName'))
+        ->toBe($kept->consultant->name);
+});
+
 it('falls back to a placeholder when no consultant has been assigned yet', function (): void {
     actingAsSubscribedEmployee();
 

@@ -37,6 +37,7 @@ it('requires a category before advancing to the slot step', function (): void {
 
 it('carries the picks through the steps and books on the final confirmation', function (): void {
     $appointmentAt = now()->addDays(5)->setTime(14, 0);
+    consultantAvailableOn($appointmentAt);
 
     $component = livewire(LatestAppointmentsWidget::class)
         ->mountAction('scheduleAppointment')
@@ -111,4 +112,41 @@ it('shows the booked consultation on the confirmation content', function (): voi
         ->toContain(AppointmentCategoryEnum::InvestmentAdvisory->getLabel())
         ->toContain($appointmentAt->format('H:i'))
         ->toContain(__('panel-app::resources.appointments.schedule.confirmed.awaiting_confirmation'));
+});
+
+it('refuses to book a slot outside the real availability', function (): void {
+    $forgedAt = now()->addDays(5)->setTime(3, 0);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('scheduleReview', arguments: [
+            'category_type' => AppointmentCategoryEnum::InvestmentAdvisory->value,
+            'appointment_at' => $forgedAt->toDateTimeString(),
+        ])
+        ->assertNotified(__('panel-app::resources.appointments.reschedule.slot_unavailable'));
+
+    expect(Appointment::query()->where('user_id', $this->employee->getKey())->exists())->toBeFalse();
+});
+
+it('enforces the booking lead on the server even when the day has availability', function (): void {
+    $tomorrow = now()->addDay()->setTime(10, 0);
+    consultantAvailableOn($tomorrow);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('scheduleReview', arguments: [
+            'category_type' => AppointmentCategoryEnum::InvestmentAdvisory->value,
+            'appointment_at' => $tomorrow->toDateTimeString(),
+        ])
+        ->assertNotified(__('panel-app::resources.appointments.reschedule.slot_unavailable'));
+
+    expect(Appointment::query()->where('user_id', $this->employee->getKey())->exists())->toBeFalse();
+});
+
+it('rejects a malformed appointment_at without a server error', function (): void {
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('scheduleReview', arguments: [
+            'category_type' => AppointmentCategoryEnum::InvestmentAdvisory->value,
+            'appointment_at' => 'not-a-datetime',
+        ])
+        ->assertSuccessful()
+        ->assertNotified(__('panel-app::resources.appointments.reschedule.slot_unavailable'));
 });

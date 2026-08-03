@@ -17,6 +17,7 @@ use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\AppointmentWizard;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\PickSlotStep;
 
 /**
@@ -139,6 +140,18 @@ trait ReschedulesAppointments
                     return;
                 }
 
+                // Os argumentos vêm do cliente: o horário precisa existir na
+                // disponibilidade real (e respeitar a antecedência). Também
+                // blinda o Date::parse logo abaixo contra payload malformado.
+                if (! AppointmentWizard::isBookableSlot($arguments['appointment_at'] ?? null)) {
+                    Notification::make()
+                        ->title(__('panel-app::resources.appointments.reschedule.slot_unavailable'))
+                        ->danger()
+                        ->send();
+
+                    return;
+                }
+
                 $newAppointmentAt = Date::parse($arguments['appointment_at']);
                 $previousAppointmentAt = $appointment->appointment_at;
                 $previousConsultantId = $appointment->consultant_id;
@@ -150,7 +163,7 @@ trait ReschedulesAppointments
                     // histórico de reagendamento, re-bloqueio da agenda e Google
                     // Calendar. Num horário indisponível a action reverte o
                     // registro antes de relançar.
-                    resolve(SyncAppointmentScheduleAction::class)
+                    $calendarSynced = resolve(SyncAppointmentScheduleAction::class)
                         ->handle($appointment, $previousConsultantId, $previousAppointmentAt, AppointmentHistoryActor::User);
                 } catch (SlotUnavailableException) {
                     Notification::make()
@@ -177,6 +190,16 @@ trait ReschedulesAppointments
                         ->send();
 
                     return;
+                }
+
+                // A sync devolve false quando a consulta foi salva mas o Google
+                // Calendar falhou; sem o aviso o usuário confirmaria sem saber
+                // que a agenda externa pode ter ficado para trás.
+                if (! $calendarSynced) {
+                    Notification::make()
+                        ->title(__('panel-app::resources.appointments.reschedule.calendar_sync_failed'))
+                        ->warning()
+                        ->send();
                 }
 
                 $this->dispatch('appointment-rescheduled');
@@ -224,7 +247,16 @@ trait ReschedulesAppointments
     private function rescheduleReviewRows(array $arguments): array
     {
         $appointment = $this->resolveOwnedAppointment($arguments);
-        $newAppointmentAt = Date::parse($arguments['appointment_at']);
+
+        // O conteúdo renderiza antes de qualquer validação da action, então um
+        // mount forjado sem (ou com) appointment_at inválido não pode virar 500.
+        try {
+            $newAppointmentAt = filled($arguments['appointment_at'] ?? null)
+                ? Date::parse($arguments['appointment_at'])
+                : null;
+        } catch (Throwable) {
+            $newAppointmentAt = null;
+        }
 
         return [
             [
@@ -235,13 +267,13 @@ trait ReschedulesAppointments
             [
                 'icon' => 'heroicon-o-calendar',
                 'label' => __('panel-app::resources.appointments.reschedule.review.new_date'),
-                'value' => $newAppointmentAt->format('d/m/Y'),
+                'value' => $newAppointmentAt?->format('d/m/Y') ?? '-',
                 'highlight' => true,
             ],
             [
                 'icon' => 'heroicon-o-clock',
                 'label' => __('panel-app::resources.appointments.reschedule.review.new_time'),
-                'value' => $newAppointmentAt->format('H:i'),
+                'value' => $newAppointmentAt?->format('H:i') ?? '-',
                 'highlight' => true,
             ],
             [

@@ -61,6 +61,7 @@ it('reschedules on the summary confirmation and records the history', function (
     $appointment = reschedulableAppointment();
     $previousAt = $appointment->appointment_at->toDateTimeString();
     $newAt = now()->addDays(6)->setTime(8, 0);
+    consultantAvailableOn($newAt);
 
     $component = livewire(LatestAppointmentsWidget::class)
         ->callAction('rescheduleAppointment', arguments: ['appointment' => $appointment->getKey()])
@@ -94,6 +95,7 @@ it('restores the appointment when the schedule sync fails unexpectedly', functio
     $appointment = reschedulableAppointment();
     $previousAt = $appointment->appointment_at->toDateTimeString();
     $newAt = now()->addDays(6)->setTime(8, 0);
+    consultantAvailableOn($newAt);
 
     // Só o horário indisponível reverte dentro da sync; qualquer outra falha
     // precisa do catch-all do wizard para o registro não ficar pela metade.
@@ -188,4 +190,57 @@ it('shows the before and after times on the confirmation content', function (): 
         ->toContain(__('panel-app::resources.appointments.reschedule.confirmed.now'))
         ->toContain($newAt->format('d/m/y - H:i'))
         ->toContain(__('panel-app::resources.appointments.reschedule.confirmed.awaiting_confirmation'));
+});
+
+it('refuses to reschedule into a slot outside the real availability', function (): void {
+    $appointment = reschedulableAppointment();
+    $previousAt = $appointment->appointment_at->toDateTimeString();
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('rescheduleReview', arguments: [
+            'appointment' => $appointment->getKey(),
+            'appointment_at' => now()->addDays(6)->setTime(3, 0)->toDateTimeString(),
+        ])
+        ->assertNotified(__('panel-app::resources.appointments.reschedule.slot_unavailable'));
+
+    expect($appointment->refresh()->appointment_at->toDateTimeString())->toBe($previousAt);
+});
+
+it('renders the review with placeholders instead of crashing on a forged mount', function (): void {
+    $appointment = reschedulableAppointment();
+
+    livewire(LatestAppointmentsWidget::class)
+        ->mountAction('rescheduleReview', arguments: [
+            'appointment' => $appointment->getKey(),
+            'appointment_at' => 'garbage-value',
+        ])
+        ->assertSuccessful();
+});
+
+it('warns when the appointment moved but the calendar sync failed', function (): void {
+    $appointment = reschedulableAppointment();
+    $newAt = now()->addDays(6)->setTime(8, 0);
+    consultantAvailableOn($newAt);
+
+    // false = consulta salva, mas o Google Calendar nao acompanhou.
+    app()->instance(SyncAppointmentScheduleAction::class, new class
+    {
+        public function handle(): bool
+        {
+            return false;
+        }
+    });
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('rescheduleAppointment', arguments: ['appointment' => $appointment->getKey()])
+        ->setActionData([
+            'date' => $newAt->toDateString(),
+            'appointment_at' => $newAt->toDateTimeString(),
+        ])
+        ->callMountedAction()
+        ->assertActionMounted('rescheduleReview')
+        ->callMountedAction()
+        ->assertActionMounted('rescheduleConfirmed')
+        ->assertNotified(__('panel-app::resources.appointments.reschedule.calendar_sync_failed'))
+        ->assertDispatched('appointment-rescheduled');
 });

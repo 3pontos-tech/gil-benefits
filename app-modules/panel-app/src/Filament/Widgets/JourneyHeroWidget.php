@@ -23,7 +23,6 @@ class JourneyHeroWidget extends Widget
 
         return [
             'journey' => resolve(BuildUserJourneyAction::class)($user),
-            'firstName' => str($user->name)->trim()->before(' ')->value(),
             'displayName' => str($user->name)->trim()->value(),
             'anamneseUrl' => AnamneseWizardPage::getUrl(),
         ];

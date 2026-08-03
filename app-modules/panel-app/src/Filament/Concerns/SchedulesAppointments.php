@@ -20,6 +20,7 @@ use TresPontosTech\Appointments\Actions\BookAppointmentAction;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\AppointmentWizard;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\PickSlotStep;
 
 /**
@@ -128,6 +129,18 @@ trait SchedulesAppointments
                     return;
                 }
 
+                // Os argumentos vêm do cliente: o horário precisa existir na
+                // disponibilidade real (e respeitar a antecedência) para um
+                // mountAction forjado não criar consulta em slot inválido.
+                if (! AppointmentWizard::isBookableSlot($arguments['appointment_at'] ?? null)) {
+                    Notification::make()
+                        ->title(__('panel-app::resources.appointments.reschedule.slot_unavailable'))
+                        ->danger()
+                        ->send();
+
+                    return;
+                }
+
                 try {
                     resolve(BookAppointmentAction::class)->handle(BookAppointmentDTO::make($user->getKey(), [
                         'category_type' => $arguments['category_type'],
@@ -183,7 +196,16 @@ trait SchedulesAppointments
     private function scheduleReviewRows(array $arguments): array
     {
         $category = AppointmentCategoryEnum::tryFrom($arguments['category_type'] ?? '');
-        $appointmentAt = Date::parse($arguments['appointment_at']);
+
+        // O conteúdo renderiza antes de qualquer validação da action, então um
+        // mount forjado sem (ou com) appointment_at inválido não pode virar 500.
+        try {
+            $appointmentAt = filled($arguments['appointment_at'] ?? null)
+                ? Date::parse($arguments['appointment_at'])
+                : null;
+        } catch (Throwable) {
+            $appointmentAt = null;
+        }
 
         return [
             [
@@ -194,13 +216,13 @@ trait SchedulesAppointments
             [
                 'icon' => 'heroicon-o-calendar',
                 'label' => __('panel-app::resources.appointments.schedule.review.date'),
-                'value' => $appointmentAt->format('d/m/Y'),
+                'value' => $appointmentAt?->format('d/m/Y') ?? '-',
                 'highlight' => true,
             ],
             [
                 'icon' => 'heroicon-o-clock',
                 'label' => __('panel-app::resources.appointments.schedule.review.time'),
-                'value' => $appointmentAt->format('H:i'),
+                'value' => $appointmentAt?->format('H:i') ?? '-',
                 'highlight' => true,
             ],
             [

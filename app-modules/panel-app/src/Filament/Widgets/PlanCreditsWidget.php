@@ -18,6 +18,7 @@ use Filament\Widgets\Widget;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -85,6 +86,13 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
     {
         return $user->appointments()
             ->with('consultant')
+            // Consulta cancelada não representa vínculo: sem o filtro, o último
+            // cancelamento apareceria como "meu consultor" com bolinha verde.
+            ->whereIn('status', [
+                AppointmentStatus::Pending,
+                AppointmentStatus::Active,
+                AppointmentStatus::Completed,
+            ])
             ->latest('appointment_at')
             ->first()
             ?->consultant

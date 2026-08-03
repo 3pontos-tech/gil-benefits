@@ -57,7 +57,7 @@ class RescheduleAppointmentAction extends Action
                 ->required()
                 ->native(false)
                 ->displayFormat('d/m/Y')
-                ->minDate(now()->addDays(2)->format('Y-m-d'))
+                ->minDate(now()->addDays(Appointment::BOOKING_LEAD_DAYS)->format('Y-m-d'))
                 ->reactive()
                 ->afterStateUpdated(fn (callable $set) => $set('appointment_at', null)),
 

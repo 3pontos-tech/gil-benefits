@@ -41,6 +41,11 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
 
     protected int|string|array $columnSpan = ['default' => 'full', 'md' => 7];
 
+    /**
+     * @var Collection<int, Appointment>|null
+     */
+    private ?Collection $cachedAppointments = null;
+
     protected function getViewData(): array
     {
         return [
@@ -73,11 +78,6 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
         // não inicializada e a próxima leitura lançaria Error.
         $this->cachedAppointments = null;
     }
-
-    /**
-     * @var Collection<int, Appointment>|null
-     */
-    private ?Collection $cachedAppointments = null;
 
     /**
      * As consultorias mais próximas de agora — as que estão por vir e as que
