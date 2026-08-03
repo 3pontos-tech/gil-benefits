@@ -12,7 +12,6 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Throwable;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
@@ -21,7 +20,7 @@ use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Document;
-use TresPontosTech\IntegrationGoogleCalendar\Jobs\CreateAppointmentCalendarEventJob;
+use TresPontosTech\IntegrationGoogleCalendar\AppointmentCalendarSynchronizer;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\RelationManagers\AppointmentHistoryRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Schemas\AppointmentScheduleFields;
@@ -88,19 +87,16 @@ class ViewAppointment extends ViewRecord
                     $appointment->refresh();
                     $appointment->current_transition->handle(new TransitionData);
 
-                    $appointment->loadMissing('consultant');
+                    // The synchronizer never throws and reports whether the event actually landed,
+                    // so a swallowed failure still reaches the user instead of passing as success.
+                    $placed = resolve(AppointmentCalendarSynchronizer::class)
+                        ->placeForCurrentConsultant($appointment);
 
-                    $consultant = $appointment->consultant;
-
-                    if (filled($consultant) && filled($consultant->email) && blank($appointment->google_event_id)) {
-                        try {
-                            dispatch_sync(new CreateAppointmentCalendarEventJob($appointment));
-                        } catch (Throwable) {
-                            Notification::make()
-                                ->title(__('panel-admin::resources.appointments.actions.calendar_event_failed'))
-                                ->warning()
-                                ->send();
-                        }
+                    if (! $placed) {
+                        Notification::make()
+                            ->title(__('panel-admin::resources.appointments.actions.calendar_event_failed'))
+                            ->warning()
+                            ->send();
                     }
 
                     $this->record->refresh();
