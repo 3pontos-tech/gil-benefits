@@ -33,9 +33,6 @@ class MyMaterialsWidget extends TableWidget
                 ->with('media'))
             ->heading(__('panel-app::resources.documents.my_materials.heading'))
             ->description(__('panel-app::resources.documents.my_materials.description'))
-            // Na toolbar (e não no header) para dividir a linha com busca e
-            // filtros; o CSS de .fi-apt-inline-toolbar sobe essa linha para o
-            // lado do heading e põe o botão por último, como no layout.
             ->toolbarActions([
                 Action::make('new-document')
                     ->label(__('panel-app::resources.documents.my_materials.new_document'))

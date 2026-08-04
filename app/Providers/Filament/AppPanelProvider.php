@@ -118,11 +118,6 @@ class AppPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            // Padrão de toda tabela do painel, casando com o CSS do tema que
-            // já estiliza .fi-ta sem escopo por resource: paginação de 6 com
-            // saltos extremos e os rótulos de busca/filtro do layout. Fica no
-            // bootUsing para valer só quando este painel atende a request;
-            // cada resource segue livre para sobrescrever o que precisar.
             ->bootUsing(function (): void {
                 Table::configureUsing(function (Table $table): void {
                     $table

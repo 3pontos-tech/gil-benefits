@@ -12,11 +12,6 @@ class ListSharedDocuments extends ListRecords
 {
     protected static string $resource = SharedDocumentResource::class;
 
-    /**
-     * As duas seções carregam seus próprios títulos ("Meus materiais" e
-     * "Compartilhados comigo"); sem heading, o Filament nem renderiza o
-     * cabeçalho da página. O getTitle segue preenchido para a aba do browser.
-     */
     public function getHeading(): string
     {
         return '';
