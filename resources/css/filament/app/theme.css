@@ -41,9 +41,23 @@
  */
 :root {
     --apt-space: 32px;
+    --apt-text-sm: 14px;
     --apt-text-md: 16px;
     --apt-text-lg: 24px;
     --apt-text-xl: 32px;
+
+    /* Paleta Flamma para os pares ícone + frase da listagem (tons 300 do
+       design system, iguais nos dois temas). */
+    --apt-emerald-300: #00c993;
+    --apt-blue-300: #6db1ff;
+    --apt-red-300: #ff7263;
+    --apt-cyan-300: #00c6bc;
+    --apt-lime-300: #87c200;
+    --apt-orange-300: #ff8f4c;
+
+    /* Token de cor Text/text-medium do design system (não confundir com os
+       --apt-text-* acima, que são tamanhos). */
+    --apt-text-medium: #9c9c9c;
 }
 
 /*
@@ -222,7 +236,7 @@
 
     & .fi-ta-header-cell {
         padding-block: 16px;
-        font-size: var(--apt-text-md);
+        font-size: var(--apt-text-sm);
     }
 
     /* O padding das células de texto mora no conteúdo da coluna. */
@@ -232,7 +246,8 @@
 
     & .fi-ta-text-item,
     & .fi-ta-placeholder {
-        font-size: var(--apt-text-md);
+        font-size: var(--apt-text-sm);
+        font-weight: 500;
     }
 
     /* No layout o texto corrido das linhas é rebaixado; só cabeçalho e badges
@@ -261,32 +276,52 @@
         padding-inline-end: 0;
     }
 
-    /* Badge sem pill: só ícone colorido + texto. O texto neutro entra por
-       cima do text-(--text) do vendor, e o ícone volta à cor do enum lendo a
-       mesma var inline que o Filament escreve no elemento. */
+    /* Badge sem pill: ícone colorido + frase no token text-medium. */
     & .fi-ta-cell .fi-badge {
         min-width: 0;
         padding: 0;
         background-color: transparent;
         box-shadow: none;
         column-gap: 8px;
-        font-size: var(--apt-text-md);
-        font-weight: 400;
-        color: var(--gray-950);
+        font-size: var(--apt-text-sm);
+        font-weight: 500;
+        color: var(--apt-text-medium);
 
         & .fi-icon {
-            width: 1.25rem;
-            height: 1.25rem;
-            color: var(--text);
+            width: 1rem;
+            height: 1rem;
         }
     }
 
-    &:where(.dark, .dark *) .fi-ta-cell .fi-badge {
-        color: white;
+    /* Cor do ícone por categoria e status, nos tokens Flamma. As classes
+       vêm de extraCellAttributes na AppointmentsTable. */
+    & .fi-apt-cat-personal-finance .fi-badge .fi-icon,
+    & .fi-apt-status-active .fi-badge .fi-icon,
+    & .fi-apt-status-completed .fi-badge .fi-icon {
+        color: var(--apt-emerald-300);
+    }
 
-        & .fi-icon {
-            color: var(--dark-text);
-        }
+    & .fi-apt-cat-investment-advisory .fi-badge .fi-icon,
+    & .fi-apt-status-pending .fi-badge .fi-icon {
+        color: var(--apt-blue-300);
+    }
+
+    & .fi-apt-cat-risk-and-compliance .fi-badge .fi-icon,
+    & .fi-apt-status-cancelled .fi-badge .fi-icon {
+        color: var(--apt-red-300);
+    }
+
+    & .fi-apt-cat-fundraising-and-credit .fi-badge .fi-icon {
+        color: var(--apt-cyan-300);
+    }
+
+    & .fi-apt-cat-mergers-and-acquisitions .fi-badge .fi-icon {
+        color: var(--apt-lime-300);
+    }
+
+    & .fi-apt-cat-retirement-and-estate-planning .fi-badge .fi-icon,
+    & .fi-apt-status-cancelled-late .fi-badge .fi-icon {
+        color: var(--apt-orange-300);
     }
 
     & .fi-pagination {
@@ -342,9 +377,25 @@
         border-color: rgb(255 255 255 / 0.2);
     }
 
-    /* Mesma altura do campo de busca ao lado. */
+    /* Mesma altura do campo de busca ao lado, e rótulo/ícone no mesmo tom do
+       placeholder do Pesquisar. */
     & .fi-ta-header-toolbar .fi-dropdown-trigger .fi-btn {
         min-height: 36px;
+        color: var(--apt-text-medium);
+
+        & .fi-icon {
+            color: var(--apt-text-medium);
+        }
+    }
+
+    & .fi-ta-search-field {
+        & input::placeholder {
+            color: var(--apt-text-medium);
+        }
+
+        & .fi-icon {
+            color: var(--apt-text-medium);
+        }
     }
 
     & .fi-pagination-item-btn {

@@ -10,6 +10,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Actions\CancelAppointmentAction;
 use TresPontosTech\PanelApp\Filament\Actions\FeedbackAction;
 use TresPontosTech\PanelApp\Filament\Actions\RescheduleAppointmentAction;
@@ -42,6 +43,9 @@ class AppointmentsTable
                 TextColumn::make('category_type')
                     ->label(__('panel-app::resources.appointments.table.category_type'))
                     ->badge()
+                    ->extraCellAttributes(fn (Appointment $record): array => [
+                        'class' => 'fi-apt-cat-' . str_replace('_', '-', $record->category_type->value),
+                    ])
                     ->searchable(),
                 TextColumn::make('appointment_at')
                     ->label(__('appointments::resources.appointments.table.columns.appointment_at'))
@@ -50,6 +54,9 @@ class AppointmentsTable
                 TextColumn::make('status')
                     ->label(__('appointments::resources.appointments.table.columns.status'))
                     ->badge()
+                    ->extraCellAttributes(fn (Appointment $record): array => [
+                        'class' => 'fi-apt-status-' . str_replace('_', '-', $record->status->value),
+                    ])
                     ->searchable(),
             ])
             ->defaultSort('appointment_at', 'desc')
