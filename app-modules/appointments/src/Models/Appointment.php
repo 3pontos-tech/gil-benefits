@@ -70,6 +70,13 @@ class Appointment extends Model
      */
     public const RESCHEDULE_WINDOW_HOURS = 4;
 
+    /**
+     * How many days ahead a booking must start. The pickers use it as minDate and the
+     * server enforces it when listing and validating slots, so a forged request cannot
+     * land earlier than the calendar allows.
+     */
+    public const BOOKING_LEAD_DAYS = 2;
+
     protected $fillable = [
         'user_id',
         'consultant_id',

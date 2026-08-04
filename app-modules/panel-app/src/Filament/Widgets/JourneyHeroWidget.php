@@ -8,6 +8,7 @@ use App\Models\Users\User;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\On;
 use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
+use TresPontosTech\PanelApp\Filament\Pages\AnamneseWizardPage;
 
 class JourneyHeroWidget extends Widget
 {
@@ -22,7 +23,8 @@ class JourneyHeroWidget extends Widget
 
         return [
             'journey' => resolve(BuildUserJourneyAction::class)($user),
-            'firstName' => str($user->name)->trim()->before(' ')->value(),
+            'displayName' => str($user->name)->trim()->value(),
+            'anamneseUrl' => AnamneseWizardPage::getUrl(),
         ];
     }
 

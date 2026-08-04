@@ -7,6 +7,10 @@ parameters:
           identifier: property.defaultValue
           count: 1
           path: src/Filament/Widgets/FinancialTopicsWidget.php
+        - message: '#^Property TresPontosTech\\PanelApp\\Filament\\Widgets\\LatestAppointmentsWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
+          identifier: property.defaultValue
+          count: 1
+          path: src/Filament/Widgets/LatestAppointmentsWidget.php
         - message: '#^Property TresPontosTech\\PanelApp\\Filament\\Widgets\\NextAppointmentWidget::\$columnSpan \(array<string, int\|null>\|int\|string\) does not accept default value of type array<string, int\|string>\.$#'
           identifier: property.defaultValue
           count: 1
