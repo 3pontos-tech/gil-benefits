@@ -4,39 +4,28 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages;
 
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Schemas\Components\Tabs\Tab;
-use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\SharedDocumentResource;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Widgets\MyMaterialsWidget;
 
 class ListSharedDocuments extends ListRecords
 {
     protected static string $resource = SharedDocumentResource::class;
 
-    protected function getHeaderActions(): array
+    /**
+     * As duas seções carregam seus próprios títulos ("Meus materiais" e
+     * "Compartilhados comigo"); sem heading, o Filament nem renderiza o
+     * cabeçalho da página. O getTitle segue preenchido para a aba do browser.
+     */
+    public function getHeading(): string
     {
-        return [
-            CreateAction::make()
-                ->label(__('panel-app::resources.documents.form.heading'))
-                ->visible(fn (): bool => $this->activeTab === 'mine'),
-        ];
+        return '';
     }
 
-    public function getTabs(): array
+    protected function getHeaderWidgets(): array
     {
         return [
-            'shared' => Tab::make(__('panel-app::resources.documents.tabs.shared'))
-                ->modifyQueryUsing(fn ($query) => $query?->where('active', 1)
-                    ->whereHas('shares', fn ($subquery) => $subquery?->where('employee_id', auth()->user()->getKey())
-                        ->where('active', 1)
-                    )),
-
-            'mine' => Tab::make(__('panel-app::resources.documents.tabs.mine'))
-                ->modifyQueryUsing(fn (Builder $query) => $query
-                    ->where('documentable_type', auth()->user()->getMorphClass())
-                    ->where('documentable_id', auth()->user()->getKey())
-                ),
+            MyMaterialsWidget::class,
         ];
     }
 }

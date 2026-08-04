@@ -142,16 +142,24 @@ return [
         ],
     ],
     'documents' => [
-        'tabs' => [
-            'shared' => 'Compartilhados comigo',
-            'mine' => 'Meus Documentos',
+        'my_materials' => [
+            'heading' => 'Meus materiais',
+            'description' => 'Acesse e acompanhe todos os materiais disponíveis para você.',
+            'new_document' => 'Novo documento',
+        ],
+        'shared' => [
+            'heading' => 'Compartilhados comigo',
+            'description' => 'Acesse e acompanhe todos os materiais disponíveis para você.',
+        ],
+        'actions' => [
+            'access' => 'Acessar',
         ],
         'table' => [
-            'title' => 'Nome do Documento',
+            'title' => 'Nome do documento',
             'extension_type' => 'Tipo',
             'active' => 'Ativo',
             'consultant' => 'Consultor',
-            'created_at' => 'Data de Envio',
+            'created_at' => 'Data de envio',
         ],
         'form' => [
             'heading' => 'Novo Documento',

@@ -142,16 +142,24 @@ return [
         ],
     ],
     'documents' => [
-        'tabs' => [
-            'shared' => 'Shared with me',
-            'mine' => 'My Documents',
+        'my_materials' => [
+            'heading' => 'My materials',
+            'description' => 'Access and follow every material available to you.',
+            'new_document' => 'New document',
+        ],
+        'shared' => [
+            'heading' => 'Shared with me',
+            'description' => 'Access and follow every material available to you.',
+        ],
+        'actions' => [
+            'access' => 'Access',
         ],
         'table' => [
-            'title' => 'Document Type',
-            'extension_type' => 'Extension Type',
+            'title' => 'Document name',
+            'extension_type' => 'Type',
             'active' => 'Is Active',
             'consultant' => 'Consultant',
-            'created_at' => 'Sent At',
+            'created_at' => 'Sent at',
         ],
         'form' => [
             'heading' => 'New Document',
