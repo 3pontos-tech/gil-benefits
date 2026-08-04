@@ -5,7 +5,16 @@ declare(strict_types=1);
 return [
     'appointments' => [
         'table' => [
+            'title' => 'Meus Agendamentos',
+            'heading' => 'Consultas agendadas',
+            'description' => 'Gerencie e acompanhe suas consultas agendadas.',
             'category_type' => 'Tipo de Atendimento',
+            'search_placeholder' => 'Pesquisar',
+            'filters_label' => 'Filtro',
+            'filters' => [
+                'status' => 'Status',
+                'category_type' => 'Tipo de atendimento',
+            ],
         ],
         'cancel' => [
             'action_label' => 'Cancelar',
