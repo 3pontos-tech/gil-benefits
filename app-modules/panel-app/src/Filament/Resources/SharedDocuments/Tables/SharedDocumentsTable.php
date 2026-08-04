@@ -23,6 +23,7 @@ class SharedDocumentsTable
                 ->with(['documentable', 'media']))
             ->heading(__('panel-app::resources.documents.shared.heading'))
             ->description(__('panel-app::resources.documents.shared.description'))
+            ->extraAttributes(['class' => 'fi-apt-inline-toolbar'])
             ->columns([
                 TextColumn::make('type')
                     ->label(__('panel-app::resources.documents.table.extension_type'))

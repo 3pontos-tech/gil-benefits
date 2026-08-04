@@ -274,9 +274,11 @@
         }
     }
 
+    /* Um fio de respiro na ponta: sem ele o hover das ações encosta na
+       borda direita da tabela. */
     & .fi-ta-header-cell:last-of-type,
     & .fi-ta-cell:last-of-type {
-        padding-inline-end: 0;
+        padding-inline-end: 8px;
     }
 
     /* Badge sem pill (nas células da tabela e nos cards do grid): ícone
@@ -434,6 +436,29 @@
         }
     }
 
+    /* Mobile: ação de cabeçalho e busca ocupam a largura toda. */
+    @media (max-width: 639px) {
+        & .fi-ta-header .fi-ta-actions {
+            width: 100%;
+
+            & > * {
+                flex: 1 1 0%;
+            }
+
+            & .fi-btn {
+                width: 100%;
+            }
+        }
+
+        & .fi-ta-header-toolbar > :nth-child(2) {
+            width: 100%;
+        }
+
+        & .fi-ta-search-field {
+            width: 100%;
+        }
+    }
+
     &:where(.dark, .dark *) .fi-ta-content-grid .fi-apt-card-title .fi-ta-text-item {
         color: white;
     }
@@ -525,6 +550,69 @@
 
         & .fi-pagination-item-label {
             color: white;
+        }
+    }
+}
+
+/*
+ * Variante opt-in (via extraAttributes da tabela): cabeçalho em linha única —
+ * título e descrição à esquerda; filtro, busca e a ação da tabela à direita,
+ * com a ação por último, como no layout. Header e toolbar são irmãos no DOM
+ * dentro de .fi-ta-header-ctn, então é o grid do container que os põe lado a
+ * lado; a ação precisa vir de toolbarActions() (não headerActions()) para
+ * morar na mesma linha da busca.
+ */
+.fi-apt-inline-toolbar {
+    & .fi-ta-header-ctn {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        column-gap: 16px;
+        padding-bottom: var(--apt-space);
+    }
+
+    & .fi-ta-header,
+    & .fi-ta-header-toolbar {
+        padding-block: 0;
+    }
+
+    /* A ordem visual (…busca, ação) inverte a ordem do DOM (ação, busca). */
+    & .fi-ta-header-toolbar > :nth-child(1) {
+        order: 2;
+    }
+
+    & .fi-ta-header-toolbar > :nth-child(2) {
+        order: 1;
+        margin-inline-start: 0;
+    }
+
+    @media (max-width: 639px) {
+        & .fi-ta-header-ctn {
+            grid-template-columns: minmax(0, 1fr);
+            row-gap: 16px;
+        }
+
+        /* Empilhado, a ação volta para antes da busca e ocupa a linha toda. */
+        & .fi-ta-header-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+
+            & > :nth-child(1) {
+                order: 1;
+                width: 100%;
+
+                & > * {
+                    flex: 1 1 0%;
+                }
+
+                & .fi-btn {
+                    width: 100%;
+                }
+            }
+
+            & > :nth-child(2) {
+                order: 2;
+            }
         }
     }
 }
