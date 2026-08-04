@@ -52,7 +52,7 @@ class CancelAppointmentAction extends Action
         // Classe só para o CSS do tema alcançar este modal sem atingir os demais.
         // Mesmo esqueleto visual dos wizards de agendamento; a variante danger
         // só troca o tom do quadrado do ícone.
-        $this->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-danger']);
+        $this->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-danger fi-apt-wizard-modal-roomy-header']);
 
         $this->modalContent(fn (Appointment $record): View => view(
             'filament.app.appointments.cancel-modal',
