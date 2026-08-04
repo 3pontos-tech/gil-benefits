@@ -9,8 +9,6 @@ return [
             'heading' => 'Booked consultations',
             'description' => 'Manage and follow your booked consultations.',
             'category_type' => 'Appointment Type',
-            'search_placeholder' => 'Search',
-            'filters_label' => 'Filter',
             'filters' => [
                 'status' => 'Status',
                 'category_type' => 'Appointment type',

@@ -10,4 +10,8 @@ return [
     'my_profile' => 'My Profile',
     'settings' => 'Settings',
     'back' => 'Back',
+    'tables' => [
+        'search_placeholder' => 'Search',
+        'filters_label' => 'Filter',
+    ],
 ];

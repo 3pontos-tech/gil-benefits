@@ -9,8 +9,6 @@ return [
             'heading' => 'Consultas agendadas',
             'description' => 'Gerencie e acompanhe suas consultas agendadas.',
             'category_type' => 'Tipo de Atendimento',
-            'search_placeholder' => 'Pesquisar',
-            'filters_label' => 'Filtro',
             'filters' => [
                 'status' => 'Status',
                 'category_type' => 'Tipo de atendimento',

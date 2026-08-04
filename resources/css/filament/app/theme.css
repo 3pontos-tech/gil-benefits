@@ -183,13 +183,16 @@
 }
 
 /*
- * Listagem "Meus Agendamentos" (.fi-apt-table via extraAttributes): a tabela
- * do resource vira uma lista flat — sem o card do Filament, colunas rentes à
- * margem da página, linhas altas separadas por réguas finas. Badges perdem o
- * pill: fica o ícone na cor do enum ao lado do texto neutro. A paginação segue
- * o desenho de quadrados soltos com a página ativa preenchida em primary.
+ * Tabelas do painel — todas, sem opt-in por resource (este tema só é
+ * carregado pelo painel do colaborador): lista flat sem o card do Filament,
+ * colunas rentes à margem da página, linhas altas separadas por réguas finas.
+ * Badges perdem o pill: fica o ícone colorido ao lado do texto no token
+ * text-medium. A paginação segue o desenho de quadrados soltos com a página
+ * ativa preenchida em primary. Os comportamentos correspondentes (6 por
+ * página, saltos extremos, rótulos de busca/filtro) ficam no bootUsing do
+ * AppPanelProvider.
  */
-.fi-apt-table {
+.fi-ta {
     /* O card do container: bg + ring (box-shadow no Tailwind). */
     & .fi-ta-ctn {
         background-color: transparent;
@@ -293,8 +296,8 @@
         }
     }
 
-    /* Cor do ícone por categoria e status, nos tokens Flamma. As classes
-       vêm de extraCellAttributes na AppointmentsTable. */
+    /* Cor do ícone por categoria e status de consultoria, nos tokens Flamma.
+       As classes vêm de extraCellAttributes na AppointmentsTable. */
     & .fi-apt-cat-personal-finance .fi-badge .fi-icon,
     & .fi-apt-status-active .fi-badge .fi-icon,
     & .fi-apt-status-completed .fi-badge .fi-icon {
@@ -416,11 +419,11 @@
 }
 
 /*
- * Cabeçalho da página que hospeda a listagem: título no tamanho display do
- * layout e régua separando do conteúdo. O :has() amarra ao .fi-apt-table para
- * não vazar para as demais páginas do painel.
+ * Cabeçalho das páginas que hospedam listagens: título no tamanho display do
+ * layout e régua separando do conteúdo. O :has() amarra à presença de uma
+ * tabela para não vazar para as demais páginas do painel.
  */
-.fi-page:has(.fi-apt-table) .fi-header {
+.fi-page:has(.fi-ta) .fi-header {
     padding-bottom: var(--apt-space);
     border-bottom: 1px solid var(--gray-200);
 
@@ -429,7 +432,7 @@
     }
 }
 
-.fi-page:has(.fi-apt-table):where(.dark, .dark *) .fi-header {
+.fi-page:has(.fi-ta):where(.dark, .dark *) .fi-header {
     border-bottom-color: rgb(255 255 255 / 0.1);
 }
 
