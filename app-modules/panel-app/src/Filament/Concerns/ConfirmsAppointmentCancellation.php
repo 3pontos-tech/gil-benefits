@@ -54,7 +54,7 @@ trait ConfirmsAppointmentCancellation
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.cancel.confirmed.finish'))
             // Esqueleto dos wizards: variante success no ícone e rodapé compacto
             // à direita, como nos passos de sucesso do agendamento.
-            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-success fi-apt-wizard-modal-footer-end'])
+            ->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-success fi-apt-wizard-modal-footer-end fi-apt-wizard-modal-roomy-header'])
             ->modalContent(fn (array $arguments): ?View => $this->cancelledConfirmationContent($arguments))
             // O único papel do "Finalizar" é fechar; o cancelamento já ocorreu.
             ->action(fn (): null => null);
