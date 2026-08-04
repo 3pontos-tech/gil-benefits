@@ -33,6 +33,7 @@ use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Observers\CompanyCreditsObserver;
+use TresPontosTech\Company\Actions\AttachToDefaultCompany;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
@@ -68,11 +69,16 @@ class Company extends Model implements HasAvatar, HasMedia
     use SoftDeletes;
 
     /**
-     * The shared company every registered user is attached to (see AttachToDefaultCompany).
-     * Because everyone belongs to it, it is never on its own a reliable answer to "which
-     * company is this person from" — see User::employerCompanyId().
+     * Slug of the shared company that holds every user without an employer:
+     * B2C subscribers, consultants and admin-created users. It is a bucket, not
+     * a client — its seats are a synthetic "unlimited" subscription and
+     * subscription enforcement is skipped for it. Because everyone belongs to
+     * it, it is never on its own a reliable answer to "which company is this
+     * person from" — see User::employerCompanyId().
+     *
+     * @see AttachToDefaultCompany
      */
-    public const DEFAULT_SLUG = 'flamma-company';
+    public const string DEFAULT_SLUG = 'flamma-company';
 
     protected $fillable = [
         'user_id',
