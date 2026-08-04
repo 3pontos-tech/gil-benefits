@@ -93,7 +93,10 @@ abstract class AbstractAppointmentTransition
 
         Notification::make()
             ->title(__(sprintf('appointments::resources.appointments.notifications.%s.title', $notificationKey)))
-            ->body(__(sprintf('appointments::resources.appointments.notifications.%s.body', $notificationKey)))
+            ->body(__(
+                sprintf('appointments::resources.appointments.notifications.%s.body', $notificationKey),
+                ['hours' => Appointment::CANCELLATION_WINDOW_HOURS]
+            ))
             ->warning()
             ->sendToDatabase($this->appointment->user)
             ->send();

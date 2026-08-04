@@ -24,7 +24,7 @@ return [
         'history' => [
             'title' => 'History',
             'columns' => [
-                'admin' => 'Performed by',
+                'author' => 'Performed by',
                 'action_type' => 'Action',
                 'summary' => 'Details',
                 'created_at' => 'When',

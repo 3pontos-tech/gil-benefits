@@ -77,13 +77,13 @@ describe('ActiveTransition — completion', function (): void {
 });
 
 // ---------------------------------------------------------------------------
-// On-time cancellation (>= 24 h) — credit returns
+// On-time cancellation (>= 4 h) — credit returns
 // ---------------------------------------------------------------------------
 
 describe('ActiveTransition — on-time cancellation', function (): void {
 
     it('returns the credit to Available when user cancels on time', function (): void {
-        [$appointment, $credit] = activeAppointmentWithCredit(hoursUntil: 25);
+        [$appointment, $credit] = activeAppointmentWithCredit(hoursUntil: 5);
         actingAs($appointment->user);
 
         (new ActiveTransition($appointment))->handle(new TransitionData(
@@ -110,13 +110,13 @@ describe('ActiveTransition — on-time cancellation', function (): void {
 });
 
 // ---------------------------------------------------------------------------
-// Late cancellation (< 24 h) — credit is consumed
+// Late cancellation (< 4 h) — credit is consumed
 // ---------------------------------------------------------------------------
 
 describe('ActiveTransition — late cancellation', function (): void {
 
     it('keeps the credit as Used when user cancels late', function (): void {
-        [$appointment, $credit] = activeAppointmentWithCredit(hoursUntil: 23);
+        [$appointment, $credit] = activeAppointmentWithCredit(hoursUntil: 1);
         actingAs($appointment->user);
 
         (new ActiveTransition($appointment))->handle(new TransitionData(
@@ -128,7 +128,7 @@ describe('ActiveTransition — late cancellation', function (): void {
     });
 
     it('appointment status is CancelledLate on late user cancellation', function (): void {
-        [$appointment] = activeAppointmentWithCredit(hoursUntil: 23);
+        [$appointment] = activeAppointmentWithCredit(hoursUntil: 1);
         actingAs($appointment->user);
 
         (new ActiveTransition($appointment))->handle(new TransitionData(
@@ -147,7 +147,7 @@ describe('ActiveTransition — late cancellation', function (): void {
 describe('PendingTransition — on-time cancellation', function (): void {
 
     it('returns the credit to Available when user cancels a pending appointment on time', function (): void {
-        [$appointment, $credit] = pendingAppointmentWithCredit(hoursUntil: 25);
+        [$appointment, $credit] = pendingAppointmentWithCredit(hoursUntil: 5);
         actingAs($appointment->user);
 
         (new PendingTransition($appointment))->handle(new TransitionData(
@@ -176,7 +176,7 @@ describe('PendingTransition — on-time cancellation', function (): void {
 describe('PendingTransition — late cancellation', function (): void {
 
     it('keeps the credit as Used when user cancels a pending appointment late', function (): void {
-        [$appointment, $credit] = pendingAppointmentWithCredit(hoursUntil: 23);
+        [$appointment, $credit] = pendingAppointmentWithCredit(hoursUntil: 1);
         actingAs($appointment->user);
 
         (new PendingTransition($appointment))->handle(new TransitionData(
@@ -197,7 +197,7 @@ describe('cancellation without a credit', function (): void {
     it('does not fail when a cancelled appointment has no credit', function (): void {
         $appointment = Appointment::factory()
             ->withStatus(AppointmentStatus::Active)
-            ->create(['appointment_at' => now()->addHours(25)]);
+            ->create(['appointment_at' => now()->addHours(5)]);
         actingAs($appointment->user);
 
         expect(fn () => (new ActiveTransition($appointment))->handle(new TransitionData(
@@ -209,7 +209,7 @@ describe('cancellation without a credit', function (): void {
     it('does not affect a credit that is already Used', function (): void {
         $appointment = Appointment::factory()
             ->withStatus(AppointmentStatus::Active)
-            ->create(['appointment_at' => now()->addHours(25)]);
+            ->create(['appointment_at' => now()->addHours(5)]);
 
         $credit = UserCredit::factory()->used()->create([
             'holder_id' => $appointment->user->getKey(),

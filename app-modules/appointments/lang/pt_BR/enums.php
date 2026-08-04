@@ -16,4 +16,8 @@ return [
         'consultant_changed' => 'Consultor alterado',
         're_scheduled' => 'Reagendado',
     ],
+    'appointment_history_actor' => [
+        'admin' => 'Administrador',
+        'user' => 'Cliente',
+    ],
 ];

@@ -13,7 +13,7 @@ final class AttachToDefaultCompany
     {
         $company = Company::query()->firstOrCreate(
             [
-                'slug' => 'flamma-company',
+                'slug' => Company::DEFAULT_SLUG,
             ],
             [
                 'name' => 'Flamma',

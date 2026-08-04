@@ -72,7 +72,9 @@ class Company extends Model implements HasAvatar, HasMedia
      * Slug of the shared company that holds every user without an employer:
      * B2C subscribers, consultants and admin-created users. It is a bucket, not
      * a client — its seats are a synthetic "unlimited" subscription and
-     * subscription enforcement is skipped for it.
+     * subscription enforcement is skipped for it. Because everyone belongs to
+     * it, it is never on its own a reliable answer to "which company is this
+     * person from" — see User::employerCompanyId().
      *
      * @see AttachToDefaultCompany
      */

@@ -14,7 +14,9 @@ use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
+use Throwable;
 use TresPontosTech\Appointments\Actions\GetAvailableSlotsAction;
+use TresPontosTech\Appointments\Models\Appointment;
 
 class AppointmentWizard
 {
@@ -36,7 +38,7 @@ class AppointmentWizard
                         ->required()
                         ->native(false)
                         ->displayFormat('d/m/Y')
-                        ->minDate(now()->addDays(2)->format('Y-m-d'))
+                        ->minDate(now()->addDays(Appointment::BOOKING_LEAD_DAYS)->format('Y-m-d'))
                         ->reactive()
                         ->afterStateUpdated(fn (callable $set) => $set('appointment_at', null)),
 
@@ -75,17 +77,48 @@ class AppointmentWizard
      */
     public static function availableSlots(?string $date): array
     {
-        if (is_null($date)) {
+        if (blank($date)) {
             return [];
         }
 
-        $startDate = Date::parse($date);
+        try {
+            $startDate = Date::parse($date);
+        } catch (Throwable) {
+            // A data chega do estado do cliente; lixo vira lista vazia em vez
+            // de um 500 do Livewire.
+            return [];
+        }
 
-        if ($startDate->startOfDay()->isPast()) {
+        // Espelho da antecedência mínima que os pickers aplicam via minDate:
+        // sem isso a regra dos :days dias só existiria no navegador.
+        if ($startDate->startOfDay()->lt(now()->addDays(Appointment::BOOKING_LEAD_DAYS)->startOfDay())) {
             return [];
         }
 
         return self::getAvailableTimeSlots($startDate);
+    }
+
+    /**
+     * Um horário só é agendável se estiver na lista que o próprio painel
+     * oferece. Os argumentos das actions são forjáveis pelo cliente, então os
+     * passos de confirmação validam por aqui antes de persistir.
+     */
+    public static function isBookableSlot(mixed $value): bool
+    {
+        if (! is_string($value) || blank($value)) {
+            return false;
+        }
+
+        try {
+            $slotAt = Date::parse($value);
+        } catch (Throwable) {
+            return false;
+        }
+
+        return array_key_exists(
+            $slotAt->toDateTimeString(),
+            self::availableSlots($slotAt->toDateString()),
+        );
     }
 
     /**

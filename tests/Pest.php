@@ -14,6 +14,7 @@
 use App\Filament\FilamentPanel;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
+use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -26,6 +27,7 @@ use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
+use Zap\Facades\Zap;
 
 use function Pest\Laravel\actingAs;
 
@@ -192,6 +194,29 @@ function actingAsConsultant(): Consultant
     actingAs($consultant->user);
 
     Appointment::factory()->recycle($consultant)->count(10)->create();
+
+    return $consultant;
+}
+
+/**
+ * Um consultor disponível 08:00-18:00 nos dias dados, com agenda real na Zap —
+ * o mesmo caminho que alimenta GetAvailableSlotsAction em produção. Os wizards
+ * validam o horário contra essa disponibilidade antes de persistir, então os
+ * testes que confirmam um agendamento precisam dela.
+ */
+function consultantAvailableOn(CarbonInterface ...$days): Consultant
+{
+    $consultant = Consultant::factory()->create(['email' => fake()->unique()->companyEmail()]);
+
+    foreach ($days as $day) {
+        Zap::for($consultant)
+            ->named('Availability')
+            ->availability()
+            ->from($day->toDateString())
+            ->to($day->copy()->addDay()->toDateString())
+            ->addPeriod('08:00', '18:00')
+            ->save();
+    }
 
     return $consultant;
 }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification as LaravelNotification;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
@@ -78,7 +79,8 @@ it('records a re_scheduled history entry when only the time changes', function (
     $history = $histories->first();
 
     expect($history->action_type)->toBe(AppointmentHistoryActionType::ReScheduled)
-        ->and($history->admin_id)->not->toBeNull()
+        ->and($history->actor_id)->not->toBeNull()
+        ->and($history->actor_type)->toBe(AppointmentHistoryActor::Admin)
         ->and(Date::parse($history->old_values['appointment_at'])->format('H:i'))->toBe('10:00')
         ->and(Date::parse($history->new_values['appointment_at'])->format('H:i'))->toBe('15:00');
 });

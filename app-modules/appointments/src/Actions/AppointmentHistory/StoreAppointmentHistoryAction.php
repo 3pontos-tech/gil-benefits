@@ -13,7 +13,8 @@ final readonly class StoreAppointmentHistoryAction
     {
         AppointmentHistory::query()->create([
             'appointment_id' => $dto->appointmentId,
-            'admin_id' => $dto->adminId,
+            'actor_id' => $dto->actorId,
+            'actor_type' => $dto->actorType,
             'action_type' => $dto->actionType,
             'old_values' => collect($dto->oldValues)->except('updated_at'),
             'new_values' => collect($dto->newValues)->except('updated_at'),

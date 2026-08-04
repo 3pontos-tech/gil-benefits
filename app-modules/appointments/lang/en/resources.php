@@ -102,7 +102,7 @@ return [
             ],
             'user_cancelled_late' => [
                 'title' => 'Appointment Cancelled',
-                'body' => 'Your appointment has been cancelled. As it was cancelled less than 24 hours before the scheduled time, your credit has been consumed.',
+                'body' => 'Your appointment has been cancelled. As it was cancelled less than :hours hours before the scheduled time, your credit has been consumed.',
             ],
             'pending' => [
                 'title' => 'Appointment under Scheduling',

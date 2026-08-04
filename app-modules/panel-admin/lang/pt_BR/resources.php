@@ -24,7 +24,7 @@ return [
         'history' => [
             'title' => 'Histórico',
             'columns' => [
-                'admin' => 'Responsável',
+                'author' => 'Responsável',
                 'action_type' => 'Ação',
                 'summary' => 'Detalhes',
                 'created_at' => 'Quando',

@@ -16,7 +16,7 @@ return [
         'subject' => 'Appointment cancelled',
     ],
     'user_cancelled_late' => [
-        'subject' => 'Appointment cancelled (less than 24h notice)',
+        'subject' => 'Appointment cancelled (less than :hours h notice)',
     ],
     'consultant_unassigned' => [
         'subject' => 'An appointment was removed from your agenda',

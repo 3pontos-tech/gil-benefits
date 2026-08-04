@@ -16,4 +16,8 @@ return [
         'consultant_changed' => 'Consultant changed',
         're_scheduled' => 'Rescheduled',
     ],
+    'appointment_history_actor' => [
+        'admin' => 'Administrator',
+        'user' => 'Client',
+    ],
 ];

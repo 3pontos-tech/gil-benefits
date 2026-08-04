@@ -4,6 +4,157 @@
 @source '../../../../resources/views/**/*';
 @plugin "@tailwindcss/typography";
 
+/*
+ * Raio de borda do painel: superfícies externas quadradas, controles internos
+ * com 4px. O Filament não escreve valores literais de border-radius: todo o
+ * CSS dele usa @apply com os utilitários rounded-* do Tailwind, que compilam
+ * para var(--radius-*). Redefinir os tokens aqui atinge todos os componentes
+ * de uma vez, sem precisar sobrescrever seletor por seletor.
+ *
+ *   --radius-xl -> superfícies externas: section/card, container de tabela,
+ *                  modal, callout, fieldset, empty state, notificação,
+ *                  stats widget, wizard, repeater e a moldura da página
+ *   --radius-lg -> controles internos: botão, input, dropdown, item de aba,
+ *                  paginação, icon button, itens de sidebar e topbar
+ *   --radius-md -> badge, avatar, item de dropdown
+ *   --radius-sm -> checkbox e código inline do rich editor
+ *
+ * rounded-full não lê token (o Tailwind v4 resolve para calc(infinity * 1px)),
+ * então toggle, radio, spinner e avatar circular seguem redondos.
+ */
+@theme {
+    --radius-xs: 4px;
+    --radius-sm: 4px;
+    --radius-md: 4px;
+    --radius-lg: 4px;
+
+    --radius-xl: 0px;
+    --radius-2xl: 0px;
+    --radius-3xl: 0px;
+    --radius-4xl: 0px;
+}
+
+/*
+ * As variantes compactas de section usam rounded-lg em vez de rounded-xl.
+ * Como continuam sendo cards, voltam para 0 — só os controles ficam com 4px.
+ *
+ * O build do Tailwind v4 achata os @layer, então quem decide é especificidade
+ * e depois ordem. Os seletores abaixo espelham exatamente os do Filament para
+ * empatar em especificidade e vencer por vir depois — um seletor mais curto
+ * (ex.: .fi-section.fi-compact) perderia para o do vendor.
+ */
+.fi-section:not(.fi-section-not-contained):not(.fi-aside).fi-compact,
+.fi-section:not(.fi-section-not-contained).fi-aside.fi-compact > .fi-section-content-ctn {
+    border-radius: 0;
+}
+
+/*
+ * Espaçamento entre os widgets do dashboard: o layout pede 32px no mínimo, e o
+ * Filament aplica gap-6 (24px) em .fi-sc.fi-sc-has-gap.
+ *
+ * O :has() restringe a regra às grades que contêm widgets. Sem ele, a mesma
+ * classe alcançaria os schemas de formulário do painel, que devem manter o gap
+ * padrão. A especificidade que ele acrescenta também é o que faz esta regra
+ * vencer a do pacote.
+ */
+.fi-sc-has-gap:has(.fi-wi-widget) {
+    gap: 32px;
+}
+
+/*
+ * Esqueleto comum dos modais de consultoria: wizards de agendamento e
+ * reagendamento, cancelamento e as telas de sucesso. Títulos de 32px, respiro
+ * de 32px, régua sob o cabeçalho e botões dividindo o rodapé; as variantes
+ * -danger/-success trocam o tom do quadrado do ícone e -footer-end compacta o
+ * rodapé à direita nos passos de sucesso.
+ */
+.fi-apt-wizard-modal {
+    & .fi-modal-heading {
+        font-size: 32px;
+        line-height: 1.2;
+    }
+
+    & .fi-modal-description {
+        font-size: 16px;
+    }
+
+    & .fi-modal-icon-bg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border: 1px solid rgb(from var(--gray-400) r g b / 0.4);
+        border-radius: 4px;
+    }
+
+    & .fi-modal-icon-bg .fi-icon {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+
+    & .fi-modal-header {
+        padding-inline: 32px;
+        padding-top: 32px;
+    }
+
+    & .fi-modal-content {
+        padding: 32px;
+        gap: 32px;
+        border-top: 1px solid var(--gray-200);
+    }
+
+    &:where(.dark, .dark *) .fi-modal-content {
+        border-top-color: rgb(255 255 255 / 0.1);
+    }
+
+    & .fi-modal-footer {
+        padding-inline: 32px;
+        padding-bottom: 32px;
+    }
+
+    & .fi-modal-footer-actions {
+        & > * {
+            flex: 1 1 0%;
+        }
+
+        & .fi-btn {
+            width: 100%;
+            font-size: 16px;
+        }
+    }
+
+    & .fi-modal-close-btn {
+        color: var(--danger-500);
+    }
+}
+
+/* Respiro entre a descrição e a régua do conteúdo, que ficavam encostadas.
+   Variante opt-in, aplicada modal a modal em vez de no esqueleto, para cada
+   tela aderir explicitamente. */
+.fi-apt-wizard-modal-roomy-header .fi-modal-header {
+    padding-bottom: 32px;
+}
+
+.fi-apt-wizard-modal-danger .fi-modal-icon-bg {
+    border-color: rgb(from var(--danger-500) r g b / 0.4);
+}
+
+.fi-apt-wizard-modal-success .fi-modal-icon-bg {
+    border-color: rgb(from var(--success-500) r g b / 0.4);
+}
+
+/* Sucesso do reagendamento: um único "Finalizar" compacto, à direita. */
+.fi-apt-wizard-modal-footer-end .fi-modal-footer-actions {
+    & > * {
+        flex: 0 0 auto;
+    }
+
+    & .fi-btn {
+        width: auto;
+    }
+}
 
 .scrollbar-hidden::-webkit-scrollbar {
     display: none;

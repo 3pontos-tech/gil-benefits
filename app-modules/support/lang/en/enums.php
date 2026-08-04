@@ -23,7 +23,7 @@ return [
             'plan' => 'If your password is correct and you still cannot access, check whether your company has cancelled its plan.',
         ],
         'login_access_profile_link' => 'Change my password in my profile',
-        'scheduling_issue' => 'To reschedule, cancel the current appointment and create a new one on your preferred date. Cancellations made less than 24 hours in advance consume your monthly appointment or the credit used, with no refund. With 24 hours or more in advance, nothing is charged.',
+        'scheduling_issue' => 'To reschedule, cancel the current appointment and create a new one on your preferred date. Cancellations made less than :hours hours in advance consume your monthly appointment or the credit used, with no refund. With :hours hours or more in advance, nothing is charged.',
     ],
     'ticket_status' => [
         'pending' => 'Pending',

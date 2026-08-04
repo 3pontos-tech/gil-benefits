@@ -14,7 +14,7 @@ class FinancialTopicsWidget extends Widget
 {
     protected string $view = 'filament.app.widgets.financial-topics';
 
-    protected int|string|array $columnSpan = ['default' => 'full', 'md' => 3];
+    protected int|string|array $columnSpan = ['default' => 'full', 'md' => 6];
 
     protected function getViewData(): array
     {

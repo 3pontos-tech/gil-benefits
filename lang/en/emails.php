@@ -49,7 +49,7 @@ return [
         'cancelled_late' => [
             'title' => 'Appointment Cancelled (Late Notice)',
             'greeting' => 'Hello, **:name**!',
-            'body' => 'Your appointment with **:consultant**, scheduled for **:date**, was cancelled with less than 24 hours notice.',
+            'body' => 'Your appointment with **:consultant**, scheduled for **:date**, was cancelled with less than :hours hours notice.',
             'credit_notice' => 'Due to the late cancellation, the credit for this appointment **will not be returned** to your plan.',
             'reschedule' => 'If you wish to book a new appointment and still have available credits, access the panel.',
             'button' => 'Access panel',
