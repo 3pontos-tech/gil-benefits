@@ -4,11 +4,13 @@ namespace TresPontosTech\Appointments\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use TresPontosTech\Appointments\Database\Factories\AppointmentFeedbackFactory;
+use TresPontosTech\Appointments\Policies\AppointmentFeedbackPolicy;
 
 /**
  * @property int $id
@@ -20,6 +22,7 @@ use TresPontosTech\Appointments\Database\Factories\AppointmentFeedbackFactory;
  * @property Carbon|null $updated_at
  */
 #[UseFactory(AppointmentFeedbackFactory::class)]
+#[UsePolicy(AppointmentFeedbackPolicy::class)]
 class AppointmentFeedback extends Model
 {
     /** @use HasFactory<AppointmentFeedbackFactory> */
