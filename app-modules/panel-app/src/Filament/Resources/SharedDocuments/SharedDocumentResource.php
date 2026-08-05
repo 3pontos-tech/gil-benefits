@@ -27,11 +27,13 @@ class SharedDocumentResource extends Resource
 
     protected static bool $isScopedToTenant = false;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::Document;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Folder;
+
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return __('panel-admin::resources.navigation_group.appointments');
+        return __('panel-app::navigation.groups.appointments.label');
     }
 
     public static function form(Schema $schema): Schema
