@@ -3,27 +3,36 @@
 namespace TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Tables;
 
 use Filament\Actions\Action;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Consultants\Models\Document;
-use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
 use TresPontosTech\PanelConsultant\Filament\Actions\DownloadDocumentFilamentAction;
 
 class SharedDocumentsTable
 {
     public static function table(Table $table): Table
     {
-
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->with(['documentable', 'media']))
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->where('active', 1)
+                ->whereHas('shares', fn ($subquery) => $subquery
+                    ->where('employee_id', auth()->user()->getKey())
+                    ->where('active', 1))
+                ->with(['documentable', 'media']))
+            ->heading(__('panel-app::resources.documents.shared.heading'))
+            ->description(__('panel-app::resources.documents.shared.description'))
+            ->extraAttributes(['class' => 'fi-apt-inline-toolbar'])
             ->columns([
+                TextColumn::make('type')
+                    ->label(__('panel-app::resources.documents.table.extension_type'))
+                    ->badge()
+                    ->icon(Heroicon::OutlinedDocumentText)
+                    ->searchable(),
+
                 TextColumn::make('documentable.name')
                     ->label(__('panel-app::resources.documents.table.consultant'))
-                    ->hidden(fn ($livewire): bool => $livewire->activeTab === 'mine')
                     ->searchable()
                     ->sortable(),
 
@@ -32,31 +41,24 @@ class SharedDocumentsTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('type')
-                    ->label(__('panel-app::resources.documents.table.extension_type'))
-                    ->searchable()
-                    ->sortable(),
-
                 TextColumn::make('created_at')
                     ->label(__('panel-app::resources.documents.table.created_at'))
                     ->dateTime('d/m/Y')
-                    ->searchable()
                     ->sortable(),
             ])
+            ->recordClasses(fn (Document $record): string => 'fi-apt-doc-' . $record->type->value)
+            ->defaultSort('created_at', 'desc')
             ->recordActions([
                 DownloadDocumentFilamentAction::make()
+                    ->label(__('panel-app::resources.documents.actions.access'))
+                    ->icon(Heroicon::OutlinedEye)
                     ->visible(fn (Document $record): bool => $record->hasLink() === false),
                 Action::make('open-link')
-                    ->label('Link')
-                    ->icon(Heroicon::ArrowTopRightOnSquare)
+                    ->label(__('panel-app::resources.documents.actions.access'))
+                    ->icon(Heroicon::OutlinedEye)
                     ->url(fn (Document $record): string => $record->link)
                     ->openUrlInNewTab()
                     ->visible(fn (Document $record): bool => $record->hasLink()),
-                EditAction::make()
-                    ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
-                DeleteAction::make()
-                    ->visible(fn ($livewire): bool => $livewire->activeTab === 'mine'),
-
-            ])->recordUrl(fn ($record): ?string => $record->documentable_id === auth()->user()->id ? EditSharedDocument::getUrl(['record' => $record->getKey()]) : null);
+            ]);
     }
 }
