@@ -103,7 +103,10 @@ class EditUserProfile extends BaseEditUserProfile
                 (string) __('panel-app::profile.avatar.heading'),
                 (string) __('panel-app::profile.avatar.description'),
             ),
-            $this->getAvatarFormComponent(),
+            // O card envolve só o upload; o título fica fora dele, como no layout.
+            Section::make()
+                ->extraAttributes(['class' => 'fi-ap-profile-avatar'])
+                ->schema([$this->getAvatarFormComponent()]),
 
             Tabs::make()
                 ->columnSpanFull()
@@ -191,8 +194,11 @@ class EditUserProfile extends BaseEditUserProfile
         return $component instanceof SpatieMediaLibraryFileUpload
             ? $component
                 ->hiddenLabel()
-                ->helperText(__('panel-app::profile.avatar.helper'))
+                ->belowContent($this->getAvatarTextsComponent())
                 ->maxSize(self::AVATAR_MAX_SIZE_KB)
+                ->avatar()
+                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                ->alignCenter()
             : $component;
     }
 
@@ -203,6 +209,19 @@ class EditUserProfile extends BaseEditUserProfile
         return $tenant instanceof Company
             ? SupportTicketResource::getUrl('create', tenant: $tenant)
             : null;
+    }
+
+    private function getAvatarTextsComponent(): Component
+    {
+        return View::make('filament.app.profile.avatar-texts')
+            ->viewData([
+                'hint' => new HtmlString((string) __('panel-app::profile.avatar.hint', [
+                    'action' => '<span class="font-bold text-danger-500">'
+                        . e(__('panel-app::profile.avatar.hint_action'))
+                        . '</span>',
+                ])),
+                'helper' => (string) __('panel-app::profile.avatar.helper'),
+            ]);
     }
 
     private function getSectionHeadingComponent(string $heading, string $description): Component

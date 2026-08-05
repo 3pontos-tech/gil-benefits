@@ -9,6 +9,8 @@ return [
     'avatar' => [
         'heading' => 'Foto de perfil',
         'description' => 'Essa foto será exibida em toda plataforma',
+        'hint' => 'Arraste e solte os arquivos aqui ou :action para selecionar',
+        'hint_action' => 'clique',
         'helper' => 'PNG, JPG ou WEBP até 5MB. Recomendado: imagem quadrada.',
     ],
 

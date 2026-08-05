@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Users\Detail;
 use App\Models\Users\User;
+use Filament\Support\Enums\Alignment;
 use TresPontosTech\PanelApp\Filament\Pages\EditUserProfile;
 use TresPontosTech\User\Enums\LifeMoment;
 
@@ -35,7 +36,43 @@ it('states the accepted formats and the size limit on the avatar upload', functi
 
     expect($avatar)->not->toBeNull()
         ->and($avatar->getMaxSize())->toBe(5120)
-        ->and($avatar->getAcceptedFileTypes())->toBe(['image/jpeg', 'image/png', 'image/webp']);
+        ->and($avatar->getAcceptedFileTypes())->toBe(['image/jpeg', 'image/png', 'image/webp'])
+        // Preset de avatar: miniatura circular em vez da lista de arquivo com
+        // preview grande, que é o padrão do FileUpload.
+        ->and($avatar->isAvatar())->toBeTrue()
+        ->and($avatar->getPanelLayout())->toBe('compact circle')
+        // Centralização pelo componente, não por CSS: o root troca
+        // fi-align-start por fi-align-center.
+        ->and($avatar->getAlignment())->toBe(Alignment::Center);
+});
+
+it('centers the avatar block inside its own card', function (): void {
+    filament()->setTenant(null);
+
+    $html = get(EditUserProfile::getUrl())->assertSuccessful()->getContent();
+
+    expect($html)->toContain('fi-align-center')
+        // O card envolve só o upload; o título "Foto de perfil" fica fora dele.
+        ->and($html)->toContain('fi-ap-profile-avatar')
+        ->and($html)->not->toContain('fi-fo-file-upload fi-fo-file-upload-avatar fi-align-start');
+});
+
+it('repeats the upload hint below the avatar, above the accepted formats', function (): void {
+    filament()->setTenant(null);
+
+    $html = get(EditUserProfile::getUrl())->assertSuccessful()->getContent();
+
+    $hint = 'Arraste e solte os arquivos aqui ou';
+    $helper = 'PNG, JPG ou WEBP até 5MB. Recomendado: imagem quadrada.';
+
+    // O FilePond mostra a frase dentro do círculo só enquanto está vazio; esta
+    // cópia abaixo do avatar continua visível depois do upload.
+    expect($html)->toContain($hint)
+        ->and($html)->toContain('<span class="font-bold text-danger-500">clique</span>');
+
+    // Ordem do layout: frase de upload antes dos formatos aceitos. Com
+    // helperText o campo emitiria os formatos primeiro.
+    expect(mb_strpos($html, $hint))->toBeLessThan(mb_strpos($html, $helper));
 });
 
 it('wraps both tabs content in sections, so no heading sits flush against the edge', function (): void {

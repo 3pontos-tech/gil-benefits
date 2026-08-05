@@ -472,6 +472,18 @@
  * canto — daí o escopo explícito em `.fi-tabs` abaixo.
  */
 /*
+ * Card da foto de perfil. O círculo é centralizado pelo próprio componente
+ * (alignCenter), mas o conteúdo abaixo do campo cai num container
+ * `.fi-sc.fi-inline`, que o pacote define como flex sem justify-content — ou
+ * seja, encostado à esquerda. Centralizar o texto exige mexer no container: um
+ * `text-align` no <span> do texto não teria efeito, porque quem alinha inline é
+ * o bloco que o contém.
+ */
+.fi-ap-profile-avatar .fi-sc.fi-inline {
+    justify-content: center;
+}
+
+/*
  * O `fi-contained` do pacote embrulha o bloco de abas num card (fundo, ring,
  * sombra e raio) e dá 24px de padding ao painel ativo. O layout não tem esse
  * card: as abas ficam soltas sobre o fundo e cada bloco de conteúdo traz o seu

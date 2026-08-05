@@ -9,6 +9,8 @@ return [
     'avatar' => [
         'heading' => 'Profile picture',
         'description' => 'This picture will be shown across the platform',
+        'hint' => 'Drag and drop your files here or :action to select',
+        'hint_action' => 'click',
         'helper' => 'PNG, JPG or WEBP up to 5MB. Recommended: square image.',
     ],
 
