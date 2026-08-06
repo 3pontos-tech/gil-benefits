@@ -513,10 +513,14 @@
         /* Zera só o padding: a régua inferior de 1px do fi-contained é
            exatamente o trilho que o layout pede. */
         padding: 0;
-        /* overflow-x: auto do pacote faz o eixo Y computar auto; qualquer
-           conteúdo mais alto que o nav vira barra de rolagem vertical. Com duas
-           abas não há o que rolar. */
-        overflow: visible;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
         background-color: transparent;
         box-shadow: none;
         border-radius: 0;
@@ -578,6 +582,24 @@
 
     & > .fi-tabs .fi-tabs-item.fi-active .fi-tabs-item-label {
         color: white;
+    }
+}
+
+/*
+ * No mobile os dois rótulos não caem na largura da tela. Em vez de deixar a
+ * segunda aba sempre cortada, a ativa passa para a frente: quem escolheu a aba
+ * lê o título inteiro e a inativa é que se corta — comportamento do layout.
+ *
+ * `order` funciona porque .fi-tabs é flex (o pacote já define display:flex), e
+ * `fi-active` é aplicado pelo Alpine em tempo de execução, então a troca
+ * acompanha o clique sem JS extra.
+ *
+ * Acima deste ponto os dois rótulos caem lado a lado e a ordem natural é
+ * mantida, como no desktop.
+ */
+@media (width < 40rem) {
+    .fi-ap-profile-tabs > .fi-tabs .fi-tabs-item.fi-active {
+        order: -1;
     }
 }
 
