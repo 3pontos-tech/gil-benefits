@@ -723,6 +723,7 @@
         &::-webkit-scrollbar {
             display: none;
         }
+
         background-color: transparent;
         box-shadow: none;
         border-radius: 0;

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'heading' => 'Seja bem vindo, :name.',
+    'heading' => 'Seja bem-vindo, :name.',
     'subheading' => 'Gerencie suas informações pessoais, segurança e preferências.',
 
     'avatar' => [
