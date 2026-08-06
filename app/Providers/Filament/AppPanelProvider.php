@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Shared\Pages\LoginPage;
 use App\Http\Middleware\IdentifyDefaultTenantOffTenantRoutes;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -15,6 +16,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\View\View as ViewContract;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -120,6 +122,7 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->searchableTenantMenu(false)
+            ->breadcrumbs(false)
             ->tenantMenu(false)
             ->tenantBillingProvider(new UserBillingProvider)
             ->tenant(Company::class, slugAttribute: 'slug')
@@ -134,6 +137,25 @@ class AppPanelProvider extends PanelProvider
                 // {tenant}. Sem isto, montar essas URLs estoura.
                 IdentifyDefaultTenantOffTenantRoutes::class,
             ])
+            ->bootUsing(function (): void {
+                Table::configureUsing(function (Table $table): void {
+                    $table
+                        ->searchPlaceholder(__('all.tables.search_placeholder'))
+                        ->filtersTriggerAction(fn (Action $action): Action => $action
+                            ->button()
+                            ->outlined()
+                            ->color('gray')
+                            ->label(function (Table $table): string {
+                                $label = __('all.tables.filters_label');
+                                $count = $table->getActiveFiltersCount();
+
+                                return $count > 0 ? sprintf('%s (%d)', $label, $count) : $label;
+                            }))
+                        ->paginationPageOptions([6, 12, 24])
+                        ->defaultPaginationPageOption(6)
+                        ->extremePaginationLinks();
+                });
+            })
             ->viteTheme('resources/css/filament/app/theme.css');
     }
 }

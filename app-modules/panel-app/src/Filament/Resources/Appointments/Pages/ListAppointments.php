@@ -20,14 +20,6 @@ class ListAppointments extends ListRecords implements ShowsCancelledConfirmation
         return __('panel-app::resources.appointments.table.title');
     }
 
-    /**
-     * @return array<string>
-     */
-    public function getBreadcrumbs(): array
-    {
-        return [];
-    }
-
     protected function getHeaderActions(): array
     {
         return [];

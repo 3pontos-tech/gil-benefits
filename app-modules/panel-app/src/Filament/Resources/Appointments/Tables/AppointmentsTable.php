@@ -60,7 +60,6 @@ class AppointmentsTable
                     ->searchable(),
             ])
             ->defaultSort('appointment_at', 'desc')
-            ->searchPlaceholder(__('panel-app::resources.appointments.table.search_placeholder'))
             ->filters([
                 SelectFilter::make('status')
                     ->label(__('panel-app::resources.appointments.table.filters.status'))
@@ -71,25 +70,11 @@ class AppointmentsTable
                     ->options(AppointmentCategoryEnum::class)
                     ->multiple(),
             ])
-            ->filtersTriggerAction(fn (Action $action): Action => $action
-                ->button()
-                ->outlined()
-                ->color('gray')
-                ->label(function (Table $table): string {
-                    $label = __('panel-app::resources.appointments.table.filters_label');
-                    $count = $table->getActiveFiltersCount();
-
-                    return $count > 0 ? sprintf('%s (%d)', $label, $count) : $label;
-                }))
             ->recordActions([
                 ViewAppointmentRecordAction::make(),
                 FeedbackAction::make(),
                 RescheduleAppointmentAction::make(),
                 CancelAppointmentAction::make(),
-            ])
-            ->paginationPageOptions([6, 12, 24])
-            ->defaultPaginationPageOption(6)
-            ->extremePaginationLinks()
-            ->extraAttributes(['class' => 'fi-apt-table']);
+            ]);
     }
 }

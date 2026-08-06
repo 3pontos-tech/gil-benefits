@@ -9,8 +9,6 @@ return [
             'heading' => 'Booked consultations',
             'description' => 'Manage and follow your booked consultations.',
             'category_type' => 'Appointment Type',
-            'search_placeholder' => 'Search',
-            'filters_label' => 'Filter',
             'filters' => [
                 'status' => 'Status',
                 'category_type' => 'Appointment type',
@@ -144,16 +142,24 @@ return [
         ],
     ],
     'documents' => [
-        'tabs' => [
-            'shared' => 'Shared with me',
-            'mine' => 'My Documents',
+        'my_materials' => [
+            'heading' => 'My materials',
+            'description' => 'Access and follow every material available to you.',
+            'new_document' => 'New document',
+        ],
+        'shared' => [
+            'heading' => 'Shared with me',
+            'description' => 'Access and follow every material available to you.',
+        ],
+        'actions' => [
+            'access' => 'Access',
         ],
         'table' => [
-            'title' => 'Document Type',
-            'extension_type' => 'Extension Type',
+            'title' => 'Document name',
+            'extension_type' => 'Type',
             'active' => 'Is Active',
             'consultant' => 'Consultant',
-            'created_at' => 'Sent At',
+            'created_at' => 'Sent at',
         ],
         'form' => [
             'heading' => 'New Document',

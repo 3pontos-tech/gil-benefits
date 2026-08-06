@@ -119,6 +119,16 @@ return [
         'cancellation_rate' => 'Taxa de Cancelamento',
         'cancellation_rate_description' => ':cancelled de :total consultas canceladas',
     ],
+    'appointment_feedbacks_stats' => [
+        'total' => 'Total de Avaliações',
+        'total_description' => 'Considerando os filtros aplicados',
+        'avg_rating' => 'Nota Média',
+        'avg_rating_description' => 'Média das notas de 1 a 5',
+        'with_comment_rate' => 'Com Comentário',
+        'with_comment_rate_description' => ':count de :total avaliações',
+        'critical' => 'Avaliações Críticas',
+        'critical_description' => 'Nota até 2 • :rate% do total',
+    ],
     'engagement' => [
         'totals' => [
             'heading' => 'Visão consolidada',
