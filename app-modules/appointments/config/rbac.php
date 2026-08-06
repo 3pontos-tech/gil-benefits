@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
 use TresPontosTech\Permissions\PermissionsEnum;
 use TresPontosTech\Permissions\Roles;
@@ -15,6 +16,10 @@ return [
                 PermissionsEnum::Create,
                 PermissionsEnum::Update,
                 PermissionsEnum::Delete,
+            ],
+            AppointmentFeedback::class => [
+                PermissionsEnum::ViewAny,
+                PermissionsEnum::View,
             ],
         ],
         Roles::Consultant->value => [

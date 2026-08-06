@@ -119,6 +119,16 @@ return [
         'cancellation_rate' => 'Cancellation Rate',
         'cancellation_rate_description' => ':cancelled of :total appointments cancelled',
     ],
+    'appointment_feedbacks_stats' => [
+        'total' => 'Total Evaluations',
+        'total_description' => 'Considering the applied filters',
+        'avg_rating' => 'Average Rating',
+        'avg_rating_description' => 'Average of ratings from 1 to 5',
+        'with_comment_rate' => 'With Comment',
+        'with_comment_rate_description' => ':count of :total evaluations',
+        'critical' => 'Critical Evaluations',
+        'critical_description' => 'Rating up to 2 • :rate% of total',
+    ],
     'engagement' => [
         'totals' => [
             'heading' => 'Consolidated view',
