@@ -41,25 +41,22 @@ describe('tenant isolation: no relationship with the other company', function ()
         actingAs($this->owner);
     });
 
-    it('returns 404 when trying to access another company dashboard', function (): void {
-        get(route('filament.company.pages.dashboard', ['tenant' => $this->otherCompany->slug]))
-            ->assertNotFound();
-    });
+    // ÉPICO 56: opening a company the user has no relationship with now
+    // redirects them to their own company home instead of a bare 404.
+    // Isolation still holds — the other company's data is never exposed.
+    it('redirects to own company instead of exposing another company', function (string $route): void {
+        $response = get(route($route, ['tenant' => $this->otherCompany->slug]));
 
-    it('returns 404 when trying to access another company credits page', function (): void {
-        get(route('filament.company.pages.credits', ['tenant' => $this->otherCompany->slug]))
-            ->assertNotFound();
-    });
-
-    it('returns 404 when trying to access another company profile', function (): void {
-        get(route('filament.company.tenant.profile', ['tenant' => $this->otherCompany->slug]))
-            ->assertNotFound();
-    });
-
-    it('returns 404 when trying to access another company billing', function (): void {
-        get(route('filament.company.tenant.billing', ['tenant' => $this->otherCompany->slug]))
-            ->assertNotFound();
-    });
+        $response->assertStatus(302);
+        expect($response->headers->get('Location'))
+            ->toContain($this->ownCompany->slug)
+            ->not->toContain($this->otherCompany->slug);
+    })->with([
+        'dashboard' => ['filament.company.pages.dashboard'],
+        'credits page' => ['filament.company.pages.credits'],
+        'profile' => ['filament.company.tenant.profile'],
+        'billing' => ['filament.company.tenant.billing'],
+    ]);
 
     it('allows access to own company dashboard', function (): void {
         get(route('filament.company.pages.dashboard', ['tenant' => $this->ownCompany->slug]))

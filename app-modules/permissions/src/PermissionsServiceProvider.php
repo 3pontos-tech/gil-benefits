@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -38,6 +39,7 @@ class PermissionsServiceProvider extends ServiceProvider
             'consultants' => Consultant::class,
             'appointments' => Appointment::class,
             'appointment_records' => AppointmentRecord::class,
+            'appointment_feedbacks' => AppointmentFeedback::class,
             'company' => Company::class,
             'details' => Detail::class,
             'documents' => Document::class,

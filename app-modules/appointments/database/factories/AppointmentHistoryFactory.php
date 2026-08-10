@@ -8,6 +8,7 @@ use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
 
@@ -28,7 +29,8 @@ class AppointmentHistoryFactory extends Factory
             'updated_at' => Date::now(),
 
             'appointment_id' => Appointment::factory(),
-            'admin_id' => User::factory(),
+            'actor_id' => User::factory(),
+            'actor_type' => AppointmentHistoryActor::Admin,
         ];
     }
 

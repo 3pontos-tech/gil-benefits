@@ -19,4 +19,17 @@ return [
         'per_month' => '/month',
         'complete_subscription' => 'Complete Subscription',
     ],
+    'company_plan_inactive' => [
+        'title' => 'Company plan inactive',
+        'heading' => 'Your company plan is inactive',
+        'description' => ':company does not currently have an active plan, so access to the platform is temporarily suspended.',
+        'instruction' => 'Please contact your company administrator or manager to renew the subscription. Once the plan is reactivated, your access is restored automatically.',
+        'logout' => 'Log out',
+    ],
+    'no_company' => [
+        'title' => 'No active company',
+        'heading' => 'You are not in any active company',
+        'body' => 'Your company membership is not active right now, so there is no collaborator area to show. Please contact your company administrator or manager to restore your access.',
+        'logout' => 'Log out',
+    ],
 ];

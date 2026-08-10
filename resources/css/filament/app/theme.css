@@ -4,6 +4,651 @@
 @source '../../../../resources/views/**/*';
 @plugin "@tailwindcss/typography";
 
+/*
+ * Raio de borda do painel: superfícies externas quadradas, controles internos
+ * com 4px. O Filament não escreve valores literais de border-radius: todo o
+ * CSS dele usa @apply com os utilitários rounded-* do Tailwind, que compilam
+ * para var(--radius-*). Redefinir os tokens aqui atinge todos os componentes
+ * de uma vez, sem precisar sobrescrever seletor por seletor.
+ *
+ *   --radius-xl -> superfícies externas: section/card, container de tabela,
+ *                  modal, callout, fieldset, empty state, notificação,
+ *                  stats widget, wizard, repeater e a moldura da página
+ *   --radius-lg -> controles internos: botão, input, dropdown, item de aba,
+ *                  paginação, icon button, itens de sidebar e topbar
+ *   --radius-md -> badge, avatar, item de dropdown
+ *   --radius-sm -> checkbox e código inline do rich editor
+ *
+ * rounded-full não lê token (o Tailwind v4 resolve para calc(infinity * 1px)),
+ * então toggle, radio, spinner e avatar circular seguem redondos.
+ */
+@theme {
+    --radius-xs: 4px;
+    --radius-sm: 4px;
+    --radius-md: 4px;
+    --radius-lg: 4px;
+
+    --radius-xl: 0px;
+    --radius-2xl: 0px;
+    --radius-3xl: 0px;
+    --radius-4xl: 0px;
+}
+
+/*
+ * Escala do painel do colaborador, tirada do layout: respiro padrão de 32px e
+ * tipografia com piso de 16px. Todo bloco custom abaixo consome estas
+ * variáveis em vez de repetir os números — mudou o layout, muda aqui.
+ */
+:root {
+    --apt-space: 32px;
+    --apt-text-sm: 14px;
+    --apt-text-md: 16px;
+    --apt-text-lg: 24px;
+    --apt-text-xl: 32px;
+
+    /* Paleta Flamma para os pares ícone + frase da listagem (tons 300 do
+       design system, iguais nos dois temas). */
+    --apt-emerald-300: #00c993;
+    --apt-blue-300: #6db1ff;
+    --apt-red-300: #ff7263;
+    --apt-cyan-300: #00c6bc;
+    --apt-lime-300: #87c200;
+    --apt-orange-300: #ff8f4c;
+
+    /* Token de cor Text/text-medium do design system (não confundir com os
+       --apt-text-* acima, que são tamanhos). */
+    --apt-text-medium: #9c9c9c;
+}
+
+/*
+ * As variantes compactas de section usam rounded-lg em vez de rounded-xl.
+ * Como continuam sendo cards, voltam para 0 — só os controles ficam com 4px.
+ *
+ * O build do Tailwind v4 achata os @layer, então quem decide é especificidade
+ * e depois ordem. Os seletores abaixo espelham exatamente os do Filament para
+ * empatar em especificidade e vencer por vir depois — um seletor mais curto
+ * (ex.: .fi-section.fi-compact) perderia para o do vendor.
+ */
+.fi-section:not(.fi-section-not-contained):not(.fi-aside).fi-compact,
+.fi-section:not(.fi-section-not-contained).fi-aside.fi-compact > .fi-section-content-ctn {
+    border-radius: 0;
+}
+
+/*
+ * Espaçamento entre os widgets do dashboard: o layout pede 32px no mínimo, e o
+ * Filament aplica gap-6 (24px) em .fi-sc.fi-sc-has-gap.
+ *
+ * O :has() restringe a regra às grades que contêm widgets. Sem ele, a mesma
+ * classe alcançaria os schemas de formulário do painel, que devem manter o gap
+ * padrão. A especificidade que ele acrescenta também é o que faz esta regra
+ * vencer a do pacote.
+ */
+.fi-sc-has-gap:has(.fi-wi-widget) {
+    gap: var(--apt-space);
+}
+
+/*
+ * Esqueleto comum dos modais de consultoria: wizards de agendamento e
+ * reagendamento, cancelamento e as telas de sucesso. Títulos de 32px, respiro
+ * de 32px, régua sob o cabeçalho e botões dividindo o rodapé; as variantes
+ * -danger/-success trocam o tom do quadrado do ícone e -footer-end compacta o
+ * rodapé à direita nos passos de sucesso.
+ */
+.fi-apt-wizard-modal {
+    & .fi-modal-heading {
+        font-size: var(--apt-text-xl);
+        line-height: 1.2;
+    }
+
+    & .fi-modal-description {
+        font-size: var(--apt-text-md);
+    }
+
+    & .fi-modal-icon-bg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border: 1px solid rgb(from var(--gray-400) r g b / 0.4);
+        border-radius: 4px;
+    }
+
+    & .fi-modal-icon-bg .fi-icon {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
+
+    & .fi-modal-header {
+        padding-inline: var(--apt-space);
+        padding-top: var(--apt-space);
+    }
+
+    & .fi-modal-content {
+        padding: var(--apt-space);
+        gap: var(--apt-space);
+        border-top: 1px solid var(--gray-200);
+    }
+
+    &:where(.dark, .dark *) .fi-modal-content {
+        border-top-color: rgb(255 255 255 / 0.1);
+    }
+
+    & .fi-modal-footer {
+        padding-inline: var(--apt-space);
+        padding-bottom: var(--apt-space);
+    }
+
+    & .fi-modal-footer-actions {
+        & > * {
+            flex: 1 1 0%;
+        }
+
+        & .fi-btn {
+            width: 100%;
+            font-size: var(--apt-text-md);
+        }
+    }
+
+    & .fi-modal-close-btn {
+        color: var(--danger-500);
+    }
+}
+
+/* Respiro entre a descrição e a régua do conteúdo, que ficavam encostadas.
+   Variante opt-in, aplicada modal a modal em vez de no esqueleto, para cada
+   tela aderir explicitamente. */
+.fi-apt-wizard-modal-roomy-header .fi-modal-header {
+    padding-bottom: var(--apt-space);
+}
+
+.fi-apt-wizard-modal-danger .fi-modal-icon-bg {
+    border-color: rgb(from var(--danger-500) r g b / 0.4);
+}
+
+.fi-apt-wizard-modal-success .fi-modal-icon-bg {
+    border-color: rgb(from var(--success-500) r g b / 0.4);
+}
+
+/* Sucesso do reagendamento: um único "Finalizar" compacto, à direita. */
+.fi-apt-wizard-modal-footer-end .fi-modal-footer-actions {
+    & > * {
+        flex: 0 0 auto;
+    }
+
+    & .fi-btn {
+        width: auto;
+    }
+}
+
+/*
+ * Tabelas do painel — todas, sem opt-in por resource (este tema só é
+ * carregado pelo painel do colaborador): lista flat sem o card do Filament,
+ * colunas rentes à margem da página, linhas altas separadas por réguas finas.
+ * Badges perdem o pill: fica o ícone colorido ao lado do texto no token
+ * text-medium. A paginação segue o desenho de quadrados soltos com a página
+ * ativa preenchida em primary. Os comportamentos correspondentes (6 por
+ * página, saltos extremos, rótulos de busca/filtro) ficam no bootUsing do
+ * AppPanelProvider.
+ */
+.fi-ta {
+    /* O card do container: bg + ring (box-shadow no Tailwind). */
+    & .fi-ta-ctn {
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    & .fi-ta-header {
+        border-bottom: none;
+        padding-inline: 0;
+        padding-block: 0 var(--apt-space);
+    }
+
+    & .fi-ta-header-heading {
+        font-size: var(--apt-text-lg);
+        line-height: 1.3;
+    }
+
+    & .fi-ta-header-description {
+        font-size: var(--apt-text-md);
+    }
+
+    & .fi-ta-header-toolbar {
+        border-bottom: none;
+        padding-inline: 0;
+        padding-block: 0 var(--apt-space);
+
+        /* Filtro antes de Pesquisar, como no layout. */
+        & > :nth-child(2) {
+            flex-direction: row-reverse;
+        }
+
+        /* O blade injeta a contagem de filtros como badge mesmo zerada; a
+           contagem vai no rótulo do botão (AppointmentsTable), então o badge
+           sai de cena. */
+        & .fi-btn .fi-badge {
+            display: none;
+        }
+    }
+
+    /* A faixa cinza do thead não existe no layout. */
+    & .fi-ta-table > thead > tr {
+        background-color: transparent;
+    }
+
+    & .fi-ta-header-cell {
+        padding-block: 16px;
+        font-size: var(--apt-text-sm);
+    }
+
+    /* O padding das células de texto mora no conteúdo da coluna. */
+    & .fi-ta-text:not(.fi-inline) {
+        padding-block: 24px;
+    }
+
+    & .fi-ta-text-item,
+    & .fi-ta-placeholder {
+        font-size: var(--apt-text-sm);
+        font-weight: 500;
+    }
+
+    /* No layout o texto corrido das linhas é rebaixado; só cabeçalho e badges
+       ficam no tom cheio. */
+    & .fi-ta-text-item {
+        color: var(--gray-600);
+    }
+
+    &:where(.dark, .dark *) .fi-ta-text-item {
+        color: var(--gray-400);
+    }
+
+    /* Rente à margem: o container deixou de ser card, então some o respiro
+       lateral que compensava as bordas dele. */
+    & .fi-ta-header-cell:first-of-type,
+    & .fi-ta-cell:first-of-type {
+        padding-inline-start: 0;
+
+        & .fi-ta-text:not(.fi-inline) {
+            padding-inline-start: 0;
+        }
+    }
+
+    /* Um fio de respiro na ponta: sem ele o hover das ações encosta na
+       borda direita da tabela. */
+    & .fi-ta-header-cell:last-of-type,
+    & .fi-ta-cell:last-of-type {
+        padding-inline-end: 8px;
+    }
+
+    /* Badge sem pill (nas células da tabela e nos cards do grid): ícone
+       colorido + frase no token text-medium. */
+    & .fi-ta-cell .fi-badge,
+    & .fi-ta-content-grid .fi-badge {
+        min-width: 0;
+        padding: 0;
+        background-color: transparent;
+        box-shadow: none;
+        column-gap: 8px;
+        font-size: var(--apt-text-sm);
+        font-weight: 500;
+        color: var(--apt-text-medium);
+
+        & .fi-icon {
+            width: 1rem;
+            height: 1rem;
+        }
+    }
+
+    /* Cor do ícone por categoria e status de consultoria, nos tokens Flamma.
+       As classes vêm de extraCellAttributes na AppointmentsTable. */
+    & .fi-apt-cat-personal-finance .fi-badge .fi-icon,
+    & .fi-apt-status-active .fi-badge .fi-icon,
+    & .fi-apt-status-completed .fi-badge .fi-icon {
+        color: var(--apt-emerald-300);
+    }
+
+    & .fi-apt-cat-investment-advisory .fi-badge .fi-icon,
+    & .fi-apt-status-pending .fi-badge .fi-icon {
+        color: var(--apt-blue-300);
+    }
+
+    & .fi-apt-cat-risk-and-compliance .fi-badge .fi-icon,
+    & .fi-apt-status-cancelled .fi-badge .fi-icon {
+        color: var(--apt-red-300);
+    }
+
+    & .fi-apt-cat-fundraising-and-credit .fi-badge .fi-icon {
+        color: var(--apt-cyan-300);
+    }
+
+    & .fi-apt-cat-mergers-and-acquisitions .fi-badge .fi-icon {
+        color: var(--apt-lime-300);
+    }
+
+    & .fi-apt-cat-retirement-and-estate-planning .fi-badge .fi-icon,
+    & .fi-apt-status-cancelled-late .fi-badge .fi-icon {
+        color: var(--apt-orange-300);
+    }
+
+    /* Cor por tipo de documento (recordClasses nas tabelas de materiais):
+       cada linha/card carrega a var, a tabela pinta só o ícone e os cards do
+       grid pintam ícone + rótulo. */
+    & .fi-apt-doc-pdf {
+        --apt-doc-color: var(--apt-red-300);
+    }
+
+    & .fi-apt-doc-png {
+        --apt-doc-color: var(--apt-emerald-300);
+    }
+
+    & .fi-apt-doc-docx {
+        --apt-doc-color: var(--apt-blue-300);
+    }
+
+    & .fi-apt-doc-xlsx {
+        --apt-doc-color: var(--apt-lime-300);
+    }
+
+    & .fi-apt-doc-svg {
+        --apt-doc-color: var(--apt-orange-300);
+    }
+
+    & .fi-apt-doc-jpg {
+        --apt-doc-color: var(--apt-cyan-300);
+    }
+
+    & .fi-apt-doc-link {
+        --apt-doc-color: var(--apt-text-medium);
+    }
+
+    & [class*='fi-apt-doc-'] .fi-badge .fi-icon {
+        color: var(--apt-doc-color);
+    }
+
+    & .fi-ta-content-grid [class*='fi-apt-doc-'] .fi-badge {
+        color: var(--apt-doc-color);
+    }
+
+    /* Grid de cards (contentGrid): cantos de 4px de volta (o token do painel
+       zera o rounded-xl do vendor), card baixo com o tipo em lockup vertical —
+       ícone grande com a sigla embaixo —, título em destaque e kebab
+       centralizado na borda direita. */
+    & .fi-ta-content-grid {
+        gap: 24px;
+        /* Respiro para o ring dos cards não ser clipado pelo overflow do
+           container. */
+        padding: 4px;
+
+        & .fi-ta-record {
+            position: relative;
+            border-radius: var(--radius-lg);
+        }
+
+        /* O position: relative acima empilha os cards na ordem do DOM, então
+           o card seguinte pintava por cima do dropdown aberto do anterior.
+           Com foco dentro (trigger clicado) ou painel visível, o card sobe. */
+        & .fi-ta-record:focus-within,
+        & .fi-ta-record:has(.fi-dropdown-panel:not([style*='display: none'])) {
+            z-index: 10;
+        }
+
+        /* O wrapper tem padding próprio de 16px que dobrava a altura do
+           card; o respiro fica todo no record-content. */
+        & .fi-ta-record-content-ctn {
+            padding: 0;
+        }
+
+        & .fi-ta-record-content {
+            padding: 12px 16px;
+        }
+
+        & .fi-ta-text:not(.fi-inline) {
+            padding: 0;
+        }
+
+        /* line-height de tabela (24px) esticava o card. */
+        & .fi-ta-text-item {
+            line-height: 1.3;
+        }
+
+        & .fi-badge {
+            flex-direction: column;
+            row-gap: 2px;
+            font-size: 12px;
+            font-weight: 700;
+
+            & .fi-icon {
+                width: 2rem;
+                height: 2rem;
+            }
+        }
+
+        & .fi-apt-card-title .fi-ta-text-item {
+            color: var(--gray-950);
+        }
+
+        & .fi-ta-actions {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            inset-inline-end: 8px;
+        }
+    }
+
+    /* Mobile: ação de cabeçalho e busca ocupam a largura toda. */
+    @media (max-width: 639px) {
+        & .fi-ta-header .fi-ta-actions {
+            width: 100%;
+
+            & > * {
+                flex: 1 1 0%;
+            }
+
+            & .fi-btn {
+                width: 100%;
+            }
+        }
+
+        & .fi-ta-header-toolbar > :nth-child(2) {
+            width: 100%;
+        }
+
+        & .fi-ta-search-field {
+            width: 100%;
+        }
+    }
+
+    &:where(.dark, .dark *) .fi-ta-content-grid .fi-apt-card-title .fi-ta-text-item {
+        color: white;
+    }
+
+    & .fi-pagination {
+        border-top: none;
+        padding-inline: 0;
+        padding-block: var(--apt-space) 0;
+    }
+
+    /* O layout mostra só o seletor de itens por página, à esquerda. */
+    & .fi-pagination-overview {
+        display: none;
+    }
+
+    & .fi-pagination-records-per-page-select-ctn {
+        grid-column: 1;
+        justify-self: start;
+    }
+
+    /* Quadrados soltos em vez do grupo colado do Filament, rentes ao fim da
+       tabela. O grid-column devolve a lista à terceira coluna do grid
+       [1fr_auto_1fr] — mover o seletor por página para a primeira deslocou o
+       auto-placement dela para a coluna do meio. */
+    & .fi-pagination-items {
+        grid-column: 3;
+        justify-self: end;
+        gap: 8px;
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    & .fi-pagination-item {
+        border: none;
+    }
+
+    /* Pele única dos controles soltos — botão de filtro, busca, seletor por
+       página e botões de página: fundo transparente e a mesma borda fina, no
+       lugar do mosaico de rings e fundos que cada componente traz de fábrica.
+       O ring do Filament é box-shadow, daí o none. */
+    & .fi-ta-header-toolbar .fi-dropdown-trigger .fi-btn,
+    & .fi-ta-search-field .fi-input-wrp,
+    & .fi-pagination-records-per-page-select .fi-input-wrp,
+    & .fi-pagination-item-btn {
+        background-color: transparent;
+        box-shadow: none;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius-lg);
+    }
+
+    &:where(.dark, .dark *) .fi-ta-header-toolbar .fi-dropdown-trigger .fi-btn,
+    &:where(.dark, .dark *) .fi-ta-search-field .fi-input-wrp,
+    &:where(.dark, .dark *) .fi-pagination-records-per-page-select .fi-input-wrp,
+    &:where(.dark, .dark *) .fi-pagination-item-btn {
+        border-color: rgb(255 255 255 / 0.2);
+    }
+
+    /* Mesma altura do campo de busca ao lado, e rótulo/ícone no mesmo tom do
+       placeholder do Pesquisar. */
+    & .fi-ta-header-toolbar .fi-dropdown-trigger .fi-btn {
+        min-height: 36px;
+        color: var(--apt-text-medium);
+
+        & .fi-icon {
+            color: var(--apt-text-medium);
+        }
+    }
+
+    & .fi-ta-search-field {
+        & input::placeholder {
+            color: var(--apt-text-medium);
+        }
+
+        & .fi-icon {
+            color: var(--apt-text-medium);
+        }
+    }
+
+    & .fi-pagination-item-btn {
+        min-width: 2.5rem;
+        min-height: 2.5rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    & .fi-pagination-item.fi-active .fi-pagination-item-btn {
+        background-color: var(--primary-600);
+        border-color: transparent;
+
+        & .fi-pagination-item-label {
+            color: white;
+        }
+    }
+}
+
+/*
+ * Variante opt-in (via extraAttributes da tabela): cabeçalho em linha única —
+ * título e descrição à esquerda; filtro, busca e a ação da tabela à direita,
+ * com a ação por último, como no layout. Header e toolbar são irmãos no DOM
+ * dentro de .fi-ta-header-ctn, então é o grid do container que os põe lado a
+ * lado; a ação precisa vir de toolbarActions() (não headerActions()) para
+ * morar na mesma linha da busca.
+ */
+.fi-apt-inline-toolbar {
+    & .fi-ta-header-ctn {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        column-gap: 16px;
+        padding-bottom: var(--apt-space);
+    }
+
+    & .fi-ta-header,
+    & .fi-ta-header-toolbar {
+        padding-block: 0;
+    }
+
+    /* A ordem visual (…busca, ação) inverte a ordem do DOM (ação, busca). */
+    & .fi-ta-header-toolbar > :nth-child(1) {
+        order: 2;
+    }
+
+    & .fi-ta-header-toolbar > :nth-child(2) {
+        order: 1;
+        margin-inline-start: 0;
+    }
+
+    @media (max-width: 639px) {
+        & .fi-ta-header-ctn {
+            grid-template-columns: minmax(0, 1fr);
+            row-gap: 16px;
+        }
+
+        /* Empilhado, a ação volta para antes da busca e ocupa a linha toda. */
+        & .fi-ta-header-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+
+            & > :nth-child(1) {
+                order: 1;
+                width: 100%;
+
+                & > * {
+                    flex: 1 1 0%;
+                }
+
+                & .fi-btn {
+                    width: 100%;
+                }
+            }
+
+            & > :nth-child(2) {
+                order: 2;
+            }
+        }
+    }
+}
+
+/*
+ * Cabeçalho das páginas que hospedam listagens: título no tamanho display do
+ * layout e régua separando do conteúdo. O :has() amarra à presença de uma
+ * tabela para não vazar para as demais páginas do painel.
+ */
+.fi-page:has(.fi-ta) .fi-header {
+    padding-bottom: var(--apt-space);
+    border-bottom: 1px solid var(--gray-200);
+
+    & .fi-header-heading {
+        font-size: var(--apt-text-xl);
+    }
+}
+
+.fi-page:has(.fi-ta):where(.dark, .dark *) .fi-header {
+    border-bottom-color: rgb(255 255 255 / 0.1);
+}
+
+/*
+ * Dropdowns do painel: o gray-900 do vendor é praticamente a cor dos cards
+ * (white/5 sobre preto) e a sombra padrão é imperceptível no tema escuro —
+ * aberto sobre um card, o painel parecia transparente. Um degrau de cor e
+ * sombra de verdade devolvem a elevação.
+ */
+.fi-dropdown-panel {
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.35);
+}
+
+:where(.dark, .dark *) .fi-dropdown-panel {
+    background-color: var(--gray-800);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.6);
+}
 
 .scrollbar-hidden::-webkit-scrollbar {
     display: none;

@@ -5,15 +5,29 @@ declare(strict_types=1);
 use Cron\CronExpression;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Collection;
+
+/**
+ * @return Collection<int, Event>
+ */
+function googleCalendarScheduledEvents(): Collection
+{
+    return collect(resolve(Schedule::class)->events())
+        ->filter(fn (Event $event): bool => str_contains((string) $event->command, 'google-calendar:'))
+        ->values();
+}
 
 function googleCalendarSyncScheduledEvent(): ?Event
 {
-    return collect(resolve(Schedule::class)->events())
-        ->first(fn (Event $event): bool => str_contains((string) $event->command, 'google-calendar:sync'));
+    return googleCalendarScheduledEvents()->first();
 }
 
 it('schedules the google calendar sync command', function (): void {
     expect(googleCalendarSyncScheduledEvent())->not->toBeNull();
+});
+
+it('schedules a single google calendar entry so no consultant is dispatched twice', function (): void {
+    expect(googleCalendarScheduledEvents())->toHaveCount(1);
 });
 
 it('runs the google calendar sync every 20 minutes', function (): void {

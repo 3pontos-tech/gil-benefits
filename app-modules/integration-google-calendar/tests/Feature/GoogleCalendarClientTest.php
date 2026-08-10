@@ -1,6 +1,8 @@
 <?php
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Sleep;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
 use TresPontosTech\IntegrationGoogleCalendar\GoogleCalendarClient;
 use TresPontosTech\IntegrationGoogleCalendar\Responses\CalendarEventsResponse;
@@ -192,6 +194,201 @@ it('does not throw when deleteEvent receives 410 Gone (already deleted)', functi
 it('throws a retryable exception on deleteEvent server failure', function (): void {
     Http::fake([
         'https://www.googleapis.com/calendar/v3/calendars/*' => Http::response(['error' => 'server_error'], 500),
+    ]);
+
+    $exception = null;
+
+    try {
+        $this->client->deleteEvent('fake-token', 'primary', 'event-id');
+    } catch (GoogleCalendarApiException $googleCalendarApiException) {
+        $exception = $googleCalendarApiException;
+    }
+
+    expect($exception)->not->toBeNull()
+        ->and($exception->retryable)->toBeTrue();
+});
+
+// --- notACalendarUser (403) ---
+
+it('throws a non-retryable exception when the calendar user is not a Google Calendar user', function (string $method, array $arguments): void {
+    Http::fake([
+        'https://www.googleapis.com/calendar/v3/calendars/*' => Http::response([
+            'error' => [
+                'errors' => [
+                    ['domain' => 'calendar', 'reason' => 'notACalendarUser', 'message' => 'Not a calendar user'],
+                ],
+                'code' => 403,
+                'message' => 'Not a calendar user',
+            ],
+        ], 403),
+    ]);
+
+    $exception = null;
+
+    try {
+        $this->client->{$method}(...$arguments);
+    } catch (GoogleCalendarApiException $googleCalendarApiException) {
+        $exception = $googleCalendarApiException;
+    }
+
+    expect($exception)->not->toBeNull()
+        ->and($exception->retryable)->toBeFalse()
+        ->and($exception->getCode())->toBe(403);
+})->with([
+    'listEvents' => ['listEvents', ['fake-token', 'primary', '2026-05-01T00:00:00Z', '2026-06-30T23:59:59Z']],
+    'createEvent' => ['createEvent', ['fake-token', 'primary', []]],
+    'patchEvent' => ['patchEvent', ['fake-token', 'primary', 'event-id', []]],
+    'deleteEvent' => ['deleteEvent', ['fake-token', 'primary', 'event-id']],
+]);
+
+it('keeps a 403 retryable when the reason is not notACalendarUser', function (): void {
+    Http::fake([
+        'https://www.googleapis.com/calendar/v3/calendars/*' => Http::response([
+            'error' => [
+                'errors' => [['domain' => 'usageLimits', 'reason' => 'rateLimitExceeded']],
+                'code' => 403,
+            ],
+        ], 403),
+    ]);
+
+    $exception = null;
+
+    try {
+        $this->client->deleteEvent('fake-token', 'primary', 'event-id');
+    } catch (GoogleCalendarApiException $googleCalendarApiException) {
+        $exception = $googleCalendarApiException;
+    }
+
+    expect($exception)->not->toBeNull()
+        ->and($exception->retryable)->toBeTrue();
+});
+
+it('keeps a non-403 response retryable even when the body mentions notACalendarUser', function (): void {
+    Http::fake([
+        'https://www.googleapis.com/calendar/v3/calendars/*' => Http::response([
+            'error' => ['errors' => [['reason' => 'notACalendarUser']], 'code' => 500],
+        ], 500),
+    ]);
+
+    $exception = null;
+
+    try {
+        $this->client->deleteEvent('fake-token', 'primary', 'event-id');
+    } catch (GoogleCalendarApiException $googleCalendarApiException) {
+        $exception = $googleCalendarApiException;
+    }
+
+    expect($exception)->not->toBeNull()
+        ->and($exception->retryable)->toBeTrue();
+});
+
+// --- connection failures ---
+
+it('retries a connection failure and succeeds on a later attempt', function (): void {
+    Sleep::fake();
+
+    Http::fakeSequence('https://www.googleapis.com/calendar/v3/calendars/*')
+        ->pushFailedConnection('cURL error 28: SSL connection timeout')
+        ->push(['items' => [], 'nextSyncToken' => 'sync-token-abc'], 200);
+
+    $response = $this->client->listEvents('fake-token', 'primary', syncToken: 'previous-token');
+
+    expect($response->nextSyncToken)->toBe('sync-token-abc');
+
+    Http::assertSentCount(2);
+    Sleep::assertSleptTimes(1);
+});
+
+it('throws a connection exception after exhausting the connection retries', function (): void {
+    Sleep::fake();
+
+    config(['google-calendar.connection_retry_times' => 3]);
+
+    Http::fake([
+        'https://www.googleapis.com/calendar/v3/calendars/*' => Http::failedConnection('cURL error 28: SSL connection timeout'),
+    ]);
+
+    expect(fn () => $this->client->listEvents('fake-token', 'primary', '2026-05-01T00:00:00Z', '2026-06-30T23:59:59Z'))
+        ->toThrow(ConnectionException::class);
+
+    Http::assertSentCount(3);
+});
+
+it('does not retry HTTP error responses', function (): void {
+    Sleep::fake();
+
+    Http::fake([
+        'https://www.googleapis.com/calendar/v3/calendars/*' => Http::response(['error' => 'server_error'], 500),
+    ]);
+
+    expect(fn () => $this->client->listEvents('fake-token', 'primary', '2026-05-01T00:00:00Z', '2026-06-30T23:59:59Z'))
+        ->toThrow(GoogleCalendarApiException::class);
+
+    Http::assertSentCount(1);
+    Sleep::assertNeverSlept();
+});
+
+it('retries connection failures on the idempotent write operations', function (string $method, array $arguments): void {
+    Sleep::fake();
+
+    Http::fakeSequence('https://www.googleapis.com/calendar/v3/calendars/*')
+        ->pushFailedConnection('cURL error 28: SSL connection timeout')
+        ->push('', 204);
+
+    $this->client->{$method}(...$arguments);
+
+    Http::assertSentCount(2);
+})->with([
+    'patchEvent' => ['patchEvent', ['fake-token', 'primary', 'event-id', []]],
+    'deleteEvent' => ['deleteEvent', ['fake-token', 'primary', 'event-id']],
+]);
+
+it('retries connection failures when fetching the access token', function (): void {
+    Sleep::fake();
+
+    Http::fakeSequence('https://oauth2.googleapis.com/token')
+        ->pushFailedConnection('cURL error 28: SSL connection timeout')
+        ->push(['access_token' => 'ya29.retried-token'], 200);
+
+    expect($this->client->getAccessToken('consultant@workspace.com'))->toBe('ya29.retried-token');
+
+    Http::assertSentCount(2);
+});
+
+it('never retries createEvent, so a timed out create cannot duplicate the event', function (): void {
+    Sleep::fake();
+
+    Http::fake([
+        'https://www.googleapis.com/calendar/v3/calendars/*' => Http::failedConnection('cURL error 28: SSL connection timeout'),
+    ]);
+
+    expect(fn () => $this->client->createEvent('fake-token', 'primary', []))
+        ->toThrow(ConnectionException::class);
+
+    Http::assertSentCount(1);
+    Sleep::assertNeverSlept();
+});
+
+it('keeps a 403 retryable when error.errors is not the expected array shape', function (): void {
+    Http::fake([
+        'https://www.googleapis.com/calendar/v3/calendars/*' => Http::response(['error' => ['errors' => 'unexpected']], 403),
+    ]);
+
+    $exception = null;
+
+    try {
+        $this->client->deleteEvent('fake-token', 'primary', 'event-id');
+    } catch (GoogleCalendarApiException $googleCalendarApiException) {
+        $exception = $googleCalendarApiException;
+    }
+
+    expect($exception)->not->toBeNull()
+        ->and($exception->retryable)->toBeTrue();
+});
+
+it('keeps a 403 with a non-JSON body retryable', function (): void {
+    Http::fake([
+        'https://www.googleapis.com/calendar/v3/calendars/*' => Http::response('Forbidden', 403),
     ]);
 
     $exception = null;

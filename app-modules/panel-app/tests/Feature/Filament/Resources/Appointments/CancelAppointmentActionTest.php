@@ -69,10 +69,10 @@ it('hides cancel action on past appointments even if Pending or Active', functio
     'Active' => AppointmentStatus::Active,
 ]);
 
-it('sets status to Cancelled when cancelling >= 24h before appointment', function (): void {
+it('sets status to Cancelled when cancelling >= 4h before appointment', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)
-        ->create(['user_id' => $this->employee->id, 'appointment_at' => now()->addHours(25)]);
+        ->create(['user_id' => $this->employee->id, 'appointment_at' => now()->addHours(5)]);
 
     livewire(ListAppointments::class)
         ->callTableAction('cancel-appointment', $appointment);
@@ -80,10 +80,10 @@ it('sets status to Cancelled when cancelling >= 24h before appointment', functio
     expect($appointment->refresh()->status)->toBe(AppointmentStatus::Cancelled);
 });
 
-it('sets status to CancelledLate when cancelling < 24h before appointment', function (): void {
+it('sets status to CancelledLate when cancelling < 4h before appointment', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Active)
-        ->create(['user_id' => $this->employee->id, 'appointment_at' => now()->addHours(23)]);
+        ->create(['user_id' => $this->employee->id, 'appointment_at' => now()->addHours(1)]);
 
     livewire(ListAppointments::class)
         ->callTableAction('cancel-appointment', $appointment);

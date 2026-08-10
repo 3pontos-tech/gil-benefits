@@ -3,7 +3,7 @@
 
 {{ __('emails.appointments.cancelled_late.greeting', ['name' => $userName]) }}
 
-{{ __('emails.appointments.cancelled_late.body', ['consultant' => $consultantName, 'date' => $appointmentAt->format('d/m/Y \à\s H:i')]) }}
+{{ __('emails.appointments.cancelled_late.body', ['consultant' => $consultantName, 'date' => $appointmentAt->format('d/m/Y \à\s H:i'), 'hours' => $freeWindowHours]) }}
 
 {{ __('emails.appointments.cancelled_late.credit_notice') }}
 

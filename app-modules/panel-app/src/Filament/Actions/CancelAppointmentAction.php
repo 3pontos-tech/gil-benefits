@@ -3,13 +3,16 @@
 namespace TresPontosTech\PanelApp\Filament\Actions;
 
 use Filament\Actions\Action;
-use Filament\Notifications\Notification;
+use Filament\Support\Enums\Alignment;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\PanelApp\Filament\Contracts\ShowsCancelledConfirmation;
 
 class CancelAppointmentAction extends Action
 {
@@ -31,17 +34,36 @@ class CancelAppointmentAction extends Action
             AppointmentStatus::Active,
         ], strict: true) && $record->appointment_at->isFuture());
 
-        $this->modalHeading(fn (Appointment $record): string => now()->diffInHours($record->appointment_at, absolute: false) >= 24
-            ? __('panel-app::resources.appointments.cancel.modal_heading_ontime')
-            : __('panel-app::resources.appointments.cancel.modal_heading_late'));
-
-        $this->modalDescription(fn (Appointment $record): string => now()->diffInHours($record->appointment_at, absolute: false) >= 24
-            ? __('panel-app::resources.appointments.cancel.modal_description_ontime')
-            : __('panel-app::resources.appointments.cancel.modal_description_late'));
-
-        $this->modalSubmitActionLabel(__('panel-app::resources.appointments.cancel.modal_submit_label'));
-
         $this->requiresConfirmation();
+
+        $this->modalIcon(Heroicon::OutlinedCalendarDays);
+        $this->modalIconColor('danger');
+        // No layout o título de 32px ocupa cerca de metade da largura do modal,
+        // o que coloca a janela perto de 900px — 2xl (672px) ficava apertado.
+        $this->modalWidth(Width::FourExtraLarge);
+        // Start em vez do centro padrão: o layout põe o ícone à esquerda do
+        // título, com título e descrição alinhados à esquerda.
+        $this->modalAlignment(Alignment::Start);
+        $this->modalHeading(__('panel-app::resources.appointments.cancel.modal_heading'));
+        $this->modalDescription(__('panel-app::resources.appointments.cancel.modal_description'));
+        $this->modalSubmitActionLabel(__('panel-app::resources.appointments.cancel.modal_submit_label'));
+        $this->modalCancelActionLabel(__('panel-app::resources.appointments.cancel.modal_cancel_label'));
+
+        // Classe só para o CSS do tema alcançar este modal sem atingir os demais.
+        // Mesmo esqueleto visual dos wizards de agendamento; a variante danger
+        // só troca o tom do quadrado do ícone.
+        $this->extraModalWindowAttributes(['class' => 'fi-apt-wizard-modal fi-apt-wizard-modal-danger fi-apt-wizard-modal-roomy-header']);
+
+        $this->modalContent(fn (Appointment $record): View => view(
+            'filament.app.appointments.cancel-modal',
+            [
+                'appointment' => $record,
+                // O aviso muda conforme o crédito volte ou não, e o prazo citado
+                // vem da mesma constante que decide isso.
+                'keepsCredit' => ! $record->isLateCancellation(),
+                'noticeHours' => Appointment::CANCELLATION_WINDOW_HOURS,
+            ],
+        ));
 
         $this->action(function (Appointment $record): void {
             if ($record->user_id !== auth()->id()) {
@@ -54,14 +76,18 @@ class CancelAppointmentAction extends Action
             ));
 
             $livewire = $this->getLivewire();
-            if ($livewire instanceof Component) {
-                $livewire->dispatch('appointment-cancelled');
+            if (! $livewire instanceof Component) {
+                return;
             }
 
-            Notification::make()
-                ->title(__('panel-app::resources.appointments.cancel.success'))
-                ->success()
-                ->send();
+            // Atualiza a lista por baixo antes de abrir a confirmação de sucesso.
+            $livewire->dispatch('appointment-cancelled');
+
+            // O modal de sucesso é a confirmação; todos os hosts da action
+            // implementam o contrato, então o toast antigo saiu.
+            if ($livewire instanceof ShowsCancelledConfirmation) {
+                $livewire->confirmAppointmentCancellation($record);
+            }
         });
     }
 }

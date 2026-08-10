@@ -15,6 +15,7 @@ use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\EditSharedD
 use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\ListSharedDocuments;
 use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Schemas\SharedDocumentForm;
 use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Tables\SharedDocumentsTable;
+use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Widgets\MyMaterialsWidget;
 use UnitEnum;
 
 class SharedDocumentResource extends Resource
@@ -50,6 +51,13 @@ class SharedDocumentResource extends Resource
             'index' => ListSharedDocuments::route('/'),
             'create' => CreateSharedDocument::route('/create'),
             'edit' => EditSharedDocument::route('/{record}/edit'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            MyMaterialsWidget::class,
         ];
     }
 

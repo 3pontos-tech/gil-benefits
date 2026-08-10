@@ -42,25 +42,22 @@ describe('company manager tenant isolation', function (): void {
         actingAs($this->manager);
     });
 
-    it('returns 404 when trying to access another company dashboard', function (): void {
-        get(route('filament.company.pages.dashboard', ['tenant' => $this->otherCompany->slug]))
-            ->assertNotFound();
-    });
+    // ÉPICO 56: an authenticated user who opens a company they are not part of
+    // is redirected to their own company home instead of getting a bare 404.
+    // Tenant isolation still holds — they never see the other company's data.
+    it('redirects to own company instead of exposing another company', function (string $route): void {
+        $response = get(route($route, ['tenant' => $this->otherCompany->slug]));
 
-    it('returns 404 when trying to access another company credits page', function (): void {
-        get(route('filament.company.pages.credits', ['tenant' => $this->otherCompany->slug]))
-            ->assertNotFound();
-    });
-
-    it('returns 404 when trying to access another company profile', function (): void {
-        get(route('filament.company.tenant.profile', ['tenant' => $this->otherCompany->slug]))
-            ->assertNotFound();
-    });
-
-    it('returns 404 when trying to access another company billing', function (): void {
-        get(route('filament.company.tenant.billing', ['tenant' => $this->otherCompany->slug]))
-            ->assertNotFound();
-    });
+        $response->assertStatus(302);
+        expect($response->headers->get('Location'))
+            ->toContain($this->managedCompany->slug)
+            ->not->toContain($this->otherCompany->slug);
+    })->with([
+        'dashboard' => ['filament.company.pages.dashboard'],
+        'credits page' => ['filament.company.pages.credits'],
+        'profile' => ['filament.company.tenant.profile'],
+        'billing' => ['filament.company.tenant.billing'],
+    ]);
 
     it('allows access to the managed company dashboard', function (): void {
         get(route('filament.company.pages.dashboard', ['tenant' => $this->managedCompany->slug]))

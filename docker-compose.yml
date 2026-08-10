@@ -12,7 +12,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: dev_flamma
     ports:
-      - '5432:5432'
+      - '${FORWARD_DB_PORT:-5432}:5432'
     volumes:
       - flamma-db:/var/lib/postgresql
     networks:
@@ -33,7 +33,7 @@ services:
     restart: no
     hostname: dev
     ports:
-      - '6379:6379'
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
     networks:
       - dev-flamma
     healthcheck:
@@ -52,8 +52,8 @@ services:
     restart: no
     hostname: dev
     ports:
-      - '1025:1025'
-      - '8025:8025'
+      - '${FORWARD_MAILPIT_PORT:-1025}:1025'
+      - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
     networks:
       - dev-flamma
     healthcheck:
@@ -73,8 +73,8 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
       TZ: America/Sao_Paulo
     ports:
-      - '9000:9000'
-      - '9001:9001'
+      - '${FORWARD_MINIO_PORT:-9000}:9000'
+      - '${FORWARD_MINIO_CONSOLE_PORT:-9001}:9001'
     command: server /data --console-address ":9001"
     volumes:
       - flamma-minio:/data

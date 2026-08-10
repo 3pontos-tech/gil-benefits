@@ -58,3 +58,49 @@ it('has the correct retry configuration', function (): void {
     expect($this->job->tries)->toBe(3)
         ->and($this->job->backoff)->toBe([10, 60, 300]);
 });
+
+it('defaults to not forcing a full sync', function (): void {
+    expect($this->job->forceFullSync)->toBeFalse();
+});
+
+it('forwards the force full sync flag to the action', function (): void {
+    $this->consultant->update([
+        'google_calendar_sync_token' => 'fresh-token',
+        'google_calendar_synced_at' => now()->subMinutes(2),
+        'last_full_sync_at' => now()->subMinutes(2),
+    ]);
+
+    $client = Mockery::mock(GoogleCalendarClient::class);
+    $client->shouldReceive('getAccessToken')->andReturn('fake-token');
+    $client->shouldReceive('listEvents')
+        ->once()
+        ->withArgs(fn ($accessToken, $calendarId, $timeMin = null, $timeMax = null, $pageToken = null, $syncToken = null): bool => $syncToken === null && filled($timeMin) && filled($timeMax))
+        ->andReturn(new CalendarEventsResponse(collect([]), null, 'forced-token'));
+
+    (new SyncConsultantCalendarJob($this->consultant, forceFullSync: true))->handle(makeSyncAction($client));
+
+    expect($this->consultant->fresh()->google_calendar_sync_token)->toBe('forced-token');
+});
+
+it('logs the consultant and the reason when the job definitively fails', function (): void {
+    Log::spy();
+
+    $this->job->failed(new GoogleCalendarApiException('Rate limit exceeded', 429));
+
+    Log::shouldHaveReceived('error')
+        ->once()
+        ->withArgs(fn (string $message, array $context): bool => $message === 'Google Calendar sync failed for consultant'
+            && $context['consultant_id'] === $this->consultant->id
+            && $context['reason'] === 'Rate limit exceeded'
+            && filled($context['failed_at']));
+});
+
+it('scrubs the consultant email out of failure logs', function (): void {
+    Log::spy();
+
+    $this->job->failed(new GoogleCalendarApiException('Invalid grant for consultant@workspace.com'));
+
+    Log::shouldHaveReceived('error')
+        ->once()
+        ->withArgs(fn (string $message, array $context): bool => $context['reason'] === 'Invalid grant for [email]');
+});

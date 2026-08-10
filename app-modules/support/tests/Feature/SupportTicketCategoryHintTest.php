@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 
 it('exposes self-service hints only for login and scheduling categories', function (): void {
@@ -28,8 +29,8 @@ it('splits the login hint into password and plan tips', function (): void {
         ->and($plan)->toContain('plano');
 });
 
-it('spells out the 24h cancellation rule in the scheduling hint', function (): void {
+it('spells out the cancellation deadline in the scheduling hint', function (): void {
     expect(SupportTicketCategoryEnum::SchedulingIssue->getHint()[0])
-        ->toContain('24')
+        ->toContain((string) Appointment::CANCELLATION_WINDOW_HOURS)
         ->toContain('crédito');
 });

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Actions\AppointmentHistory\StoreAppointmentHistoryAction;
 use TresPontosTech\Appointments\DTO\StoreAppointmentHistoryDTO;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Mail\AppointmentConsultantUnassignedMail;
@@ -41,6 +42,7 @@ final readonly class SyncAppointmentScheduleAction
         Appointment $appointment,
         ?string $previousConsultantId,
         ?CarbonInterface $previousAppointmentAt,
+        AppointmentHistoryActor $actor,
     ): bool {
         $consultantChanged = $appointment->consultant_id !== $previousConsultantId;
         $timeChanged = ! $previousAppointmentAt instanceof CarbonInterface || ! $appointment->appointment_at->equalTo($previousAppointmentAt);
@@ -50,11 +52,11 @@ final readonly class SyncAppointmentScheduleAction
         }
 
         if ($timeChanged) {
-            $this->recordHistory($appointment, AppointmentHistoryActionType::ReScheduled);
+            $this->recordHistory($appointment, AppointmentHistoryActionType::ReScheduled, $actor);
         }
 
         if ($consultantChanged && blank($appointment->consultant_id)) {
-            $this->recordHistory($appointment, AppointmentHistoryActionType::ConsultantLeft);
+            $this->recordHistory($appointment, AppointmentHistoryActionType::ConsultantLeft, $actor);
 
             return $this->unassign($appointment, $previousConsultantId);
         }
@@ -66,15 +68,16 @@ final readonly class SyncAppointmentScheduleAction
         $this->blockAgenda($appointment, $previousConsultantId, $previousAppointmentAt);
 
         return $consultantChanged
-            ? $this->reassign($appointment, $previousConsultantId)
+            ? $this->reassign($appointment, $previousConsultantId, $actor)
             : $this->reschedule($appointment);
     }
 
-    private function recordHistory(Appointment $appointment, AppointmentHistoryActionType $type): void
+    private function recordHistory(Appointment $appointment, AppointmentHistoryActionType $type, AppointmentHistoryActor $actor): void
     {
         $this->storeAppointmentHistory->execute(StoreAppointmentHistoryDTO::make([
             'appointment_id' => $appointment->id,
-            'admin_id' => auth()->user()->getKey(),
+            'actor_id' => auth()->user()->getKey(),
+            'actor_type' => $actor->value,
             'action_type' => $type->value,
             'old_values' => $appointment->getPrevious(),
             'new_values' => $appointment->getChanges(),
@@ -98,11 +101,11 @@ final readonly class SyncAppointmentScheduleAction
         }
     }
 
-    private function reassign(Appointment $appointment, ?string $previousConsultantId): bool
+    private function reassign(Appointment $appointment, ?string $previousConsultantId, AppointmentHistoryActor $actor): bool
     {
         $this->recordHistory($appointment, blank($previousConsultantId)
             ? AppointmentHistoryActionType::ConsultantAssigned
-            : AppointmentHistoryActionType::ConsultantChanged);
+            : AppointmentHistoryActionType::ConsultantChanged, $actor);
 
         $previousConsultant = $this->resolveConsultant($previousConsultantId);
 
