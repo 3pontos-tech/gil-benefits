@@ -27,6 +27,7 @@ final readonly class CreateSupportTicketDTO
         public ?string $device = null,
         public ?string $environment = null,
         public array $attachments = [],
+        public ?TicketOriginDTO $origin = null,
     ) {}
 
     /**
