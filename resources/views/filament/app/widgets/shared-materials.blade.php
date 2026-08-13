@@ -12,9 +12,9 @@
         </div>
 
         @if($shares->isEmpty())
-            <p class="mt-3 text-sm text-gray-500 dark:text-gray-400">Nenhum material compartilhado ainda</p>
+            <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">Nenhum material compartilhado ainda</p>
         @else
-            <ul class="mt-2 divide-y divide-gray-100 text-sm dark:divide-white/5">
+            <ul class="mt-2 divide-y divide-gray-100 text-xs dark:divide-white/5">
                 @foreach($shares as $share)
                     @php $document = $share->document; @endphp
                     @continue($document === null)

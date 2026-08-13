@@ -370,6 +370,32 @@
         color: var(--apt-doc-color);
     }
 
+    /* Cor por status de crédito (extraCellAttributes na UserCreditsPage):
+       aqui ícone e frase acompanham o token, como no layout. */
+    & .fi-apt-credit-available {
+        --apt-credit-color: var(--apt-emerald-300);
+    }
+
+    & .fi-apt-credit-in-use {
+        --apt-credit-color: var(--apt-blue-300);
+    }
+
+    & .fi-apt-credit-used {
+        --apt-credit-color: var(--apt-text-medium);
+    }
+
+    & .fi-apt-credit-expired {
+        --apt-credit-color: var(--apt-orange-300);
+    }
+
+    & [class*='fi-apt-credit-'] .fi-badge {
+        color: var(--apt-credit-color);
+
+        & .fi-icon {
+            color: var(--apt-credit-color);
+        }
+    }
+
     /* Grid de cards (contentGrid): cantos de 4px de volta (o token do painel
        zera o rounded-xl do vendor), card baixo com o tipo em lockup vertical —
        ícone grande com a sigla embaixo —, título em destaque e kebab
@@ -456,6 +482,77 @@
 
         & .fi-ta-search-field {
             width: 100%;
+        }
+
+        /* Tabelas com stackedOnMobile: cada linha vira um card. O rótulo
+           traduzido vem do atributo data-apt-label (extraCellAttributes) e a
+           célula .fi-apt-stacked-title sobe como título do card. */
+        & .fi-ta-table-stacked-on-mobile {
+            /* O modo stacked traz um seletor de ordenação e o rótulo de cada
+               coluna dentro das células; o layout usa os rótulos curtos do
+               data-apt-label, então os nativos saem de cena. */
+            & .fi-ta-table-stacked-header-row {
+                display: none;
+            }
+
+            & .fi-ta-cell > .fi-ta-cell-label {
+                display: none;
+            }
+
+            & > tbody {
+                display: flex;
+                flex-direction: column;
+                row-gap: 16px;
+            }
+
+            & > tbody > tr {
+                display: flex;
+                flex-direction: column;
+                row-gap: 6px;
+                padding: 12px 16px;
+                border: 1px solid var(--gray-200);
+                border-radius: var(--radius-lg);
+            }
+
+            & .fi-ta-text:not(.fi-inline) {
+                padding: 0;
+            }
+
+            & .fi-ta-cell[data-apt-label] {
+                display: flex;
+                align-items: center;
+                column-gap: 6px;
+
+                &::before {
+                    content: attr(data-apt-label) ' :';
+                    font-size: var(--apt-text-sm);
+                    font-weight: 600;
+                    color: var(--gray-950);
+                }
+            }
+
+            & .fi-apt-stacked-title {
+                order: -1;
+
+                & .fi-ta-text-item {
+                    color: var(--gray-950);
+                    font-weight: 600;
+                }
+            }
+        }
+
+        &:where(.dark, .dark *) .fi-ta-table-stacked-on-mobile {
+            & > tbody > tr {
+                border-color: rgb(255 255 255 / 0.1);
+            }
+
+            & .fi-ta-cell[data-apt-label]::before {
+                color: white;
+            }
+
+            & .fi-apt-stacked-title .fi-ta-text-item {
+                color: white;
+            }
         }
     }
 
@@ -633,6 +730,78 @@
 
 .fi-page:has(.fi-ta):where(.dark, .dark *) .fi-header {
     border-bottom-color: rgb(255 255 255 / 0.1);
+}
+
+/*
+ * Stats do painel (fi-wi-stats-overview): cards outlined com o ícone num
+ * quadrado no topo, valor grande no meio e rótulo rebaixado embaixo. O vendor
+ * agrupa ícone e rótulo num container; o display: contents o desmonta para o
+ * valor entrar entre os dois via order. A cor do quadrado vem de
+ * --apt-stat-color, definida por stat via extraAttributes.
+ */
+.fi-wi-stats-overview-stat {
+    /* Mesma pele dos cards do dashboard (fi-dash-stat): fundo elevado,
+       borda, canto reto e caixa de ícone de 48px com fundo translúcido. */
+    background-color: white;
+    box-shadow: none;
+    border: 1px solid var(--gray-200);
+    border-radius: 0;
+    padding: 16px;
+
+    & .fi-wi-stats-overview-stat-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        row-gap: 12px;
+
+        & .fi-wi-stats-overview-stat-label-ctn {
+            display: contents;
+        }
+
+        & .fi-wi-stats-overview-stat-label-ctn > .fi-icon {
+            order: 1;
+            width: 48px;
+            height: 48px;
+            padding: 8px;
+            border: 1px solid rgb(from var(--apt-stat-color, var(--gray-400)) r g b / 0.3);
+            background-color: rgb(from var(--apt-stat-color, var(--gray-400)) r g b / 0.1);
+            color: var(--apt-stat-color, var(--gray-400));
+        }
+
+        & .fi-wi-stats-overview-stat-value {
+            order: 2;
+            font-size: var(--apt-text-lg);
+            line-height: 1.2;
+        }
+
+        & .fi-wi-stats-overview-stat-label {
+            order: 3;
+            font-size: var(--apt-text-sm);
+            font-weight: 400;
+            color: var(--apt-text-medium);
+        }
+    }
+}
+
+:where(.dark, .dark *) .fi-wi-stats-overview-stat {
+    background-color: var(--gray-900);
+    border-color: rgb(255 255 255 / 0.1);
+}
+
+.fi-apt-stat-primary {
+    --apt-stat-color: var(--primary-500);
+}
+
+.fi-apt-stat-emerald {
+    --apt-stat-color: var(--success-500);
+}
+
+.fi-apt-stat-blue {
+    --apt-stat-color: var(--info-500);
+}
+
+.fi-apt-stat-muted {
+    --apt-stat-color: var(--gray-400);
 }
 
 /*

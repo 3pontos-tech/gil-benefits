@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use Filament\Facades\Filament;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
@@ -15,6 +16,8 @@ class UserCreditStatsWidget extends StatsOverviewWidget
     protected static bool $isDiscoverable = false;
 
     protected int|string|array $columnSpan = 'full';
+
+    protected int|array|null $columns = 4;
 
     protected ?string $pollingInterval = null;
 
@@ -34,23 +37,17 @@ class UserCreditStatsWidget extends StatsOverviewWidget
 
         return [
             Stat::make(__('panel-app::widgets.credit_stats.total'), $total)
-                ->icon('heroicon-o-credit-card')
-                ->color('gray'),
-            Stat::make(__('billing::enums.user_credit_status.available'), $available)
-                ->description(__('panel-app::widgets.credit_stats.available_description'))
-                ->descriptionIcon('heroicon-o-check-circle')
-                ->icon('heroicon-o-check-circle')
-                ->color('success'),
-            Stat::make(__('billing::enums.user_credit_status.in_use'), $inUse)
-                ->description(__('panel-app::widgets.credit_stats.in_use_description'))
-                ->descriptionIcon('heroicon-o-clock')
-                ->icon('heroicon-o-clock')
-                ->color('info'),
-            Stat::make(__('billing::enums.user_credit_status.used'), $used)
-                ->description(__('panel-app::widgets.credit_stats.used_description'))
-                ->descriptionIcon('heroicon-o-check-badge')
-                ->icon('heroicon-o-check-badge')
-                ->color('gray'),
+                ->icon(Heroicon::OutlinedCreditCard)
+                ->extraAttributes(['class' => 'fi-apt-stat-primary']),
+            Stat::make(__('panel-app::widgets.credit_stats.available'), $available)
+                ->icon(Heroicon::OutlinedCheckCircle)
+                ->extraAttributes(['class' => 'fi-apt-stat-emerald']),
+            Stat::make(__('panel-app::widgets.credit_stats.in_use'), $inUse)
+                ->icon(Heroicon::OutlinedArrowPath)
+                ->extraAttributes(['class' => 'fi-apt-stat-blue']),
+            Stat::make(__('panel-app::widgets.credit_stats.used'), $used)
+                ->icon(Heroicon::OutlinedArrowPath)
+                ->extraAttributes(['class' => 'fi-apt-stat-muted']),
         ];
     }
 }
