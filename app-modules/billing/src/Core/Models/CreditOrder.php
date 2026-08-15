@@ -41,8 +41,6 @@ class CreditOrder extends Model
     use HasUuids;
     use SoftDeletes;
 
-    protected $table = 'billing_credit_orders';
-
     protected $fillable = [
         'provider',
         'checkout_id',

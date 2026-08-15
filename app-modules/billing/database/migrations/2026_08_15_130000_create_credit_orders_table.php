@@ -10,7 +10,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('billing_credit_orders', function (Blueprint $table): void {
+        Schema::create('credit_orders', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->string('provider');
             $table->string('checkout_id')->nullable();
@@ -32,6 +32,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('billing_credit_orders');
+        Schema::dropIfExists('credit_orders');
     }
 };
