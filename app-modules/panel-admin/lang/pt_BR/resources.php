@@ -185,6 +185,8 @@ return [
             'unit_amount' => 'Valor Unitário (centavos)',
             'monthly_appointments' => 'Consultas Mensais',
             'monthly_appointments_helper' => 'Quantas consultas estão incluídas por mês.',
+            'audience' => 'Público',
+            'audience_helper' => 'Subsidiado: colaborador de empresa que banca parte. Valor cheio: usuário sem empregador.',
             'active_helper' => 'Se este preço pode ser adquirido.',
             'whatsapp_enabled' => 'WhatsApp Habilitado',
             'materials_enabled' => 'Materiais Habilitados',

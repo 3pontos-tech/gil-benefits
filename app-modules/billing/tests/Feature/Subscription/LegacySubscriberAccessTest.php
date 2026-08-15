@@ -12,6 +12,7 @@ use Tests\Fakes\FakeBillingContract;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
@@ -138,7 +139,7 @@ describe('flamma-company subscription isolation', function (): void {
 
         $this->flammaPrice = Price::factory()->for($plan, 'plan')->create([
             'provider_price_id' => $plan->provider_product_id . '-standalone-user',
-            'metadata' => ['tenant' => 'flamma-company'],
+            'audience' => PriceAudienceEnum::Standalone,
         ]);
 
         filament()->setCurrentPanel(FilamentPanel::User->value);

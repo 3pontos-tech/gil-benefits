@@ -22,7 +22,9 @@ readonly class RedirectCompanyIfNotSubscribed
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
-        if ($tenant->slug === 'flamma-company') {
+        // O tenant default é um balde de usuários sem empregador, não um
+        // cliente: não há assinatura de empresa para cobrar ali.
+        if (! $tenant->subsidizesEmployees()) {
             return $next($request);
         }
 

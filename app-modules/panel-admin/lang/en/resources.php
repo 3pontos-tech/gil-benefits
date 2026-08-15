@@ -185,6 +185,8 @@ return [
             'unit_amount' => 'Unit Amount (cents)',
             'monthly_appointments' => 'Monthly Appointments',
             'monthly_appointments_helper' => 'How many appointments are included per month.',
+            'audience' => 'Audience',
+            'audience_helper' => 'Subsidized: employee of a company that covers part of it. Full price: user with no employer.',
             'active_helper' => 'Whether this price can be purchased.',
             'whatsapp_enabled' => 'WhatsApp Enabled',
             'materials_enabled' => 'Materials Enabled',

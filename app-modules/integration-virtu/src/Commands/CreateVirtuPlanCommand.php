@@ -7,6 +7,7 @@ namespace TresPontosTech\IntegrationVirtu\Commands;
 use Illuminate\Console\Command;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 
 /**
@@ -22,13 +23,21 @@ class CreateVirtuPlanCommand extends Command
         {slug : Identificador do plano, ex: platinum}
         {name : Nome exibido, ex: "Flamma Platinum"}
         {amount : Valor mensal em centavos, ex: 30000}
-        {--type=company : company ou user}';
+        {--type=company : company ou user}
+        {--audience=subsidized : subsidized (empresa banca parte) ou standalone (valor cheio)}';
 
     protected $description = 'Cria plano e preço da Virtu no banco';
 
     public function handle(): int
     {
         $slug = (string) $this->argument('slug');
+        $audience = PriceAudienceEnum::tryFrom((string) $this->option('audience'));
+
+        if ($audience === null) {
+            $this->error('--audience aceita apenas subsidized ou standalone.');
+
+            return self::FAILURE;
+        }
 
         $plan = Plan::query()->updateOrCreate(
             ['provider' => BillingProviderEnum::Virtu, 'slug' => $slug],
@@ -47,21 +56,26 @@ class CreateVirtuPlanCommand extends Command
             ]
         );
 
+        // Cada audiência é uma linha própria no mesmo plano, então o id precisa
+        // distinguir as duas.
+        $priceId = sprintf('%s-monthly-%s', $slug, $audience->value);
+
         $plan->prices()->updateOrCreate(
-            ['provider_price_id' => $slug . '-monthly'],
+            ['provider_price_id' => $priceId],
             [
                 'billing_scheme' => 'per_unit',
                 'tiers_mode' => 'not-selected',
                 'type' => 'recurring',
                 'unit_amount_decimal' => (int) $this->argument('amount'),
                 'active' => true,
-                'default' => true,
+                'default' => $audience === PriceAudienceEnum::Subsidized,
+                'audience' => $audience,
                 // A coluna é nullable, mas PriceEntity exige array.
                 'metadata' => [],
             ]
         );
 
-        $this->info(sprintf('Plano %s criado com o preço %s-monthly.', $slug, $slug));
+        $this->info(sprintf('Plano %s criado com o preço %s.', $slug, $priceId));
 
         return self::SUCCESS;
     }

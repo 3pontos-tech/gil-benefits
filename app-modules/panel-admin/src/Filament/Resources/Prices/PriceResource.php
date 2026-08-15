@@ -29,6 +29,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\CreatePrice;
 use TresPontosTech\PanelAdmin\Filament\Resources\Prices\Pages\EditPrice;
@@ -105,6 +106,14 @@ class PriceResource extends Resource
                                     ->label(__('panel-admin::resources.prices.form.monthly_appointments'))
                                     ->numeric()
                                     ->helperText(__('panel-admin::resources.prices.form.monthly_appointments_helper'))
+                                    ->required(),
+
+                                Select::make('audience')
+                                    ->label(__('panel-admin::resources.prices.form.audience'))
+                                    ->helperText(__('panel-admin::resources.prices.form.audience_helper'))
+                                    ->options(PriceAudienceEnum::class)
+                                    ->default(PriceAudienceEnum::Subsidized)
+                                    ->selectablePlaceholder(false)
                                     ->required(),
                             ])->columns(2),
 

@@ -8,7 +8,9 @@ use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
@@ -34,22 +36,19 @@ class UserSubscriptionPage extends Page
 
     protected function getViewData(): array
     {
-        /** @var Company|null $tenant */
-        $tenant = filament()->getTenant();
-        $isFlamma = $tenant?->slug === 'flamma-company';
-        $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user');
+        $audience = $this->audienceForTenant();
 
-        if ($isFlamma) {
-            $plans = $plans->filter(
-                fn ($plan) => $plan->prices->contains(
-                    fn ($p): bool => ($p->metadata['tenant'] ?? null) === 'flamma-company'
-                )
-            );
-        }
+        // Um plano sem preço para esta audiência não tem o que cobrar aqui, e
+        // mostrá-lo levaria o checkout a escolher o preço da outra audiência.
+        $plans = resolve(PlanRepository::class)
+            ->getCheckoutPlansFor('user')
+            ->filter(fn (PlanEntity $plan): bool => $plan->prices->contains(
+                fn (PriceEntity $price): bool => $price->audience === $audience
+            ));
 
         return [
             'plans' => $plans,
-            'isFlamma' => $isFlamma,
+            'audience' => $audience,
         ];
     }
 
@@ -119,19 +118,22 @@ class UserSubscriptionPage extends Page
     /** @param PriceEntity[] $prices */
     private function resolvePriceForTenant(array $prices): PriceEntity
     {
+        $audience = $this->audienceForTenant();
+
+        // Sem fallback de propósito: cobrar o preço da outra audiência é pior
+        // que falhar, porque passa despercebido.
+        return collect($prices)->firstOrFail(
+            fn (PriceEntity $price): bool => $price->audience === $audience
+        );
+    }
+
+    private function audienceForTenant(): PriceAudienceEnum
+    {
         /** @var Company|null $tenant */
         $tenant = filament()->getTenant();
-        $isFlamma = $tenant?->slug === 'flamma-company';
-        $prices = collect($prices);
 
-        if ($isFlamma) {
-            return $prices->first(
-                fn (PriceEntity $p): bool => ($p->metadata['tenant'] ?? null) === 'flamma-company'
-            ) ?? $prices->firstOrFail();
-        }
-
-        return $prices->first(
-            fn (PriceEntity $p): bool => ! isset($p->metadata['tenant'])
-        ) ?? $prices->firstOrFail();
+        return $tenant?->subsidizesEmployees() ?? true
+            ? PriceAudienceEnum::Subsidized
+            : PriceAudienceEnum::Standalone;
     }
 }
