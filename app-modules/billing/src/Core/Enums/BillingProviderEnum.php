@@ -12,6 +12,7 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
     case Stripe = 'stripe';
     case Contractual = 'contractual';
     case Barte = 'barte';
+    case Virtu = 'virtu';
 
     public function getColor(): array
     {
@@ -19,13 +20,14 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
             self::Stripe => Color::Indigo,
             self::Contractual => Color::Emerald,
             self::Barte => Color::Olive,
+            self::Virtu => Color::Cyan,
         };
     }
 
     public function getIcon(): string
     {
         return match ($this) {
-            self::Stripe, self::Barte => 'heroicon-o-credit-card',
+            self::Stripe, self::Barte, self::Virtu => 'heroicon-o-credit-card',
             self::Contractual => 'heroicon-o-document-text',
         };
     }
@@ -48,6 +50,10 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
 
     /**
      * Available Providers for NEW Subscriptions.
+     *
+     * Virtu is deliberately absent: the driver exists and is registered, but no
+     * new checkout should reach it until it has been validated end to end in
+     * sandbox. Flipping this list is the go-live switch.
      *
      * @return list<self>
      */
