@@ -13,7 +13,7 @@ class BillingManager extends Manager
 {
     public function getDefaultDriver(): string
     {
-        return 'barte';
+        return BillingProviderEnum::checkoutCases()[0]->value;
     }
 
     public function createStripeDriver(): BillingContract
@@ -26,8 +26,10 @@ class BillingManager extends Manager
         return new BarteAdapter(new BarteClient);
     }
 
-    public function getDriver(BillingProviderEnum $provider = BillingProviderEnum::Barte): BillingContract
+    public function getDriver(?BillingProviderEnum $provider = null): BillingContract
     {
+        $provider ??= BillingProviderEnum::checkoutCases()[0];
+
         throw_if($provider === BillingProviderEnum::Contractual, \Exception::class, 'To be implemented');
 
         return $this->driver($provider->value);
