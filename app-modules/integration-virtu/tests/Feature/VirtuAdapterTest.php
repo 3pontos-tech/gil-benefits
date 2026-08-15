@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
+use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -10,7 +13,6 @@ use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\IntegrationVirtu\Exceptions\VirtuApiException;
-use TresPontosTech\IntegrationVirtu\Exceptions\VirtuUnsupportedOperationException;
 use TresPontosTech\IntegrationVirtu\Testing\FakeVirtuClient;
 use TresPontosTech\IntegrationVirtu\VirtuAdapter;
 
@@ -20,7 +22,6 @@ beforeEach(function (): void {
     config([
         'virtu.subscription_methods' => ['CREDIT_CARD'],
         'virtu.order_methods' => ['PIX', 'CREDIT_CARD'],
-        'virtu.max_installments' => 12,
         'virtu.interest_mode' => 'AUTO_TRANSFER',
     ]);
 
@@ -101,21 +102,22 @@ it('refuses to create a link for an implausible amount', function (): void {
         ->toThrow(VirtuApiException::class);
 });
 
-it('refuses a credit purchase it could never attribute', function (): void {
-    $company = Company::factory()->recycle($this->user)->create();
-
-    // A credit purchase has to tell the webhook which company and how many —
-    // Barte carried that in checkout metadata and Virtu has no such field, with no
-    // subscription row to hang it on either.
-    expect(fn (): string => $this->adapter->purchaseCredits($this->user, $company, 3, 'https://app.test/ok', 'https://app.test/cancel'))
-        ->toThrow(VirtuUnsupportedOperationException::class);
-
-    expect($this->client->createdLinks)->toBe([]);
+// A credit purchase has to tell the webhook which company and how many — Barte
+// carried that in checkout metadata and Virtu has no such field, with no
+// subscription row to hang it on either. Declining the capability is what makes
+// PurchaseCreditsAction hide the button instead of offering one that throws.
+it('does not claim to sell credits', function (): void {
+    expect($this->adapter)->not->toBeInstanceOf(SupportsCreditPurchase::class);
 });
 
-it('fails loudly on cancellation, which the API does not support', function (): void {
-    expect(fn () => $this->adapter->cancelSubscription($this->user))
-        ->toThrow(VirtuUnsupportedOperationException::class);
+// DELETE on a payment link only works while it is unpaid, so an active
+// subscription can only be cancelled in the Virtu panel.
+it('does not claim to cancel subscriptions', function (): void {
+    expect($this->adapter)->not->toBeInstanceOf(SupportsSubscriptionCancellation::class);
+});
+
+it('still honours the core billing contract', function (): void {
+    expect($this->adapter)->toBeInstanceOf(BillingContract::class);
 });
 
 it('reads subscription state locally, without calling the gateway', function (): void {

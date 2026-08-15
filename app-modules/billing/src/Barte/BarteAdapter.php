@@ -9,6 +9,8 @@ use TresPontosTech\Billing\Barte\DTOs\PaymentOrderDto;
 use TresPontosTech\Billing\Barte\DTOs\PaymentSubscriptionDto;
 use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
+use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -21,7 +23,7 @@ use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
 
-final readonly class BarteAdapter implements BillingContract
+final readonly class BarteAdapter implements BillingContract, SupportsCreditPurchase, SupportsSubscriptionCancellation
 {
     public function __construct(
         private BarteClient $client
@@ -81,11 +83,6 @@ final readonly class BarteAdapter implements BillingContract
             ->where('subscriptionable_id', $billable->getKey())
             ->where('stripe_status', 'active')
             ->exists();
-    }
-
-    public function hasActivePlan(Company $company): bool
-    {
-        return $this->hasActiveSubscription($company);
     }
 
     public function createCheckout(Company|User $billable, CheckoutData $data): string

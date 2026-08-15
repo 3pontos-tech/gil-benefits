@@ -19,7 +19,6 @@ use TresPontosTech\IntegrationVirtu\DTO\CheckoutIdentityDTO;
 use TresPontosTech\IntegrationVirtu\DTO\CreatePaymentLinkDTO;
 use TresPontosTech\IntegrationVirtu\Enums\VirtuIntervalEnum;
 use TresPontosTech\IntegrationVirtu\Exceptions\VirtuApiException;
-use TresPontosTech\IntegrationVirtu\Exceptions\VirtuUnsupportedOperationException;
 use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
 
 /**
@@ -28,6 +27,12 @@ use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
  * Only checkout creation talks to the gateway. Subscription state is read from
  * billing_subscriptions — no regression, since the Barte adapter never asked
  * Barte for it either.
+ *
+ * Implements neither SupportsSubscriptionCancellation nor SupportsCreditPurchase,
+ * and that absence is the feature: Virtu exposes no cancellation endpoint, and a
+ * credit purchase has no way to carry the company and quantity back to the
+ * webhook without a metadata field. Callers check `instanceof` and hide those
+ * actions rather than offering a button that can only fail.
  */
 final readonly class VirtuAdapter implements BillingContract
 {
@@ -68,11 +73,6 @@ final readonly class VirtuAdapter implements BillingContract
         return $this->activeSubscriptions($billable)->exists();
     }
 
-    public function hasActivePlan(Company $company): bool
-    {
-        return $this->hasActiveSubscription($company);
-    }
-
     /**
      * Creates the hosted link and records a pending subscription keyed by the
      * checkout reference.
@@ -110,21 +110,6 @@ final readonly class VirtuAdapter implements BillingContract
         return $this->withBuyerIdentity($link->url, $billable);
     }
 
-    /**
-     * Not implemented on purpose. A credit purchase has to tell the webhook which
-     * company to credit and how many credits — data that rode along in Barte's
-     * checkout metadata. Virtu has no metadata field, and unlike a subscription
-     * there is no row to hang it on, so there is nowhere for it to travel yet.
-     *
-     * Credits keep going through Barte, which stays the only checkout provider.
-     */
-    public function purchaseCredits(Company|User $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
-    {
-        throw new VirtuUnsupportedOperationException(
-            'Virtu cannot carry the company and quantity a credit purchase needs back to the webhook. Use Barte for credits until Pagaa exposes a metadata field.'
-        );
-    }
-
     public function checkoutOpensInNewTab(): bool
     {
         return true;
@@ -140,19 +125,6 @@ final readonly class VirtuAdapter implements BillingContract
         }
 
         return UserBillingManagePage::getUrl();
-    }
-
-    /**
-     * Virtu offers no way to cancel an active subscription: DELETE on a payment
-     * link only works while it is unpaid. Cancelling has to happen in the Virtu
-     * panel, so this fails loudly rather than reporting a success that did not
-     * happen.
-     */
-    public function cancelSubscription(Company|User $billable): void
-    {
-        throw new VirtuUnsupportedOperationException(
-            'Virtu does not expose subscription cancellation via API. Cancel it in the Virtu panel (Financeiro → Assinaturas).'
-        );
     }
 
     /**

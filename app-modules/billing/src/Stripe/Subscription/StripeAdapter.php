@@ -5,12 +5,14 @@ namespace TresPontosTech\Billing\Stripe\Subscription;
 use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
+use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Company\Models\Company;
 
-class StripeAdapter implements BillingContract
+class StripeAdapter implements BillingContract, SupportsCreditPurchase, SupportsSubscriptionCancellation
 {
     public function ensureCustomerExists(Company|User $billable): void
     {
@@ -34,11 +36,6 @@ class StripeAdapter implements BillingContract
     public function isSubscribed(Company|User $billable, string $planSlug): bool
     {
         return $billable->subscribed($planSlug);
-    }
-
-    public function hasActivePlan(Company $company): bool
-    {
-        return $company->hasActivePlan();
     }
 
     public function createCheckout(Company|User $billable, CheckoutData $data): string
