@@ -8,6 +8,8 @@ use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
+use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
@@ -102,12 +104,27 @@ it('refuses to create a link for an implausible amount', function (): void {
         ->toThrow(VirtuApiException::class);
 });
 
-// A credit purchase has to tell the webhook which company and how many — Barte
-// carried that in checkout metadata and Virtu has no such field, with no
-// subscription row to hang it on either. Declining the capability is what makes
-// PurchaseCreditsAction hide the button instead of offering one that throws.
-it('does not claim to sell credits', function (): void {
-    expect($this->adapter)->not->toBeInstanceOf(SupportsCreditPurchase::class);
+it('sells credits through a local order', function (): void {
+    expect($this->adapter)->toBeInstanceOf(SupportsCreditPurchase::class);
+
+    $company = Company::factory()->create();
+
+    $url = $this->adapter->purchaseCredits(
+        billable: $company,
+        company: $company,
+        quantity: 2,
+        successUrl: 'https://app.test/credits',
+        cancelUrl: 'https://app.test/credits',
+    );
+
+    $order = CreditOrder::query()->sole();
+
+    expect($url)->toStartWith('https://')
+        ->and($order->provider)->toBe(BillingProviderEnum::Virtu)
+        ->and($order->quantity)->toBe(2)
+        ->and($order->amount_cents)->toBe(30000)
+        ->and($order->status)->toBe(CreditOrderStatusEnum::Pending)
+        ->and($order->checkout_id)->not->toBeNull();
 });
 
 // DELETE on a payment link only works while it is unpaid, so an active

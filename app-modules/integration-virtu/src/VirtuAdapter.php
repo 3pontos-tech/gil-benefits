@@ -6,9 +6,12 @@ namespace TresPontosTech\IntegrationVirtu;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Billing\Core\Actions\Credit\StartCreditOrder;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -28,19 +31,19 @@ use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
  * billing_subscriptions — no regression, since the Barte adapter never asked
  * Barte for it either.
  *
- * Implements neither SupportsSubscriptionCancellation nor SupportsCreditPurchase,
- * and that absence is the feature: Virtu exposes no cancellation endpoint, and a
- * credit purchase has no way to carry the company and quantity back to the
- * webhook without a metadata field. Callers check `instanceof` and hide those
- * actions rather than offering a button that can only fail.
+ * Does not implement SupportsSubscriptionCancellation, and that absence is the
+ * feature: Virtu exposes no cancellation endpoint, so callers check `instanceof`
+ * and hide the action rather than offering a button that can only fail.
  */
-final readonly class VirtuAdapter implements BillingContract
+final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurchase
 {
     /**
      * Floor for any generated charge. Virtu accepts amountCents: 1 without
      * complaint, so the guard the gateway does not provide lives here.
      */
     private const MINIMUM_CHARGE_IN_CENTS = 100;
+
+    private const CREDIT_PRICE_IN_CENTS = 15000;
 
     public function __construct(
         private VirtuClient $client
@@ -106,6 +109,29 @@ final readonly class VirtuAdapter implements BillingContract
             quantity: $data->quantity,
             endsAt: null,
         )));
+
+        return $this->withBuyerIdentity($link->url, $billable);
+    }
+
+    public function purchaseCredits(Company|User $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
+    {
+        $amountCents = $quantity * self::CREDIT_PRICE_IN_CENTS;
+
+        $order = resolve(StartCreditOrder::class)->handle(
+            provider: BillingProviderEnum::Virtu,
+            billable: $billable,
+            company: $company,
+            quantity: $quantity,
+            amountCents: $amountCents,
+        );
+
+        $link = $this->client->createPaymentLink(CreatePaymentLinkDTO::order(
+            title: sprintf('Compra de %d crédito(s)', $quantity),
+            amountCents: $amountCents,
+            description: sprintf('Pedido %s', $order->getKey()),
+        ));
+
+        $order->update(['checkout_id' => $link->checkoutId ?? $link->id]);
 
         return $this->withBuyerIdentity($link->url, $billable);
     }

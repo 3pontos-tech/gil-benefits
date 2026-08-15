@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Event;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
+use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\IntegrationVirtu\Actions\HandleVirtuWebhook;
 use TresPontosTech\IntegrationVirtu\DTO\VirtuWebhookDTO;
@@ -121,4 +124,34 @@ it('ignores events with no mapping yet', function (): void {
     resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto(event: 'WITHDRAWAL'));
 
     Event::assertNotDispatched(SubscriptionActivated::class);
+});
+
+it('credits a paid order matched by checkout id', function (): void {
+    Event::fake([OrderCreditPurchased::class, SubscriptionActivated::class]);
+
+    $order = CreditOrder::factory()->create([
+        'provider' => BillingProviderEnum::Virtu,
+        'checkout_id' => 'checkout_fake1',
+    ]);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto());
+
+    Event::assertDispatched(
+        OrderCreditPurchased::class,
+        fn (OrderCreditPurchased $event): bool => $event->creditOrderId === $order->getKey()
+    );
+    Event::assertNotDispatched(SubscriptionActivated::class);
+});
+
+it('does not credit an order belonging to another provider', function (): void {
+    Event::fake([OrderCreditPurchased::class]);
+
+    CreditOrder::factory()->create([
+        'provider' => BillingProviderEnum::Barte,
+        'checkout_id' => 'checkout_fake1',
+    ]);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto());
+
+    Event::assertNotDispatched(OrderCreditPurchased::class);
 });

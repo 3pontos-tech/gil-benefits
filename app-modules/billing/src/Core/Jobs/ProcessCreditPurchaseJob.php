@@ -12,10 +12,13 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\Billing\Core\Actions\Credit\IssueCredits;
 use TresPontosTech\Billing\Core\DTOs\CreditDTO;
+use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
 use TresPontosTech\Billing\Core\Events\Credit\CreditsDelivered;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
+use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Company\Models\Company;
 
 class ProcessCreditPurchaseJob implements ShouldBeUnique, ShouldQueue
@@ -35,20 +38,42 @@ class ProcessCreditPurchaseJob implements ShouldBeUnique, ShouldQueue
 
     public function uniqueId(): string
     {
-        return $this->event->orderUuid;
+        return $this->event->creditOrderId;
     }
 
     public function handle(IssueCredits $action): void
     {
-        $modelClass = Relation::getMorphedModel($this->event->billableType);
-        $billable = $modelClass::findOrFail($this->event->billableId);
+        $order = DB::transaction(function (): ?CreditOrder {
+            $order = CreditOrder::query()
+                ->whereKey($this->event->creditOrderId)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $order instanceof CreditOrder || $order->isPaid()) {
+                return null;
+            }
+
+            $order->update([
+                'status' => CreditOrderStatusEnum::Paid,
+                'paid_at' => now(),
+            ]);
+
+            return $order;
+        });
+
+        if (! $order instanceof CreditOrder) {
+            return;
+        }
+
+        $modelClass = Relation::getMorphedModel($order->billable_type);
+        $billable = $modelClass::findOrFail($order->billable_id);
 
         if ($billable instanceof User) {
             $dto = new CreditDTO(
                 holderId: $billable->getKey(),
                 ownerId: $billable->getKey(),
-                companyId: $this->event->companyId,
-                quantity: $this->event->quantity,
+                companyId: $order->company_id,
+                quantity: $order->quantity,
             );
             $ownerId = (string) $billable->getKey();
         } else {
@@ -57,13 +82,13 @@ class ProcessCreditPurchaseJob implements ShouldBeUnique, ShouldQueue
                 holderId: $billable->user_id,
                 ownerId: $billable->user_id,
                 companyId: $billable->getKey(),
-                quantity: $this->event->quantity,
+                quantity: $order->quantity,
             );
             $ownerId = (string) $billable->user_id;
         }
 
         $action->handle($dto);
 
-        event(new CreditsDelivered(ownerId: $ownerId, quantity: $this->event->quantity));
+        event(new CreditsDelivered(ownerId: $ownerId, quantity: $order->quantity));
     }
 }
