@@ -9,7 +9,9 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Icons\Heroicon;
 use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\CompanyCreditPage;
 
@@ -39,13 +41,15 @@ class PurchaseCreditsAction extends Action
         $this->forBillable();
     }
 
+    private function sellingDriver(): BillingContract
+    {
+        return resolve(BillingManager::class)->getDriver(BillingProviderEnum::checkoutCases()[0]);
+    }
+
     public function forBillable(Company|User|null $billable = null, ?string $successUrl = null, ?string $cancelUrl = null): static
     {
         return $this
-            // The default driver is what sells credits; if that gateway cannot
-            // carry the purchase back to its webhook, there is no point offering
-            // the form at all.
-            ->visible(fn (): bool => resolve(BillingManager::class)->getDriver() instanceof SupportsCreditPurchase)
+            ->visible(fn (): bool => $this->sellingDriver() instanceof SupportsCreditPurchase)
             ->action(function (array $data, $livewire) use ($billable, $successUrl, $cancelUrl): void {
                 /** @var Company $company */
                 $company = filament()->getTenant();
@@ -54,7 +58,7 @@ class PurchaseCreditsAction extends Action
                 $resolvedSuccessUrl = $successUrl ?? CompanyCreditPage::getUrl();
                 $resolvedCancelUrl = $cancelUrl ?? CompanyCreditPage::getUrl();
 
-                $driver = resolve(BillingManager::class)->getDriver();
+                $driver = $this->sellingDriver();
 
                 if (! $driver instanceof SupportsCreditPurchase) {
                     return;

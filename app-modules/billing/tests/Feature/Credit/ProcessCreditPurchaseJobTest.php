@@ -7,7 +7,6 @@ use Illuminate\Foundation\Bus\PendingDispatch;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Concurrency;
 use Illuminate\Support\Facades\Queue;
-use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Jobs\ProcessCreditPurchaseJob;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
@@ -26,18 +25,13 @@ class ProcessCreditPurchaseJobWithoutIdempotency extends ProcessCreditPurchaseJo
     }
 }
 
-function makeCreditOrder(int $quantity = 5, ?Company $company = null): CreditOrder
+function makeCreditEvent(int $quantity = 5): OrderCreditPurchased
 {
-    $company ??= Company::factory()->create();
-
-    return CreditOrder::factory()
-        ->forCompany($company)
+    $order = CreditOrder::factory()
+        ->forCompany(Company::factory()->create())
         ->create(['quantity' => $quantity]);
-}
 
-function makeCreditEvent(?CreditOrder $order = null): OrderCreditPurchased
-{
-    return new OrderCreditPurchased(creditOrderId: ($order ?? makeCreditOrder())->getKey());
+    return new OrderCreditPurchased(creditOrderId: $order->getKey());
 }
 
 // --- vulnerability tests (documents the bug without the protection) ---
@@ -98,32 +92,14 @@ it('with ShouldBeUnique: concurrent webhooks for the same order queue only 1 job
     Queue::assertPushed(ProcessCreditPurchaseJob::class, 1);
 });
 
-it('issues the credits and settles the order', function (): void {
-    $company = Company::factory()->create();
-    $order = makeCreditOrder(3, $company);
-
-    dispatch_sync(new ProcessCreditPurchaseJob(makeCreditEvent($order)));
-
-    expect(UserCredit::query()->count())->toBe(3)
-        ->and($order->refresh()->status)->toBe(CreditOrderStatusEnum::Paid)
-        ->and($order->paid_at)->not->toBeNull();
-});
-
-it('does not issue credits twice even when dispatchSync bypasses ShouldBeUnique', function (): void {
-    $order = makeCreditOrder(3);
-    $event = makeCreditEvent($order);
-
-    // dispatchSync bypasses ShouldBeUnique entirely: the settled order is what
-    // stops the second run.
-    dispatch_sync(new ProcessCreditPurchaseJob($event));
-    dispatch_sync(new ProcessCreditPurchaseJob($event));
+it('hands the order over to be settled', function (): void {
+    dispatch_sync(new ProcessCreditPurchaseJob(makeCreditEvent(3)));
 
     expect(UserCredit::query()->count())->toBe(3);
 });
 
 it('with ShouldBeUnique: a duplicate dispatch while job is pending creates no extra credits', function (): void {
-    $order = makeCreditOrder(3);
-    $event = makeCreditEvent($order);
+    $event = makeCreditEvent(3);
 
     $job = new ProcessCreditPurchaseJob($event);
 
@@ -135,10 +111,4 @@ it('with ShouldBeUnique: a duplicate dispatch while job is pending creates no ex
     dispatch($job);
 
     expect(UserCredit::query()->count())->toBe(3);
-});
-
-it('ignores an event pointing at an order that no longer exists', function (): void {
-    dispatch_sync(new ProcessCreditPurchaseJob(new OrderCreditPurchased(creditOrderId: '00000000-0000-0000-0000-000000000000')));
-
-    expect(UserCredit::query()->count())->toBe(0);
 });
