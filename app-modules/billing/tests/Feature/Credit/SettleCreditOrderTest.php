@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Event;
 use TresPontosTech\Billing\Core\Actions\Credit\SettleCreditOrder;
 use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
@@ -55,6 +56,30 @@ it('announces the delivery', function (): void {
         CreditsDelivered::class,
         fn (CreditsDelivered $event): bool => $event->quantity === 4 && $event->ownerId === (string) $company->user_id
     );
+});
+
+it('keeps the order pending and retryable when settling fails', function (): void {
+    $company = Company::factory()->create();
+
+    $order = CreditOrder::factory()->create([
+        'billable_type' => $company->getMorphClass(),
+        'billable_id' => '00000000-0000-0000-0000-000000000000',
+        'company_id' => $company->getKey(),
+        'quantity' => 3,
+    ]);
+
+    expect(fn () => settle($order))->toThrow(ModelNotFoundException::class);
+
+    expect(UserCredit::query()->count())->toBe(0)
+        ->and($order->refresh()->status)->toBe(CreditOrderStatusEnum::Pending)
+        ->and($order->paid_at)->toBeNull();
+
+    $order->update(['billable_id' => $company->getKey()]);
+
+    settle($order);
+
+    expect(UserCredit::query()->count())->toBe(3)
+        ->and($order->refresh()->status)->toBe(CreditOrderStatusEnum::Paid);
 });
 
 it('ignores an order that no longer exists', function (): void {

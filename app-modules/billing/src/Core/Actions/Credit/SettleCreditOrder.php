@@ -21,25 +21,18 @@ final readonly class SettleCreditOrder
 
     public function handle(string $creditOrderId): void
     {
-        $order = $this->claim($creditOrderId);
+        $delivered = $this->settle($creditOrderId);
 
-        if (! $order instanceof CreditOrder) {
+        if (! $delivered instanceof CreditsDelivered) {
             return;
         }
 
-        $dto = $this->creditFor($order);
-
-        $this->issueCredits->handle($dto);
-
-        event(new CreditsDelivered(
-            ownerId: (string) $dto->ownerId,
-            quantity: $order->quantity,
-        ));
+        event($delivered);
     }
 
-    private function claim(string $creditOrderId): ?CreditOrder
+    private function settle(string $creditOrderId): ?CreditsDelivered
     {
-        return DB::transaction(function () use ($creditOrderId): ?CreditOrder {
+        return DB::transaction(function () use ($creditOrderId): ?CreditsDelivered {
             $order = CreditOrder::query()
                 ->whereKey($creditOrderId)
                 ->lockForUpdate()
@@ -49,12 +42,19 @@ final readonly class SettleCreditOrder
                 return null;
             }
 
+            $dto = $this->creditFor($order);
+
+            $this->issueCredits->handle($dto);
+
             $order->update([
                 'status' => CreditOrderStatusEnum::Paid,
                 'paid_at' => now(),
             ]);
 
-            return $order;
+            return new CreditsDelivered(
+                ownerId: (string) $dto->ownerId,
+                quantity: $order->quantity,
+            );
         });
     }
 
