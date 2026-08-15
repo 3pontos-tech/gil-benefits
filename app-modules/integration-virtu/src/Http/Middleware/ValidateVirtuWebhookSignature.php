@@ -6,6 +6,7 @@ namespace TresPontosTech\IntegrationVirtu\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -25,10 +26,22 @@ final class ValidateVirtuWebhookSignature
     {
         $secret = config('virtu.webhook_secret');
         $received = (string) $request->header('X-Webhook-Signature');
+        $expected = hash_hmac('sha256', $request->getContent(), (string) $secret);
+
+        // TEMPORÁRIO — registra antes de validar de propósito. Um 401 aqui é
+        // indistinguível de "a Virtu nunca chamou" se o log vier depois, e é
+        // justamente o que faria a sonda de correlação mentir. Remover junto
+        // com os comandos virtu:probe.
+        Log::channel('virtu')->debug('Webhook Virtu recebido.', [
+            'headers' => $request->headers->all(),
+            'raw_body' => $request->getContent(),
+            'signature_received' => $received,
+            'signature_expected' => $expected,
+            'signature_matches' => $received !== '' && hash_equals($expected, $received),
+            'secret_configured' => filled($secret),
+        ]);
 
         abort_if(blank($secret) || blank($received), 401);
-
-        $expected = hash_hmac('sha256', $request->getContent(), (string) $secret);
 
         abort_if(! hash_equals($expected, $received), 401);
 

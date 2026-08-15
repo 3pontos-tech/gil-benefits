@@ -7,6 +7,7 @@ namespace TresPontosTech\IntegrationVirtu;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use TresPontosTech\IntegrationVirtu\DTO\CreatePaymentLinkDTO;
 use TresPontosTech\IntegrationVirtu\Exceptions\VirtuApiException;
 use TresPontosTech\IntegrationVirtu\Responses\PaymentLinkResponse;
@@ -108,6 +109,14 @@ class VirtuClient
     private function execute(callable $send): array
     {
         $response = $send((clone $this->request())->asJson());
+
+        // TEMPORÁRIO — toda ida e volta com a Virtu, crua. Remover junto com os
+        // comandos virtu:probe.
+        Log::channel('virtu')->debug('Chamada à API da Virtu.', [
+            'url' => (string) $response->effectiveUri(),
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
 
         if ($response->serverError()) {
             throw new VirtuApiException(

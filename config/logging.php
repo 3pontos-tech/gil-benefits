@@ -67,6 +67,15 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Temporário: isola o tráfego cru da Virtu enquanto a correlação de ids
+        // não está confirmada. Remover junto com os comandos virtu:probe.
+        'virtu' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/virtu.log'),
+            'level' => 'debug',
+            'replace_placeholders' => true,
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),
