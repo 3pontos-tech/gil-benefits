@@ -6,6 +6,7 @@ use Tests\Fakes\FakeBillingContract;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -52,7 +53,7 @@ it('should access dashboard when company has an active contractual plan', functi
 })->skipOnCI();
 
 it('should access dashboard when company has an active billing subscription', function (): void {
-    $plan = Plan::factory()->barte()->active()->create([
+    $plan = Plan::factory()->forProvider(BillingProviderEnum::checkoutCases()[0])->active()->create([
         'type' => BillableTypeEnum::Company,
         'provider_product_id' => 'prod_test_company',
         'slug' => 'plano-empresa-teste',
@@ -76,7 +77,7 @@ it('should access dashboard when company has an active billing subscription', fu
 })->skipOnCI();
 
 it('should create a subscription when checkout is called', function (): void {
-    $plan = Plan::factory()->barte()->active()->create([
+    $plan = Plan::factory()->forProvider(BillingProviderEnum::checkoutCases()[0])->active()->create([
         'type' => BillableTypeEnum::Company,
         'provider_product_id' => 'prod_test_company',
         'slug' => 'plano-empresa-teste',

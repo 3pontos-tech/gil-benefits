@@ -32,6 +32,10 @@ function makeCompanyMiddleware(
     $manager = Mockery::mock(BillingManager::class);
     $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Stripe)->andReturn($stripe);
     $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Barte)->andReturn($barte);
+    // Os middlewares varrem activeCases() inteiro. O catch-all vem por último —
+    // o Mockery casa na ordem de declaração — para que um provider novo entre
+    // como "sem assinatura" em vez de derrubar o teste.
+    $manager->shouldReceive('getDriver')->andReturn(new FakeBillingContract);
 
     return new RedirectCompanyIfNotSubscribed($manager);
 }
@@ -48,6 +52,10 @@ function makeUserMiddleware(
     $manager = Mockery::mock(BillingManager::class);
     $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Stripe)->andReturn($stripe);
     $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Barte)->andReturn($barte);
+    // Os middlewares varrem activeCases() inteiro. O catch-all vem por último —
+    // o Mockery casa na ordem de declaração — para que um provider novo entre
+    // como "sem assinatura" em vez de derrubar o teste.
+    $manager->shouldReceive('getDriver')->andReturn(new FakeBillingContract);
 
     return new RedirectUserIfNotSubscribed(resolve(PlanRepository::class), $manager);
 }

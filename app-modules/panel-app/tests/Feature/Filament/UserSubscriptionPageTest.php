@@ -4,6 +4,7 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
@@ -23,7 +24,12 @@ beforeEach(function (): void {
     $this->company = Company::factory()->recycle(User::factory()->companyOwner()->create())->create();
     $this->company->employees()->attach($this->employee->getKey());
 
-    $this->plan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User, 'name' => 'Plano Teste'])->create();
+    // O provider é o que estiver vendendo hoje: o teste é sobre qual preço a
+    // tela mostra dentro e fora do tenant flamma, não sobre o gateway.
+    $this->plan = Plan::factory()->active()
+        ->forProvider(BillingProviderEnum::checkoutCases()[0])
+        ->state(['type' => BillableTypeEnum::User, 'name' => 'Plano Teste'])
+        ->create();
 
     // Standard price — shown outside flamma
     Price::factory()->for($this->plan, 'plan')->create([
