@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use TresPontosTech\IntegrationVirtu\DTO\CreatePaymentLinkDTO;
 use TresPontosTech\IntegrationVirtu\Enums\VirtuIntervalEnum;
@@ -15,7 +16,6 @@ beforeEach(function (): void {
         'virtu.company_id' => '5',
         'virtu.subscription_methods' => ['CREDIT_CARD'],
         'virtu.order_methods' => ['PIX', 'CREDIT_CARD'],
-        'virtu.max_installments' => 12,
         'virtu.interest_mode' => 'AUTO_TRANSFER',
     ]);
 
@@ -47,7 +47,7 @@ it('creates a subscription link and unwraps the envelope', function (): void {
         ->and($link->amountCents)->toBe(4990)
         ->and($link->status)->toBe('PENDING');
 
-    Http::assertSent(function (array $request): bool {
+    Http::assertSent(function (Request $request): bool {
         expect($request->header('x-api-key'))->toBe(['sk_test_key'])
             ->and($request->header('x-company-id'))->toBe(['5']);
 
@@ -76,13 +76,12 @@ it('omits kind on one-off links, which is what makes them one-off', function ():
         && $request['acceptedMethods'] === ['PIX', 'CREDIT_CARD']);
 });
 
-it('caps subscription installments at 12 even when config asks for more', function (): void {
-    config(['virtu.max_installments' => 24]);
+it('never offers instalments on a subscription', function (): void {
     Http::fake(['sandbox-virtu-api.pagaa.com.br/*' => Http::response(virtuLinkResponse())]);
 
     (new VirtuClient)->createPaymentLink(CreatePaymentLinkDTO::subscription('Gold', 25000));
 
-    Http::assertSent(fn ($request): bool => $request['maxInstallments'] === 12);
+    Http::assertSent(fn (Request $request): bool => $request['maxInstallments'] === 1);
 });
 
 it('reads a payment link by public id', function (): void {

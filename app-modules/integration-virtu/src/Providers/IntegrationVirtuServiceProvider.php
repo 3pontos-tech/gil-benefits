@@ -8,6 +8,7 @@ use Illuminate\Support\ServiceProvider;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\IntegrationVirtu\Commands\CreateVirtuPlanCommand;
 use TresPontosTech\IntegrationVirtu\VirtuAdapter;
 use TresPontosTech\IntegrationVirtu\VirtuClient;
 
@@ -20,6 +21,8 @@ class IntegrationVirtuServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->commands([CreateVirtuPlanCommand::class]);
+
         $this->loadRoutesFrom(__DIR__ . '/../../routes/integration-virtu-routes.php');
 
         $this->registerBillingDriver();

@@ -45,20 +45,25 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
      */
     public static function activeCases(): array
     {
-        return [self::Stripe, self::Barte];
+        return [self::Stripe, self::Barte, self::Virtu];
     }
 
     /**
      * Available Providers for NEW Subscriptions.
      *
-     * Virtu is deliberately absent: the driver exists and is registered, but no
-     * new checkout should reach it until it has been validated end to end in
-     * sandbox. Flipping this list is the go-live switch.
+     * Virtu only, and Barte deliberately dropped: TenantSubscriptionPage picks
+     * `checkoutCases()[0]`, so a second entry would never be reached for company
+     * checkout while still duplicating plans on the user page, which lists every
+     * provider in this array. Barte stays in activeCases(), so subscriptions
+     * already sold through it keep granting access.
+     *
+     * Selling through both at once needs a per-tenant choice replacing that
+     * `[0]` — not another element here.
      *
      * @return list<self>
      */
     public static function checkoutCases(): array
     {
-        return [self::Barte];
+        return [self::Virtu];
     }
 }

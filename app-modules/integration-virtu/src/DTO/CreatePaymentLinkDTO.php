@@ -32,9 +32,11 @@ final readonly class CreatePaymentLinkDTO
 
     /**
      * Recurring link. Credit card only — the API rejects PIX and BOLETO for
-     * kind=SUBSCRIPTION — and installments are capped at 12 regardless of what
-     * config asks for. The buyer picks the installment count at checkout; it is
-     * not fixed at creation.
+     * kind=SUBSCRIPTION.
+     *
+     * Sempre 1x: parcelar uma cobrança que já se repete todo mês empilharia
+     * parcelas de ciclos diferentes no mesmo cartão, e o cliente pagaria mais de
+     * uma mensalidade por mês sem entender por quê.
      */
     public static function subscription(
         string $title,
@@ -47,7 +49,7 @@ final readonly class CreatePaymentLinkDTO
             amountCents: $amountCents,
             acceptedMethods: array_values((array) config('virtu.subscription_methods')),
             interestMode: (string) config('virtu.interest_mode'),
-            maxInstallments: min((int) config('virtu.max_installments'), 12),
+            maxInstallments: 1,
             kind: 'SUBSCRIPTION',
             interval: $interval,
             trialDays: $trialDays,

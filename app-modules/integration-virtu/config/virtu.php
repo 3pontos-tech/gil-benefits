@@ -24,9 +24,6 @@ return [
     'subscription_methods' => ['CREDIT_CARD'],
     'order_methods' => ['PIX', 'CREDIT_CARD'],
 
-    // Ceiling is 12 for subscriptions and 24 for one-off links (API default 12).
-    'max_installments' => (int) env('VIRTU_MAX_INSTALLMENTS', 12),
-
     // AUTO_TRANSFER passes card interest to the buyer, NO_INTEREST absorbs it,
     // CUSTOM requires an interestPlanId and the canUseCustomInterest capability.
     'interest_mode' => env('VIRTU_INTEREST_MODE', 'AUTO_TRANSFER'),

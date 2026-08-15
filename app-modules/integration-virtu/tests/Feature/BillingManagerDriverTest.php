@@ -25,9 +25,17 @@ it('leaves the existing barte driver untouched', function (): void {
         ->toBeInstanceOf(BarteAdapter::class);
 });
 
-it('keeps virtu out of the checkout providers until go-live', function (): void {
-    // Flipping this list is the go-live switch; nothing should reach Virtu before
-    // it has been validated end to end in sandbox.
-    expect(BillingProviderEnum::checkoutCases())->not->toContain(BillingProviderEnum::Virtu)
-        ->and(BillingProviderEnum::activeCases())->not->toContain(BillingProviderEnum::Virtu);
+it('sells new subscriptions through virtu', function (): void {
+    // TenantSubscriptionPage lê checkoutCases()[0], então a posição importa
+    // tanto quanto a presença.
+    expect(BillingProviderEnum::checkoutCases()[0])->toBe(BillingProviderEnum::Virtu);
+});
+
+it('still honours subscriptions sold through the previous gateways', function (): void {
+    // Barte saiu do checkout mas não do reconhecimento: quem já assinou por ela
+    // continua com acesso.
+    expect(BillingProviderEnum::activeCases())
+        ->toContain(BillingProviderEnum::Barte)
+        ->toContain(BillingProviderEnum::Stripe)
+        ->toContain(BillingProviderEnum::Virtu);
 });
