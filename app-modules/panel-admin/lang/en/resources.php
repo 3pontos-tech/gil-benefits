@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'navigation_group' => [
         'billing' => 'Billing',
+        'credits' => 'Credits',
         'administration' => 'Administration',
         'appointments' => 'Appointments',
         'reports' => 'Reports',
@@ -240,6 +241,36 @@ return [
                     'starts_at' => 'Start',
                     'ends_at' => 'End',
                 ],
+            ],
+        ],
+    ],
+    'credit_orders' => [
+        'navigation_label' => 'Credit Purchases',
+        'model_label' => 'Credit Purchase',
+        'plural_model_label' => 'Credit Purchases',
+        'no_checkout' => 'no gateway reference',
+        'fields' => [
+            'created_at' => 'Date',
+            'status' => 'Status',
+            'billable' => 'Buyer',
+            'company' => 'Company',
+            'quantity' => 'Quantity',
+            'issued' => 'Issued',
+            'amount' => 'Amount',
+            'provider' => 'Gateway',
+            'paid_at' => 'Paid at',
+            'checkout_id' => 'Gateway reference',
+        ],
+        'filters' => [
+            'unfulfilled' => 'Paid with no credits issued',
+            'from' => 'From',
+            'until' => 'Until',
+        ],
+        'actions' => [
+            'settle' => [
+                'label' => 'Settle manually',
+                'heading' => 'Confirm this order was paid?',
+                'description' => 'Issues :quantity credit(s) to :name. Use only after confirming the payment in the gateway panel — this screen cannot verify it.',
             ],
         ],
     ],

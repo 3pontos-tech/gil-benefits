@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'navigation_group' => [
         'billing' => 'Faturamento',
+        'credits' => 'Créditos',
         'administration' => 'Administração',
         'appointments' => 'Agendamentos',
         'reports' => 'Relatórios',
@@ -240,6 +241,36 @@ return [
                     'starts_at' => 'Início',
                     'ends_at' => 'Fim',
                 ],
+            ],
+        ],
+    ],
+    'credit_orders' => [
+        'navigation_label' => 'Compras de Crédito',
+        'model_label' => 'Compra de Crédito',
+        'plural_model_label' => 'Compras de Crédito',
+        'no_checkout' => 'sem referência no gateway',
+        'fields' => [
+            'created_at' => 'Data',
+            'status' => 'Situação',
+            'billable' => 'Comprador',
+            'company' => 'Empresa',
+            'quantity' => 'Quantidade',
+            'issued' => 'Emitidos',
+            'amount' => 'Valor',
+            'provider' => 'Gateway',
+            'paid_at' => 'Pago em',
+            'checkout_id' => 'Referência do gateway',
+        ],
+        'filters' => [
+            'unfulfilled' => 'Pago sem crédito emitido',
+            'from' => 'Data início',
+            'until' => 'Data fim',
+        ],
+        'actions' => [
+            'settle' => [
+                'label' => 'Liquidar manualmente',
+                'heading' => 'Confirmar que este pedido foi pago?',
+                'description' => 'Emite :quantity crédito(s) para :name. Use apenas depois de confirmar o pagamento no painel do gateway — daqui não há como verificar.',
             ],
         ],
     ],
