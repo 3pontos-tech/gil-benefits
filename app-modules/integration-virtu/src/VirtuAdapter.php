@@ -43,8 +43,6 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
      */
     private const MINIMUM_CHARGE_IN_CENTS = 100;
 
-    private const CREDIT_PRICE_IN_CENTS = 15000;
-
     public function __construct(
         private VirtuClient $client
     ) {}
@@ -115,19 +113,16 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
 
     public function purchaseCredits(Company|User $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
     {
-        $amountCents = $quantity * self::CREDIT_PRICE_IN_CENTS;
-
         $order = resolve(StartCreditOrder::class)->handle(
             provider: BillingProviderEnum::Virtu,
             billable: $billable,
             company: $company,
             quantity: $quantity,
-            amountCents: $amountCents,
         );
 
         $link = $this->client->createPaymentLink(CreatePaymentLinkDTO::order(
             title: sprintf('Compra de %d crédito(s)', $quantity),
-            amountCents: $amountCents,
+            amountCents: $order->amount_cents,
             description: sprintf('Pedido %s', $order->getKey()),
         ));
 

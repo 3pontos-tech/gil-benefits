@@ -43,6 +43,8 @@ class UserCredit extends Model
     use HasUuids;
     use SoftDeletes;
 
+    public const int PRICE_IN_CENTS = 15_000;
+
     protected $fillable = [
         'owner_id',
         'holder_id',

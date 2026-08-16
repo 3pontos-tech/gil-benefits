@@ -166,14 +166,11 @@ final readonly class BarteAdapter implements BillingContract, SupportsCreditPurc
 
         $customerId = $this->findCustomer($billable);
 
-        $pricePerCredit = 150;
-
         $order = resolve(StartCreditOrder::class)->handle(
             provider: BillingProviderEnum::Barte,
             billable: $billable,
             company: $company,
             quantity: $quantity,
-            amountCents: $quantity * $pricePerCredit * 100,
         );
 
         $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
@@ -186,7 +183,7 @@ final readonly class BarteAdapter implements BillingContract, SupportsCreditPurc
             paymentMethods: ['PIX', 'CREDIT_CARD_EARLY_BUYER'],
             paymentOrder: new PaymentOrderDto(
                 title: sprintf('Compra de %d crédito(s)', $quantity),
-                value: $quantity * $pricePerCredit,
+                value: $order->amount_cents / 100,
                 customInstallmentsValues: [
                     ['paymentMethod' => 'PIX', 'installments' => 1],
                     ['paymentMethod' => 'CREDIT_CARD_EARLY_BUYER', 'installments' => 1],

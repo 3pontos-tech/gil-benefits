@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
+use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
 
 /** @extends Factory<CreditOrder> */
@@ -27,7 +28,7 @@ class CreditOrderFactory extends Factory
             'billable_id' => User::factory(),
             'company_id' => Company::factory(),
             'quantity' => $quantity,
-            'amount_cents' => $quantity * 15000,
+            'amount_cents' => $quantity * UserCredit::PRICE_IN_CENTS,
             'status' => CreditOrderStatusEnum::Pending,
             'paid_at' => null,
         ];

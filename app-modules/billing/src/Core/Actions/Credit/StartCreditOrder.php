@@ -8,6 +8,7 @@ use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
+use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
 
 final readonly class StartCreditOrder
@@ -17,7 +18,6 @@ final readonly class StartCreditOrder
         Company|User $billable,
         Company $company,
         int $quantity,
-        int $amountCents,
     ): CreditOrder {
         return CreditOrder::query()->create([
             'provider' => $provider,
@@ -25,7 +25,7 @@ final readonly class StartCreditOrder
             'billable_id' => $billable->getKey(),
             'company_id' => $company->getKey(),
             'quantity' => $quantity,
-            'amount_cents' => $amountCents,
+            'amount_cents' => $quantity * UserCredit::PRICE_IN_CENTS,
             'status' => CreditOrderStatusEnum::Pending,
         ]);
     }
