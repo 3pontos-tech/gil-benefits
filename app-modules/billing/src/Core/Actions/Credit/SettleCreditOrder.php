@@ -69,6 +69,7 @@ final readonly class SettleCreditOrder
                 ownerId: $billable->getKey(),
                 companyId: $order->company_id,
                 quantity: $order->quantity,
+                creditOrderId: $order->getKey(),
             );
         }
 
@@ -78,6 +79,7 @@ final readonly class SettleCreditOrder
             ownerId: $billable->user_id,
             companyId: $billable->getKey(),
             quantity: $order->quantity,
+            creditOrderId: $order->getKey(),
         );
     }
 }

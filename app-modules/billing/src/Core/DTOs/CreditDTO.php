@@ -13,5 +13,6 @@ final readonly class CreditDTO
         public string|int|null $appointmentId = null,
         public int $quantity = 1,
         public string|int|null $grantId = null,
+        public ?string $creditOrderId = null,
     ) {}
 }

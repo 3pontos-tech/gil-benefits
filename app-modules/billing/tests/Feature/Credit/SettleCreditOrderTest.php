@@ -26,6 +26,24 @@ it('issues the credits and settles the order', function (): void {
         ->and($order->paid_at)->not->toBeNull();
 });
 
+it('links every issued credit back to the order that paid for it', function (): void {
+    $order = CreditOrder::factory()->forCompany(Company::factory()->create())->create(['quantity' => 3]);
+
+    settle($order);
+
+    expect($order->credits()->count())->toBe(3)
+        ->and(UserCredit::query()->whereNull('credit_order_id')->count())->toBe(0)
+        ->and(UserCredit::query()->first()->creditOrder->is($order))->toBeTrue();
+});
+
+it('leaves credit_order_id null on credits that did not come from a purchase', function (): void {
+    // Crédito de grant e o que já existe em produção nunca terão pedido.
+    $credit = UserCredit::factory()->create();
+
+    expect($credit->credit_order_id)->toBeNull()
+        ->and($credit->creditOrder)->toBeNull();
+});
+
 it('credits the company owner when the buyer is a company', function (): void {
     $company = Company::factory()->create();
     $order = CreditOrder::factory()->forCompany($company)->create(['quantity' => 2]);

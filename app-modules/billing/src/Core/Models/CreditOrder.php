@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Billing\Core\Models;
 
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -67,6 +69,25 @@ class CreditOrder extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * @return HasMany<UserCredit, $this>
+     */
+    public function credits(): HasMany
+    {
+        return $this->hasMany(UserCredit::class);
+    }
+
+    public function buyerName(): ?string
+    {
+        $billable = $this->billable;
+
+        if ($billable instanceof Company || $billable instanceof User) {
+            return $billable->name;
+        }
+
+        return null;
     }
 
     public function isPaid(): bool
