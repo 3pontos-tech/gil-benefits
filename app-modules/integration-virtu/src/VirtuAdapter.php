@@ -6,13 +6,14 @@ namespace TresPontosTech\IntegrationVirtu;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
-use TresPontosTech\Billing\Core\Actions\Credit\StartCreditOrder;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\DTOs\CreditOrderDTO;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
+use TresPontosTech\Billing\Core\Events\Credit\CreditOrderPlaced;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
@@ -113,7 +114,7 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
 
     public function purchaseCredits(Company|User $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string
     {
-        $order = resolve(StartCreditOrder::class)->handle(
+        $order = new CreditOrderDTO(
             provider: BillingProviderEnum::Virtu,
             billable: $billable,
             company: $company,
@@ -122,11 +123,11 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
 
         $link = $this->client->createPaymentLink(CreatePaymentLinkDTO::order(
             title: sprintf('Compra de %d crédito(s)', $quantity),
-            amountCents: $order->amount_cents,
-            description: sprintf('Pedido %s', $order->getKey()),
+            amountCents: $order->amountCents(),
+            description: sprintf('%d crédito(s) para %s', $quantity, $company->name),
         ));
 
-        $order->update(['checkout_id' => $link->checkoutId ?? $link->id]);
+        event(new CreditOrderPlaced($order->withCheckout($link->checkoutId ?? $link->id)));
 
         return $this->withBuyerIdentity($link->url, $billable);
     }

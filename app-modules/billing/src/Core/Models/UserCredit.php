@@ -45,6 +45,11 @@ class UserCredit extends Model
 
     public const int PRICE_IN_CENTS = 15_000;
 
+    public static function priceFor(int $quantity): int
+    {
+        return $quantity * self::PRICE_IN_CENTS;
+    }
+
     protected $fillable = [
         'owner_id',
         'holder_id',

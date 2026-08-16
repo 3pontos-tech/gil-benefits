@@ -18,14 +18,16 @@ final readonly class StartCreditOrder
         Company|User $billable,
         Company $company,
         int $quantity,
+        ?string $checkoutId = null,
     ): CreditOrder {
         return CreditOrder::query()->create([
             'provider' => $provider,
+            'checkout_id' => $checkoutId,
             'billable_type' => $billable->getMorphClass(),
             'billable_id' => $billable->getKey(),
             'company_id' => $company->getKey(),
             'quantity' => $quantity,
-            'amount_cents' => $quantity * UserCredit::PRICE_IN_CENTS,
+            'amount_cents' => UserCredit::priceFor($quantity),
             'status' => CreditOrderStatusEnum::Pending,
         ]);
     }

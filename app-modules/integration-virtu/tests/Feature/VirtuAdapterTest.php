@@ -3,12 +3,14 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Support\Facades\Event;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
+use TresPontosTech\Billing\Core\Events\Credit\CreditOrderPlaced;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -125,6 +127,45 @@ it('sells credits through a local order', function (): void {
         ->and($order->amount_cents)->toBe(30000)
         ->and($order->status)->toBe(CreditOrderStatusEnum::Pending)
         ->and($order->checkout_id)->not->toBeNull();
+});
+
+it('leaves the writing to billing and only announces the order', function (): void {
+    Event::fake([CreditOrderPlaced::class]);
+
+    $company = Company::factory()->create();
+
+    $this->adapter->purchaseCredits(
+        billable: $company,
+        company: $company,
+        quantity: 2,
+        successUrl: 'https://app.test/credits',
+        cancelUrl: 'https://app.test/credits',
+    );
+
+    expect(CreditOrder::query()->count())->toBe(0);
+
+    Event::assertDispatched(CreditOrderPlaced::class, function (CreditOrderPlaced $event) use ($company): bool {
+        return $event->dto->provider === BillingProviderEnum::Virtu
+            && $event->dto->billable->is($company)
+            && $event->dto->quantity === 2
+            && $event->dto->checkoutId === 'checkout_fake1';
+    });
+});
+
+it('does not open an order when the gateway refuses the link', function (): void {
+    $this->client->shouldFail = true;
+
+    $company = Company::factory()->create();
+
+    expect(fn (): string => $this->adapter->purchaseCredits(
+        billable: $company,
+        company: $company,
+        quantity: 2,
+        successUrl: 'https://app.test/credits',
+        cancelUrl: 'https://app.test/credits',
+    ))->toThrow(VirtuApiException::class);
+
+    expect(CreditOrder::query()->count())->toBe(0);
 });
 
 // DELETE on a payment link only works while it is unpaid, so an active
