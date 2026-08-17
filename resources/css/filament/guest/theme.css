@@ -1,5 +1,6 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 @import "./fonts.css";
+@import '../../flamma-motion.css';
 
 @source '../../../../app/Filament/Guest/**/*';
 @source '../../../../resources/views/**/*';
@@ -308,6 +309,110 @@
 }
 
 @layer components {
+
+    /*
+     * Distância entre a borda da viewport e o conteúdo da página Para Empresas.
+     * Acompanha o container (max-w-1800 com padding 20/32/62), e é o que ancora
+     * as peças que sangram para fora dele — a foto da Privacidade e a coluna de
+     * pilares do "Mais que uma ferramenta". Sem isso o sangramento vira uma
+     * aproximação por breakpoint e não se mantém constante entre larguras.
+     */
+    :root {
+        --companies-gutter: calc(max(0px, (100vw - 1800px) / 2) + 20px);
+    }
+
+    @media (min-width: 640px) {
+        :root {
+            --companies-gutter: calc(max(0px, (100vw - 1800px) / 2) + 32px);
+        }
+    }
+
+    @media (min-width: 1024px) {
+        :root {
+            --companies-gutter: calc(max(0px, (100vw - 1800px) / 2) + 62px);
+        }
+    }
+
+    /* ========================================================================
+       Cards do fluxo ("Do fechamento à primeira sessão")
+
+       A arte de cada card é traçada em px absolutos do Figma, num palco de
+       482,229 × 327,671. Todos os filhos — inclusive o mask-size e o
+       mask-position das máscaras — têm coordenadas nesse sistema, então
+       escalar o palco inteiro é a única forma de manter o desenho íntegro.
+       Uma escala fixa cortaria as laterais em qualquer card mais estreito
+       que 482px, o que inclui a página inteira no mobile.
+       ======================================================================== */
+    .fcard-stage-wrap {
+        position: relative;
+        width: 100%;
+        height: 327.671px;
+        overflow: hidden;
+    }
+
+    .fcard-stage {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 482.229px;
+        height: 327.671px;
+        transform: translateX(-50%);
+        transform-origin: top center;
+    }
+
+    /* Escala contínua: o palco acompanha a largura real do card em vez de saltar
+       por breakpoint. tan(atan2()) é o jeito de dividir cqw por px em CSS puro.
+       Navegador sem suporte cai na regra acima, com o palco centralizado. */
+    @supports (width: calc(1px * tan(atan2(1px, 1px)))) {
+        .fcard-stage-wrap {
+            container-type: inline-size;
+            height: auto;
+            aspect-ratio: 482.229 / 327.671;
+        }
+
+        .fcard-stage {
+            left: 0;
+            transform: scale(tan(atan2(100cqw, 482.229px)));
+            transform-origin: top left;
+        }
+    }
+
+    /* Fundo do card. É a planificação do vetor Rectangle2 do Figma, cujo eixo de
+       gradiente vai de y=-409,82 a y=327,671 — bem mais alto que a própria arte.
+       Só o trecho de 55,6% em diante cai dentro do card, e é por isso que o primeiro
+       stop visível é #FE4A39 (a interpolação de #FD0342 → #FF7B33 nesse ponto) e não
+       a cor do stop 0. */
+    .fcard-bg {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, #fe4a39 0%, #ff7b33 31.83%, #fbbfde 100%);
+    }
+
+    /* Sombra sob a ilustração. No Figma são vetores borrados a 18% de #E3023A com
+       stdDeviation 10,5 — que é exatamente o raio do blur() do CSS. Os cards
+       "Contratação" e "Realidade" usam elipse; o "Sigilo" usa um paralelogramo,
+       daí o clip-path vir por fora. */
+    .fcard-shadow {
+        position: absolute;
+        background: #e3023a;
+        opacity: 0.18;
+        filter: blur(10.5px);
+    }
+
+    .fcard-prod {
+        position: absolute;
+    }
+
+    /* object-fit fica no padrão (fill) de propósito. O Figma estica a arte quadrada
+       dentro da caixa do produto, que não é quadrada — conferido medindo a ilustração
+       no render do Figma: com fill a caixa bate na casa decimal, enquanto cover corta
+       os punhos no topo e contain deixa a arte pequena demais. */
+    .fcard-prod > img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
 
     #metrics::-webkit-scrollbar {
         display: none;

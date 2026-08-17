@@ -1,4 +1,3 @@
-<x-filament-panels::page full-height="true" class="scroll-smooth">
 {{--
     Home institucional — Figma node 8298:404 ("Página institucional")
     Ordem e copy conforme o Figma. As classes fm-* são animadas por
@@ -26,7 +25,7 @@
         {{-- Degrau à esquerda da faixa, 219×73 --}}
         <div class="absolute bottom-[80px] right-[36.5%] hidden h-[73px] w-[11.4%] bg-white/32 lg:block" aria-hidden="true"></div>
 
-        <div class="relative mx-auto flex max-w-[1800px] flex-col gap-10 px-5 py-16 sm:px-8 lg:h-[822px] lg:flex-row lg:items-center lg:gap-[42px] lg:px-[62px] lg:py-20">
+        <div class="relative mx-auto flex max-w-[1800px] flex-col gap-10 px-5 py-16 sm:px-8 lg:flex-row lg:items-center lg:gap-[42px] lg:px-[62px] lg:py-20">
             <div class="flex flex-col gap-6 lg:w-[891px] lg:gap-8">
                 <h1 class="fm-reveal fm-in text-[32px] font-bold leading-[1.5] text-light lg:text-5xl">
                     O benefício que cuida do bem-estar financeiro do seu time.
@@ -35,22 +34,15 @@
                     Levamos equilíbrio ao bolso (e à vida) de quem faz sua empresa acontecer,
                     com planejamento financeiro, acompanhamento individual e sigilo absoluto.
                 </p>
-                <x-button
-                    class="fm-reveal fm-in fm-btn w-full! sm:w-fit!"
-                    data-fm-delay="2"
-                    variant="light"
-                    size="xl"
-                    rounded="none"
-                    href="https://wa.me/5511976205711?text=Flamma"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
+                <a href="#pricing"
+                   class="fm-reveal fm-in fm-btn inline-flex w-full items-center justify-center border border-outline-light bg-icon-light px-8 py-4 text-base font-bold leading-[1.5] text-dark sm:w-fit"
+                   data-fm-delay="2">
                     Fazer cotação gratuita
-                </x-button>
+                </a>
             </div>
 
             <div class="fm-reveal-scale fm-in fm-zoom relative w-full overflow-hidden lg:h-[584px] lg:w-[674px] lg:shrink-0">
-                <img src="{{ asset('img/home/hero.webp') }}"
+                <img src="{{ asset('img/home/hero.png') }}"
                      alt="Equipe reunida em frente ao computador durante uma sessão de consultoria"
                      class="size-full object-cover"
                      fetchpriority="high" decoding="async">
@@ -61,9 +53,9 @@
     {{-- ══════════════════════════════════════════════════════════════
          2. POR QUE CONFIAR NO FLAMMA? — 8298:522
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="por-que-confiar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[113px] lg:px-[62px]">
+    <section id="por-que-confiar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-32 lg:px-[62px]">
         <header class="flex flex-col gap-6 text-center">
-            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+            <h2 class="fm-reveal text-[32px] font-bold text-high lg:text-5xl">
                 Por que confiar no <span class="text-brand-primary">Flamma</span>?
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
@@ -74,9 +66,9 @@
 
         <div class="mt-10 grid grid-cols-1 gap-8 lg:mt-[65px] lg:grid-cols-3">
             @foreach ([
-                ['img' => 'card-especialistas.webp', 'icon' => 'users',    'title' => 'Especialistas', 'text' => 'Consultores especializados oferecem sessões individuais de até 60 minutos, focadas nas necessidades de cada colaborador.', 'alt' => 'Consultora atendendo uma colaboradora'],
-                ['img' => 'card-realidade.webp',     'icon' => 'target',   'title' => 'Realidade',     'text' => '42% dos brasileiros apontam o dinheiro como principal fonte de preocupação, reforçando a importância do cuidado financeiro.', 'alt' => 'Pessoa organizando as contas'],
-                ['img' => 'card-sigilo.webp',        'icon' => 'lock-key', 'title' => 'Sigilo',        'text' => 'O colaborador pode compartilhar seus planos e dificuldades com liberdade, sabendo que suas informações permanecem em sigilo.', 'alt' => 'Sessão individual e sigilosa'],
+                ['img' => 'card-especialistas.png', 'icon' => 'users',    'title' => 'Especialistas', 'text' => 'Consultores especializados oferecem sessões individuais de até 60 minutos, focadas nas necessidades de cada colaborador.', 'alt' => 'Consultora atendendo uma colaboradora'],
+                ['img' => 'card-realidade.png',     'icon' => 'target',   'title' => 'Realidade',     'text' => '42% dos brasileiros apontam o dinheiro como principal fonte de preocupação, reforçando a importância do cuidado financeiro.', 'alt' => 'Pessoa organizando as contas'],
+                ['img' => 'card-sigilo.png',        'icon' => 'lock-key', 'title' => 'Sigilo',        'text' => 'O colaborador pode compartilhar seus planos e dificuldades com liberdade, sabendo que suas informações permanecem em sigilo.', 'alt' => 'Sessão individual e sigilosa'],
             ] as $i => $card)
                 <article class="fm-card fm-reveal flex flex-col gap-6 border border-outline-light bg-elevation-01dp p-6 lg:p-8"
                          data-fm-delay="{{ $i + 1 }}">
@@ -98,34 +90,10 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         Vector 8 — faixa em degraus que sobe pela esquerda e passa por trás
-         do rodapé dos cards. No Figma vai de y 1517 a 2015,5 numa página em
-         que os cards terminam em 1765: ou seja, ela invade 248px do bloco de
-         cima e ainda sobra 80px até o título seguinte. Daí a margem negativa
-         aqui e o mt reduzido na seção abaixo.
-         ══════════════════════════════════════════════════════════════ --}}
-    <div class="relative left-1/2 -mx-[50vw] -z-10 hidden w-screen lg:block lg:-mt-[248px]"
-         aria-hidden="true">
-        <svg class="block aspect-[1920/499] w-full" viewBox="0 0 1920 499" fill="none"
-             preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M122.5 0H0.5L-1.5 498.5H1922V390H334.5V306H214.5V83.5H122.5V0Z"
-                  fill="url(#homeBandGradient)"/>
-            <defs>
-                <linearGradient id="homeBandGradient" x1="-1.5" y1="-8" x2="1105.63" y2="1229.38"
-                                gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#F1785A"/>
-                    <stop offset="0.350962" stop-color="#FD0342"/>
-                    <stop offset="0.697115" stop-color="#FF7B33"/>
-                </linearGradient>
-            </defs>
-        </svg>
-    </div>
-
-    {{-- ══════════════════════════════════════════════════════════════
          3. COMO O FLAMMA CHEGA ATÉ O SEU TIME? — 8430:376
          Números 01/02/03 em 64px rose.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="how-it-works" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[80px] lg:px-[62px]">
+    <section id="how-it-works" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-32 lg:px-[62px]">
         {{-- Grafismo: seta do Figma (Frame 20324), canto superior direito --}}
         <img src="{{ asset('svg/home/deco-arrow.svg') }}" alt="" aria-hidden="true"
              class="fm-bob pointer-events-none absolute -top-16 right-0 -z-10 hidden w-[295px] lg:block"
@@ -161,40 +129,15 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         Vector 7 (8298:453) + Imagem (8298:584) — bloco de respiro do Figma:
-         massa escura em degraus de ponta a ponta, com uma foto de 1675×940
-         apoiada nela. A foto fica em 123/2712 num palco de 1920×1094, ou seja
-         left 6,406% · top 5,027% · 87,24% × 85,92%.
-
-         Este bloco não vinha no Blade do handoff — a foto nem estava na lista
-         de download, foi exportada do nó 8298:584.
-         ══════════════════════════════════════════════════════════════ --}}
-    <div class="relative left-1/2 -mx-[50vw] mt-16 hidden w-screen lg:block lg:mt-[118px]">
-        <div class="relative aspect-[1920/1094] w-full">
-            <svg class="absolute inset-0 size-full" viewBox="0 0 1920 1094" fill="none"
-                 preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M0 0V468.782L123.532 470.357V680.338H820.214V754.356H1455.88V1094H1921V0H0Z"
-                      fill="#39393A"/>
-            </svg>
-
-            <div class="fm-zoom fm-reveal-scale absolute left-[6.406%] top-[5.027%] h-[85.92%] w-[87.24%] overflow-hidden">
-                <img src="{{ asset('img/home/story.webp') }}"
-                     alt="Colaboradora sorrindo durante uma conversa no escritório"
-                     class="size-full object-cover" loading="lazy" decoding="async">
-            </div>
-        </div>
-    </div>
-
-    {{-- ══════════════════════════════════════════════════════════════
          4. O ESTRESSE FINANCEIRO CUSTA CARO — 8298:415
          Duas colunas: rose (empresa) e clara (colaborador).
          Foto 577×760 à direita, fora do container no Figma.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="challenge" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:-mt-[19px] lg:px-[62px]">
+    <section id="challenge" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-32 lg:px-[62px]">
         <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[945px_1fr] lg:gap-16">
             <div class="flex flex-col gap-8">
                 <header class="flex flex-col gap-4">
-                    <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                    <h2 class="fm-reveal text-[32px] font-bold text-high lg:text-5xl">
                         O estresse financeiro <span class="text-brand-primary">custa caro</span>
                     </h2>
                     <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
@@ -223,17 +166,10 @@
                                 </div>
                             @endforeach
                         </div>
-                        <x-button
-                            class="fm-btn w-full!"
-                            variant="light-brand"
-                            size="xl"
-                            rounded="none"
-                            href="https://wa.me/5511976205711?text=Flamma"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                        <a href="#contato"
+                           class="fm-btn flex w-full items-center justify-center border border-[#f1785a] bg-icon-light px-8 py-4 text-base font-bold leading-[1.5] text-brand-primary">
                             Fale com a gente
-                        </x-button>
+                        </a>
                     </div>
 
                     {{-- Coluna clara — para o colaborador --}}
@@ -254,23 +190,16 @@
                                 </div>
                             @endforeach
                         </div>
-                        <x-button
-                            class="fm-btn w-full!"
-                            variant="flat"
-                            size="xl"
-                            rounded="none"
-                            href="https://wa.me/5511976205711?text=Flamma"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                        <a href="#contato"
+                           class="fm-btn flex w-full items-center justify-center border border-brand-primary bg-brand-primary px-8 py-4 text-base font-bold leading-[1.5] text-light">
                             Fale com a gente
-                        </x-button>
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <div class="fm-reveal-right fm-zoom hidden aspect-[577/760] w-full overflow-hidden lg:ml-auto lg:block lg:w-[577px]">
-                <img src="{{ asset('img/home/challenge.webp') }}"
+            <div class="fm-reveal-right fm-zoom hidden aspect-[577/760] w-full overflow-hidden lg:block">
+                <img src="{{ asset('img/home/challenge.png') }}"
                      alt="Colaborador preocupado revisando as contas"
                      class="size-full object-cover" loading="lazy" decoding="async">
             </div>
@@ -279,36 +208,15 @@
 
     {{-- ══════════════════════════════════════════════════════════════
          5. O PLANO ACOMPANHA O CRESCIMENTO — 8298:551
-         Só título + foto de 1670×804, como no frame do Figma. A calculadora
-         (<livewire:pricing-calculator />) foi retirada daqui a pedido: ela não
-         existe neste frame e ocupava justamente a faixa do Vector 9. O simulador
-         segue vivo na página Para Empresas, em #simulador.
+         Mantém a calculadora Livewire que já existe.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="pricing" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[73px] lg:px-[62px]">
-        {{--
-            Vector 9 (8298:516) — massa escura de 1920×1254 que começa 440px abaixo do
-            topo desta seção (43,22% de 1018), ou seja no meio da foto do plano, e desce
-            por trás do CTA, terminando 6px antes do fim dele. A estrela (Group 31834)
-            mora sobre ela: left 74,58% · top 28,07% · 28,16% × 43,86% do palco.
+    <section id="pricing" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-32 lg:px-[62px]">
+        {{-- Grafismo: estrela do Figma (Group 31834), à direita --}}
+        <img src="{{ asset('svg/home/deco-star.svg') }}" alt="" aria-hidden="true"
+             class="fm-spin pointer-events-none absolute -right-16 top-1/3 -z-10 hidden w-[340px] lg:block"
+             loading="lazy" decoding="async">
 
-            Só cabe aqui porque a calculadora saiu — era ela que ocupava esta faixa.
-        --}}
-        <div class="pointer-events-none absolute left-1/2 top-[43.22%] -z-10 -ml-[50vw] hidden w-screen lg:block"
-             aria-hidden="true">
-            <div class="relative aspect-[1920/1254] w-full">
-                <svg class="absolute inset-0 size-full" viewBox="0 0 1920 1254" fill="none"
-                     preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M980 615H0V393H1486.5V380H1637.5V1L1920 0V1253.77L1798 1254V862L1487 857.5V664H980V615Z"
-                          fill="#39393A"/>
-                </svg>
-
-                <img src="{{ asset('svg/home/deco-star.svg') }}" alt=""
-                     class="fm-spin absolute left-[74.58%] top-[28.07%] h-[43.86%] w-[28.16%]"
-                     loading="lazy" decoding="async">
-            </div>
-        </div>
-
-        <header class="flex flex-col gap-8">
+        <header class="flex flex-col gap-6">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
                 O plano acompanha o <span class="text-brand-primary">crescimento</span> do seu time
             </h2>
@@ -319,16 +227,20 @@
         </header>
 
         <div class="fm-reveal-scale fm-zoom fm-zoom--slow mt-10 aspect-[1670/804] w-full overflow-hidden lg:mt-20">
-            <img src="{{ asset('img/home/plan.webp') }}"
+            <img src="{{ asset('img/home/plan.png') }}"
                  alt="Consultora conversando com uma colaboradora"
                  class="size-full object-cover object-[center_32%]" loading="lazy" decoding="async">
+        </div>
+
+        <div class="fm-reveal mt-10 lg:mt-16" data-fm-delay="1">
+            <livewire:pricing-calculator />
         </div>
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
          6. CTA — DÊ AO SEU TIME O CUIDADO QUE ELE MERECE — 8298:406
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="contratar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[86px] lg:px-[62px]">
+    <section id="contratar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-32 lg:px-[62px]">
         <div class="flex flex-col items-center justify-between gap-10 lg:flex-row lg:gap-16">
             <div class="flex flex-col gap-8 lg:w-[822px]">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
@@ -338,22 +250,15 @@
                     Mais que um benefício, uma mudança real na relação com o dinheiro,
                     com reflexo direto nos resultados da empresa.
                 </p>
-                <x-button
-                    class="fm-reveal-left fm-btn w-full! sm:w-fit!"
-                    data-fm-delay="2"
-                    variant="flat"
-                    size="xl"
-                    rounded="none"
-                    href="https://wa.me/5511976205711?text=Flamma"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
+                <a href="#pricing"
+                   class="fm-reveal-left fm-btn inline-flex w-full items-center justify-center border border-brand-primary bg-brand-primary px-8 py-4 text-base font-bold leading-[1.5] text-light sm:w-fit"
+                   data-fm-delay="2">
                     Cotação gratuita
-                </x-button>
+                </a>
             </div>
 
             <div class="fm-reveal-right fm-zoom aspect-[677/596] w-full overflow-hidden lg:w-[677px] lg:shrink-0">
-                <img src="{{ asset('img/home/cta.webp') }}"
+                <img src="{{ asset('img/home/cta.png') }}"
                      alt="Time comemorando resultados financeiros"
                      class="size-full object-cover" loading="lazy" decoding="async">
             </div>
@@ -364,7 +269,7 @@
          7. PERGUNTAS FREQUENTES — 8298:556
          Accordion com Alpine, no mesmo padrão que a home já usava.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="faq" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 pb-24 sm:px-8 lg:mt-[74px] lg:px-[62px] lg:pb-0">
+    <section id="faq" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 pb-24 sm:px-8 lg:mt-32 lg:px-[62px] lg:pb-32">
         <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-[825px_1fr]">
             <div class="flex flex-col justify-center gap-8 px-0 py-4 lg:gap-16 lg:px-8">
                 <div class="flex flex-col gap-6 lg:gap-[27px]">
@@ -375,18 +280,11 @@
                         Separamos as respostas para as perguntas que mais recebemos.
                     </p>
                 </div>
-                <x-button
-                    class="fm-reveal-left fm-btn w-full! sm:w-fit!"
-                    data-fm-delay="2"
-                    variant="flat"
-                    size="xl"
-                    rounded="none"
-                    href="https://wa.me/5511976205711?text=Flamma"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
+                <a href="#contato"
+                   class="fm-reveal-left fm-btn inline-flex w-full items-center justify-center border border-brand-primary bg-brand-primary px-8 py-4 text-base font-bold leading-[1.5] text-light sm:w-fit"
+                   data-fm-delay="2">
                     Fale com a gente
-                </x-button>
+                </a>
             </div>
 
             <div class="flex flex-col justify-center gap-8">
@@ -431,8 +329,4 @@
         </div>
     </section>
 
-
-    {{-- Onda em degraus que faz a transição para o rodapé (Vector 10 no design) --}}
-    <x-sections.footer-wave top-margin="mt-20 lg:mt-[10px]" />
 </div>
-</x-filament-panels::page>
