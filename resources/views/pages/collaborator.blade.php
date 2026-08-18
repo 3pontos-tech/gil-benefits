@@ -213,28 +213,44 @@
             box do texto      123 → 829, 116 de altura, 30 abaixo do primeiro
             painel 1          524 × 179, 216 à direita e 56 acima do box do título
             painel 2          526 × 177, 71 à esquerda e 35 abaixo do topo do box do texto
+            pilares           583 de largura (1140 → 1723), 89 abaixo do topo do box
 
         Os painéis translúcidos ficam à direita e ACIMA / à esquerda e ABAIXO dos boxes —
         é esse desencontro que dá o escalonamento do design; por isso são ancorados a
         cada box e não à massa, onde antes estavam (e desalinhavam quando a altura do
         conteúdo acima mudava).
 
-        Tipografia, paddings e offsets saem em cqw da seção (1800px de largura em 1920,
-        logo 1cqw = 18px), com max() de piso: a composição encolhe junto com a tela em
-        vez de estourar.
+        As medidas saem em vw, e não em % da seção, porque é assim que a massa escala:
+        ela é full-bleed (w-screen), então abaixo de 1800 — onde a seção deixa de ser
+        1800 e passa a acompanhar a tela — medir pela seção fazia os boxes crescerem em
+        relação ao palco. O min()/clamp() congela tudo nos valores do Figma a partir de
+        1920 e mantém um piso de legibilidade nas larguras baixas.
+
+        O mesmo motivo explica o mt em calc(): o degrau da massa que abre este palco
+        desce 0,3695 por px de largura (ela é aspect-[1927/1302] e o degrau está a
+        54,68% da altura), enquanto o topo dos boxes só desce 0,184 — o resto do
+        caminho é conteúdo de altura fixa. Sem compensar essa diferença, o vão entre o
+        degrau e o box do título ia de 52px em 1920 para 170px em 1280, que é o
+        "cinza sobrando acima dos cards". calc(18.55vw - 69px) dá 287px em 1920 (a
+        medida do Figma) e acompanha a massa nas outras larguras.
     --}}
-    <section id="consultor" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 @container sm:px-8 lg:mt-[287px] lg:px-[62px]">
+    <section id="consultor" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[calc(18.55vw-69px)] lg:px-[62px]">
         <div class="flex flex-col items-start gap-10 lg:flex-row lg:justify-between lg:gap-16">
-            <div class="flex w-full flex-col gap-8 lg:w-[42.1241cqw] lg:gap-[1.79cqw]">
+            <div class="flex w-full flex-col gap-8 lg:w-[min(36.7708vw,706px)] lg:gap-[min(1.5625vw,30px)]">
                 <div class="relative">
                     {{-- painel translúcido, à direita e acima do box --}}
                     <div
-                        class="absolute -top-[3.3413cqw] left-[12.8878cqw] hidden h-[10.6802cqw] w-[31.2649cqw] bg-white/32 lg:block"
+                        class="absolute hidden bg-white/32 lg:block
+                            lg:left-[min(11.25vw,216px)] lg:top-[calc(min(2.9167vw,56px)*-1)] lg:h-[min(9.3229vw,179px)] lg:w-[min(27.2917vw,524px)]"
                         aria-hidden="true"
                     ></div>
 
-                    <div data-tool-box class="fm-reveal-left relative bg-elevation-01dp p-6 lg:flex lg:min-h-[10.9785cqw] lg:items-center lg:p-[1.9093cqw]">
-                        <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[max(24px,2.3866cqw)]">
+                    <div
+                        data-tool-box
+                        class="fm-reveal-left relative bg-elevation-01dp p-6
+                            lg:flex lg:min-h-[min(9.5833vw,184px)] lg:items-center lg:p-[min(1.6667vw,32px)]"
+                    >
+                        <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(24px,2.0833vw,40px)]">
                             Mais que uma ferramenta, um <span class="text-orange-primary">consultor de verdade</span>
                         </h2>
                     </div>
@@ -243,12 +259,18 @@
                 <div class="relative">
                     {{-- painel translúcido, à esquerda e abaixo do box --}}
                     <div
-                        class="absolute left-[-4.2363cqw] top-[2.0883cqw] hidden h-[10.5609cqw] w-[31.3842cqw] bg-white/32 lg:block"
+                        class="absolute hidden bg-white/32 lg:block
+                            lg:left-[calc(min(3.6979vw,71px)*-1)] lg:top-[min(1.8229vw,35px)] lg:h-[min(9.2188vw,177px)] lg:w-[min(27.3958vw,526px)]"
                         aria-hidden="true"
                     ></div>
 
-                    <div data-tool-box class="fm-reveal-left relative bg-elevation-01dp p-6 lg:flex lg:min-h-[6.9212cqw] lg:items-center lg:p-[1.9093cqw]" data-fm-delay="1">
-                        <p class="text-base font-medium leading-[1.5] text-dark lg:text-[max(14px,0.9547cqw)]">
+                    <div
+                        data-tool-box
+                        class="fm-reveal-left relative bg-elevation-01dp p-6
+                            lg:flex lg:min-h-[min(6.0417vw,116px)] lg:items-center lg:p-[min(1.6667vw,32px)]"
+                        data-fm-delay="1"
+                    >
+                        <p class="text-base font-medium leading-[1.5] text-dark lg:text-[clamp(14px,0.8333vw,16px)]">
                             Cada colaborador tem uma conversa real com alguém que entende sua situação
                             financeira, muito além do que qualquer planilha consegue oferecer.
                         </p>
@@ -257,18 +279,18 @@
             </div>
 
             <ul class="fm-reveal-right flex w-full flex-col gap-8
-                lg:me-[4.4749cqw] lg:mt-[5.3103cqw] lg:w-[34.7852cqw] lg:gap-[2.9833cqw]">
+                lg:me-[min(3.9062vw,75px)] lg:mt-[min(4.6354vw,89px)] lg:w-[min(30.3646vw,583px)] lg:gap-[min(2.6042vw,50px)]">
                 @foreach ([
                     ['Consultor humano', 'Cada sessão é conduzida por um especialista que escuta antes de orientar.'],
                     ['Personalização real', 'O ponto de partida é sempre a realidade financeira do colaborador.'],
                     ['Acompanhamento contínuo', 'O foco é construir uma mudança de comportamento duradoura.'],
                 ] as $pilar)
-                    <li class="fm-pillar flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-[1.432cqw]">
-                        <x-graphism class="w-[46px] lg:w-[max(28px,2.4463cqw)]" />
+                    <li class="fm-pillar flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-[min(1.25vw,24px)]">
+                        <x-graphism class="w-[46px] lg:w-[clamp(28px,2.1354vw,41px)]" />
 
                         <div class="flex flex-col gap-1">
-                            <h3 class="text-xl font-bold leading-[1.5] text-high lg:text-[max(18px,1.432cqw)]">{{ $pilar[0] }}</h3>
-                            <p class="text-base font-medium leading-[1.5] text-medium lg:text-[max(14px,0.9547cqw)]">{{ $pilar[1] }}</p>
+                            <h3 class="text-xl font-bold leading-[1.5] text-high lg:text-[clamp(18px,1.25vw,24px)]">{{ $pilar[0] }}</h3>
+                            <p class="text-base font-medium leading-[1.5] text-medium lg:text-[clamp(14px,0.8333vw,16px)]">{{ $pilar[1] }}</p>
                         </div>
                     </li>
                 @endforeach
