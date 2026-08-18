@@ -422,20 +422,27 @@
          Foto (Vector 16) sangra à direita, 700×587.
          ══════════════════════════════════════════════════════════════ --}}
     <section id="cadastro" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[159px] lg:px-[62px]">
-        <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[822px_1fr] lg:gap-16">
+        {{--
+            A foto tem 700 × 587 e encosta na borda direita do conteúdo; o recorte em
+            degrau (17,43% × 36,97% do arquivo, canto inferior esquerdo) vem no alpha.
+            As colunas e a tipografia saem em vw porque a foto é medida em px do design:
+            com a coluna de texto fixa em 822px, abaixo de 1800 a foto era empurrada
+            para fora da tela — em 1440 ela terminava em 1648, com o conteúdo em 1378.
+        --}}
+        <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[1fr_min(36.4583vw,700px)] lg:gap-[min(3.3333vw,64px)]">
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-4">
-                    <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-[44px]">
+                    <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:max-w-[min(42.8125vw,822px)] lg:text-[clamp(28px,2.2917vw,44px)]">
                         Sua empresa já tem o <span class="text-orange-primary">Flamma</span>?
                     </h2>
-                    <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:max-w-[578px] lg:text-xl lg:font-normal"
+                    <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                        data-fm-delay="1">
                         Se o benefício já está disponível na sua empresa, cadastre-se agora e
                         marque seu primeiro atendimento com um consultor!
                     </p>
                 </div>
                 <x-button
-                    class="fm-reveal-left fm-btn w-full! sm:w-[184px]!"
+                    class="fm-reveal-left fm-btn w-full! shrink-0 sm:w-[184px]!"
                     data-fm-delay="2"
                     variant="flat"
                     size="xl-tight"
@@ -446,7 +453,7 @@
                 </x-button>
             </div>
 
-            <div class="fm-reveal-right fm-zoom hidden aspect-[700/587] w-full overflow-hidden lg:ml-auto lg:block lg:w-[700px]">
+            <div class="fm-reveal-right fm-zoom hidden aspect-[700/587] w-full lg:ml-auto lg:block">
                 <img src="{{ asset('img/colaborador/cadastro.webp') }}"
                      alt="Colaborador acessando a plataforma"
                      class="size-full object-cover" loading="lazy" decoding="async">
