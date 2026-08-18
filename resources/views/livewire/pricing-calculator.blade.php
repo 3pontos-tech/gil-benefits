@@ -1,11 +1,17 @@
 {{--
     Simulador de preço da /para-empresas (#simulador).
 
+    Tudo — cabeçalho, controles e CTA — mora dentro de um card claro único. A seção
+    tem a massa escura em degraus sangrando por baixo do simulador, e com o cabeçalho
+    solto (fora do card) o título em text-high caía sobre o cinza-escuro e ficava
+    ilegível. O card também dá ao bloco a mesma largura e o mesmo alinhamento da foto
+    logo acima, com a massa aparecendo só nas laterais.
+
     Tipografia, cores e o CTA seguem o resto do site: título de bloco em 24/32px,
     corpo em 16/20px, laranja da marca (--orange-primary) nos destaques e no estado
     ativo, e o botão no mesmo padrão dos outros CTAs (chapado, sem raio, xl).
 --}}
-<div class="flex w-full flex-col gap-8 text-medium">
+<div class="flex w-full flex-col gap-8 border border-outline-light bg-elevation-surface p-6 text-medium lg:gap-10 lg:p-12">
     <header class="flex flex-col gap-4">
         <h3 class="text-2xl font-bold leading-[1.5] text-high lg:text-[32px]">Adicionar colaboradores</h3>
 
@@ -15,7 +21,7 @@
     </header>
 
     <div
-        class="flex flex-col gap-8 border border-outline-light bg-elevation-01dp p-6 lg:gap-10 lg:p-8"
+        class="flex flex-col gap-8 lg:gap-10"
 
         x-data="{
             tiers: $wire.planTiers,
@@ -79,7 +85,7 @@
                         x-model.number="sliderValue"
                         type="number"
                         min="1"
-                        class="w-full border border-outline-light bg-elevation-surface px-4 py-2.5 text-2xl font-bold text-high"
+                        class="w-full border border-outline-light bg-elevation-01dp px-4 py-2.5 text-2xl font-bold text-high"
                     />
                 </div>
             </div>
@@ -114,7 +120,7 @@
             @foreach($planTiers as $tier)
                 <div
                     wire:key="tier-{{ $tier['id'] }}"
-                    class="flex flex-col gap-3 border bg-elevation-surface p-4 transition-colors duration-300"
+                    class="flex flex-col gap-3 border bg-elevation-01dp p-4 transition-colors duration-300"
                     :class="activeTierId === {{ $tier['id'] }}
                         ? 'border-orange-primary bg-orange-primary/5'
                         : 'border-outline-light'"

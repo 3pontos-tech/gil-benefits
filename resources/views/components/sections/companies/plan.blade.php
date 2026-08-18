@@ -32,16 +32,23 @@
             </p>
         </header>
 
-        <div class="aspect-[1670/804] w-full overflow-hidden">
-            <img
-                src="{{ asset('img/companies/plan.webp') }}"
-                alt="Colaboradora conversando com uma consultora financeira"
-                class="size-full object-cover object-center"
-                loading="lazy"
-                decoding="async"
-            />
-        </div>
+        {{--
+            A foto e o simulador formam um bloco só: com um vão entre eles, a massa em
+            degraus aparecia no meio e o desenho ficava picado. Colados, ela emoldura o
+            conjunto pelas laterais.
+        --}}
+        <div class="flex flex-col gap-8 lg:gap-0">
+            <div class="aspect-[1670/804] w-full overflow-hidden">
+                <img
+                    src="{{ asset('img/companies/plan.webp') }}"
+                    alt="Colaboradora conversando com uma consultora financeira"
+                    class="size-full object-cover object-center"
+                    loading="lazy"
+                    decoding="async"
+                />
+            </div>
 
-        <livewire:pricing-calculator />
+            <livewire:pricing-calculator />
+        </div>
     </div>
 </section>
