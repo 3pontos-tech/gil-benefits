@@ -37,9 +37,20 @@
 
     A ordem no DOM é a ordem de pintura (grafismos → painéis → boxes → pilares), por
     isso não há z-index aqui.
+
+    ESCALA — as massas e os boxes estão em % do palco, então acompanham a largura da
+    tela; a tipografia, os paddings e os gaps precisam acompanhar junto, senão em
+    qualquer viewport abaixo de 1920 o título ganha uma linha extra e vaza para fora
+    do box branco. Por isso a seção é um container (`@container`) e essas medidas
+    estão em cqw da prancheta de 1920: 40px de título = 40/1920 = 2.0833cqw, e assim
+    por diante. Em 1920 os valores caem exatamente nos do Figma.
+
+    Os `max()` são o piso de legibilidade: puro cqw levaria o corpo a 8px numa tela de
+    1024. Quando o piso morde, os boxes crescem em vez de cortar o texto — daí eles
+    serem `min-h` e não `h`.
 --}}
 <section
-    class="relative scroll-mt-28 lg:left-1/2 lg:-mx-[50vw] lg:w-screen"
+    class="relative scroll-mt-28 @container lg:left-1/2 lg:-mx-[50vw] lg:w-screen"
     id="consultor"
 >
     <div class="flex flex-col gap-8 lg:relative lg:block lg:aspect-[1309/763] lg:w-[68.18%]">
@@ -95,9 +106,9 @@
         <div
             data-tool-box
             class="bg-elevation-01dp p-4
-                lg:absolute lg:left-[18.6%] lg:top-[31.7%] lg:flex lg:h-[24.1%] lg:w-[53.5%] lg:items-center lg:p-8"
+                lg:absolute lg:left-[18.6%] lg:top-[31.7%] lg:flex lg:min-h-[24.1%] lg:w-[53.5%] lg:items-center lg:p-[1.6667cqw]"
         >
-            <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[40px]">
+            <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[max(24px,2.0833cqw)]">
                 Mais que uma ferramenta, um
                 <span class="text-orange-primary">consultor de verdade</span>
             </h2>
@@ -106,9 +117,9 @@
         <div
             data-tool-box
             class="bg-elevation-01dp p-4
-                lg:absolute lg:left-[18.6%] lg:top-[60%] lg:flex lg:h-[14.7%] lg:w-[53.5%] lg:items-center lg:p-8"
+                lg:absolute lg:left-[18.6%] lg:top-[60%] lg:flex lg:min-h-[14.7%] lg:w-[53.5%] lg:items-center lg:p-[1.6667cqw]"
         >
-            <p class="text-base font-medium leading-[1.5] text-dark">
+            <p class="text-base font-medium leading-[1.5] text-dark lg:text-[max(14px,0.8333cqw)]">
                 Cada colaborador tem uma conversa real com alguém que entende sua situação financeira,
                 muito além do que qualquer planilha consegue oferecer.
             </p>
@@ -124,22 +135,22 @@
     --}}
     <ul
         class="mt-8 flex flex-col gap-6
-            lg:absolute lg:left-[57.19%] lg:top-[45.1%] lg:mt-0 lg:gap-8 lg:px-8"
+            lg:absolute lg:left-[57.19%] lg:top-[45.1%] lg:mt-0 lg:gap-[1.6667cqw] lg:px-[1.6667cqw]"
         style="right: var(--companies-gutter)"
     >
         @foreach ($highlights as $highlight)
             {{-- Mobile empilha o grafismo acima do texto; no desktop ele fica ao lado. --}}
             {{-- No Figma o marcador ocupa uma caixa de 46px com o grafismo de 38 centralizado. --}}
-            <li class="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-4">
-                <span class="flex shrink-0 items-center justify-center lg:w-[46px]">
-                    <x-graphism class="w-[38px] shrink-0" />
+            <li class="flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-[0.8333cqw]">
+                <span class="flex shrink-0 items-center justify-center lg:w-[max(28px,2.3958cqw)]">
+                    <x-graphism class="w-[38px] shrink-0 lg:w-[max(23px,1.9792cqw)]" />
                 </span>
 
                 <div class="flex flex-col gap-1">
-                    <h3 class="text-base font-bold leading-[1.5] text-high lg:text-2xl lg:text-dark">
+                    <h3 class="text-base font-bold leading-[1.5] text-high lg:text-[max(18px,1.25cqw)] lg:text-dark">
                         {{ $highlight['title'] }}
                     </h3>
-                    <p class="text-base font-medium leading-[1.5] text-medium lg:text-dark">
+                    <p class="text-base font-medium leading-[1.5] text-medium lg:text-[max(14px,0.8333cqw)] lg:text-dark">
                         {{ $highlight['description'] }}
                     </p>
                 </div>

@@ -59,12 +59,14 @@
        hover, não sozinhos. */
     $$('svg[aria-hidden="true"]').forEach(function (svg) {
       if (!svg.classList.contains('absolute')) return;
+      /* Grafismo encaixado numa composição não pode flutuar: sairia do lugar. */
+      if (svg.hasAttribute('data-fm-static')) return;
       if (tool && tool.contains(svg) && svg.closest('li')) return;
       var vb = svg.getAttribute('viewBox') || '';
       if (vb.indexOf('347 347') !== -1) {
         addClass(svg, 'fm-spin');
       } else if (vb.indexOf('270.23') !== -1) {
-        addClass(svg, svg.classList.contains('rotate-180') ? 'fm-bob-180' : 'fm-bob');
+        addClass(svg, 'fm-bob');
       }
     });
 

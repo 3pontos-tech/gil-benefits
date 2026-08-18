@@ -51,18 +51,13 @@
    2. GRAFISMOS DA MARCA
    ============================================================ */
 @keyframes fm-spin { to { transform: rotate(360deg); } }
+/* Várias setas vêm com `rotate-180`, que no Tailwind v4 é a propriedade `rotate` —
+   independente de `transform`. Por isso a animação só translada: repetir a rotação
+   aqui (como fazia o antigo fm-bob-180) somava 180°+180° e desvirava a seta. */
 @keyframes fm-bob  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
-/* Várias setas já vêm com `rotate-180` do Tailwind. Uma animação de
-   transform substitui o transform da classe e desrotacionaria a seta,
-   então a rotação entra dentro dos próprios keyframes. */
-@keyframes fm-bob-180 {
-  0%, 100% { transform: rotate(180deg) translateY(0); }
-  50%      { transform: rotate(180deg) translateY(-14px); }
-}
 
 .fm-page .fm-spin    { animation: fm-spin 26s linear infinite; transform-origin: 50% 50%; }
 .fm-page .fm-bob     { animation: fm-bob 3.6s ease-in-out infinite; }
-.fm-page .fm-bob-180 { animation: fm-bob-180 3.6s ease-in-out infinite; }
 
 /* ============================================================
    3. HOVER — imagens

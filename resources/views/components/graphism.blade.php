@@ -32,8 +32,15 @@
             ],
         ],
 
+        /*
+         * O viewBox começa em y=1,464 de propósito: o traço horizontal está em y=31,46
+         * com 60 de espessura, ou seja a arte começa em 1,464 — e o nó do Figma vinha
+         * com essa folga no topo. Como a seta é usada girada em 180°, a folga virava
+         * uma lasca de ~1,5px na base do desenho. Recortando o viewBox, o traçado
+         * encosta nas quatro bordas e a caixa fica quadrada (270,23 × 270,23).
+         */
         'arrow' => [
-            'viewBox' => '0 0 270.23 271.694',
+            'viewBox' => '0 1.464 270.23 270.23',
             'stroke' => '60',
             'preserveAspectRatio' => 'none',
             'paths' => [
