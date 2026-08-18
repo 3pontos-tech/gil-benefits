@@ -15,6 +15,20 @@ use TresPontosTech\User\Mail\WelcomeUserMail;
 
 /*
 |--------------------------------------------------------------------------
+| Site institucional
+|--------------------------------------------------------------------------
+|
+| As landing pages saíram do painel guest do Filament para serem Blade puro:
+| assim não herdam o template do painel (nem os paddings dele) e podem ser
+| customizadas livremente. O painel guest segue servindo o /help-center.
+|
+*/
+Route::view('/', 'pages.home')->name('site.home');
+Route::view('/para-empresas', 'pages.companies')->name('site.companies');
+Route::view('/colaborador', 'pages.collaborator')->name('site.collaborator');
+
+/*
+|--------------------------------------------------------------------------
 | Email Preview Routes (local development only)
 |--------------------------------------------------------------------------
 */

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fd0342" />
+  <title>Flamma — Bem-estar financeiro como benefício para o seu time</title>
+  <meta name="description" content="O benefício de saúde financeira da Flamma: consultoria individual e sigilosa para cada colaborador. Menos turnover, mais produtividade e uma cultura mais forte." />
+
+  <!-- Ícone da aba: SVG cobre todos os navegadores atuais e escala em qualquer densidade -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+  <!-- Fontes via <link> (não via @import no CSS): o @import criava a cadeia
+       HTML → styles.css → CSS do Google → arquivos da fonte, serializando 4 idas
+       e vindas. Aqui a fonte baixa em paralelo com o CSS. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syne:wght@700;800&display=swap" />
+
+  <!-- Compartilhamento. ⚠️ og:image e og:url precisam virar URL ABSOLUTA
+       (https://seu-dominio.netlify.app/...) para o preview aparecer no
+       WhatsApp/LinkedIn/Facebook — caminho relativo a maioria dos scrapers ignora. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="Flamma" />
+  <meta property="og:title" content="Flamma — Bem-estar financeiro como benefício para o seu time" />
+  <meta property="og:description" content="Consultoria financeira individual e sigilosa para cada colaborador. Menos turnover, mais produtividade e uma cultura mais forte." />
+  <meta property="og:image" content="assets/MagnificMakeSureHerDressShirtOvvjwGw8293.webp" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- ?v= evita CSS/JS servido do cache do navegador; suba o número a cada alteração -->
+  <link rel="stylesheet" href="styles.css?v=21" />
+</head>
+<body>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header" id="top">
+    <div class="site-header__inner">
+      <a class="logo" href="#top" aria-label="Flamma — início">
+        <img src="assets/Group30436.svg" alt="Flamma" />
+      </a>
+      <nav class="site-nav" aria-label="Navegação principal">
+        <div class="search-field" id="searchField">
+          <input type="search" placeholder="Buscar…" aria-label="Buscar" />
+        </div>
+        <button class="icon-btn" id="searchToggle" aria-label="Buscar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Alternar tema claro/escuro">
+          <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <button class="icon-btn avatar" aria-label="Perfil">
+          <img src="assets/Ellipse1.webp" alt="" />
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero section">
+      <div class="container grid-2 hero__grid">
+        <div class="hero__text">
+          <h1 class="h1 reveal">O <span class="rose">bem-estar financeiro</span> do seu time em forma de <span class="rose">benefício</span></h1>
+          <p class="lead reveal" data-delay="1">Se seu colaborador está organizado financeiramente, a empresa tem menos turnover, mais produtividade e uma cultura mais forte.</p>
+          <a href="#plano" class="btn reveal" data-delay="2">Simular contratação <span class="btn__arrow">→</span></a>
+        </div>
+        <div class="hero__media reveal-scale">
+          <div class="hero__grad"></div>
+          <div class="hero__frame">
+            <img src="assets/MagnificMakeSureHerDressShirtOvvjwGw8293.webp" fetchpriority="high" decoding="async" alt="Colaboradora analisando um relatório financeiro" />
+          </div>
+          <div class="deco deco-star spin"><img src="assets/Group31836.svg" alt="" /></div>
+        </div>
+      </div>
+      <div class="deco deco-arrow bob"><img src="assets/Image8.png" alt="" /></div>
+    </section>
+
+    <!-- ===================== POR QUE INVESTIR ===================== -->
+    <section class="invest section">
+      <div class="container grid-2">
+        <div class="invest__media reveal-left">
+          <div class="invest__frame">
+            <img src="assets/MagnificMakeSureTheKeyboardsAGOOcyW1Sxo3.webp" loading="lazy" decoding="async" alt="Equipe trabalhando em computadores" />
+          </div>
+          <div class="invest__notch invest__notch--tr"></div>
+          <div class="invest__notch invest__notch--bl"></div>
+        </div>
+        <div class="invest__text reveal-right">
+          <h2 class="h2">Por que investir na <span class="rose">saúde financeira</span> dos seus colaboradores?</h2>
+          <p class="lead">O estresse financeiro reduz foco, memória e capacidade de decisão, e isso aparece direto nos indicadores de RH, com mais erros, menos produtividade, mais faltas e mais pedidos de demissão.</p>
+        </div>
+      </div>
+      <!-- Estrela vermelha à direita que desce e encaixa dentro da faixa laranja abaixo -->
+      <div class="deco deco-invstar spin"><img src="assets/Group31833.svg" loading="lazy" decoding="async" alt="" /></div>
+    </section>
+
+    <!-- ===================== DO FECHAMENTO À PRIMEIRA SESSÃO ===================== -->
+    <section class="flow section">
+      <div class="flow__chip"></div>
+      <div class="container">
+        <div class="flow__head">
+          <h2 class="h2--xl h2 reveal">Do fechamento à primeira sessão</h2>
+          <p class="lead reveal" data-delay="1">Depois da contratação o processo roda sozinho, sem gerar trabalho extra para o RH. Cada colaborador recebe o acesso, escolhe o horário e é atendido por um consultor especializado.</p>
+        </div>
+        <div class="flow__cards">
+          <div class="deco flow__star spin" aria-hidden="true"><img src="assets/Group31835.svg" loading="lazy" decoding="async" alt="" /></div>
+          <!-- Card 1 -->
+          <article class="fcard reveal" data-delay="1">
+            <div class="fcard__media-wrap">
+              <div class="fcard__media">
+                <img class="fcard__bg" src="assets/Rectangle2.svg" loading="lazy" decoding="async" alt="" />
+                <div class="fcard__shadow" style="left:62.85px;top:276.38px;width:340.109px;height:26.601px;">
+                  <img src="assets/Ellipse114.svg" loading="lazy" decoding="async" alt="" style="position:absolute;left:-20.99px;top:-21px;width:382.109px;height:68.6006px;" />
+                </div>
+                <div class="fcard__prod" style="left:18.53px;top:32.08px;width:428.746px;height:278.836px;">
+                  <img src="assets/25B39144Ccbe4F0F8Afe5Ea8232Ff4651.webp" loading="lazy" decoding="async" alt="Aperto de mãos" style="width:428.746px;height:278.836px;" />
+                  <div class="fcard__masklift" style="mix-blend-mode:lighten;">
+                    <div class="fcard__maskfill" style="width:444.711px;height:310.469px;margin-left:-15.96px;margin-top:-7.42px;-webkit-mask-image:url('assets/Rectangle1136.webp');mask-image:url('assets/Rectangle1136.webp');-webkit-mask-size:428.746px 278.836px;mask-size:428.746px 278.836px;-webkit-mask-position:15.965px 7.417px;mask-position:15.965px 7.417px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fcard__text">
+              <div class="fcard__title">
+                <img class="icon31" src="assets/Handshake.svg" loading="lazy" decoding="async" alt="" />
+                <h3>Contratação</h3>
+              </div>
+              <p class="fcard__desc">Você escolhe o pacote ideal para o tamanho do seu time.</p>
+            </div>
+          </article>
+
+          <!-- Card 2 -->
+          <article class="fcard reveal" data-delay="2">
+            <div class="fcard__media-wrap">
+              <div class="fcard__media">
+                <img class="fcard__bg" src="assets/Rectangle2.svg" loading="lazy" decoding="async" alt="" />
+                <div class="fcard__shadow" style="left:145.85px;top:284.32px;width:190.523px;height:26.601px;">
+                  <img src="assets/Ellipse116.svg" loading="lazy" decoding="async" alt="" style="position:absolute;left:-20.99px;top:-21px;width:232.523px;height:68.6006px;" />
+                </div>
+                <div class="fcard__prod" style="left:57.45px;top:0;width:376.992px;height:327.671px;">
+                  <img src="assets/BunchKeys21.webp" loading="lazy" decoding="async" alt="Molho de chaves" style="width:376.992px;height:327.671px;" />
+                  <div class="fcard__masklift" style="mix-blend-mode:plus-lighter;">
+                    <div class="fcard__maskfill" style="width:456.418px;height:318.642px;margin-left:17.3px;margin-top:13.6px;-webkit-mask-image:url('assets/Rectangle1137.webp');mask-image:url('assets/Rectangle1137.webp');-webkit-mask-size:376.992px 327.671px;mask-size:376.992px 327.671px;-webkit-mask-position:-17.301px -13.598px;mask-position:-17.301px -13.598px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fcard__text">
+              <div class="fcard__title">
+                <img class="icon31" src="assets/Target.svg" loading="lazy" decoding="async" alt="" />
+                <h3>Realidade</h3>
+              </div>
+              <p class="fcard__desc">Seu time recebe acesso e agenda no horário que preferir.</p>
+            </div>
+          </article>
+
+          <!-- Card 3 -->
+          <article class="fcard reveal" data-delay="3">
+            <div class="fcard__media-wrap">
+              <div class="fcard__media">
+                <img class="fcard__bg" src="assets/Rectangle2.svg" loading="lazy" decoding="async" alt="" />
+                <div class="fcard__shadow" style="left:134.01px;top:227.87px;width:297.171px;height:80.73px;">
+                  <img src="assets/Rectangle1226.svg" loading="lazy" decoding="async" alt="" style="position:absolute;left:-21px;top:-21px;width:339.171px;height:122.73px;" />
+                </div>
+                <div class="fcard__prod" style="left:34.61px;top:0;width:396.575px;height:327.671px;">
+                  <img src="assets/7F02E588Bebb494682E59379E071Ebc31.webp" loading="lazy" decoding="async" alt="Calculadora" style="width:396.575px;height:327.671px;" />
+                  <div class="fcard__masklift" style="mix-blend-mode:lighten;top:10.27px;">
+                    <div class="fcard__maskfill" style="width:295.97px;height:416.75px;margin-left:36.2px;margin-top:-55.11px;-webkit-mask-image:url('assets/Rectangle1138.webp');mask-image:url('assets/Rectangle1138.webp');-webkit-mask-size:396.574px 317.401px;mask-size:396.574px 317.401px;-webkit-mask-position:-36.197px 55.105px;mask-position:-36.197px 55.105px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="fcard__text">
+              <div class="fcard__title">
+                <img class="icon31" src="assets/LockKey.svg" loading="lazy" decoding="async" alt="" />
+                <h3>Sigilo</h3>
+              </div>
+              <p class="fcard__desc">Sessões individuais e sigilosas, sem que a empresa precise acompanhar ou intermediar.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== MAIS QUE UMA FERRAMENTA ===================== -->
+    <section id="ferramenta" class="tool section">
+      <div class="deco deco-arrow bob"><img src="assets/Group31815.svg" loading="lazy" decoding="async" alt="" /></div>
+      <div class="container">
+       <div class="tool__grid">
+        <!-- Palco esquerdo: grafismo escuro em escada + retângulos cinza deslocados + boxes brancos (coords do Figma) -->
+        <div class="tool__stage">
+          <img class="tool__graphic" src="assets/Vector20.svg" loading="lazy" decoding="async" alt="" aria-hidden="true" />
+          <img class="tool__graphic tool__graphic--grad" src="assets/Vector9_tool.svg" loading="lazy" decoding="async" alt="" aria-hidden="true" />
+          <span class="tool__gray tool__gray--1" aria-hidden="true"></span>
+          <span class="tool__gray tool__gray--2" aria-hidden="true"></span>
+          <div class="tool__box tool__box--head reveal-left">
+            <p class="h3">Mais que uma ferramenta, um <span class="rose">consultor de verdade</span></p>
+          </div>
+          <div class="tool__box tool__box--body reveal-left" data-delay="1">
+            <p class="body">Cada colaborador tem uma conversa real com alguém que entende sua situação financeira, muito além do que qualquer planilha consegue oferecer.</p>
+          </div>
+        </div>
+        <div class="pillars reveal-right">
+          <div class="pillar">
+            <div class="pillar__mark"><img src="assets/Group31791.svg" loading="lazy" decoding="async" alt="" /></div>
+            <div class="pillar__txt">
+              <h3>Consultor humano</h3>
+              <p>Cada sessão é conduzida por um especialista que escuta antes de orientar.</p>
+            </div>
+          </div>
+          <div class="pillar">
+            <div class="pillar__mark"><img src="assets/Group31792.svg" loading="lazy" decoding="async" alt="" /></div>
+            <div class="pillar__txt">
+              <h3>Personalização real</h3>
+              <p>O ponto de partida é sempre a realidade financeira do colaborador.</p>
+            </div>
+          </div>
+          <div class="pillar">
+            <div class="pillar__mark"><img src="assets/Group31792.svg" loading="lazy" decoding="async" alt="" /></div>
+            <div class="pillar__txt">
+              <h3>Acompanhamento contínuo</h3>
+              <p>O foco é construir uma mudança de comportamento duradoura.</p>
+            </div>
+          </div>
+        </div>
+       </div>
+      </div>
+    </section>
+
+    <!-- ===================== PRIVACIDADE ===================== -->
+    <!-- Figma "Frame 20377" (8512:507): palco 1676×732 (largura do container)
+         texto 822 @ (0,75) · foto 1127,921×732 @ (671,5 / 0) · seta 336,4 @ (671 / 302) -->
+    <section class="privacy section">
+      <div class="container">
+        <div class="privacy__stage">
+          <div class="privacy__text reveal-left">
+            <h2 class="h2"><span class="rose">Privacidade</span> em primeiro lugar.</h2>
+            <p class="lead">A empresa contrata o benefício, mas quem decide o que compartilhar em cada sessão é o colaborador, e essa informação fica só entre ele e o consultor.</p>
+            <a href="#plano" class="btn btn--fixed">Simular contratação</a>
+          </div>
+          <div class="privacy__media reveal-right">
+            <img class="privacy__photo" src="assets/Vector21.webp" loading="lazy" decoding="async" width="1128" height="732" alt="Colaborador em sessão de consultoria com fones de ouvido" />
+            <img class="privacy__arrow" src="assets/Image8.png" width="336" height="336" alt="" aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== O PLANO ACOMPANHA ===================== -->
+    <section class="plan section" id="plano">
+      <!-- Group 31816 — seta colada na borda esquerda da página (cortada pela prancheta) -->
+      <div class="deco deco-plan bob" aria-hidden="true"><img src="assets/Group31816_plan.svg" loading="lazy" decoding="async" alt="" /></div>
+      <div class="container">
+        <div class="plan__head">
+          <h2 class="h2 reveal">O plano acompanha o <span class="rose">crescimento</span> do seu time</h2>
+          <p class="lead reveal" data-delay="1">Simule o valor para o seu time abaixo. Ficou com alguma dúvida? É só falar com a gente.</p>
+        </div>
+        <div class="plan__stage">
+          <!-- Vector 11 — grafismo escuro em degrau, full-bleed, atravessa a seção "Leve" -->
+          <div class="plan__slab" aria-hidden="true"><img src="assets/Vector12.svg" loading="lazy" decoding="async" alt="" /></div>
+          <div class="plan__photo reveal-scale">
+            <img src="assets/Rectangle1225.webp" loading="lazy" decoding="async" alt="Colaboradora sorrindo durante atendimento" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== LEVE SAÚDE FINANCEIRA ===================== -->
+    <section class="take section">
+      <div class="container">
+        <div class="take__card reveal-scale">
+          <div class="take__text">
+            <h2 class="h2">Leve <span class="rose">saúde financeira</span> para dentro da sua empresa.</h2>
+            <p class="lead">Menos turnover, mais produtividade, e um time que sente que a empresa se importa de verdade.</p>
+            <a href="#plano" class="btn">Simular contratação <span class="btn__arrow">→</span></a>
+          </div>
+          <div class="take__frame">
+            <img src="assets/MagnificAPhotorealisticCinematiGOoWvPqsxo6.webp" loading="lazy" decoding="async" alt="Mão colocando moeda em um cofre de porquinho" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="footer-wave"><img src="assets/Vector22.svg" loading="lazy" decoding="async" alt="" /></div>
+    <div class="container site-footer__inner">
+      <div class="footer__cols">
+        <div class="footer__col">
+          <p class="title">Links e Serviços</p>
+          <a class="item" href="#">Lorem</a><a class="item" href="#">Lorem</a><a class="item" href="#">Lorem</a><a class="item" href="#">Lorem</a><a class="item" href="#">Lorem</a>
+        </div>
+        <div class="footer__col">
+          <p class="title">Links e Serviços</p>
+          <a class="item" href="#">Lorem</a><a class="item" href="#">Lorem</a><a class="item" href="#">Lorem</a><a class="item" href="#">Lorem</a><a class="item" href="#">Lorem</a>
+        </div>
+        <div class="footer__col">
+          <p class="title">Contato e Endereço</p>
+          <a class="item" href="mailto:contato@firece.com.br">contato@firece.com.br</a>
+          <div class="footer__phone">
+            <img src="assets/ContactPhoneIcon.webp" loading="lazy" decoding="async" alt="" />
+            <span class="item">(11) 98720-1303</span>
+          </div>
+        </div>
+        <div class="footer__col footer__news">
+          <p class="title">Nossa Newsletter</p>
+          <p class="desc">Envie nos o seu email e receba as melhores notícias e textos sobre o que acontece no mercado financeiro</p>
+          <!-- Netlify Forms: data-netlify + o campo oculto form-name fazem o Netlify
+               capturar os envios (painel Forms do site). netlify-honeypot descarta
+               bots sem precisar de CAPTCHA. Sem isso o e-mail digitado não ia a
+               lugar nenhum — o botão só fingia que tinha inscrito. -->
+          <form class="footer__form" id="newsletterForm" name="newsletter" method="POST"
+                data-netlify="true" netlify-honeypot="bot-field" novalidate>
+            <input type="hidden" name="form-name" value="newsletter" />
+            <p hidden><label>Não preencha este campo: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+            <input class="footer__input" type="email" name="email" placeholder="Digite seu email" aria-label="Seu email" autocomplete="email" required />
+            <button class="footer__btn" type="submit"><span>Inscrever-se</span></button>
+          </form>
+          <p class="footer__formmsg" id="newsletterMsg" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="footer__divider"></div>
+      <div class="footer__bottom">
+        <img class="footer-logo" src="assets/Group30437.svg" loading="lazy" decoding="async" alt="Flamma" />
+        <p class="title">Nosso Endereço</p>
+        <p class="addr">Dr. Cardoso de Mello, 1666, Cj, 92 Vila Olímpia, São Paulo</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to top -->
+  <button class="to-top" id="toTop" aria-label="Voltar ao topo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
+
+  <script src="script.js?v=21"></script>
+</body>
+</html>

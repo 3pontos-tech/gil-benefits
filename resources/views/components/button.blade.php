@@ -4,7 +4,7 @@
     'type' => 'button',
     'color' => 'primary',
     'variant' => 'solid',
-    'size' => 'lg',       // xs|sm|md|lg
+    'size' => 'lg',       // xs|sm|md|lg|xl|xl-tight
     'rounded' => 'sm',  // full|lg|md|sm
     'block' => false,
     'disabled' => false,
@@ -13,8 +13,6 @@
     'icon' => null,
     'iconPosition' => 'leading',
 ])
-
-@aware(['interactive' => false])
 
 @php
     $isLink = filled($href);
@@ -25,23 +23,34 @@
     $hasLeading = isset($leading) || (filled($icon) && $iconPosition === 'leading');
     $hasTrailing = isset($trailing) || (filled($icon) && $iconPosition === 'trailing');
 
-    $base = 'relative inline-flex items-center justify-center font-medium transition-all duration-200 group/button active:scale-95 cursor-pointer';
+    // O peso sai do base e passa a vir do tamanho: o CTA do site institucional é bold,
+    // os botões de interface seguem medium.
+    $base = 'relative inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 group/button active:scale-95 cursor-pointer';
 
     $roundCls = [
         'full' => 'rounded-full', 'lg' => 'rounded-xl', 'md' => 'rounded-lg', 'sm' => 'rounded-md',
+        'none' => 'rounded-none',
     ][$rounded] ?? 'rounded-sm';
 
+    // xl é a medida do CTA no Figma: 16px de padding vertical + 24px de linha = 56 de altura,
+    // e 32 na horizontal (o botão do hero tem 221 de largura para um rótulo de 157).
     $sizeCls = [
-        'xs' => ['pad'=>'px-2.5 py-1.5','text'=>'text-xs','icon'=>'h-4 w-4','iconOnly'=>'p-1.5'],
-        'sm' => ['pad'=>'px-3.5 py-2','text'=>'text-sm','icon'=>'h-4 w-4','iconOnly'=>'p-2'],
-        'md' => ['pad'=>'px-4 py-2.5','text'=>'text-sm','icon'=>'h-5 w-5','iconOnly'=>'p-2.5'],
-        'lg' => ['pad'=>'px-5 py-3','text'=>'text-base','icon'=>'h-5 w-5','iconOnly'=>'p-3'],
-    ][$size] ?? ['pad'=>'px-4 py-2.5','text'=>'text-sm','icon'=>'h-5 w-5','iconOnly'=>'p-2.5'];
+        'xs' => ['pad'=>'px-2.5 py-1.5','text'=>'text-xs','icon'=>'h-4 w-4','iconOnly'=>'p-1.5','weight'=>'font-medium'],
+        'sm' => ['pad'=>'px-3.5 py-2','text'=>'text-sm','icon'=>'h-4 w-4','iconOnly'=>'p-2','weight'=>'font-medium'],
+        'md' => ['pad'=>'px-4 py-2.5','text'=>'text-sm','icon'=>'h-5 w-5','iconOnly'=>'p-2.5','weight'=>'font-medium'],
+        'lg' => ['pad'=>'px-5 py-3','text'=>'text-base','icon'=>'h-5 w-5','iconOnly'=>'p-3','weight'=>'font-medium'],
+        'xl' => ['pad'=>'px-8 py-4','text'=>'text-base','icon'=>'h-5 w-5','iconOnly'=>'p-4','weight'=>'font-bold'],
+        // Mesma altura do xl, mas com 16 de padding horizontal: é o botão da página do
+        // colaborador no Figma (184 = rótulo de 152 + 2×16), contra 32 nas outras duas.
+        'xl-tight' => ['pad'=>'px-4 py-4','text'=>'text-base','icon'=>'h-5 w-5','iconOnly'=>'p-4','weight'=>'font-bold'],
+    ][$size] ?? ['pad'=>'px-4 py-2.5','text'=>'text-sm','icon'=>'h-5 w-5','iconOnly'=>'p-2.5','weight'=>'font-medium'];
 
+    // Os CTAs do site usam o laranja forte da marca (--orange-primary, #E2410A) — o mesmo
+    // do topo e do rodapé. O vermelho segue nos títulos e nos destaques de texto.
     $colors = [
         'primary' => [
             'solid' => [
-                'bg' => 'bg-gradient-to-br from-brand-primary to-brand-secondary',
+                'bg' => 'bg-gradient-to-br from-orange-primary to-orange-400',
                 'text' => 'text-light',
                 'border' => '',
                 'hoverBg' => '',
@@ -49,20 +58,47 @@
             ],
             'outline' => [
                 'bg' => 'bg-transparent',
-                'text' => 'text-brand-primary',
-                'border' => 'border-brand-primary',
-                'hoverBg' => 'hover:bg-brand-primary',
+                'text' => 'text-orange-primary',
+                'border' => 'border-orange-primary',
+                'hoverBg' => 'hover:bg-orange-primary',
                 'hoverText' => 'hover:text-light',
             ],
             'white' => [
                 'bg' => 'bg-white',
-                'text' => 'text-brand-primary',
+                'text' => 'text-orange-primary',
                 'border' => 'none',
                 'hoverBg' => '',
                 'hoverText' => '',
-            ]
+            ],
+            // Chapado, sem gradiente: é o CTA da página para empresas no design.
+            'flat' => [
+                'bg' => 'bg-orange-primary',
+                'text' => 'text-light',
+                'border' => 'border-outline-light',
+                'hoverBg' => 'hover:bg-orange-600',
+                'hoverText' => '',
+            ],
+            // Botão claro sobre bloco colorido. O design usa duas versões, que diferem
+            // só no rótulo: escuro sobre o gradiente do hero, laranja sobre bloco colorido.
+            'light' => [
+                'bg' => 'bg-icon-light',
+                'text' => 'text-dark',
+                'border' => 'border-outline-light',
+                'hoverBg' => 'hover:bg-white',
+                'hoverText' => '',
+            ],
+            'light-brand' => [
+                'bg' => 'bg-icon-light',
+                'text' => 'text-orange-primary',
+                'border' => 'border-[#f1785a]',
+                'hoverBg' => 'hover:bg-white',
+                'hoverText' => '',
+            ],
         ],
-    ][$color] ?? $colors['brand'];
+    ];
+
+    // Só existe a paleta da marca; um color desconhecido cai nela em vez de estourar.
+    $colors = $colors[$color] ?? $colors['primary'];
 
     $variantColors = $colors[$variant] ?? $colors['solid'];
 
@@ -70,25 +106,20 @@
         'solid' => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']} {$variantColors['hoverBg']} hover:scale-[1.02] transition-all duration-300",
         'outline' => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']} {$variantColors['hoverBg']} {$variantColors['hoverText']} border hover:scale-[1.02] transition-all duration-300",
         'white' => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']} {$variantColors['hoverBg']} {$variantColors['hoverText']} hover:scale-[1.02] transition-all duration-300",
+        'flat', 'light', 'light-brand' => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']} {$variantColors['hoverBg']} border transition-all duration-300",
         default => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']}",
     };
-
-    $linkedHoverCls = $interactive ? match ($variant) {
-        'solid' => 'group-hover/card:shadow-md',
-        'outline' => 'group-hover/card:bg-gray-50',
-        default => '',
-    } : '';
 
     $classes = implode(' ', [
         $base,
         $roundCls,
         $sizeCls['text'],
+        $sizeCls['weight'],
         $variantCls,
         $block ? 'w-full' : 'w-full lg:w-auto',
         $isDisabled ? 'opacity-60 pointer-events-none' : '',
         ($hasLeading || $hasTrailing) && !$iconOnly ? 'gap-2' : 'gap-0',
         $iconOnly ? $sizeCls['iconOnly'] : $sizeCls['pad'],
-        $linkedHoverCls,
     ]);
 @endphp
 
