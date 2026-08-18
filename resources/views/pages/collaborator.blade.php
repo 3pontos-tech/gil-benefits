@@ -300,7 +300,8 @@
 
     {{-- ══════════════════════════════════════════════════════════════
          5. PRIVACIDADE EM PRIMEIRO LUGAR — 8298:3446
-         Mesmo bloco da /para-empresas, com as mesmas medidas de arquivo:
+         Mesmo bloco da /para-empresas, com o mesmo arquivo (img/privacy.webp) e as
+         mesmas medidas de recorte:
 
              bloco estreito   x ≥ 78,2%    até y 13,5%
              bloco largo      x ≥ 57,55%   até y 80,31%
@@ -317,7 +318,7 @@
         <div class="pointer-events-none absolute -top-[91px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block"
              aria-hidden="true">
             <div class="relative">
-                <img src="{{ asset('img/colaborador/privacidade.webp') }}" alt=""
+                <img src="{{ asset('img/privacy.webp') }}" alt=""
                      class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
 
                 <x-graphism

@@ -14,8 +14,6 @@
     'iconPosition' => 'leading',
 ])
 
-@aware(['interactive' => false])
-
 @php
     $isLink = filled($href);
     $tag = $isLink ? 'a' : $as;
@@ -97,7 +95,10 @@
                 'hoverText' => '',
             ],
         ],
-    ][$color] ?? $colors['brand'];
+    ];
+
+    // Só existe a paleta da marca; um color desconhecido cai nela em vez de estourar.
+    $colors = $colors[$color] ?? $colors['primary'];
 
     $variantColors = $colors[$variant] ?? $colors['solid'];
 
@@ -109,12 +110,6 @@
         default => "{$variantColors['bg']} {$variantColors['text']} {$variantColors['border']}",
     };
 
-    $linkedHoverCls = $interactive ? match ($variant) {
-        'solid' => 'group-hover/card:shadow-md',
-        'outline' => 'group-hover/card:bg-gray-50',
-        default => '',
-    } : '';
-
     $classes = implode(' ', [
         $base,
         $roundCls,
@@ -125,7 +120,6 @@
         $isDisabled ? 'opacity-60 pointer-events-none' : '',
         ($hasLeading || $hasTrailing) && !$iconOnly ? 'gap-2' : 'gap-0',
         $iconOnly ? $sizeCls['iconOnly'] : $sizeCls['pad'],
-        $linkedHoverCls,
     ]);
 @endphp
 

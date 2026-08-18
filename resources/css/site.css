@@ -258,13 +258,4 @@
         background-color: var(--site-nav-hover-bg);
         color: var(--site-nav-text-active);
     }
-
-    /* Rótulo do grupo "Ajuda", como na barra lateral do painel */
-    .site-mobile-menu-group-label {
-        padding: calc(var(--spacing) * 2);
-        padding-block-start: calc(var(--spacing) * 6);
-        font-size: var(--text-sm);
-        font-weight: 500;
-        color: var(--site-nav-text-active);
-    }
 }
