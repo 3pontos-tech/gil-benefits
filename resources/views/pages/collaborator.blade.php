@@ -115,9 +115,9 @@
                     <path d="M1685.75 317.824H1779.88V246.186L1779.88 204.681H1809.31H1927V586.184H1199.36V641.619H1027.23V711.836H910.5V1204.58H746.017V1302H0V0H127.17V98.3607H224.418V350.801V388.326H336.232H1685.85C1685.85 368.426 1686.04 354.915 1685.75 317.824Z"
                           fill="#39393A"/>
                 </svg>
+                {{-- Só o painel do alto mora na massa; os outros dois acompanham os
+                     boxes da seção "Mais que uma ferramenta". --}}
                 <div class="absolute left-[73.28%] top-[20.43%] h-[21.35%] w-[27.19%] bg-white/32"></div>
-                <div class="absolute left-[17.4%] top-[52.69%] h-[13.52%] w-[27.19%] bg-white/32"></div>
-                <div class="absolute left-[2.66%] top-[75.81%] h-[13.52%] w-[27.19%] bg-white/32"></div>
             </div>
         </div>
 
@@ -205,41 +205,70 @@
          4. MAIS QUE UMA FERRAMENTA — 8298:3472 + pilares 8298:3653
          Mesmo bloco da /para-empresas.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="consultor" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[287px] lg:px-[62px]">
-        <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-            <div class="flex flex-col gap-8">
-                <div class="fm-reveal-left relative bg-elevation-01dp p-6 lg:p-8">
-                    <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[40px]">
-                        Mais que uma ferramenta, um <span class="text-orange-primary">consultor de verdade</span>
-                    </h2>
+    {{--
+        A composição é a mesma da /para-empresas, mas aqui a massa escura em degraus vem
+        da seção anterior (Vector 13). Medidas do Figma, em px de 1920:
+
+            box do título     123 → 829 (706 de largura), 184 de altura
+            box do texto      123 → 829, 116 de altura, 30 abaixo do primeiro
+            painel 1          524 × 179, 216 à direita e 56 acima do box do título
+            painel 2          526 × 177, 71 à esquerda e 35 abaixo do topo do box do texto
+
+        Os painéis translúcidos ficam à direita e ACIMA / à esquerda e ABAIXO dos boxes —
+        é esse desencontro que dá o escalonamento do design; por isso são ancorados a
+        cada box e não à massa, onde antes estavam (e desalinhavam quando a altura do
+        conteúdo acima mudava).
+
+        Tipografia, paddings e offsets saem em cqw da seção (1800px de largura em 1920,
+        logo 1cqw = 18px), com max() de piso: a composição encolhe junto com a tela em
+        vez de estourar.
+    --}}
+    <section id="consultor" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 @container sm:px-8 lg:mt-[287px] lg:px-[62px]">
+        <div class="flex flex-col items-start gap-10 lg:flex-row lg:justify-between lg:gap-16">
+            <div class="flex w-full flex-col gap-8 lg:w-[42.1241cqw] lg:gap-[1.79cqw]">
+                <div class="relative">
+                    {{-- painel translúcido, à direita e acima do box --}}
+                    <div
+                        class="absolute -top-[3.3413cqw] left-[12.8878cqw] hidden h-[10.6802cqw] w-[31.2649cqw] bg-white/32 lg:block"
+                        aria-hidden="true"
+                    ></div>
+
+                    <div data-tool-box class="fm-reveal-left relative bg-elevation-01dp p-6 lg:flex lg:min-h-[10.9785cqw] lg:items-center lg:p-[1.9093cqw]">
+                        <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[max(24px,2.3866cqw)]">
+                            Mais que uma ferramenta, um <span class="text-orange-primary">consultor de verdade</span>
+                        </h2>
+                    </div>
                 </div>
-                <div class="fm-reveal-left relative bg-elevation-01dp p-6 lg:p-8" data-fm-delay="1">
-                    <p class="text-base font-medium leading-[1.5] text-dark">
-                        Cada colaborador tem uma conversa real com alguém que entende sua situação
-                        financeira, muito além do que qualquer planilha consegue oferecer.
-                    </p>
+
+                <div class="relative">
+                    {{-- painel translúcido, à esquerda e abaixo do box --}}
+                    <div
+                        class="absolute left-[-4.2363cqw] top-[2.0883cqw] hidden h-[10.5609cqw] w-[31.3842cqw] bg-white/32 lg:block"
+                        aria-hidden="true"
+                    ></div>
+
+                    <div data-tool-box class="fm-reveal-left relative bg-elevation-01dp p-6 lg:flex lg:min-h-[6.9212cqw] lg:items-center lg:p-[1.9093cqw]" data-fm-delay="1">
+                        <p class="text-base font-medium leading-[1.5] text-dark lg:text-[max(14px,0.9547cqw)]">
+                            Cada colaborador tem uma conversa real com alguém que entende sua situação
+                            financeira, muito além do que qualquer planilha consegue oferecer.
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <ul class="fm-reveal-right flex flex-col gap-8 lg:ml-auto lg:w-[700px] lg:px-8 lg:py-[39px]">
+            <ul class="fm-reveal-right flex w-full flex-col gap-8
+                lg:me-[4.4749cqw] lg:mt-[5.3103cqw] lg:w-[34.7852cqw] lg:gap-[2.9833cqw]">
                 @foreach ([
                     ['Consultor humano', 'Cada sessão é conduzida por um especialista que escuta antes de orientar.'],
                     ['Personalização real', 'O ponto de partida é sempre a realidade financeira do colaborador.'],
                     ['Acompanhamento contínuo', 'O foco é construir uma mudança de comportamento duradoura.'],
                 ] as $pilar)
-                    <li class="fm-pillar flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-6">
-                        <svg aria-hidden="true" viewBox="0 0 347 347" fill="none" xmlns="http://www.w3.org/2000/svg"
-                             class="pointer-events-none w-[46px] shrink-0 text-brand-primary">
-                            <g stroke="currentColor" stroke-width="61.0935">
-                                <path d="M173.444 0V347"></path>
-                                <path d="M347 173.438H0"></path>
-                                <path d="M296.133 50.7803L50.7661 296.147"></path>
-                                <path d="M296.22 296.155L50.854 50.7891"></path>
-                            </g>
-                        </svg>
-                        <div class="flex flex-col gap-1 lg:w-[574px]">
-                            <h3 class="text-xl font-bold leading-[1.5] text-high lg:text-2xl">{{ $pilar[0] }}</h3>
-                            <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl">{{ $pilar[1] }}</p>
+                    <li class="fm-pillar flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-[1.432cqw]">
+                        <x-graphism class="w-[46px] lg:w-[max(28px,2.4463cqw)]" />
+
+                        <div class="flex flex-col gap-1">
+                            <h3 class="text-xl font-bold leading-[1.5] text-high lg:text-[max(18px,1.432cqw)]">{{ $pilar[0] }}</h3>
+                            <p class="text-base font-medium leading-[1.5] text-medium lg:text-[max(14px,0.9547cqw)]">{{ $pilar[1] }}</p>
                         </div>
                     </li>
                 @endforeach
