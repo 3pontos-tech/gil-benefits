@@ -101,20 +101,6 @@
                 'M86.3658 87.1675L58.5444 114.398L268.94 332.614L296.761 305.384L324.583 278.154L114.187 59.9372L86.3658 87.1675Z',
             ],
         ],
-
-        // Colaborador — asterisco do "Comece agora" (Group 31820), com o centro
-        // fora da peça: sobram o braço vertical, o horizontal e uma diagonal.
-        'collaborator-asterisk' => [
-            'viewBox' => '0 0 226 228',
-            'stroke' => '53',
-            'paths' => [
-                'M0.402344 201.379L225.803 201.379',
-                'M26.5 0.000559272L26.5007 203.935',
-            ],
-            'fills' => [
-                'M167.403 58.9178L149.035 39.8114L2.83346 183.318L21.2021 202.425L39.5707 221.531L185.772 78.0242L167.403 58.9178Z',
-            ],
-        ],
     ];
 
     $glyph = $glyphs[$type] ?? $glyphs['asterisk'];
