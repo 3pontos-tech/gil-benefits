@@ -68,6 +68,21 @@
          2. O QUE É O FLAMMA? — 8298:3443
          ══════════════════════════════════════════════════════════════ --}}
     <section id="o-que-e" class="relative mx-auto mt-16 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[75px] lg:px-[62px]">
+        {{--
+            Grafismo: seta ↘ (Group 31818, 324 × 337), encostada na borda direita da
+            viewport e começando 48px acima do título — no Figma ela acompanha este
+            bloco, e não a seção seguinte, onde estava. Estática: encaixada numa
+            composição, flutuar só a tiraria do lugar.
+
+            Só a partir de xl: abaixo disso a coluna de texto (822px fixos) chega perto
+            demais da diagonal da seta.
+        --}}
+        <x-graphism
+            type="collaborator-arrow"
+            data-fm-static
+            class="absolute -top-12 right-1/2 -z-10 -mr-[50vw] hidden w-[324px] xl:block"
+        />
+
         <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-7">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-[64px]">
                 O que é o <span class="text-orange-primary">Flamma</span>?
@@ -86,7 +101,6 @@
          e textos próprios do colaborador.
          ══════════════════════════════════════════════════════════════ --}}
     <section id="como-funciona" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[103px] lg:px-[62px]">
-        {{-- Grafismo: seta (Group 31818), canto superior direito --}}
         {{--
             Vector 13 (8298:3468) — massa escura de 1927×1302 que no Figma começa em
             y=1916, ou seja 319px dentro desta seção, passa por trás do rodapé dos cards
@@ -106,9 +120,6 @@
                 <div class="absolute left-[2.66%] top-[75.81%] h-[13.52%] w-[27.19%] bg-white/32"></div>
             </div>
         </div>
-
-        <x-graphism type="collaborator-arrow"
-                    class="fm-bob absolute -top-24 right-0 -z-10 hidden w-[303px] lg:block" />
 
         {{--
             No Figma o título ocupa a largura toda (1676, centralizado) e o botão fica
