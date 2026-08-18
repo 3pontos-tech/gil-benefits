@@ -7,6 +7,7 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
+                'resources/css/site.css',
                 'resources/js/app.js',
                 'resources/js/flamma-motion.js',
                 'resources/css/filament/admin/theme.css',

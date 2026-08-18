@@ -1,4 +1,4 @@
-<x-filament-panels::page full-height="true" class="scroll-smooth">
+<x-layouts.site title="Para Colaboradores" description="Consultoria financeira individual, pensada para quem quer organizar as finanças e planejar o futuro com apoio de especialistas.">
 {{--
     Página do colaborador — Figma node 8298:3441 ("Pagina colaborador")
     Ordem e copy conforme o Figma. Classes fm-* animadas por flamma-motion.
@@ -29,7 +29,7 @@
             <div class="flex flex-col gap-8 lg:max-w-[826px]">
                 <div class="flex flex-col gap-4">
                     <h1 class="fm-reveal fm-in text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
-                        <span class="text-brand-primary">Cuide do seu dinheiro</span> com a ajuda de um especialista.
+                        <span class="text-orange-primary">Cuide do seu dinheiro</span> com a ajuda de um especialista.
                     </h1>
                     <p class="fm-reveal fm-in text-base font-medium leading-[1.5] text-medium lg:max-w-[578px] lg:text-xl"
                        data-fm-delay="1">
@@ -70,7 +70,7 @@
     <section id="o-que-e" class="relative mx-auto mt-16 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[75px] lg:px-[62px]">
         <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-7">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-[64px]">
-                O que é o <span class="text-brand-primary">Flamma</span>?
+                O que é o <span class="text-orange-primary">Flamma</span>?
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                 O Flamma é um benefício corporativo de saúde financeira, oferecido pela sua
@@ -107,9 +107,8 @@
             </div>
         </div>
 
-        <img src="{{ asset('svg/colaborador/deco-arrow-1.svg') }}" alt="" aria-hidden="true"
-             class="fm-bob pointer-events-none absolute -top-24 right-0 -z-10 hidden w-[303px] lg:block"
-             loading="lazy" decoding="async">
+        <x-graphism type="collaborator-arrow"
+                    class="fm-bob absolute -top-24 right-0 -z-10 hidden w-[303px] lg:block" />
 
         {{--
             No Figma o título ocupa a largura toda (1676, centralizado) e o botão fica
@@ -200,7 +199,7 @@
             <div class="flex flex-col gap-8">
                 <div class="fm-reveal-left relative bg-elevation-01dp p-6 lg:p-8">
                     <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[40px]">
-                        Mais que uma ferramenta, um <span class="text-brand-primary">consultor de verdade</span>
+                        Mais que uma ferramenta, um <span class="text-orange-primary">consultor de verdade</span>
                     </h2>
                 </div>
                 <div class="fm-reveal-left relative bg-elevation-01dp p-6 lg:p-8" data-fm-delay="1">
@@ -254,14 +253,13 @@
                  class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
         </div>
 
-        <img src="{{ asset('svg/colaborador/deco-arrow-2.svg') }}" alt="" aria-hidden="true"
-             class="fm-bob pointer-events-none absolute -bottom-20 left-1/2 -z-10 hidden w-[300px] lg:block"
-             loading="lazy" decoding="async">
+        <x-graphism type="collaborator-arrow-alt"
+                    class="fm-bob absolute -bottom-20 left-1/2 -z-10 hidden w-[300px] lg:block" />
 
         <div class="flex flex-col gap-8 lg:ml-32 lg:w-[693px] lg:max-w-none">
             <div class="flex flex-col gap-4">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-dark lg:text-[44px]">
-                    <span class="text-brand-primary">Privacidade</span> em primeiro lugar.
+                    <span class="text-orange-primary">Privacidade</span> em primeiro lugar.
                 </h2>
                 <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal"
                    data-fm-delay="1">
@@ -305,7 +303,7 @@
         </div>
         <header class="mx-auto flex flex-col gap-4 text-center lg:max-w-[1418px]">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
-                Escolha <span class="text-brand-primary">seu</span> plano
+                Escolha <span class="text-orange-primary">seu</span> plano
             </h2>
             <p class="fm-reveal mx-auto text-base font-medium leading-[1.5] text-medium lg:max-w-[1418px] lg:text-xl"
                data-fm-delay="1">
@@ -356,7 +354,7 @@
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-4">
                     <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-[44px]">
-                        Sua empresa já tem o <span class="text-brand-primary">Flamma</span>?
+                        Sua empresa já tem o <span class="text-orange-primary">Flamma</span>?
                     </h2>
                     <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:max-w-[578px] lg:text-xl lg:font-normal"
                        data-fm-delay="1">
@@ -399,7 +397,7 @@
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-8">
                     <h2 class="fm-reveal-right text-[32px] font-bold leading-[1.5] text-high lg:text-[44px]">
-                        Você e seus colegas com mais <span class="text-brand-primary">organização financeira</span>.
+                        Você e seus colegas com mais <span class="text-orange-primary">organização financeira</span>.
                     </h2>
                     <p class="fm-reveal-right text-base font-medium leading-[1.5] text-medium lg:max-w-[578px] lg:text-xl lg:font-normal"
                        data-fm-delay="1">
@@ -430,15 +428,14 @@
          ══════════════════════════════════════════════════════════════ --}}
     <section id="comecar" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 pb-20 sm:px-8 lg:mt-[109px] lg:px-[62px] lg:pb-0">
         {{-- Grafismo: Group 31820, canto inferior esquerdo --}}
-        <img src="{{ asset('svg/colaborador/deco-star.svg') }}" alt="" aria-hidden="true"
-             class="fm-spin pointer-events-none absolute -left-16 bottom-0 -z-10 hidden w-[225px] lg:block"
-             loading="lazy" decoding="async">
+        <x-graphism type="collaborator-asterisk"
+                    class="fm-spin absolute -left-16 bottom-0 -z-10 hidden w-[225px] lg:block" />
 
         <div class="fm-reveal-scale flex flex-col items-center gap-8 border border-outline-light bg-elevation-01dp p-6 lg:flex-row lg:gap-8 lg:p-16">
             <div class="flex flex-col gap-8 lg:flex-1">
                 <div class="flex flex-col gap-4 lg:gap-[22px]">
                     <h2 class="text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                        Comece <span class="text-brand-primary">agora</span>
+                        Comece <span class="text-orange-primary">agora</span>
                     </h2>
                     <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal">
                         Marque sua primeira sessão com um consultor Flamma e comece a organizar
@@ -468,4 +465,4 @@
     {{-- Onda em degraus que faz a transição para o rodapé (Vector 20 no design) --}}
     <x-sections.footer-wave top-margin="mt-20 lg:mt-[317px]" />
 </div>
-</x-filament-panels::page>
+</x-layouts.site>

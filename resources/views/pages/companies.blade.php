@@ -1,4 +1,4 @@
-<x-filament-panels::page full-height="true" class="scroll-smooth">
+<x-layouts.site title="Para Empresas" description="Consultoria financeira como benefício corporativo: menos estresse financeiro no time, mais produtividade e retenção.">
     {{--
         overflow-x-clip contém as faixas que sangram de ponta a ponta (`w-screen`) sem gerar
         barra de rolagem horizontal. O espaçamento vertical não é uniforme: o design vai de
@@ -42,4 +42,4 @@
         {{-- Onda em degraus que faz a transição para o rodapé (Vector 21 no design) --}}
         <x-sections.footer-wave />
     </div>
-</x-filament-panels::page>
+</x-layouts.site>

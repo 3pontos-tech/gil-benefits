@@ -13,7 +13,8 @@
   --fm-ease: cubic-bezier(.22, .68, .18, 1);
   --fm-rose: #fd0342;
   --fm-shadow-lg: 0 28px 60px rgba(16, 16, 30, .16);
-  --fm-shadow-rose: 0 12px 28px rgba(253, 3, 66, .35);
+  /* A sombra dos CTAs acompanha o laranja dos botões (--orange-primary, #E2410A) */
+  --fm-shadow-rose: 0 12px 28px rgba(226, 65, 10, .35);
 }
 
 /* ============================================================
@@ -166,9 +167,9 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: #fd0342;
+  background: #e2410a;
   color: #fff;
-  box-shadow: 0 12px 28px rgba(253, 3, 66, .35);
+  box-shadow: 0 12px 28px rgba(226, 65, 10, .35);
   display: grid;
   place-items: center;
   border: none;

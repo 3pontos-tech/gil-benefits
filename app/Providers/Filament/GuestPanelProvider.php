@@ -2,10 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Guest\Pages\CollaboratorPage;
-use App\Filament\Guest\Pages\CompaniesPage;
-use App\Filament\Guest\Pages\HelpCenterPage;
-use App\Filament\Guest\Pages\LandingPage;
 use Filament\Actions\Action;
 use Filament\Enums\ThemeMode;
 use Filament\FontProviders\LocalFontProvider;
@@ -49,14 +45,6 @@ class GuestPanelProvider extends PanelProvider
             // sem url só ajusta --font-family e não emite <link> nenhum.
             ->font('Space Grotesk', provider: LocalFontProvider::class)
             ->renderHook(PanelsRenderHook::FOOTER, fn (): Factory|View => view('components.guest-footer'))
-            // Camada de movimento compartilhada pelas três páginas do site. Fica num
-            // bundle próprio porque o painel guest não carrega resources/js/app.js — ele só
-            // monta o layout do Filament mais o viteTheme abaixo.
-            ->renderHook(
-                PanelsRenderHook::BODY_END,
-                fn (): string => Blade::render("@vite('resources/js/flamma-motion.js')"),
-                scopes: [LandingPage::class, CompaniesPage::class, CollaboratorPage::class],
-            )
             ->renderHook(PanelsRenderHook::TOPBAR_END, fn () => Blade::render(<<<'BLADE'
                @guest
                     <x-button class="w-fit!" variant="outline" tag='a' href='/app/login'>Acesso Colaborador</x-button>
@@ -67,11 +55,7 @@ class GuestPanelProvider extends PanelProvider
             ->topNavigation()
             ->discoverResources(in: app_path('Filament/Guest/Resources'), for: 'App\Filament\Guest\Resources')
             ->discoverPages(in: app_path('Filament/Guest/Pages'), for: 'App\Filament\Guest\Pages')
-            ->pages([
-                LandingPage::class,
-                CompaniesPage::class,
-                CollaboratorPage::class,
-            ])
+            ->homeUrl(fn (): string => route('site.home'))
             ->userMenuItems([
                 Action::make('user_panel')
                     ->label('Acessar Plataforma')
@@ -91,40 +75,17 @@ class GuestPanelProvider extends PanelProvider
                     ->icon(Heroicon::BuildingOffice)
                     ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin', 'company_owner'])),
             ])
+            // Mesmo menu do site: só as três páginas principais.
             ->navigationItems([
                 NavigationItem::make('Inicio')
-                    ->url(fn (): string => LandingPage::getUrl() . '#home')
+                    ->url(fn (): string => route('site.home'))
                     ->sort(0),
                 NavigationItem::make('Para Empresas')
-                    ->url(fn (): string => CompaniesPage::getUrl())
-                    ->isActiveWhen(fn (): bool => request()->routeIs(CompaniesPage::getRouteName()))
+                    ->url(fn (): string => route('site.companies'))
                     ->sort(1),
                 NavigationItem::make('Para Você')
-                    ->url(fn (): string => CollaboratorPage::getUrl())
-                    ->isActiveWhen(fn (): bool => request()->routeIs(CollaboratorPage::getRouteName()))
+                    ->url(fn (): string => route('site.collaborator'))
                     ->sort(2),
-                NavigationItem::make('Como Funciona')
-                    ->url(fn (): string => LandingPage::getUrl() . '#how-it-works')
-                    ->sort(3),
-                NavigationItem::make('Nosso Desafio')
-                    ->url(fn (): string => LandingPage::getUrl() . '#challenge')
-                    ->sort(4),
-                // A home reconstruída não tem mais a âncora #assessment; a seção equivalente
-                // passou a ser "Por que confiar no Flamma?".
-                NavigationItem::make('Por que confiar')
-                    ->url(fn (): string => LandingPage::getUrl() . '#por-que-confiar')
-                    ->sort(5),
-                NavigationItem::make('Preços')
-                    ->url(fn (): string => LandingPage::getUrl() . '#pricing')
-                    ->sort(6),
-                NavigationItem::make('FAQ')
-                    ->url(fn (): string => LandingPage::getUrl() . '#faq')
-                    ->sort(7),
-                NavigationItem::make('Abrir Chamado')
-                    ->group('Ajuda')
-                    ->icon(Heroicon::QuestionMarkCircle)
-                    ->url(fn (): string => HelpCenterPage::getUrl())
-                    ->sort(8),
             ])
             ->discoverWidgets(in: app_path('Filament/Guest/Widgets'), for: 'App\Filament\Guest\Widgets')
             ->widgets([

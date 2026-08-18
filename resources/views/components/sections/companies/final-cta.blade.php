@@ -22,7 +22,7 @@
         >
             <div class="flex flex-col gap-4 lg:gap-[35px]">
                 <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
-                    Leve <span class="text-brand-primary">saúde financeira</span> para dentro da sua empresa.
+                    Leve <span class="text-orange-primary">saúde financeira</span> para dentro da sua empresa.
                 </h2>
 
                 <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal lg:text-dark">

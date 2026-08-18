@@ -23,7 +23,7 @@
                 lg:absolute lg:left-0 lg:top-[10.2459%] lg:w-[49.0453%] lg:items-start lg:gap-8 lg:text-left"
         >
             <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[44px]">
-                <span class="text-brand-primary">Privacidade</span> em primeiro lugar.
+                <span class="text-orange-primary">Privacidade</span> em primeiro lugar.
             </h2>
 
             <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal lg:text-dark">

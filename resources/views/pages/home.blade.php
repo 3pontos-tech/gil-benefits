@@ -1,4 +1,4 @@
-<x-filament-panels::page full-height="true" class="scroll-smooth">
+<x-layouts.site title="Clube de Benefícios" description="O benefício que cuida do bem-estar financeiro do seu time: consultoria financeira individual para cada colaborador.">
 {{--
     Home institucional — Figma node 8298:404 ("Página institucional")
     Ordem e copy conforme o Figma. As classes fm-* são animadas por
@@ -17,7 +17,7 @@
          ══════════════════════════════════════════════════════════════ --}}
     <section id="home"
              class="relative left-1/2 -mx-[50vw] w-screen overflow-hidden scroll-mt-28"
-             style="background: linear-gradient(136.19deg, #FD0342 15.42%, #FF803C 84.58%)">
+             style="background: linear-gradient(106deg, #E2410A 61.49%, #FD0342 100%)">
 
         {{-- Faixa inferior de 80px atravessando a largura toda --}}
         <div class="absolute inset-x-0 bottom-0 hidden h-[80px] bg-white/32 lg:block" aria-hidden="true"></div>
@@ -64,7 +64,7 @@
     <section id="por-que-confiar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[113px] lg:px-[62px]">
         <header class="flex flex-col gap-6 text-center">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                Por que confiar no <span class="text-brand-primary">Flamma</span>?
+                Por que confiar no <span class="text-orange-primary">Flamma</span>?
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                 Cuidar do financeiro dos seus colaboradores é cuidar do resultado da sua empresa,
@@ -106,18 +106,10 @@
          ══════════════════════════════════════════════════════════════ --}}
     <div class="relative left-1/2 -mx-[50vw] -z-10 hidden w-screen lg:block lg:-mt-[248px]"
          aria-hidden="true">
-        <svg class="block aspect-[1920/499] w-full" viewBox="0 0 1920 499" fill="none"
+        <svg class="block aspect-[1920/499] w-full text-orange-primary" viewBox="0 0 1920 499" fill="none"
              preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M122.5 0H0.5L-1.5 498.5H1922V390H334.5V306H214.5V83.5H122.5V0Z"
-                  fill="url(#homeBandGradient)"/>
-            <defs>
-                <linearGradient id="homeBandGradient" x1="-1.5" y1="-8" x2="1105.63" y2="1229.38"
-                                gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#F1785A"/>
-                    <stop offset="0.350962" stop-color="#FD0342"/>
-                    <stop offset="0.697115" stop-color="#FF7B33"/>
-                </linearGradient>
-            </defs>
+                  fill="currentColor"/>
         </svg>
     </div>
 
@@ -126,10 +118,10 @@
          Números 01/02/03 em 64px rose.
          ══════════════════════════════════════════════════════════════ --}}
     <section id="how-it-works" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[80px] lg:px-[62px]">
-        {{-- Grafismo: seta do Figma (Frame 20324), canto superior direito --}}
-        <img src="{{ asset('svg/home/deco-arrow.svg') }}" alt="" aria-hidden="true"
-             class="fm-bob pointer-events-none absolute -top-16 right-0 -z-10 hidden w-[295px] lg:block"
-             loading="lazy" decoding="async">
+        {{-- Grafismo: seta do Figma (Frame 20324), canto superior direito.
+             O -top-20 é o mesmo valor do lg:mt-[80px] desta seção, e é o que faz a
+             seta encostar na base da faixa em degraus acima em vez de sobrar um vão. --}}
+        <x-graphism type="home-arrow" class="absolute -top-20 right-0 -z-10 hidden w-[295px] lg:block" />
 
         <header class="flex flex-col gap-8 lg:max-w-[1531px]">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
@@ -195,7 +187,7 @@
             <div class="flex flex-col gap-8">
                 <header class="flex flex-col gap-4">
                     <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                        O estresse financeiro <span class="text-brand-primary">custa caro</span>
+                        O estresse financeiro <span class="text-orange-primary">custa caro</span>
                     </h2>
                     <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                         Colaboradores endividados faltam mais, produzem menos e saem primeiro.
@@ -302,15 +294,17 @@
                           fill="#39393A"/>
                 </svg>
 
-                <img src="{{ asset('svg/home/deco-star.svg') }}" alt=""
-                     class="fm-spin absolute left-[74.58%] top-[28.07%] h-[43.86%] w-[28.16%]"
-                     loading="lazy" decoding="async">
+                <x-graphism type="home-asterisk"
+                            class="fm-spin absolute left-[74.58%] top-[28.07%] h-[43.86%] w-[28.16%]" />
             </div>
         </div>
 
-        <header class="flex flex-col gap-8">
+        {{-- Grafismo: seta ↖ encostada na borda esquerda, na altura do título (270px no Figma) --}}
+        <x-graphism type="arrow" class="absolute -top-16 left-1/2 -z-10 -ml-[50vw] hidden w-[270px] lg:block" />
+
+        <header class="flex flex-col gap-8 text-center">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                O plano acompanha o <span class="text-brand-primary">crescimento</span> do seu time
+                O plano acompanha o <span class="text-orange-primary">crescimento</span> do seu time
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                 Faça a simulação, descubra o melhor plano para sua empresa e, se ficar com
@@ -332,7 +326,7 @@
         <div class="flex flex-col items-center justify-between gap-10 lg:flex-row lg:gap-16">
             <div class="flex flex-col gap-8 lg:w-[822px]">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                    Dê ao seu time o <span class="text-brand-primary">cuidado</span> financeiro que ele merece
+                    Dê ao seu time o <span class="text-orange-primary">cuidado</span> financeiro que ele merece
                 </h2>
                 <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                     Mais que um benefício, uma mudança real na relação com o dinheiro,
@@ -435,4 +429,4 @@
     {{-- Onda em degraus que faz a transição para o rodapé (Vector 10 no design) --}}
     <x-sections.footer-wave top-margin="mt-20 lg:mt-[10px]" />
 </div>
-</x-filament-panels::page>
+</x-layouts.site>

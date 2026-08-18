@@ -1,0 +1,270 @@
+/*
+    Site institucional (home, /para-empresas, /colaborador).
+
+    Bundle próprio, fora do Filament: as landing pages deixaram de ser páginas de
+    painel justamente para não herdarem o layout — e os paddings — do template.
+    Tudo que é design system vem de flamma-tokens.css, o mesmo arquivo que o tema
+    do painel guest importa, então paleta, tipografia e utilitários das seções
+    continuam sendo uma fonte única.
+
+    O que este arquivo acrescenta é só a casca (body, topo e menu), reproduzindo
+    as medidas que o CSS do Filament aplicava: as declarações abaixo saíram de
+    vendor/filament/filament/dist/theme.css (.fi-body, .fi-topbar*, .fi-sidebar*).
+*/
+
+@import 'tailwindcss' source(none);
+@import './filament/guest/fonts.css';
+@import './flamma-motion.css';
+@import './flamma-tokens.css';
+
+@plugin '@tailwindcss/typography';
+
+@source '../views/**/*.blade.php';
+@source '../../app/Livewire/**/*.php';
+
+@layer base {
+    :root {
+        /*
+         * Paleta neutra do Filament (zinc), que o painel injetava num <style> no head e
+         * as landing pages herdavam. Fica aqui para que o fundo do site e os tons do topo
+         * continuem idênticos aos de antes — os tokens da marca vivem em flamma-tokens.css.
+         */
+        --site-body-bg: oklch(0.985 0 0);
+        --site-body-text: oklch(0.141 0.005 285.823);
+        --site-nav-text: oklch(0.37 0.013 285.805);
+        --site-nav-hover-bg: oklch(0.985 0 0);
+        --site-nav-ring: oklch(0.141 0.005 285.823);
+
+        /*
+         * Topo laranja. É o mesmo gradiente do hero da home, para que a barra e o
+         * hero formem uma peça só ali; nas outras páginas ela aparece sozinha.
+         */
+        --site-topbar-bg: linear-gradient(106deg, var(--orange-primary) 61.49%, var(--brand-primary) 100%);
+        --site-topbar-text: #fdfdfd;
+        --site-topbar-hover-bg: rgb(255 255 255 / 0.16);
+        /*
+         * Cor do item de menu da página atual. É o --primary-600 que o painel guest
+         * gerava (uma escala acromática), mantido para não mudar o visual na migração.
+         * Para destacar o item ativo com a marca, troque por var(--brand-primary).
+         */
+        --site-nav-text-active: oklch(0.59782352941176 0 0);
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        min-height: 100dvh;
+        background-color: var(--site-body-bg);
+        color: var(--site-body-text);
+        font-weight: 400;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+@layer components {
+    /* ========================================================================
+       Topo — equivalente a .fi-topbar-ctn / .fi-topbar do painel
+       ======================================================================== */
+    .site-topbar-ctn {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        overflow-x: clip;
+    }
+
+    .site-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: calc(var(--spacing) * 16);
+        padding-inline: calc(var(--spacing) * 4);
+        background-image: var(--site-topbar-bg);
+        /* shadow-sm + ring de 1px em gray-950/5, como no .fi-topbar */
+        box-shadow:
+            0 1px 2px 0 rgb(0 0 0 / 0.05),
+            0 0 0 1px color-mix(in oklab, var(--site-nav-ring) 5%, transparent);
+    }
+
+    .site-topbar-start {
+        display: none;
+        align-items: center;
+    }
+
+    .site-topbar-start > a {
+        margin-inline-start: calc(var(--spacing) * 3);
+    }
+
+    /*
+     * Sem o `margin-inline-start: auto` do .fi-topbar-end: o tema do painel já o
+     * anulava para que o space-between distribuísse logo, links e botão de acesso.
+     */
+    .site-topbar-end {
+        display: flex;
+        align-items: center;
+        column-gap: calc(var(--spacing) * 4);
+    }
+
+    @media (min-width: 64rem) {
+        .site-topbar-start {
+            display: flex;
+        }
+    }
+
+    /* Itens de navegação — .fi-topbar-nav-groups / .fi-topbar-item */
+    .site-topbar-nav {
+        display: none;
+        align-items: center;
+        column-gap: calc(var(--spacing) * 4);
+        margin-inline: calc(var(--spacing) * 4);
+    }
+
+    @media (min-width: 64rem) {
+        .site-topbar-nav {
+            display: flex;
+            flex-wrap: wrap;
+            margin-block: calc(var(--spacing) * 2);
+            row-gap: calc(var(--spacing) * 1);
+        }
+    }
+
+    .site-topbar-item-btn {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        column-gap: calc(var(--spacing) * 2);
+        border-radius: var(--radius-lg);
+        padding-inline: calc(var(--spacing) * 3);
+        padding-block: calc(var(--spacing) * 2);
+        outline-style: none;
+        transition-property: color, background-color, border-color, opacity, box-shadow;
+        transition-duration: 75ms;
+    }
+
+    @media (hover: hover) {
+        .site-topbar-item-btn:hover {
+            background-color: var(--site-topbar-hover-bg);
+        }
+    }
+
+    .site-topbar-item-btn:focus-visible {
+        background-color: var(--site-topbar-hover-bg);
+    }
+
+    .site-topbar-item-label {
+        font-size: var(--text-sm);
+        line-height: var(--tw-leading, var(--text-sm--line-height));
+        font-weight: 500;
+        color: var(--site-topbar-text);
+    }
+
+    /* Sobre o laranja o item da página atual se destaca pela pastilha, não pela cor */
+    .site-topbar-item.is-active .site-topbar-item-btn {
+        background-color: var(--site-topbar-hover-bg);
+    }
+
+    .site-topbar-item.is-active .site-topbar-item-label {
+        color: var(--site-topbar-text);
+    }
+
+    /* ========================================================================
+       Menu mobile — mesma gaveta que o painel abria abaixo de lg
+       (.fi-sidebar, .fi-sidebar-close-overlay, .fi-sidebar-nav)
+       ======================================================================== */
+    .site-mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-lg);
+        padding: calc(var(--spacing) * 2);
+        color: var(--site-topbar-text);
+    }
+
+    /* Dentro da gaveta (fundo branco) o mesmo botão volta ao cinza do texto */
+    .site-mobile-menu .site-mobile-menu-toggle {
+        color: var(--site-nav-text);
+    }
+
+    @media (min-width: 64rem) {
+        .site-mobile-menu-toggle {
+            display: none;
+        }
+    }
+
+    .site-mobile-menu-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        background-color: color-mix(in oklab, var(--site-nav-ring) 50%, transparent);
+    }
+
+    .site-mobile-menu {
+        position: fixed;
+        inset-block: 0;
+        inset-inline-start: 0;
+        z-index: 30;
+        display: flex;
+        flex-direction: column;
+        width: 20rem;
+        max-width: 85vw;
+        height: 100dvh;
+        background-color: #fff;
+    }
+
+    @media (min-width: 64rem) {
+        .site-mobile-menu,
+        .site-mobile-menu-overlay {
+            display: none;
+        }
+    }
+
+    .site-mobile-menu-header {
+        display: flex;
+        align-items: center;
+        height: calc(var(--spacing) * 16);
+        padding-inline: calc(var(--spacing) * 6);
+    }
+
+    .site-mobile-menu-nav {
+        display: flex;
+        flex-direction: column;
+        row-gap: calc(var(--spacing) * 1);
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-inline: calc(var(--spacing) * 4);
+        padding-block: calc(var(--spacing) * 8);
+    }
+
+    .site-mobile-menu-item {
+        display: flex;
+        align-items: center;
+        column-gap: calc(var(--spacing) * 3);
+        border-radius: var(--radius-lg);
+        padding: calc(var(--spacing) * 2);
+        font-size: var(--text-sm);
+        font-weight: 500;
+        color: var(--site-nav-text);
+    }
+
+    @media (hover: hover) {
+        .site-mobile-menu-item:hover {
+            background-color: var(--site-nav-hover-bg);
+        }
+    }
+
+    .site-mobile-menu-item.is-active {
+        background-color: var(--site-nav-hover-bg);
+        color: var(--site-nav-text-active);
+    }
+
+    /* Rótulo do grupo "Ajuda", como na barra lateral do painel */
+    .site-mobile-menu-group-label {
+        padding: calc(var(--spacing) * 2);
+        padding-block-start: calc(var(--spacing) * 6);
+        font-size: var(--text-sm);
+        font-weight: 500;
+        color: var(--site-nav-text-active);
+    }
+}

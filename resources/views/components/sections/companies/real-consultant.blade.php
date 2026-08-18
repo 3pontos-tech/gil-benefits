@@ -99,7 +99,7 @@
         >
             <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[40px]">
                 Mais que uma ferramenta, um
-                <span class="text-brand-primary">consultor de verdade</span>
+                <span class="text-orange-primary">consultor de verdade</span>
             </h2>
         </div>
 

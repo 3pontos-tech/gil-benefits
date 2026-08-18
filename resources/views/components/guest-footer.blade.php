@@ -9,7 +9,7 @@
         $buttonText
     ] = match ($color) {
         'primary' => [
-            'bg-gradient-to-br from-brand-primary to-brand-secondary text-light',
+            'bg-orange-primary text-light',
             'text-light',
         ],
     }
