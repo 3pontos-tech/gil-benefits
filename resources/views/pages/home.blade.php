@@ -121,7 +121,7 @@
         {{-- Grafismo: seta do Figma (Frame 20324), canto superior direito.
              O -top-20 é o mesmo valor do lg:mt-[80px] desta seção, e é o que faz a
              seta encostar na base da faixa em degraus acima em vez de sobrar um vão. --}}
-        <x-graphism type="home-arrow" class="absolute -top-20 right-0 -z-10 hidden w-[295px] lg:block" />
+        <x-graphism type="home-arrow" data-fm-static class="absolute -top-20 right-0 -z-10 hidden w-[295px] lg:block" />
 
         <header class="flex flex-col gap-8 lg:max-w-[1531px]">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
@@ -295,12 +295,13 @@
                 </svg>
 
                 <x-graphism type="home-asterisk"
-                            class="fm-spin absolute left-[74.58%] top-[28.07%] h-[43.86%] w-[28.16%]" />
+                            data-fm-static
+                            class="absolute left-[74.58%] top-[28.07%] h-[43.86%] w-[28.16%]" />
             </div>
         </div>
 
         {{-- Grafismo: seta ↖ encostada na borda esquerda, na altura do título (270px no Figma) --}}
-        <x-graphism type="arrow" class="absolute -top-16 left-1/2 -z-10 -ml-[50vw] hidden w-[270px] lg:block" />
+        <x-graphism type="arrow" data-fm-static class="absolute -top-16 left-1/2 -z-10 -ml-[50vw] hidden w-[270px] lg:block" />
 
         <header class="flex flex-col gap-8 text-center">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">

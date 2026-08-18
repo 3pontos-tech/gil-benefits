@@ -68,6 +68,7 @@
     ></div>
 
     <x-graphism
+        data-fm-static
         color="light"
         class="absolute bottom-[8%] -left-20 w-40 lg:-left-24 lg:w-[347px]"
     />

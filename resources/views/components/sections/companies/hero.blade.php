@@ -7,6 +7,7 @@
     {{-- Seta apontando para ↘, sangrando na esquerda (image 8 no design) --}}
     <x-graphism
         type="arrow"
+        data-fm-static
         class="absolute -left-16 -top-2 -z-10 w-32 rotate-180 sm:-left-24 sm:w-48 lg:w-[274px]"
     />
 
@@ -52,7 +53,7 @@
             </div>
 
             {{-- Asterisco sobre a parte de baixo da foto, transbordando à direita --}}
-            <x-graphism class="absolute -right-16 bottom-8 w-[200px] xl:w-[280px]" />
+            <x-graphism data-fm-static class="absolute -right-16 bottom-8 w-[200px] xl:w-[280px]" />
         </div>
     </div>
 </section>

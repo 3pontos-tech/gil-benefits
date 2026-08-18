@@ -19,19 +19,24 @@
          O Vector 17 é uma foto 1920×1156 com recorte em degrau no alpha
          do PNG — mesma técnica do bloco de privacidade da /para-empresas.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="colaborador" class="relative scroll-mt-28 lg:left-1/2 lg:-mx-[50vw] lg:h-[1156px] lg:w-screen">
+    {{-- A altura acompanha a foto de fundo (1920 × 1136 = 59,1667vw), que é w-full/h-auto:
+         com a altura fixa em px, abaixo de 1920 sobrava fundo claro sob a imagem. --}}
+    <section id="colaborador" class="relative scroll-mt-28 lg:left-1/2 lg:-mx-[50vw] lg:h-[59.1667vw] lg:w-screen">
         <div class="absolute inset-x-0 top-0 -z-10 hidden lg:block" aria-hidden="true">
             <img src="{{ asset('img/colaborador/hero-bg.webp') }}" alt=""
                  class="h-auto w-full" fetchpriority="high" decoding="async">
         </div>
 
-        <div class="mx-auto max-w-[1800px] px-5 pb-16 pt-10 sm:px-8 lg:px-[62px] lg:pb-0 lg:pt-[143px]">
-            <div class="flex flex-col gap-8 lg:max-w-[826px]">
+        {{-- O texto acompanha a foto, que escala com a viewport: em px fixos ele descia
+             sobre a imagem nas larguras menores. Medidas do nó: recuo de 143, título 48,
+             corpo 20, coluna de 826. --}}
+        <div class="mx-auto max-w-[1800px] px-5 pb-16 pt-10 sm:px-8 lg:px-[62px] lg:pb-0 lg:pt-[min(7.4479vw,143px)]">
+            <div class="flex flex-col gap-8 lg:max-w-[min(43.0208vw,826px)]">
                 <div class="flex flex-col gap-4">
-                    <h1 class="fm-reveal fm-in text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
+                    <h1 class="fm-reveal fm-in text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.5vw,48px)]">
                         <span class="text-orange-primary">Cuide do seu dinheiro</span> com a ajuda de um especialista.
                     </h1>
-                    <p class="fm-reveal fm-in text-base font-medium leading-[1.5] text-medium lg:max-w-[578px] lg:text-xl"
+                    <p class="fm-reveal fm-in text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(16px,1.0417vw,20px)]"
                        data-fm-delay="1">
                         Consultoria financeira individual, pensada para quem quer organizar suas
                         finanças e planejar o futuro com apoio de quem realmente entende do assunto.

@@ -32,6 +32,7 @@
 
             {{-- Asterisco abaixo do texto; a faixa em gradiente logo depois corta a metade de baixo, como no design --}}
             <x-graphism
+                data-fm-static
                 class="absolute -bottom-[340px] right-0 -z-10 hidden w-[347px] xl:block"
             />
         </div>
