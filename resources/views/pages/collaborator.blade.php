@@ -466,19 +466,40 @@
          Foto à ESQUERDA (708×588), texto à direita.
          ══════════════════════════════════════════════════════════════ --}}
     <section id="indicar" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[80px] lg:px-[62px]">
-        <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[708px_1fr] lg:gap-[142px]">
-            <div class="fm-reveal-left fm-zoom aspect-[708/589] w-full overflow-hidden">
-                <img src="{{ asset('img/colaborador/colegas.webp') }}"
-                     alt="Colegas de trabalho conversando sobre finanças"
-                     class="size-full object-cover" loading="lazy" decoding="async">
+        {{--
+            Como nas outras seções desta página, colunas e tipografia saem em vw: com a
+            foto e a coluna de texto em px fixos, abaixo de 1800 a soma não cabia mais no
+            conteúdo. Medidas do nó, em px de 1920: foto 708 × 589, vão de 142 entre as
+            colunas, título 44, corpo 16.
+        --}}
+        <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[min(36.875vw,708px)_1fr] lg:gap-[min(7.3958vw,142px)]">
+            <div class="relative">
+                <div class="fm-reveal-left fm-zoom aspect-[708/589] w-full overflow-hidden">
+                    <img src="{{ asset('img/colaborador/colegas.webp') }}"
+                         alt="Colegas de trabalho conversando sobre finanças"
+                         class="size-full object-cover" loading="lazy" decoding="async">
+                </div>
+
+                {{--
+                    Grafismo: a mesma seta grossa da marca espelhada na vertical (aponta ↙),
+                    apoiada no canto inferior esquerdo da foto — 230px no Figma, 23 para fora
+                    dela à esquerda e 55 abaixo, e passando POR CIMA da imagem (por isso vem
+                    depois dela no DOM). Estática, como as outras que se encaixam numa
+                    composição.
+                --}}
+                <x-graphism
+                    type="arrow"
+                    data-fm-static
+                    class="absolute bottom-[calc(min(2.8646vw,55px)*-1)] left-[calc(min(1.1979vw,23px)*-1)] hidden w-[min(11.9792vw,230px)] -scale-y-100 lg:block"
+                />
             </div>
 
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-8">
-                    <h2 class="fm-reveal-right text-[32px] font-bold leading-[1.5] text-high lg:text-[44px]">
+                    <h2 class="fm-reveal-right text-[32px] font-bold leading-[1.5] text-high lg:text-[clamp(28px,2.2917vw,44px)]">
                         Você e seus colegas com mais <span class="text-orange-primary">organização financeira</span>.
                     </h2>
-                    <p class="fm-reveal-right text-base font-medium leading-[1.5] text-medium lg:max-w-[578px] lg:text-xl lg:font-normal"
+                    <p class="fm-reveal-right text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                        data-fm-delay="1">
                         Indique o Flamma para o RH da sua empresa e dê o primeiro passo para seu
                         bem-estar financeiro.
