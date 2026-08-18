@@ -300,37 +300,47 @@
 
     {{-- ══════════════════════════════════════════════════════════════
          5. PRIVACIDADE EM PRIMEIRO LUGAR — 8298:3446
-         Mesmo bloco da /para-empresas, texto em coluna de 693px.
+         Mesmo bloco da /para-empresas, com as mesmas medidas de arquivo:
+
+             bloco estreito   x ≥ 78,2%    até y 13,5%
+             bloco largo      x ≥ 57,55%   até y 80,31%
+             faixa cheia      x ≥ 0        de  y 80,31%
+
+         A foto sangra de ponta a ponta e traz o recorte em degrau no alpha, e a seta se
+         encaixa no vértice onde a foto se alarga — por isso ela mora dentro do bloco de
+         mídia, ancorada por baixo e pela direita, e não flutua (`data-fm-static`).
+
+         A tipografia sai em vw porque a foto (e com ela a seta) escala pela viewport: com
+         tamanhos fixos, o parágrafo passava por cima da diagonal.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="privacidade" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[295px] lg:px-[62px]">
-        {{-- Grafismo: seta (Group 31819) --}}
-        {{--
-            Vector 21 (8451:1090) — a foto desta seção sangra de ponta a ponta e traz o
-            recorte em degrau no alpha do PNG, como o bloco de privacidade da /para-empresas.
-            Começa 91px acima do texto (Figma: foto em 3315, texto em 3406).
-        --}}
-        <div class="absolute left-1/2 -top-[91px] -z-10 -ml-[50vw] hidden w-screen lg:block"
+    <section id="privacidade" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[295px] lg:min-h-[calc(37.0313vw-91px)] lg:px-[62px]">
+        <div class="pointer-events-none absolute -top-[91px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block"
              aria-hidden="true">
-            <img src="{{ asset('img/colaborador/privacidade.webp') }}" alt=""
-                 class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
+            <div class="relative">
+                <img src="{{ asset('img/colaborador/privacidade.webp') }}" alt=""
+                     class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
+
+                <x-graphism
+                    type="collaborator-arrow-alt"
+                    data-fm-static
+                    class="absolute bottom-[19.69%] right-[41.5%] hidden w-[17.4%] xl:block"
+                />
+            </div>
         </div>
 
-        <x-graphism type="collaborator-arrow-alt"
-                    class="fm-bob absolute -bottom-20 left-1/2 -z-10 hidden w-[300px] lg:block" />
-
-        <div class="flex flex-col gap-8 lg:ml-32 lg:w-[693px] lg:max-w-none">
+        <div class="flex flex-col gap-8 lg:ml-[min(6.4063vw,123px)] lg:w-[min(36.3021vw,697px)] lg:max-w-none">
             <div class="flex flex-col gap-4">
-                <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-dark lg:text-[44px]">
+                <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.2917vw,44px)]">
                     <span class="text-orange-primary">Privacidade</span> em primeiro lugar.
                 </h2>
-                <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal"
+                <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                    data-fm-delay="1">
                     A empresa contrata o benefício, mas quem decide o que compartilhar em cada
                     sessão é o colaborador, e essa informação fica só entre ele e o consultor.
                 </p>
             </div>
             <x-button
-                class="fm-reveal-left fm-btn w-full! sm:w-[189px]!"
+                class="fm-reveal-left fm-btn w-full! shrink-0 sm:w-[189px]!"
                 data-fm-delay="2"
                 variant="flat"
                 size="xl-tight"
