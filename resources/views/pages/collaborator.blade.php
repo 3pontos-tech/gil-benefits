@@ -527,9 +527,11 @@
          /para-empresas (magnific_a-photorealistic-cinemati).
          ══════════════════════════════════════════════════════════════ --}}
     <section id="comecar" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 pb-20 sm:px-8 lg:mt-[109px] lg:px-[62px] lg:pb-0">
-        {{-- Grafismo: Group 31820, canto inferior esquerdo --}}
+        {{-- Grafismo: Group 31820, canto inferior esquerdo. Estático: está encaixado no
+             canto do card, girar só o tiraria do lugar. --}}
         <x-graphism type="collaborator-asterisk"
-                    class="fm-spin absolute -left-16 bottom-0 -z-10 hidden w-[225px] lg:block" />
+                    data-fm-static
+                    class="absolute -left-16 bottom-0 -z-10 hidden w-[225px] lg:block" />
 
         <div class="fm-reveal-scale flex flex-col items-center gap-8 border border-outline-light bg-elevation-01dp p-6 lg:flex-row lg:gap-8 lg:p-16">
             <div class="flex flex-col gap-8 lg:flex-1">
