@@ -406,11 +406,16 @@
         --brand-primary: #FD0342;
         --brand-secondary: #FF803C;
         /*
-         * Gradiente da marca, como no Figma: vermelho a 15,42% e laranja a 84,58%. É o
-         * fundo do rodapé e da onda em degraus acima dele; as massas das seções usam o
-         * mesmo par de cores, cada uma com o seu ângulo.
+         * Gradiente da marca: vermelho a 15,42% e laranja a 84,58%. É o fundo do rodapé e
+         * da onda em degraus acima dele; as massas das seções usam o mesmo par de cores,
+         * cada uma com o seu ângulo.
+         *
+         * O eixo é horizontal (90deg) e não os 114deg do Figma de propósito: a onda e o
+         * rodapé são dois elementos, e cada um normaliza o gradiente na sua própria
+         * altura — com qualquer inclinação as cores não se encontram na emenda entre eles.
+         * Na horizontal, a cor depende só de x e as duas peças casam em qualquer ponto.
          */
-        --brand-gradient: linear-gradient(114deg, var(--brand-primary) 15.42%, var(--brand-secondary) 84.58%);
+        --brand-gradient: linear-gradient(90deg, var(--brand-primary) 15.42%, var(--brand-secondary) 84.58%);
         --brand-accent: #09090a;
         --red-primary: #ff3838;
         --red-900: #870000;

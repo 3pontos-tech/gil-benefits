@@ -27,13 +27,14 @@
 
         <defs>
             {{--
-                Eixo invertido (de 1920 para 0) de propósito: a silhueta é espelhada por
-                `-scale-x-100`, e sem isso o gradiente saía laranja→vermelho, contra o
-                sentido do rodapé logo abaixo.
+                Horizontal e invertido (de 1920 para 0): a silhueta é espelhada por
+                `-scale-x-100`, então o eixo ao contrário devolve o sentido vermelho →
+                laranja do rodapé. Sem componente vertical, as duas peças têm a mesma cor
+                em cada x e a emenda entre elas desaparece — ver --brand-gradient.
             --}}
             <linearGradient
                 id="footerWaveGradient"
-                x1="1920" y1="0" x2="0" y2="329"
+                x1="1920" y1="0" x2="0" y2="0"
                 gradientUnits="userSpaceOnUse"
             >
                 <stop offset="0.1542" stop-color="#FD0342"/>
