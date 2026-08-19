@@ -336,6 +336,9 @@ return [
             'document_id' => 'RG',
         ],
     ],
+    'credits_cluster' => [
+        'navigation_label' => 'Créditos',
+    ],
     'management_cluster' => [
         'navigation_label' => 'Gestão de Usuários',
     ],

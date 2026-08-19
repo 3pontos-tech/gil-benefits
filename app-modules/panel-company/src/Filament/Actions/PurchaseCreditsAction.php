@@ -11,7 +11,6 @@ use Filament\Support\Icons\Heroicon;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
-use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\CompanyCreditPage;
 
@@ -43,7 +42,7 @@ class PurchaseCreditsAction extends Action
 
     private function sellingDriver(): BillingContract
     {
-        return resolve(BillingManager::class)->getDriver(BillingProviderEnum::checkoutCases()[0]);
+        return resolve(BillingManager::class)->getDriver();
     }
 
     public function forBillable(Company|User|null $billable = null, ?string $successUrl = null, ?string $cancelUrl = null): static

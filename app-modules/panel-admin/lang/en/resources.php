@@ -336,6 +336,9 @@ return [
             'document_id' => 'Document ID',
         ],
     ],
+    'credits_cluster' => [
+        'navigation_label' => 'Credits',
+    ],
     'management_cluster' => [
         'navigation_label' => 'Users Management',
     ],

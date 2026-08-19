@@ -7,7 +7,6 @@ use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
-use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
 
@@ -49,24 +48,21 @@ class CreditSellingGateway extends CreditlessGateway implements SupportsCreditPu
     }
 }
 
-function mockDriversFor(BillingContract $selling, BillingContract $default): void
+function mockSellingDriver(BillingContract $driver): void
 {
-    test()->instance(BillingManager::class, Mockery::mock(BillingManager::class, function ($mock) use ($selling, $default): void {
-        $mock->shouldReceive('getDriver')
-            ->with(BillingProviderEnum::checkoutCases()[0])
-            ->andReturn($selling);
-        $mock->shouldReceive('getDriver')->andReturn($default);
+    test()->instance(BillingManager::class, Mockery::mock(BillingManager::class, function ($mock) use ($driver): void {
+        $mock->shouldReceive('getDriver')->andReturn($driver);
     }));
 }
 
 it('offers the button when the selling gateway can charge for credits', function (): void {
-    mockDriversFor(selling: new CreditSellingGateway, default: new CreditlessGateway);
+    mockSellingDriver(new CreditSellingGateway);
 
     expect(PurchaseCreditsAction::make()->isVisible())->toBeTrue();
 });
 
 it('hides the button when the selling gateway cannot charge for credits', function (): void {
-    mockDriversFor(selling: new CreditlessGateway, default: new CreditSellingGateway);
+    mockSellingDriver(new CreditlessGateway);
 
     expect(PurchaseCreditsAction::make()->isVisible())->toBeFalse();
 });

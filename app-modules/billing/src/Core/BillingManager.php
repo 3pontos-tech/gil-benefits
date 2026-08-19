@@ -28,10 +28,8 @@ class BillingManager extends Manager
 
     public function getDriver(?BillingProviderEnum $provider = null): BillingContract
     {
-        $provider ??= BillingProviderEnum::checkoutCases()[0];
-
         throw_if($provider === BillingProviderEnum::Contractual, \Exception::class, 'To be implemented');
 
-        return $this->driver($provider->value);
+        return $this->driver($provider?->value);
     }
 }

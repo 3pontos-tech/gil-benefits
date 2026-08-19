@@ -28,7 +28,7 @@ class CreditOrderFactory extends Factory
             'billable_id' => User::factory(),
             'company_id' => Company::factory(),
             'quantity' => $quantity,
-            'amount_cents' => $quantity * UserCredit::PRICE_IN_CENTS,
+            'amount_cents' => fn (array $attributes): int => UserCredit::priceFor($attributes['quantity']),
             'status' => CreditOrderStatusEnum::Pending,
             'paid_at' => null,
         ];
