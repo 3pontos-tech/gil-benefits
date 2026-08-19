@@ -445,11 +445,7 @@
         --green-200: #4ae33c;
         --green-100: #74f960;
         --green-50: #9aff83;
-        /*
-         * Laranja da marca: botões, topo, rodapé, massas cheias e os destaques dos
-         * headlines. Fica fora da escala orange-50..900, que é a rampa original.
-         */
-        --orange-primary: #E2410A;
+        --orange-primary: #ff7e38;
         --orange-900: #711900;
         --orange-800: #8c2800;
         --orange-700: #a73a00;

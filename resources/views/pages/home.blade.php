@@ -106,7 +106,7 @@
          ══════════════════════════════════════════════════════════════ --}}
     <div class="relative left-1/2 -mx-[50vw] -z-10 hidden w-screen lg:block lg:-mt-[248px]"
          aria-hidden="true">
-        <svg class="block aspect-[1920/499] w-full text-orange-primary" viewBox="0 0 1920 499" fill="none"
+        <svg class="block aspect-[1920/499] w-full text-brand-primary" viewBox="0 0 1920 499" fill="none"
              preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M122.5 0H0.5L-1.5 498.5H1922V390H334.5V306H214.5V83.5H122.5V0Z"
                   fill="currentColor"/>
