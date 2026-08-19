@@ -58,6 +58,11 @@
     /* Token de cor Text/text-medium do design system (não confundir com os
        --apt-text-* acima, que são tamanhos). */
     --apt-text-medium: #9c9c9c;
+
+    /* Gradiente da marca, mesmos tons do tema guest. Usado no logo da sidebar e
+       no botão primário do perfil. */
+    --brand-primary: #fd0342;
+    --brand-secondary: #ff803c;
 }
 
 /*
@@ -370,6 +375,32 @@
         color: var(--apt-doc-color);
     }
 
+    /* Cor por status de crédito (extraCellAttributes na UserCreditsPage):
+       aqui ícone e frase acompanham o token, como no layout. */
+    & .fi-apt-credit-available {
+        --apt-credit-color: var(--apt-emerald-300);
+    }
+
+    & .fi-apt-credit-in-use {
+        --apt-credit-color: var(--apt-blue-300);
+    }
+
+    & .fi-apt-credit-used {
+        --apt-credit-color: var(--apt-text-medium);
+    }
+
+    & .fi-apt-credit-expired {
+        --apt-credit-color: var(--apt-orange-300);
+    }
+
+    & [class*='fi-apt-credit-'] .fi-badge {
+        color: var(--apt-credit-color);
+
+        & .fi-icon {
+            color: var(--apt-credit-color);
+        }
+    }
+
     /* Grid de cards (contentGrid): cantos de 4px de volta (o token do painel
        zera o rounded-xl do vendor), card baixo com o tipo em lockup vertical —
        ícone grande com a sigla embaixo —, título em destaque e kebab
@@ -456,6 +487,77 @@
 
         & .fi-ta-search-field {
             width: 100%;
+        }
+
+        /* Tabelas com stackedOnMobile: cada linha vira um card. O rótulo
+           traduzido vem do atributo data-apt-label (extraCellAttributes) e a
+           célula .fi-apt-stacked-title sobe como título do card. */
+        & .fi-ta-table-stacked-on-mobile {
+            /* O modo stacked traz um seletor de ordenação e o rótulo de cada
+               coluna dentro das células; o layout usa os rótulos curtos do
+               data-apt-label, então os nativos saem de cena. */
+            & .fi-ta-table-stacked-header-row {
+                display: none;
+            }
+
+            & .fi-ta-cell > .fi-ta-cell-label {
+                display: none;
+            }
+
+            & > tbody {
+                display: flex;
+                flex-direction: column;
+                row-gap: 16px;
+            }
+
+            & > tbody > tr {
+                display: flex;
+                flex-direction: column;
+                row-gap: 6px;
+                padding: 12px 16px;
+                border: 1px solid var(--gray-200);
+                border-radius: var(--radius-lg);
+            }
+
+            & .fi-ta-text:not(.fi-inline) {
+                padding: 0;
+            }
+
+            & .fi-ta-cell[data-apt-label] {
+                display: flex;
+                align-items: center;
+                column-gap: 6px;
+
+                &::before {
+                    content: attr(data-apt-label) ' :';
+                    font-size: var(--apt-text-sm);
+                    font-weight: 600;
+                    color: var(--gray-950);
+                }
+            }
+
+            & .fi-apt-stacked-title {
+                order: -1;
+
+                & .fi-ta-text-item {
+                    color: var(--gray-950);
+                    font-weight: 600;
+                }
+            }
+        }
+
+        &:where(.dark, .dark *) .fi-ta-table-stacked-on-mobile {
+            & > tbody > tr {
+                border-color: rgb(255 255 255 / 0.1);
+            }
+
+            & .fi-ta-cell[data-apt-label]::before {
+                color: white;
+            }
+
+            & .fi-apt-stacked-title .fi-ta-text-item {
+                color: white;
+            }
         }
     }
 
@@ -633,6 +735,328 @@
 
 .fi-page:has(.fi-ta):where(.dark, .dark *) .fi-header {
     border-bottom-color: rgb(255 255 255 / 0.1);
+}
+
+/*
+ * Página "Meu Perfil". Mesma ideia do cabeçalho da listagem acima: o :has()
+ * amarra as regras ao container de abas do perfil para não vazar para as outras
+ * páginas do painel.
+ */
+.fi-page:has(.fi-ap-profile-tabs) .fi-header {
+    padding-bottom: var(--apt-space);
+    border-bottom: 1px solid var(--gray-200);
+
+    & .fi-header-heading {
+        font-size: var(--apt-text-xl);
+    }
+
+    & .fi-header-subheading {
+        font-size: var(--apt-text-md);
+        color: var(--apt-text-medium);
+    }
+}
+
+.fi-page:has(.fi-ap-profile-tabs):where(.dark, .dark *) .fi-header {
+    border-bottom-color: rgb(255 255 255 / 0.1);
+}
+
+/*
+ * Abas do perfil: o layout usa texto sobre uma régua, com sublinhado de 2px na
+ * aba ativa, em vez do controle segmentado padrão do Filament.
+ */
+/*
+ * Cuidado com as duas classes parecidas: `.fi-tabs-item` é o botão da aba
+ * (role="tab") e `.fi-sc-tabs-tab` é o painel de conteúdo (role="tabpanel").
+ * Estilo de aba aplicado no painel zera o padding do conteúdo e cola o texto no
+ * canto — daí o escopo explícito em `.fi-tabs` abaixo.
+ */
+/*
+ * Card da foto de perfil. O círculo é centralizado pelo próprio componente
+ * (alignCenter), mas o conteúdo abaixo do campo cai num container
+ * `.fi-sc.fi-inline`, que o pacote define como flex sem justify-content — ou
+ * seja, encostado à esquerda. Centralizar o texto exige mexer no container: um
+ * `text-align` no <span> do texto não teria efeito, porque quem alinha inline é
+ * o bloco que o contém.
+ */
+.fi-ap-profile-avatar .fi-sc.fi-inline {
+    justify-content: center;
+}
+
+/*
+ * O `fi-contained` do pacote embrulha o bloco de abas num card (fundo, ring,
+ * sombra e raio) e dá 24px de padding ao painel ativo. O layout não tem esse
+ * card: as abas ficam soltas sobre o fundo e cada bloco de conteúdo traz o seu
+ * próprio Section. Desligar via `contained(false)` não serve — nesse modo o
+ * pacote transforma o *nav* em card com sombra, que é pior.
+ *
+ * Os seletores repetem `.fi-sc-tabs.fi-contained` para vencer as regras do
+ * pacote por especificidade em vez de depender da ordem do build.
+ */
+.fi-ap-profile-tabs.fi-sc-tabs.fi-contained {
+    background-color: transparent;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+/* O pacote crava margin-top:0 e padding:24px no painel ativo; sem isto o
+   espaçamento abaixo simplesmente não aplica. */
+.fi-ap-profile-tabs.fi-sc-tabs.fi-contained .fi-sc-tabs-tab,
+.fi-ap-profile-tabs.fi-sc-tabs.fi-contained .fi-sc-tabs-tab.fi-active {
+    padding: 0;
+    margin-top: 1rem;
+}
+
+.fi-ap-profile-tabs {
+    & > .fi-tabs {
+        column-gap: var(--apt-space);
+        /* Zera só o padding: a régua inferior de 1px do fi-contained é
+           exatamente o trilho que o layout pede. */
+        padding: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        background-color: transparent;
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    /*
+     * O pacote dá ao botão padding-inline de 12px, raio e fundo em
+     * hover/focus/ativo — visual de controle segmentado. Aqui ele vira texto
+     * sobre a régua: o padding vertical é o que separa o rótulo do sublinhado, e
+     * o horizontal fica zerado para a primeira aba alinhar com a margem da
+     * coluna. shrink/nowrap impedem que os rótulos quebrem em duas linhas,
+     * porque .fi-tabs é flex com overflow-x.
+     */
+    & > .fi-tabs .fi-tabs-item {
+        flex-shrink: 0;
+        padding-inline: 0;
+        padding-block: 0 0.5rem;
+        border-radius: 0;
+        border-bottom: 2px solid transparent;
+        background-color: transparent;
+        box-shadow: none;
+        white-space: nowrap;
+    }
+
+    & > .fi-tabs .fi-tabs-item:hover,
+    & > .fi-tabs .fi-tabs-item:focus-visible,
+    & > .fi-tabs .fi-tabs-item.fi-active {
+        background-color: transparent;
+    }
+
+    /* A cor do rótulo é definida em .fi-tabs-item-label pelo pacote, então tem
+       de ser sobrescrita nesse elemento — no botão ela não vence. */
+    & > .fi-tabs .fi-tabs-item .fi-tabs-item-label {
+        font-size: var(--apt-text-md);
+        font-weight: 700;
+        color: var(--apt-text-medium);
+    }
+
+    & > .fi-tabs .fi-tabs-item.fi-active {
+        border-bottom-color: var(--danger-500);
+    }
+
+    & > .fi-tabs .fi-tabs-item.fi-active .fi-tabs-item-label {
+        color: var(--gray-950);
+    }
+
+    /* Cabeçalho dos Sections dentro das abas no tamanho do layout (16px), em vez
+       do tamanho padrão do Filament. */
+    & .fi-section-header-heading {
+        font-size: var(--apt-text-md);
+        font-weight: 700;
+    }
+}
+
+.fi-ap-profile-tabs:where(.dark, .dark *) {
+    & > .fi-tabs {
+        border-bottom-color: rgb(255 255 255 / 0.1);
+    }
+
+    & > .fi-tabs .fi-tabs-item.fi-active .fi-tabs-item-label {
+        color: white;
+    }
+}
+
+/*
+ * No mobile os dois rótulos não caem na largura da tela. Em vez de deixar a
+ * segunda aba sempre cortada, a ativa passa para a frente: quem escolheu a aba
+ * lê o título inteiro e a inativa é que se corta — comportamento do layout.
+ *
+ * `order` funciona porque .fi-tabs é flex (o pacote já define display:flex), e
+ * `fi-active` é aplicado pelo Alpine em tempo de execução, então a troca
+ * acompanha o clique sem JS extra.
+ *
+ * Acima deste ponto os dois rótulos caem lado a lado e a ordem natural é
+ * mantida, como no desktop.
+ */
+@media (width < 40rem) {
+    .fi-ap-profile-tabs > .fi-tabs .fi-tabs-item.fi-active {
+        order: -1;
+    }
+}
+
+/*
+ * Botão de salvar com o gradiente da marca. O escurecimento no hover sai do
+ * próprio gradiente via color-mix, para não repetir hex derivado à mão.
+ */
+.fi-btn.fi-ap-profile-save {
+    background-color: transparent;
+    background-image: linear-gradient(
+        158deg,
+        var(--brand-primary) 15%,
+        var(--brand-secondary) 85%
+    );
+    border-color: transparent;
+    color: white;
+
+    &:hover {
+        background-image: linear-gradient(
+            158deg,
+            color-mix(in srgb, var(--brand-primary) 88%, black) 15%,
+            color-mix(in srgb, var(--brand-secondary) 88%, black) 85%
+        );
+    }
+}
+
+/*
+ * Sidebar do layout: superfície elevada com borda, itens marcados por uma régua
+ * vertical de 2px que fica laranja no ativo (em vez do fundo tingido padrão do
+ * Filament), e a frase descritiva sob o título de cada grupo.
+ */
+.fi-sidebar {
+    & .fi-sidebar-nav {
+        gap: var(--apt-space);
+    }
+
+    /* Título do grupo e sua frase: hierarquia do layout, sem caixa alta. */
+    & .fi-sidebar-group-label {
+        font-size: var(--apt-text-md);
+        font-weight: 700;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    & .fi-sidebar-group-description {
+        margin-top: 0.25rem;
+        font-size: var(--apt-text-md);
+        font-weight: 500;
+        line-height: 1.5;
+        color: var(--apt-text-medium);
+    }
+
+    & .fi-sidebar-group-items {
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    /* A régua vem de um border-left no próprio item, então não depende de
+       pseudo-elemento e acompanha a altura do item. */
+    & .fi-sidebar-item > .fi-sidebar-item-btn {
+        border-inline-start: 2px solid var(--gray-200);
+        border-radius: 0;
+        background-color: transparent;
+        font-size: var(--apt-text-md);
+        font-weight: 500;
+        color: var(--apt-text-medium);
+    }
+
+    & .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+        border-inline-start-color: var(--primary-600);
+        background-color: transparent;
+        font-weight: 700;
+        color: var(--gray-950);
+    }
+}
+
+.fi-sidebar:where(.dark, .dark *) {
+    & .fi-sidebar-item > .fi-sidebar-item-btn {
+        border-inline-start-color: rgb(255 255 255 / 0.15);
+    }
+
+    & .fi-sidebar-item.fi-active > .fi-sidebar-item-btn {
+        border-inline-start-color: var(--primary-600);
+        color: white;
+    }
+}
+
+/*
+ * Stats do painel (fi-wi-stats-overview): cards outlined com o ícone num
+ * quadrado no topo, valor grande no meio e rótulo rebaixado embaixo. O vendor
+ * agrupa ícone e rótulo num container; o display: contents o desmonta para o
+ * valor entrar entre os dois via order. A cor do quadrado vem de
+ * --apt-stat-color, definida por stat via extraAttributes.
+ */
+.fi-wi-stats-overview-stat {
+    /* Mesma pele dos cards do dashboard (fi-dash-stat): fundo elevado,
+       borda, canto reto e caixa de ícone de 48px com fundo translúcido. */
+    background-color: white;
+    box-shadow: none;
+    border: 1px solid var(--gray-200);
+    border-radius: 0;
+    padding: 16px;
+
+    & .fi-wi-stats-overview-stat-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        row-gap: 12px;
+
+        & .fi-wi-stats-overview-stat-label-ctn {
+            display: contents;
+        }
+
+        & .fi-wi-stats-overview-stat-label-ctn > .fi-icon {
+            order: 1;
+            width: 48px;
+            height: 48px;
+            padding: 8px;
+            border: 1px solid rgb(from var(--apt-stat-color, var(--gray-400)) r g b / 0.3);
+            background-color: rgb(from var(--apt-stat-color, var(--gray-400)) r g b / 0.1);
+            color: var(--apt-stat-color, var(--gray-400));
+        }
+
+        & .fi-wi-stats-overview-stat-value {
+            order: 2;
+            font-size: var(--apt-text-lg);
+            line-height: 1.2;
+        }
+
+        & .fi-wi-stats-overview-stat-label {
+            order: 3;
+            font-size: var(--apt-text-sm);
+            font-weight: 400;
+            color: var(--apt-text-medium);
+        }
+    }
+}
+
+:where(.dark, .dark *) .fi-wi-stats-overview-stat {
+    background-color: var(--gray-900);
+    border-color: rgb(255 255 255 / 0.1);
+}
+
+.fi-apt-stat-primary {
+    --apt-stat-color: var(--primary-500);
+}
+
+.fi-apt-stat-emerald {
+    --apt-stat-color: var(--success-500);
+}
+
+.fi-apt-stat-blue {
+    --apt-stat-color: var(--info-500);
+}
+
+.fi-apt-stat-muted {
+    --apt-stat-color: var(--gray-400);
 }
 
 /*

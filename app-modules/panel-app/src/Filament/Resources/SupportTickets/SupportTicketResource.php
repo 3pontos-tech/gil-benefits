@@ -26,9 +26,11 @@ class SupportTicketResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedInbox;
 
+    protected static ?int $navigationSort = 1;
+
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return __('support::pages.navigation_group');
+        return __('panel-app::navigation.groups.support.label');
     }
 
     public static function getNavigationLabel(): string

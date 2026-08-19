@@ -134,11 +134,17 @@ return [
     ],
     'credits' => [
         'navigation_label' => 'Meus Créditos',
-        'title' => 'Meus Créditos',
+        'title' => 'Meus créditos',
+        'history' => [
+            'heading' => 'Histórico de créditos',
+            'description' => 'Visualize seu histórico de créditos e distribuições.',
+            'purchase' => 'Comprar créditos',
+        ],
         'columns' => [
             'status' => 'Status',
-            'distributed_at' => 'Distribuído em',
-            'purchased_at' => 'Comprado em',
+            'distributed_to' => 'Distribuído para',
+            'purchased_at' => 'Data da compra',
+            'date' => 'Data',
         ],
     ],
     'documents' => [

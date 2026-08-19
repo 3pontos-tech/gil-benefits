@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Filament\Guest\Pages\LandingPage;
-
-use function Pest\Livewire\livewire;
-
-it('should render', function (): void {
-    livewire(LandingPage::class)
-        ->assertOk();
-});
+it('should render the institutional pages', function (string $route): void {
+    $this->get(route($route))->assertOk();
+})->with([
+    'site.home',
+    'site.companies',
+    'site.collaborator',
+]);

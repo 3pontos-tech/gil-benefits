@@ -26,6 +26,8 @@ class AppointmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Calendar;
 
+    protected static ?int $navigationSort = 1;
+
     public static function getModelLabel(): string
     {
         return __('appointments::resources.appointments.label');
@@ -43,7 +45,7 @@ class AppointmentResource extends Resource
 
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return __('panel-admin::resources.navigation_group.appointments');
+        return __('panel-app::navigation.groups.appointments.label');
     }
 
     public static function table(Table $table): Table
