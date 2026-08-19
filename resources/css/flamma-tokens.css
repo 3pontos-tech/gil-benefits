@@ -21,7 +21,7 @@
 
 .gradient-wrapper::after {
     content: "";
-    @apply z-0 opacity-0 absolute inset-0 border-inherit rounded-lg bg-gradient-to-br from-orange-primary to-orange-400;
+    @apply z-0 opacity-0 absolute inset-0 border-inherit rounded-lg bg-gradient-to-br from-brand-primary to-brand-secondary;
     @apply transition-opacity duration-200 ease-in-out;
     @apply pointer-events-none;
 }
@@ -55,8 +55,8 @@
     border-radius: 5px;
 
     background: linear-gradient(to right,
-    var(--orange-primary),
-    var(--orange-primary) var(--progress-percent, 0%),
+    var(--brand-primary),
+    var(--brand-primary) var(--progress-percent, 0%),
     var(--color-outline-light) var(--progress-percent, 0%)
     );
 }
@@ -70,9 +70,9 @@
     border-radius: 50%;
     cursor: pointer;
 
-    background: var(--orange-primary);
+    background: var(--brand-primary);
 
-    outline: 2px solid var(--orange-primary);
+    outline: 2px solid var(--brand-primary);
     outline-offset: 3px;
 
     margin-top: -4px;
@@ -85,8 +85,8 @@
     cursor: pointer;
     border-radius: 5px;
     background: linear-gradient(to right,
-    var(--orange-primary),
-    var(--orange-primary) var(--progress-percent, 0%),
+    var(--brand-primary),
+    var(--brand-primary) var(--progress-percent, 0%),
     var(--color-outline-light) var(--progress-percent, 0%)
     );
 }
@@ -96,7 +96,7 @@
     height: 16px;
     border-radius: 50%;
     cursor: pointer;
-    background: var(--orange-primary);
+    background: var(--brand-primary);
     border: none;
 }
 
@@ -405,6 +405,17 @@
     :root {
         --brand-primary: #FD0342;
         --brand-secondary: #FF803C;
+        /*
+         * Gradiente da marca: vermelho a 15,42% e laranja a 84,58%. É o fundo do rodapé e
+         * da onda em degraus acima dele; as massas das seções usam o mesmo par de cores,
+         * cada uma com o seu ângulo.
+         *
+         * O eixo é horizontal (90deg) e não os 114deg do Figma de propósito: a onda e o
+         * rodapé são dois elementos, e cada um normaliza o gradiente na sua própria
+         * altura — com qualquer inclinação as cores não se encontram na emenda entre eles.
+         * Na horizontal, a cor depende só de x e as duas peças casam em qualquer ponto.
+         */
+        --brand-gradient: linear-gradient(90deg, var(--brand-primary) 15.42%, var(--brand-secondary) 84.58%);
         --brand-accent: #09090a;
         --red-primary: #ff3838;
         --red-900: #870000;
@@ -439,11 +450,7 @@
         --green-200: #4ae33c;
         --green-100: #74f960;
         --green-50: #9aff83;
-        /*
-         * Laranja da marca: botões, topo, rodapé, massas cheias e os destaques dos
-         * headlines. Fica fora da escala orange-50..900, que é a rampa original.
-         */
-        --orange-primary: #E2410A;
+        --orange-primary: #ff7e38;
         --orange-900: #711900;
         --orange-800: #8c2800;
         --orange-700: #a73a00;

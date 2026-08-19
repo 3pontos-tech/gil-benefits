@@ -21,7 +21,7 @@
 
         <div class="relative flex flex-col gap-4 lg:max-w-[822px]">
             <h2 class="text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                Por que investir na <span class="text-orange-primary">saúde financeira</span> dos seus
+                Por que investir na <span class="text-brand-primary">saúde financeira</span> dos seus
                 colaboradores?
             </h2>
 

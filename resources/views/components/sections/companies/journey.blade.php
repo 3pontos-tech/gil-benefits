@@ -58,7 +58,7 @@
     {{ $attributes->class([
         'relative left-1/2 -mx-[50vw] w-screen scroll-mt-28 overflow-hidden py-12 lg:pb-[116px] lg:pt-[149px]',
     ]) }}
-    style="background: linear-gradient(116.67deg, #E2410A 61.49%, #FD0342 100%)"
+    style="background: linear-gradient(116.67deg, #FD0342 15.42%, #FF803C 84.58%)"
     id="como-funciona"
 >
     {{-- Barra translúcida no topo à direita e asterisco branco na margem esquerda, como no design --}}

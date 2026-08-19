@@ -74,7 +74,7 @@
                         @if ($avatar = $user->getFilamentAvatarUrl())
                             <img src="{{ $avatar }}" alt="{{ $user->name }}" class="size-8 rounded-full object-cover">
                         @else
-                            <span class="flex size-8 items-center justify-center rounded-full bg-white text-sm font-medium text-orange-primary">
+                            <span class="flex size-8 items-center justify-center rounded-full bg-white text-sm font-medium text-brand-primary">
                                 {{ str($user->name)->substr(0, 1)->upper() }}
                             </span>
                         @endif

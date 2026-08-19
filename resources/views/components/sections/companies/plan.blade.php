@@ -8,7 +8,7 @@
     <div class="relative flex flex-col gap-8 lg:gap-20">
         <header class="flex flex-col gap-4 text-center lg:gap-8">
             <h2 class="text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                O plano acompanha o <span class="text-orange-primary">crescimento</span> do seu time
+                O plano acompanha o <span class="text-brand-primary">crescimento</span> do seu time
             </h2>
 
             <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal">

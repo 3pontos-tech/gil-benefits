@@ -34,7 +34,7 @@
             <div class="flex flex-col gap-8 lg:max-w-[min(43.0208vw,826px)]">
                 <div class="flex flex-col gap-4">
                     <h1 class="fm-reveal fm-in text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.5vw,48px)]">
-                        <span class="text-orange-primary">Cuide do seu dinheiro</span> com a ajuda de um especialista.
+                        <span class="text-brand-primary">Cuide do seu dinheiro</span> com a ajuda de um especialista.
                     </h1>
                     <p class="fm-reveal fm-in text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(16px,1.0417vw,20px)]"
                        data-fm-delay="1">
@@ -90,7 +90,7 @@
 
         <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-7">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-[64px]">
-                O que é o <span class="text-orange-primary">Flamma</span>?
+                O que é o <span class="text-brand-primary">Flamma</span>?
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                 O Flamma é um benefício corporativo de saúde financeira, oferecido pela sua
@@ -256,7 +256,7 @@
                             lg:flex lg:min-h-[min(9.5833vw,184px)] lg:items-center lg:p-[min(1.6667vw,32px)]"
                     >
                         <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(24px,2.0833vw,40px)]">
-                            Mais que uma ferramenta, um <span class="text-orange-primary">consultor de verdade</span>
+                            Mais que uma ferramenta, um <span class="text-brand-primary">consultor de verdade</span>
                         </h2>
                     </div>
                 </div>
@@ -337,7 +337,7 @@
         <div class="flex flex-col gap-8 lg:ml-[min(6.4063vw,123px)] lg:w-[min(36.3021vw,697px)] lg:max-w-none">
             <div class="flex flex-col gap-4">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.2917vw,44px)]">
-                    <span class="text-orange-primary">Privacidade</span> em primeiro lugar.
+                    <span class="text-brand-primary">Privacidade</span> em primeiro lugar.
                 </h2>
                 <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                    data-fm-delay="1">
@@ -381,7 +381,7 @@
         </div>
         <header class="mx-auto flex flex-col gap-4 text-center lg:max-w-[1418px]">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
-                Escolha <span class="text-orange-primary">seu</span> plano
+                Escolha <span class="text-brand-primary">seu</span> plano
             </h2>
             <p class="fm-reveal mx-auto text-base font-medium leading-[1.5] text-medium lg:max-w-[1418px] lg:text-xl"
                data-fm-delay="1">
@@ -439,7 +439,7 @@
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-4">
                     <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:max-w-[min(42.8125vw,822px)] lg:text-[clamp(28px,2.2917vw,44px)]">
-                        Sua empresa já tem o <span class="text-orange-primary">Flamma</span>?
+                        Sua empresa já tem o <span class="text-brand-primary">Flamma</span>?
                     </h2>
                     <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                        data-fm-delay="1">
@@ -503,7 +503,7 @@
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-8">
                     <h2 class="fm-reveal-right text-[32px] font-bold leading-[1.5] text-high lg:text-[clamp(28px,2.2917vw,44px)]">
-                        Você e seus colegas com mais <span class="text-orange-primary">organização financeira</span>.
+                        Você e seus colegas com mais <span class="text-brand-primary">organização financeira</span>.
                     </h2>
                     <p class="fm-reveal-right text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                        data-fm-delay="1">
@@ -537,7 +537,7 @@
             <div class="flex flex-col gap-8 lg:flex-1">
                 <div class="flex flex-col gap-4 lg:gap-[22px]">
                     <h2 class="text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                        Comece <span class="text-orange-primary">agora</span>
+                        Comece <span class="text-brand-primary">agora</span>
                     </h2>
                     <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal">
                         Marque sua primeira sessão com um consultor Flamma e comece a organizar

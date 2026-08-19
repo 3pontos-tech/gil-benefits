@@ -8,7 +8,7 @@
     logo acima, com a massa aparecendo só nas laterais.
 
     Tipografia, cores e o CTA seguem o resto do site: título de bloco em 24/32px,
-    corpo em 16/20px, laranja da marca (--orange-primary) nos destaques e no estado
+    corpo em 16/20px, vermelho da marca (--brand-primary) nos destaques e no estado
     ativo, e o botão no mesmo padrão dos outros CTAs (chapado, sem raio, xl).
 --}}
 <div class="flex w-full flex-col gap-8 border border-outline-light bg-elevation-surface p-6 text-medium lg:gap-10 lg:p-12">
@@ -122,7 +122,7 @@
                     wire:key="tier-{{ $tier['id'] }}"
                     class="flex flex-col gap-3 border bg-elevation-01dp p-4 transition-colors duration-300"
                     :class="activeTierId === {{ $tier['id'] }}
-                        ? 'border-orange-primary bg-orange-primary/5'
+                        ? 'border-brand-primary bg-brand-primary/5'
                         : 'border-outline-light'"
                 >
                     <h4 class="text-sm font-medium">

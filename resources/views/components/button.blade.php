@@ -45,12 +45,12 @@
         'xl-tight' => ['pad'=>'px-4 py-4','text'=>'text-base','icon'=>'h-5 w-5','iconOnly'=>'p-4','weight'=>'font-bold'],
     ][$size] ?? ['pad'=>'px-4 py-2.5','text'=>'text-sm','icon'=>'h-5 w-5','iconOnly'=>'p-2.5','weight'=>'font-medium'];
 
-    // Os CTAs do site usam o laranja forte da marca (--orange-primary, #E2410A) — o mesmo
-    // do topo e do rodapé. O vermelho segue nos títulos e nos destaques de texto.
+    // Os CTAs do site são vermelhos (--brand-primary, #FD0342), como os destaques dos
+    // headlines; o laranja (--brand-secondary) entra como fim dos gradientes.
     $colors = [
         'primary' => [
             'solid' => [
-                'bg' => 'bg-gradient-to-br from-orange-primary to-orange-400',
+                'bg' => 'bg-gradient-to-br from-brand-primary to-brand-secondary',
                 'text' => 'text-light',
                 'border' => '',
                 'hoverBg' => '',
@@ -58,24 +58,24 @@
             ],
             'outline' => [
                 'bg' => 'bg-transparent',
-                'text' => 'text-orange-primary',
-                'border' => 'border-orange-primary',
-                'hoverBg' => 'hover:bg-orange-primary',
+                'text' => 'text-brand-primary',
+                'border' => 'border-brand-primary',
+                'hoverBg' => 'hover:bg-brand-primary',
                 'hoverText' => 'hover:text-light',
             ],
             'white' => [
                 'bg' => 'bg-white',
-                'text' => 'text-orange-primary',
+                'text' => 'text-brand-primary',
                 'border' => 'none',
                 'hoverBg' => '',
                 'hoverText' => '',
             ],
             // Chapado, sem gradiente: é o CTA da página para empresas no design.
             'flat' => [
-                'bg' => 'bg-orange-primary',
+                'bg' => 'bg-brand-primary',
                 'text' => 'text-light',
                 'border' => 'border-outline-light',
-                'hoverBg' => 'hover:bg-orange-600',
+                'hoverBg' => 'hover:bg-red-700',
                 'hoverText' => '',
             ],
             // Botão claro sobre bloco colorido. O design usa duas versões, que diferem
@@ -89,7 +89,7 @@
             ],
             'light-brand' => [
                 'bg' => 'bg-icon-light',
-                'text' => 'text-orange-primary',
+                'text' => 'text-brand-primary',
                 'border' => 'border-[#f1785a]',
                 'hoverBg' => 'hover:bg-white',
                 'hoverText' => '',

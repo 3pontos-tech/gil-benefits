@@ -88,8 +88,8 @@
                     x1="0" y1="-46.2636" x2="1163.42" y2="424.349"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <stop offset="0.620192" stop-color="#E2410A"/>
-                    <stop offset="1" stop-color="#FD0342"/>
+                    <stop offset="0.154200" stop-color="#FD0342"/>
+                    <stop offset="0.845800" stop-color="#FF803C"/>
                 </linearGradient>
             </defs>
         </svg>
@@ -110,7 +110,7 @@
         >
             <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[max(24px,2.0833cqw)]">
                 Mais que uma ferramenta, um
-                <span class="text-orange-primary">consultor de verdade</span>
+                <span class="text-brand-primary">consultor de verdade</span>
             </h2>
         </div>
 

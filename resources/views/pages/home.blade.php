@@ -17,7 +17,7 @@
          ══════════════════════════════════════════════════════════════ --}}
     <section id="home"
              class="relative left-1/2 -mx-[50vw] w-screen overflow-hidden scroll-mt-28"
-             style="background: linear-gradient(106deg, #E2410A 61.49%, #FD0342 100%)">
+             style="background: linear-gradient(106deg, #FD0342 15.42%, #FF803C 84.58%)">
 
         {{-- Faixa inferior de 80px atravessando a largura toda --}}
         <div class="absolute inset-x-0 bottom-0 hidden h-[80px] bg-white/32 lg:block" aria-hidden="true"></div>
@@ -64,7 +64,7 @@
     <section id="por-que-confiar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[113px] lg:px-[62px]">
         <header class="flex flex-col gap-6 text-center">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                Por que confiar no <span class="text-orange-primary">Flamma</span>?
+                Por que confiar no <span class="text-brand-primary">Flamma</span>?
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                 Cuidar do financeiro dos seus colaboradores é cuidar do resultado da sua empresa,
@@ -106,7 +106,7 @@
          ══════════════════════════════════════════════════════════════ --}}
     <div class="relative left-1/2 -mx-[50vw] -z-10 hidden w-screen lg:block lg:-mt-[248px]"
          aria-hidden="true">
-        <svg class="block aspect-[1920/499] w-full text-orange-primary" viewBox="0 0 1920 499" fill="none"
+        <svg class="block aspect-[1920/499] w-full text-brand-primary" viewBox="0 0 1920 499" fill="none"
              preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M122.5 0H0.5L-1.5 498.5H1922V390H334.5V306H214.5V83.5H122.5V0Z"
                   fill="currentColor"/>
@@ -187,7 +187,7 @@
             <div class="flex flex-col gap-8">
                 <header class="flex flex-col gap-4">
                     <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                        O estresse financeiro <span class="text-orange-primary">custa caro</span>
+                        O estresse financeiro <span class="text-brand-primary">custa caro</span>
                     </h2>
                     <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                         Colaboradores endividados faltam mais, produzem menos e saem primeiro.
@@ -305,7 +305,7 @@
 
         <header class="flex flex-col gap-8 text-center">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                O plano acompanha o <span class="text-orange-primary">crescimento</span> do seu time
+                O plano acompanha o <span class="text-brand-primary">crescimento</span> do seu time
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                 Faça a simulação, descubra o melhor plano para sua empresa e, se ficar com
@@ -327,7 +327,7 @@
         <div class="flex flex-col items-center justify-between gap-10 lg:flex-row lg:gap-16">
             <div class="flex flex-col gap-8 lg:w-[822px]">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                    Dê ao seu time o <span class="text-orange-primary">cuidado</span> financeiro que ele merece
+                    Dê ao seu time o <span class="text-brand-primary">cuidado</span> financeiro que ele merece
                 </h2>
                 <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
                     Mais que um benefício, uma mudança real na relação com o dinheiro,

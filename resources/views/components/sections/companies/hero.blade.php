@@ -4,11 +4,12 @@
     da foto e asterisco sobre a parte de baixo dela. No mobile o design não exibe a foto.
 --}}
 <section class="relative pt-6 lg:pt-10" id="empresas">
-    {{-- Seta apontando para ↘, sangrando na esquerda (image 8 no design) --}}
+    {{-- Seta apontando para ↘, sangrando na esquerda (image 8 no design). Só no desktop:
+         no mobile o título ocupa a largura toda e ela caía sobre as primeiras linhas. --}}
     <x-graphism
         type="arrow"
         data-fm-static
-        class="absolute -left-16 -top-2 -z-10 w-32 rotate-180 sm:-left-24 sm:w-48 lg:w-[274px]"
+        class="absolute -left-24 -top-2 -z-10 hidden rotate-180 lg:block lg:w-[274px]"
     />
 
     {{-- Bloco em gradiente atrás do topo da foto --}}
@@ -21,8 +22,8 @@
     <div class="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[1fr_654px] lg:gap-12">
         <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-8">
             <h1 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
-                O <span class="text-orange-primary">bem-estar financeiro</span> do seu time em forma de
-                <span class="text-orange-primary">benefício</span>
+                O <span class="text-brand-primary">bem-estar financeiro</span> do seu time em forma de
+                <span class="text-brand-primary">benefício</span>
             </h1>
 
             <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal">
