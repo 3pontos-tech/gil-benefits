@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4a1abe4513ca510ea2e889bdaeb39961",
+    "content-hash": "a92c7221f4b15475a144b1961abbd950",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -124,6 +124,38 @@
                     "TresPontosTech\\Consultants\\Tests\\": "tests/",
                     "TresPontosTech\\Consultants\\Database\\Factories\\": "database/factories/",
                     "TresPontosTech\\Consultants\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/integration-chatx",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/integration-chatx",
+                "reference": "2cd2877d32032d9e555ef08058812125482c9cf7"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\IntegrationChatx\\Providers\\IntegrationChatxServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\IntegrationChatx\\": "src/",
+                    "TresPontosTech\\IntegrationChatx\\Tests\\": "tests/",
+                    "TresPontosTech\\IntegrationChatx\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\IntegrationChatx\\Database\\Seeders\\": "database/seeders/"
                 }
             },
             "license": [

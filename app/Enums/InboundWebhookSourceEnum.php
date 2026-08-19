@@ -12,4 +12,5 @@ enum InboundWebhookSourceEnum: string implements InboundWebhookContract
     case Autentique = 'autentique';
     case Barte = 'barte';
     case Monday = 'monday';
+    case Chatx = 'chatx';
 }

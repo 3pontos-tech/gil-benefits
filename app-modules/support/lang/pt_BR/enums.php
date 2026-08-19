@@ -47,4 +47,7 @@ return [
         'sent' => 'Enviado',
         'failed' => 'Falhou',
     ],
+    'origin_source' => [
+        'chatx' => 'ChatX (WhatsApp)',
+    ],
 ];
