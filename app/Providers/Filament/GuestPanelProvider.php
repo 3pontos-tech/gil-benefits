@@ -2,10 +2,9 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Guest\Pages\HelpCenterPage;
-use App\Filament\Guest\Pages\LandingPage;
 use Filament\Actions\Action;
 use Filament\Enums\ThemeMode;
+use Filament\FontProviders\LocalFontProvider;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -41,6 +40,10 @@ class GuestPanelProvider extends PanelProvider
             ->brandLogo(fn (): Factory|View => view('components.logo', ['color' => 'dark']))
             ->darkModeBrandLogo(fn (): Factory|View => view('components.logo', ['color' => 'white']))
             ->brandName('Flamma')
+            // O padrão do Filament é Inter Variable, buscada no Google Fonts. O design é
+            // todo Space Grotesk, que o theme.css já declara em @font-face — o LocalFontProvider
+            // sem url só ajusta --font-family e não emite <link> nenhum.
+            ->font('Space Grotesk', provider: LocalFontProvider::class)
             ->renderHook(PanelsRenderHook::FOOTER, fn (): Factory|View => view('components.guest-footer'))
             ->renderHook(PanelsRenderHook::TOPBAR_END, fn () => Blade::render(<<<'BLADE'
                @guest
@@ -52,9 +55,7 @@ class GuestPanelProvider extends PanelProvider
             ->topNavigation()
             ->discoverResources(in: app_path('Filament/Guest/Resources'), for: 'App\Filament\Guest\Resources')
             ->discoverPages(in: app_path('Filament/Guest/Pages'), for: 'App\Filament\Guest\Pages')
-            ->pages([
-                LandingPage::class,
-            ])
+            ->homeUrl(fn (): string => route('site.home'))
             ->userMenuItems([
                 Action::make('user_panel')
                     ->label('Acessar Plataforma')
@@ -74,30 +75,17 @@ class GuestPanelProvider extends PanelProvider
                     ->icon(Heroicon::BuildingOffice)
                     ->visible(fn () => auth()->user()?->hasAnyRole(['super_admin', 'admin', 'company_owner'])),
             ])
+            // Mesmo menu do site: só as três páginas principais.
             ->navigationItems([
                 NavigationItem::make('Inicio')
-                    ->url(fn (): string => LandingPage::getUrl() . '#home')
+                    ->url(fn (): string => route('site.home'))
                     ->sort(0),
-                NavigationItem::make('Como Funciona')
-                    ->url(fn (): string => LandingPage::getUrl() . '#how-it-works')
+                NavigationItem::make('Para Empresas')
+                    ->url(fn (): string => route('site.companies'))
+                    ->sort(1),
+                NavigationItem::make('Para Você')
+                    ->url(fn (): string => route('site.collaborator'))
                     ->sort(2),
-                NavigationItem::make('Nosso Desafio')
-                    ->url(fn (): string => LandingPage::getUrl() . '#challenge')
-                    ->sort(3),
-                NavigationItem::make('Consultoria')
-                    ->url(fn (): string => LandingPage::getUrl() . '#assessment')
-                    ->sort(4),
-                NavigationItem::make('Preços')
-                    ->url(fn (): string => LandingPage::getUrl() . '#pricing')
-                    ->sort(5),
-                NavigationItem::make('FAQ')
-                    ->url(fn (): string => LandingPage::getUrl() . '#faq')
-                    ->sort(6),
-                NavigationItem::make('Abrir Chamado')
-                    ->group('Ajuda')
-                    ->icon(Heroicon::QuestionMarkCircle)
-                    ->url(fn (): string => HelpCenterPage::getUrl())
-                    ->sort(7),
             ])
             ->discoverWidgets(in: app_path('Filament/Guest/Widgets'), for: 'App\Filament\Guest\Widgets')
             ->widgets([

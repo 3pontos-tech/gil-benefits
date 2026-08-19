@@ -1,26 +1,39 @@
+/*
+    Os arquivos vivem em resources/fonts/ e não em public/fonts/ por dois motivos:
+    /public/fonts está no .gitignore (é onde o Filament publica os assets dele), então
+    qualquer fonte colocada lá some num clone limpo; e a partir de resources/ o Vite
+    resolve o url(), versiona o arquivo e reescreve o caminho para /build/assets/.
+    Apontando para public/, o Vite avisava "didn't resolve at build time" e deixava a
+    URL crua — que do CSS buildado resolvia para /public/fonts/... e dava 404.
+*/
 @font-face {
     font-family: 'Space Grotesk';
-    src: url('../../../../public/fonts/Space-Grotesk/static/SpaceGrotesk-Bold.ttf') format('truetype');
+    src: url('../../../fonts/Space-Grotesk/SpaceGrotesk-Bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Space Grotesk';
-    src: url('../../../../public/fonts/Space-Grotesk/static/SpaceGrotesk-Regular.ttf') format('truetype');
+    src: url('../../../fonts/Space-Grotesk/SpaceGrotesk-Regular.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
-}
-@font-face {
-    font-family: 'Space Grotesk';
-    src: url('../../../../public/fonts/Space-Grotesk/static/SpaceGrotesk-Medium.ttf') format('truetype');
-    font-weight: 500;
-    font-style: normal;
+    font-display: swap;
 }
 
 @font-face {
     font-family: 'Space Grotesk';
-    src: url('../../../../public/fonts/Space-Grotesk/static/SpaceGrotesk-SemiBold.ttf') format('truetype');
+    src: url('../../../fonts/Space-Grotesk/SpaceGrotesk-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Space Grotesk';
+    src: url('../../../fonts/Space-Grotesk/SpaceGrotesk-SemiBold.ttf') format('truetype');
     font-weight: 600;
     font-style: normal;
+    font-display: swap;
 }

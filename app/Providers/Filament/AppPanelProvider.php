@@ -3,12 +3,14 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Shared\Pages\LoginPage;
+use App\Http\Middleware\IdentifyDefaultTenantOffTenantRoutes;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -37,7 +39,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->login(LoginPage::class)
-            ->profile(EditUserProfile::class)
+            ->profile(EditUserProfile::class, isSimple: false)
             ->colors([
                 // Laranja da marca (#E2410A, o orange-primary do tema guest).
                 //
@@ -76,9 +78,22 @@ class AppPanelProvider extends PanelProvider
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): ViewContract => view('filament.app.topbar.theme-toggle'),
             )
+            ->brandLogo(fn (): ViewContract => view('components.logo', ['color' => 'primary']))
+            ->brandLogoHeight('1.75rem')
+            ->navigationGroups([
+                NavigationGroup::make(__('panel-app::navigation.groups.platform.label')),
+                NavigationGroup::make(__('panel-app::navigation.groups.appointments.label')),
+                NavigationGroup::make(__('panel-app::navigation.groups.support.label')),
+                NavigationGroup::make(__('all.billing')),
+            ])
             ->navigationItems([
                 NavigationItem::make(__('all.my_profile'))
                     ->icon(Heroicon::UserCircle)
+                    ->group(__('panel-app::navigation.groups.platform.label'))
+                    ->sort(2)
+                    ->isActiveWhen(fn (): bool => request()->routeIs(
+                        EditUserProfile::getRouteName($panel)
+                    ))
                     ->url(fn (): string => EditUserProfile::getUrl()),
                 NavigationItem::make(__('all.my_subscription'))
                     ->icon(Heroicon::CreditCard)
@@ -117,6 +132,10 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                // A página de perfil vive fora do escopo de tenant e renderiza a
+                // navegação do painel, cujos itens apontam para rotas com
+                // {tenant}. Sem isto, montar essas URLs estoura.
+                IdentifyDefaultTenantOffTenantRoutes::class,
             ])
             ->bootUsing(function (): void {
                 Table::configureUsing(function (Table $table): void {

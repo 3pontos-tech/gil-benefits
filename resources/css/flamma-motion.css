@@ -1,0 +1,226 @@
+/* ============================================================
+   Flamma — camada de movimento (home + para empresas)
+
+   Portada do protótipo do time de design (glittery-flan-ac4ee1).
+   Substitui o companies-motion.css: cobre as duas páginas.
+
+   Escopo único: .fm-page. A home traz a classe no próprio Blade;
+   na página Para Empresas o flamma-motion.js a adiciona.
+   ============================================================ */
+
+.fm-page {
+  /* Curva de easing única do protótipo — todo movimento usa ela */
+  --fm-ease: cubic-bezier(.22, .68, .18, 1);
+  --fm-rose: #fd0342;
+  --fm-shadow-lg: 0 28px 60px rgba(16, 16, 30, .16);
+  /* A sombra dos CTAs acompanha o vermelho dos botões (--brand-primary, #FD0342) */
+  --fm-shadow-rose: 0 12px 28px rgba(253, 3, 66, .35);
+}
+
+/* ============================================================
+   1. REVEAL ON SCROLL
+   ============================================================ */
+.fm-page .fm-reveal,
+.fm-page .fm-reveal-left,
+.fm-page .fm-reveal-right,
+.fm-page .fm-reveal-scale {
+  opacity: 0;
+  transition: opacity .8s var(--fm-ease), transform .8s var(--fm-ease);
+  will-change: opacity, transform;
+}
+.fm-page .fm-reveal        { transform: translateY(30px); }
+.fm-page .fm-reveal-left   { transform: translateX(-40px); }
+.fm-page .fm-reveal-right  { transform: translateX(40px); }
+.fm-page .fm-reveal-scale  { transform: scale(.94); }
+
+.fm-page .fm-reveal.fm-in,
+.fm-page .fm-reveal-left.fm-in,
+.fm-page .fm-reveal-right.fm-in,
+.fm-page .fm-reveal-scale.fm-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Cascata */
+.fm-page [data-fm-delay="1"] { transition-delay: .08s; }
+.fm-page [data-fm-delay="2"] { transition-delay: .16s; }
+.fm-page [data-fm-delay="3"] { transition-delay: .24s; }
+.fm-page [data-fm-delay="4"] { transition-delay: .32s; }
+
+/* ============================================================
+   2. GRAFISMOS DA MARCA
+   ============================================================ */
+@keyframes fm-spin { to { transform: rotate(360deg); } }
+/* Várias setas vêm com `rotate-180`, que no Tailwind v4 é a propriedade `rotate` —
+   independente de `transform`. Por isso a animação só translada: repetir a rotação
+   aqui (como fazia o antigo fm-bob-180) somava 180°+180° e desvirava a seta. */
+@keyframes fm-bob  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+
+.fm-page .fm-spin    { animation: fm-spin 26s linear infinite; transform-origin: 50% 50%; }
+.fm-page .fm-bob     { animation: fm-bob 3.6s ease-in-out infinite; }
+
+/* ============================================================
+   3. HOVER — imagens
+   ============================================================ */
+.fm-page .fm-zoom img {
+  transition: transform 1.2s var(--fm-ease);
+  will-change: transform;
+}
+.fm-page .fm-zoom:hover img       { transform: scale(1.05); }
+.fm-page .fm-zoom--hero:hover img { transform: scale(1.04); }
+.fm-page .fm-zoom--slow img       { transition-duration: 1.4s; }
+/* alias legado do companies-motion */
+.fm-page .fm-zoom--plan img       { transition-duration: 1.4s; }
+
+/* ============================================================
+   4. HOVER — cards
+   Cobre os cards do fluxo (Para Empresas), os cards de "Por que
+   confiar" e os passos 01/02/03 da home.
+   ============================================================ */
+.fm-page .fm-card {
+  transition: transform .35s var(--fm-ease), box-shadow .35s var(--fm-ease);
+  will-change: transform;
+}
+.fm-page .fm-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--fm-shadow-lg);
+}
+.fm-page .fm-card .fm-card-prod { transition: transform .5s var(--fm-ease); }
+.fm-page .fm-card:hover .fm-card-prod { transform: translateY(-6px) scale(1.03); }
+
+.fm-page .fm-card-icon { transition: transform .4s var(--fm-ease); }
+.fm-page .fm-card:hover .fm-card-icon { transform: rotate(-8deg) scale(1.1); }
+
+/* Número 01/02/03: cresce discretamente junto com o card */
+.fm-page .fm-step-n {
+  transition: transform .4s var(--fm-ease);
+  transform-origin: left center;
+}
+.fm-page .fm-card:hover .fm-step-n { transform: scale(1.08); }
+
+/* ============================================================
+   5. HOVER — pilares (Para Empresas)
+   ============================================================ */
+.fm-page .fm-pillar svg { transition: transform .4s var(--fm-ease); transform-origin: 50% 50%; }
+.fm-page .fm-pillar:hover svg { transform: rotate(90deg) scale(1.08); }
+
+/* ============================================================
+   6. BOTÕES — brilho passando + elevação
+   ============================================================ */
+.fm-page .fm-btn {
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s var(--fm-ease), box-shadow .28s var(--fm-ease), background .28s var(--fm-ease);
+  will-change: transform;
+}
+.fm-page .fm-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 255, 255, .28) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform .6s var(--fm-ease);
+}
+.fm-page .fm-btn:hover { transform: translateY(-3px); box-shadow: var(--fm-shadow-rose); }
+.fm-page .fm-btn:hover::after { transform: translateX(120%); }
+.fm-page .fm-btn:active { transform: translateY(-1px) scale(.98); }
+
+/* ============================================================
+   7. FAQ — accordion
+   grid-template-rows 0fr → 1fr anima a altura sem precisar medir o
+   conteúdo em JS, e sem max-height chutado (que faz a resposta longa
+   cortar e a curta demorar). O filho precisa de overflow:hidden.
+   ============================================================ */
+.fm-page .fm-faq-panel {
+  display: grid;                 /* explícito: não depende da classe `grid`
+                                    do Tailwind estar no markup — sem
+                                    display:grid o painel abre e nunca fecha */
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .35s var(--fm-ease);
+}
+.fm-page .fm-faq-panel.is-open { grid-template-rows: 1fr; }
+
+/* Firefox < 120 não anima grid-template-rows: sem a transição a
+   resposta ainda abre e fecha, só que instantaneamente. */
+@supports not (grid-template-rows: 0fr) {
+  .fm-page .fm-faq-panel { display: block; max-height: 0; overflow: hidden; transition: max-height .35s var(--fm-ease); }
+  .fm-page .fm-faq-panel.is-open { max-height: 40rem; }
+}
+
+.fm-page .fm-faq { transition: border-color .3s var(--fm-ease), box-shadow .3s var(--fm-ease); }
+.fm-page .fm-faq:hover { box-shadow: var(--fm-shadow-lg); }
+
+/* ============================================================
+   8. VOLTAR AO TOPO — o botão é injetado pelo JS
+   ============================================================ */
+.fm-to-top {
+  position: fixed;
+  z-index: 90;
+  right: calc(clamp(16px, 2vw, 34px) + env(safe-area-inset-right));
+  bottom: calc(clamp(16px, 2vw, 34px) + env(safe-area-inset-bottom));
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #fd0342;
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(253, 3, 66, .35);
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px) scale(.8);
+  transition: opacity .3s cubic-bezier(.22, .68, .18, 1),
+              transform .3s cubic-bezier(.22, .68, .18, 1),
+              visibility .3s;
+}
+.fm-to-top.fm-show { opacity: 1; visibility: visible; transform: none; }
+.fm-to-top:hover   { transform: translateY(-3px); }
+.fm-to-top svg     { width: 22px; height: 22px; }
+
+@media (max-width: 560px) {
+  .fm-to-top { width: 46px; height: 46px; }
+}
+
+/* ============================================================
+   9. TOQUE — :hover "gruda" depois do tap em tela sensível,
+   deixando card levantado e foto ampliada até o próximo toque.
+   ============================================================ */
+@media (hover: none) {
+  .fm-page .fm-card:hover,
+  .fm-page .fm-btn:hover,
+  .fm-to-top:hover { transform: none; }
+  .fm-page .fm-card:hover { box-shadow: none; }
+  .fm-page .fm-btn:hover  { box-shadow: none; }
+  .fm-page .fm-faq:hover  { box-shadow: none; }
+  .fm-page .fm-btn:hover::after { transform: translateX(-120%); }
+  .fm-page .fm-zoom:hover img,
+  .fm-page .fm-zoom--hero:hover img,
+  .fm-page .fm-card:hover .fm-card-prod,
+  .fm-page .fm-card:hover .fm-card-icon,
+  .fm-page .fm-card:hover .fm-step-n,
+  .fm-page .fm-pillar:hover svg { transform: none; }
+}
+
+/* ============================================================
+   10. ACESSIBILIDADE — quem pediu menos movimento vê a página
+   inteira, parada. O accordion continua funcionando.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .fm-page *,
+  .fm-page *::before,
+  .fm-page *::after,
+  .fm-to-top {
+    animation: none !important;
+    transition-duration: .01ms !important;
+  }
+  .fm-page .fm-reveal,
+  .fm-page .fm-reveal-left,
+  .fm-page .fm-reveal-right,
+  .fm-page .fm-reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

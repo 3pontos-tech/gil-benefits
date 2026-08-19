@@ -26,6 +26,13 @@ class UserCreditsPage extends Page implements HasTable
 
     protected static \BackedEnum|string|null $navigationIcon = Heroicon::CreditCard;
 
+    protected static ?int $navigationSort = 3;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('panel-app::navigation.groups.platform.label');
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('panel-app::resources.credits.navigation_label');
