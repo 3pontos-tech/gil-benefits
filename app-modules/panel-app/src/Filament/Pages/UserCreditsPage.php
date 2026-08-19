@@ -40,7 +40,7 @@ class UserCreditsPage extends Page implements HasTable
 
     public function getTitle(): string
     {
-        return '';
+        return __('panel-app::resources.credits.title');
     }
 
     protected function getHeaderWidgets(): array
@@ -55,31 +55,49 @@ class UserCreditsPage extends Page implements HasTable
                 UserCredit::query()
                     ->where('holder_id', auth()->id())
                     ->where('company_id', filament()->getTenant()?->getKey())
+                    ->with('appointment')
                     ->latest()
             )
+            ->heading(__('panel-app::resources.credits.history.heading'))
+            ->description(__('panel-app::resources.credits.history.description'))
             ->columns([
                 TextColumn::make('status')
                     ->badge()
                     ->label(__('panel-app::resources.credits.columns.status'))
-                    ->formatStateUsing(fn (UserCreditStatusEnum $state): string => $state->getLabel())
-                    ->color(fn (UserCreditStatusEnum $state): array => $state->getColor()),
-                TextColumn::make('transferred_at')
-                    ->dateTime('d/m/Y H:i')
-                    ->label(__('panel-app::resources.credits.columns.distributed_at'))
+                    ->icon(fn (UserCreditStatusEnum $state): Heroicon => match ($state) {
+                        UserCreditStatusEnum::Available => Heroicon::Check,
+                        UserCreditStatusEnum::InUse, UserCreditStatusEnum::Used => Heroicon::ArrowPath,
+                        UserCreditStatusEnum::Expired => Heroicon::XMark,
+                    })
+                    ->extraCellAttributes(fn (UserCredit $record): array => [
+                        'class' => 'fi-apt-credit-' . str_replace('_', '-', $record->status->value),
+                        'data-apt-label' => __('panel-app::resources.credits.columns.status'),
+                    ]),
+                TextColumn::make('appointment.category_type')
+                    ->label(__('panel-app::resources.credits.columns.distributed_to'))
                     ->placeholder('—')
-                    ->toggleable(),
+                    ->searchable()
+                    ->extraCellAttributes(['class' => 'fi-apt-stacked-title']),
                 TextColumn::make('created_at')
-                    ->dateTime('d/m/Y H:i')
-                    ->label(__('panel-app::resources.credits.columns.purchased_at')),
+                    ->dateTime('d/m/Y - H:i')
+                    ->label(__('panel-app::resources.credits.columns.purchased_at'))
+                    ->sortable()
+                    ->extraCellAttributes([
+                        'data-apt-label' => __('panel-app::resources.credits.columns.date'),
+                    ]),
             ])
             ->filters([
                 SelectFilter::make('status')
                     ->label(__('panel-app::resources.credits.columns.status'))
-                    ->options(UserCreditStatusEnum::class),
+                    ->options(UserCreditStatusEnum::class)
+                    ->multiple(),
             ])
             ->headerActions([
                 PurchaseCreditsAction::make()
+                    ->label(__('panel-app::resources.credits.history.purchase'))
+                    ->icon(Heroicon::OutlinedShoppingCart)
                     ->forBillable(auth()->user(), static::getUrl(), static::getUrl()),
-            ]);
+            ])
+            ->stackedOnMobile();
     }
 }

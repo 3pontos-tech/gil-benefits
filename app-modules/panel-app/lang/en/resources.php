@@ -134,11 +134,17 @@ return [
     ],
     'credits' => [
         'navigation_label' => 'My Credits',
-        'title' => 'My Credits',
+        'title' => 'My credits',
+        'history' => [
+            'heading' => 'Credit history',
+            'description' => 'Review your credit and distribution history.',
+            'purchase' => 'Buy credits',
+        ],
         'columns' => [
             'status' => 'Status',
-            'distributed_at' => 'Distributed At',
-            'purchased_at' => 'Purchased At',
+            'distributed_to' => 'Distributed to',
+            'purchased_at' => 'Purchase date',
+            'date' => 'Date',
         ],
     ],
     'documents' => [

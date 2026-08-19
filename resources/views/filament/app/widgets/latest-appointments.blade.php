@@ -7,10 +7,10 @@
              entre o subtítulo e o primeiro card de agendamento. --}}
         <div class="mb-[19px] flex flex-wrap items-center justify-between gap-3">
             <div>
-                <h2 class="text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
+                <h2 class="text-[20px] font-bold leading-tight text-gray-950 dark:text-white">
                     {{ __('panel-app::widgets.latest_appointments.title') }}
                 </h2>
-                <p class="mt-1 text-[16px] text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-[14px] text-gray-500 dark:text-gray-400">
                     {{ __('panel-app::widgets.latest_appointments.subtitle') }}
                 </p>
             </div>
@@ -24,7 +24,7 @@
             @if($rows->isEmpty())
                 <div class="flex h-full flex-col items-center justify-center gap-2 px-4 py-12 text-center">
                     <x-filament::icon icon="heroicon-o-calendar-days" class="size-8 text-gray-300 dark:text-gray-600"/>
-                    <p class="text-sm font-semibold text-gray-950 dark:text-white">
+                    <p class="text-xs font-semibold text-gray-950 dark:text-white">
                         {{ __('panel-app::widgets.latest_appointments.empty_title') }}
                     </p>
                     <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -47,10 +47,10 @@
                              medida sem impedir que ela cresça quando o texto precisa. --}}
                         <li class="fi-dash-appointment flex min-h-[139px] items-center gap-4 border border-gray-200 p-4 dark:border-white/10">
                             <div class="w-14 shrink-0 text-center">
-                                <p class="text-[14px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                                <p class="text-[12px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                                     {{ $row['month'] }}
                                 </p>
-                                <p class="text-[32px] font-bold leading-tight text-gray-950 dark:text-white">
+                                <p class="text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
                                     {{ $row['day'] }}
                                 </p>
                             </div>
@@ -78,10 +78,10 @@
                             <div class="min-w-0 flex-1">
                                 {{-- Teto de 2 linhas: sem ele, em telas estreitas o título de
                                      24px chega a 4 linhas e estica a linha para ~204px. --}}
-                                <p class="line-clamp-2 text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
+                                <p class="line-clamp-2 text-[20px] font-bold leading-tight text-gray-950 dark:text-white">
                                     {{ $row['title'] }}
                                 </p>
-                                <p class="mt-1 flex items-center gap-1.5 text-[16px] text-gray-500 dark:text-gray-400">
+                                <p class="mt-1 flex items-center gap-1.5 text-[14px] text-gray-500 dark:text-gray-400">
                                     <x-filament::icon
                                         :icon="$row['needsRescheduling'] ? 'heroicon-o-exclamation-circle' : 'heroicon-o-clock'"
                                         @class([
@@ -104,7 +104,7 @@
 
                                 {{-- Cancelada ou perdida não oferece ação na linha: a única
                                      saída é um agendamento novo, pelo botão do cabeçalho.
-                                     Os tamanhos do fi-btn param em text-sm (14px), então o
+                                     Os tamanhos do fi-btn param em text-xs (14px), então o
                                      16px pedido vem de uma classe explícita. --}}
                                 @if($row['meetingUrl'])
                                     <x-filament::button
@@ -114,13 +114,13 @@
                                         size="sm"
                                         color="info"
                                         icon="heroicon-o-video-camera"
-                                        class="text-[16px]"
+                                        class="text-[14px]"
                                     >
                                         {{ __('panel-app::widgets.latest_appointments.join') }}
                                     </x-filament::button>
                                 @else
                                     <span @class([
-                                        'inline-flex items-center gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-[16px] font-medium',
+                                        'inline-flex items-center gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-[14px] font-medium',
                                         'bg-danger-500/10 text-danger-600 dark:text-danger-400' => $row['needsRescheduling'],
                                         'bg-info-500/10 text-info-600 dark:text-info-400' => $row['isPending'],
                                         'bg-success-500/10 text-success-600 dark:text-success-400' => ! $row['isPending'] && ! $row['needsRescheduling'],
