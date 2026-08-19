@@ -35,11 +35,8 @@
         --site-nav-hover-bg: oklch(0.985 0 0);
         --site-nav-ring: oklch(0.141 0.005 285.823);
 
-        /*
-         * Topo laranja. É o mesmo gradiente do hero da home, para que a barra e o
-         * hero formem uma peça só ali; nas outras páginas ela aparece sozinha.
-         */
-        --site-topbar-bg: linear-gradient(106deg, var(--orange-primary) 61.49%, var(--brand-primary) 100%);
+        /* Topo chapado no vermelho da marca. */
+        --site-topbar-bg: var(--brand-primary);
         --site-topbar-text: #fdfdfd;
         --site-topbar-hover-bg: rgb(255 255 255 / 0.16);
         /*
@@ -81,7 +78,7 @@
         justify-content: space-between;
         min-height: calc(var(--spacing) * 16);
         padding-inline: calc(var(--spacing) * 4);
-        background-image: var(--site-topbar-bg);
+        background: var(--site-topbar-bg);
         /* shadow-sm + ring de 1px em gray-950/5, como no .fi-topbar */
         box-shadow:
             0 1px 2px 0 rgb(0 0 0 / 0.05),

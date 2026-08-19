@@ -22,8 +22,8 @@
     <div class="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[1fr_654px] lg:gap-12">
         <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-8">
             <h1 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
-                O <span class="text-orange-primary">bem-estar financeiro</span> do seu time em forma de
-                <span class="text-orange-primary">benefício</span>
+                O <span class="text-brand-primary">bem-estar financeiro</span> do seu time em forma de
+                <span class="text-brand-primary">benefício</span>
             </h1>
 
             <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal">

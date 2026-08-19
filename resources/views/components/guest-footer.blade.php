@@ -7,7 +7,7 @@
     ocupam 24 e 21 de linha), campo de 301 e botão de 142. A divisória separa as colunas
     do bloco de marca — logo de 135, "Nosso Endereço" e o endereço.
 --}}
-<footer class="bg-orange-primary py-12 text-light lg:py-16">
+<footer class="bg-[image:var(--brand-gradient)] py-12 text-light lg:py-16">
     <div class="mx-auto flex max-w-[1800px] flex-col gap-10 px-5 sm:px-8 lg:gap-[35px] lg:px-[62px]">
         <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1.3fr] lg:gap-10">
             <div class="flex flex-col gap-5">

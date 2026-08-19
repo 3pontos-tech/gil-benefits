@@ -62,7 +62,7 @@
             lg:w-[min(42.8125vw,822px)] lg:items-start lg:gap-[min(1.6667vw,32px)] lg:pt-[min(2.6042vw,50px)] lg:text-left"
     >
         <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.2917vw,44px)]">
-            <span class="text-orange-primary">Privacidade</span> em primeiro lugar.
+            <span class="text-brand-primary">Privacidade</span> em primeiro lugar.
         </h2>
 
         <p class="text-base font-medium leading-[1.5] text-medium lg:text-[clamp(16px,1.0417vw,20px)] lg:font-normal lg:text-dark">
