@@ -6,7 +6,10 @@ namespace TresPontosTech\IntegrationVirtu\Actions;
 
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
+use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\IntegrationVirtu\DTO\VirtuWebhookDTO;
 use TresPontosTech\IntegrationVirtu\Enums\VirtuWebhookEventEnum;
@@ -40,6 +43,10 @@ final class HandleVirtuWebhook
             return;
         }
 
+        if ($this->creditOrderPaid($dto)) {
+            return;
+        }
+
         $subscription = $this->findPendingSubscription($dto);
 
         if (! $subscription instanceof Subscription) {
@@ -68,6 +75,26 @@ final class HandleVirtuWebhook
             quantity: $subscription->quantity ?? 1,
             endsAt: null,
         )));
+    }
+
+    private function creditOrderPaid(VirtuWebhookDTO $dto): bool
+    {
+        if (blank($dto->checkoutId)) {
+            return false;
+        }
+
+        $order = CreditOrder::query()
+            ->where('provider', BillingProviderEnum::Virtu)
+            ->where('checkout_id', $dto->checkoutId)
+            ->first();
+
+        if (! $order instanceof CreditOrder) {
+            return false;
+        }
+
+        event(new OrderCreditPurchased(creditOrderId: $order->getKey()));
+
+        return true;
     }
 
     /**

@@ -39,3 +39,10 @@ it('still honours subscriptions sold through the previous gateways', function ()
         ->toContain(BillingProviderEnum::Stripe)
         ->toContain(BillingProviderEnum::Virtu);
 });
+
+it('defaults to the gateway that sells today', function (): void {
+    $manager = resolve(BillingManager::class);
+
+    expect($manager->getDefaultDriver())->toBe(BillingProviderEnum::checkoutCases()[0]->value)
+        ->and($manager->getDriver())->toBeInstanceOf(VirtuAdapter::class);
+});

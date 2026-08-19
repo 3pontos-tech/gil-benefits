@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Billing\Core\Events\Credit;
 
-final class OrderCreditPurchased
+use TresPontosTech\Billing\Core\DTOs\CreditOrderDTO;
+
+final class CreditOrderPlaced
 {
     public function __construct(
-        public readonly string $creditOrderId,
+        public readonly CreditOrderDTO $dto,
     ) {}
 }

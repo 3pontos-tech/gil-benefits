@@ -8,6 +8,7 @@ use TresPontosTech\Billing\Barte\DTOs\CreatePaymentLinkDto;
 use TresPontosTech\Billing\Barte\DTOs\PaymentOrderDto;
 use TresPontosTech\Billing\Barte\DTOs\PaymentSubscriptionDto;
 use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
+use TresPontosTech\Billing\Core\Actions\Credit\StartCreditOrder;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
@@ -165,22 +166,24 @@ final readonly class BarteAdapter implements BillingContract, SupportsCreditPurc
 
         $customerId = $this->findCustomer($billable);
 
-        $pricePerCredit = 150;
+        $order = resolve(StartCreditOrder::class)->handle(
+            provider: BillingProviderEnum::Barte,
+            billable: $billable,
+            company: $company,
+            quantity: $quantity,
+        );
 
         $response = $this->client->createPaymentLink(new CreatePaymentLinkDto(
             uuidSellerClient: $customerId,
             scheduledDate: now()->toDateString(),
             metadata: [
-                ['key' => 'billable_type', 'value' => $billable->getMorphClass()],
-                ['key' => 'billable_id', 'value' => (string) $billable->getKey()],
-                ['key' => 'company_id', 'value' => (string) $company->getKey()],
-                ['key' => 'quantity', 'value' => (string) $quantity],
+                ['key' => 'credit_order_id', 'value' => $order->getKey()],
             ],
             type: 'ORDER',
             paymentMethods: ['PIX', 'CREDIT_CARD_EARLY_BUYER'],
             paymentOrder: new PaymentOrderDto(
                 title: sprintf('Compra de %d crédito(s)', $quantity),
-                value: $quantity * $pricePerCredit,
+                value: $order->amount_cents / 100,
                 customInstallmentsValues: [
                     ['paymentMethod' => 'PIX', 'installments' => 1],
                     ['paymentMethod' => 'CREDIT_CARD_EARLY_BUYER', 'installments' => 1],

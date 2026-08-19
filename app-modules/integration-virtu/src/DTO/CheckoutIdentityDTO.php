@@ -24,6 +24,7 @@ final readonly class CheckoutIdentityDTO
         public string $name,
         public ?string $email,
         public ?string $taxId,
+        public ?string $phone = null,
     ) {}
 
     public static function fromBillable(Company|User $billable): self
@@ -33,6 +34,7 @@ final readonly class CheckoutIdentityDTO
                 name: $billable->name,
                 email: $billable->owner?->email,
                 taxId: $billable->tax_id,
+                phone: $billable->owner?->detail?->phone_number,
             );
         }
 
@@ -42,6 +44,7 @@ final readonly class CheckoutIdentityDTO
             // `detail` is a separate record and may not exist yet — the Barte
             // adapter guards on the same relation before creating a buyer.
             taxId: $billable->detail?->tax_id,
+            phone: $billable->detail?->phone_number,
         );
     }
 
@@ -54,6 +57,12 @@ final readonly class CheckoutIdentityDTO
             'name' => $this->name,
             'email' => $this->email,
             'cpf' => $this->taxId,
+            'phone' => $this->digitsOf($this->phone),
         ], fn (?string $value): bool => filled($value));
+    }
+
+    private function digitsOf(?string $value): ?string
+    {
+        return preg_replace('/\D/', '', (string) $value) ?: null;
     }
 }

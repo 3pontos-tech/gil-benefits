@@ -6,9 +6,9 @@ use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\Resources\CreditGrants\CreditGrantResource;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\Resources\CreditGrants\Pages\ListCreditGrants;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\EditCompany;
-use TresPontosTech\PanelAdmin\Filament\Resources\CreditGrants\CreditGrantResource;
-use TresPontosTech\PanelAdmin\Filament\Resources\CreditGrants\Pages\ListCreditGrants;
 
 use function Pest\Livewire\livewire;
 
