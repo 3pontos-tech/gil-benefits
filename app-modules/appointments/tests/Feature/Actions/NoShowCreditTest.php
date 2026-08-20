@@ -16,6 +16,7 @@ use TresPontosTech\Appointments\Models\AppointmentHistory;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Events\Credit\AppointmentCreditUsed;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Consultants\Models\Consultant;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseMissing;
@@ -32,16 +33,18 @@ beforeEach(function (): void {
 
 function noShowAppointmentWithCredit(): array
 {
+    $consultant = Consultant::factory()->create();
+
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Active)
-        ->create(['appointment_at' => now()->subHour()]);
+        ->create(['consultant_id' => $consultant->getKey(), 'appointment_at' => now()->subHour()]);
 
     $credit = UserCredit::factory()->inUse()->create([
         'holder_id' => $appointment->user->getKey(),
         'appointment_id' => $appointment->getKey(),
     ]);
 
-    return [$appointment, $credit];
+    return [$appointment, $credit, $consultant];
 }
 
 // ---------------------------------------------------------------------------
@@ -49,12 +52,11 @@ function noShowAppointmentWithCredit(): array
 // ---------------------------------------------------------------------------
 
 it('writes an audit history row with no_show origin and credit impact', function (): void {
-    [$appointment, $credit] = noShowAppointmentWithCredit();
+    [$appointment, $credit, $consultant] = noShowAppointmentWithCredit();
     actingAs($appointment->user);
 
     (new ActiveTransition($appointment))->handle(new TransitionData(
-        noShow: true,
-        noShowMarkedBy: $appointment->user,
+        noShowMarkedBy: $consultant->user,
     ));
 
     $history = AppointmentHistory::query()
@@ -67,20 +69,20 @@ it('writes an audit history row with no_show origin and credit impact', function
         'credit_impact' => 'consumed',
     ])
         ->and($history->actor_type)->toBe(AppointmentHistoryActor::Consultant)
-        ->and($history->actor_id)->toBe($appointment->user->getKey());
+        ->and($history->actor_id)->toBe($consultant->user->getKey());
 
     expect($credit->refresh()->status)->toBe(UserCreditStatusEnum::Used);
 });
 
 it('records credit impact as none when the appointment has no credit', function (): void {
+    $consultant = Consultant::factory()->create();
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Active)
-        ->create(['appointment_at' => now()->subHour()]);
+        ->create(['consultant_id' => $consultant->getKey(), 'appointment_at' => now()->subHour()]);
     actingAs($appointment->user);
 
     (new ActiveTransition($appointment))->handle(new TransitionData(
-        noShow: true,
-        noShowMarkedBy: $appointment->user,
+        noShowMarkedBy: $consultant->user,
     ));
 
     $history = AppointmentHistory::query()
@@ -89,11 +91,12 @@ it('records credit impact as none when the appointment has no credit', function 
         ->firstOrFail();
 
     expect($history->new_values['credit_impact'])->toBe('none')
+        ->and($history->actor_id)->toBe($consultant->user->getKey())
         ->and(UserCredit::query()->where('appointment_id', $appointment->getKey())->exists())->toBeFalse();
 });
 
 it('rolls back the status, credit and history when a failure happens inside the transaction', function (): void {
-    [$appointment, $credit] = noShowAppointmentWithCredit();
+    [$appointment, $credit, $consultant] = noShowAppointmentWithCredit();
     actingAs($appointment->user);
 
     Event::listen(AppointmentCreditUsed::class, function (): void {
@@ -101,8 +104,7 @@ it('rolls back the status, credit and history when a failure happens inside the 
     });
 
     expect(fn () => (new ActiveTransition($appointment))->handle(new TransitionData(
-        noShow: true,
-        noShowMarkedBy: $appointment->user,
+        noShowMarkedBy: $consultant->user,
     )))->toThrow(RuntimeException::class);
 
     expect($appointment->refresh()->status)->toBe(AppointmentStatus::Active)
@@ -119,12 +121,11 @@ it('rolls back the status, credit and history when a failure happens inside the 
 // ---------------------------------------------------------------------------
 
 it('marks the credit as Used when the appointment is a no-show', function (): void {
-    [$appointment, $credit] = noShowAppointmentWithCredit();
+    [$appointment, $credit, $consultant] = noShowAppointmentWithCredit();
     actingAs($appointment->user);
 
     (new ActiveTransition($appointment))->handle(new TransitionData(
-        noShow: true,
-        noShowMarkedBy: $appointment->user,
+        noShowMarkedBy: $consultant->user,
     ));
 
     expect($credit->refresh()->status)->toBe(UserCreditStatusEnum::Used);

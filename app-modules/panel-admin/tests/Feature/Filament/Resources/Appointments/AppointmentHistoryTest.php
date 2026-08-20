@@ -260,3 +260,33 @@ it('shows the credit impact in the no_show_marked history detail modal', functio
         'value' => 'Crédito consumido',
     ]);
 });
+
+it('falls back to the empty placeholder when credit_impact holds an unrecognised value', function (): void {
+    $appointment = Appointment::factory()->create();
+
+    $history = AppointmentHistory::factory()
+        ->actionType(AppointmentHistoryActionType::NoShowMarked)
+        ->create([
+            'appointment_id' => $appointment->id,
+            'actor_type' => AppointmentHistoryActor::Consultant,
+            'old_values' => ['status' => AppointmentStatus::Active->value],
+            'new_values' => [
+                'status' => AppointmentStatus::NoShow->value,
+                'credit_impact' => 'not_a_real_credit_impact',
+            ],
+        ]);
+
+    $component = livewire(AppointmentHistoryRelationManager::class, [
+        'ownerRecord' => $appointment,
+        'pageClass' => ViewAppointment::class,
+    ])
+        ->mountTableAction('view', $history)
+        ->assertHasNoTableActionErrors();
+
+    $changes = invade($component->instance())->buildChangeRows($history);
+
+    expect($changes)->toContain([
+        'label' => 'Impacto no crédito',
+        'value' => '—',
+    ]);
+});

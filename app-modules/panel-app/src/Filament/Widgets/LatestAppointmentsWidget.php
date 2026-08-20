@@ -127,6 +127,12 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
      * Traduz o agendamento para o que a linha precisa desenhar, mantendo a
      * blade livre de regra de negócio.
      *
+     * `needsRescheduling` agrupa três casos com o mesmo destino — remarcar
+     * pelo botão do cabeçalho: agendamentos cancelados, não comparecidos, e
+     * os que ficaram pendentes/confirmados sem virar concluídos depois de o
+     * horário passar. `isNoShow` sai desse agrupamento para receber cor
+     * própria (roxo do enum), em vez de herdar o vermelho do cancelamento.
+     *
      * @return array<string, mixed>
      */
     private function toRow(Appointment $appointment): array
@@ -137,12 +143,12 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
         $isCancelled = in_array($appointment->status, [
             AppointmentStatus::Cancelled,
             AppointmentStatus::CancelledLate,
-            AppointmentStatus::NoShow,
         ], strict: true);
 
-        // Cancelada, ou marcada como pendente/confirmada e o horário já passou
-        // sem virar concluída: nos dois casos o caminho adiante é remarcar.
+        $isNoShow = $appointment->status === AppointmentStatus::NoShow;
+
         $needsRescheduling = $isCancelled
+            || $isNoShow
             || ($isPast && in_array($appointment->status, [
                 AppointmentStatus::Pending,
                 AppointmentStatus::Active,
@@ -169,6 +175,7 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
             'schedule' => $appointment->appointment_at->format('d/m/Y · H\hi'),
             'status' => $appointment->status,
             'needsRescheduling' => $needsRescheduling,
+            'isNoShow' => $isNoShow,
             'isCompleted' => $appointment->status === AppointmentStatus::Completed,
             'isPending' => $appointment->status === AppointmentStatus::Pending && ! $needsRescheduling,
             'meetingUrl' => $appointment->status === AppointmentStatus::Active && ! $isPast

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Enums\CreditImpact;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
 use TresPontosTech\Consultants\Models\Consultant;
 
@@ -190,11 +191,13 @@ class AppointmentHistoryRelationManager extends RelationManager
 
     private function creditImpactLabel(mixed $impact): string
     {
-        if (! is_string($impact) || blank($impact)) {
+        $creditImpact = is_string($impact) ? CreditImpact::tryFrom($impact) : null;
+
+        if (! $creditImpact instanceof CreditImpact) {
             return $this->emptyPlaceholder();
         }
 
-        return (string) __('panel-admin::resources.appointments.history.values.credit_impact.' . $impact);
+        return (string) __('panel-admin::resources.appointments.history.values.credit_impact.' . $creditImpact->value);
     }
 
     private function formatDate(mixed $value): string

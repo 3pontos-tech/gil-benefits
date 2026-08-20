@@ -11,7 +11,6 @@ use Throwable;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
-use TresPontosTech\Appointments\Exceptions\MissingTransitionDataException;
 use TresPontosTech\Appointments\Models\Appointment;
 
 class MarkNoShowAction extends Action
@@ -32,7 +31,7 @@ class MarkNoShowAction extends Action
         $this->modalHeading(__('panel-consultant::resources.appointments.mark_no_show.modal_heading'));
         $this->modalDescription(fn (Appointment $record): string => __('panel-consultant::resources.appointments.mark_no_show.modal_description', [
             'name' => $record->user->name,
-            'datetime' => $record->appointment_at->format('d/m/Y H:i'),
+            'datetime' => $record->appointment_at->isoFormat('L LT'),
         ]));
         $this->modalSubmitActionLabel(__('panel-consultant::resources.appointments.mark_no_show.submit'));
 
@@ -51,10 +50,9 @@ class MarkNoShowAction extends Action
 
             try {
                 $record->current_transition->handle(new TransitionData(
-                    noShow: true,
                     noShowMarkedBy: auth()->user(),
                 ));
-            } catch (InvalidTransitionException|MissingTransitionDataException) {
+            } catch (InvalidTransitionException) {
                 $this->sendMarkNoShowFailureNotification();
 
                 return;
@@ -80,9 +78,13 @@ class MarkNoShowAction extends Action
      */
     private function canMarkNoShow(Appointment $record): bool
     {
+        $consultantId = auth()->user()?->consultant?->getKey();
+
         return $record->status === AppointmentStatus::Active
             && $record->appointment_at->isPast()
-            && $record->consultant_id === auth()->user()?->consultant?->getKey();
+            && filled($record->consultant_id)
+            && filled($consultantId)
+            && $record->consultant_id === $consultantId;
     }
 
     private function sendMarkNoShowFailureNotification(): void

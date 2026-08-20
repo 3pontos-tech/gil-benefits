@@ -9,8 +9,9 @@ use Illuminate\Support\Facades\Notification as LaravelNotification;
 use TresPontosTech\Appointments\Actions\Transitions\ActiveTransition;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Enums\CancellationActor;
+use TresPontosTech\Appointments\Events\AppointmentNoShow;
 use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
-use TresPontosTech\Appointments\Exceptions\MissingTransitionDataException;
 use TresPontosTech\Appointments\Models\Appointment;
 
 use function Pest\Laravel\actingAs;
@@ -29,18 +30,17 @@ it('sets status to NoShow when an active appointment is marked as no-show', func
     actingAs($appointment->user);
 
     (new ActiveTransition($appointment))->handle(new TransitionData(
-        noShow: true,
         noShowMarkedBy: $appointment->user,
     ));
 
     expect($appointment->refresh()->status)->toBe(AppointmentStatus::NoShow);
+    Event::assertDispatched(AppointmentNoShow::class, fn ($e): bool => $e->appointment->is($appointment));
 });
 
 it('throws InvalidTransitionException when marking a pending appointment as no-show', function (): void {
     $appointment = Appointment::factory()->withStatus(AppointmentStatus::Pending)->create();
 
     expect(fn () => $appointment->current_transition->handle(new TransitionData(
-        noShow: true,
         noShowMarkedBy: $appointment->user,
     )))->toThrow(InvalidTransitionException::class);
 
@@ -51,7 +51,6 @@ it('throws InvalidTransitionException when marking a terminal appointment as no-
     $appointment = Appointment::factory()->withStatus($status)->create();
 
     expect(fn () => $appointment->current_transition->handle(new TransitionData(
-        noShow: true,
         noShowMarkedBy: $appointment->user,
     )))->toThrow(InvalidTransitionException::class);
 })->with([
@@ -61,13 +60,15 @@ it('throws InvalidTransitionException when marking a terminal appointment as no-
     'NoShow' => AppointmentStatus::NoShow,
 ]);
 
-it('throws MissingTransitionDataException when no-show has no acting user', function (): void {
+it('throws InvalidTransitionException when noShowMarkedBy and cancellationActor are both provided', function (): void {
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Active)
         ->create(['appointment_at' => now()->subHour()]);
 
-    expect(fn () => (new ActiveTransition($appointment))->handle(new TransitionData(noShow: true)))
-        ->toThrow(MissingTransitionDataException::class);
+    expect(fn () => (new ActiveTransition($appointment))->handle(new TransitionData(
+        cancellationActor: CancellationActor::Admin,
+        noShowMarkedBy: $appointment->user,
+    )))->toThrow(InvalidTransitionException::class);
 
     expect($appointment->refresh()->status)->toBe(AppointmentStatus::Active);
 });
@@ -79,7 +80,6 @@ it('does not notify the beneficiary on no-show', function (): void {
     actingAs($appointment->user);
 
     (new ActiveTransition($appointment))->handle(new TransitionData(
-        noShow: true,
         noShowMarkedBy: $appointment->user,
     ));
 

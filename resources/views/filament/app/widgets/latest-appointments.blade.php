@@ -37,6 +37,7 @@
                         @php
                             // Tom do marcador de status, reutilizado pela bolinha e pelo halo.
                             $dot = match (true) {
+                                $row['isNoShow'] => 'purple',
                                 $row['needsRescheduling'] => 'danger',
                                 $row['isCompleted'] => 'success',
                                 default => 'info',
@@ -61,12 +62,14 @@
                                 <span class="w-0.5 flex-1 bg-gray-200 dark:bg-white/10"></span>
                                 <span @class([
                                     'flex size-5 shrink-0 items-center justify-center rounded-full',
+                                    'bg-purple-500/20' => $dot === 'purple',
                                     'bg-danger-500/20' => $dot === 'danger',
                                     'bg-success-500/20' => $dot === 'success',
                                     'bg-info-500/20' => $dot === 'info',
                                 ])>
                                     <span @class([
                                         'size-2 rounded-full',
+                                        'bg-purple-500' => $dot === 'purple',
                                         'bg-danger-500' => $dot === 'danger',
                                         'bg-success-500' => $dot === 'success',
                                         'bg-info-500' => $dot === 'info',
@@ -86,7 +89,8 @@
                                         :icon="$row['needsRescheduling'] ? 'heroicon-o-exclamation-circle' : 'heroicon-o-clock'"
                                         @class([
                                             'size-4 shrink-0',
-                                            'text-danger-500' => $row['needsRescheduling'],
+                                            'text-purple-500' => $row['isNoShow'],
+                                            'text-danger-500' => $row['needsRescheduling'] && ! $row['isNoShow'],
                                         ])
                                     />
                                     {{ $row['schedule'] }}
@@ -121,7 +125,8 @@
                                 @else
                                     <span @class([
                                         'inline-flex items-center gap-1.5 whitespace-nowrap px-2.5 py-1.5 text-[14px] font-medium',
-                                        'bg-danger-500/10 text-danger-600 dark:text-danger-400' => $row['needsRescheduling'],
+                                        'bg-purple-500/10 text-purple-600 dark:text-purple-400' => $row['isNoShow'],
+                                        'bg-danger-500/10 text-danger-600 dark:text-danger-400' => $row['needsRescheduling'] && ! $row['isNoShow'],
                                         'bg-info-500/10 text-info-600 dark:text-info-400' => $row['isPending'],
                                         'bg-success-500/10 text-success-600 dark:text-success-400' => ! $row['isPending'] && ! $row['needsRescheduling'],
                                     ])>

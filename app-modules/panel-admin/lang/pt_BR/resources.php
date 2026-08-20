@@ -45,7 +45,6 @@ return [
             'values' => [
                 'credit_impact' => [
                     'consumed' => 'Crédito consumido',
-                    'returned' => 'Crédito devolvido',
                     'none' => 'Sem crédito vinculado',
                 ],
             ],

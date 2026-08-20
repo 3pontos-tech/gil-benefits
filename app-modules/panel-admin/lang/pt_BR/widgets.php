@@ -114,6 +114,8 @@ return [
         'pending_description' => 'Aguardando realização',
         'cancellations' => 'Cancelamentos',
         'cancellations_description' => 'Total de consultas canceladas',
+        'no_shows' => 'Não Compareceu',
+        'no_shows_description' => 'Total de consultas marcadas como não compareceu',
         'conclusion_rate' => 'Taxa de Conclusão',
         'conclusion_rate_description' => ':completed de :total consultas concluídas',
         'cancellation_rate' => 'Taxa de Cancelamento',

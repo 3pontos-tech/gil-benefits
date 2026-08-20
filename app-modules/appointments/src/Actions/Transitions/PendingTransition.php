@@ -26,7 +26,7 @@ final class PendingTransition extends AbstractAppointmentTransition
 
     public function validate(TransitionData $data): void
     {
-        throw_if($data->noShow, InvalidTransitionException::class, 'Only active appointments can be marked as no-show.');
+        throw_if(filled($data->noShowMarkedBy), InvalidTransitionException::class, 'Only active appointments can be marked as no-show.');
 
         if (filled($data->cancellationActor)) {
             return;

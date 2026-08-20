@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Event;
@@ -11,9 +12,11 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
 use TresPontosTech\Billing\Core\Events\Credit\AppointmentCreditUsed;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\PanelConsultant\Filament\Actions\MarkNoShowAction;
 use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListAppointments;
 
+use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -54,9 +57,24 @@ it('shows the beneficiary name and appointment date/time in the confirmation mod
 
     expect($description)
         ->toContain($appointment->user->name)
-        ->toContain($appointment->appointment_at->format('d/m/Y H:i'));
+        ->toContain($appointment->appointment_at->isoFormat('L LT'));
 
     expect($action->isConfirmationRequired())->toBeTrue();
+});
+
+it('formats the appointment date/time in the confirmation modal according to the active locale', function (): void {
+    $appointment = Appointment::factory()
+        ->recycle($this->consultant)
+        ->withStatus(AppointmentStatus::Active)
+        ->create(['appointment_at' => now()->subHour()]);
+
+    app()->setLocale('en');
+    $description = (string) MarkNoShowAction::make()->record($appointment)->getModalDescription();
+    app()->setLocale('pt_BR');
+
+    expect($description)
+        ->toContain($appointment->appointment_at->clone()->locale('en')->isoFormat('L LT'))
+        ->not->toContain($appointment->appointment_at->format('d/m/Y H:i'));
 });
 
 it('is hidden when the appointment is active but in the future', function (): void {
@@ -111,11 +129,6 @@ it('keeps the status when the transition fails', function (): void {
 });
 
 /**
- * The credit-consumption event fires synchronously from inside the transition's
- * DB::transaction(), before the no_show_marked history row is written. A
- * listener that throws here must roll back the whole transaction, so the
- * status update and the history insert are undone together.
- *
  * The action function is invoked directly (same technique as the "stale page"
  * test above) because session('filament.notifications') only reflects what
  * Notification::send() pushed when the closure runs in-process, not through a
@@ -151,4 +164,30 @@ it('does not allow marking an appointment of another consultant', function (): v
 
     livewire(ListAppointments::class)
         ->assertCanNotSeeTableRecords([$foreign]);
+});
+
+it('is unavailable to a user without a linked consultant, even over an unassigned appointment', function (): void {
+    actingAs(User::factory()->createOne());
+
+    $unassigned = Appointment::factory()
+        ->withStatus(AppointmentStatus::Active)
+        ->create(['appointment_at' => now()->subHour(), 'consultant_id' => null]);
+
+    $action = MarkNoShowAction::make()->record($unassigned);
+
+    expect($action->isVisible())->toBeFalse();
+    expect($action->isAuthorized())->toBeFalse();
+});
+
+it('is not authorized when invoked directly on another consultant appointment, bypassing the table scope', function (): void {
+    $foreignConsultant = Consultant::factory()->create();
+    $foreign = Appointment::factory()
+        ->recycle($foreignConsultant)
+        ->withStatus(AppointmentStatus::Active)
+        ->create(['appointment_at' => now()->subHour()]);
+
+    $action = MarkNoShowAction::make()->record($foreign);
+
+    expect($action->isVisible())->toBeFalse();
+    expect($action->isAuthorized())->toBeFalse();
 });
