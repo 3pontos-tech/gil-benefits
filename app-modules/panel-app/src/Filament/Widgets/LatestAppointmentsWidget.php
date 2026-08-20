@@ -137,6 +137,7 @@ class LatestAppointmentsWidget extends Widget implements HasActions, HasSchemas,
         $isCancelled = in_array($appointment->status, [
             AppointmentStatus::Cancelled,
             AppointmentStatus::CancelledLate,
+            AppointmentStatus::NoShow,
         ], strict: true);
 
         // Cancelada, ou marcada como pendente/confirmada e o horário já passou

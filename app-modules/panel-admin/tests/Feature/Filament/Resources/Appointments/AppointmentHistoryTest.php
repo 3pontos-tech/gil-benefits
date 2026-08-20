@@ -20,6 +20,7 @@ use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ViewAppointm
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\RelationManagers\AppointmentHistoryRelationManager;
 use Zap\Facades\Zap;
 
+use function Livewire\invade;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -193,4 +194,69 @@ it('resolves consultant names in the history detail modal', function (): void {
         ->assertSee('Ana Prévia')
         ->assertSee('Bruno Atual')
         ->assertSee(AppointmentHistoryActionType::ConsultantChanged->getLabel());
+});
+
+it('renders the no_show_marked history entry in the relation manager table', function (): void {
+    $appointment = Appointment::factory()->create();
+
+    $history = AppointmentHistory::factory()
+        ->actionType(AppointmentHistoryActionType::NoShowMarked)
+        ->create([
+            'appointment_id' => $appointment->id,
+            'actor_type' => AppointmentHistoryActor::Consultant,
+            'old_values' => ['status' => AppointmentStatus::Active->value],
+            'new_values' => [
+                'status' => AppointmentStatus::NoShow->value,
+                'credit_impact' => 'consumed',
+            ],
+        ]);
+
+    livewire(AppointmentHistoryRelationManager::class, [
+        'ownerRecord' => $appointment,
+        'pageClass' => ViewAppointment::class,
+    ])
+        ->assertOk()
+        ->assertCanSeeTableRecords([$history])
+        ->assertSeeText(AppointmentHistoryActionType::NoShowMarked->getLabel())
+        ->assertSeeText(AppointmentStatus::NoShow->getLabel());
+});
+
+/**
+ * Filament renders a mounted action's modal body through a Livewire
+ * partial-render effect rather than the component's main HTML, so
+ * assertSee() after mountTableAction() cannot see it here (its own compiled
+ * view also references $this in a way that needs the real Livewire request
+ * lifecycle to resolve). Mounting the action still proves the ViewAction
+ * wires up against a NoShowMarked record without error; inspecting
+ * buildChangeRows() directly exercises the exact
+ * creditImpactLabel()/translation path the modal's view renders from.
+ */
+it('shows the credit impact in the no_show_marked history detail modal', function (): void {
+    $appointment = Appointment::factory()->create();
+
+    $history = AppointmentHistory::factory()
+        ->actionType(AppointmentHistoryActionType::NoShowMarked)
+        ->create([
+            'appointment_id' => $appointment->id,
+            'actor_type' => AppointmentHistoryActor::Consultant,
+            'old_values' => ['status' => AppointmentStatus::Active->value],
+            'new_values' => [
+                'status' => AppointmentStatus::NoShow->value,
+                'credit_impact' => 'consumed',
+            ],
+        ]);
+
+    $component = livewire(AppointmentHistoryRelationManager::class, [
+        'ownerRecord' => $appointment,
+        'pageClass' => ViewAppointment::class,
+    ])
+        ->mountTableAction('view', $history)
+        ->assertHasNoTableActionErrors();
+
+    $changes = invade($component->instance())->buildChangeRows($history);
+
+    expect($changes)->toContain([
+        'label' => 'Impacto no crédito',
+        'value' => 'Crédito consumido',
+    ]);
 });

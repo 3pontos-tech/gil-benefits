@@ -16,5 +16,7 @@ final readonly class TransitionData
         public ?string $consultantId = null,
         public ?CarbonInterface $appointmentAt = null,
         public ?string $notes = null,
+        public bool $noShow = false,
+        public ?User $noShowMarkedBy = null,
     ) {}
 }

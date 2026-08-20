@@ -1,10 +1,15 @@
 <?php
 
+use Filament\Support\Colors\Color;
+use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\App;
 use TresPontosTech\Appointments\Actions\Transitions\ActiveTransition;
 use TresPontosTech\Appointments\Actions\Transitions\CancelledLateTransition;
 use TresPontosTech\Appointments\Actions\Transitions\CancelledTransition;
 use TresPontosTech\Appointments\Actions\Transitions\CompletedTransition;
+use TresPontosTech\Appointments\Actions\Transitions\NoShowTransition;
 use TresPontosTech\Appointments\Actions\Transitions\PendingTransition;
+use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -41,6 +46,12 @@ it('CancelledLate resolves to CancelledLateTransition', function (): void {
     expect(AppointmentStatus::CancelledLate->transition($appointment))->toBeInstanceOf(CancelledLateTransition::class);
 });
 
+it('NoShow resolves to NoShowTransition', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::NoShow)->create();
+
+    expect(AppointmentStatus::NoShow->transition($appointment))->toBeInstanceOf(NoShowTransition::class);
+});
+
 // --- canChange() ---
 
 it('non-terminal statuses can change', function (AppointmentStatus $status): void {
@@ -60,6 +71,7 @@ it('terminal statuses cannot change', function (AppointmentStatus $status): void
     'Completed' => AppointmentStatus::Completed,
     'Cancelled' => AppointmentStatus::Cancelled,
     'CancelledLate' => AppointmentStatus::CancelledLate,
+    'NoShow' => AppointmentStatus::NoShow,
 ]);
 
 // --- choices() ---
@@ -81,6 +93,7 @@ it('Active choices include Completed, Cancelled and CancelledLate', function ():
         ->toContain(AppointmentStatus::Completed)
         ->toContain(AppointmentStatus::Cancelled)
         ->toContain(AppointmentStatus::CancelledLate)
+        ->toContain(AppointmentStatus::NoShow)
         ->not->toContain(AppointmentStatus::Pending);
 });
 
@@ -92,6 +105,7 @@ it('terminal statuses have empty choices', function (AppointmentStatus $status):
     'Completed' => AppointmentStatus::Completed,
     'Cancelled' => AppointmentStatus::Cancelled,
     'CancelledLate' => AppointmentStatus::CancelledLate,
+    'NoShow' => AppointmentStatus::NoShow,
 ]);
 
 // --- resolveCancellationStatus() ---
@@ -115,4 +129,27 @@ it('resolves to CancelledLate for User actor < 4h before appointment', function 
 
     expect(AppointmentStatus::resolveCancellationStatus($appointment, CancellationActor::User))
         ->toBe(AppointmentStatus::CancelledLate);
+});
+
+// --- NoShow label/icon/color ---
+
+it('translates the NoShow status label according to the active locale', function (): void {
+    App::setLocale('pt_BR');
+    expect(AppointmentStatus::NoShow->getLabel())->toBe('Não compareceu');
+
+    App::setLocale('en');
+    expect(AppointmentStatus::NoShow->getLabel())->toBe('No-show');
+});
+
+it('maps NoShow to the user-minus icon and purple color', function (): void {
+    expect(AppointmentStatus::NoShow->getIcon())->toBe(Heroicon::UserMinus)
+        ->and(AppointmentStatus::NoShow->getColor())->toBe(Color::Purple);
+});
+
+// --- AppointmentHistoryActor::Consultant label ---
+
+it('translates the Consultant history actor label', function (): void {
+    App::setLocale('pt_BR');
+
+    expect(AppointmentHistoryActor::Consultant->getLabel())->toBe('Consultor');
 });

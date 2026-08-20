@@ -8,6 +8,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Events\AppointmentBooked;
+use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Exceptions\MissingTransitionDataException;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 
@@ -25,6 +26,8 @@ final class PendingTransition extends AbstractAppointmentTransition
 
     public function validate(TransitionData $data): void
     {
+        throw_if($data->noShow, InvalidTransitionException::class, 'Only active appointments can be marked as no-show.');
+
         if (filled($data->cancellationActor)) {
             return;
         }

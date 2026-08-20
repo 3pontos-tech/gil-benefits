@@ -54,6 +54,7 @@
     --apt-cyan-300: #00c6bc;
     --apt-lime-300: #87c200;
     --apt-orange-300: #ff8f4c;
+    --apt-purple-300: #c9a3ff;
 
     /* Token de cor Text/text-medium do design system (não confundir com os
        --apt-text-* acima, que são tamanhos). */
@@ -334,6 +335,10 @@
     & .fi-apt-cat-retirement-and-estate-planning .fi-badge .fi-icon,
     & .fi-apt-status-cancelled-late .fi-badge .fi-icon {
         color: var(--apt-orange-300);
+    }
+
+    & .fi-apt-status-no-show .fi-badge .fi-icon {
+        color: var(--apt-purple-300);
     }
 
     /* Cor por tipo de documento (recordClasses nas tabelas de materiais):

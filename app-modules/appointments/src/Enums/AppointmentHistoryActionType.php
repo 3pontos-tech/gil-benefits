@@ -16,6 +16,7 @@ enum AppointmentHistoryActionType: string implements HasColor, HasIcon, HasLabel
     case ConsultantLeft = 'consultant_left';
     case ConsultantChanged = 'consultant_changed';
     case ReScheduled = 're_scheduled';
+    case NoShowMarked = 'no_show_marked';
 
     public function getIcon(): Heroicon
     {
@@ -24,6 +25,7 @@ enum AppointmentHistoryActionType: string implements HasColor, HasIcon, HasLabel
             self::ConsultantLeft => Heroicon::UserMinus,
             self::ConsultantChanged => Heroicon::ArrowsRightLeft,
             self::ReScheduled => Heroicon::Clock,
+            self::NoShowMarked => Heroicon::UserMinus,
         };
     }
 
@@ -42,6 +44,7 @@ enum AppointmentHistoryActionType: string implements HasColor, HasIcon, HasLabel
             self::ConsultantLeft => Color::Red,
             self::ConsultantChanged => Color::Blue,
             self::ReScheduled => Color::Amber,
+            self::NoShowMarked => Color::Purple,
         };
     }
 }

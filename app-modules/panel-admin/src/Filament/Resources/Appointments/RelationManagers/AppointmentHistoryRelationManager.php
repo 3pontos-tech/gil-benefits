@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
 use TresPontosTech\Consultants\Models\Consultant;
 
@@ -127,6 +128,11 @@ class AppointmentHistoryRelationManager extends RelationManager
                 $this->row('previous_date', $this->formatDate($old['appointment_at'] ?? null)),
                 $this->row('new_date', $this->formatDate($new['appointment_at'] ?? null)),
             ],
+            AppointmentHistoryActionType::NoShowMarked => [
+                $this->row('previous_status', AppointmentStatus::from((string) ($old['status'] ?? AppointmentStatus::Active->value))->getLabel()),
+                $this->row('new_status', AppointmentStatus::NoShow->getLabel()),
+                $this->row('credit_impact', $this->creditImpactLabel($new['credit_impact'] ?? null)),
+            ],
         };
     }
 
@@ -147,6 +153,11 @@ class AppointmentHistoryRelationManager extends RelationManager
                 '%s → %s',
                 $this->formatDate($old['appointment_at'] ?? null),
                 $this->formatDate($new['appointment_at'] ?? null),
+            ),
+            AppointmentHistoryActionType::NoShowMarked => sprintf(
+                '%s → %s',
+                AppointmentStatus::from((string) ($old['status'] ?? AppointmentStatus::Active->value))->getLabel(),
+                AppointmentStatus::NoShow->getLabel(),
             ),
         };
     }
@@ -175,6 +186,15 @@ class AppointmentHistoryRelationManager extends RelationManager
                 ? $consultant->name
                 : (string) __('panel-admin::resources.appointments.history.placeholders.unknown_consultant');
         })();
+    }
+
+    private function creditImpactLabel(mixed $impact): string
+    {
+        if (! is_string($impact) || blank($impact)) {
+            return $this->emptyPlaceholder();
+        }
+
+        return (string) __('panel-admin::resources.appointments.history.values.credit_impact.' . $impact);
     }
 
     private function formatDate(mixed $value): string

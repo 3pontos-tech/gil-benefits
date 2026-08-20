@@ -443,6 +443,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
                 AppointmentStatus::Completed->value,
                 AppointmentStatus::Cancelled->value,
                 AppointmentStatus::CancelledLate->value,
+                AppointmentStatus::NoShow->value,
             ])
             ->exists();
     }

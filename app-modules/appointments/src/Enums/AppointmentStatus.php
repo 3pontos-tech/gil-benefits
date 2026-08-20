@@ -12,6 +12,7 @@ use TresPontosTech\Appointments\Actions\Transitions\ActiveTransition;
 use TresPontosTech\Appointments\Actions\Transitions\CancelledLateTransition;
 use TresPontosTech\Appointments\Actions\Transitions\CancelledTransition;
 use TresPontosTech\Appointments\Actions\Transitions\CompletedTransition;
+use TresPontosTech\Appointments\Actions\Transitions\NoShowTransition;
 use TresPontosTech\Appointments\Actions\Transitions\PendingTransition;
 use TresPontosTech\Appointments\Models\Appointment;
 
@@ -27,6 +28,8 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
 
     case CancelledLate = 'cancelled_late';
 
+    case NoShow = 'no_show';
+
     public function getIcon(): Heroicon
     {
         return match ($this) {
@@ -35,6 +38,7 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
             self::Completed => Heroicon::CheckCircle,
             self::Cancelled => Heroicon::XCircle,
             self::CancelledLate => Heroicon::XMark,
+            self::NoShow => Heroicon::UserMinus,
         };
     }
 
@@ -46,6 +50,7 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
             self::Completed => Color::Green,
             self::Cancelled => Color::Red,
             self::CancelledLate => Color::Orange,
+            self::NoShow => Color::Purple,
         };
     }
 
@@ -64,6 +69,7 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
             self::Completed => new CompletedTransition($appointment),
             self::Cancelled => new CancelledTransition($appointment),
             self::CancelledLate => new CancelledLateTransition($appointment),
+            self::NoShow => new NoShowTransition($appointment),
         };
     }
 

@@ -46,6 +46,7 @@ class AppointmentsByStatus extends ChartWidget
                         'rgb(34, 197, 94)',
                         'rgb(239, 68, 68)',
                         'rgb(249, 115, 22)',
+                        'rgb(168, 85, 247)',
                     ],
                 ],
             ],

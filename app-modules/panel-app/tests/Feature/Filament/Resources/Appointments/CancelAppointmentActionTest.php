@@ -57,6 +57,15 @@ it('hides cancel action on CancelledLate appointments', function (): void {
         ->assertTableActionHidden('cancel-appointment', $appointment);
 });
 
+it('hides cancel action on NoShow appointments', function (): void {
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::NoShow)
+        ->create(['user_id' => $this->employee->id, 'appointment_at' => now()->addHours(2)]);
+
+    livewire(ListAppointments::class)
+        ->assertTableActionHidden('cancel-appointment', $appointment);
+});
+
 it('hides cancel action on past appointments even if Pending or Active', function (AppointmentStatus $status): void {
     $appointment = Appointment::factory()
         ->withStatus($status)
