@@ -114,6 +114,8 @@ return [
         'pending_description' => 'Awaiting completion',
         'cancellations' => 'Cancellations',
         'cancellations_description' => 'Total cancelled consultations',
+        'no_shows' => 'No-shows',
+        'no_shows_description' => 'Total consultations marked as no-show',
         'conclusion_rate' => 'Conclusion Rate',
         'conclusion_rate_description' => ':completed of :total consultations concluded',
         'cancellation_rate' => 'Cancellation Rate',

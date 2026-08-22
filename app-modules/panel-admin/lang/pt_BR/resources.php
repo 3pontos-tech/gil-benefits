@@ -38,12 +38,22 @@ return [
                 'action' => 'Ação',
                 'performed_by' => 'Realizado por',
                 'happened_at' => 'Data e hora',
+                'previous_status' => 'Status anterior',
+                'new_status' => 'Novo status',
+                'credit_impact' => 'Impacto no crédito',
+            ],
+            'values' => [
+                'credit_impact' => [
+                    'consumed' => 'Crédito consumido',
+                    'none' => 'Sem crédito vinculado',
+                ],
             ],
             'sections' => [
                 'consultant_assigned' => 'Consultor Atribuído',
                 'consultant_left' => 'Consultor Removido',
                 'consultant_changed' => 'Alteração de Consultor',
                 're_scheduled' => 'Reagendamento',
+                'no_show_marked' => 'Não Compareceu',
             ],
             'placeholders' => [
                 'empty' => '—',

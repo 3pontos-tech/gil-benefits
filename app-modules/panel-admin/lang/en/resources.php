@@ -38,12 +38,22 @@ return [
                 'action' => 'Action',
                 'performed_by' => 'Performed by',
                 'happened_at' => 'Date and time',
+                'previous_status' => 'Previous status',
+                'new_status' => 'New status',
+                'credit_impact' => 'Credit impact',
+            ],
+            'values' => [
+                'credit_impact' => [
+                    'consumed' => 'Credit consumed',
+                    'none' => 'No linked credit',
+                ],
             ],
             'sections' => [
                 'consultant_assigned' => 'Consultant Assigned',
                 'consultant_left' => 'Consultant Removed',
                 'consultant_changed' => 'Consultant Change',
                 're_scheduled' => 'Reschedule',
+                'no_show_marked' => 'No-show',
             ],
             'placeholders' => [
                 'empty' => '—',

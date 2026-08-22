@@ -36,11 +36,12 @@ final class GetAppointmentStats
             $total = (clone $base)->count();
             $completed = (clone $base)->where('status', AppointmentStatus::Completed)->count();
             $cancelled = (clone $base)->whereIn('status', [AppointmentStatus::Cancelled, AppointmentStatus::CancelledLate])->count();
+            $noShow = (clone $base)->where('status', AppointmentStatus::NoShow)->count();
 
-            $finalized = $completed + $cancelled;
+            $finalized = $completed + $cancelled + $noShow;
             $attendanceRate = $finalized > 0 ? round($completed / $finalized * 100, 1) : 0.0;
 
-            return new AppointmentStats($total, $completed, $cancelled, $attendanceRate);
+            return new AppointmentStats($total, $completed, $cancelled, $finalized, $attendanceRate);
         });
     }
 }

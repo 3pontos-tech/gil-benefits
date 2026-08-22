@@ -10,6 +10,7 @@ final readonly class AppointmentStats
         public int $total,
         public int $completed,
         public int $cancelled,
+        public int $finalized,
         public float $attendanceRate,
     ) {}
 }

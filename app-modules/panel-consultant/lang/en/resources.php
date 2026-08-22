@@ -19,6 +19,20 @@ return [
             'no_anamnese_description' => 'This client has not filled in their financial profile yet.',
             'meeting_url_pending' => 'Awaiting confirmation',
         ],
+        'mark_no_show' => [
+            'label' => 'No-show',
+            'modal_heading' => 'Record no-show',
+            'modal_description' => 'Confirm that :name did not attend the appointment of :datetime?',
+            'submit' => 'Confirm',
+            'success' => [
+                'title' => 'No-show recorded',
+                'body' => 'The appointment was marked as "No-show".',
+            ],
+            'failure' => [
+                'title' => 'Unable to record',
+                'body' => 'The appointment is no longer in a state that allows recording a no-show.',
+            ],
+        ],
     ],
     'documents' => [
         'navigation_label' => 'Materials',
