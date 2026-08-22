@@ -16,6 +16,8 @@ use TresPontosTech\IntegrationVirtu\Enums\VirtuWebhookEventEnum;
  */
 final readonly class VirtuWebhookDTO
 {
+    private const array TERMINAL_STATUSES = ['CANCELED', 'REFUNDED', 'CHARGEBACK'];
+
     /**
      * @param  array<array-key, mixed>  $subscriptions
      */
@@ -30,6 +32,9 @@ final readonly class VirtuWebhookDTO
         public ?string $customerTaxId,
         public ?string $customerEmail,
         public array $subscriptions = [],
+        public ?string $source = null,
+        public ?string $subscriptionStatus = null,
+        public ?string $previousSubscriptionStatus = null,
     ) {}
 
     /**
@@ -46,6 +51,11 @@ final readonly class VirtuWebhookDTO
         /** @var array<array-key, mixed> $subscriptions */
         $subscriptions = $data['subscriptions'] ?? [];
 
+        /** @var array<string, mixed> $firstSubscription */
+        $firstSubscription = is_array($subscriptions[0] ?? null) ? $subscriptions[0] : [];
+
+        $subscriptionStatus = $data['saleSubscriptionStatus'] ?? $firstSubscription['status'] ?? null;
+
         return new self(
             event: VirtuWebhookEventEnum::tryFrom((string) ($payload['event'] ?? '')),
             idempotencyKey: isset($payload['idempotencyKey']) ? (string) $payload['idempotencyKey'] : null,
@@ -57,16 +67,44 @@ final readonly class VirtuWebhookDTO
             customerTaxId: isset($customer['cpf']) ? (string) $customer['cpf'] : null,
             customerEmail: isset($customer['email']) ? (string) $customer['email'] : null,
             subscriptions: $subscriptions,
+            source: isset($data['source']) ? (string) $data['source'] : null,
+            subscriptionStatus: is_scalar($subscriptionStatus) ? (string) $subscriptionStatus : null,
+            previousSubscriptionStatus: isset($data['previousStatus']) ? (string) $data['previousStatus'] : null,
         );
     }
 
+    /**
+     * Whether the charge behind this payload went through.
+     *
+     * `paymentStatus` describes the original charge and stays PAID forever — a
+     * cancellation arrives as PAID too. Any terminal sale status therefore wins
+     * over it, otherwise cancelling would read here as a fresh approval.
+     */
     public function isPaid(): bool
     {
+        if (in_array($this->status, self::TERMINAL_STATUSES, strict: true)) {
+            return false;
+        }
+
         return $this->paymentStatus === 'PAID' || $this->status === 'SUCCESS';
     }
 
     public function isSubscriptionCharge(): bool
     {
         return $this->subscriptions !== [];
+    }
+
+    /**
+     * Virtu has no subscription lifecycle event: a status change is multiplexed
+     * into TRANSACTION and only `data.source` tells it apart from a sale.
+     */
+    public function isSubscriptionStatusChange(): bool
+    {
+        return $this->source === 'SUBSCRIPTION_STATUS_CHANGED';
+    }
+
+    public function isCancellation(): bool
+    {
+        return $this->subscriptionStatus === 'CANCELED';
     }
 }

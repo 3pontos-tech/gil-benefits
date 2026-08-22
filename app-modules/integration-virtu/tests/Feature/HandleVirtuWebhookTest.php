@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
+use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\IntegrationVirtu\Actions\HandleVirtuWebhook;
@@ -34,6 +36,24 @@ function virtuWebhookDto(array $data = [], string $event = 'TRANSACTION'): Virtu
             'subscriptions' => [['id' => 'sub_1']],
         ], $data),
     ]);
+}
+
+/**
+ * Shape observed in the sandbox when a subscription is cancelled from the Virtu
+ * panel: event TRANSACTION, `paymentStatus` still PAID, and only `data.source`
+ * telling it apart from a sale.
+ */
+function virtuCancellationDto(array $data = []): VirtuWebhookDTO
+{
+    return virtuWebhookDto(array_merge([
+        'status' => 'CANCELED',
+        'paymentStatus' => 'PAID',
+        'source' => 'SUBSCRIPTION_STATUS_CHANGED',
+        'saleSubscriptionStatus' => 'CANCELED',
+        'previousStatus' => 'ACTIVE',
+        'subscriptionId' => 58,
+        'subscriptions' => [['id' => '58', 'subscriptionId' => 58, 'status' => 'CANCELED']],
+    ], $data));
 }
 
 function pendingVirtuSubscription(User $user, array $overrides = []): Subscription
@@ -154,4 +174,77 @@ it('does not credit an order belonging to another provider', function (): void {
     resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto());
 
     Event::assertNotDispatched(OrderCreditPurchased::class);
+});
+
+it('deactivates the subscription when the panel cancels it', function (): void {
+    Event::fake([SubscriptionCancelled::class, SubscriptionActivated::class]);
+
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'active']);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuCancellationDto());
+
+    Event::assertNotDispatched(SubscriptionActivated::class);
+    Event::assertDispatched(SubscriptionCancelled::class, function (SubscriptionCancelled $event): bool {
+        return $event->dto->subscriptionExternalId === 'checkout_fake1'
+            && $event->dto->billableId === $this->user->getKey()
+            && $event->dto->status === 'inactive'
+            && $event->dto->endsAt instanceof Carbon;
+    });
+});
+
+it('leaves a cancelled subscription without access', function (): void {
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'active']);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuCancellationDto());
+
+    assertDatabaseCount('billing_subscriptions', 1);
+    assertDatabaseHas('billing_subscriptions', [
+        'stripe_id' => 'checkout_fake1',
+        'stripe_status' => 'inactive',
+    ]);
+});
+
+it('never reads a cancellation as an approved charge', function (): void {
+    // paymentStatus stays PAID on a cancellation, so isPaid() must weigh the
+    // terminal sale status above it or cancelling would re-activate the row.
+    expect(virtuCancellationDto()->isPaid())->toBeFalse();
+});
+
+it('ignores a subscription status it has no mapping for', function (): void {
+    Event::fake([SubscriptionCancelled::class, SubscriptionActivated::class]);
+
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'active']);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuCancellationDto([
+        'saleSubscriptionStatus' => 'PAUSED',
+        'subscriptions' => [['id' => '58', 'status' => 'PAUSED']],
+    ]));
+
+    Event::assertNotDispatched(SubscriptionCancelled::class);
+    Event::assertNotDispatched(SubscriptionActivated::class);
+    assertDatabaseHas('billing_subscriptions', [
+        'stripe_id' => 'checkout_fake1',
+        'stripe_status' => 'active',
+    ]);
+});
+
+it('ignores a cancellation it cannot attribute', function (): void {
+    Event::fake([SubscriptionCancelled::class]);
+
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'active']);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuCancellationDto(['checkoutId' => 'checkout_unknown']));
+
+    Event::assertNotDispatched(SubscriptionCancelled::class);
+});
+
+it('still activates an ordinary paid sale', function (): void {
+    Event::fake([SubscriptionActivated::class, SubscriptionCancelled::class]);
+
+    pendingVirtuSubscription($this->user);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto());
+
+    Event::assertDispatched(SubscriptionActivated::class);
+    Event::assertNotDispatched(SubscriptionCancelled::class);
 });

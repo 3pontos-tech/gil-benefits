@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationVirtu\Actions;
 
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
+use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\IntegrationVirtu\DTO\VirtuWebhookDTO;
@@ -30,6 +32,12 @@ final class HandleVirtuWebhook
             Log::info('Virtu webhook ignorado: evento sem tratamento.', [
                 'event' => $dto->event?->value,
             ]);
+
+            return;
+        }
+
+        if ($dto->isSubscriptionStatusChange()) {
+            $this->subscriptionStatusChanged($dto);
 
             return;
         }
@@ -74,6 +82,45 @@ final class HandleVirtuWebhook
             planSlug: $subscription->type,
             quantity: $subscription->quantity ?? 1,
             endsAt: null,
+        )));
+    }
+
+    /**
+     * A lifecycle change reuses the original sale's checkoutId, so the row is
+     * found the same way a charge finds it — only the resulting status differs.
+     */
+    private function subscriptionStatusChanged(VirtuWebhookDTO $dto): void
+    {
+        $subscription = $this->findPendingSubscription($dto);
+
+        if (! $subscription instanceof Subscription) {
+            Log::warning('Virtu: mudança de status sem assinatura correspondente.', [
+                'checkout_id' => $dto->checkoutId,
+                'subscription_status' => $dto->subscriptionStatus,
+            ]);
+
+            return;
+        }
+
+        if (! $dto->isCancellation()) {
+            Log::warning('Virtu: status de assinatura sem mapeamento.', [
+                'checkout_id' => $dto->checkoutId,
+                'subscription_status' => $dto->subscriptionStatus,
+                'previous_status' => $dto->previousSubscriptionStatus,
+            ]);
+
+            return;
+        }
+
+        event(new SubscriptionCancelled(new SubscriptionDTO(
+            billableType: $subscription->subscriptionable_type,
+            billableId: $subscription->subscriptionable_id,
+            subscriptionExternalId: $subscription->stripe_id,
+            status: 'inactive',
+            planExternalId: $subscription->stripe_price,
+            planSlug: $subscription->type,
+            quantity: $subscription->quantity ?? 1,
+            endsAt: Date::now(),
         )));
     }
 
