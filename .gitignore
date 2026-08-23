@@ -21,6 +21,7 @@
 /public/css
 /storage/*.key
 /storage/pail
+/storage/testing
 /vendor
 Homestead.json
 Homestead.yaml
