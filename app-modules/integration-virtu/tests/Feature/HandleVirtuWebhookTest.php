@@ -9,10 +9,12 @@ use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
+use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionDefaulted;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\IntegrationVirtu\Actions\HandleVirtuWebhook;
 use TresPontosTech\IntegrationVirtu\DTO\VirtuWebhookDTO;
+use TresPontosTech\IntegrationVirtu\VirtuAdapter;
 
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
@@ -283,6 +285,78 @@ it('does not activate a subscription whose PIX was only issued', function (): vo
     resolve(HandleVirtuWebhook::class)->handle(virtuIssuedPixDto());
 
     Event::assertNotDispatched(SubscriptionActivated::class);
+});
+
+/**
+ * Shape observed in the sandbox when a renewal fails: nine paid cycles, then this
+ * event and no SUBSCRIPTION_CHARGE for the tenth. paymentStatus stays PAID from
+ * the original sale, and the sale reports PAST_DUE.
+ */
+function virtuDelinquencyDto(array $data = []): VirtuWebhookDTO
+{
+    return virtuWebhookDto(array_merge([
+        'status' => 'PAST_DUE',
+        'paymentStatus' => 'PAID',
+        'source' => 'SUBSCRIPTION_STATUS_CHANGED',
+        'saleSubscriptionStatus' => 'PENDING',
+        'previousStatus' => 'ACTIVE',
+        'subscriptionId' => 60,
+        'subscriptions' => [['id' => '60', 'subscriptionId' => 60, 'status' => 'PENDING']],
+    ], $data));
+}
+
+it('marks the subscription as defaulter when a renewal stops being paid', function (): void {
+    Event::fake([SubscriptionDefaulted::class, SubscriptionActivated::class, SubscriptionCancelled::class]);
+
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'active']);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuDelinquencyDto());
+
+    Event::assertNotDispatched(SubscriptionActivated::class);
+    Event::assertNotDispatched(SubscriptionCancelled::class);
+    Event::assertDispatched(SubscriptionDefaulted::class, function (SubscriptionDefaulted $event): bool {
+        return $event->dto->subscriptionExternalId === 'checkout_fake1'
+            && $event->dto->billableId === $this->user->getKey()
+            && $event->dto->status === 'defaulter'
+            // Recoverable, so no end date: the next paid cycle activates it again.
+            && ! $event->dto->endsAt instanceof Carbon;
+    });
+});
+
+it('takes access away from a delinquent subscription', function (): void {
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'active']);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuDelinquencyDto());
+
+    assertDatabaseCount('billing_subscriptions', 1);
+    assertDatabaseHas('billing_subscriptions', [
+        'stripe_id' => 'checkout_fake1',
+        'stripe_status' => 'defaulter',
+    ]);
+
+    // The adapter only ever counts 'active', so the benefit is gone.
+    expect(resolve(VirtuAdapter::class)->hasActiveSubscription($this->user))->toBeFalse();
+});
+
+it('reactivates the same row when the customer pays again', function (): void {
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'active']);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuDelinquencyDto());
+    resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto());
+
+    assertDatabaseCount('billing_subscriptions', 1);
+    assertDatabaseHas('billing_subscriptions', [
+        'stripe_id' => 'checkout_fake1',
+        'stripe_status' => 'active',
+    ]);
+});
+
+it('never reads a delinquency payload as an approved charge', function (): void {
+    // paymentStatus stays PAID on this event, so routing by `source` before the
+    // payment guard is what keeps it from reading as a renewal.
+    expect(virtuDelinquencyDto()->isSubscriptionStatusChange())->toBeTrue();
+    expect(virtuDelinquencyDto()->isDelinquent())->toBeTrue();
+    expect(virtuDelinquencyDto()->isCancellation())->toBeFalse();
 });
 
 it('does not read a chargeback or a dispute as paid', function (string $paymentStatus): void {

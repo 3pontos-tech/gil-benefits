@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationVirtu\Actions;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
@@ -11,6 +12,7 @@ use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
+use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionDefaulted;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\IntegrationVirtu\DTO\VirtuWebhookDTO;
@@ -102,7 +104,19 @@ final class HandleVirtuWebhook
             return;
         }
 
-        if (! $dto->isCancellation()) {
+        // Delinquency keeps no endsAt: the subscription is recoverable, and the
+        // next paid cycle activates this same row again.
+        $event = match (true) {
+            $dto->isCancellation() => new SubscriptionCancelled(
+                $this->subscriptionDTO($subscription, 'inactive', Date::now())
+            ),
+            $dto->isDelinquent() => new SubscriptionDefaulted(
+                $this->subscriptionDTO($subscription, 'defaulter', null)
+            ),
+            default => null,
+        };
+
+        if ($event === null) {
             Log::warning('Virtu: status de assinatura sem mapeamento.', [
                 'checkout_id' => $dto->checkoutId,
                 'subscription_status' => $dto->subscriptionStatus,
@@ -112,16 +126,21 @@ final class HandleVirtuWebhook
             return;
         }
 
-        event(new SubscriptionCancelled(new SubscriptionDTO(
+        event($event);
+    }
+
+    private function subscriptionDTO(Subscription $subscription, string $status, ?Carbon $endsAt): SubscriptionDTO
+    {
+        return new SubscriptionDTO(
             billableType: $subscription->subscriptionable_type,
             billableId: $subscription->subscriptionable_id,
             subscriptionExternalId: $subscription->stripe_id,
-            status: 'inactive',
+            status: $status,
             planExternalId: $subscription->stripe_price,
             planSlug: $subscription->type,
             quantity: $subscription->quantity ?? 1,
-            endsAt: Date::now(),
-        )));
+            endsAt: $endsAt,
+        );
     }
 
     private function creditOrderPaid(VirtuWebhookDTO $dto): bool

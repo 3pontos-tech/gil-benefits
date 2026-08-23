@@ -112,4 +112,15 @@ final readonly class VirtuWebhookDTO
     {
         return $this->subscriptionStatus === 'CANCELED';
     }
+
+    /**
+     * A renewal that fails produces no declined charge at all — verified in
+     * sandbox, where nine paid cycles were followed by this single event and no
+     * SUBSCRIPTION_CHARGE for the tenth. The status change is the only signal
+     * that a subscription stopped paying.
+     */
+    public function isDelinquent(): bool
+    {
+        return $this->subscriptionStatus === 'PENDING';
+    }
 }
