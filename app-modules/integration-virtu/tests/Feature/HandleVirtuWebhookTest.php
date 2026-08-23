@@ -248,3 +248,52 @@ it('still activates an ordinary paid sale', function (): void {
     Event::assertDispatched(SubscriptionActivated::class);
     Event::assertNotDispatched(SubscriptionCancelled::class);
 });
+
+/**
+ * Shape observed in the sandbox for a PIX that was generated and never paid:
+ * status SUCCESS — the event was processed — with paymentStatus SENT.
+ */
+function virtuIssuedPixDto(): VirtuWebhookDTO
+{
+    return virtuWebhookDto(['status' => 'SUCCESS', 'paymentStatus' => 'SENT']);
+}
+
+it('never reads an issued PIX as paid', function (): void {
+    expect(virtuIssuedPixDto()->isPaid())->toBeFalse();
+});
+
+it('does not settle a credit order whose PIX was only issued', function (): void {
+    Event::fake([OrderCreditPurchased::class]);
+
+    CreditOrder::factory()->create([
+        'provider' => BillingProviderEnum::Virtu,
+        'checkout_id' => 'checkout_fake1',
+    ]);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuIssuedPixDto());
+
+    Event::assertNotDispatched(OrderCreditPurchased::class);
+});
+
+it('does not activate a subscription whose PIX was only issued', function (): void {
+    Event::fake([SubscriptionActivated::class]);
+
+    pendingVirtuSubscription($this->user);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuIssuedPixDto());
+
+    Event::assertNotDispatched(SubscriptionActivated::class);
+});
+
+it('does not read a chargeback or a dispute as paid', function (string $paymentStatus): void {
+    Event::fake([SubscriptionActivated::class]);
+
+    pendingVirtuSubscription($this->user);
+
+    // status stays SUCCESS on these, so paymentStatus is the only guard.
+    resolve(HandleVirtuWebhook::class)->handle(
+        virtuWebhookDto(['status' => 'SUCCESS', 'paymentStatus' => $paymentStatus])
+    );
+
+    Event::assertNotDispatched(SubscriptionActivated::class);
+})->with(['CHARGEBACK', 'DISPUTE', 'DISPUTE_ALERT', 'PARTIALLY_PAID', 'DEFAULTER']);

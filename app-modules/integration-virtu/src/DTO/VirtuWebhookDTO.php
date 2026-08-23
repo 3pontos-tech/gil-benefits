@@ -76,9 +76,14 @@ final readonly class VirtuWebhookDTO
     /**
      * Whether the charge behind this payload went through.
      *
-     * `paymentStatus` describes the original charge and stays PAID forever — a
-     * cancellation arrives as PAID too. Any terminal sale status therefore wins
-     * over it, otherwise cancelling would read here as a fresh approval.
+     * Only `paymentStatus` answers that. `status` reports whether the event was
+     * processed, so it reads SUCCESS on a PIX that was merely issued (verified in
+     * sandbox: status SUCCESS with paymentStatus SENT) — trusting it would settle
+     * an order nobody paid for.
+     *
+     * The terminal check is defence in depth for the reverse case: a cancellation
+     * keeps paymentStatus PAID forever, so a payload that reached here without
+     * `source` must not read as a fresh approval.
      */
     public function isPaid(): bool
     {
@@ -86,7 +91,7 @@ final readonly class VirtuWebhookDTO
             return false;
         }
 
-        return $this->paymentStatus === 'PAID' || $this->status === 'SUCCESS';
+        return $this->paymentStatus === 'PAID';
     }
 
     public function isSubscriptionCharge(): bool
