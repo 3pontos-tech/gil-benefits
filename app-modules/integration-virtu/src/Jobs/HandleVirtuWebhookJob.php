@@ -26,6 +26,14 @@ class HandleVirtuWebhookJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
+    /**
+     * Held only while the work runs, so a crash that skips the release expires in
+     * minutes instead of burning the key for a whole day. Must outlive $timeout.
+     */
+    private const int CLAIM_TTL_MINUTES = 5;
+
+    private const int PROCESSED_TTL_HOURS = 24;
+
     public int $tries = 3;
 
     public int $timeout = 60;
@@ -47,7 +55,18 @@ class HandleVirtuWebhookJob implements ShouldQueue
             return;
         }
 
-        $action->handle($dto);
+        try {
+            $action->handle($dto);
+        } catch (Throwable $throwable) {
+            // The claim marks work in progress, not work done: keeping it after a
+            // failure would make attempts 2 and 3 return early and report success,
+            // losing the activation with no dead-letter job to show for it.
+            $this->release($dto);
+
+            throw $throwable;
+        }
+
+        $this->confirm($dto);
     }
 
     public function failed(Throwable $exception): void
@@ -69,10 +88,35 @@ class HandleVirtuWebhookJob implements ShouldQueue
      */
     private function claim(VirtuWebhookDTO $dto): bool
     {
-        if (blank($dto->idempotencyKey)) {
+        $key = $this->cacheKey($dto);
+
+        if ($key === null) {
             return true;
         }
 
-        return Cache::add('virtu:webhook:' . $dto->idempotencyKey, true, now()->addDay());
+        return Cache::add($key, false, now()->addMinutes(self::CLAIM_TTL_MINUTES));
+    }
+
+    private function release(VirtuWebhookDTO $dto): void
+    {
+        $key = $this->cacheKey($dto);
+
+        if ($key !== null) {
+            Cache::forget($key);
+        }
+    }
+
+    private function confirm(VirtuWebhookDTO $dto): void
+    {
+        $key = $this->cacheKey($dto);
+
+        if ($key !== null) {
+            Cache::put($key, true, now()->addHours(self::PROCESSED_TTL_HOURS));
+        }
+    }
+
+    private function cacheKey(VirtuWebhookDTO $dto): ?string
+    {
+        return blank($dto->idempotencyKey) ? null : 'virtu:webhook:' . $dto->idempotencyKey;
     }
 }

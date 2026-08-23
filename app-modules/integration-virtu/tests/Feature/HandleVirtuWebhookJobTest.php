@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Schema;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\IntegrationVirtu\Jobs\HandleVirtuWebhookJob;
@@ -55,4 +58,28 @@ it('processes a payload with no idempotency key rather than discarding it', func
 
     // Better a duplicate than a silently dropped charge.
     Event::assertDispatchedTimes(SubscriptionActivated::class, 1);
+});
+
+it('releases the idempotency key when processing fails, so the retry lands', function (): void {
+    Event::fake([SubscriptionActivated::class]);
+
+    // Stands in for any transient database failure during $action->handle().
+    Schema::rename('billing_subscriptions', 'billing_subscriptions_away');
+
+    expect(fn (): mixed => dispatch_sync(new HandleVirtuWebhookJob(virtuJobPayload())))
+        ->toThrow(QueryException::class);
+
+    expect(Cache::has('virtu:webhook:transaction:SALE:1003:SUCCESS'))->toBeFalse();
+
+    Schema::rename('billing_subscriptions_away', 'billing_subscriptions');
+
+    dispatch_sync(new HandleVirtuWebhookJob(virtuJobPayload()));
+
+    Event::assertDispatchedTimes(SubscriptionActivated::class, 1);
+});
+
+it('keeps the key after a successful run so a later redelivery is still dropped', function (): void {
+    dispatch_sync(new HandleVirtuWebhookJob(virtuJobPayload()));
+
+    expect(Cache::get('virtu:webhook:transaction:SALE:1003:SUCCESS'))->toBeTrue();
 });
