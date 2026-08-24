@@ -2,11 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Enums\InboundWebhookSourceEnum;
+use Basement\Webhooks\Actions\StoreInboundWebhook;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\IntegrationVirtu\Jobs\HandleVirtuWebhookJob;
 
+use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\call;
 
 beforeEach(function (): void {
@@ -68,4 +71,28 @@ it('validates the raw body, not a re-encoded version of it', function (): void {
     $body = '{"data":{"customer":{"name":"João Silva"}},  "event":"TRANSACTION"}';
 
     postSignedVirtuWebhook($body, signVirtuBody($body))->assertOk();
+});
+
+it('stores the raw payload before dispatching the job', function (): void {
+    $body = json_encode(['event' => 'TRANSACTION', 'data' => ['saleId' => 1003]], JSON_THROW_ON_ERROR);
+
+    // The job burns the idempotency key, so persisting has to win the race: if it
+    // failed after dispatching, Virtu would redeliver and the redelivery would be
+    // dropped as already processed, leaving nothing to reconcile from.
+    app()->bind(StoreInboundWebhook::class, function (): never {
+        throw new RuntimeException('storage down');
+    });
+
+    postSignedVirtuWebhook($body, signVirtuBody($body))->assertStatus(500);
+
+    Queue::assertNotPushed(HandleVirtuWebhookJob::class);
+});
+
+it('records the inbound webhook alongside the job', function (): void {
+    $body = json_encode(['event' => 'TRANSACTION', 'data' => ['saleId' => 1003]], JSON_THROW_ON_ERROR);
+
+    postSignedVirtuWebhook($body, signVirtuBody($body))->assertOk();
+
+    Queue::assertPushed(HandleVirtuWebhookJob::class);
+    assertDatabaseHas('inbound_webhooks', ['source' => InboundWebhookSourceEnum::Virtu->value]);
 });

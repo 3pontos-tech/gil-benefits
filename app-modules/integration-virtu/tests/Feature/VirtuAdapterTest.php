@@ -11,6 +11,7 @@ use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
 use TresPontosTech\Billing\Core\Events\Credit\CreditOrderPlaced;
+use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -203,4 +204,30 @@ it('is a no-op when asked to ensure a customer exists', function (): void {
     $this->adapter->ensureCustomerExists($this->user);
 
     expect($this->client->createdLinks)->toBe([]);
+});
+
+it('refuses a subscription checkout whose link exposes no checkout reference', function (): void {
+    Event::fake([SubscriptionCreated::class]);
+
+    // checkoutId is parsed out of the url, so a url without a path segment
+    // yields none — and a webhook could never be matched back to this billable.
+    $this->client->linkUrl = 'https://checkout.pagaa.com.br';
+
+    expect(fn (): string => $this->adapter->createCheckout($this->user, virtuCheckoutData()))
+        ->toThrow(VirtuApiException::class);
+
+    Event::assertNotDispatched(SubscriptionCreated::class);
+});
+
+it('refuses a credit purchase whose link exposes no checkout reference', function (): void {
+    Event::fake([CreditOrderPlaced::class]);
+
+    $this->client->linkUrl = 'https://checkout.pagaa.com.br';
+    $company = Company::factory()->create();
+
+    expect(fn (): string => $this->adapter->purchaseCredits(
+        $this->user, $company, 1, 'https://app.test/ok', 'https://app.test/cancel'
+    ))->toThrow(VirtuApiException::class);
+
+    Event::assertNotDispatched(CreditOrderPlaced::class);
 });

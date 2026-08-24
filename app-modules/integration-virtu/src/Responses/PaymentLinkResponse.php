@@ -7,10 +7,11 @@ namespace TresPontosTech\IntegrationVirtu\Responses;
 /**
  * A payment link as returned by POST /payment-links and GET /payment-links/{id}.
  *
- * Note the three id namespaces the API exposes for one link: `id` is `pl_…`, the
- * `url` embeds `checkout_…`, and the webhook reports `chk_…`. Which of the first
- * two the webhook's checkoutId matches is unconfirmed, so both are surfaced here
- * and both get persisted — see VirtuPaymentLink.
+ * One link carries two ids: `id` is `pl_…`, and the `url` embeds `checkout_…`.
+ * The webhook reports the second one — confirmed against the sandbox, on the
+ * first charge and on every renewal — so that is the one the adapter persists
+ * and correlates on. The `pl_…` id is surfaced for diagnostics only; it never
+ * appears in a webhook.
  */
 readonly class PaymentLinkResponse
 {

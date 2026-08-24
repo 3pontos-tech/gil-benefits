@@ -23,6 +23,7 @@ use TresPontosTech\IntegrationVirtu\DTO\CheckoutIdentityDTO;
 use TresPontosTech\IntegrationVirtu\DTO\CreatePaymentLinkDTO;
 use TresPontosTech\IntegrationVirtu\Enums\VirtuIntervalEnum;
 use TresPontosTech\IntegrationVirtu\Exceptions\VirtuApiException;
+use TresPontosTech\IntegrationVirtu\Responses\PaymentLinkResponse;
 use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
 
 /**
@@ -101,7 +102,7 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
         event(new SubscriptionCreated(new SubscriptionDTO(
             billableType: $billable->getMorphClass(),
             billableId: $billable->getKey(),
-            subscriptionExternalId: $link->checkoutId ?? $link->id,
+            subscriptionExternalId: $this->correlationKey($link),
             status: 'pending',
             planExternalId: $price->provider_price_id,
             planSlug: $price->plan->slug,
@@ -127,7 +128,7 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
             description: sprintf('%d crédito(s) para %s', $quantity, $company->name),
         ));
 
-        event(new CreditOrderPlaced($order->withCheckout($link->checkoutId ?? $link->id)));
+        event(new CreditOrderPlaced($order->withCheckout($this->correlationKey($link))));
 
         return $this->withBuyerIdentity($link->url, $billable);
     }
@@ -154,6 +155,25 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
      * row as stored. pricePerSeat() is in reais, so it is converted here — the
      * REST API is cents-only, while webhooks report reais as strings.
      */
+    /**
+     * The webhook only ever reports the checkout reference embedded in the link
+     * URL, never the `pl_…` id, so a link we cannot derive it from can never be
+     * correlated. Falling back to the id would take the money and leave the
+     * pending row unreachable; failing here costs a click instead.
+     */
+    private function correlationKey(PaymentLinkResponse $link): string
+    {
+        throw_if(
+            blank($link->checkoutId),
+            VirtuApiException::class,
+            sprintf('Virtu link %s exposes no checkout reference in its url.', $link->id),
+            0,
+            false,
+        );
+
+        return $link->checkoutId;
+    }
+
     private function resolveAmountInCents(Price $price, CheckoutData $data): int
     {
         $amountCents = $data->isMetered

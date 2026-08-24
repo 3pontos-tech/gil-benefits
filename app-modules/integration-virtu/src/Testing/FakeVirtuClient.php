@@ -23,6 +23,9 @@ final class FakeVirtuClient extends VirtuClient
 
     public bool $shouldFail = false;
 
+    /** Overrides the url of the next created link, to exercise malformed ones. */
+    public ?string $linkUrl = null;
+
     private int $sequence = 0;
 
     public function createPaymentLink(CreatePaymentLinkDTO $data): PaymentLinkResponse
@@ -35,7 +38,7 @@ final class FakeVirtuClient extends VirtuClient
 
         return PaymentLinkResponse::make([
             'id' => 'pl_fake' . $suffix,
-            'url' => 'https://checkout.pagaa.com.br/checkout/checkout_fake' . $suffix,
+            'url' => $this->linkUrl ?? 'https://checkout.pagaa.com.br/checkout/checkout_fake' . $suffix,
             'status' => 'PENDING',
             'amountCents' => $data->amountCents,
             'kind' => $data->kind,
