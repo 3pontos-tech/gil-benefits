@@ -3,6 +3,7 @@
 namespace TresPontosTech\Billing\Core\Models\Subscriptions;
 
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
@@ -29,7 +30,33 @@ use TresPontosTech\Billing\Database\Factories\SubscriptionFactory;
 #[UseFactory(SubscriptionFactory::class)]
 class Subscription extends BaseSubscriptionModel
 {
+    public const array STATUSES_WITHOUT_ACCESS = ['pending', 'inactive', 'defaulter'];
+
     protected $table = 'billing_subscriptions';
+
+    public function active(): bool
+    {
+        return ! $this->deniesAccessByStatus() && parent::active();
+    }
+
+    public function valid(): bool
+    {
+        return ! $this->deniesAccessByStatus() && parent::valid();
+    }
+
+    /**
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    protected function scopeGrantingAccess(Builder $query): Builder
+    {
+        return $query->whereNotIn('stripe_status', self::STATUSES_WITHOUT_ACCESS);
+    }
+
+    private function deniesAccessByStatus(): bool
+    {
+        return in_array($this->stripe_status, self::STATUSES_WITHOUT_ACCESS, true);
+    }
 
     /**
      * @return MorphTo<Model, $this>
