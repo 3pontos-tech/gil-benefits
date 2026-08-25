@@ -104,14 +104,17 @@ final class HandleVirtuWebhook
             return;
         }
 
-        // Delinquency keeps no endsAt: the subscription is recoverable, and the
-        // next paid cycle activates this same row again.
+        // Delinquency keeps no endsAt: the subscription is recoverable, and a
+        // retry that goes through comes back here as ACTIVE.
         $event = match (true) {
             $dto->isCancellation() => new SubscriptionCancelled(
                 $this->subscriptionDTO($subscription, 'inactive', Date::now())
             ),
             $dto->isDelinquent() => new SubscriptionDefaulted(
                 $this->subscriptionDTO($subscription, 'defaulter', null)
+            ),
+            $dto->isReactivation() => new SubscriptionActivated(
+                $this->subscriptionDTO($subscription, 'active', null)
             ),
             default => null,
         };
