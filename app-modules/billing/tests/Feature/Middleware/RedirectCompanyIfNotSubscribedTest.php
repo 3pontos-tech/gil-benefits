@@ -121,3 +121,45 @@ it('redirects when company has no subscription at all', function (): void {
     expect($response->getStatusCode())->toBe(302)
         ->and($response->headers->get('Location'))->toContain('available-subscriptions');
 });
+
+it('allows access when a paid subscription follows an abandoned checkout', function (): void {
+    $plan = Plan::factory()->active()->stripe()->create(['slug' => 'company-abandoned-then-paid']);
+    Price::factory()->for($plan, 'plan')->create();
+
+    $this->company->subscriptions()->create([
+        'type' => $plan->slug,
+        'stripe_id' => 'checkout_abandonado_' . uniqid(),
+        'stripe_status' => 'pending',
+    ]);
+
+    $this->company->subscriptions()->create([
+        'type' => $plan->slug,
+        'stripe_id' => 'checkout_pago_' . uniqid(),
+        'stripe_status' => 'active',
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getContent())->toBe('ok');
+});
+
+it('allows access when an abandoned checkout follows a paid subscription', function (): void {
+    $plan = Plan::factory()->active()->stripe()->create(['slug' => 'company-paid-then-abandoned']);
+    Price::factory()->for($plan, 'plan')->create();
+
+    $this->company->subscriptions()->create([
+        'type' => $plan->slug,
+        'stripe_id' => 'checkout_pago_' . uniqid(),
+        'stripe_status' => 'active',
+    ]);
+
+    $this->company->subscriptions()->create([
+        'type' => $plan->slug,
+        'stripe_id' => 'checkout_reaberto_' . uniqid(),
+        'stripe_status' => 'pending',
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getContent())->toBe('ok');
+});

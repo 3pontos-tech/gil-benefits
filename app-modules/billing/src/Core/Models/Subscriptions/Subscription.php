@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Billing\Core\Models\Subscriptions;
 
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -13,6 +14,7 @@ use Laravel\Cashier\Subscription as BaseSubscriptionModel;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Database\Factories\SubscriptionFactory;
+use TresPontosTech\Company\Models\Company;
 
 /**
  * @property string $subscriptionable_type
@@ -51,6 +53,13 @@ class Subscription extends BaseSubscriptionModel
     protected function scopeGrantingAccess(Builder $query): Builder
     {
         return $query->whereNotIn('stripe_status', self::STATUSES_WITHOUT_ACCESS);
+    }
+
+    public static function grantsAccess(Company|User $billable, string $type): bool
+    {
+        return $billable->subscriptions
+            ->where('type', $type)
+            ->contains(fn (self $subscription): bool => $subscription->valid());
     }
 
     private function deniesAccessByStatus(): bool
