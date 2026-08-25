@@ -19,6 +19,7 @@ use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionDefaulted;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
+use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Company\Models\Company;
 
@@ -83,30 +84,32 @@ class HandleBarteWebhook
             return;
         }
 
-        $billableType = $dto->metadata->get('billable_type');
-        $billableId = $dto->metadata->get('billable_id');
-        $companyId = $dto->metadata->get('company_id');
-        $quantity = (int) $dto->metadata->get('quantity', 0);
+        $order = $this->resolveCreditOrder($dto);
 
-        if (! $billableType || ! $billableId || ! $companyId || $quantity <= 0) {
-            Log::warning('Barte ORDER webhook com metadata incompleto', ['uuid' => $dto->uuid]);
+        if (! $order instanceof CreditOrder) {
+            Log::warning('Barte ORDER webhook sem pedido de crédito correspondente', ['uuid' => $dto->uuid]);
 
             return;
         }
 
         if ($dto->event === BarteWebhookEventEnum::OrderSent) {
-            $this->notifyOrderPending($billableType, $billableId, $quantity);
+            $this->notifyOrderPending($order->billable_type, $order->billable_id, $order->quantity);
 
             return;
         }
 
-        event(new OrderCreditPurchased(
-            orderUuid: $dto->uuid,
-            billableType: $billableType,
-            billableId: $billableId,
-            companyId: $companyId,
-            quantity: $quantity,
-        ));
+        event(new OrderCreditPurchased(creditOrderId: $order->getKey()));
+    }
+
+    private function resolveCreditOrder(BarteWebhookDto $dto): ?CreditOrder
+    {
+        $creditOrderId = $dto->metadata->get('credit_order_id');
+
+        if (! is_string($creditOrderId) || blank($creditOrderId)) {
+            return null;
+        }
+
+        return CreditOrder::query()->find($creditOrderId);
     }
 
     private function notifyOrderPending(string $billableType, string $billableId, int $quantity): void

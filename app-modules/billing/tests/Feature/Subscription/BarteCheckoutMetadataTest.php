@@ -7,6 +7,7 @@ use TresPontosTech\Billing\Barte\BarteAdapter;
 use TresPontosTech\Billing\Barte\BarteClient;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -27,7 +28,7 @@ it('sends the chosen price id to Barte as barte_price_id metadata', function ():
     $price = Price::factory()->for($plan, 'plan')->create([
         'provider_price_id' => 'plan-uuid-standalone-user',
         'unit_amount_decimal' => 25000,
-        'metadata' => ['tenant' => 'flamma-company'],
+        'audience' => PriceAudienceEnum::Standalone,
     ]);
 
     BillingCustomer::factory()->create([

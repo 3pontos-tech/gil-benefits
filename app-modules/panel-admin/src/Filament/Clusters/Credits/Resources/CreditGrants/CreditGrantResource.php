@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\PanelAdmin\Filament\Resources\CreditGrants;
+namespace TresPontosTech\PanelAdmin\Filament\Clusters\Credits\Resources\CreditGrants;
 
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Pages\Enums\SubNavigationPosition;
 use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -18,7 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use TresPontosTech\Billing\Core\Actions\Credit\RevokeCreditGrant;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CreditGrant;
-use TresPontosTech\PanelAdmin\Filament\Resources\CreditGrants\Pages\ListCreditGrants;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\CreditsCluster;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\Resources\CreditGrants\Pages\ListCreditGrants;
 
 class CreditGrantResource extends Resource
 {
@@ -28,9 +30,13 @@ class CreditGrantResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Gift;
 
+    protected static ?string $cluster = CreditsCluster::class;
+
+    protected static ?SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+
     public static function getNavigationGroup(): ?string
     {
-        return __('panel-admin::resources.navigation_group.administration');
+        return __('panel-admin::resources.navigation_group.credits');
     }
 
     public static function getNavigationLabel(): string

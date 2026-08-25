@@ -93,6 +93,18 @@ class Company extends Model implements HasAvatar, HasMedia
         return 'slug';
     }
 
+    /**
+     * Se esta empresa banca parte da mensalidade dos colaboradores.
+     *
+     * O tenant default é o balde de quem não tem empregador, então ninguém
+     * subsidia nada ali: aqueles usuários pagam o valor cheio. É o que decide
+     * qual audiência de preço vale no checkout (PriceAudienceEnum).
+     */
+    public function subsidizesEmployees(): bool
+    {
+        return $this->slug !== self::DEFAULT_SLUG;
+    }
+
     public function hasActivePlan(): bool
     {
         return filled($this->activeContractualPlan());

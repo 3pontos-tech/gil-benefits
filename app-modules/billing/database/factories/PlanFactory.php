@@ -75,6 +75,30 @@ class PlanFactory extends Factory
         ]);
     }
 
+    public function virtu(): self
+    {
+        return $this->forProvider(BillingProviderEnum::Virtu);
+    }
+
+    /**
+     * Para quando o teste não deve fixar um gateway — tipicamente
+     * `forProvider(BillingProviderEnum::checkoutCases()[0])`.
+     *
+     * Zera trial_days junto com has_generic_trial porque PlanEntity recusa os
+     * dois preenchidos ao mesmo tempo, e o default da factory os deixa em
+     * conflito.
+     */
+    public function forProvider(BillingProviderEnum $provider): self
+    {
+        return $this->state([
+            'provider' => $provider,
+            'trial_days' => null,
+            'has_generic_trial' => false,
+            'allow_promotion_codes' => false,
+            'collect_tax_ids' => false,
+        ]);
+    }
+
     public function contractual(): self
     {
         return $this->state([

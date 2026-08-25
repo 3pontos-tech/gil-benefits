@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4a1abe4513ca510ea2e889bdaeb39961",
+    "content-hash": "821dd4a8ac2eff3f606d94501321f792",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -223,6 +223,39 @@
             "license": [
                 "proprietary"
             ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/integration-virtu",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/integration-virtu",
+                "reference": "2a987b33bd331d669ee1be92847bebc3a5bf08df"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\IntegrationVirtu\\Providers\\IntegrationVirtuServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\IntegrationVirtu\\": "src/",
+                    "TresPontosTech\\IntegrationVirtu\\Tests\\": "tests/",
+                    "TresPontosTech\\IntegrationVirtu\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\IntegrationVirtu\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Integração com o gateway de pagamento Pagaa/Virtu",
             "transport-options": {
                 "symlink": true,
                 "relative": true

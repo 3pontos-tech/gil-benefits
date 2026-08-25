@@ -2,6 +2,8 @@
 
 namespace TresPontosTech\Billing\Core\Entities;
 
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
+
 class PriceEntity implements \JsonSerializable
 {
     /**
@@ -14,7 +16,8 @@ class PriceEntity implements \JsonSerializable
         public int $monthlyAppointments = 1,
         public bool $whatsappEnabled = false,
         public bool $materialsEnabled = true,
-        public array $metadata = []
+        public array $metadata = [],
+        public PriceAudienceEnum $audience = PriceAudienceEnum::Subsidized,
     ) {}
 
     /**
@@ -41,7 +44,10 @@ class PriceEntity implements \JsonSerializable
             monthlyAppointments: $payload['monthly_appointments'] ?? 1,
             whatsappEnabled: $payload['whatsapp_enabled'] ?? false,
             materialsEnabled: $payload['materials_enabled'] ?? true,
-            metadata: is_string($payload['metadata']) ? json_decode($payload['metadata'], true) : $payload['metadata']
+            metadata: is_string($payload['metadata']) ? json_decode($payload['metadata'], true) : $payload['metadata'],
+            audience: ($payload['audience'] ?? null) instanceof PriceAudienceEnum
+                ? $payload['audience']
+                : PriceAudienceEnum::from($payload['audience'] ?? PriceAudienceEnum::Subsidized->value),
         );
     }
 
@@ -51,6 +57,7 @@ class PriceEntity implements \JsonSerializable
             'type' => $this->type,
             'price_id' => $this->priceId,
             'unit_amount_decimal' => $this->priceInCents,
+            'audience' => $this->audience->value,
             'metadata' => $this->metadata,
         ];
     }

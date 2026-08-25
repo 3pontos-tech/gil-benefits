@@ -9,6 +9,8 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Icons\Heroicon;
 use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\CompanyCreditPage;
 
@@ -38,31 +40,42 @@ class PurchaseCreditsAction extends Action
         $this->forBillable();
     }
 
+    private function sellingDriver(): BillingContract
+    {
+        return resolve(BillingManager::class)->getDriver();
+    }
+
     public function forBillable(Company|User|null $billable = null, ?string $successUrl = null, ?string $cancelUrl = null): static
     {
-        return $this->action(function (array $data, $livewire) use ($billable, $successUrl, $cancelUrl): void {
-            /** @var Company $company */
-            $company = filament()->getTenant();
+        return $this
+            ->visible(fn (): bool => $this->sellingDriver() instanceof SupportsCreditPurchase)
+            ->action(function (array $data, $livewire) use ($billable, $successUrl, $cancelUrl): void {
+                /** @var Company $company */
+                $company = filament()->getTenant();
 
-            $resolvedBillable = $billable ?? $company;
-            $resolvedSuccessUrl = $successUrl ?? CompanyCreditPage::getUrl();
-            $resolvedCancelUrl = $cancelUrl ?? CompanyCreditPage::getUrl();
+                $resolvedBillable = $billable ?? $company;
+                $resolvedSuccessUrl = $successUrl ?? CompanyCreditPage::getUrl();
+                $resolvedCancelUrl = $cancelUrl ?? CompanyCreditPage::getUrl();
 
-            $driver = resolve(BillingManager::class)->driver();
+                $driver = $this->sellingDriver();
 
-            $url = $driver->purchaseCredits(
-                billable: $resolvedBillable,
-                company: $company,
-                quantity: (int) $data['quantity'],
-                successUrl: $resolvedSuccessUrl,
-                cancelUrl: $resolvedCancelUrl,
-            );
+                if (! $driver instanceof SupportsCreditPurchase) {
+                    return;
+                }
 
-            if ($driver->checkoutOpensInNewTab()) {
-                $livewire->js("window.open('" . addslashes($url) . "', '_blank')");
-            } else {
-                $livewire->redirect($url);
-            }
-        });
+                $url = $driver->purchaseCredits(
+                    billable: $resolvedBillable,
+                    company: $company,
+                    quantity: (int) $data['quantity'],
+                    successUrl: $resolvedSuccessUrl,
+                    cancelUrl: $resolvedCancelUrl,
+                );
+
+                if ($driver->checkoutOpensInNewTab()) {
+                    $livewire->js("window.open('" . addslashes($url) . "', '_blank')");
+                } else {
+                    $livewire->redirect($url);
+                }
+            });
     }
 }
