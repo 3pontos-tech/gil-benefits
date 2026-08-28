@@ -346,6 +346,9 @@ return [
             'document_id' => 'RG',
         ],
     ],
+    'financial_cluster' => [
+        'navigation_label' => 'Financeiro',
+    ],
     'credits_cluster' => [
         'navigation_label' => 'Créditos',
     ],
@@ -358,6 +361,42 @@ return [
         'user_assigned_to_role' => 'Usuário foi atribuído à função %s',
     ],
     'pages' => [
+        'financial_consulting' => [
+            'title' => 'Consultorias e Consumo',
+            'subheading' => 'Volume de consultorias e uso de créditos no mês',
+            'navigation_label' => 'Consultorias e Consumo',
+            'filter_month' => 'Mês de referência',
+            'filter_companies' => 'Empresas',
+            'filter_companies_placeholder' => 'Todas as empresas',
+        ],
+        'financial_usage' => [
+            'title' => 'Usuários e Utilização',
+            'subheading' => 'Quanto da base contratada realmente usa o benefício',
+            'navigation_label' => 'Usuários e Utilização',
+            'filter_month' => 'Mês de referência',
+            'filter_companies' => 'Empresas',
+            'filter_companies_placeholder' => 'Todas as empresas',
+        ],
+        'financial_revenue' => [
+            'title' => 'Dashboard Financeiro',
+            'subheading' => 'Receita do mês, com comparação ao mês anterior',
+            'navigation_label' => 'Dashboard Financeiro',
+            'filter_month' => 'Mês de referência',
+            'filter_companies' => 'Empresas',
+            'filter_companies_placeholder' => 'Todas as empresas',
+            'recalculate' => 'Recalcular agora',
+        ],
+        'financial_companies' => [
+            'export_csv' => 'Exportar CSV',
+            'clear_status' => 'Limpar filtro',
+            'title' => 'Empresas e Contratos',
+            'subheading' => 'Base de clientes por status, com renovações próximas',
+            'navigation_label' => 'Empresas e Contratos',
+            'filter_month' => 'Mês de referência',
+            'filter_companies' => 'Empresas',
+            'filter_companies_placeholder' => 'Todas as empresas',
+        ],
+
         'metrics' => [
             'title' => 'Métricas',
             'navigation_label' => 'Métricas',

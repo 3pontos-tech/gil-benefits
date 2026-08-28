@@ -346,6 +346,9 @@ return [
             'document_id' => 'Document ID',
         ],
     ],
+    'financial_cluster' => [
+        'navigation_label' => 'Financial',
+    ],
     'credits_cluster' => [
         'navigation_label' => 'Credits',
     ],
@@ -358,6 +361,42 @@ return [
         'user_assigned_to_role' => 'User has been assigned to %s role',
     ],
     'pages' => [
+        'financial_consulting' => [
+            'title' => 'Consulting and Usage',
+            'subheading' => 'Consultancy volume and credit usage in the month',
+            'navigation_label' => 'Consulting and Usage',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+        ],
+        'financial_usage' => [
+            'title' => 'Users and Usage',
+            'subheading' => 'How much of the contracted base actually uses the benefit',
+            'navigation_label' => 'Users and Usage',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+        ],
+        'financial_revenue' => [
+            'title' => 'Financial Dashboard',
+            'subheading' => 'Revenue of the month, compared with the previous one',
+            'navigation_label' => 'Financial Dashboard',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+            'recalculate' => 'Recalculate now',
+        ],
+        'financial_companies' => [
+            'export_csv' => 'Export CSV',
+            'clear_status' => 'Clear filter',
+            'title' => 'Companies and Contracts',
+            'subheading' => 'Client base by status, with upcoming renewals',
+            'navigation_label' => 'Companies and Contracts',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+        ],
+
         'metrics' => [
             'title' => 'Metrics',
             'navigation_label' => 'Metrics',

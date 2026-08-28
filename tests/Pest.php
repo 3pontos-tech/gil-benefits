@@ -88,6 +88,33 @@ function actingAsSuperAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
     return $user;
 }
 
+/**
+ * Perfis do cockpit financeiro (FLM-41).
+ *
+ * Usuário comum e verificado, sem papel de Admin: o acesso ao painel vem apenas
+ * da role financeira, que é exatamente o que os testes de gate precisam provar.
+ */
+function actingAsFinancialProfile(Roles $role, FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    $user = User::factory()->create();
+    $user->assignRole($role->value);
+
+    filament()->setCurrentPanel($panel->value);
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsFinancial(FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    return actingAsFinancialProfile(Roles::Financial, $panel);
+}
+
+function actingAsCustomerSuccess(FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    return actingAsFinancialProfile(Roles::CustomerSuccess, $panel);
+}
+
 function actingAsCompanyOwner(): User
 {
     $user = User::factory()->companyOwner()->create();

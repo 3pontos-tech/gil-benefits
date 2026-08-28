@@ -37,4 +37,19 @@ trait CalculatesEngagementRates
     {
         return EngagementNumber::rate($this->withRecurrence, $this->withCompletedAppointment);
     }
+
+    /**
+     * Utilização da empresa: beneficiários que realizaram consultoria sobre os
+     * cadastrados.
+     *
+     * Distinta da taxa de conclusão, que divide realizadas por agendadas. Aqui a
+     * pergunta é outra — quanto da base efetivamente usa o benefício — e é a
+     * régua que o cockpit financeiro aplica no risco de churn (STORY-235) e no
+     * destaque de baixa utilização (STORY-241). Mora neste trait pelo mesmo
+     * motivo das demais: para as telas nunca discordarem do denominador.
+     */
+    public function usageRate(): ?float
+    {
+        return EngagementNumber::rate($this->withCompletedAppointment, $this->registered);
+    }
 }
