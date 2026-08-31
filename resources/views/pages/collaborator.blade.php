@@ -125,23 +125,13 @@
         </div>
 
         {{--
-            No Figma o título ocupa a largura toda (1676, centralizado) e o botão fica
-            ABAIXO dele, também centralizado — Frame 20222 em x=701,5 com 273 de largura
-            dá centro 838, que é 1676/2. O Blade original punha os dois lado a lado.
+            O botão "Fazer meu cadastro" que o Figma punha abaixo do título migrou para
+            a seção "Mais que uma ferramenta", abaixo do card da citação.
         --}}
         <div class="flex flex-col items-center gap-8 text-center">
             <h2 class="fm-reveal w-full text-[32px] font-bold leading-[1.5] text-high lg:text-[64px]">
                 Do acesso à primeira sessão
             </h2>
-            <x-button
-                class="fm-reveal fm-btn w-full! sm:w-[273px]!"
-                data-fm-delay="1"
-                variant="flat"
-                size="xl-tight"
-                href="/app/register"
-            >
-                Fazer meu cadastro
-            </x-button>
         </div>
 
         {{--
@@ -278,6 +268,17 @@
                         </p>
                     </div>
                 </div>
+
+                {{-- Veio da seção "Do acesso à primeira sessão", onde ficava abaixo do título --}}
+                <x-button
+                    class="fm-reveal-left fm-btn w-full! sm:w-[273px]!"
+                    data-fm-delay="2"
+                    variant="flat"
+                    size="xl-tight"
+                    href="/app/register"
+                >
+                    Fazer meu cadastro
+                </x-button>
             </div>
 
             <ul class="fm-reveal-right flex w-full flex-col gap-8
