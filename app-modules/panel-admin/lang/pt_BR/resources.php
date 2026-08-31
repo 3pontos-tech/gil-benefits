@@ -115,6 +115,8 @@ return [
         ],
     ],
     'consultants' => [
+        'cost_per_appointment' => 'Custo por consultoria',
+        'cost_per_appointment_hint' => 'Valor repassado ao parceiro por consultoria que consumiu crédito. Em branco usa o padrão do sistema.',
         'navigation_label' => 'Consultores',
         'model_label' => 'Consultor',
         'plural_model_label' => 'Consultores',
@@ -373,6 +375,14 @@ return [
             'title' => 'Usuários e Utilização',
             'subheading' => 'Quanto da base contratada realmente usa o benefício',
             'navigation_label' => 'Usuários e Utilização',
+            'filter_month' => 'Mês de referência',
+            'filter_companies' => 'Empresas',
+            'filter_companies_placeholder' => 'Todas as empresas',
+        ],
+        'financial_billing' => [
+            'title' => 'Cobranças',
+            'subheading' => 'Pagamentos do mês e alertas de cobrança',
+            'navigation_label' => 'Cobranças',
             'filter_month' => 'Mês de referência',
             'filter_companies' => 'Empresas',
             'filter_companies_placeholder' => 'Todas as empresas',

@@ -115,6 +115,8 @@ return [
         ],
     ],
     'consultants' => [
+        'cost_per_appointment' => 'Cost per consultancy',
+        'cost_per_appointment_hint' => 'Amount paid to the partner per consultancy that consumed a credit. Empty falls back to the system default.',
         'navigation_label' => 'Consultants',
         'model_label' => 'Consultant',
         'plural_model_label' => 'Consultants',
@@ -373,6 +375,14 @@ return [
             'title' => 'Users and Usage',
             'subheading' => 'How much of the contracted base actually uses the benefit',
             'navigation_label' => 'Users and Usage',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+        ],
+        'financial_billing' => [
+            'title' => 'Billing',
+            'subheading' => 'Payments of the month and billing alerts',
+            'navigation_label' => 'Billing',
             'filter_month' => 'Reference month',
             'filter_companies' => 'Companies',
             'filter_companies_placeholder' => 'All companies',

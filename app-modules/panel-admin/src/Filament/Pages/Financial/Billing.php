@@ -14,30 +14,27 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Financial\FinancialCluster;
-use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ConsultingPayoutWidget;
-use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ConsultingVolumeWidget;
-use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ExtraCreditsTableWidget;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\BillingAlertsWidget;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\PaymentTotalsWidget;
 
 /**
- * Módulo "Consultorias e Consumo" do cockpit financeiro.
+ * Módulo "Cobranças" do cockpit financeiro (STORY-236 e 237).
  *
- * Entrega as stories 238, 240 e 239. Esta última pedia margem operacional, mas
- * a plataforma não sabe quanto uma consultoria vale — a do plano está embutida
- * na mensalidade e não é alocável. Foi reescrita com o PO para entregar o
- * repasse: quanto a Flamma paga ao parceiro pelas consultorias que consumiram
- * crédito do cliente.
+ * Escopo reduzido e rotulado por D-04: a tela mostra os status que o gateway de
+ * fato reporta. Recusado e expirado não existem na origem, e estorno chega mas
+ * ainda não é tratado.
  */
-class ConsultingUsage extends BaseDashboard
+class Billing extends BaseDashboard
 {
     use HasFiltersForm;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCreditCard;
 
     protected static ?string $cluster = FinancialCluster::class;
 
-    protected static string $routePath = 'consulting-usage';
+    protected static string $routePath = 'billing';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $title = null;
 
@@ -48,17 +45,17 @@ class ConsultingUsage extends BaseDashboard
 
     public function getTitle(): string|Htmlable
     {
-        return __('panel-admin::resources.pages.financial_consulting.title');
+        return __('panel-admin::resources.pages.financial_billing.title');
     }
 
     public function getSubheading(): string|Htmlable|null
     {
-        return __('panel-admin::resources.pages.financial_consulting.subheading');
+        return __('panel-admin::resources.pages.financial_billing.subheading');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('panel-admin::resources.pages.financial_consulting.navigation_label');
+        return __('panel-admin::resources.pages.financial_billing.navigation_label');
     }
 
     public function filtersForm(Schema $schema): Schema
@@ -68,13 +65,13 @@ class ConsultingUsage extends BaseDashboard
                 ->columnSpanFull()
                 ->schema([
                     Select::make('month')
-                        ->label(__('panel-admin::resources.pages.financial_consulting.filter_month'))
+                        ->label(__('panel-admin::resources.pages.financial_billing.filter_month'))
                         ->options($this->monthOptions())
                         ->default(now()->format('Y-m'))
                         ->native(false),
                     Select::make('companies')
-                        ->label(__('panel-admin::resources.pages.financial_consulting.filter_companies'))
-                        ->placeholder(__('panel-admin::resources.pages.financial_consulting.filter_companies_placeholder'))
+                        ->label(__('panel-admin::resources.pages.financial_billing.filter_companies'))
+                        ->placeholder(__('panel-admin::resources.pages.financial_billing.filter_companies_placeholder'))
                         ->options(fn (): array => Company::query()
                             ->withoutDefault()
                             ->orderBy('name')
@@ -93,9 +90,8 @@ class ConsultingUsage extends BaseDashboard
         return $schema->components([
             $this->getFiltersFormContentComponent(),
             Grid::make(1)->schema($this->getWidgetsSchemaComponents([
-                ConsultingVolumeWidget::class,
-                ExtraCreditsTableWidget::class,
-                ConsultingPayoutWidget::class,
+                BillingAlertsWidget::class,
+                PaymentTotalsWidget::class,
             ])),
         ]);
     }

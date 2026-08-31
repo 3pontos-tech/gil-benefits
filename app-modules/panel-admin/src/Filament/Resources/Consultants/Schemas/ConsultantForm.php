@@ -54,6 +54,18 @@ class ConsultantForm
                                     TextInput::make('email')
                                         ->email()
                                         ->required(),
+                                    TextInput::make('cost_per_appointment_cents')
+                                        ->label(__('panel-admin::resources.consultants.cost_per_appointment'))
+                                        ->helperText(__('panel-admin::resources.consultants.cost_per_appointment_hint'))
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->prefix('R$')
+                                        ->visible(fn (): bool => auth()->user()->isSuperAdmin())
+                                        // Em reais na tela, centavos no banco: o
+                                        // financeiro pensa em reais e o resto do
+                                        // cockpit conta em centavos (D-16).
+                                        ->formatStateUsing(fn (?int $state): ?string => $state === null ? null : number_format($state / 100, 2, ',', ''))
+                                        ->dehydrateStateUsing(fn (?string $state): ?int => blank($state) ? null : (int) round((float) str_replace(',', '.', $state) * 100)),
                                     KeyValue::make('socials_urls')
                                         ->editableKeys(false)
                                         ->addable(false)

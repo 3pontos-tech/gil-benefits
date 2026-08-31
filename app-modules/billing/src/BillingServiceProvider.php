@@ -60,5 +60,6 @@ class BillingServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/billing-routes.php');
         $this->loadTranslationsFrom(__DIR__ . '/../lang', 'billing');
+        $this->mergeConfigFrom(__DIR__ . '/../config/billing.php', 'billing');
     }
 }
