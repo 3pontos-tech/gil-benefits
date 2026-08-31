@@ -106,7 +106,7 @@ final class GetBillingAlerts
         $recent = Subscription::query()
             ->whereNotNull('ends_at')
             ->whereBetween('ends_at', [$now->subHours(self::RECENT_CANCELLATION_HOURS), $now])
-            ->orderBy('ends_at')
+            ->oldest('ends_at')
             ->get()
             ->keyBy(fn (Subscription $subscription): string => (string) $subscription->subscriptionable_id);
 
