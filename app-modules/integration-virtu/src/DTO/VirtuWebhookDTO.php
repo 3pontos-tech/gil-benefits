@@ -18,6 +18,8 @@ final readonly class VirtuWebhookDTO
 {
     private const array TERMINAL_STATUSES = ['CANCELED', 'REFUNDED', 'CHARGEBACK'];
 
+    private const array TERMINATED_SUBSCRIPTION_STATUSES = ['CANCELED', 'INACTIVE'];
+
     /**
      * @param  array<array-key, mixed>  $subscriptions
      */
@@ -108,9 +110,24 @@ final readonly class VirtuWebhookDTO
         return $this->source === 'SUBSCRIPTION_STATUS_CHANGED';
     }
 
+    /**
+     * CANCELED is emitted when Virtu gives up on the retries; INACTIVE follows it
+     * up to 24h later, from the expiry routine. Both mean the same to us, and
+     * treating the second as a repeat of the first keeps the block idempotent.
+     */
     public function isCancellation(): bool
     {
-        return $this->subscriptionStatus === 'CANCELED';
+        return in_array($this->subscriptionStatus, self::TERMINATED_SUBSCRIPTION_STATUSES, strict: true);
+    }
+
+    /**
+     * A recovered payment is reported only here — Virtu sends no SUBSCRIPTION_CHARGE
+     * for the retry that goes through, so this is the sole signal that a defaulting
+     * subscription is paying again.
+     */
+    public function isReactivation(): bool
+    {
+        return $this->subscriptionStatus === 'ACTIVE';
     }
 
     /**

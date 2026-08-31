@@ -10,6 +10,7 @@ use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 
 class StripeAdapter implements BillingContract, SupportsCreditPurchase, SupportsSubscriptionCancellation
@@ -35,7 +36,7 @@ class StripeAdapter implements BillingContract, SupportsCreditPurchase, Supports
 
     public function isSubscribed(Company|User $billable, string $planSlug): bool
     {
-        return $billable->subscribed($planSlug);
+        return Subscription::grantsAccess($billable, $planSlug);
     }
 
     public function createCheckout(Company|User $billable, CheckoutData $data): string
@@ -97,7 +98,7 @@ class StripeAdapter implements BillingContract, SupportsCreditPurchase, Supports
 
     public function cancelSubscription(Company|User $billable): void
     {
-        $billable->subscription()?->where('stripe_status', 'active')->latest()->first()?->cancel();
+        $billable->subscriptions()->where('stripe_status', 'active')->latest()->first()?->cancel();
     }
 
     public function purchaseCredits(Company|User $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string

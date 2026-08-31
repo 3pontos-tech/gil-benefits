@@ -371,3 +371,91 @@ it('does not read a chargeback or a dispute as paid', function (string $paymentS
 
     Event::assertNotDispatched(SubscriptionActivated::class);
 })->with(['CHARGEBACK', 'DISPUTE', 'DISPUTE_ALERT', 'PARTIALLY_PAID', 'DEFAULTER']);
+
+/**
+ * Shape confirmed in writing by Pagaa: a recovered payment arrives as a status
+ * change PAST_DUE → ACTIVE, never as a SUBSCRIPTION_CHARGE.
+ */
+function virtuRecoveryDto(array $data = []): VirtuWebhookDTO
+{
+    return virtuWebhookDto(array_merge([
+        'status' => 'ACTIVE',
+        'paymentStatus' => 'PAID',
+        'source' => 'SUBSCRIPTION_STATUS_CHANGED',
+        'saleSubscriptionStatus' => 'ACTIVE',
+        'previousStatus' => 'PAST_DUE',
+        'subscriptionId' => 66,
+        'subscriptions' => [['id' => '66', 'subscriptionId' => 66, 'status' => 'ACTIVE']],
+    ], $data));
+}
+
+it('gives access back when a delinquent subscription is paid again', function (): void {
+    Event::fake([SubscriptionActivated::class, SubscriptionCancelled::class, SubscriptionDefaulted::class]);
+
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'defaulter']);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuRecoveryDto());
+
+    Event::assertNotDispatched(SubscriptionCancelled::class);
+    Event::assertNotDispatched(SubscriptionDefaulted::class);
+    Event::assertDispatched(SubscriptionActivated::class, function (SubscriptionActivated $event): bool {
+        return $event->dto->subscriptionExternalId === 'checkout_fake1'
+            && $event->dto->billableId === $this->user->getKey()
+            && $event->dto->status === 'active'
+            && ! $event->dto->endsAt instanceof Carbon;
+    });
+});
+
+it('restores the benefit of a subscription that recovered', function (): void {
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'defaulter']);
+
+    expect(resolve(VirtuAdapter::class)->hasActiveSubscription($this->user))->toBeFalse();
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuRecoveryDto());
+
+    assertDatabaseCount('billing_subscriptions', 1);
+    assertDatabaseHas('billing_subscriptions', [
+        'stripe_id' => 'checkout_fake1',
+        'stripe_status' => 'active',
+    ]);
+
+    expect(resolve(VirtuAdapter::class)->hasActiveSubscription($this->user))->toBeTrue();
+});
+
+/**
+ * Shape confirmed in writing by Pagaa: the expiry routine reports EXPIRED, which
+ * maps to saleSubscriptionStatus INACTIVE, up to 24h after the cancellation.
+ */
+function virtuExpiryDto(array $data = []): VirtuWebhookDTO
+{
+    return virtuWebhookDto(array_merge([
+        'status' => 'EXPIRED',
+        'paymentStatus' => 'PAID',
+        'source' => 'SUBSCRIPTION_STATUS_CHANGED',
+        'saleSubscriptionStatus' => 'INACTIVE',
+        'previousStatus' => 'CANCELED',
+        'subscriptionId' => 66,
+        'subscriptions' => [['id' => '66', 'subscriptionId' => 66, 'status' => 'INACTIVE']],
+    ], $data));
+}
+
+it('keeps access off when the expiry routine closes a cancelled subscription', function (): void {
+    pendingVirtuSubscription($this->user, ['stripe_status' => 'inactive']);
+
+    resolve(HandleVirtuWebhook::class)->handle(virtuExpiryDto());
+
+    assertDatabaseHas('billing_subscriptions', [
+        'stripe_id' => 'checkout_fake1',
+        'stripe_status' => 'inactive',
+    ]);
+
+    expect(resolve(VirtuAdapter::class)->hasActiveSubscription($this->user))->toBeFalse();
+});
+
+it('reads each subscription lifecycle status as its own transition', function (): void {
+    expect(virtuRecoveryDto()->isSubscriptionStatusChange())->toBeTrue()
+        ->and(virtuRecoveryDto()->isCancellation())->toBeFalse()
+        ->and(virtuRecoveryDto()->isDelinquent())->toBeFalse()
+        ->and(virtuExpiryDto()->isCancellation())->toBeTrue()
+        ->and(virtuExpiryDto()->isDelinquent())->toBeFalse();
+});
