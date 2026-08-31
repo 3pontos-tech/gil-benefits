@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Billing\Core\Enums\CompanyFinancialStatusEnum;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Billing\Core\Support\RevenueResolver;
 use TresPontosTech\PanelAdmin\Actions\Financial\Concerns\BuildsFinancialCacheKey;
 use TresPontosTech\PanelAdmin\DTOs\Financial\BillingAlert;
 use TresPontosTech\PanelAdmin\DTOs\Financial\ContractRow;
@@ -30,7 +31,10 @@ final class GetBillingAlerts
 
     private const int RECENT_CANCELLATION_HOURS = 24;
 
-    public function __construct(private readonly GetContractsTable $contracts) {}
+    public function __construct(
+        private readonly GetContractsTable $contracts,
+        private readonly RevenueResolver $revenue,
+    ) {}
 
     /**
      * @return Collection<int, BillingAlert>
@@ -98,23 +102,46 @@ final class GetBillingAlerts
      */
     private function recentlyCancelled(Collection $companies, CarbonImmutable $now): BillingAlert
     {
-        $recentIds = Subscription::query()
+        /** @var Collection<string, Subscription> $recent */
+        $recent = Subscription::query()
             ->whereNotNull('ends_at')
             ->whereBetween('ends_at', [$now->subHours(self::RECENT_CANCELLATION_HOURS), $now])
-            ->pluck('subscriptionable_id')
-            ->map(fn (mixed $id): string => (string) $id)
-            ->all();
+            ->orderBy('ends_at')
+            ->get()
+            ->keyBy(fn (Subscription $subscription): string => (string) $subscription->subscriptionable_id);
 
         $matching = $companies->filter(
-            fn (ContractRow $row): bool => in_array($row->companyId, $recentIds, strict: true),
+            fn (ContractRow $row): bool => $recent->has($row->companyId),
         )->values();
 
         return new BillingAlert(
             key: 'recently_cancelled',
             severity: 'danger',
             companies: $matching,
-            totalCents: $this->sum($matching),
+            totalCents: $this->lostValue($matching, $recent),
         );
+    }
+
+    /**
+     * Quanto se perdeu com o cancelamento.
+     *
+     * O valor não pode sair da linha da empresa: `monthlyValue` só enxerga
+     * assinatura viva, então a empresa recém-cancelada vale `unknown` e o
+     * alerta somaria zero — sempre. A perda é o que a assinatura cancelada
+     * cobrava, e é ela que se valoriza aqui.
+     *
+     * @param  Collection<int, ContractRow>  $matching
+     * @param  Collection<string, Subscription>  $recent
+     */
+    private function lostValue(Collection $matching, Collection $recent): int
+    {
+        return (int) $matching->sum(function (ContractRow $row) use ($recent): int {
+            $subscription = $recent->get($row->companyId);
+
+            return $subscription instanceof Subscription
+                ? $this->revenue->forSubscription($subscription) ?? 0
+                : 0;
+        });
     }
 
     /**

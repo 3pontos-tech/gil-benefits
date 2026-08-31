@@ -144,7 +144,10 @@ describe('alertas de cobrança', function (): void {
 
         $alert = resolve(GetBillingAlerts::class)->handle($this->filters)->firstWhere('key', 'recently_cancelled');
 
-        expect($alert->count())->toBe(1);
+        // O valor tem de vir da assinatura cancelada: a empresa já não vale nada
+        // para o `RevenueResolver`, e somar pela linha dela zeraria o alerta.
+        expect($alert->count())->toBe(1)
+            ->and($alert->totalCents)->toBe(44900);
     });
 
     it('não alerta cancelamento antigo', function (): void {
