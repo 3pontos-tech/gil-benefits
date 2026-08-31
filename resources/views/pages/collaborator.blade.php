@@ -492,7 +492,7 @@
             colunas, título 44, corpo 16.
         --}}
         <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[min(36.875vw,708px)_1fr] lg:gap-[min(7.3958vw,142px)]">
-            <div class="relative">
+            <div class="fm-zoom-scope relative">
                 <div class="fm-reveal-left fm-zoom aspect-[708/589] w-full overflow-hidden">
                     <img src="{{ asset('img/colaborador/colegas.webp') }}"
                          alt="Colegas de trabalho conversando sobre finanças"
@@ -502,14 +502,16 @@
                 {{--
                     Grafismo: a mesma seta grossa da marca espelhada na vertical (aponta ↙),
                     apoiada no canto inferior esquerdo da foto — 230px no Figma, 23 para fora
-                    dela à esquerda e 55 abaixo, e passando POR CIMA da imagem (por isso vem
-                    depois dela no DOM). Estática, como as outras que se encaixam numa
-                    composição.
+                    dela à esquerda — e passando POR CIMA da imagem (por isso vem depois dela
+                    no DOM). O fm-zoom-follow a amplia junto com o zoom da foto no hover.
+                    O bottom de 2,5vw (eram os 55px/2,8646vw do Figma) deixa o braço
+                    horizontal ~4px sobreposto à base da foto: com o valor original ele
+                    começava 3px abaixo dela, abrindo um fio branco.
                 --}}
                 <x-graphism
                     type="arrow"
                     data-fm-static
-                    class="absolute bottom-[calc(min(2.8646vw,55px)*-1)] left-[calc(min(1.1979vw,23px)*-1)] hidden w-[min(11.9792vw,230px)] -scale-y-100 lg:block"
+                    class="fm-zoom-follow absolute bottom-[calc(min(2.5vw,48px)*-1)] left-[calc(min(1.1979vw,23px)*-1)] hidden w-[min(11.9792vw,230px)] -scale-y-100 lg:block"
                 />
             </div>
 
