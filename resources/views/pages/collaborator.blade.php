@@ -365,7 +365,8 @@
          6. ESCOLHA SEU PLANO — 8298:3587
          Bloco NOVO. Preço em gradiente rose→orange via bg-clip-text.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="planos" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[440px] lg:px-[62px]">
+    {{-- O design pedia 440px de respiro após a Privacidade; encurtado para 160. --}}
+    <section id="planos" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[160px] lg:px-[62px]">
         {{-- Vector 15 (8298:3477): 1920×419, começa 200px dentro desta seção. --}}
         <div class="absolute left-1/2 top-[200px] -z-10 -ml-[50vw] hidden w-screen lg:block"
              aria-hidden="true">
