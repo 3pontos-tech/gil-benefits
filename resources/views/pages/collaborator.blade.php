@@ -326,13 +326,13 @@
                 <img src="{{ asset('img/privacy.webp') }}" alt=""
                      class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
 
-                {{-- Mesmos offsets da Privacidade na /para-empresas: a base desce 0,4% além
-                     do topo da faixa (19,69%) e a lateral avança 0,45% no bloco largo —
-                     encostar exato deixava um fio branco de arredondamento. --}}
+                {{-- Base 0,4% abaixo do topo da faixa (19,69%), como na /para-empresas:
+                     encostar exato deixava um fio branco de arredondamento. Na horizontal
+                     esta seta fica 1% mais à esquerda que a de lá (right 43 vs 42). --}}
                 <x-graphism
                     type="collaborator-arrow-alt"
                     data-fm-static
-                    class="absolute bottom-[19.29%] right-[42%] hidden w-[17.4%] xl:block"
+                    class="absolute bottom-[19.29%] right-[43%] hidden w-[17.4%] xl:block"
                 />
             </div>
         </div>
