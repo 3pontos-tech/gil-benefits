@@ -73,7 +73,6 @@
         <x-button
             class="w-full! sm:w-fit! lg:w-[clamp(250px,17.3958vw,334px)]!"
             variant="flat"
-            rounded="none"
             href="#simulador"
         >
             Simular contratação

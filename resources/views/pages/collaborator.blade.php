@@ -48,7 +48,6 @@
                         class="fm-btn w-full! sm:w-[273px]!"
                         variant="light-brand"
                         size="xl-tight"
-                        rounded="none"
                         href="#planos"
                     >
                         Conhecer planos
@@ -57,7 +56,6 @@
                         class="fm-btn w-full! sm:w-[273px]!"
                         variant="flat"
                         size="xl-tight"
-                        rounded="none"
                         href="https://wa.me/5511976205711?text=Flamma"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -140,7 +138,6 @@
                 data-fm-delay="1"
                 variant="flat"
                 size="xl-tight"
-                rounded="none"
                 href="/app/register"
             >
                 Fazer meu cadastro
@@ -350,7 +347,6 @@
                 data-fm-delay="2"
                 variant="flat"
                 size="xl-tight"
-                rounded="none"
                 href="#planos"
             >
                 Simular contratação
@@ -452,7 +448,6 @@
                     data-fm-delay="2"
                     variant="flat"
                     size="xl-tight"
-                    rounded="none"
                     href="/app/register"
                 >
                     Fazer meu cadastro
@@ -516,7 +511,6 @@
                     data-fm-delay="2"
                     variant="flat"
                     size="xl-tight"
-                    rounded="none"
                     href="https://wa.me/5511976205711?text=Flamma"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -548,7 +542,6 @@
                     class="fm-btn w-full! sm:w-[248px]!"
                     variant="flat"
                     size="xl-tight"
-                    rounded="none"
                     href="/app/register"
                 >
                     Agende sua primeira sessão

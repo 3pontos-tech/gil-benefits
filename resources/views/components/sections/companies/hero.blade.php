@@ -34,7 +34,6 @@
             <x-button
                 class="mt-2 w-full! sm:w-fit!"
                 variant="flat"
-                rounded="none"
                 href="#simulador"
             >
                 Simular contratação
