@@ -356,7 +356,7 @@
          7. PERGUNTAS FREQUENTES — 8298:556
          Accordion com Alpine, no mesmo padrão que a home já usava.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="faq" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 pb-24 sm:px-8 lg:mt-[74px] lg:px-[62px] lg:pb-0">
+    <section id="faq" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[74px] lg:px-[62px]">
         <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-[825px_1fr]">
             <div class="flex flex-col justify-center gap-8 px-0 py-4 lg:gap-16 lg:px-8">
                 <div class="flex flex-col gap-6 lg:gap-[27px]">
@@ -423,7 +423,8 @@
     </section>
 
 
-    {{-- Onda em degraus que faz a transição para o rodapé (Vector 10 no design) --}}
-    <x-sections.footer-wave top-margin="mt-20 lg:mt-[10px]" />
+    {{-- Onda em degraus que faz a transição para o rodapé (Vector 10 no design),
+         encurtada aqui para o FAQ ficar mais perto do rodapé --}}
+    <x-sections.footer-wave top-margin="mt-12 lg:mt-[10px]" height="h-[80px] lg:h-[180px]" />
 </div>
 </x-layouts.site>
