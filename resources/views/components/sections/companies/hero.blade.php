@@ -4,12 +4,13 @@
     da foto e asterisco sobre a parte de baixo dela. No mobile o design não exibe a foto.
 --}}
 <section class="relative pt-6 lg:pt-10" id="empresas">
-    {{-- Seta apontando para ↘, sangrando na esquerda (image 8 no design). Só no desktop:
-         no mobile o título ocupa a largura toda e ela caía sobre as primeiras linhas. --}}
+    {{-- Seta invertida em relação ao design (era ↘ com rotate-180): as barras encostam
+         nas bordas esquerda/topo e a haste desce para ↘. Só no desktop: no mobile o
+         título ocupa a largura toda e ela caía sobre as primeiras linhas. --}}
     <x-graphism
         type="arrow"
         data-fm-static
-        class="absolute -left-24 -top-2 -z-10 hidden rotate-180 lg:block lg:w-[274px]"
+        class="absolute -left-24 -top-2 -z-10 hidden lg:block lg:w-[274px]"
     />
 
     {{-- Bloco em gradiente atrás do topo da foto --}}
