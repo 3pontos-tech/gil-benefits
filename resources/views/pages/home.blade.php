@@ -267,23 +267,47 @@
 
     {{-- ══════════════════════════════════════════════════════════════
          5. O PLANO ACOMPANHA O CRESCIMENTO — 8298:551
-         Só título + foto de 1670×804, como no frame do Figma. A calculadora
-         (<livewire:pricing-calculator />) foi retirada daqui a pedido: ela não
-         existe neste frame e ocupava justamente a faixa do Vector 9. O simulador
-         segue vivo na página Para Empresas, em #simulador.
+         A foto do frame saiu: no lugar entra o simulador de preço, o mesmo
+         da página Para Empresas. Os grafismos (Vector 9 + estrela + seta)
+         desceram para a seção do CTA, logo abaixo.
          ══════════════════════════════════════════════════════════════ --}}
     <section id="pricing" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[73px] lg:px-[62px]">
-        {{--
-            Vector 9 (8298:516) — massa escura de 1920×1254 que começa 440px abaixo do
-            topo desta seção (43,22% de 1018), ou seja no meio da foto do plano, e desce
-            por trás do CTA, terminando 6px antes do fim dele. A estrela (Group 31834)
-            mora sobre ela: left 74,58% · top 28,07% · 28,16% × 43,86% do palco.
+        <header class="flex flex-col gap-8 text-center">
+            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                O plano acompanha o <span class="text-brand-primary">crescimento</span> do seu time
+            </h2>
+            <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                Faça a simulação, descubra o melhor plano para sua empresa e, se ficar com
+                alguma dúvida, entre em contato.
+            </p>
+        </header>
 
-            Só cabe aqui porque a calculadora saiu — era ela que ocupava esta faixa.
+        <div class="fm-reveal mt-10 lg:mt-20">
+            <livewire:pricing-calculator />
+        </div>
+    </section>
+
+    {{-- ══════════════════════════════════════════════════════════════
+         6. CTA — DÊ AO SEU TIME O CUIDADO QUE ELE MERECE — 8298:406
+         O lg:mt-[330px] abre espaço para a faixa esquerda do Vector 9 (222px
+         de altura no palco) passar entre o simulador e o headline sem escurecer
+         o fundo do texto.
+         ══════════════════════════════════════════════════════════════ --}}
+    <section id="contratar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[330px] lg:px-[62px]">
+        {{--
+            Vector 9 (8298:516) — massa escura de 1920×1254, agora ancorada nesta seção:
+            o topo fica 650px acima dela, de modo que a faixa esquerda do desenho
+            (y 393–615 do palco) cai no vão entre o simulador e o headline, a coluna da
+            direita sobe atrás do card do simulador e a base termina junto da foto.
+            A estrela (Group 31834) mora sobre ela: left 74,58% · top 28,07% ·
+            28,16% × 43,86% do palco.
         --}}
-        <div class="pointer-events-none absolute left-1/2 top-[43.22%] -z-10 -ml-[50vw] hidden w-screen lg:block"
+        {{-- Altura fixa em px (não aspect-ratio): o vão acima e a posição da faixa são
+             medidas fixas do layout, então o palco não pode escalar com a viewport —
+             o preserveAspectRatio="none" estica os degraus só na horizontal. --}}
+        <div class="pointer-events-none absolute -top-[650px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block"
              aria-hidden="true">
-            <div class="relative aspect-[1920/1254] w-full">
+            <div class="relative h-[1254px] w-full">
                 <svg class="absolute inset-0 size-full" viewBox="0 0 1920 1254" fill="none"
                      preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M980 615H0V393H1486.5V380H1637.5V1L1920 0V1253.77L1798 1254V862L1487 857.5V664H980V615Z"
@@ -296,30 +320,8 @@
             </div>
         </div>
 
-        {{-- Grafismo: seta ↖ encostada na borda esquerda, na altura do título (270px no Figma) --}}
-        <x-graphism type="arrow" data-fm-static class="absolute -top-16 left-1/2 -z-10 -ml-[50vw] hidden w-[270px] lg:block" />
-
-        <header class="flex flex-col gap-8 text-center">
-            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                O plano acompanha o <span class="text-brand-primary">crescimento</span> do seu time
-            </h2>
-            <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                Faça a simulação, descubra o melhor plano para sua empresa e, se ficar com
-                alguma dúvida, entre em contato.
-            </p>
-        </header>
-
-        <div class="fm-reveal-scale fm-zoom fm-zoom--slow mt-10 aspect-[1670/804] w-full overflow-hidden lg:mt-20">
-            <img src="{{ asset('img/home/plan.webp') }}"
-                 alt="Consultora conversando com uma colaboradora"
-                 class="size-full object-cover object-[center_32%]" loading="lazy" decoding="async">
-        </div>
-    </section>
-
-    {{-- ══════════════════════════════════════════════════════════════
-         6. CTA — DÊ AO SEU TIME O CUIDADO QUE ELE MERECE — 8298:406
-         ══════════════════════════════════════════════════════════════ --}}
-    <section id="contratar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[86px] lg:px-[62px]">
+        {{-- Grafismo: seta ↖ encostada na borda esquerda, sobre o topo da faixa escura --}}
+        <x-graphism type="arrow" data-fm-static class="absolute -top-[330px] left-1/2 -z-10 -ml-[50vw] hidden w-[270px] lg:block" />
         <div class="flex flex-col items-center justify-between gap-10 lg:flex-row lg:gap-16">
             <div class="flex flex-col gap-8 lg:w-[822px]">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
