@@ -367,10 +367,18 @@
          ══════════════════════════════════════════════════════════════ --}}
     {{-- O design pedia 440px de respiro após a Privacidade; encurtado para 160. --}}
     <section id="planos" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[160px] lg:px-[62px]">
-        {{-- Vector 15 (8298:3477): 1920×419, começa 200px dentro desta seção. --}}
-        <div class="absolute left-1/2 top-[200px] -z-10 -ml-[50vw] hidden w-screen lg:block"
+        {{--
+            Vector 15 (8298:3477): 1920×419. Ancorado pela base da seção (= base dos
+            cards), como no Figma: a faixa desce 78px além dos cards, o bloco alto da
+            direita sobe ao lado do segundo card e os degraus da esquerda cortam o
+            terço de baixo do primeiro. Altura fixa em px (o preserveAspectRatio="none"
+            estica só na horizontal): com aspect-ratio, abaixo de 1920 a faixa encolhia
+            e terminava no meio dos cards. O painel translúcido do canto inferior
+            direito é o Rectangle do frame, em % do palco.
+        --}}
+        <div class="absolute left-1/2 top-[calc(100%-341px)] -z-10 -ml-[50vw] hidden h-[419px] w-screen lg:block"
              aria-hidden="true">
-            <svg class="block aspect-[1920/419] w-full" viewBox="0 0 1920 419" fill="none"
+            <svg class="absolute inset-0 size-full" viewBox="0 0 1920 419" fill="none"
                  preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 419V341.461V271.675H88V300.106H215.5V341.461H297H571.947V279.34H758.593V250.029H945.739V176.751H1129.88V116.691H1336.54V26.4208H1467H1591V0H1920V419H0Z"
                       fill="url(#colabPlansGradient)"/>
@@ -382,6 +390,8 @@
                     </linearGradient>
                 </defs>
             </svg>
+
+            <div class="absolute left-[72.7%] top-[58.7%] h-[41.3%] w-[27.3%] bg-white/32"></div>
         </div>
         <header class="mx-auto flex flex-col gap-4 text-center lg:max-w-[1418px]">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
