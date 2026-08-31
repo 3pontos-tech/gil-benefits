@@ -162,6 +162,7 @@
          Este bloco não vinha no Blade do handoff — a foto nem estava na lista
          de download, foi exportada do nó 8298:584.
          ══════════════════════════════════════════════════════════════ --}}
+    {{-- Bloco desativado por ora, a pedido — some junto o grafismo cinza em degraus.
     <div class="relative left-1/2 -mx-[50vw] mt-16 hidden w-screen lg:block lg:mt-[118px]">
         <div class="relative aspect-[1920/1094] w-full">
             <svg class="absolute inset-0 size-full" viewBox="0 0 1920 1094" fill="none"
@@ -177,13 +178,16 @@
             </div>
         </div>
     </div>
+    --}}
 
     {{-- ══════════════════════════════════════════════════════════════
          4. O ESTRESSE FINANCEIRO CUSTA CARO — 8298:415
          Duas colunas: rose (empresa) e clara (colaborador).
          Foto 577×760 à direita, fora do container no Figma.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="challenge" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:-mt-[19px] lg:px-[62px]">
+    {{-- O lg:mt-24 é temporário: quando o bloco de imagem acima voltar, o valor
+         original era lg:-mt-[19px], que encostava a seção na base da foto. --}}
+    <section id="challenge" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-24 lg:px-[62px]">
         <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[945px_1fr] lg:gap-16">
             <div class="flex flex-col gap-8">
                 <header class="flex flex-col gap-4">
