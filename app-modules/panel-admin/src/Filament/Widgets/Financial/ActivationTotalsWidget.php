@@ -74,12 +74,12 @@ class ActivationTotalsWidget extends StatsOverviewWidget
     private function stat(string $metric, ActivationTotals $current, ?ActivationTotals $previous, string $icon): Stat
     {
         $stat = Stat::make(
-            __("panel-admin::widgets.financial.activation.{$metric}"),
+            __('panel-admin::widgets.financial.activation.' . $metric),
             EngagementNumber::integer($current->metric($metric)),
         );
 
         $variation = $current->variationAgainst($previous, $metric);
-        $description = __("panel-admin::widgets.financial.activation.{$metric}_description");
+        $description = __(sprintf('panel-admin::widgets.financial.activation.%s_description', $metric));
 
         if ($variation === null) {
             return $stat->description($description)->descriptionIcon($icon)->color('gray');

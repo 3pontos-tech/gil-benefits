@@ -60,7 +60,7 @@ final class GetBillingAlerts
             $this->dueSoon($companies, $now),
             $this->recentlyCancelled($companies, $now),
             $this->delinquent($companies),
-        ])->filter(fn (BillingAlert $alert): bool => ! $alert->isEmpty())->values();
+        ])->reject(fn (BillingAlert $alert): bool => $alert->isEmpty())->values();
     }
 
     /**
@@ -75,7 +75,7 @@ final class GetBillingAlerts
     {
         $limit = $now->addDays(self::DUE_SOON_DAYS);
 
-        $matching = $companies->filter(fn (ContractRow $row): bool => $row->nextChargeAt !== null
+        $matching = $companies->filter(fn (ContractRow $row): bool => $row->nextChargeAt instanceof CarbonImmutable
             && $row->nextChargeAt->betweenIncluded($now, $limit))->values();
 
         return new BillingAlert(

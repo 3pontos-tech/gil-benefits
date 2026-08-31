@@ -35,7 +35,7 @@ final class GetRevenueSeries
     public function handle(FinancialFilters $filters, int $months = 12, ?CarbonImmutable $now = null): Collection
     {
         return Cache::remember(
-            $this->financialCacheKey(self::BUCKET . ".{$months}", $filters),
+            $this->financialCacheKey(self::BUCKET . ('.' . $months), $filters),
             $this->financialCacheTtl(),
             fn (): Collection => $this->build($filters, $months, $now ?? CarbonImmutable::now()),
         );
@@ -43,7 +43,7 @@ final class GetRevenueSeries
 
     public function forget(FinancialFilters $filters, int $months = 12): void
     {
-        $this->forgetFinancialCache(self::BUCKET . ".{$months}", $filters);
+        $this->forgetFinancialCache(self::BUCKET . ('.' . $months), $filters);
     }
 
     /**

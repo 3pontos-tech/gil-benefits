@@ -123,6 +123,7 @@ describe('navegação por status', function (): void {
         $page = Livewire::withQueryParams(['status' => 'inventado'])->test(CompaniesAndContracts::class);
 
         $page->assertOk();
+
         expect($page->instance()->activeStatus())->toBeNull();
     });
 
@@ -130,6 +131,7 @@ describe('navegação por status', function (): void {
         $page = livewire(CompaniesAndContracts::class);
 
         $page->assertOk();
+
         expect($page->instance()->activeStatus())->toBeNull();
     });
 });

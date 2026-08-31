@@ -132,7 +132,7 @@ describe('valor do repasse', function (): void {
 
 describe('custo ausente', function (): void {
     it('devolve nulo em vez de zero quando não há custo nenhum', function (): void {
-        config()->set('billing.consulting_cost_in_cents', null);
+        config()->set('billing.consulting_cost_in_cents');
         payoutConsultant('Ana', [AppointmentStatus::Completed]);
 
         $payout = resolve(GetConsultingPayout::class)->handle($this->filters);
@@ -142,7 +142,7 @@ describe('custo ausente', function (): void {
     });
 
     it('mantém o consultor sem custo fora do total e o denuncia', function (): void {
-        config()->set('billing.consulting_cost_in_cents', null);
+        config()->set('billing.consulting_cost_in_cents');
         payoutConsultant('Sem custo', [AppointmentStatus::Completed]);
         payoutConsultant('Com custo', [AppointmentStatus::Completed], ownCost: 9000);
 
@@ -164,7 +164,7 @@ describe('tela', function (): void {
     });
 
     it('avisa quando o custo não está configurado', function (): void {
-        config()->set('billing.consulting_cost_in_cents', null);
+        config()->set('billing.consulting_cost_in_cents');
         payoutConsultant('Ana', [AppointmentStatus::Completed]);
 
         Livewire::test(ConsultingPayoutWidget::class)

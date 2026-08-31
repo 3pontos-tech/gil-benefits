@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use TresPontosTech\Billing\Core\Enums\CompanyFinancialStatusEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
@@ -94,7 +95,7 @@ describe('montagem das linhas', function (): void {
 
     it('não dispara uma consulta por empresa', function (): void {
         foreach (range(1, 8) as $i) {
-            listedCompany("Empresa {$i}", 'active');
+            listedCompany('Empresa ' . $i, 'active');
         }
 
         Cache::flush();

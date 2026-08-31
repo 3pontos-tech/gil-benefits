@@ -11,6 +11,7 @@ use TresPontosTech\PanelAdmin\Filament\Pages\Financial\CompaniesAndContracts;
 use TresPontosTech\PanelAdmin\Filament\Pages\Financial\ConsultingUsage;
 use TresPontosTech\PanelAdmin\Filament\Pages\Financial\RevenueDashboard;
 use TresPontosTech\PanelAdmin\Filament\Pages\Financial\UsersAndUsage;
+use TresPontosTech\PanelAdmin\Support\RevenueReconstructor;
 
 /**
  * Gates do épico FLM-41.
@@ -25,7 +26,7 @@ arch('o cockpit financeiro não conhece gateway')
         'TresPontosTech\PanelAdmin\DTOs\Financial',
         'TresPontosTech\PanelAdmin\Filament\Pages\Financial',
         'TresPontosTech\PanelAdmin\Filament\Widgets\Financial',
-        'TresPontosTech\PanelAdmin\Support\RevenueReconstructor',
+        RevenueReconstructor::class,
     ])
     ->not->toUse([
         'TresPontosTech\IntegrationVirtu',
@@ -41,7 +42,7 @@ it('não expõe nenhum campo de previsão de receita na tela', function (): void
 
     foreach (['pt_BR', 'en'] as $locale) {
         /** @var array<string, mixed> $widgets */
-        $widgets = require base_path("app-modules/panel-admin/lang/{$locale}/widgets.php");
+        $widgets = require base_path(sprintf('app-modules/panel-admin/lang/%s/widgets.php', $locale));
 
         /** @var array<string, mixed> $financial */
         $financial = $widgets['financial'] ?? [];
@@ -50,7 +51,7 @@ it('não expõe nenhum campo de previsão de receita na tela', function (): void
             ->filter(fn (mixed $value): bool => is_string($value) && preg_match($forbidden, $value) === 1)
             ->all();
 
-        expect($offenders)->toBe([], "Texto de previsão encontrado em {$locale}");
+        expect($offenders)->toBe([], 'Texto de previsão encontrado em ' . $locale);
     }
 });
 
