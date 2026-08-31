@@ -105,7 +105,7 @@
         />
 
         <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-7">
-            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-[64px]">
+            <h2 class="fm-reveal text-center text-[32px] font-bold leading-[1.5] text-high lg:text-left lg:text-[64px]">
                 O que é o <span class="text-brand-primary">Flamma</span>?
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
