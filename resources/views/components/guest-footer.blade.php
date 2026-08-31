@@ -66,7 +66,7 @@
                         type="email"
                         id="newsletter-email"
                         placeholder="Digite seu email"
-                        class="w-full rounded-md border border-white/60 bg-transparent px-4 py-2.5 text-sm placeholder:text-light/70 focus:border-white focus:outline-none sm:max-w-[301px]"
+                        class="w-full border border-white/60 bg-transparent px-4 py-2.5 text-sm placeholder:text-light/70 focus:border-white focus:outline-none sm:max-w-[301px]"
                     >
 
                     <x-button class="w-full! shrink-0 sm:w-[142px]!" variant="white" size="md">
