@@ -48,8 +48,10 @@ function usageCompany(string $name, int $seats, int $employees, int $usedNow, in
     ]);
 
     foreach (range(1, $employees) as $index) {
+        // Os que não verificaram vêm do fim da lista, para não colidirem com os
+        // que usaram — cada cenário exercita um grupo por vez.
         $user = User::factory()->create([
-            'email_verified_at' => $index <= $unverified ? null : now()->subMonths(6),
+            'email_verified_at' => $index > $employees - $unverified ? null : now()->subMonths(6),
         ]);
 
         $company->employees()->attach($user->getKey(), [
@@ -168,6 +170,40 @@ describe('ativação agregada', function (): void {
         ['previous' => $previous] = resolve(GetActivationTotals::class)->handle($this->filters);
 
         expect($previous)->toBeNull();
+    });
+
+    it('particiona a base: ativo, sem acesso e inativo somam o total', function (): void {
+        usageCompany('Alpha SA', seats: 10, employees: 6, usedNow: 2, unverified: 2);
+
+        ['current' => $totals] = resolve(GetActivationTotals::class)->handle($this->filters);
+
+        expect($totals->active + $totals->withoutAccess + $totals->inactive)->toBe($totals->total)
+            ->and($totals->active)->toBe(2)
+            ->and($totals->withoutAccess)->toBe(2)
+            ->and($totals->inactive)->toBe(2);
+    });
+
+    it('conta uma vez só quem não verificou o e-mail mas usou o benefício', function (): void {
+        // O caso que sobrepunha os grupos: sem verificação e com consultoria no
+        // mês. O uso é fato e vence o proxy, então ele é ativo — e some de
+        // "sem acesso", em vez de aparecer nos dois e furar o total.
+        $company = Company::factory()->create();
+        $user = User::factory()->create(['email_verified_at' => null]);
+        $company->employees()->attach($user->getKey(), ['active' => true, 'created_at' => now()->subMonth()]);
+
+        Appointment::factory()->create([
+            'company_id' => $company->getKey(),
+            'user_id' => $user->getKey(),
+            'status' => AppointmentStatus::Completed,
+            'appointment_at' => now()->subDays(2),
+        ]);
+
+        ['current' => $totals] = resolve(GetActivationTotals::class)->handle($this->filters);
+
+        expect($totals->total)->toBe(1)
+            ->and($totals->active)->toBe(1)
+            ->and($totals->withoutAccess)->toBe(0)
+            ->and($totals->inactive)->toBe(0);
     });
 
     it('não conta usuário sem vínculo de empresa', function (): void {

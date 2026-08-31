@@ -76,15 +76,11 @@ final class GetActivationTotals
 
         $total = (clone $base)->distinct()->count('company_employees.user_id');
 
-        // Sem acesso é relativo ao mês: quem verificou depois do fim do período
-        // não tinha acesso naquele mês.
-        $withoutAccess = (clone $base)
-            ->where(fn ($query) => $query
-                ->whereNull('users.email_verified_at')
-                ->orWhere('users.email_verified_at', '>', $period->end))
-            ->distinct()
-            ->count('company_employees.user_id');
-
+        // Os três grupos precisam particionar a base, senão o total não fecha e
+        // "inativos" some sem ninguém perceber. A ordem é: quem usou é ativo
+        // (fato), depois quem nunca verificou o e-mail, e o resto é inativo — a
+        // mesma ordem do detalhe por colaborador, para as duas telas não
+        // classificarem a mesma pessoa de formas diferentes.
         $active = (clone $base)
             ->join('appointments', function ($join): void {
                 $join->on('appointments.user_id', '=', 'company_employees.user_id')
@@ -93,6 +89,23 @@ final class GetActivationTotals
             ->where('appointments.status', AppointmentStatus::Completed->value)
             ->whereNull('appointments.deleted_at')
             ->whereBetween('appointments.appointment_at', [$period->start, $period->end])
+            ->distinct()
+            ->count('company_employees.user_id');
+
+        // Sem acesso é relativo ao mês: quem verificou depois do fim do período
+        // não tinha acesso naquele mês. Quem usou já foi contado como ativo.
+        $withoutAccess = (clone $base)
+            ->where(fn ($query) => $query
+                ->whereNull('users.email_verified_at')
+                ->orWhere('users.email_verified_at', '>', $period->end))
+            ->whereNotExists(fn ($query) => $query
+                ->select(DB::raw(1))
+                ->from('appointments')
+                ->whereColumn('appointments.user_id', 'company_employees.user_id')
+                ->whereColumn('appointments.company_id', 'company_employees.company_id')
+                ->where('appointments.status', AppointmentStatus::Completed->value)
+                ->whereNull('appointments.deleted_at')
+                ->whereBetween('appointments.appointment_at', [$period->start, $period->end]))
             ->distinct()
             ->count('company_employees.user_id');
 

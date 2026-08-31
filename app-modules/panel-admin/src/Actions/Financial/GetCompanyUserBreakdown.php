@@ -52,8 +52,9 @@ final class GetCompanyUserBreakdown
     }
 
     /**
-     * A ordem das checagens é a leitura que o CS faz: usou agora, nunca entrou,
-     * já usou antes, nunca usou.
+     * A ordem das checagens é a mesma da agregação da STORY-242, e por isso
+     * importa: uso é fato e vence o proxy de e-mail verificado. Assim uma
+     * pessoa nunca aparece classificada de um jeito no card e de outro aqui.
      *
      * @param  array<string, mixed>  $attributes
      * @param  array<string, bool>  $usedInPeriod
