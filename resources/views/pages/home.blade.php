@@ -380,7 +380,7 @@
                 </x-button>
             </div>
 
-            <div class="flex flex-col justify-center gap-4">
+            <div class="flex flex-col justify-center gap-2">
                 @foreach ([
                     ['Como funciona o processo de atendimento?', 'Cada colaborador agenda uma sessão individual de até 60 minutos com um consultor especializado, no horário que preferir. O atendimento é contínuo e acompanha a evolução de cada pessoa.'],
                     ['Posso alterar minhas informações cadastrais?', 'Sim. As informações cadastrais podem ser atualizadas a qualquer momento pelo próprio colaborador, direto na plataforma.'],
