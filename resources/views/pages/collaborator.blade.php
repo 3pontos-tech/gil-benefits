@@ -269,9 +269,11 @@
                     </div>
                 </div>
 
-                {{-- Veio da seção "Do acesso à primeira sessão", onde ficava abaixo do título --}}
+                {{-- Veio da seção "Do acesso à primeira sessão", onde ficava abaixo do título.
+                     border-0!: sobre a massa escura, a borda outline-light do flat vira um
+                     contorno branco — aqui o botão é só o vermelho chapado. --}}
                 <x-button
-                    class="fm-reveal-left fm-btn w-full! sm:w-[273px]!"
+                    class="fm-reveal-left fm-btn border-0! w-full! sm:w-[273px]!"
                     data-fm-delay="2"
                     variant="flat"
                     size="xl-tight"
