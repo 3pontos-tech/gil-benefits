@@ -183,91 +183,84 @@
     {{-- ══════════════════════════════════════════════════════════════
          4. O ESTRESSE FINANCEIRO CUSTA CARO — 8298:415
          Duas colunas: rose (empresa) e clara (colaborador).
-         Foto 577×760 à direita, fora do container no Figma.
+         A foto 577×760 que o Figma punha à direita saiu — os cards
+         ocupam a largura toda da seção.
          ══════════════════════════════════════════════════════════════ --}}
     {{-- O lg:mt-24 é temporário: quando o bloco de imagem acima voltar, o valor
          original era lg:-mt-[19px], que encostava a seção na base da foto. --}}
     <section id="challenge" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-24 lg:px-[62px]">
-        <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[945px_1fr] lg:gap-16">
-            <div class="flex flex-col gap-8">
-                <header class="flex flex-col gap-4">
-                    <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                        O estresse financeiro <span class="text-brand-primary">custa caro</span>
-                    </h2>
-                    <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                        Colaboradores endividados faltam mais, produzem menos e saem primeiro.
-                        É uma das causas mais subestimadas de turnover no Brasil e também uma
-                        das mais fáceis de endereçar.
-                    </p>
-                </header>
+        <div class="flex flex-col gap-8">
+            <header class="flex flex-col gap-4">
+                <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                    O estresse financeiro <span class="text-brand-primary">custa caro</span>
+                </h2>
+                <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                    Colaboradores endividados faltam mais, produzem menos e saem primeiro.
+                    É uma das causas mais subestimadas de turnover no Brasil e também uma
+                    das mais fáceis de endereçar.
+                </p>
+            </header>
 
-                <div class="grid grid-cols-1 gap-0 md:grid-cols-2">
-                    {{-- Coluna rose — para a empresa --}}
-                    <div class="fm-reveal-left flex flex-col gap-8 border border-outline-light bg-brand-primary p-8">
-                        <div class="flex flex-col gap-4">
-                            <h3 class="text-2xl font-bold leading-[1.5] text-light lg:text-[32px]">Para sua empresa</h3>
-                            <div class="h-px w-full bg-icon-light"></div>
-                        </div>
-                        <div class="flex flex-col gap-8">
-                            @foreach ([
-                                ['Mais produtividade', 'Colaboradores com finanças organizadas trabalham mais focados e engajados.'],
-                                ['Menos turnover', 'Diminuição de faltas e menos rotatividade, com um time mais estável.'],
-                                ['Retenção de talento', 'Um diferencial competitivo que valoriza o bem-estar de quem trabalha com você.'],
-                            ] as $item)
-                                <div class="flex flex-col gap-3">
-                                    <p class="text-xl font-bold leading-[1.5] text-light">{{ $item[0] }}</p>
-                                    <p class="text-base font-medium leading-[1.5] text-light">{{ $item[1] }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                        <x-button
-                            class="fm-btn w-full!"
-                            variant="light-brand"
-                            size="xl"
-                            href="https://wa.me/5511976205711?text=Flamma"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            Fale com a gente
-                        </x-button>
+            <div class="grid grid-cols-1 gap-0 md:grid-cols-2">
+                {{-- Coluna rose — para a empresa --}}
+                <div class="fm-reveal-left flex flex-col gap-8 border border-outline-light bg-brand-primary p-8">
+                    <div class="flex flex-col gap-4">
+                        <h3 class="text-2xl font-bold leading-[1.5] text-light lg:text-[32px]">Para sua empresa</h3>
+                        <div class="h-px w-full bg-icon-light"></div>
                     </div>
-
-                    {{-- Coluna clara — para o colaborador --}}
-                    <div class="fm-reveal-right flex flex-col gap-8 border border-outline-light bg-elevation-01dp p-8">
-                        <div class="flex flex-col gap-4">
-                            <h3 class="text-2xl font-bold leading-[1.5] text-high lg:text-[32px]">Para seu colaborador</h3>
-                            <div class="h-px w-full bg-outline-light"></div>
-                        </div>
-                        <div class="flex flex-col gap-8">
-                            @foreach ([
-                                ['Consultoria personalizada', 'Sessões individuais, focadas na realidade financeira de cada pessoa.'],
-                                ['Controle financeiro', 'Ferramentas para organizar dívidas, criar orçamento e planejar o futuro.'],
-                                ['Menos ansiedade', 'Mais tranquilidade no dia a dia, com uma relação mais saudável com o dinheiro.'],
-                            ] as $item)
-                                <div class="flex flex-col gap-3">
-                                    <p class="text-xl font-bold leading-[1.5] text-high">{{ $item[0] }}</p>
-                                    <p class="text-base font-medium leading-[1.5] text-medium">{{ $item[1] }}</p>
-                                </div>
-                            @endforeach
-                        </div>
-                        <x-button
-                            class="fm-btn w-full!"
-                            variant="flat"
-                            size="xl"
-                            href="https://wa.me/5511976205711?text=Flamma"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            Fale com a gente
-                        </x-button>
+                    <div class="flex flex-col gap-8">
+                        @foreach ([
+                            ['Mais produtividade', 'Colaboradores com finanças organizadas trabalham mais focados e engajados.'],
+                            ['Menos turnover', 'Diminuição de faltas e menos rotatividade, com um time mais estável.'],
+                            ['Retenção de talento', 'Um diferencial competitivo que valoriza o bem-estar de quem trabalha com você.'],
+                        ] as $item)
+                            <div class="flex flex-col gap-3">
+                                <p class="text-xl font-bold leading-[1.5] text-light">{{ $item[0] }}</p>
+                                <p class="text-base font-medium leading-[1.5] text-light">{{ $item[1] }}</p>
+                            </div>
+                        @endforeach
                     </div>
+                    <x-button
+                        class="fm-btn w-full!"
+                        variant="light-brand"
+                        size="xl"
+                        href="https://wa.me/5511976205711?text=Flamma"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Fale com a gente
+                    </x-button>
                 </div>
-            </div>
 
-            <div class="fm-reveal-right fm-zoom hidden aspect-[577/760] w-full overflow-hidden lg:ml-auto lg:block lg:w-[577px]">
-                <img src="{{ asset('img/home/challenge.webp') }}"
-                     alt="Colaborador preocupado revisando as contas"
-                     class="size-full object-cover" loading="lazy" decoding="async">
+                {{-- Coluna clara — para o colaborador --}}
+                <div class="fm-reveal-right flex flex-col gap-8 border border-outline-light bg-elevation-01dp p-8">
+                    <div class="flex flex-col gap-4">
+                        <h3 class="text-2xl font-bold leading-[1.5] text-high lg:text-[32px]">Para seu colaborador</h3>
+                        <div class="h-px w-full bg-outline-light"></div>
+                    </div>
+                    <div class="flex flex-col gap-8">
+                        @foreach ([
+                            ['Consultoria personalizada', 'Sessões individuais, focadas na realidade financeira de cada pessoa.'],
+                            ['Controle financeiro', 'Ferramentas para organizar dívidas, criar orçamento e planejar o futuro.'],
+                            ['Menos ansiedade', 'Mais tranquilidade no dia a dia, com uma relação mais saudável com o dinheiro.'],
+                        ] as $item)
+                            <div class="flex flex-col gap-3">
+                                <p class="text-xl font-bold leading-[1.5] text-high">{{ $item[0] }}</p>
+                                <p class="text-base font-medium leading-[1.5] text-medium">{{ $item[1] }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                    <x-button
+                        class="fm-btn w-full!"
+                        variant="flat"
+                        size="xl"
+                        href="https://wa.me/5511976205711?text=Flamma"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Fale com a gente
+                    </x-button>
+                </div>
             </div>
         </div>
     </section>
