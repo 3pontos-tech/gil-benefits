@@ -126,11 +126,11 @@
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
                 Como o Flamma chega até o seu time?
             </h2>
-            {{-- A quebra fixa em lg mantém o texto em duas linhas curtas, longe da seta
-                 que sangra no canto direito da seção. --}}
-            <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                Da contratação à primeira sessão, cuidamos de cada detalhe<br class="hidden lg:inline">
-                para que o processo seja simples para você e acolhedor para o seu time.
+            {{-- O max-w segura o subtítulo em duas linhas, longe da seta que sangra
+                 no canto direito da seção. --}}
+            <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:max-w-5xl lg:text-xl lg:font-normal" data-fm-delay="1">
+                Da contratação à primeira sessão, cuidamos de cada detalhe para que o processo
+                seja simples para você e acolhedor para o seu time.
             </p>
         </header>
 
