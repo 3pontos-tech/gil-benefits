@@ -327,12 +327,13 @@
                      class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
 
                 {{-- Base 0,4% abaixo do topo da faixa (19,69%), como na /para-empresas:
-                     encostar exato deixava um fio branco de arredondamento. Na horizontal
-                     esta seta fica 1% mais à esquerda que a de lá (right 43 vs 42). --}}
+                     encostar exato deixava um fio branco de arredondamento. O right-[42.3%]
+                     é o limite à esquerda: deixa a lateral 0,15% sobre o bloco da foto
+                     (x ≥ 57,55%) — qualquer valor maior abre um vão branco entre eles. --}}
                 <x-graphism
                     type="collaborator-arrow-alt"
                     data-fm-static
-                    class="absolute bottom-[19.29%] right-[43%] hidden w-[17.4%] xl:block"
+                    class="absolute bottom-[19.29%] right-[42.3%] hidden w-[17.4%] xl:block"
                 />
             </div>
         </div>
