@@ -33,13 +33,15 @@
                 painel claro e a foto, mais o bloco solto ao lado da faixa inferior direita.
                 As coordenadas vêm do recorte medido no próprio hero-bg.webp (palco
                 1920×1136): borda em x=1174 (y 0–382), x=1036 (y 382–758), full-bleed em
-                y=758 e o bloco da direita entre y 1002–1112. Como o SVG usa o mesmo palco
-                da foto, o encaixe acompanha qualquer largura.
+                y=758 e o bloco da direita entre y 1002–1112. As bordas externas avançam
+                6px para dentro da foto: cravadas na fronteira exata, o anti-aliasing do
+                arquivo deixava um fio claro entre o vermelho e a imagem. Como o SVG usa
+                o mesmo palco da foto, o encaixe acompanha qualquer largura.
             --}}
             <svg class="absolute inset-0 h-auto w-full text-brand-primary" viewBox="0 0 1920 1136"
                  fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1174 0V382H1036V758H0V728H1006V352H1144V0Z" fill="currentColor"/>
-                <path d="M1144 1002H1174V1112H1144V1002Z" fill="currentColor"/>
+                <path d="M1180 0V388H1042V764H0V728H1006V352H1144V0Z" fill="currentColor"/>
+                <path d="M1144 996H1180V1112H1144V996Z" fill="currentColor"/>
             </svg>
         </div>
 
