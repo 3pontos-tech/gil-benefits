@@ -21,7 +21,9 @@
             <x-sections.companies.why-invest />
         </div>
 
-        <x-sections.companies.journey class="mt-16 lg:mt-0" />
+        {{-- O design trazia investir→fluxo com 0 de respiro; os 80px aproximam menos
+             a faixa em gradiente da foto da seção acima. --}}
+        <x-sections.companies.journey class="mt-16 lg:mt-20" />
 
         <div class="mx-auto mt-20 max-w-[1800px] px-5 sm:px-8 lg:mt-0 lg:px-[62px]">
             <x-sections.companies.real-consultant />
