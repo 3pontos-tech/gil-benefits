@@ -546,7 +546,7 @@
          Card final; foto 761×556 à direita. Mesma foto da CTA da
          /para-empresas (magnific_a-photorealistic-cinemati).
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="comecar" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 pb-20 sm:px-8 lg:mt-[109px] lg:px-[62px] lg:pb-0">
+    <section id="comecar" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[109px] lg:px-[62px]">
         <div class="fm-reveal-scale flex flex-col items-center gap-8 border border-outline-light bg-elevation-01dp p-6 lg:flex-row lg:gap-8 lg:p-16">
             <div class="flex flex-col gap-8 lg:flex-1">
                 <div class="flex flex-col gap-4 lg:gap-[22px]">
@@ -577,7 +577,9 @@
     </section>
 
 
-    {{-- Onda em degraus que faz a transição para o rodapé (Vector 20 no design) --}}
-    <x-sections.footer-wave top-margin="mt-20 lg:mt-[317px]" />
+    {{-- Onda em degraus que faz a transição para o rodapé (Vector 20 no design),
+         encurtada como na home para o card final ficar mais perto do rodapé
+         (o design pedia 317px de respiro + onda de 329px) --}}
+    <x-sections.footer-wave top-margin="mt-12 lg:mt-10" height="h-[80px] lg:h-[180px]" />
 </div>
 </x-layouts.site>
