@@ -169,7 +169,7 @@ describe('tela', function (): void {
 
         Livewire::test(ConsultingPayoutWidget::class)
             ->assertOk()
-            ->assertSeeText('Custo por consultoria ainda não configurado');
+            ->assertSeeText('Repasse por consultoria ainda não configurado');
     });
 
     it('não exibe margem, que a plataforma não sabe calcular', function (): void {

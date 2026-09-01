@@ -115,8 +115,8 @@ return [
         ],
     ],
     'consultants' => [
-        'cost_per_appointment' => 'Custo por consultoria',
-        'cost_per_appointment_hint' => 'Valor repassado ao parceiro por consultoria que consumiu crédito. Em branco usa o padrão do sistema.',
+        'cost_per_appointment' => 'Repasse por consultoria',
+        'cost_per_appointment_hint' => 'Quanto a Flamma paga por consultoria que consumiu crédito — não é o preço da consultoria. Em branco usa o padrão do sistema.',
         'navigation_label' => 'Consultores',
         'model_label' => 'Consultor',
         'plural_model_label' => 'Consultores',

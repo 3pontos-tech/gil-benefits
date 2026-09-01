@@ -175,7 +175,7 @@ class ConsultingPayoutWidget extends TableWidget
             ? 'panel-admin::widgets.financial.payout.cost_default'
             : 'panel-admin::widgets.financial.payout.cost_own';
 
-        return __($key, ['cost' => MoneyCents::fromCents((int) $cost)->format()]);
+        return __($key, ['amount' => MoneyCents::fromCents((int) $cost)->format()]);
     }
 
     private function payout(): ConsultingPayout

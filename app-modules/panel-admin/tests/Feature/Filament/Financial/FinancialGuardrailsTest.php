@@ -55,6 +55,39 @@ it('não expõe nenhum campo de previsão de receita na tela', function (): void
     }
 });
 
+it('não chama o repasse de custo nem de preço na tela', function (): void {
+    // Repasse é o que a Flamma paga por consultoria; preço é quanto a consultoria
+    // vale, e a plataforma não sabe esse segundo número. Chamar um de outro faz
+    // quem preenche o cadastro digitar a coisa errada — foi o que aconteceu na
+    // primeira versão do rótulo.
+    $forbidden = '/\bcusto|\bpre[çc]o|\bcost\b|\bprice\b/i';
+
+    foreach (['pt_BR', 'en'] as $locale) {
+        /** @var array<string, mixed> $widgets */
+        $widgets = require base_path(sprintf('app-modules/panel-admin/lang/%s/widgets.php', $locale));
+
+        /** @var array<string, mixed> $payout */
+        $payout = data_get($widgets, 'financial.payout', []);
+
+        /** @var array<string, mixed> $consultants */
+        $consultants = data_get(
+            require base_path(sprintf('app-modules/panel-admin/lang/%s/resources.php', $locale)),
+            'consultants',
+            [],
+        );
+
+        $offenders = collect([...array_values($payout), ...array_values($consultants)])
+            ->filter(fn (mixed $value): bool => is_string($value) && preg_match($forbidden, $value) === 1)
+            // O texto de ajuda do cadastro pode dizer "preço" justamente para
+            // negar que seja um: é a única forma de desfazer a confusão.
+            ->reject(fn (string $value): bool => str_contains($value, 'não é o preço')
+                || str_contains($value, 'not the price'))
+            ->all();
+
+        expect($offenders)->toBe([], 'Repasse tratado como custo ou preço em ' . $locale);
+    }
+});
+
 it('mantém o dashboard padrão do Admin sem widget financeiro', function (): void {
     // O guarda-rail do épico é não deixar o Admin mais lento. A garantia é
     // estrutural: quem não abre o financeiro não paga por ele.

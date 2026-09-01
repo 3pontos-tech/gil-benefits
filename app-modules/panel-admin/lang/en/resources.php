@@ -115,8 +115,8 @@ return [
         ],
     ],
     'consultants' => [
-        'cost_per_appointment' => 'Cost per consultancy',
-        'cost_per_appointment_hint' => 'Amount paid to the partner per consultancy that consumed a credit. Empty falls back to the system default.',
+        'cost_per_appointment' => 'Payout per consultancy',
+        'cost_per_appointment_hint' => 'What Flamma pays per consultancy that consumed a credit — not the price of the consultancy. Empty falls back to the system default.',
         'navigation_label' => 'Consultants',
         'model_label' => 'Consultant',
         'plural_model_label' => 'Consultants',
