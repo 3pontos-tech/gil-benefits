@@ -169,6 +169,31 @@ describe('valor não configurado', function (): void {
     });
 });
 
+describe('cache', function (): void {
+    it('recalcula assim que o valor da consultoria muda', function (): void {
+        companyWithAppointments('Alpha SA', [AppointmentStatus::Completed]);
+
+        expect(resolve(GetConsultingValue::class)->handle($this->filters)->totalCents())->toBe(8000);
+
+        config()->set('billing.consulting_value_in_cents', 12000);
+
+        // Sem limpar o cache: o valor configurado é entrada do cálculo e entra
+        // na chave. Do contrário a tela repetiria o total antigo por 5 minutos.
+        expect(resolve(GetConsultingValue::class)->handle($this->filters)->totalCents())->toBe(12000);
+    });
+
+    it('sai de "não configurado" assim que alguém configura', function (): void {
+        config()->set('billing.consulting_value_in_cents');
+        companyWithAppointments('Alpha SA', [AppointmentStatus::Completed]);
+
+        expect(resolve(GetConsultingValue::class)->handle($this->filters)->isConfigured())->toBeFalse();
+
+        config()->set('billing.consulting_value_in_cents', 8000);
+
+        expect(resolve(GetConsultingValue::class)->handle($this->filters)->isConfigured())->toBeTrue();
+    });
+});
+
 describe('tela', function (): void {
     it('mostra o consumo por empresa ao lado da mensalidade', function (): void {
         companyWithAppointments('Alpha SA', [AppointmentStatus::Completed], seats: 10);

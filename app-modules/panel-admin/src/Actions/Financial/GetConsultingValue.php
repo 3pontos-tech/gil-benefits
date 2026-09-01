@@ -52,7 +52,7 @@ final class GetConsultingValue
     public function handle(FinancialFilters $filters): ConsultingValue
     {
         return Cache::remember(
-            $this->financialCacheKey(self::BUCKET, $filters),
+            $this->financialCacheKey($this->bucket(), $filters),
             $this->financialCacheTtl(),
             fn (): ConsultingValue => $this->build($filters),
         );
@@ -60,7 +60,20 @@ final class GetConsultingValue
 
     public function forget(FinancialFilters $filters): void
     {
-        $this->forgetFinancialCache(self::BUCKET, $filters);
+        $this->forgetFinancialCache($this->bucket(), $filters);
+    }
+
+    /**
+     * O valor configurado entra na chave do cache.
+     *
+     * Ele é entrada do cálculo tanto quanto os filtros: sem isso, mudar a
+     * variável de ambiente deixa a tela repetindo o total antigo — ou, pior,
+     * repetindo "ainda não configurado" por cinco minutos depois de configurado,
+     * o que se parece com a funcionalidade quebrada.
+     */
+    private function bucket(): string
+    {
+        return self::BUCKET . '.' . ($this->unitValue() ?? 'unset');
     }
 
     private function build(FinancialFilters $filters): ConsultingValue
