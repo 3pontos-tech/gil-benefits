@@ -2,7 +2,9 @@
 
 namespace TresPontosTech\Billing\Core\Models\Subscriptions;
 
+use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
@@ -13,6 +15,7 @@ use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Observers\SubscriptionQuotaAnchorObserver;
 use TresPontosTech\Billing\Database\Factories\SubscriptionFactory;
+use TresPontosTech\Company\Models\Company;
 
 /**
  * @property string $subscriptionable_type
@@ -32,12 +35,48 @@ use TresPontosTech\Billing\Database\Factories\SubscriptionFactory;
 class Subscription extends BaseSubscriptionModel
 {
     /**
-     * Status que vale como assinatura em vigor nos dois provedores: é o que o Barte
-     * manda no webhook de ativação e o que o Stripe usa fora de trial e inadimplência.
+     * Status em que a assinatura passa a valer, nos três provedores: é o que Barte e
+     * Virtu mandam no webhook de ativação e o que o Stripe usa fora de trial e
+     * inadimplência. Mais estrito que {@see self::STATUSES_WITHOUT_ACCESS}, e de
+     * propósito — decidir a âncora do ciclo de cota exige o instante em que a
+     * assinatura começou a valer, não a lista do que não bloqueia acesso.
      */
     public const string STATUS_ACTIVE = 'active';
 
+    public const array STATUSES_WITHOUT_ACCESS = ['pending', 'inactive', 'defaulter'];
+
     protected $table = 'billing_subscriptions';
+
+    public function active(): bool
+    {
+        return ! $this->deniesAccessByStatus() && parent::active();
+    }
+
+    public function valid(): bool
+    {
+        return ! $this->deniesAccessByStatus() && parent::valid();
+    }
+
+    /**
+     * @param  Builder<$this>  $query
+     * @return Builder<$this>
+     */
+    protected function scopeGrantingAccess(Builder $query): Builder
+    {
+        return $query->whereNotIn('stripe_status', self::STATUSES_WITHOUT_ACCESS);
+    }
+
+    public static function grantsAccess(Company|User $billable, string $type): bool
+    {
+        return $billable->subscriptions
+            ->where('type', $type)
+            ->contains(fn (self $subscription): bool => $subscription->valid());
+    }
+
+    private function deniesAccessByStatus(): bool
+    {
+        return in_array($this->stripe_status, self::STATUSES_WITHOUT_ACCESS, true);
+    }
 
     /**
      * Declarado como método, e não pelo atributo `#[UseFactory]`, porque o Cashier

@@ -12,6 +12,7 @@ use Tests\Fakes\FakeBillingContract;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
@@ -32,6 +33,10 @@ function makeCompanyMiddleware(
     $manager = Mockery::mock(BillingManager::class);
     $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Stripe)->andReturn($stripe);
     $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Barte)->andReturn($barte);
+    // Os middlewares varrem activeCases() inteiro. O catch-all vem por último —
+    // o Mockery casa na ordem de declaração — para que um provider novo entre
+    // como "sem assinatura" em vez de derrubar o teste.
+    $manager->shouldReceive('getDriver')->andReturn(new FakeBillingContract);
 
     return new RedirectCompanyIfNotSubscribed($manager);
 }
@@ -48,6 +53,10 @@ function makeUserMiddleware(
     $manager = Mockery::mock(BillingManager::class);
     $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Stripe)->andReturn($stripe);
     $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Barte)->andReturn($barte);
+    // Os middlewares varrem activeCases() inteiro. O catch-all vem por último —
+    // o Mockery casa na ordem de declaração — para que um provider novo entre
+    // como "sem assinatura" em vez de derrubar o teste.
+    $manager->shouldReceive('getDriver')->andReturn(new FakeBillingContract);
 
     return new RedirectUserIfNotSubscribed(resolve(PlanRepository::class), $manager);
 }
@@ -130,7 +139,7 @@ describe('flamma-company subscription isolation', function (): void {
 
         $this->flammaPrice = Price::factory()->for($plan, 'plan')->create([
             'provider_price_id' => $plan->provider_product_id . '-standalone-user',
-            'metadata' => ['tenant' => 'flamma-company'],
+            'audience' => PriceAudienceEnum::Standalone,
         ]);
 
         filament()->setCurrentPanel(FilamentPanel::User->value);

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelApp\Filament\Pages;
 
+use BackedEnum;
 use Filament\Pages\Dashboard;
+use Filament\Support\Icons\Heroicon;
 use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\LatestAppointmentsWidget;
 use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
@@ -12,6 +14,15 @@ use TresPontosTech\PanelApp\Filament\Widgets\SharedMaterialsWidget;
 
 class UserDashboard extends Dashboard
 {
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::Home;
+
+    protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('panel-app::navigation.groups.platform.label');
+    }
+
     public function getTitle(): string
     {
         return '';

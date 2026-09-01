@@ -28,12 +28,18 @@ enum FilamentPanel: string
         $isAdmin = $user->hasAnyRole([Roles::SuperAdmin->value, Roles::Admin->value]);
         $isConsultant = $user->hasAnyRole([Roles::Consultant->value]);
 
+        // Financeiro e CS entram no painel Admin apenas para alcançar o cockpit
+        // financeiro. O painel não abre nada por si: cada recurso continua atrás
+        // da sua policy, e as duas roles não recebem permissão nenhuma no
+        // sync:permissions — só o FinancialCluster as libera explicitamente.
+        $isFinancialProfile = $user->hasAnyRole([Roles::Financial->value, Roles::CustomerSuccess->value]);
+
         // Company roles live in the pivot, so panel access is relationship-based.
         $belongsToCompany = $user->ownsAnyCompany() || $user->companies()->exists();
 
         return match ($panel) {
             self::User => $belongsToCompany || $isAdmin,
-            self::Admin => ($user->hasVerifiedEmail() && $isAdmin),
+            self::Admin => ($user->hasVerifiedEmail() && ($isAdmin || $isFinancialProfile)),
             self::Company => Gate::forUser($user)->allows('register_company') || $user->managesAnyCompany(),
             self::Consultant => $isConsultant || $isAdmin,
             self::Guest => true,

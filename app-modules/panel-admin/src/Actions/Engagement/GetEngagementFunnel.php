@@ -123,8 +123,8 @@ final class GetEngagementFunnel
     private function contractedSeatsByCompany(array $companyIds): array
     {
         return CompanyPlan::query()
-            ->active()
             ->whereIn('company_id', $companyIds)
+            ->activeOn()
             ->groupBy('company_id')
             ->selectRaw('company_id, SUM(seats) as total')
             ->pluck('total', 'company_id')

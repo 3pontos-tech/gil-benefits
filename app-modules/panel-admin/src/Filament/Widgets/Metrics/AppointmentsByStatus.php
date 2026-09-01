@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\PanelAdmin\Filament\Widgets\Metrics;
 
+use Filament\Support\Colors\Color;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -36,22 +37,18 @@ class AppointmentsByStatus extends ChartWidget
                 $status->value => $results->get($status->value, 0),
             ]);
 
+        $statuses = $counts->keys()->map(fn (string $value): AppointmentStatus => AppointmentStatus::from($value));
+
         return [
             'datasets' => [
                 [
                     'data' => $counts->values()->toArray(),
-                    'backgroundColor' => [
-                        'rgb(251, 191, 36)',
-                        'rgb(59, 130, 246)',
-                        'rgb(34, 197, 94)',
-                        'rgb(239, 68, 68)',
-                        'rgb(249, 115, 22)',
-                    ],
+                    'backgroundColor' => $statuses
+                        ->map(fn (AppointmentStatus $status): string => Color::convertToRgb($status->getColor()[500]))
+                        ->all(),
                 ],
             ],
-            'labels' => $counts->keys()
-                ->map(fn (string $value): string => AppointmentStatus::from($value)->getLabel())
-                ->all(),
+            'labels' => $statuses->map(fn (AppointmentStatus $status): string => $status->getLabel())->all(),
         ];
     }
 

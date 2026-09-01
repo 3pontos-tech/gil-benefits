@@ -5,7 +5,7 @@
 <x-filament-widgets::widget class="h-full">
     <div class="flex h-full flex-col gap-8 border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-gray-900">
         <div class="flex items-center justify-between gap-2">
-            <h2 class="whitespace-nowrap text-[24px] font-bold leading-tight text-gray-950 dark:text-white">
+            <h2 class="whitespace-nowrap text-[20px] font-bold leading-tight text-gray-950 dark:text-white">
                 {{ __('panel-app::widgets.plan_credits.title') }}
             </h2>
             @if($plan)
@@ -28,31 +28,31 @@
             class="p-8 text-white"
             style="border-radius: 4px; background: linear-gradient(114deg, #FD0342 15.42%, #FF803C 84.58%);"
         >
-            <p class="text-[24px] font-bold leading-tight">
+            <p class="text-[20px] font-bold leading-tight">
                 {{ __('panel-app::widgets.plan_credits.credits_card_title') }}
             </p>
 
             <p class="mt-8 flex items-baseline gap-2">
-                <span class="text-[32px] font-bold leading-none">{{ $creditsTotal }}</span>
-                <span class="text-[16px] text-white/80">{{ __('panel-app::widgets.plan_credits.credits_available') }}</span>
+                <span class="text-[24px] font-bold leading-none">{{ $creditsTotal }}</span>
+                <span class="text-[14px] text-white/80">{{ __('panel-app::widgets.plan_credits.credits_available') }}</span>
             </p>
 
             {{-- Rótulo e nome ficam próximos entre si e afastados do bloco acima,
                  para lerem como um par. --}}
-            <p class="mt-10 text-[16px] uppercase tracking-wide text-white/70">
+            <p class="mt-10 text-[14px] uppercase tracking-wide text-white/70">
                 {{ __('panel-app::widgets.plan_credits.holder') }}
             </p>
-            <p class="mt-2 text-[20px] font-bold leading-tight">{{ $holderName }}</p>
+            <p class="mt-2 text-[16px] font-bold leading-tight">{{ $holderName }}</p>
         </div>
 
         <div class="border border-gray-200 px-4 py-3 dark:border-white/10">
-            <p class="text-[16px] text-gray-500 dark:text-gray-400">
+            <p class="text-[14px] text-gray-500 dark:text-gray-400">
                 {{ __('panel-app::widgets.plan_credits.monthly_appointments') }}
             </p>
             <p class="mt-1 flex items-baseline gap-1">
-                <span class="text-[24px] font-bold leading-none text-gray-950 dark:text-white">{{ $monthlyLeft }}</span>
+                <span class="text-[20px] font-bold leading-none text-gray-950 dark:text-white">{{ $monthlyLeft }}</span>
                 {{-- O total fica subordinado, como o "/100" dos cards de indicador. --}}
-                <span class="text-[16px] font-medium text-gray-400 dark:text-gray-500">/{{ $monthlyLimit }}</span>
+                <span class="text-[14px] font-medium text-gray-400 dark:text-gray-500">/{{ $monthlyLimit }}</span>
             </p>
 
             {{-- A data de virada é a resposta que o cliente não tinha enquanto a janela
@@ -65,16 +65,16 @@
         </div>
 
         <div class="border border-gray-200 px-4 py-3 dark:border-white/10">
-            <p class="text-[16px] text-gray-500 dark:text-gray-400">
+            <p class="text-[14px] text-gray-500 dark:text-gray-400">
                 {{ __('panel-app::widgets.plan_credits.consultant') }}
             </p>
             <p class="mt-1 flex items-center gap-2">
                 @if($consultantName)
                     <span class="size-2 shrink-0 rounded-full bg-success-500"></span>
-                    <span class="truncate text-[24px] font-semibold leading-tight text-gray-950 dark:text-white">{{ $consultantName }}</span>
+                    <span class="truncate text-[20px] font-semibold leading-tight text-gray-950 dark:text-white">{{ $consultantName }}</span>
                 @else
                     <span class="size-2 shrink-0 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                    <span class="truncate text-[24px] text-gray-500 dark:text-gray-400">
+                    <span class="truncate text-[20px] text-gray-500 dark:text-gray-400">
                         {{ __('panel-app::widgets.plan_credits.no_consultant') }}
                     </span>
                 @endif

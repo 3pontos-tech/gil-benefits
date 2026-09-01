@@ -139,6 +139,7 @@ it('hides cancel action for terminal statuses', function (AppointmentStatus $sta
     'Completed' => AppointmentStatus::Completed,
     'Cancelled' => AppointmentStatus::Cancelled,
     'CancelledLate' => AppointmentStatus::CancelledLate,
+    'NoShow' => AppointmentStatus::NoShow,
 ]);
 
 it('cancels appointment via action', function (): void {

@@ -43,7 +43,7 @@
         <p class="text-xs font-medium text-gray-500 dark:text-gray-400">
             {{ __('panel-app::widgets.journey_hero.welcome') }}
         </p>
-        <h1 class="mt-1 text-3xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-4xl">
+        <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-[32px]">
             {{ $displayName }}
         </h1>
     </header>
@@ -70,7 +70,7 @@
 
                     @if($hasDelta)
                         <span @class([
-                            'inline-flex items-center gap-1 text-[16px] font-medium',
+                            'inline-flex items-center gap-1 text-[14px] font-medium',
                             'text-success-600 dark:text-success-400' => $isPositive,
                             'text-danger-600 dark:text-danger-400' => ! $isPositive,
                         ])>
@@ -84,13 +84,13 @@
                 </div>
 
                 <p class="mt-6 flex items-baseline gap-1">
-                    <span class="text-[32px] font-bold leading-none text-gray-950 dark:text-white">{{ $card['value'] }}</span>
+                    <span class="text-[24px] font-bold leading-none text-gray-950 dark:text-white">{{ $card['value'] }}</span>
                     @if($card['total'] !== null)
-                        <span class="text-sm font-medium text-gray-400 dark:text-gray-500">/{{ $card['total'] }}</span>
+                        <span class="text-xs font-medium text-gray-400 dark:text-gray-500">/{{ $card['total'] }}</span>
                     @endif
                 </p>
 
-                <p class="mt-2 text-[20px] text-gray-500 dark:text-gray-400">{{ $card['label'] }}</p>
+                <p class="mt-2 text-[16px] text-gray-500 dark:text-gray-400">{{ $card['label'] }}</p>
             </div>
         @endforeach
     </div>
@@ -98,10 +98,10 @@
     @unless($journey->isOnboarded())
         <div class="mt-4 flex flex-col items-start gap-3 border border-gray-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/10 dark:bg-gray-900">
             <div>
-                <p class="text-sm font-semibold text-gray-950 dark:text-white">
+                <p class="text-xs font-semibold text-gray-950 dark:text-white">
                     {{ __('panel-app::widgets.journey_hero.onboarding_title') }}
                 </p>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     {{ __('panel-app::widgets.journey_hero.onboarding_description') }}
                 </p>
             </div>

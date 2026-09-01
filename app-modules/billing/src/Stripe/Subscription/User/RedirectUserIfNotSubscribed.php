@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
@@ -32,16 +33,13 @@ readonly class RedirectUserIfNotSubscribed
             return $next($request);
         }
 
-        // TODO: when the company cancels the subscription, the user needs a page to understand what do next
-        // TODO: ask the team which kind of page to add here
-
         $hasActiveSubscription = collect(BillingProviderEnum::activeCases())
             ->contains(fn (BillingProviderEnum $provider): bool => $this->billingManager
                 ->getDriver($provider)
                 ->hasActiveSubscription($tenant)
             );
 
-        if ($tenant->slug === 'flamma-company') {
+        if (! $tenant->subsidizesEmployees()) {
             $hasActiveSubscription = true;
         }
 
@@ -81,8 +79,10 @@ readonly class RedirectUserIfNotSubscribed
                 return false;
             });
 
-        if ($tenant->slug === 'flamma-company') {
-            $hasValidSubscription = $this->hasFlammaPriceSubscription($employee);
+        // Sem empregador, a assinatura só vale se foi comprada pelo valor
+        // cheio — quem entrou por um preço subsidiado não pode ficar aqui.
+        if (! $tenant->subsidizesEmployees()) {
+            $hasValidSubscription = $this->hasStandalonePriceSubscription($employee);
         }
 
         if ($hasValidSubscription) {
@@ -98,13 +98,13 @@ readonly class RedirectUserIfNotSubscribed
         return to_route($route, ['tenant' => $tenant->slug]);
     }
 
-    private function hasFlammaPriceSubscription(User $employee): bool
+    private function hasStandalonePriceSubscription(User $employee): bool
     {
-        $flammaPriceIds = Price::query()
-            ->whereJsonContains('metadata->tenant', 'flamma-company')
+        $standalonePriceIds = Price::query()
+            ->where('audience', PriceAudienceEnum::Standalone)
             ->pluck('provider_price_id');
 
-        if ($flammaPriceIds->isEmpty()) {
+        if ($standalonePriceIds->isEmpty()) {
             return false;
         }
 
@@ -112,7 +112,7 @@ readonly class RedirectUserIfNotSubscribed
             ->where('subscriptionable_type', $employee->getMorphClass())
             ->where('subscriptionable_id', $employee->getKey())
             ->where('stripe_status', 'active')
-            ->whereIn('stripe_price', $flammaPriceIds)
+            ->whereIn('stripe_price', $standalonePriceIds)
             ->exists();
     }
 }

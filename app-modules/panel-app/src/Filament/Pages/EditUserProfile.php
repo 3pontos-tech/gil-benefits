@@ -6,27 +6,38 @@ namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use App\Filament\Shared\Pages\EditUserProfile as BaseEditUserProfile;
 use App\Models\Users\User;
+use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
+use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelApp\Actions\BuildAccountSummaryAction;
+use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\User\Actions\SaveAnamneseAction;
 use TresPontosTech\User\Enums\LifeMoment;
 
 class EditUserProfile extends BaseEditUserProfile
 {
-    protected Width|string|null $maxWidth = Width::FourExtraLarge;
+    protected Width|string|null $maxWidth = Width::Full;
 
-    public function getTitle(): string
-    {
-        return '';
-    }
+    private const int AVATAR_MAX_SIZE_KB = 5120;
 
     /** @var list<string> */
     private const array ANAMNESE_FIELDS = [
@@ -37,61 +48,209 @@ class EditUserProfile extends BaseEditUserProfile
         'tried_financial_strategies',
     ];
 
+    public function getHeading(): string|Htmlable
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        return new HtmlString((string) __('panel-app::profile.heading', [
+            'name' => '<span class="text-danger-500">' . e($user->name) . '</span>',
+        ]));
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        return __('panel-app::profile.subheading');
+    }
+
+    public function defaultForm(Schema $schema): Schema
+    {
+        return parent::defaultForm($schema)->inlineLabel(false);
+    }
+
+    public function content(Schema $schema): Schema
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $supportUrl = $this->resolveSupportUrl($user);
+
+        return $schema->components([
+            Grid::make()
+                ->columns(['default' => 1, 'xl' => 3])
+                ->schema([
+                    Group::make([$this->getFormContentComponent()])
+                        ->columnSpan(['default' => 1, 'xl' => 2]),
+
+                    Group::make([
+                        View::make('filament.app.profile.account-summary')
+                            ->viewData([
+                                'rows' => resolve(BuildAccountSummaryAction::class)->handle($user),
+                            ]),
+                        View::make('filament.app.profile.support')
+                            ->viewData(['supportUrl' => $supportUrl])
+                            ->visible($supportUrl !== null),
+                    ])->columnSpan(1),
+                ]),
+
+            ...Arr::wrap($this->getMultiFactorAuthenticationContentComponent()),
+        ]);
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema->components([
+            $this->getSectionHeadingComponent(
+                (string) __('panel-app::profile.avatar.heading'),
+                (string) __('panel-app::profile.avatar.description'),
+            ),
+            // O card envolve só o upload; o título fica fora dele, como no layout.
+            Section::make()
+                ->extraAttributes(['class' => 'fi-ap-profile-avatar'])
+                ->schema([$this->getAvatarFormComponent()]),
+
             Tabs::make()
                 ->columnSpanFull()
+                ->extraAttributes(['class' => 'fi-ap-profile-tabs'])
                 ->tabs([
                     Tab::make(__('panel-app::profile.tabs.account'))
-                        ->icon('heroicon-o-user')
-                        ->schema([
-                            $this->getAvatarFormComponent(),
-                            $this->getNameFormComponent(),
-                            $this->getEmailFormComponent(),
-                            $this->getPhoneFormComponent(),
-                            ...$this->getExtraDetailFormComponents(),
-                            $this->getPasswordFormComponent(),
-                            $this->getPasswordConfirmationFormComponent(),
-                            $this->getCurrentPasswordFormComponent(),
-                        ]),
+                        ->schema($this->getPersonalTabSchema()),
                     Tab::make(__('panel-app::profile.tabs.financial'))
-                        ->icon('heroicon-o-banknotes')
-                        ->schema([
-                            Select::make('life_moment')
-                                ->label(__('panel-app::anamnese.fields.life_moment'))
-                                ->options(fn (): Collection => collect(LifeMoment::cases())
-                                    ->mapWithKeys(fn (LifeMoment $case): array => [
-                                        $case->value => '<div style="display:flex;flex-direction:column;white-space:normal;line-height:1.4">'
-                                            . '<span style="font-weight:500">' . e($case->getLabel()) . '</span>'
-                                            . '<span style="font-size:0.75rem;color:#9ca3af">' . e($case->getDescription()) . '</span>'
-                                            . '</div>',
-                                    ])
-                                )
-                                ->native(false)
-                                ->allowHtml()
-                                ->required(),
-                            Textarea::make('main_motivation')
-                                ->label(__('panel-app::anamnese.fields.main_motivation'))
-                                ->rows(4)
-                                ->required(),
-                            Textarea::make('money_relationship')
-                                ->label(__('panel-app::anamnese.fields.money_relationship'))
-                                ->rows(4)
-                                ->required(),
-                            Textarea::make('plans_monthly_expenses')
-                                ->label(__('panel-app::anamnese.fields.plans_monthly_expenses'))
-                                ->rows(3)
-                                ->required(),
-                            Textarea::make('tried_financial_strategies')
-                                ->label(__('panel-app::anamnese.fields.tried_financial_strategies'))
-                                ->rows(3)
-                                ->required(),
-                        ]),
+                        ->schema($this->getFinancialTabSchema()),
                 ]),
         ]);
     }
 
+    /**
+     * @return array<Component>
+     */
+    private function getPersonalTabSchema(): array
+    {
+        return [
+            Section::make(__('panel-app::profile.personal.heading'))
+                ->description(__('panel-app::profile.personal.description'))
+                ->schema([
+                    $this->withPrefixIcon($this->getNameFormComponent(), 'heroicon-o-user'),
+                    $this->withPrefixIcon($this->getEmailFormComponent(), 'heroicon-o-envelope'),
+                    $this->getPhoneFormComponent(),
+                    ...$this->getExtraDetailFormComponents(),
+                ]),
+
+            Section::make(__('panel-app::profile.security.heading'))
+                ->description(__('panel-app::profile.security.description'))
+                ->schema([
+                    $this->withPrefixIcon($this->getPasswordFormComponent(), 'heroicon-o-lock-closed'),
+                    $this->withPrefixIcon($this->getPasswordConfirmationFormComponent(), 'heroicon-o-lock-closed'),
+                    $this->withPrefixIcon($this->getCurrentPasswordFormComponent(), 'heroicon-o-lock-closed'),
+                ]),
+        ];
+    }
+
+    /**
+     * @return array<Component>
+     */
+    private function getFinancialTabSchema(): array
+    {
+        return [
+            Section::make(__('panel-app::profile.financial.heading'))
+                ->description(__('panel-app::profile.financial.description'))
+                ->schema([
+                    Select::make('life_moment')
+                        ->label(__('panel-app::anamnese.fields.life_moment'))
+                        ->options(fn (): Collection => collect(LifeMoment::cases())
+                            ->mapWithKeys(fn (LifeMoment $case): array => [
+                                $case->value => '<div style="display:flex;flex-direction:column;white-space:normal;line-height:1.4">'
+                                    . '<span style="font-weight:500">' . e($case->getLabel()) . '</span>'
+                                    . '<span style="font-size:0.75rem;color:#9ca3af">' . e($case->getDescription()) . '</span>'
+                                    . '</div>',
+                            ])
+                        )
+                        ->native(false)
+                        ->allowHtml()
+                        ->required(),
+                    Textarea::make('main_motivation')
+                        ->label(__('panel-app::anamnese.fields.main_motivation'))
+                        ->rows(4)
+                        ->required(),
+                    Textarea::make('money_relationship')
+                        ->label(__('panel-app::anamnese.fields.money_relationship'))
+                        ->rows(4)
+                        ->required(),
+                    Textarea::make('plans_monthly_expenses')
+                        ->label(__('panel-app::anamnese.fields.plans_monthly_expenses'))
+                        ->rows(3)
+                        ->required(),
+                    Textarea::make('tried_financial_strategies')
+                        ->label(__('panel-app::anamnese.fields.tried_financial_strategies'))
+                        ->rows(3)
+                        ->required(),
+                ]),
+        ];
+    }
+
+    protected function getAvatarFormComponent(): Component
+    {
+        $component = parent::getAvatarFormComponent();
+
+        return $component instanceof SpatieMediaLibraryFileUpload
+            ? $component
+                ->hiddenLabel()
+                ->belowContent($this->getAvatarTextsComponent())
+                ->maxSize(self::AVATAR_MAX_SIZE_KB)
+                ->avatar()
+                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                ->alignCenter()
+            : $component;
+    }
+
+    private function resolveSupportUrl(User $user): ?string
+    {
+        $tenant = Filament::getTenant() ?? $user->companies()->first();
+
+        return $tenant instanceof Company
+            ? SupportTicketResource::getUrl('create', tenant: $tenant)
+            : null;
+    }
+
+    private function getAvatarTextsComponent(): Component
+    {
+        return View::make('filament.app.profile.avatar-texts')
+            ->viewData([
+                'hint' => new HtmlString((string) __('panel-app::profile.avatar.hint', [
+                    'action' => '<span class="font-bold text-danger-500">'
+                        . e(__('panel-app::profile.avatar.hint_action'))
+                        . '</span>',
+                ])),
+                'helper' => (string) __('panel-app::profile.avatar.helper'),
+            ]);
+    }
+
+    private function getSectionHeadingComponent(string $heading, string $description): Component
+    {
+        return View::make('filament.app.profile.section-heading')
+            ->viewData([
+                'heading' => $heading,
+                'description' => $description,
+            ]);
+    }
+
+    private function withPrefixIcon(Component $component, string $icon): Component
+    {
+        return $component instanceof TextInput
+            ? $component->prefixIcon($icon)
+            : $component;
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()
+            ->label(__('panel-app::profile.actions.save'))
+            ->extraAttributes(['class' => 'fi-ap-profile-save']);
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $data = parent::mutateFormDataBeforeFill($data);
@@ -109,6 +268,9 @@ class EditUserProfile extends BaseEditUserProfile
         return $data;
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         return DB::transaction(function () use ($record, $data): Model {

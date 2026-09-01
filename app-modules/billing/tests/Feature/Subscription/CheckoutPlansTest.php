@@ -6,14 +6,17 @@ use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Repositories\EloquentPlanRepository;
 
-// The subscription page shown to new subscribers must only display plans
-// from BillingProviderEnum::checkoutCases() — currently Barte.
-// Legacy Stripe plans must NOT appear, preventing users from subscribing
-// via a deprecated gateway.
+// The subscription page shown to new subscribers must only display plans from
+// BillingProviderEnum::checkoutCases(). Plans from a gateway that no longer
+// sells must NOT appear, preventing users from subscribing via a deprecated one.
 
 it('getCheckoutPlansFor() returns only plans from checkoutCases providers', function (): void {
-    $bartePlan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create();
-    Price::factory()->for($bartePlan, 'plan')->create();
+    // Sem fixar o provider: o teste vale a regra, não o gateway da vez.
+    $checkoutPlan = Plan::factory()->active()
+        ->forProvider(BillingProviderEnum::checkoutCases()[0])
+        ->state(['type' => BillableTypeEnum::User])
+        ->create();
+    Price::factory()->for($checkoutPlan, 'plan')->create();
 
     // Stripe and Contractual plans must be invisible on the checkout page
     Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create();
@@ -22,7 +25,7 @@ it('getCheckoutPlansFor() returns only plans from checkoutCases providers', func
     $plans = (new EloquentPlanRepository)->getCheckoutPlansFor('user');
 
     expect($plans)->toHaveCount(1)
-        ->and($plans->first()->productId)->toBe($bartePlan->provider_product_id);
+        ->and($plans->first()->productId)->toBe($checkoutPlan->provider_product_id);
 });
 
 it('getCheckoutPlansFor() does not expose legacy stripe plans to new subscribers', function (): void {

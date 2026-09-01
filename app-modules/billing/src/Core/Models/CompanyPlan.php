@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Billing\Core\Models;
 
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,6 +21,7 @@ use TresPontosTech\Company\Models\Company;
  * @property string $company_id
  * @property int $plan_id
  * @property int $seats
+ * @property int|null $monthly_value_cents
  * @property int $monthly_appointments_per_employee
  * @property CompanyPlanStatusEnum $status
  * @property Carbon|null $starts_at
@@ -44,6 +46,7 @@ class CompanyPlan extends Model
         'company_id',
         'plan_id',
         'seats',
+        'monthly_value_cents',
         'monthly_appointments_per_employee',
         'status',
         'starts_at',
@@ -58,6 +61,7 @@ class CompanyPlan extends Model
             'starts_at' => 'date',
             'ends_at' => 'date',
             'monthly_appointments_per_employee' => 'integer',
+            'monthly_value_cents' => 'integer',
         ];
     }
 
@@ -78,22 +82,27 @@ class CompanyPlan extends Model
     }
 
     /**
-     * Contrato em vigor agora: ativo, já começou e ainda não terminou.
+     * Contratos ativos e vigentes no momento informado.
      *
-     * Dono único da consulta que estava copiada em quatro lugares, para que a
-     * regra de "qual plano vale" não possa divergir entre as telas. O
-     * `whereNull('deleted_at')` das cópias antigas era redundante — `SoftDeletes`
-     * já aplica.
+     * A regra de vigência (status ativo, já começou, ainda não terminou, datas
+     * nulas valendo como "sem limite") estava copiada em quatro lugares: aqui, em
+     * `Company::activeContractualPlan()`, no `PlanCreditsWidget` e no funil de
+     * engajamento. Extraída para cá porque o cockpit financeiro precisa da mesma
+     * regra em lote, e porque a cota mensal passou a depender dela para achar a
+     * âncora do ciclo — duas cópias divergiriam na primeira mudança.
      *
-     * @param  Builder<CompanyPlan>  $query
-     * @return Builder<CompanyPlan>
+     * O `whereNull('deleted_at')` que as cópias antigas carregavam era redundante:
+     * `SoftDeletes` já aplica.
+     *
+     * @param  Builder<$this>  $query
      */
     #[Scope]
-    protected function active(Builder $query): Builder
+    protected function activeOn(Builder $query, ?CarbonInterface $moment = null): void
     {
-        return $query
-            ->where('status', CompanyPlanStatusEnum::Active->value)
-            ->where(fn (Builder $nested) => $nested->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-            ->where(fn (Builder $nested) => $nested->whereNull('ends_at')->orWhere('ends_at', '>=', now()));
+        $moment ??= now();
+
+        $query->where('status', CompanyPlanStatusEnum::Active->value)
+            ->where(fn (Builder $inner) => $inner->whereNull('starts_at')->orWhere('starts_at', '<=', $moment))
+            ->where(fn (Builder $inner) => $inner->whereNull('ends_at')->orWhere('ends_at', '>=', $moment));
     }
 }

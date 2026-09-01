@@ -60,6 +60,7 @@ use TresPontosTech\User\Models\UserAnamnese;
  * @property string $name
  * @property string $email
  * @property Carbon|null $email_verified_at
+ * @property Carbon|null $last_login_at
  * @property string $password
  * @property string|null $crm_id
  * @property string|null $external_id
@@ -425,6 +426,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
                 AppointmentStatus::Completed->value,
                 AppointmentStatus::Cancelled->value,
                 AppointmentStatus::CancelledLate->value,
+                AppointmentStatus::NoShow->value,
             ])
             ->exists();
     }
@@ -515,6 +517,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
     }

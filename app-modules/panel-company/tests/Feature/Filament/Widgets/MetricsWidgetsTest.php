@@ -102,6 +102,34 @@ it('renders the appointment stats tiles', function (): void {
         ->assertSee(__('panel-company::widgets.appointment_stats.total_scheduled'));
 });
 
+it('bases the attendance rate legend on the real finalized denominator, including no-shows', function (): void {
+    actingAsCompanyOwner();
+    $company = Filament::getTenant();
+
+    Appointment::factory()->count(3)->create([
+        'company_id' => $company->id,
+        'status' => AppointmentStatus::Completed,
+        'appointment_at' => now(),
+    ]);
+    Appointment::factory()->count(2)->create([
+        'company_id' => $company->id,
+        'status' => AppointmentStatus::NoShow,
+        'appointment_at' => now(),
+    ]);
+
+    $widget = livewire(AppointmentStatsTilesWidget::class, ['pageFilters' => ['startDate' => now()->subDays(30)->toDateString(), 'endDate' => now()->toDateString()]])
+        ->instance();
+
+    $stats = (new ReflectionMethod($widget, 'getStats'))->invoke($widget);
+    $attendanceRateStat = $stats[3];
+
+    expect($attendanceRateStat->getDescription())->toBe(__('panel-company::widgets.appointment_stats.attendance_rate_description', [
+        'rate' => 60,
+        'completed' => 3,
+        'total' => 5,
+    ]));
+});
+
 it('renders the engagement tiles', function (): void {
     actingAsCompanyOwner();
 

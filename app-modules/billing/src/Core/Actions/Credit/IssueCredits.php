@@ -25,6 +25,7 @@ final readonly class IssueCredits
                     'holder_id' => $dto->holderId,
                     'company_id' => $dto->companyId,
                     'grant_id' => $dto->grantId,
+                    'credit_order_id' => $dto->creditOrderId,
                     'status' => UserCreditStatusEnum::Available,
                 ]);
             }

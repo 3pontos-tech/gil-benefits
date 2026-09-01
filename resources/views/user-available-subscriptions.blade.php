@@ -1,18 +1,18 @@
-@php use Filament\Support\Icons\Heroicon;use Illuminate\Support\Collection;use TresPontosTech\Billing\Core\Entities\PlanEntity; @endphp
+@php use Filament\Support\Icons\Heroicon;use Illuminate\Support\Collection;use TresPontosTech\Billing\Core\Entities\PlanEntity;use TresPontosTech\Billing\Core\Entities\PriceEntity;use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum; @endphp
 @props([
     'plans',
-    'isFlamma' => false,
+    'audience' => PriceAudienceEnum::Subsidized,
 ])
 
 @php
     /** @var Collection<string, PlanEntity> $plans */
 
-    // Sort plans by their first price value (ascending)
-    $sortedPlans = $plans->sort(function (PlanEntity $a, PlanEntity $b): int {
-        $firstPrice = $a->prices->first();
-        $secondPrice = $b->prices->first();
-        return $firstPrice?->priceInCents > $secondPrice->priceInCents;
-    });
+    // A página já filtrou os planos sem preço para esta audiência.
+    $priceFor = fn (PlanEntity $plan): PriceEntity => $plan->prices
+        ->firstOrFail(fn (PriceEntity $price): bool => $price->audience === $audience);
+
+    // Sort plans by their price value (ascending)
+    $sortedPlans = $plans->sortBy(fn (PlanEntity $plan): int => $priceFor($plan)->priceInCents);
 @endphp
 
 
@@ -50,9 +50,7 @@
                         @foreach($sortedPlans as $plan)
                             @php
                                 /** @var PlanEntity $plan */
-                                $price = $isFlamma
-                                ? $plan->prices->first(fn ($p) => ($p->metadata['tenant'] ?? null) === 'flamma-company')
-                                : ($plan->prices->first(fn ($p) => !isset($p->metadata['tenant'])) ?? $plan->prices->first());
+                                $price = $priceFor($plan);
                                 $features =  [
                                     'appointments' => $price->monthlyAppointments,
                                     'whatsapp_access' => $price->whatsappEnabled,

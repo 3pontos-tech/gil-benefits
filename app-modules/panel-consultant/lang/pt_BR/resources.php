@@ -19,6 +19,20 @@ return [
             'no_anamnese_description' => 'Este cliente ainda não preencheu o perfil financeiro.',
             'meeting_url_pending' => 'Aguardando confirmação',
         ],
+        'mark_no_show' => [
+            'label' => 'Não Compareceu',
+            'modal_heading' => 'Registrar não comparecimento',
+            'modal_description' => 'Confirmar que :name não compareceu à consultoria de :datetime?',
+            'submit' => 'Confirmar',
+            'success' => [
+                'title' => 'Não comparecimento registrado',
+                'body' => 'A consultoria foi marcada como "Não compareceu".',
+            ],
+            'failure' => [
+                'title' => 'Não foi possível registrar',
+                'body' => 'A consultoria não está mais em um estado que permita registrar o não comparecimento.',
+            ],
+        ],
     ],
     'documents' => [
         'navigation_label' => 'Materiais',

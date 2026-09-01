@@ -17,6 +17,7 @@ use App\Models\Users\User;
 use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -86,6 +87,66 @@ function actingAsSuperAdmin(FilamentPanel $panel = FilamentPanel::Admin): User
     actingAs($user);
 
     return $user;
+}
+
+/**
+ * Perfis do cockpit financeiro (FLM-41).
+ *
+ * Usuário comum e verificado, sem papel de Admin: o acesso ao painel vem apenas
+ * da role financeira, que é exatamente o que os testes de gate precisam provar.
+ */
+function actingAsFinancialProfile(Roles $role, FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    $user = User::factory()->create();
+    $user->assignRole($role->value);
+
+    filament()->setCurrentPanel($panel->value);
+    actingAs($user);
+
+    return $user;
+}
+
+function actingAsFinancial(FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    return actingAsFinancialProfile(Roles::Financial, $panel);
+}
+
+function actingAsCustomerSuccess(FilamentPanel $panel = FilamentPanel::Admin): User
+{
+    return actingAsFinancialProfile(Roles::CustomerSuccess, $panel);
+}
+
+/**
+ * Base mínima para medir o custo das telas financeiras (FLM-41).
+ *
+ * Doze empresas com assinatura, colaboradores e consultorias — o suficiente para
+ * um N+1 aparecer na contagem de consultas.
+ */
+function seedFinancialBaseline(int $companies = 12): void
+{
+    $consultant = Consultant::factory()->create();
+
+    for ($i = 0; $i < $companies; ++$i) {
+        $company = Company::factory()->create();
+
+        $company->subscriptions()->create([
+            'type' => 'company',
+            'stripe_id' => 'sub_baseline_' . $i . '_' . uniqid(),
+            'stripe_status' => 'active',
+            'quantity' => 10 + $i,
+        ]);
+
+        $employee = User::factory()->create();
+        $company->employees()->attach($employee->getKey(), ['active' => true, 'created_at' => now()->subMonth()]);
+
+        Appointment::factory()->create([
+            'company_id' => $company->getKey(),
+            'user_id' => $employee->getKey(),
+            'consultant_id' => $consultant->getKey(),
+            'status' => AppointmentStatus::Completed,
+            'appointment_at' => now()->subDays(3),
+        ]);
+    }
 }
 
 function actingAsCompanyOwner(): User

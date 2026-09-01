@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Database\Factories\PriceFactory;
 
 /**
@@ -20,6 +21,7 @@ use TresPontosTech\Billing\Database\Factories\PriceFactory;
  * @property bool $active
  * @property bool $default
  * @property string $provider_price_id
+ * @property PriceAudienceEnum $audience
  * @property bool $whatsapp_enabled
  * @property bool $materials_enabled
  * @property int $monthly_appointments
@@ -46,6 +48,7 @@ class Price extends Model
         'unit_amount_decimal',
         'active',
         'provider_price_id',
+        'audience',
         'default',
         'whatsapp_enabled',
         'materials_enabled',
@@ -64,6 +67,7 @@ class Price extends Model
     protected function casts(): array
     {
         return [
+            'audience' => PriceAudienceEnum::class,
             'default' => 'boolean',
             'active' => 'boolean',
             'whatsapp_enabled' => 'boolean',

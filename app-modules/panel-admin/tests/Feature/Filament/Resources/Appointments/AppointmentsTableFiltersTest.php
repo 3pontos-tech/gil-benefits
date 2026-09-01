@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\ListAppointments;
 
@@ -35,4 +36,14 @@ it('shows all appointments when the user name filter is empty', function (): voi
     livewire(ListAppointments::class)
         ->filterTable('user_name', ['user_name' => ''])
         ->assertCanSeeTableRecords([$johnAppointment, $mariaAppointment]);
+});
+
+it('filters appointments by no-show status', function (): void {
+    $noShow = Appointment::factory()->withStatus(AppointmentStatus::NoShow)->create();
+    $active = Appointment::factory()->withStatus(AppointmentStatus::Active)->create();
+
+    livewire(ListAppointments::class)
+        ->filterTable('status', [AppointmentStatus::NoShow->value])
+        ->assertCanSeeTableRecords([$noShow])
+        ->assertCanNotSeeTableRecords([$active]);
 });

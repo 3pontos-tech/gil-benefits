@@ -11,6 +11,7 @@ use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Override;
 use TresPontosTech\Billing\Barte\Commands\SyncBartePlans;
+use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Commands\SyncBillingCustomersCommand;
 use TresPontosTech\Billing\Core\Commands\SyncStripeResourcesCommand;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
@@ -30,6 +31,12 @@ class BillingServiceProvider extends ServiceProvider
 
         $this->app->bind(abstract: PlanRepository::class, concrete: EloquentPlanRepository::class);
         $this->app->bind(abstract: WebhookController::class, concrete: SubscriptionWebhookController::class);
+
+        // Shared on purpose: Manager memoises resolved drivers on the instance and
+        // Manager::extend() stores custom creators there too. Resolving a fresh
+        // BillingManager per call would throw both away, so a driver registered by
+        // an integration module would go missing on the next resolve().
+        $this->app->singleton(BillingManager::class);
 
         $this->commands([
             SyncStripeResourcesCommand::class,
@@ -53,5 +60,6 @@ class BillingServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/billing-routes.php');
         $this->loadTranslationsFrom(__DIR__ . '/../lang', 'billing');
+        $this->mergeConfigFrom(__DIR__ . '/../config/billing.php', 'billing');
     }
 }

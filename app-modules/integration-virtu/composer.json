@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/integration-virtu",
+	"description": "Integração com o gateway de pagamento Pagaa/Virtu",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\IntegrationVirtu\\": "src/",
+			"TresPontosTech\\IntegrationVirtu\\Tests\\": "tests/",
+			"TresPontosTech\\IntegrationVirtu\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\IntegrationVirtu\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\IntegrationVirtu\\Providers\\IntegrationVirtuServiceProvider"
+			]
+		}
+	}
+}

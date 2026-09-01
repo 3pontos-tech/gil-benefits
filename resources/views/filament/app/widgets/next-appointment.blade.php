@@ -14,26 +14,26 @@
         @if(! $appointment)
             <div class="flex flex-1 flex-col items-center justify-center py-8 text-center">
                 <x-filament::icon icon="heroicon-o-calendar-days" class="mb-2 size-8 text-gray-300 dark:text-gray-600" />
-                <p class="text-sm font-semibold text-gray-900 dark:text-white">Agende sua próxima consultoria</p>
+                <p class="text-xs font-semibold text-gray-900 dark:text-white">Agende sua próxima consultoria</p>
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Use o card Plano &amp; créditos para agendar.</p>
             </div>
         @else
             @php $consultant = $appointment->consultant; @endphp
             <div class="mt-4 flex items-center gap-3">
                 <div
-                    class="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary-600 text-sm font-bold text-white">
+                    class="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white">
                     {{ Str::of($consultant?->name ?? '?')->substr(0, 2)->upper() }}
                 </div>
                 <div class="min-w-0 flex-1">
                     <p class="truncate font-semibold text-gray-900 dark:text-white">
                         {{ $consultant instanceof Consultant ? $consultant->name : 'Aguardando atribuição' }}
                     </p>
-                    <p class="truncate text-sm text-gray-500 dark:text-gray-400">{{ $appointment->category_type->getLabel() }}</p>
+                    <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ $appointment->category_type->getLabel() }}</p>
                 </div>
             </div>
 
             <div class="mt-4 flex items-center justify-between gap-3 rounded-xl bg-gray-50 px-4 py-3 dark:bg-white/5">
-                <span class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <span class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                     <x-filament::icon icon="heroicon-o-calendar" class="size-4 shrink-0" />
                     Quando
                 </span>

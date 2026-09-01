@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -91,6 +92,18 @@ class Company extends Model implements HasAvatar, HasMedia
         return 'slug';
     }
 
+    /**
+     * Se esta empresa banca parte da mensalidade dos colaboradores.
+     *
+     * O tenant default é o balde de quem não tem empregador, então ninguém
+     * subsidia nada ali: aqueles usuários pagam o valor cheio. É o que decide
+     * qual audiência de preço vale no checkout (PriceAudienceEnum).
+     */
+    public function subsidizesEmployees(): bool
+    {
+        return $this->slug !== self::DEFAULT_SLUG;
+    }
+
     public function hasActivePlan(): bool
     {
         return filled($this->activeContractualPlan());
@@ -98,7 +111,10 @@ class Company extends Model implements HasAvatar, HasMedia
 
     public function activeContractualPlan(): ?CompanyPlan
     {
-        return CompanyPlan::query()->active()->where('company_id', $this->id)->first();
+        return CompanyPlan::query()
+            ->where('company_id', $this->id)
+            ->activeOn()
+            ->first();
     }
 
     /**
@@ -186,6 +202,21 @@ class Company extends Model implements HasAvatar, HasMedia
     public function subscriptions(): MorphMany
     {
         return $this->morphMany(Subscription::class, 'subscriptionable');
+    }
+
+    /**
+     * Exclui a empresa-balde que abriga os assinantes avulsos.
+     *
+     * Ela não é cliente: entrar num ranking de receita por empresa a deixaria em
+     * primeiro lugar permanentemente e dispararia o alerta de concentração todo
+     * mês sem significar nada (FLM-41, D-11).
+     *
+     * @param  Builder<$this>  $query
+     */
+    #[Scope]
+    protected function withoutDefault(Builder $query): void
+    {
+        $query->whereNot('slug', self::DEFAULT_SLUG);
     }
 
     public function generateToken(Uuid|string $key): void

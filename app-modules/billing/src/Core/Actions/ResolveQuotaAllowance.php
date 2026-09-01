@@ -73,6 +73,6 @@ final readonly class ResolveQuotaAllowance
             return null;
         }
 
-        return CompanyPlan::query()->active()->where('company_id', $companyId)->first();
+        return CompanyPlan::query()->where('company_id', $companyId)->activeOn()->first();
     }
 }

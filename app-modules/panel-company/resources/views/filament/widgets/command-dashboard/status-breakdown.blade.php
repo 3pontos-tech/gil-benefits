@@ -4,7 +4,8 @@
     $dot = [
         'primary' => 'bg-primary-500', 'emerald' => 'bg-emerald-500', 'blue' => 'bg-blue-500',
         'violet' => 'bg-violet-500', 'pink' => 'bg-pink-500', 'amber' => 'bg-amber-500',
-        'teal' => 'bg-teal-500', 'red' => 'bg-red-500', 'orange' => 'bg-orange-500', 'neutral' => 'bg-gray-400',
+        'teal' => 'bg-teal-500', 'red' => 'bg-red-500', 'orange' => 'bg-orange-500',
+        'purple' => 'bg-purple-500', 'neutral' => 'bg-gray-400',
     ];
     $card = 'rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-gray-900';
     $label = 'text-sm font-semibold text-gray-500 dark:text-gray-400';
