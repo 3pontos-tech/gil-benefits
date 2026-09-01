@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelApp\Filament\Widgets;
 
 use App\Models\Users\User;
+use Carbon\CarbonImmutable;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
@@ -16,14 +17,13 @@ use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Billing\Core\Support\QuotaCycle;
 use TresPontosTech\PanelApp\DTOs\PlanSummary;
 use TresPontosTech\PanelApp\Enums\PlanStatus;
 use TresPontosTech\PanelApp\Filament\Concerns\SchedulesAppointments;
@@ -69,6 +69,7 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             'plan' => $plan,
             'monthlyLeft' => $monthlyLeft,
             'monthlyLimit' => $plan->monthlyLimit ?? 0,
+            'renewsAt' => $this->renewalDate($user),
             'creditsTotal' => $availableCredits,
             'canCreateAppointment' => $canCreateAppointment,
             'blockReasons' => $this->blockReasons($hasOngoingAppointment, $monthlyLeft, $hasCredit),
@@ -76,6 +77,24 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             'consultantName' => $this->currentConsultantName($user),
             'creditsUrl' => UserCreditsPage::getUrl(),
         ];
+    }
+
+    /**
+     * Dia em que a cota do plano volta, derivado da mesma âncora que calcula o saldo.
+     *
+     * É a resposta que o cliente não tinha: enquanto a janela era rolante, a data mudava
+     * a cada agendamento e não havia o que exibir. Devolve `null` para quem não tem plano
+     * nem assinatura, e nesse caso a linha não é renderizada.
+     */
+    private function renewalDate(User $user): ?CarbonImmutable
+    {
+        $allowance = resolve(ResolveQuotaAllowance::class)->for($user);
+
+        if ($allowance->isEmpty()) {
+            return null;
+        }
+
+        return QuotaCycle::forAnchor($allowance->anchor)->end;
     }
 
     /**
@@ -160,13 +179,8 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
 
     private function resolvePlan(User $user): ?PlanSummary
     {
-        $contractualPlan = CompanyPlan::query()
-            ->whereIn('company_id', $user->companies()->select('companies.id'))
-            ->where('status', CompanyPlanStatusEnum::Active)
-            ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
-            ->with('plan')
-            ->first();
+        $contractualPlan = resolve(ResolveQuotaAllowance::class)->contractualPlanFor($user);
+        $contractualPlan?->loadMissing('plan');
 
         if ($contractualPlan !== null && $contractualPlan->plan !== null) {
             $limit = (int) $contractualPlan->monthly_appointments_per_employee;

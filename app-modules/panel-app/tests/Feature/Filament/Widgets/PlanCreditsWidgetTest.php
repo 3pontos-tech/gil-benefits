@@ -6,7 +6,10 @@ use Filament\Support\Enums\Width;
 use Illuminate\Support\Facades\DB;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\DTOs\PlanSummary;
@@ -281,4 +284,80 @@ describe('appointment guard', function (): void {
             ->mountAction('scheduleAppointment')
             ->assertActionMounted('scheduleAppointment');
     });
+});
+
+it('describes the plan of the selected tenant when the user has two contractual plans', function (): void {
+    $employee = actingAsEmployee(); // tenant ativo: CompanyPlan de 1 consulta/mês
+
+    $tenantPlanName = CompanyPlan::query()
+        ->whereIn('company_id', $employee->companies()->select('companies.id'))
+        ->with('plan')
+        ->firstOrFail()
+        ->plan
+        ->name;
+
+    $otherCompany = Company::factory()->create();
+    $otherCompany->employees()->attach($employee->getKey());
+
+    $otherPlan = Plan::factory()->createOne([
+        'name' => 'Plano da outra empresa',
+        'type' => BillableTypeEnum::User->value,
+        'active' => true,
+    ]);
+
+    CompanyPlan::query()->create([
+        'company_id' => $otherCompany->getKey(),
+        'plan_id' => $otherPlan->getKey(),
+        'status' => CompanyPlanStatusEnum::Active->value,
+        'monthly_appointments_per_employee' => 7,
+        'starts_at' => now()->subMonths(3),
+        'seats' => 10,
+    ]);
+
+    // O plano descrito tem que ser o mesmo de onde o saldo sai, senão o card
+    // mostra o teto de um contrato ao lado do saldo de outro.
+    $component = livewire(PlanCreditsWidget::class)->assertSuccessful();
+
+    expect($component->instance()->viewPlanAction()->getModalHeading())
+        ->toBe($tenantPlanName)
+        ->not->toBe('Plano da outra empresa');
+});
+
+it('shows the renewal date of the current cycle', function (): void {
+    travelTo('2026-09-15 10:00');
+    $employee = actingAsEmployee();
+
+    CompanyPlan::query()
+        ->whereIn('company_id', $employee->companies()->select('companies.id'))
+        ->update(['starts_at' => '2026-03-10']);
+
+    livewire(PlanCreditsWidget::class)
+        ->assertSuccessful()
+        ->assertSee(__('panel-app::widgets.plan_credits.renews_at', ['date' => '10/10']));
+});
+
+it('clamps the renewal date shown for a short month', function (): void {
+    travelTo('2026-02-10 10:00');
+    $employee = actingAsEmployee();
+
+    CompanyPlan::query()
+        ->whereIn('company_id', $employee->companies()->select('companies.id'))
+        ->update(['starts_at' => '2026-01-31']);
+
+    // Ciclo 31/jan–28/fev: a tela tem que usar o mesmo clamp do cálculo.
+    livewire(PlanCreditsWidget::class)
+        ->assertSuccessful()
+        ->assertSee(__('panel-app::widgets.plan_credits.renews_at', ['date' => '28/02']));
+});
+
+it('omits the renewal date when there is no active plan', function (): void {
+    $employee = actingAsEmployee();
+
+    CompanyPlan::query()
+        ->whereIn('company_id', $employee->companies()->select('companies.id'))
+        ->update(['status' => CompanyPlanStatusEnum::Inactive->value]);
+
+    livewire(PlanCreditsWidget::class)
+        ->assertSuccessful()
+        ->assertDontSee(__('panel-app::widgets.plan_credits.renews_at', ['date' => '']));
 });
