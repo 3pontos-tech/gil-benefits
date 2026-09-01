@@ -32,7 +32,6 @@ use Zap\Models\Concerns\HasSchedules;
  * @property string $id
  * @property string|null $user_id
  * @property string|null $crm_id
- * @property int|null $cost_per_appointment_cents
  * @property string $name
  * @property string $slug
  * @property string $phone
@@ -74,7 +73,6 @@ class Consultant extends Model implements HasMedia
         'readme',
         'socials_urls',
         'crm_id',
-        'cost_per_appointment_cents',
         'google_calendar_synced_at',
         'google_calendar_sync_token',
         'last_full_sync_at',

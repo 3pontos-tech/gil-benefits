@@ -14,18 +14,19 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Financial\FinancialCluster;
-use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ConsultingPayoutWidget;
+use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ConsultingValueWidget;
 use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ConsultingVolumeWidget;
 use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ExtraCreditsTableWidget;
 
 /**
  * Módulo "Consultorias e Consumo" do cockpit financeiro.
  *
- * Entrega as stories 238, 240 e 239. Esta última pedia margem operacional, mas
- * a plataforma não sabe quanto uma consultoria vale — a do plano está embutida
- * na mensalidade e não é alocável. Foi reescrita com o PO para entregar o
- * repasse: quanto a Flamma paga ao parceiro pelas consultorias que consumiram
- * crédito do cliente.
+ * Entrega as stories 238, 240 e 239. Esta última pedia margem operacional, e
+ * margem não é calculável: a plataforma não sabe por quanto uma consultoria é
+ * vendida — a do plano está embutida na mensalidade e não é alocável. Entrega o
+ * lado que dá para saber: o volume que consumiu crédito, multiplicado por um
+ * valor único que a Flamma configura, lado a lado com a mensalidade de cada
+ * empresa. Quem lê faz a comparação que a margem faria.
  */
 class ConsultingUsage extends BaseDashboard
 {
@@ -95,7 +96,7 @@ class ConsultingUsage extends BaseDashboard
             Grid::make(1)->schema($this->getWidgetsSchemaComponents([
                 ConsultingVolumeWidget::class,
                 ExtraCreditsTableWidget::class,
-                ConsultingPayoutWidget::class,
+                ConsultingValueWidget::class,
             ])),
         ]);
     }
