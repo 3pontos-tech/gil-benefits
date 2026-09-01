@@ -13,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Filament\Support\RawJs;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +22,7 @@ use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\Billing\Core\Support\MoneyCents;
 
 class ContractualPlansRelationManager extends RelationManager
 {
@@ -51,6 +53,21 @@ class ContractualPlansRelationManager extends RelationManager
                     ->integer()
                     ->minValue(1)
                     ->required(),
+
+                TextInput::make('monthly_value_cents')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.monthly_value'))
+                    ->helperText(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.monthly_value_hint'))
+                    ->prefix('R$')
+                    // Em reais na tela, centavos no banco. A máscara escreve o
+                    // ponto de milhar, que o Filament tira nos dois sentidos: o
+                    // estado é sempre reais com vírgula decimal, que `numeric()`
+                    // recusaria — daí a regra ser a expressão, que de quebra
+                    // barra valor negativo.
+                    ->mask(RawJs::make("\$money(\$input, ',', '.')"))
+                    ->stripCharacters('.')
+                    ->rule('regex:/^\\d{1,9}(,\\d{1,2})?$/')
+                    ->formatStateUsing(fn (?int $state): ?string => $state === null ? null : number_format($state / 100, 2, ',', ''))
+                    ->dehydrateStateUsing(fn (?string $state): ?int => blank($state) ? null : (int) round((float) str_replace(',', '.', $state) * 100)),
 
                 TextInput::make('monthly_appointments_per_employee')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.monthly_appointments'))
@@ -124,6 +141,16 @@ class ContractualPlansRelationManager extends RelationManager
 
                 TextColumn::make('seats')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.seats')),
+
+                TextColumn::make('monthly_value_cents')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.monthly_value'))
+                    // Estado, e não formatação: com o estado nulo o Filament
+                    // renderiza o placeholder e não chama o `formatStateUsing`.
+                    ->state(fn (CompanyPlan $record): string => $record->monthly_value_cents === null
+                        ? __('panel-admin::resources.companies.relation_managers.contractual_plans.table.monthly_value_unknown')
+                        : MoneyCents::fromCents($record->monthly_value_cents)->format())
+                    ->badge(fn (CompanyPlan $record): bool => $record->monthly_value_cents === null)
+                    ->color(fn (CompanyPlan $record): string => $record->monthly_value_cents === null ? 'warning' : 'gray'),
 
                 TextColumn::make('monthly_appointments_per_employee')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.monthly_appointments')),

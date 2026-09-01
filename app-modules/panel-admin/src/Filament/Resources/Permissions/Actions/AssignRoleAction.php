@@ -60,7 +60,14 @@ class AssignRoleAction extends Action
     {
         return $this->resolveCompany() instanceof Company
             ? [Roles::CompanyManager, Roles::Employee]
-            : [Roles::SuperAdmin, Roles::Admin, Roles::Consultant, Roles::User];
+            : [
+                Roles::SuperAdmin,
+                Roles::Admin,
+                Roles::Consultant,
+                Roles::User,
+                Roles::Financial,
+                Roles::CustomerSuccess,
+            ];
     }
 
     /**
