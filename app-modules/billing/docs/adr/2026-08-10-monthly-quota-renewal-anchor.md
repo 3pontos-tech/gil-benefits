@@ -106,22 +106,30 @@ because they are not obvious from reading any single file.
    `SUBSCRIPTION_INACTIVE` (as `Date::now()`); every other event passes `null` and the
    upsert overwrites it back to `null`. For an active subscription it is always `null`.
    `ends_at - 30 days` therefore cannot yield an anchor.
-4. **Barte never tells us a subscription renewed.** The handled events are
-   `SUBSCRIPTION_PENDING`, `SUBSCRIPTION_ACTIVE`, `SUBSCRIPTION_DEFAULTER`,
-   `SUBSCRIPTION_INACTIVE`. There is no renewal or invoice-paid event, and `BarteClient`
-   exposes only `getPlans`, `createBuyer`, `createPaymentLink`, `deleteSubscription` — no
+4. **No provider tells us a subscription renewed — but Virtu comes close.** Barte's handled
+   events are `SUBSCRIPTION_PENDING`, `SUBSCRIPTION_ACTIVE`, `SUBSCRIPTION_DEFAULTER`,
+   `SUBSCRIPTION_INACTIVE`: no renewal or invoice-paid event, and `BarteClient` exposes no
    endpoint to read a subscription's next charge date.
+
+   *Updated 2026-08-16.* Virtu (#258) is now the only provider for new checkouts, and it
+   has no subscription lifecycle event at all — a recurring charge simply arrives as another
+   `TRANSACTION` with `data.subscriptions` populated. So a **payment** for an individual
+   subscription is now observable, which Barte never gave us. It still is not a renewal of
+   the quota cycle: the cycle is anchored on `quota_anchor_at`, not on the charge, and
+   contractual plans — where most employees live — produce no payment event whatsoever.
+   Enough to reconsider the renewal e-mail (issue #254), not enough to change D11.
 5. **`created_at` on a subscription is stamped before payment.** The row is created at the
    first webhook (`PENDING`), so for pix/boleto it precedes the payment by 1–3 days.
    Separately, `app/Console/Commands/SyncSubscriptionToFlammaCompany.php` creates rows by
    hand with a random `stripe_id` and no dates — but those belong to the **company**, and a
    company subscription never produces quota (D5), so they never reach the quota path.
-6. **Barte and Stripe share one table and one status column.** `billing_subscriptions`
+6. **The three providers share one table and one status column.** `billing_subscriptions`
    keeps Cashier's column names (`stripe_id`, `stripe_status`, `stripe_price`) and has no
-   provider column. The vocabularies differ — `pending|active|defaulter|inactive` against
-   `active|trialing|past_due|canceled|incomplete|…` — and `active` is the only shared
-   value. Stripe subscriptions are written by Cashier's `WebhookController` directly,
-   never through `UpsertSubscription`.
+   provider column. Barte and Virtu write the same vocabulary
+   (`pending|active|defaulter|inactive`); Stripe writes its own
+   (`active|trialing|past_due|canceled|incomplete|…`). `active` is the only value shared by
+   all three. Barte and Virtu enter through `UpsertSubscription`; Stripe is written by
+   Cashier's `WebhookController` directly, never through it.
 7. **There is no upper bound on how far ahead a person can book.** `PickSlotStep` and
    `RescheduleAppointmentAction` set only `minDate` (`Appointment::BOOKING_LEAD_DAYS = 2`);
    there is no `maxDate` anywhere in the codebase, and the calendar navigates forward
@@ -238,9 +246,9 @@ between an anchor we *observed* and an anchor we *guessed at* during backfill.
 that command creates belong to the **company**, and a company subscription never produces
 quota (D5), so they never reach this code path.
 
-**Rejected — fetch the date from Barte's API:** would need a new client method and we do
-not know whether the endpoint exposes it. Reconsider only if the anchor turns out to be
-wrong in practice.
+**Rejected — fetch the date from the provider's API:** would need a new client method per
+provider, and none of the three exposes a next-charge endpoint we know of. Reconsider only
+if the anchor turns out to be wrong in practice.
 
 **Rejected — a `current_period_start` advanced on each payment:** Barte sends no renewal
 event (1.4.4), so the column would never be updated.
@@ -313,6 +321,11 @@ sees an active plan and cannot book anything, with no obvious explanation.
 * Less than 4h → `cancelled_late`; still counts, the person loses it.
 * Admin/system cancellations are never penalised (`resolveCancellationStatus` only
   consults `isLateCancellation()` for `CancellationActor::User`).
+
+*Updated 2026-08-16.* `no_show` (#267) joined the status set and behaves as US-385 asks:
+the count excludes only `cancelled`, so a no-show consumes the cycle. It also never
+refunds, because the stamp of D13 lives in `cancelProcessStep()` and a no-show does not go
+through it. Pinned by a test.
 
 ### D10 — *Withdrawn.* Bookings are not capped *(Q11, Q13)*
 
@@ -641,8 +654,9 @@ Written for this change:
   cases in `QuotaAnchorTest` — both execute the migration itself against hand-made legacy
   rows. The test database starts clean, so without this the backfills would reach production
   never having run.
-* `app-modules/panel-admin/tests/Feature/Filament/Companies/ContractualPlansRelationManagerTest.php`
-  — the relation manager had no test at all before this.
+* `app-modules/panel-admin/tests/Feature/Filament/ContractualPlansRelationManagerTest.php`
+  — the `starts_at` cases live alongside the contract-value ones the financial cockpit
+  added, rather than in a second file with the same name.
 
 Pre-existing tests that constrain the change:
 
@@ -651,6 +665,12 @@ Pre-existing tests that constrain the change:
   has `monthly_appointments_left = 0`", which must remain true.
 * `app-modules/panel-app/tests/Feature/Filament/Widgets/PlanCreditsWidgetTest.php` —
   asserts `canCreateAppointment` and the block reasons share one computation.
+
+Interactions with what landed on develop while this was being built:
+
+* a no-show consumes the cycle and never refunds (`UserMonthlyAppointmentsLeftTest`);
+* the anchor is stamped through both write paths, Barte/Virtu via `UpsertSubscription` and
+  Stripe via the billable relation (`QuotaAnchorTest`).
 
 ---
 

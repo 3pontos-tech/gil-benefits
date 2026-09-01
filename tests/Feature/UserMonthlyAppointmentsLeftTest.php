@@ -142,3 +142,19 @@ it('reflects a new booking immediately, without waiting for the cache to expire'
 
     expect($employee->fresh()->monthly_appointments_left)->toBe(0);
 });
+
+it('counts a no-show against the cycle, and never refunds it', function (): void {
+    travelTo('2026-09-11 10:00');
+    $employee = actingAsEmployee();
+    anchorContractualPlanOn($employee, '2026-03-10');
+
+    $booking = bookingFor($employee);
+
+    // US-385: faltar sem avisar consome a consulta. Só `cancelled` sai da contagem.
+    $booking->update(['status' => AppointmentStatus::NoShow]);
+
+    travelTo('2026-09-15 10:00');
+
+    expect($employee->fresh()->monthly_appointments_left)->toBe(0)
+        ->and($booking->refresh()->quota_refunded_at)->toBeNull();
+});
