@@ -2,7 +2,7 @@
 
 namespace TresPontosTech\Billing\Core\Models\Subscriptions;
 
-use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 use Laravel\Cashier\Subscription as BaseSubscriptionModel;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Billing\Core\Observers\SubscriptionQuotaAnchorObserver;
 use TresPontosTech\Billing\Database\Factories\SubscriptionFactory;
 
 /**
@@ -23,13 +24,48 @@ use TresPontosTech\Billing\Database\Factories\SubscriptionFactory;
  * @property int|null $quantity
  * @property Carbon|null $trial_ends_at
  * @property Carbon|null $ends_at
+ * @property Carbon|null $quota_anchor_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[UseFactory(SubscriptionFactory::class)]
+#[ObservedBy(SubscriptionQuotaAnchorObserver::class)]
 class Subscription extends BaseSubscriptionModel
 {
+    /**
+     * Status que vale como assinatura em vigor nos dois provedores: é o que o Barte
+     * manda no webhook de ativação e o que o Stripe usa fora de trial e inadimplência.
+     */
+    public const string STATUS_ACTIVE = 'active';
+
     protected $table = 'billing_subscriptions';
+
+    /**
+     * Declarado como método, e não pelo atributo `#[UseFactory]`, porque o Cashier
+     * sobrescreve `newFactory()` no model pai para devolver a factory dele.
+     *
+     * O `#[UseFactory]` só é lido dentro da implementação padrão de `newFactory()`, que
+     * nunca chega a rodar aqui — então o atributo era ignorado em silêncio e
+     * `Subscription::factory()` construía o model do Cashier, com tabela `subscriptions`
+     * e chave de dono `company_id`.
+     *
+     * @return SubscriptionFactory
+     */
+    protected static function newFactory()
+    {
+        return SubscriptionFactory::new();
+    }
+
+    /**
+     * Mesclado com o `$casts` do Cashier, que já cobre `ends_at` e `trial_ends_at`.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'quota_anchor_at' => 'datetime',
+        ];
+    }
 
     /**
      * @return MorphTo<Model, $this>
