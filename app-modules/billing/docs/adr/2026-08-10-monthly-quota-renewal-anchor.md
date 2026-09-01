@@ -14,13 +14,27 @@ affects:
 
 # ADR: Monthly appointment quota renews on a contract anchor date
 
-**Status:** accepted · **Date:** 2026-08-10 · **Decided by:** Richard (product/tech)
+**Status:** accepted · **Date:** 2026-08-10 · **Revised:** 2026-08-16 during implementation · **Decided by:** Richard (product/tech)
 
 This record closes every decision needed to build the change. It states *what* was
 decided and *why*, and carries an implementation map (schema, files, order, tests) so
 that whoever implements it does not have to re-derive the reasoning. It is **not** a
-task-by-task plan — if the implementer wants checkbox tasks in the style of
-`app-modules/panel-app/docs/plans/`, that document should be generated from this one.
+task-by-task plan — for checkbox tasks see
+`app-modules/billing/docs/plans/2026-08-14-monthly-quota-renewal-anchor-followup.md`.
+
+**What changed on 2026-08-16.** Implementation invalidated four decisions, and they are
+revised in place rather than left to mislead the next reader:
+
+* **D13** replaces the original D13–D17. The refund stopped going through the credit ledger
+  and became one stamped column plus one arithmetic term, which removed D14, D15, D16, D17,
+  three screens' worth of filtering and the silent-no-op hazard around `ConsumeCredit`. The
+  premise that had ruled this out — that "+1 in the current cycle" needed the materialised
+  table rejected in D11 — was wrong.
+* **D10** is withdrawn. The multi-cycle loss it claimed to contain is caused by
+  `hasOngoingAppointment()` and exists identically before and after this change.
+* **D4** keeps its conclusion but loses one of its three justifications, and gains the
+  reason the stamp lives in a model observer rather than in `UpsertSubscription`.
+* **D18** keeps its conclusion and gains a measurement step before the deploy.
 
 ---
 
@@ -97,33 +111,39 @@ because they are not obvious from reading any single file.
    `SUBSCRIPTION_INACTIVE`. There is no renewal or invoice-paid event, and `BarteClient`
    exposes only `getPlans`, `createBuyer`, `createPaymentLink`, `deleteSubscription` — no
    endpoint to read a subscription's next charge date.
-5. **`created_at` on a subscription is not trustworthy as business data.** It is stamped
-   at the first webhook (`PENDING`, i.e. *before* payment), and
-   `app/Console/Commands/SyncSubscriptionToFlammaCompany.php` creates subscription rows by
-   hand with a random `stripe_id` and no dates — for those rows `created_at` is the day
-   somebody ran the command.
-6. **There is no upper bound on how far ahead a person can book.** `PickSlotStep` and
+5. **`created_at` on a subscription is stamped before payment.** The row is created at the
+   first webhook (`PENDING`), so for pix/boleto it precedes the payment by 1–3 days.
+   Separately, `app/Console/Commands/SyncSubscriptionToFlammaCompany.php` creates rows by
+   hand with a random `stripe_id` and no dates — but those belong to the **company**, and a
+   company subscription never produces quota (D5), so they never reach the quota path.
+6. **Barte and Stripe share one table and one status column.** `billing_subscriptions`
+   keeps Cashier's column names (`stripe_id`, `stripe_status`, `stripe_price`) and has no
+   provider column. The vocabularies differ — `pending|active|defaulter|inactive` against
+   `active|trialing|past_due|canceled|incomplete|…` — and `active` is the only shared
+   value. Stripe subscriptions are written by Cashier's `WebhookController` directly,
+   never through `UpsertSubscription`.
+7. **There is no upper bound on how far ahead a person can book.** `PickSlotStep` and
    `RescheduleAppointmentAction` set only `minDate` (`Appointment::BOOKING_LEAD_DAYS = 2`);
    there is no `maxDate` anywhere in the codebase, and the calendar navigates forward
    indefinitely.
-7. **A person can only ever have one open appointment.** `hasOngoingAppointment()` blocks
+8. **A person can only ever have one open appointment.** `hasOngoingAppointment()` blocks
    booking while any appointment is not `completed`/`cancelled`/`cancelled_late`, and an
    appointment stays open until after its date. Booking is therefore serialised.
-8. **`user_credits` is already a unit ledger** — one row per appointment, statuses
+9. **`user_credits` is already a unit ledger** — one row per appointment, statuses
    `available / in_use / used / expired`, consumed automatically by `ConsumeCredit` when
    the monthly quota is zero, and displayed separately from plan quota in
    `PlanCreditsWidget`. The `expired` status exists but **nothing in the codebase ever
    assigns it**, and there is no expiry column: credits are perpetual today.
-9. **The "which stock pays" decision is duplicated.**
+10. **The "which stock pays" decision is duplicated.**
    `BookAppointmentAction` decides via `$hasMonthlyQuota = $user->monthly_appointments_left > 0`
    and `panel-admin/.../Appointments/Pages/CreateAppointment.php` decides via
    `$this->consumesCredit = $user->monthly_appointments_left <= 0`.
-10. **`ConsumeCredit` picks the oldest available credit** (`->oldest()`, i.e. by
+11. **`ConsumeCredit` picks the oldest available credit** (`->oldest()`, i.e. by
     `created_at`) and silently no-ops when it finds none (`?->update(...)`).
-11. **The customer-facing credits page shows no origin and no expiry.**
+12. **The customer-facing credits page shows no origin and no expiry.**
     `UserCreditsPage` lists status, `transferred_at` and `created_at` (labelled
     "purchased at").
-12. **The active-contractual-plan query is copy-pasted in four places:**
+13. **The active-contractual-plan query is copy-pasted in four places:**
     `User::resolveMonthlyAppointmentLimit()`, `PlanCreditsWidget::resolvePlan()`,
     `Company::activeContractualPlan()` and
     `panel-admin/src/Actions/Engagement/GetEngagementFunnel.php`.
@@ -191,14 +211,32 @@ Add `billing_subscriptions.quota_anchor_at`. It is written **once**, when the
 subscription's status first becomes `active`, and never modified afterwards. Existing
 subscriptions are backfilled with `created_at`.
 
+**Where the stamp lives (revised 2026-08-16).** In a model observer on `Subscription`
+(`saving`), not in `UpsertSubscription` as first planned. There is more than one write
+path and they do not know about each other: Barte enters through `UpsertSubscription`,
+Stripe enters through Cashier's `WebhookController`, which writes to the table directly,
+and rows are also created by console command and by factory. Stamping in any single writer
+would leave the others without an anchor.
+
+The filter is `stripe_status = 'active'`. Both providers share this table and this column
+with different vocabularies — `pending|active|defaulter|inactive` against
+`active|trialing|past_due|canceled|incomplete|…` — and `active` is the only value common
+to both. It is also the value `User::activeSubscription()` already uses to decide who has
+quota, so the two reads stay in agreement. Nothing guarantees this beyond the coincidence,
+which is why it is written down.
+
 **Rejected — use `created_at` directly.** The precision argument for the dedicated column
 is weak and was correctly challenged: the gap between "subscription created" and
 "subscription paid" is the pix/boleto window, 1–3 days, and it errs in the customer's
-favour (the cycle starts slightly early). The reason for the column is different:
-`created_at` is infrastructure metadata that the system can rewrite on its own (see
-constraint 1.4.5) and that nobody can correct for a single customer without falsifying the
+favour (the cycle starts slightly early). The reason for the column is that `created_at`
+is infrastructure metadata nobody can correct for a single customer without falsifying the
 row's history. A dedicated column can be corrected, and it preserves the distinction
 between an anchor we *observed* and an anchor we *guessed at* during backfill.
+
+*Correction:* the original text also cited `SyncSubscriptionToFlammaCompany` (constraint
+1.4.5) as evidence that `created_at` is untrustworthy. That does not apply here — the rows
+that command creates belong to the **company**, and a company subscription never produces
+quota (D5), so they never reach this code path.
 
 **Rejected — fetch the date from Barte's API:** would need a new client method and we do
 not know whether the endpoint exposes it. Reconsider only if the anchor turns out to be
@@ -276,29 +314,25 @@ sees an active plan and cannot book anything, with no obvious explanation.
 * Admin/system cancellations are never penalised (`resolveCancellationStatus` only
   consults `isLateCancellation()` for `CancellationActor::User`).
 
-### D10 — Bookings are capped at 45 days ahead, counted from today *(Q11, Q13)*
+### D10 — *Withdrawn.* Bookings are not capped *(Q11, Q13)*
 
-Introduce a fixed 45-day horizon, enforced in `AppointmentWizard::availableSlots()` so
-that both the booking wizard and the reschedule flow inherit it, plus the server-side
-`isBookableSlot()` check. The horizon is always counted **from now**, including on each
-reschedule.
+> **Withdrawn 2026-08-16, during implementation.**
 
-Why a cap at all: with no `maxDate` (1.4.6) and one-open-appointment-at-a-time (1.4.7),
-booking 90 days out burns today's quota and then silently erases the two cycles in
-between. The cap bounds that damage to a little over one cycle.
+The original decision introduced a fixed 45-day booking horizon, justified by the claim
+that with no `maxDate` (1.4.7) and one open appointment at a time (1.4.8), booking 90 days
+out "burns today's quota and then silently erases the two cycles in between".
 
-**Rejected — count the 45 days from the original booking:** it punishes good faith. Someone
-who booked 40 days out and needs to move has a 5-day window that may contain no
-consultant availability at all, leaving cancellation as the only exit. It also requires
-threading the appointment into `availableSlots()` and into the server-side validation,
-which are shared and currently appointment-agnostic; if the two drift, the calendar offers
-slots the server rejects.
+**The justification does not hold.** That erasure is caused by `hasOngoingAppointment()`,
+which this change does not touch. Booking on 1 January for 1 April locks the person out
+until April today, before the change, and after it, identically — three cycles paid, one
+consultation, either way. The move to fixed cycles does not make it worse; it only makes
+the loss *nameable* ("you lost the February cycle"), where before there was no cycle to
+name.
 
-**Accepted residue:** a person can push an appointment forward indefinitely by
-rescheduling. This is self-punishing (the quota was already debited, and they stay blocked
-from booking anything else) but it does hold consultant availability. If that becomes a
-real problem, the remedy is a limit on the **number** of reschedules, not a narrower date
-horizon.
+Since nothing here needs containing, the cap leaves this ADR. The underlying problem is
+real and pre-existing, and capping how far ahead a customer may book is a product decision
+that needs its own story and PO sign-off rather than a ride inside a renewal epic. Tracked
+in issue #252.
 
 ### D11 — The cycle is computed on read; nothing is materialised *(Q14a)*
 
@@ -319,94 +353,82 @@ This is what the system already does today, both situations are rare and admin-d
 the deviation is one appointment, almost always in the customer's favour. Preventing it
 would require the table rejected in D11.
 
-### D13 — A cancellation whose debited cycle has already closed produces an expiring credit *(Q12)*
+### D13 — A cancellation whose debited cycle has already closed refunds the quota by stamping the appointment *(Q12)*
 
-**The case.** Renewal on the 10th. The person books on **9 Sep** (last day of their cycle)
-an appointment for **12 Sep**; the debit sits in the cycle that closed on the 9th. On
-**11 Sep**, already inside the new cycle, they cancel with more than 4 hours' notice.
-"Recovering the appointment of the month" would credit a cycle that no longer exists: they
-followed the rules and got nothing.
+> **Revised 2026-08-16, during implementation.** This decision replaces the original
+> D13–D17, which routed the refund through the credit ledger. Those five decisions are
+> reproduced at the end of this section for the record, together with the reason they
+> were dropped.
 
-The refund is issued as a **`UserCredit` with an expiry date**, not as an adjustment to
-the plan quota.
+**The case.** Renewal on the 10th. The person books on **9 Sep** (last day of their
+cycle) an appointment for **12 Sep**; the debit sits in the cycle that closed on the 9th.
+On **11 Sep**, already inside the new cycle, they cancel with more than 4 hours' notice.
+Removing a debit from a cycle nobody reads any more returns nothing: they followed the
+rules and got nothing.
 
-**Rejected — refund nothing:** the person cancelled within the rules. Note this is a
-*regression introduced by this change*: with today's rolling window, cancelling always
-frees the slot because the window is relative to the read.
+Note this is a **regression introduced by this change**. With the rolling window,
+cancelling always frees the slot, because the window is relative to the read. It also
+flips the sign: today cancelling in time is neutral or slightly advantageous, and after
+the change it becomes a penalty.
 
-**Rejected — a perpetual credit:** it would become an accumulating balance, which the
-whole change exists to prevent.
+**The decision.** At the moment of cancellation, when the status becomes `cancelled` and
+the appointment was **not** paid with a `UserCredit` and the cycle containing its
+`created_at` has already closed, stamp `appointments.quota_refunded_at = now()`.
+`monthlyAppointmentsLeft()` then reads:
 
-**Rejected — refund inside the plan quota:** the plan limit is what the price sold; it
-must not move. And expressing "+1 in the current cycle" would require the materialised
-table rejected in D11.
+```
+limit
+  − appointments created inside the current cycle, status != cancelled
+  + appointments whose quota_refunded_at falls inside the current cycle
+```
 
-### D14 — The refund credit expires at the end of the person's current cycle *(open point 6)*
+**Why the stamp is written at cancellation and not derived on read.** The question "was
+this appointment paid with quota or with a credit?" has an answer only at that instant.
+Paying with quota never writes a row anywhere — the quota is derived, not stored — and
+`ReturnCreditOnAppointmentCancelledListener` nulls `user_credits.appointment_id` when it
+returns the credit. The listener runs synchronously, right after the status update, so
+the stamp must be computed **before** the `AppointmentCreditReturned` event is fired.
+Afterwards an appointment paid with quota and one paid with a credit are indistinguishable.
 
-Validity = the end of the cycle that is running at the moment of cancellation. Cancelled
-inside a cycle, used inside that cycle. This is what stops it becoming an accumulating
-balance.
+**What this buys.** The refund expires on its own: the stamp is an instant, and once the
+cycle turns it no longer falls inside the window. No expiry column, no consumption
+ordering, no "keeps its original expiry" rule, no `reason` enum, no screens.
 
-### D15 — The refund credit is spent before the monthly quota, and the "which stock pays" decision is unified first *(open point 1)*
+**Accepted cost — auditability.** No admin-visible record is created. Support cannot open
+a screen and read "refunded because the cycle had closed"; they have to cross-reference
+the person's appointments. This weighs less than it appears: the admin panel does not
+display anyone's quota today (`monthly_appointments_left` appears once in `panel-admin`,
+inside `CreateAppointment`, and in no Blade), so a `CreditGrant` would audit the origin
+of a number nobody can see. The evidence is preserved even if not presented —
+`created_at`, `status` and `quota_refunded_at` stay on the appointment row forever. If it
+ever matters, the cheap mitigation is one line in `PlanCreditsWidget` showing
+"+1 returned by cancellation"; the full one is a column in the admin appointment list.
+Tracked in issue #256.
 
-Two parts:
+**Rejected — refund nothing:** the person cancelled within the rules, and the sign flip
+above makes it read as punishment for good behaviour.
 
-1. **Ordering among credits (mandatory).** `ConsumeCredit` currently takes the *oldest*
-   credit, which would put a freshly created refund credit last in line — it would expire
-   while perpetual gift credits sit untouched. The order becomes: credits with an expiry
-   first (soonest first), then perpetual credits, then by `created_at`.
-2. **Credit before monthly quota (decided, with a prerequisite).** The duplicated
-   decision (1.4.9) must be unified into a single place *before* this is implemented,
-   otherwise the app flow and the admin panel flow will diverge.
+**Rejected — issue a `UserCredit` with an expiry, recorded as a `CreditGrant` with a
+`reason` (the original D13–D17).** It was chosen first and then dropped once implementation
+made the trade explicit:
 
-For the record: with D14, the refund credit and the monthly quota expire at the same
-instant, so today this priority does not change any outcome — a person who books once in
-the cycle loses the other either way, and a person who books twice uses both regardless of
-order. It was chosen anyway so the behaviour is already correct if a credit with a
-mid-cycle expiry is ever issued.
+* it modelled the refund as an *avulso credit*, which it is not — it is the same monthly
+  appointment restored. As a `UserCredit` it inherits avulso semantics (listed in "My
+  Credits", transferable, revocable, counted as a donation), and each inherited property
+  then has to be filtered back out. The six screens, the `reason` column and the revoke
+  guard were all that undoing;
+* it required D14 (expiry), D15 (consumption ordering) and D16 (keep the original expiry)
+  to exist purely so a credit would behave like quota — and this ADR already conceded that
+  D15 changes no outcome today and that D16 is unfair by design;
+* it put the refund next to `ConsumeCredit`, whose `?->update(...)` no-ops silently, which
+  is the most expensive class of bug available here (see §5.5 of the original text);
+* the premise used to reject the arithmetic alternative was wrong. The original D13 stated
+  that expressing "+1 in the current cycle" would require the materialised table rejected
+  in D11. It does not: it requires knowing *when* the cancellation happened, which is one
+  column.
 
-### D16 — A returned refund credit keeps its original expiry *(open point 5)*
-
-When an appointment paid for with a refund credit is itself cancelled in time,
-`ReturnCreditOnAppointmentCancelledListener` returns the credit **with its original
-expiry**, even if that date has already passed — in which case the credit is dead on
-arrival and the person loses it.
-
-**Rejected — extend the expiry to the end of the current cycle on return.** It was
-recommended, on the grounds that it repeats one level down exactly the unfairness D13
-fixes, and was declined as not worth the extra rule.
-
-**Interaction to be aware of:** because D15 spends credits *before* the monthly quota,
-the refund credit is more often the one in use when a cancellation happens, so this case
-occurs more often than it would have with quota-first ordering.
-
-### D17 — The refund is recorded as a `CreditGrant` with an explicit `reason` *(open points 2, 3, 4)*
-
-* Add `credit_grants.reason`, backed by a new `CreditGrantReasonEnum` (billing module
-  already uses the `Enum` suffix: `UserCreditStatusEnum`, `CompanyPlanStatusEnum`).
-  Initial values: `AdminGift` (everything that exists today) and `QuotaRefund`.
-  Room for `Promotion`, `Compensation`, `Migration` later without a migration.
-* `company_id` is the cancelled appointment's company; `target_user_id` and the credit's
-  `owner_id`/`holder_id` are the person; `admin_user_id` is null.
-* `justification` (already `NOT NULL`) is **composed from the case**, not a fixed
-  sentence — e.g. "automatic refund — appointment of 12/09, booked 09/09, cancelled 11/09".
-* A **dedicated action** issues it, reusing `IssueCredits`. `GrantExtraCredit` is
-  documented admin-only and validates a typed justification; calling it from a
-  cancellation would mix the two roles.
-
-The `reason` column is what makes filtering possible, and it replaces the
-inference-by-absence (`admin_user_id IS NULL`) that would otherwise be needed.
-Because `user_credits.grant_id` already exists, no origin column is needed on the credit
-itself.
-
-**Rejected — record the origin on the credit and skip the grant:** was recommended,
-because the grant's stated purpose (carrying the company) is already served by
-`user_credits.company_id`, and because reusing the donations screen forces filters onto
-three existing surfaces. It was declined in favour of keeping the audit trail where the
-admin already looks; the `reason` enum makes that safe.
-
-**Rejected — create the grant and leave it mixed in with donations:** the donations
-listing means "how much we gave away", and a refund is not a donation.
+**Rejected — refund into the plan quota by raising the limit:** the limit is what the
+price sold and must not move.
 
 ### D18 — No data migration at cutover *(Q10)*
 
@@ -422,6 +444,28 @@ Ship it and accept the one-cycle discrepancy.
 and **rejected — running both rules until each plan's next turn**: both need temporary
 code that someone must remember to remove, and the second keeps two rules alive at once.
 
+**Confirmed 2026-08-16, with the size of the deviation worked out.** The new window is
+narrower than the fixed 30 days in every case except the final day of a 31-day cycle, so
+the common outcome is that a person *gains* an appointment at the deploy. Against them, the
+cost is at most one extra day of waiting, and no paid consultation is ever erased.
+
+The group that comes out worse is structurally tiny, and that is deducible rather than
+something to go and measure: to be in it, a person must be on the last day of a 31-day
+cycle **and** hold a booking made in a band of roughly one day. Anchors are spread across
+the month, so this is a sliver of a sliver.
+
+A read-only command comparing both rules per person was proposed and dropped for exactly
+that reason — it would confirm what the arithmetic already guarantees. This paragraph is
+the transition strategy the epic's Risk 1 asks FLM-375 to state; stating it is the
+deliverable, not running something. The one genuine unknown is the size of the tables,
+which is two `count(*)` queries at deploy time, not an artifact.
+
+The two anchor backfills are not part of this decision and run regardless: `starts_at` on
+`company_plans` and `quota_anchor_at` on `billing_subscriptions`. Both are irreversible by
+design — once written there is no way to tell which rows were null — and the second reaches
+only rows already `active`, so that a subscription still `pending` is anchored by the
+observer at activation rather than frozen on a pre-payment date.
+
 ---
 
 ## 3. Worked examples (use these as test cases)
@@ -432,17 +476,18 @@ Renewal day 10 unless stated otherwise.
 | --- | --- | --- |
 | 1 | Cycle 10 Aug–9 Sep. Books 9 Sep for 12 Sep. | Debit lands in the 10 Aug–9 Sep cycle. The 10 Sep cycle opens with full quota. |
 | 2 | Same, then the appointment completes on 12 Sep. | Person may book again inside the 10 Sep–9 Oct cycle. Two appointments happen in September; two cycles were paid for. |
-| 3 | Same, but cancelled on 11 Sep with >4h notice. | The debited cycle has closed → issue a `QuotaRefund` credit expiring 9 Oct (D13, D14). |
+| 3 | Same, but cancelled on 11 Sep with >4h notice. | The debited cycle has closed → stamp `quota_refunded_at` and the 10 Sep–9 Oct cycle reads 2 available (D13). |
 | 4 | Anchor 31 Jan. | Cycle starts: 28 Feb, 31 Mar, 30 Apr, 31 May (D2). |
 | 5 | Employee registered on the 7th, company renews on the 10th. | Full quota; must **book** by the 9th; the appointment may occur after the 10th; unused → lost, never doubled (D8). |
 | 6 | Renewal day 18. Books 7 Aug for 20 Aug, reschedules on 19 Aug to 5 Sep. | Debit stays in 18 Jul–17 Aug. The 18 Aug–17 Sep cycle is **not** debited; the person is merely blocked until 5 Sep, then may book again until 17 Sep. Never accumulates: on completion they have 1 available, not 3. |
 | 7 | Person has an active contractual plan (1) and an active individual subscription (5). | Result is 1 (D6) — existing test must keep passing. |
 | 8 | Person is an employee of two companies with active contractual plans. | The quota and the anchor come from the selected tenant (D7). |
 | 9 | Admin raises `monthly_appointments_per_employee` from 1 to 2 on the 20th; the person used theirs on the 12th. | 1 available immediately, in the running cycle (D12). |
-| 10 | Person has one perpetual gift credit and one `QuotaRefund` credit expiring in 3 days. | `ConsumeCredit` takes the expiring one (D15.1). |
-| 11 | Appointment paid with a refund credit is cancelled in time, after the credit's expiry. | Credit returns to `available` with the original (past) expiry and is therefore unusable (D16). |
-| 12 | Booking attempt for a date 60 days out. | Rejected by both the calendar and `isBookableSlot()` (D10). |
+| 10 | Appointment paid with a `UserCredit` is cancelled in time after the turn. | No stamp: the existing listener returns the credit, and stamping too would double the benefit (D13). |
+| 11 | A refund stamped on 11 Sep, read on 10 Oct. | Gone: the stamp no longer falls inside the current cycle, so the refund expires on its own (D13). |
+| 12 | Admin cancels an appointment after the turn. | Refunded: admin cancellations are never penalised, so they resolve to `cancelled` and stamp (D9, D13). |
 | 13 | Contractual plan with `starts_at` null (pre-backfill data). | Must not happen after the migration; the backfill sets `created_at` (D3). |
+| 14 | Subscription still `pending` when the backfill runs, activated later. | Left unanchored by the backfill; the observer stamps it at activation (D4). |
 
 ---
 
@@ -455,135 +500,176 @@ Renewal day 10 unless stated otherwise.
 * The company and all its employees share one renewal day, which is what the contractual
   product promises.
 * The arbitrary `first()` company pick disappears, along with the latent default-company
-  hazard.
-* Booking gains an upper horizon, closing the silent multi-cycle loss.
+  hazard, and the copy-pasted active-plan query gains a single owner.
+* Cancelling in time keeps working after the turn, which the rolling window gave for free
+  and a naive fixed cycle would have taken away.
 
 **Regresses / costs**
 
-* Between phase 1 and phase 2 (see §5.1) a cancellation made after the turn refunds
-  nothing — a case that does not exist today.
-* `user_credits` gains an expiry concept, which means the expiry filter must be applied in
-  **every** read (see the pitfall in §5.5).
-* The donations screens must filter by `reason` forever; any future report that forgets it
-  will count refunds as donations.
+* A refund leaves no admin-visible record. The evidence lives on the appointment row, but
+  no screen presents it (D13, issue #256).
+* `appointments` gains two columns whose meaning is only legible together with the cycle
+  arithmetic: `quota_refunded_at` is a conclusion, not a raw fact, so a bug in the stamping
+  rule is written into the data and would need a backfill to correct.
+* The stamp must be computed before `AppointmentCreditReturned` fires. That ordering is
+  load-bearing and easy to break by moving one line.
 
 **Accepted risks**
 
-* The one-minute cache on `monthly_appointments_left` can straddle a cycle boundary. The
-  stale value lasts at most 60 seconds; not worth invalidating on a schedule.
 * D12 means an admin edit rewrites the running cycle. Rare, admin-driven, one appointment.
-* D16 means a refund credit returned after its expiry is lost.
+* `monthly_appointments_left` is memoised per model instance (`shouldCache()`), and nothing
+  but re-hydrating the model clears that. Reading it, mutating an appointment and reading it
+  again **on the same instance** returns the stale value. No current call site does that —
+  each reads once, and mutation comes after — but the pattern is the one to watch.
+* D18 lets one cycle straddle the cutover. Bounded at one extra day of waiting, and
+  measured before the deploy rather than assumed.
 
 ---
 
 ## 5. Implementation map
 
-### 5.1 Suggested phasing
+### 5.1 Phasing
 
-**Phase 1 — the anchor and the window (no credit code at all).** D1–D12, D18. This is
-self-contained and is where all the edge cases live.
-
-**Phase 2 — the refund.** D13–D17.
-
-Phase 1 can ship alone, at the cost of the regression named in §4. Keep the gap short.
+Shipped as one phase. The original text split it in two — anchor first, refund later — to
+keep the credit-ledger work off the critical path. Once the refund became one column and
+one arithmetic term (D13), the split lost its reason to exist, and with it the interim
+regression it would have imposed.
 
 ### 5.2 Schema changes
 
 | Table | Change |
 | --- | --- |
-| `company_plans` | No schema change. `starts_at` stays a nullable `date` in the DB; the requirement is enforced in the admin form. Backfill: `UPDATE company_plans SET starts_at = DATE(created_at) WHERE starts_at IS NULL`. |
-| `billing_subscriptions` | Add `quota_anchor_at` (nullable `timestamp`). Backfill with `created_at`. Nullable because a subscription may exist before it is ever activated. |
-| `credit_grants` | Add `reason` (`string`, `NOT NULL`, default `admin_gift`). Use a default even though production is believed to have no grants — a single row in any environment would otherwise break the migration. Cast to `CreditGrantReasonEnum`. |
-| `user_credits` | Add `expires_at` (**nullable** `timestamp`). Null means "never expires", which is the existing gift-credit semantics and must stay the default. |
+| `company_plans` | No schema change. `starts_at` stays a nullable `date` in the DB; the requirement is enforced in the admin form. Separate backfill migration, done in PHP in chunks rather than `DATE(created_at)`, so it does not depend on a date function that differs between pgsql and sqlite. |
+| `billing_subscriptions` | Add `quota_anchor_at` (nullable `timestamp`). Nullable because a subscription may exist before it is ever activated. Backfilled from `created_at` by a **separate** migration, and only for rows already `active`. |
+| `appointments` | Add `quota_refunded_at` (nullable `timestamp`). Stamped at cancellation when the debited cycle has closed and the appointment was not paid with a credit. |
 
-`CreditGrantFactory` must start setting `reason`.
+Schema and data migrations are kept apart on purpose: a migration that both alters a table
+and writes rows cannot be re-run in a test, so its backfill ships unexercised.
 
 ### 5.3 New code
 
-* **`CreditGrantReasonEnum`** — `app-modules/billing/src/Core/Enums/`. Values `AdminGift`,
-  `QuotaRefund`. Implement `HasLabel` (and `HasColor` if it is shown as a badge), with
-  translations in `app-modules/billing/lang/{pt_BR,en}/enums.php`, following
-  `UserCreditStatusEnum`.
-* **A cycle value object** — suggested `QuotaCycle` in the billing module, given an anchor
-  date and "now", returning the current period's start and end. This is the single place
-  D2's clamping logic lives. Implementation note: step from the **original** anchor
-  (`anchor->copy()->addMonthsNoOverflow($n)`), never from the previously computed start,
-  or D2's "no drift" requirement is violated.
-* **A single active-contractual-plan resolver** — the query is copy-pasted in four places
-  (1.4.12). Give it one home (an Eloquent scope on `CompanyPlan`, or a small action) and
-  have all four call it, so D7's tenant rule cannot be applied inconsistently.
-* **A refund action** — creates the `CreditGrant` with `reason = QuotaRefund` and calls
-  `IssueCredits` with `expires_at`. Do not extend `GrantExtraCredit` (D17).
-* **A single "which stock pays" resolver** — required by D15.2, replacing the duplicated
-  logic in `BookAppointmentAction` and panel-admin's `CreateAppointment`.
+* **`QuotaCycle`** — `app-modules/billing/src/Core/Support/`. Given an anchor and "now",
+  returns the current period's `start` (inclusive) and `end` (exclusive), plus `contains()`
+  and `hasClosed()`. Single home of D2's clamping. Step from the **original** anchor
+  (`addMonthsNoOverflow($n)`), never from the previously computed start, or "no drift" is
+  violated. Note `Illuminate\Support\CarbonImmutable` does not exist in this version —
+  the class is `Carbon\CarbonImmutable`.
+* **`QuotaAllowance`** — `app-modules/billing/src/Core/DTOs/`. Carries `limit` and `anchor`
+  together, because resolving one without the other leaves the door open to mixing sources.
+* **`ResolveQuotaAllowance`** — `app-modules/billing/src/Core/Actions/`. Company from the
+  Filament tenant, falling back to `employerCompanyId()`; contractual plan takes precedence
+  over the user's own subscription. Also exposes `contractualPlanFor()`, so any screen that
+  *describes* the plan describes the same one the balance came from.
+* **`CompanyPlan::active()`** — an Eloquent scope, the single owner of the query that was
+  copy-pasted in four places (1.4.13).
+* **`SubscriptionQuotaAnchorObserver`** — stamps `quota_anchor_at` on `saving`, the only
+  point every write path passes through (D4).
 
 ### 5.4 Files to touch
 
 **Quota calculation (D1, D2, D5, D6, D7, D8, D11, D12)**
-* `app/Models/Users/User.php` — `monthlyAppointmentsLeft()` (window), `resolveMonthlyAppointmentLimit()` (tenant-scoped plan + anchor), `hasAvailableCredit()` (expiry filter, phase 2).
+* `app/Models/Users/User.php` — `monthlyAppointmentsLeft()` counts inside the cycle and adds
+  `quotaRefundsInCycle()`; `resolveMonthlyAppointmentLimit()` is deleted, its job having
+  moved to `ResolveQuotaAllowance`.
+
+**Cross-request cache removed**
+
+The attribute used to sit behind a one-minute `Cache::remember`. It was dropped, together
+with `forgetMonthlyAppointmentsLeftCache()` and its call in the cancellation transition.
+
+The cache bought a handful of cheap queries per request — the attribute is read in exactly
+four places, all single-user, none in a loop — and cost a real defect: panel-admin's
+`CreateAppointment` does not check `hasOngoingAppointment()`, so two appointments created for
+the same person inside the same minute both read a full quota, and the second one skips
+consuming a credit. Per-instance memoisation via `shouldCache()` stays; see the residual risk
+in §4.
 
 **Contractual anchor (D3)**
-* `app-modules/panel-admin/src/Filament/Resources/Companies/RelationManagers/ContractualPlansRelationManager.php` — `starts_at` becomes `->required()`.
+* `.../Companies/RelationManagers/ContractualPlansRelationManager.php` — `starts_at` becomes
+  `->required()`. The `?? now()` fallback in the overlap rule stays: that validation runs
+  before the required check and would receive `null`.
 * Backfill migration.
 
 **Individual anchor (D4)**
-* Migration for `quota_anchor_at`.
-* `app-modules/billing/src/Core/Actions/UpsertSubscription.php` — stamp it when the status first becomes `active` and the column is null. `SubscriptionDTO` does not need to carry it; the action knows the status.
-* `app-modules/billing/src/Core/Models/Subscriptions/Subscription.php` — property docblock and cast.
+* Migration for `quota_anchor_at`, plus a separate backfill migration.
+* `.../Models/Subscriptions/Subscription.php` — property docblock, `STATUS_ACTIVE`, a
+  `casts()` **method** (merged with Cashier's `$casts` property; overriding the property
+  would drop `ends_at` and `trial_ends_at`), and `#[ObservedBy]`.
+* `UpsertSubscription` is **not** touched — see D4 on why the stamp lives in the observer.
 
-**45-day horizon (D10)**
-* `app-modules/panel-app/src/Filament/Resources/Appointments/Schemas/AppointmentWizard.php` — `availableSlots()` returns `[]` beyond the horizon; `isBookableSlot()` inherits it.
-* `app-modules/panel-app/src/Filament/Resources/Appointments/Schemas/PickSlotStep.php` — pass a `maxDate` to the calendar view.
-* `app-modules/panel-app/src/Filament/Actions/RescheduleAppointmentAction.php` — same `maxDate` alongside the existing `minDate`.
-* `resources/views/filament/app/appointments/wizard/calendar-field.blade.php` — accepts `max` next to the existing `min`.
-* Consider a `BOOKING_HORIZON_DAYS = 45` constant on `Appointment`, beside `BOOKING_LEAD_DAYS`.
+**Refund (D13)**
+* `.../Transitions/AbstractAppointmentTransition.php` — `stampQuotaRefundIfCycleClosed()`,
+  called from `cancelProcessStep()` **before** `AppointmentCreditReturned` is fired. The
+  ordering is load-bearing: that listener nulls `user_credits.appointment_id`, and after it
+  runs there is no way left to tell whether the appointment was paid with a credit.
+* `.../Models/Appointment.php` — property docblock and cast for `quota_refunded_at`. Not
+  fillable: it is system-set.
 
-**Refund (D13–D17, phase 2)**
-* `app-modules/appointments/src/Actions/Transitions/AbstractAppointmentTransition.php` — in `cancelProcessStep()`, when the status becomes `cancelled` **and** the cycle containing the appointment's `created_at` has already closed, dispatch the refund. Keep it as an event/listener, consistent with `AppointmentCreditReturned`/`AppointmentCreditUsed`.
-* `app-modules/billing/src/Core/Actions/Credit/ConsumeCredit.php` — ordering (D15.1) and expiry filter.
-* `app-modules/billing/src/Core/Listeners/Credit/ReturnCreditOnAppointmentCancelledListener.php` — no change; D16 is the decision to leave the expiry untouched. Add a test pinning it.
-* `app-modules/panel-app/src/Filament/Widgets/PlanCreditsWidget.php` — expiry filter on the credit count.
-* `app-modules/panel-app/src/Filament/Pages/UserCreditsPage.php` — expiry filter, an `expires_at` column, and fix the `created_at` label (currently "purchased at", wrong for a refund).
-* `app-modules/panel-admin/src/Filament/Resources/CreditGrants/` (resource + `ListCreditGrants`) — `reason` column/filter; hide revoke when `reason !== AdminGift`.
-* `app-modules/panel-admin/src/Filament/Resources/Companies/RelationManagers/CreditGrantsRelationManager.php` and `.../Users/RelationManagers/CreditGrantsRelationManager.php` — same filtering.
-* `app-modules/billing/src/Core/Actions/Credit/RevokeCreditGrant.php` — guard against revoking a non-`AdminGift` grant.
-* `app-modules/appointments/src/Actions/BookAppointmentAction.php` and `app-modules/panel-admin/src/Filament/Resources/Appointments/Pages/CreateAppointment.php` — replace the duplicated decision with the shared resolver (D15.2).
+**Screen (closes the problem statement)**
+* `.../Widgets/PlanCreditsWidget.php` and `resources/views/filament/app/widgets/plan-credits.blade.php`
+  — show the renewal date, derived from `QuotaCycle::forAnchor($allowance->anchor)->end`.
+  Until now this was impossible to state honestly, because a rolling window has no renewal
+  date to state.
 
-**Expiry status**
-Nothing sets `UserCreditStatusEnum::Expired` today. Correctness comes from filtering
-reads by `expires_at IS NULL OR expires_at >= now()`; a scheduled command stamping the
-status is optional and only serves the history shown in "My Credits".
+### 5.5 Ordering that must not be broken
 
-### 5.5 Pitfall that must not be missed
+The stamp in `cancelProcessStep()` has to run **before** `event(new AppointmentCreditReturned(...))`.
+That listener is synchronous and sets `user_credits.appointment_id` to null; paying with
+quota never wrote a row anywhere. Move the stamp after the event and an appointment paid
+with a credit gets its credit back *and* a quota refund — the benefit doubles, silently.
 
-`ConsumeCredit` no-ops silently when it finds no credit (`?->update(...)`), while
-`canCreateAppointment()` decides *whether* booking is allowed. If the expiry filter is
-added to one and not the other, a person with only expired credits will be allowed to
-book and **nothing will be debited**. The filter must land in all of:
-`User::hasAvailableCredit()`, `ConsumeCredit`, `PlanCreditsWidget`, `UserCreditsPage`.
-Extracting it into a single query scope on `UserCredit` (e.g. `usable()`) is the safest
-way to guarantee that.
+The original text warned about a different pitfall here — the expiry filter having to reach
+`ConsumeCredit`, `hasAvailableCredit()`, `PlanCreditsWidget` and `UserCreditsPage`, on pain
+of a silent no-op debit. That pitfall no longer exists: nothing in this change touches the
+credit ledger.
 
-### 5.6 Existing tests that constrain the change
+### 5.6 Tests
 
-* `tests/Feature/UserMonthlyAppointmentsLeftTest.php` — pins D6.
+Written for this change:
+
+* `app-modules/billing/tests/Unit/QuotaCycleTest.php` — cycle, clamp without drift, the
+  turn instant, a future anchor, `contains()`, `hasClosed()`.
+* `tests/Feature/UserMonthlyAppointmentsLeftTest.php` — previous-cycle booking does not
+  count, current-cycle booking does, quota never accumulates, `cancelled` vs
+  `cancelled_late`, mid-cycle joiner, no plan.
+* `app-modules/appointments/tests/Feature/Actions/QuotaRefundOnClosedCycleTest.php` — the
+  six cases of D13, including the credit-paid appointment that must **not** be refunded and
+  the refund expiring on its own at the next turn.
+* `app-modules/billing/tests/Feature/Subscription/QuotaAnchorTest.php` — stamping on first
+  activation through both write paths, never moving afterwards, and the two backfill rules.
+* `app-modules/billing/tests/Feature/CompanyPlan/BackfillStartsAtTest.php` and the backfill
+  cases in `QuotaAnchorTest` — both execute the migration itself against hand-made legacy
+  rows. The test database starts clean, so without this the backfills would reach production
+  never having run.
+* `app-modules/panel-admin/tests/Feature/Filament/Companies/ContractualPlansRelationManagerTest.php`
+  — the relation manager had no test at all before this.
+
+Pre-existing tests that constrain the change:
+
 * `app-modules/appointments/tests/Feature/Actions/BookAppointmentActionCreditTest.php` and
-  `app-modules/panel-admin/tests/Feature/Filament/Resources/Appointments/CreateAppointmentCreditTest.php`
-  — both rely on "a user with no company/plan always has `monthly_appointments_left = 0`",
-  which must remain true.
+  `.../CreateAppointmentCreditTest.php` — both rely on "a user with no company/plan always
+  has `monthly_appointments_left = 0`", which must remain true.
 * `app-modules/panel-app/tests/Feature/Filament/Widgets/PlanCreditsWidgetTest.php` —
   asserts `canCreateAppointment` and the block reasons share one computation.
-* `app-modules/billing/tests/Feature/CompanyPlan/ActiveContractualPlanTest.php` — will be
-  affected by the single resolver in §5.3.
 
 ---
 
 ## 6. Deliberately out of scope
 
-Recorded so they are not mistaken for oversights:
+Recorded so they are not mistaken for oversights. Each of the first four has an issue, so
+that closing the epic does not close the question.
 
-1. A company's Barte subscription granting quota to employees (D5).
-2. A limit on the number of reschedules per appointment (D10's residue).
-3. Whether the default company should appear in the tenant switcher (D7's residue).
-4. Summing contractual and individual quota for the same person (D6).
-5. A scheduled command that stamps `UserCreditStatusEnum::Expired` (§5.4).
+1. A company's own subscription granting quota to employees (D5) — issue #255. The epic's
+   STORY-373 describes this as existing behaviour; it never has.
+2. A cap on how far ahead a person may book (D10, withdrawn) — issue #252.
+3. An auditable cycle history, which STORY-374 lists as a Must Have and the derived design
+   does not produce (D11) — issue #253.
+4. The renewal e-mail of STORY-376, which has no trigger once the renewal job is gone
+   (D11) — issue #254. Its approved copy also promises a 6-hour cancellation window; the
+   system uses 4.
+5. A limit on the number of reschedules per appointment.
+6. Whether the default company should appear in the tenant switcher (D7's residue).
+7. Summing contractual and individual quota for the same person (D6).
+8. Unifying the duplicated "which stock pays" decision between `BookAppointmentAction` and
+   panel-admin's `CreateAppointment` (1.4.10). The refund no longer depends on it, but the
+   divergence is real and pre-existing.

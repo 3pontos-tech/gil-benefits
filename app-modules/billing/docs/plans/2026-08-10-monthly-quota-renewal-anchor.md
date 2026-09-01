@@ -2,11 +2,35 @@
 type: plan
 title: "Renovação de cota mensal ancorada na data de contratação"
 module: billing
-status: pending
+status: superseded
 date: 2026-08-10
+superseded_by: billing/2026-08-14-monthly-quota-renewal-anchor-followup
 related:
   adr: billing/2026-08-10-monthly-quota-renewal-anchor
 ---
+
+> ## ⚠ Plano superado — não implemente a partir deste documento
+>
+> Substituído por `app-modules/billing/docs/plans/2026-08-14-monthly-quota-renewal-anchor-followup.md`.
+> Mantido apenas como registro do desenho original.
+>
+> **O que aqui está errado:**
+>
+> * **Tasks 8, 9 e 10 não devem ser feitas.** A devolução por cancelamento pós-virada não
+>   usa o ledger de créditos: é uma coluna `appointments.quota_refunded_at`, carimbada no
+>   cancelamento e somada na leitura. Nada de `expires_at`, `reason`, `CreditGrantReasonEnum`,
+>   scope `usable()`, ordem de consumo ou as seis telas. Ver a D13 revisada na ADR.
+> * **O snippet do Step 4 da Task 9 dobra o benefício.** Ele checa `UserCredit` *depois* de
+>   disparar `AppointmentCreditReturned`, cujo listener é síncrono e zera `appointment_id` —
+>   então um agendamento pago com crédito receberia o crédito de volta E a devolução de cota.
+> * **Task 5 aponta o lugar errado.** O carimbo de `quota_anchor_at` não pode ficar em
+>   `UpsertSubscription`, que só cobre o Barte; o Stripe entra pelo `WebhookController` do
+>   Cashier. Ficou em observer no model.
+> * **Task 6 (teto de 45 dias) saiu do escopo.** A justificativa não se sustenta — ver D10.
+> * **Três erros de código nos snippets:** `Illuminate\Support\CarbonImmutable` não existe
+>   nesta versão (é `Carbon\CarbonImmutable`); o teste de clamp da Task 1 espera
+>   `start = 28/02` para âncora 31/jan em 15/fev, quando 15/fev ainda pertence ao ciclo
+>   aberto em 31/jan; e o laço de `diffInMonths` precisa de guarda `$months > 0`.
 
 # Renovação de cota mensal ancorada na data de contratação — Implementation Plan
 
