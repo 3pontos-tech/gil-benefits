@@ -31,6 +31,14 @@ class ContractualPlansRelationManager extends RelationManager
         return __('panel-admin::resources.companies.relation_managers.contractual_plans.title');
     }
 
+    /**
+     * `starts_at` é obrigatório porque virou a âncora do ciclo mensal de cota: é o dia
+     * em que a consulta de cada funcionário da empresa volta. Deixá-lo vazio jogaria a
+     * âncora no `created_at` do registro, que não tem relação com o contrato.
+     *
+     * O fallback `?? now()` da regra de sobreposição continua necessário mesmo assim:
+     * aquela validação roda antes da de obrigatoriedade, e receberia `null`.
+     */
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -100,7 +108,8 @@ class ContractualPlansRelationManager extends RelationManager
 
                 DatePicker::make('starts_at')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.starts_at'))
-                    ->displayFormat('d/m/Y'),
+                    ->displayFormat('d/m/Y')
+                    ->required(),
 
                 DatePicker::make('ends_at')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.ends_at'))
