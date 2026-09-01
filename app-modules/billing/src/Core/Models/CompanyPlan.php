@@ -2,7 +2,9 @@
 
 namespace TresPontosTech\Billing\Core\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -73,5 +75,25 @@ class CompanyPlan extends Model
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class, 'plan_id');
+    }
+
+    /**
+     * Contrato em vigor agora: ativo, já começou e ainda não terminou.
+     *
+     * Dono único da consulta que estava copiada em quatro lugares, para que a
+     * regra de "qual plano vale" não possa divergir entre as telas. O
+     * `whereNull('deleted_at')` das cópias antigas era redundante — `SoftDeletes`
+     * já aplica.
+     *
+     * @param  Builder<CompanyPlan>  $query
+     * @return Builder<CompanyPlan>
+     */
+    #[Scope]
+    protected function active(Builder $query): Builder
+    {
+        return $query
+            ->where('status', CompanyPlanStatusEnum::Active->value)
+            ->where(fn (Builder $nested) => $nested->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
+            ->where(fn (Builder $nested) => $nested->whereNull('ends_at')->orWhere('ends_at', '>=', now()));
     }
 }

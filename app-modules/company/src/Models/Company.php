@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -27,7 +26,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
-use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -100,12 +98,7 @@ class Company extends Model implements HasAvatar, HasMedia
 
     public function activeContractualPlan(): ?CompanyPlan
     {
-        return CompanyPlan::query()->where('company_id', $this->id)
-            ->where('status', CompanyPlanStatusEnum::Active->value)
-            ->whereNull('deleted_at')
-            ->where(fn (Builder $query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
-            ->first();
+        return CompanyPlan::query()->active()->where('company_id', $this->id)->first();
     }
 
     /**

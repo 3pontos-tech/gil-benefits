@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
@@ -124,10 +123,8 @@ final class GetEngagementFunnel
     private function contractedSeatsByCompany(array $companyIds): array
     {
         return CompanyPlan::query()
+            ->active()
             ->whereIn('company_id', $companyIds)
-            ->where('status', CompanyPlanStatusEnum::Active)
-            ->where(fn (Builder $query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
             ->groupBy('company_id')
             ->selectRaw('company_id, SUM(seats) as total')
             ->pluck('total', 'company_id')
