@@ -6,8 +6,8 @@ namespace TresPontosTech\PanelAdmin\Filament\Clusters\Financial;
 
 use BackedEnum;
 use Filament\Clusters\Cluster;
-use Filament\Navigation\NavigationItem;
 use Filament\Support\Icons\Heroicon;
+use TresPontosTech\PanelAdmin\Filament\Pages\Financial\RevenueDashboard;
 use TresPontosTech\Permissions\Roles;
 use UnitEnum;
 
@@ -18,6 +18,10 @@ use UnitEnum;
  * são o mesmo dado sensível visto de ângulos diferentes. `Admin` fica de fora de
  * propósito: hoje qualquer Admin enxerga todo o painel, e o épico existe para
  * dar ao financeiro e ao CS uma área que os demais administradores não veem.
+ *
+ * Um item só na sidebar, ao contrário do CreditsCluster: são cinco telas do
+ * mesmo assunto, e listar as cinco lá fora afogaria o grupo Relatórios. Quem
+ * entra encontra as outras na navegação interna do cluster.
  */
 class FinancialCluster extends Cluster
 {
@@ -41,15 +45,13 @@ class FinancialCluster extends Cluster
     }
 
     /**
-     * Um item de sidebar por página, seguindo a mesma escolha do CreditsCluster:
-     * o agrupamento importa, mas a descoberta importa mais.
+     * O item leva direto ao dashboard, e não à página-índice do cluster.
      *
-     * @return array<NavigationItem>
+     * A página-índice existiria só para listar links que a navegação interna já
+     * mostra — um clique a mais antes do primeiro número.
      */
-    public static function getNavigationItems(): array
+    public static function getNavigationUrl(): string
     {
-        return collect(static::getClusteredComponents())
-            ->flatMap(fn (string $component): array => $component::getNavigationItems())
-            ->all();
+        return RevenueDashboard::getUrl();
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Financial\FinancialCluster;
+use TresPontosTech\PanelAdmin\Filament\Pages\Financial\RevenueDashboard;
 use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Actions\AssignRoleAction;
 use TresPontosTech\Permissions\Role;
 use TresPontosTech\Permissions\Roles;
@@ -116,5 +117,32 @@ describe('atribuição dos papéis novos', function (): void {
 
         expect(Role::query()->where('name', Roles::Financial->value)->exists())->toBeTrue()
             ->and(Role::query()->where('name', Roles::CustomerSuccess->value)->exists())->toBeTrue();
+    });
+});
+
+describe('navegação', function (): void {
+    it('ocupa um item só na sidebar, dentro de Relatórios', function (): void {
+        // Cinco telas do mesmo assunto listadas lá fora afogariam o grupo.
+        $items = FinancialCluster::getNavigationItems();
+
+        expect($items)->toHaveCount(1)
+            ->and($items[0]->getLabel())->toBe('Financeiro')
+            ->and(FinancialCluster::getNavigationGroup())->toBe('Relatórios');
+    });
+
+    it('leva direto ao dashboard, e não à página-índice do cluster', function (): void {
+        expect(FinancialCluster::getNavigationItems()[0]->getUrl())
+            ->toBe(RevenueDashboard::getUrl());
+    });
+
+    it('alcança as outras quatro telas por dentro do dashboard', function (): void {
+        actingAsFinancial();
+
+        $this->get(RevenueDashboard::getUrl())
+            ->assertOk()
+            ->assertSee('Empresas e Contratos')
+            ->assertSee('Cobranças')
+            ->assertSee('Consultorias')
+            ->assertSee('Usuários');
     });
 });
