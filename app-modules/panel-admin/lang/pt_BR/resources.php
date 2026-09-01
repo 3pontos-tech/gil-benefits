@@ -236,6 +236,8 @@ return [
                 'form' => [
                     'plan' => 'Plano da Empresa',
                     'seats' => 'Cadeiras',
+                    'monthly_value' => 'Valor mensal',
+                    'monthly_value_hint' => 'Valor negociado do contrato. Sem ele a empresa fica fora do MRR, do ranking e do risco de churn.',
                     'monthly_appointments' => 'Consultas/mês por funcionário',
                     'status' => 'Status',
                     'overlap_error' => 'Já existe um plano ativo com vigência sobreposta para esta empresa.',
@@ -246,6 +248,8 @@ return [
                 'table' => [
                     'plan' => 'Plano',
                     'seats' => 'Cadeiras',
+                    'monthly_value' => 'Valor mensal',
+                    'monthly_value_unknown' => 'Não cadastrado',
                     'monthly_appointments' => 'Consultas/mês',
                     'status' => 'Status',
                     'starts_at' => 'Início',

@@ -72,12 +72,14 @@ class ContractsTableWidget extends TableWidget
                     ->label(__('panel-admin::widgets.financial.contracts.monthly_value'))
                     ->alignEnd()
                     ->sortable()
-                    ->badge(fn (mixed $state): bool => $state === null)
-                    ->color(fn (mixed $state): string => $state === null ? 'warning' : 'gray')
-                    ->formatStateUsing(fn (mixed $state): string => $state === null
-                        ? __('panel-admin::widgets.financial.contracts.value_unknown')
-                        : MoneyCents::fromCents((int) $state)->format())
-                    ->tooltip(fn (mixed $state): ?string => $this->valueTooltip($state)),
+                    // O aviso entra como estado, e não como formatação: com o
+                    // estado nulo o Filament renderiza o placeholder e nunca
+                    // chama o `formatStateUsing` — a célula saía vazia, e a
+                    // empresa sem preço passava por empresa sem informação.
+                    ->state(fn (array $record): string => $this->valueLabel($record))
+                    ->badge(fn (array $record): bool => ! $this->hasValue($record))
+                    ->color(fn (array $record): string => $this->hasValue($record) ? 'gray' : 'warning')
+                    ->tooltip(fn (array $record): ?string => $this->valueTooltip($record)),
 
                 TextColumn::make('next_charge_at')
                     ->label(__('panel-admin::widgets.financial.contracts.next_charge'))
@@ -194,13 +196,36 @@ class ContractsTableWidget extends TableWidget
      * Explica o badge de valor ausente: a empresa paga, o sistema é que não sabe
      * quanto.
      */
-    private function valueTooltip(mixed $state): ?string
+    /**
+     * @param  array<string, mixed>  $record
+     */
+    private function valueTooltip(array $record): ?string
     {
-        if ($state !== null) {
+        if ($this->hasValue($record)) {
             return null;
         }
 
         return __('panel-admin::widgets.financial.contracts.value_unknown_tooltip');
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     */
+    private function valueLabel(array $record): string
+    {
+        if (! $this->hasValue($record)) {
+            return __('panel-admin::widgets.financial.contracts.value_unknown');
+        }
+
+        return MoneyCents::fromCents((int) $record['monthly_value_cents'])->format();
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     */
+    private function hasValue(array $record): bool
+    {
+        return ($record['monthly_value_cents'] ?? null) !== null;
     }
 
     /**

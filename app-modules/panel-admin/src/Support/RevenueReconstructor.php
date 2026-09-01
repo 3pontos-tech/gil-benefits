@@ -7,6 +7,7 @@ namespace TresPontosTech\PanelAdmin\Support;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Support\RevenueResolver;
 use TresPontosTech\Company\Models\Company;
@@ -25,8 +26,10 @@ use TresPontosTech\PanelAdmin\DTOs\Financial\MonthlyRevenue;
  * passado são invisíveis aqui. Todo mês anterior ao go-live é estimativa, não
  * extrato.
  *
- * Contrato B2B fica de fora do MRR por decisão D-01/D-18 — sem preço registrado,
- * entrar com um palpite seria pior do que não entrar.
+ * Contrato B2B entra pelo valor que o financeiro preencheu, e só por ele: sem
+ * valor, a empresa continua fora do MRR, porque entrar com um palpite seria pior
+ * do que não entrar (D-01). A vigência do contrato tem as mesmas datas da
+ * assinatura, então o mês reconstruído usa a mesma régua para os dois.
  */
 final class RevenueReconstructor
 {
@@ -63,6 +66,23 @@ final class RevenueReconstructor
             $standaloneCents += $cents ?? 0;
         }
 
+        foreach ($this->contratosVigentesEm($period, $companyIds) as $contract) {
+            $companyId = (string) $contract->company_id;
+
+            // Assinatura tem precedência: se a empresa já foi contada por uma,
+            // o contrato não soma de novo — é a mesma empresa pagando uma vez.
+            if (isset($payingCompanies[$companyId])) {
+                continue;
+            }
+
+            $payingCompanies[$companyId] = true;
+
+            if ($contract->monthly_value_cents !== null) {
+                $b2bCents += $contract->monthly_value_cents;
+                ++$companiesWithKnownValue;
+            }
+        }
+
         return new MonthlyRevenue(
             period: $period,
             b2bCents: $b2bCents,
@@ -71,6 +91,33 @@ final class RevenueReconstructor
             payingUsers: $payingUsers,
             companiesWithKnownValue: $companiesWithKnownValue,
         );
+    }
+
+    /**
+     * Contratos vigentes no mês, pela mesma régua das assinaturas: começaram até
+     * o fim dele e ou seguem valendo ou terminaram depois do início dele.
+     *
+     * O status não filtra aqui, como não filtra lá: um contrato encerrado hoje
+     * esteve valendo nos meses anteriores, e é isso que o gráfico mostra.
+     *
+     * @param  array<int, string>  $companyIds
+     * @return Collection<int, CompanyPlan>
+     */
+    private function contratosVigentesEm(FinancialPeriod $period, array $companyIds): Collection
+    {
+        return CompanyPlan::query()
+            ->where(fn (Builder $query) => $query
+                ->whereNull('starts_at')
+                ->orWhere('starts_at', '<=', $period->end))
+            ->where(fn (Builder $query) => $query
+                ->whereNull('ends_at')
+                ->orWhere('ends_at', '>=', $period->start))
+            ->whereNotIn('company_id', $this->bucketCompanyIds())
+            ->when(
+                $companyIds !== [],
+                fn (Builder $query) => $query->whereIn('company_id', $companyIds),
+            )
+            ->get();
     }
 
     /**

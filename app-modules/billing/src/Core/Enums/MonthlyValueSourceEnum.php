@@ -15,6 +15,9 @@ enum MonthlyValueSourceEnum: string
     /** Assinatura avulsa: preço cadastrado do plano. */
     case SubscriptionPrice = 'subscription_price';
 
+    /** Contrato B2B: valor negociado, preenchido pelo financeiro. */
+    case ContractualPlan = 'contractual_plan';
+
     /** Pagante sem nenhuma forma de precificação disponível. */
     case Unknown = 'unknown';
 }

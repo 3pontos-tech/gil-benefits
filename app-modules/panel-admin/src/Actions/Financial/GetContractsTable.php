@@ -76,7 +76,7 @@ final class GetContractsTable
                 companyId: (string) $company->getKey(),
                 companyName: $company->name,
                 planName: $this->planNameFor($company, $contract),
-                monthlyValue: $this->revenue->monthlyValueForCompany($company),
+                monthlyValue: $this->revenue->monthlyValueForCompany($company, $contract),
                 nextChargeAt: $billing->nextChargeAt,
                 status: $billing->status,
             );

@@ -220,6 +220,26 @@ describe('exportação CSV', function (): void {
 });
 
 describe('tela', function (): void {
+    it('mostra o aviso de valor não cadastrado na célula, e não uma célula vazia', function (): void {
+        // O Filament lê o estado cru: se ele for nulo, renderiza o placeholder e
+        // nunca chama o `formatStateUsing`. A empresa sem preço aparecia como
+        // empresa sem informação, que é outra coisa.
+        $company = Company::factory()->create(['name' => 'Sem Preco SA']);
+        CompanyPlan::factory()->create([
+            'company_id' => $company->getKey(),
+            'seats' => 20,
+            'monthly_value_cents' => null,
+            'status' => CompanyPlanStatusEnum::Active,
+            'starts_at' => now()->subMonths(2),
+            'ends_at' => null,
+        ]);
+
+        Livewire::test(ContractsTableWidget::class)
+            ->assertOk()
+            ->assertSeeText('Sem Preco SA')
+            ->assertSeeText('Valor não cadastrado');
+    });
+
     it('monta a tabela dentro da página', function (): void {
         listedCompany('Alpha SA', 'active');
 

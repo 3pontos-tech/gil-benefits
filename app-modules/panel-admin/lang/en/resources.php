@@ -236,6 +236,8 @@ return [
                 'form' => [
                     'plan' => 'Company Plan',
                     'seats' => 'Seats',
+                    'monthly_value' => 'Monthly value',
+                    'monthly_value_hint' => 'The negotiated contract amount. Without it the company stays out of MRR, the ranking and churn risk.',
                     'monthly_appointments' => 'Appointments/month per employee',
                     'status' => 'Status',
                     'overlap_error' => 'There is already an active plan with overlapping validity for this company.',
@@ -246,6 +248,8 @@ return [
                 'table' => [
                     'plan' => 'Plan',
                     'seats' => 'Seats',
+                    'monthly_value' => 'Monthly value',
+                    'monthly_value_unknown' => 'Not on record',
                     'monthly_appointments' => 'Appointments/month',
                     'status' => 'Status',
                     'starts_at' => 'Start',

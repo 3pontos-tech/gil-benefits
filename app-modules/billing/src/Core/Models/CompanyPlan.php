@@ -21,6 +21,7 @@ use TresPontosTech\Company\Models\Company;
  * @property string $company_id
  * @property int $plan_id
  * @property int $seats
+ * @property int|null $monthly_value_cents
  * @property int $monthly_appointments_per_employee
  * @property CompanyPlanStatusEnum $status
  * @property Carbon|null $starts_at
@@ -45,6 +46,7 @@ class CompanyPlan extends Model
         'company_id',
         'plan_id',
         'seats',
+        'monthly_value_cents',
         'monthly_appointments_per_employee',
         'status',
         'starts_at',
@@ -59,6 +61,7 @@ class CompanyPlan extends Model
             'starts_at' => 'date',
             'ends_at' => 'date',
             'monthly_appointments_per_employee' => 'integer',
+            'monthly_value_cents' => 'integer',
         ];
     }
 

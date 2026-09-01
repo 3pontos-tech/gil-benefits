@@ -10,6 +10,7 @@ use TresPontosTech\Billing\Core\DTOs\MonthlyValue;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\MonthlyValueSourceEnum;
 use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 
@@ -60,27 +61,45 @@ final class RevenueResolver
     /**
      * Quanto uma empresa paga por mês.
      *
-     * Só conta o que foi efetivamente cobrado por uma assinatura. Contrato B2B
-     * não guarda preço, e estimá-lo pela tabela de assento foi descartado: o
-     * número apareceria na tela idêntico a uma cobrança real sendo um palpite
-     * sobre um valor que, por definição, é negociado fora da tabela.
+     * A assinatura tem precedência sobre o contrato: ela é cobrança real, feita
+     * pelo gateway, enquanto o contrato é um valor que alguém digitou. Quando a
+     * empresa tem as duas coisas, o que ela efetivamente pagou é o que vale.
      *
-     * A empresa nesse caso vale `unknown`, nunca zero — ela é pagante e a Flamma
-     * não sabe quanto. Cabe à tela mostrar o badge, não ao resolver inventar.
+     * Sem nenhum dos dois — ou com um contrato cujo valor ninguém preencheu — a
+     * empresa vale `unknown`, nunca zero: ela é pagante e a Flamma não sabe
+     * quanto. Cabe à tela mostrar o aviso, não ao resolver inventar. Estimar
+     * pela tabela de assento segue descartado (D-01): o número apareceria
+     * idêntico a uma cobrança real sendo um palpite sobre um valor que, por
+     * definição, é negociado fora da tabela.
+     *
+     * Quem lista muitas empresas passa o contrato que já carregou: sem isso, a
+     * busca do contrato vigente vira uma consulta por linha.
      */
-    public function monthlyValueForCompany(Company $company): MonthlyValue
+    public function monthlyValueForCompany(Company $company, ?CompanyPlan $contract = null): MonthlyValue
     {
         $subscription = $this->revenueSubscriptionOf($company);
 
-        if (! $subscription instanceof Subscription) {
+        if ($subscription instanceof Subscription) {
+            $cents = $this->forSubscription($subscription);
+
+            if ($cents !== null) {
+                return MonthlyValue::charged($cents, MonthlyValueSourceEnum::SubscriptionSeatTier);
+            }
+        }
+
+        return $this->contractValue($contract ?? $company->activeContractualPlan());
+    }
+
+    /**
+     * Valor de um contrato, quando preenchido.
+     */
+    public function contractValue(?CompanyPlan $contract): MonthlyValue
+    {
+        if (! $contract instanceof CompanyPlan || $contract->monthly_value_cents === null) {
             return MonthlyValue::unknown();
         }
 
-        $cents = $this->forSubscription($subscription);
-
-        return $cents === null
-            ? MonthlyValue::unknown()
-            : MonthlyValue::charged($cents, MonthlyValueSourceEnum::SubscriptionSeatTier);
+        return MonthlyValue::charged($contract->monthly_value_cents, MonthlyValueSourceEnum::ContractualPlan);
     }
 
     /**
