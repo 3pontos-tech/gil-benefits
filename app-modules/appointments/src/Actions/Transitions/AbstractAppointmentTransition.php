@@ -14,8 +14,12 @@ use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
+use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Events\Credit\AppointmentCreditReturned;
 use TresPontosTech\Billing\Core\Events\Credit\AppointmentCreditUsed;
+use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Billing\Core\Support\QuotaCycle;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
@@ -64,9 +68,10 @@ abstract class AbstractAppointmentTransition
         ]);
 
         $this->appointment->loadMissing('user');
-        $this->appointment->user->forgetMonthlyAppointmentsLeftCache();
 
         if ($this->appointment->status === AppointmentStatus::Cancelled) {
+            $this->stampQuotaRefundIfCycleClosed();
+
             event(new AppointmentCreditReturned((string) $this->appointment->getKey()));
         } else {
             event(new AppointmentCreditUsed((string) $this->appointment->getKey()));
@@ -82,6 +87,43 @@ abstract class AbstractAppointmentTransition
         }
 
         event(new AppointmentCancelled($this->appointment));
+    }
+
+    /**
+     * Carimba a devolução quando o ciclo que pagou esta consulta já fechou.
+     *
+     * Precisa rodar antes de `AppointmentCreditReturned`, porque o listener daquele
+     * evento zera `user_credits.appointment_id` — e é esse vínculo que diz se a
+     * consulta foi paga com crédito avulso. Depois dele a informação não existe mais
+     * em lugar nenhum, já que pagar com cota não escreve linha em tabela alguma.
+     *
+     * Nada é carimbado quando o ciclo do débito ainda é o corrente: nesse caso o
+     * próprio cancelamento tira a reserva da contagem e a cota volta sozinha.
+     */
+    private function stampQuotaRefundIfCycleClosed(): void
+    {
+        $paidWithCredit = UserCredit::query()
+            ->where('appointment_id', $this->appointment->getKey())
+            ->where('status', UserCreditStatusEnum::InUse)
+            ->exists();
+
+        if ($paidWithCredit || $this->appointment->created_at === null) {
+            return;
+        }
+
+        $allowance = resolve(ResolveQuotaAllowance::class)->for($this->appointment->user);
+
+        if ($allowance->isEmpty()) {
+            return;
+        }
+
+        $debitedCycle = QuotaCycle::forAnchor($allowance->anchor, $this->appointment->created_at);
+
+        if (! $debitedCycle->hasClosed()) {
+            return;
+        }
+
+        $this->appointment->forceFill(['quota_refunded_at' => now()])->save();
     }
 
     protected function cancelNotify(TransitionData $data): void
