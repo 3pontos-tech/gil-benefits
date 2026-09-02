@@ -65,3 +65,24 @@ it('knows whether the cycle has already closed', function (): void {
     expect($cycle->hasClosed(CarbonImmutable::parse('2026-10-09 23:59')))->toBeFalse()
         ->and($cycle->hasClosed(CarbonImmutable::parse('2026-10-10 00:00')))->toBeTrue();
 });
+
+it('clamps february in a leap year to the 29th', function (): void {
+    $anchor = CarbonImmutable::parse('2028-01-31');
+
+    $starts = collect(['2028-02-01', '2028-03-01', '2028-04-01'])
+        ->map(fn (string $at): string => QuotaCycle::forAnchor($anchor, CarbonImmutable::parse($at))->start->toDateString());
+
+    expect($starts->all())->toBe(['2028-01-31', '2028-02-29', '2028-03-31']);
+});
+
+it('holds the anchor day after more than a year of cycles', function (): void {
+    $anchor = CarbonImmutable::parse('2026-01-31');
+
+    // 14 ciclos adiante: fevereiro de 2027 encurta para 28 e março volta para 31.
+    expect(QuotaCycle::forAnchor($anchor, CarbonImmutable::parse('2027-03-15'))->start->toDateString())
+        ->toBe('2027-02-28')
+        ->and(QuotaCycle::forAnchor($anchor, CarbonImmutable::parse('2027-04-15'))->start->toDateString())
+        ->toBe('2027-03-31')
+        ->and(QuotaCycle::forAnchor($anchor, CarbonImmutable::parse('2027-06-15'))->start->toDateString())
+        ->toBe('2027-05-31');
+});

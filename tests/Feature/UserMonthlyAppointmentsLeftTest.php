@@ -158,3 +158,83 @@ it('counts a no-show against the cycle, and never refunds it', function (): void
     expect($employee->fresh()->monthly_appointments_left)->toBe(0)
         ->and($booking->refresh()->quota_refunded_at)->toBeNull();
 });
+
+it('renews every employee of a company on the same anchor day', function (): void {
+    travelTo('2026-09-09 10:00');
+    $employee = actingAsEmployee();
+    anchorContractualPlanOn($employee, '2026-03-10');
+
+    $company = CompanyPlan::query()->firstOrFail()->company;
+    $colleague = User::factory()->employee()->create();
+    $company->employees()->attach($colleague->getKey());
+
+    // Um gasta a consulta no ciclo que fecha em 09/set; o outro não.
+    bookingFor($employee);
+
+    expect($employee->fresh()->monthly_appointments_left)->toBe(0)
+        ->and($colleague->fresh()->monthly_appointments_left)->toBe(1);
+
+    // US-372: a virada é a do contrato da empresa, não a de cada um.
+    travelTo('2026-09-10 00:00');
+
+    expect($employee->fresh()->monthly_appointments_left)->toBe(1)
+        ->and($colleague->fresh()->monthly_appointments_left)->toBe(1);
+});
+
+/**
+ * Assinante individual próprio, ancorado no instante da chamada.
+ *
+ * Local porque `actingAsSubscribedEmployee()` fixa `stripe_id` e `provider_price_id`
+ * no código e não pode ser chamado duas vezes na mesma execução.
+ */
+function subscriberAnchoredNow(string $suffix): User
+{
+    $user = User::factory()->employee()->create();
+
+    $plan = Plan::factory()->createOne(['type' => BillableTypeEnum::User->value, 'active' => true]);
+
+    $price = Price::query()->create([
+        'billing_plan_id' => $plan->id,
+        'billing_scheme' => 'per_unit',
+        'tiers_mode' => 'volume',
+        'type' => 'recurring',
+        'unit_amount_decimal' => 5000,
+        'active' => true,
+        'provider_price_id' => 'price_' . $suffix,
+        'monthly_appointments' => 1,
+        'whatsapp_enabled' => true,
+        'materials_enabled' => true,
+    ]);
+
+    $user->subscriptions()->create([
+        'type' => 'default',
+        'stripe_id' => 'sub_' . $suffix,
+        'stripe_status' => 'active',
+        'stripe_price' => $price->provider_price_id,
+        'quantity' => 1,
+    ]);
+
+    return $user;
+}
+
+it('keeps individual subscription cycles independent from each other', function (): void {
+    travelTo('2026-04-10 09:00');
+    $early = subscriberAnchoredNow('early');
+
+    travelTo('2026-04-22 09:00');
+    $late = subscriberAnchoredNow('late');
+
+    bookingFor($early);
+    bookingFor($late);
+
+    // US-373: cada assinante vira no seu próprio dia. Em 10/mai o ciclo do
+    // primeiro reabre; o do segundo só em 22/mai.
+    travelTo('2026-05-10 10:00');
+
+    expect($early->fresh()->monthly_appointments_left)->toBe(1)
+        ->and($late->fresh()->monthly_appointments_left)->toBe(0);
+
+    travelTo('2026-05-22 10:00');
+
+    expect($late->fresh()->monthly_appointments_left)->toBe(1);
+});
