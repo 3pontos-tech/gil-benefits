@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Billing\Barte\BarteAdapter;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\IntegrationBarte\BarteAdapter;
 use TresPontosTech\IntegrationVirtu\VirtuAdapter;
 
 it('shares one BillingManager instance across the container', function (): void {

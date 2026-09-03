@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Log;
-use TresPontosTech\Billing\Stripe\Subscription\User\RedirectUserIfNotSubscribed;
+use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Http\Middleware\RedirectIfAnamneseNotCompleted;
 
@@ -47,6 +47,7 @@ describe('STORY 317 — redirect to profile home', function () use ($adminDashbo
         $response = get(route($adminDashboard));
 
         $response->assertStatus(302);
+
         expect($response->headers->get('Location'))->toContain('/consultant');
     });
 
@@ -101,6 +102,7 @@ describe('STORY 318 — preserve error for unauthenticated / unmapped profiles',
         $response = get(route($adminDashboard));
 
         $response->assertStatus(302);
+
         expect($response->headers->get('Location'))->toContain('login');
     });
 

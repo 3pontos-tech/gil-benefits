@@ -1,0 +1,25 @@
+{
+	"name": "3pontos-tech/integration-barte",
+	"description": "Integração com o gateway de pagamento Barte",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {
+    },
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\IntegrationBarte\\": "src/",
+			"TresPontosTech\\IntegrationBarte\\Tests\\": "tests/",
+			"TresPontosTech\\IntegrationBarte\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\IntegrationBarte\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\IntegrationBarte\\Providers\\IntegrationBarteServiceProvider"
+			]
+		}
+	}
+}

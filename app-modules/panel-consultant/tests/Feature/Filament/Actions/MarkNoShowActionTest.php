@@ -11,8 +11,8 @@ use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
-use TresPontosTech\Billing\Core\Events\Credit\AppointmentCreditUsed;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Credits\Events\AppointmentCreditUsed;
 use TresPontosTech\PanelConsultant\Filament\Actions\MarkNoShowAction;
 use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListAppointments;
 

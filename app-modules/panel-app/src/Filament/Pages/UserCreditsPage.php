@@ -11,8 +11,8 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\PanelApp\Filament\Widgets\UserCreditStatsWidget;
 use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
 

@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Http;
 use Laravel\Cashier\Cashier;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
+use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
-use TresPontosTech\Billing\Stripe\Subscription\User\RedirectUserIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
 
 use function Pest\Laravel\actingAs;
