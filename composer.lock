@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "000d52574d6efa5e1678f2cdf73066c9",
+    "content-hash": "8dd336f055c36682adb4e7fe6f95ee73",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -162,6 +162,39 @@
                 "proprietary"
             ],
             "description": "Créditos de consultoria: emissão, alocação, consumo e compra avulsa",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/integration-barte",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/integration-barte",
+                "reference": "c5997c4c531eccff2f39435ce0487d19ff734d77"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\IntegrationBarte\\Providers\\IntegrationBarteServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\IntegrationBarte\\": "src/",
+                    "TresPontosTech\\IntegrationBarte\\Tests\\": "tests/",
+                    "TresPontosTech\\IntegrationBarte\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\IntegrationBarte\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Integração com o gateway de pagamento Barte",
             "transport-options": {
                 "symlink": true,
                 "relative": true
