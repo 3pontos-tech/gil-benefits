@@ -24,7 +24,8 @@ class CreateVirtuPlanCommand extends Command
         {name : Nome exibido, ex: "Flamma Platinum"}
         {amount : Valor mensal em centavos, ex: 30000}
         {--type=company : company ou user}
-        {--audience=subsidized : subsidized (empresa banca parte) ou standalone (valor cheio)}';
+        {--audience=subsidized : subsidized (empresa banca parte) ou standalone (valor cheio)}
+        {--monthly-appointments=1 : Consultas incluídas na cota mensal}';
 
     protected $description = 'Cria plano e preço da Virtu no banco';
 
@@ -70,6 +71,7 @@ class CreateVirtuPlanCommand extends Command
                 'active' => true,
                 'default' => $audience === PriceAudienceEnum::Subsidized,
                 'audience' => $audience,
+                'monthly_appointments' => (int) $this->option('monthly-appointments'),
                 // A coluna é nullable, mas PriceEntity exige array.
                 'metadata' => [],
             ]
