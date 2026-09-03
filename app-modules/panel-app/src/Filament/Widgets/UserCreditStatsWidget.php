@@ -8,8 +8,8 @@ use Filament\Facades\Filament;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Models\UserCredit;
 
 class UserCreditStatsWidget extends StatsOverviewWidget
 {

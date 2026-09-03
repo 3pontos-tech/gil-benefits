@@ -5,9 +5,9 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
-use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 use TresPontosTech\PanelCompany\Filament\Actions\PurchaseCreditsAction;
 
 class CreditlessGateway implements BillingContract

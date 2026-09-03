@@ -5,13 +5,13 @@ namespace TresPontosTech\Billing\Stripe\Subscription;
 use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
-use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 
 class StripeAdapter implements BillingContract, SupportsCreditPurchase, SupportsSubscriptionCancellation
 {

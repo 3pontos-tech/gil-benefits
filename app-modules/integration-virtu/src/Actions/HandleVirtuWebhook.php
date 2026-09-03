@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
-use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionDefaulted;
-use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Credits\Events\OrderCreditPurchased;
+use TresPontosTech\Credits\Models\CreditOrder;
 use TresPontosTech\IntegrationVirtu\DTO\VirtuWebhookDTO;
 use TresPontosTech\IntegrationVirtu\Enums\VirtuWebhookEventEnum;
 

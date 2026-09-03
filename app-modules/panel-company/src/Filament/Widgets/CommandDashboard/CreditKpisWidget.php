@@ -6,8 +6,8 @@ namespace TresPontosTech\PanelCompany\Filament\Widgets\CommandDashboard;
 
 use Filament\Facades\Filament;
 use Filament\Widgets\Widget;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\PanelCompany\Actions\Metrics\GetCreditSeries;
 use TresPontosTech\PanelCompany\Actions\Metrics\GetCreditTotals;
 use TresPontosTech\PanelCompany\DTOs\CreditKpi;

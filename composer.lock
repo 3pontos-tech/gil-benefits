@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "821dd4a8ac2eff3f606d94501321f792",
+    "content-hash": "000d52574d6efa5e1678f2cdf73066c9",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -129,6 +129,39 @@
             "license": [
                 "proprietary"
             ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/credits",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/credits",
+                "reference": "52a28873df893874fac25c7035a3928732f15ac8"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\Credits\\CreditsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\Credits\\": "src/",
+                    "TresPontosTech\\Credits\\Tests\\": "tests/",
+                    "TresPontosTech\\Credits\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\Credits\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Créditos de consultoria: emissão, alocação, consumo e compra avulsa",
             "transport-options": {
                 "symlink": true,
                 "relative": true

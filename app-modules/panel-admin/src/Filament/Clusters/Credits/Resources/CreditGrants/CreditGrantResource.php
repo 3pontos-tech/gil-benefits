@@ -16,9 +16,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TresPontosTech\Billing\Core\Actions\Credit\RevokeCreditGrant;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Models\CreditGrant;
+use TresPontosTech\Credits\Actions\RevokeCreditGrant;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Models\CreditGrant;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\CreditsCluster;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\Resources\CreditGrants\Pages\ListCreditGrants;
 

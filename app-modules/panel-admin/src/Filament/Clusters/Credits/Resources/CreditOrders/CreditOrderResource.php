@@ -15,10 +15,10 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use TresPontosTech\Billing\Core\Actions\Credit\SettleCreditOrder;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
-use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
-use TresPontosTech\Billing\Core\Models\CreditOrder;
+use TresPontosTech\Credits\Actions\SettleCreditOrder;
+use TresPontosTech\Credits\Enums\CreditOrderStatusEnum;
+use TresPontosTech\Credits\Models\CreditOrder;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\CreditsCluster;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\Resources\CreditOrders\Pages\ListCreditOrders;
 

@@ -6,8 +6,8 @@ namespace TresPontosTech\PanelAdmin\Actions\Financial;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
-use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
-use TresPontosTech\Billing\Core\Models\CreditOrder;
+use TresPontosTech\Credits\Enums\CreditOrderStatusEnum;
+use TresPontosTech\Credits\Models\CreditOrder;
 use TresPontosTech\PanelAdmin\Actions\Financial\Concerns\BuildsFinancialCacheKey;
 use TresPontosTech\PanelAdmin\DTOs\Financial\FinancialFilters;
 use TresPontosTech\PanelAdmin\DTOs\Financial\FinancialPeriod;

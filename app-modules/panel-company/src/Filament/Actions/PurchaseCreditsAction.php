@@ -10,8 +10,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Support\Icons\Heroicon;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
-use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 use TresPontosTech\PanelCompany\Filament\Pages\CompanyCreditPage;
 
 class PurchaseCreditsAction extends Action

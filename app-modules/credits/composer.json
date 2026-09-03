@@ -1,0 +1,25 @@
+{
+	"name": "3pontos-tech/credits",
+	"description": "Créditos de consultoria: emissão, alocação, consumo e compra avulsa",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {
+    },
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\Credits\\": "src/",
+			"TresPontosTech\\Credits\\Tests\\": "tests/",
+			"TresPontosTech\\Credits\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\Credits\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\Credits\\CreditsServiceProvider"
+			]
+		}
+	}
+}

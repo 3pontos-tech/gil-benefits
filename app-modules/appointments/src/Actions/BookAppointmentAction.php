@@ -11,8 +11,8 @@ use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Mail\AppointmentRequestedAdminMail;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Billing\Core\DTOs\CreditDTO;
-use TresPontosTech\Billing\Core\Events\Credit\CreditConsumed;
+use TresPontosTech\Credits\DTOs\CreditDTO;
+use TresPontosTech\Credits\Events\CreditConsumed;
 
 readonly class BookAppointmentAction
 {
