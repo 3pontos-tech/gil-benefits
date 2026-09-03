@@ -132,7 +132,6 @@
         justify-content: center;
         align-items: center;
         column-gap: calc(var(--spacing) * 2);
-        border-radius: var(--radius-lg);
         padding-inline: calc(var(--spacing) * 3);
         padding-block: calc(var(--spacing) * 2);
         outline-style: none;
@@ -174,7 +173,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: var(--radius-lg);
         padding: calc(var(--spacing) * 2);
         color: var(--site-topbar-text);
     }
@@ -238,7 +236,6 @@
         display: flex;
         align-items: center;
         column-gap: calc(var(--spacing) * 3);
-        border-radius: var(--radius-lg);
         padding: calc(var(--spacing) * 2);
         font-size: var(--text-sm);
         font-weight: 500;

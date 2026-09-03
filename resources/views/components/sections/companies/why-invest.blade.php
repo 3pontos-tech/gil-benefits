@@ -30,10 +30,12 @@
                 indicadores de RH, com mais erros, menos produtividade, mais faltas e mais pedidos de demissão.
             </p>
 
-            {{-- Asterisco abaixo do texto; a faixa em gradiente logo depois corta a metade de baixo, como no design --}}
+            {{-- Asterisco abaixo do texto; a faixa em gradiente logo depois corta a metade
+                 de baixo, como no design. Os -420px (eram -340) o afastam do parágrafo e
+                 acompanham os 80px de respiro que a seção do fluxo ganhou. --}}
             <x-graphism
                 data-fm-static
-                class="absolute -bottom-[340px] right-0 -z-10 hidden w-[347px] xl:block"
+                class="absolute -bottom-[420px] right-0 -z-10 hidden w-[347px] xl:block"
             />
         </div>
     </div>

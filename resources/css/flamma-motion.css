@@ -72,6 +72,17 @@
 /* alias legado do companies-motion */
 .fm-page .fm-zoom--plan img       { transition-duration: 1.4s; }
 
+/* Grafismo que acompanha o zoom da foto vizinha: .fm-zoom-scope é o wrapper que
+   contém a foto (.fm-zoom) e o grafismo (.fm-zoom-follow) — o hover em qualquer
+   ponto do conjunto amplia os dois juntos. O scale(1.05) via transform compõe com
+   flips feitos pela propriedade `scale` (ex.: -scale-y-100), sem desfazê-los. */
+.fm-page .fm-zoom-follow {
+  transition: transform 1.2s var(--fm-ease);
+  will-change: transform;
+}
+.fm-page .fm-zoom-scope:hover .fm-zoom-follow { transform: scale(1.05); }
+.fm-page .fm-zoom-scope:hover .fm-zoom img    { transform: scale(1.05); }
+
 /* ============================================================
    4. HOVER — cards
    Cobre os cards do fluxo (Para Empresas), os cards de "Por que
@@ -198,6 +209,8 @@
   .fm-page .fm-btn:hover::after { transform: translateX(-120%); }
   .fm-page .fm-zoom:hover img,
   .fm-page .fm-zoom--hero:hover img,
+  .fm-page .fm-zoom-scope:hover .fm-zoom img,
+  .fm-page .fm-zoom-scope:hover .fm-zoom-follow,
   .fm-page .fm-card:hover .fm-card-prod,
   .fm-page .fm-card:hover .fm-card-icon,
   .fm-page .fm-card:hover .fm-step-n,
