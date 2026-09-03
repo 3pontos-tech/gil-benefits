@@ -1,28 +1,24 @@
 <?php
 
-declare(strict_types=1);
-
-namespace TresPontosTech\Billing\Stripe\Subscription\Company;
+namespace TresPontosTech\Billing\Core\Filament;
 
 use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
-use Filament\Facades\Filament;
-use Filament\Pages\Dashboard;
 use Illuminate\Http\RedirectResponse;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
-use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelApp\Filament\Pages\UserDashboard;
 
-class CompanyBillingProvider implements BillingProvider
+class UserBillingProvider implements BillingProvider
 {
     public function getRouteAction(): string|Closure|array
     {
         return static function (): RedirectResponse {
-            /** @var Company $tenant */
-            $tenant = Filament::getTenant();
+            $user = auth()->user();
 
-            $providerEnum = BillingCustomer::getActiveProvider($tenant);
+            $providerEnum = BillingCustomer::getActiveProvider($user);
 
             $billing = resolve(BillingManager::class);
 
@@ -30,11 +26,11 @@ class CompanyBillingProvider implements BillingProvider
                 ? $billing->getDriver(BillingProviderEnum::from($providerEnum->value))
                 : $billing->getDriver();
 
-            $driver->ensureCustomerExists($tenant);
+            $driver->ensureCustomerExists($user);
 
             $url = $driver->getBillingPortalUrl(
-                billable: $tenant,
-                returnUrl: Dashboard::getUrl(),
+                billable: $user,
+                returnUrl: UserDashboard::getUrl(),
             );
 
             return redirect($url);
@@ -43,6 +39,6 @@ class CompanyBillingProvider implements BillingProvider
 
     public function getSubscribedMiddleware(): string
     {
-        return RedirectCompanyIfNotSubscribed::class;
+        return RedirectUserIfNotSubscribed::class;
     }
 }

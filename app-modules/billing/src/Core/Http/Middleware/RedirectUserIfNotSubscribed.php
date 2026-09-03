@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Billing\Stripe\Subscription\User;
+namespace TresPontosTech\Billing\Core\Http\Middleware;
 
 use App\Models\Users\User;
 use Closure;

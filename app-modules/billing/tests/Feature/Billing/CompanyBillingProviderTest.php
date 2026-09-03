@@ -1,7 +1,7 @@
 <?php
 
-use TresPontosTech\Billing\Stripe\Subscription\Company\CompanyBillingProvider;
-use TresPontosTech\Billing\Stripe\Subscription\Company\RedirectCompanyIfNotSubscribed;
+use TresPontosTech\Billing\Core\Filament\CompanyBillingProvider;
+use TresPontosTech\Billing\Core\Http\Middleware\RedirectCompanyIfNotSubscribed;
 
 it('getSubscribedMiddleware returns the RedirectCompanyIfNotSubscribed class name', function (): void {
     $provider = new CompanyBillingProvider;
