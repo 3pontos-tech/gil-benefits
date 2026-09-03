@@ -7,8 +7,8 @@ namespace TresPontosTech\PanelCompany\Actions\Metrics;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
 use Illuminate\Support\Facades\Cache;
-use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\PanelCompany\Actions\Metrics\Concerns\BuildsMetricsCacheKey;
 use TresPontosTech\PanelCompany\Support\MetricsPeriod;
 

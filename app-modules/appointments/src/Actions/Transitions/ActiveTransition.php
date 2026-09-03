@@ -17,8 +17,8 @@ use TresPontosTech\Appointments\Events\AppointmentCompleted;
 use TresPontosTech\Appointments\Events\AppointmentNoShow;
 use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Events\Credit\AppointmentCreditUsed;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Events\AppointmentCreditUsed;
 
 final class ActiveTransition extends AbstractAppointmentTransition
 {
