@@ -50,7 +50,6 @@
                 class="w-full! shrink-0 sm:w-fit! lg:w-[max(250px,17.4%)]!"
                 variant="flat"
                 size="xl"
-                rounded="none"
                 href="#simulador"
             >
                 Simular contratação

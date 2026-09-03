@@ -118,6 +118,7 @@ it('hides the reschedule action on terminal statuses', function (AppointmentStat
     'Completed' => AppointmentStatus::Completed,
     'Cancelled' => AppointmentStatus::Cancelled,
     'CancelledLate' => AppointmentStatus::CancelledLate,
+    'NoShow' => AppointmentStatus::NoShow,
 ]);
 
 // ---------------------------------------------------------------------------

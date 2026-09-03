@@ -16,12 +16,12 @@
 [x-cloak] { display: none !important; }
 
 .gradient-wrapper {
-    @apply relative p-[1px] rounded-lg;
+    @apply relative p-[1px];
 }
 
 .gradient-wrapper::after {
     content: "";
-    @apply z-0 opacity-0 absolute inset-0 border-inherit rounded-lg bg-gradient-to-br from-brand-primary to-brand-secondary;
+    @apply z-0 opacity-0 absolute inset-0 border-inherit bg-gradient-to-br from-brand-primary to-brand-secondary;
     @apply transition-opacity duration-200 ease-in-out;
     @apply pointer-events-none;
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 return [
     'navigation_group' => [
         'billing' => 'Billing',
+        'credits' => 'Credits',
         'administration' => 'Administration',
         'appointments' => 'Appointments',
         'reports' => 'Reports',
@@ -38,12 +39,22 @@ return [
                 'action' => 'Action',
                 'performed_by' => 'Performed by',
                 'happened_at' => 'Date and time',
+                'previous_status' => 'Previous status',
+                'new_status' => 'New status',
+                'credit_impact' => 'Credit impact',
+            ],
+            'values' => [
+                'credit_impact' => [
+                    'consumed' => 'Credit consumed',
+                    'none' => 'No linked credit',
+                ],
             ],
             'sections' => [
                 'consultant_assigned' => 'Consultant Assigned',
                 'consultant_left' => 'Consultant Removed',
                 'consultant_changed' => 'Consultant Change',
                 're_scheduled' => 'Reschedule',
+                'no_show_marked' => 'No-show',
             ],
             'placeholders' => [
                 'empty' => '—',
@@ -185,6 +196,8 @@ return [
             'unit_amount' => 'Unit Amount (cents)',
             'monthly_appointments' => 'Monthly Appointments',
             'monthly_appointments_helper' => 'How many appointments are included per month.',
+            'audience' => 'Audience',
+            'audience_helper' => 'Subsidized: employee of a company that covers part of it. Full price: user with no employer.',
             'active_helper' => 'Whether this price can be purchased.',
             'whatsapp_enabled' => 'WhatsApp Enabled',
             'materials_enabled' => 'Materials Enabled',
@@ -223,6 +236,8 @@ return [
                 'form' => [
                     'plan' => 'Company Plan',
                     'seats' => 'Seats',
+                    'monthly_value' => 'Monthly value',
+                    'monthly_value_hint' => 'The negotiated contract amount. Without it the company stays out of MRR, the ranking and churn risk.',
                     'monthly_appointments' => 'Appointments/month per employee',
                     'status' => 'Status',
                     'overlap_error' => 'There is already an active plan with overlapping validity for this company.',
@@ -233,11 +248,43 @@ return [
                 'table' => [
                     'plan' => 'Plan',
                     'seats' => 'Seats',
+                    'monthly_value' => 'Monthly value',
+                    'monthly_value_unknown' => 'Not on record',
                     'monthly_appointments' => 'Appointments/month',
                     'status' => 'Status',
                     'starts_at' => 'Start',
                     'ends_at' => 'End',
                 ],
+            ],
+        ],
+    ],
+    'credit_orders' => [
+        'navigation_label' => 'Credit Purchases',
+        'model_label' => 'Credit Purchase',
+        'plural_model_label' => 'Credit Purchases',
+        'no_checkout' => 'no gateway reference',
+        'fields' => [
+            'created_at' => 'Date',
+            'status' => 'Status',
+            'billable' => 'Buyer',
+            'company' => 'Company',
+            'quantity' => 'Quantity',
+            'issued' => 'Issued',
+            'amount' => 'Amount',
+            'provider' => 'Gateway',
+            'paid_at' => 'Paid at',
+            'checkout_id' => 'Gateway reference',
+        ],
+        'filters' => [
+            'unfulfilled' => 'Paid with no credits issued',
+            'from' => 'From',
+            'until' => 'Until',
+        ],
+        'actions' => [
+            'settle' => [
+                'label' => 'Settle manually',
+                'heading' => 'Confirm this order was paid?',
+                'description' => 'Issues :quantity credit(s) to :name. Use only after confirming the payment in the gateway panel — this screen cannot verify it.',
             ],
         ],
     ],
@@ -303,6 +350,12 @@ return [
             'document_id' => 'Document ID',
         ],
     ],
+    'financial_cluster' => [
+        'navigation_label' => 'Financial',
+    ],
+    'credits_cluster' => [
+        'navigation_label' => 'Credits',
+    ],
     'management_cluster' => [
         'navigation_label' => 'Users Management',
     ],
@@ -312,6 +365,50 @@ return [
         'user_assigned_to_role' => 'User has been assigned to %s role',
     ],
     'pages' => [
+        'financial_consulting' => [
+            'title' => 'Consulting and Usage',
+            'subheading' => 'Consultancy volume and credit usage in the month',
+            'navigation_label' => 'Consulting and Usage',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+        ],
+        'financial_usage' => [
+            'title' => 'Users and Usage',
+            'subheading' => 'How much of the contracted base actually uses the benefit',
+            'navigation_label' => 'Users and Usage',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+        ],
+        'financial_billing' => [
+            'title' => 'Billing',
+            'subheading' => 'Payments of the month and billing alerts',
+            'navigation_label' => 'Billing',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+        ],
+        'financial_revenue' => [
+            'title' => 'Financial Dashboard',
+            'subheading' => 'Revenue of the month, compared with the previous one',
+            'navigation_label' => 'Financial Dashboard',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+            'recalculate' => 'Recalculate now',
+        ],
+        'financial_companies' => [
+            'export_csv' => 'Export CSV',
+            'clear_status' => 'Clear filter',
+            'title' => 'Companies and Contracts',
+            'subheading' => 'Client base by status, with upcoming renewals',
+            'navigation_label' => 'Companies and Contracts',
+            'filter_month' => 'Reference month',
+            'filter_companies' => 'Companies',
+            'filter_companies_placeholder' => 'All companies',
+        ],
+
         'metrics' => [
             'title' => 'Metrics',
             'navigation_label' => 'Metrics',

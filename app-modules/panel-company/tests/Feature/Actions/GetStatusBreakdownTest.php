@@ -31,3 +31,17 @@ it('breaks appointments down by status with the completed share', function (): v
         ->and($data->completedPercent)->toBe(75.0)
         ->and($data->segments)->toHaveCount(2);
 });
+
+it('maps a no_show appointment to the purple color', function (): void {
+    $company = Company::factory()->create();
+    Appointment::factory()->create([
+        'company_id' => $company->id,
+        'status' => AppointmentStatus::NoShow,
+        'appointment_at' => now(),
+    ]);
+
+    $data = resolve(GetStatusBreakdown::class)->handle($company, MetricsPeriod::lastMonths(12), MetricsFilters::none());
+
+    expect($data->segments)->toHaveCount(1)
+        ->and($data->segments[0]->color)->toBe('purple');
+});

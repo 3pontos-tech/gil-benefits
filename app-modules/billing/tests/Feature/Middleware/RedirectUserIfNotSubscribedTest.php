@@ -7,6 +7,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
 use Laravel\Cashier\Cashier;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -94,7 +95,7 @@ it('bypasses 403 check for flamma-company tenant', function (): void {
     $plan = Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create(['slug' => 'user-gold']);
     $flammaPrice = Price::factory()->for($plan, 'plan')->create([
         'provider_price_id' => 'price_flamma_gold',
-        'metadata' => ['tenant' => 'flamma-company'],
+        'audience' => PriceAudienceEnum::Standalone,
     ]);
     $this->employee->subscriptions()->create([
         'type' => 'user-gold',

@@ -147,7 +147,6 @@
             class="w-full! sm:w-fit!"
             variant="flat"
             size="xl"
-            rounded="none"
             href="https://wa.me/5511976205711?text=Flamma"
             target="_blank"
             rel="noopener noreferrer"

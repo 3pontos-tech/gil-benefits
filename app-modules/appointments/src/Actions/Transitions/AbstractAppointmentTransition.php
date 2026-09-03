@@ -64,7 +64,7 @@ abstract class AbstractAppointmentTransition
         ]);
 
         $this->appointment->loadMissing('user');
-        $this->appointment->user->forgetMonthlyAppointmentsLeftCache();
+        DB::afterCommit(fn () => $this->appointment->user->forgetMonthlyAppointmentsLeftCache());
 
         if ($this->appointment->status === AppointmentStatus::Cancelled) {
             event(new AppointmentCreditReturned((string) $this->appointment->getKey()));

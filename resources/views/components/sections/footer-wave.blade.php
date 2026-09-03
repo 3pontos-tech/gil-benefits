@@ -2,6 +2,10 @@
     // O respiro antes da onda muda entre as duas páginas: na Para Empresas o Figma
     // deixa 104px depois do CTA, na home a onda quase encosta no FAQ (10px).
     'topMargin' => 'mt-20 lg:mt-28',
+    // Altura da onda. A parte esquerda do desenho só começa em y=195 do viewBox,
+    // então boa parte da altura é vão transparente — a home encurta para aproximar
+    // o FAQ do rodapé (o preserveAspectRatio="none" comprime os degraus junto).
+    'height' => 'h-[80px] lg:h-[329px]',
 ])
 
 {{--
@@ -14,7 +18,7 @@
 --}}
 <div class="relative left-1/2 -mx-[50vw] w-screen {{ $topMargin }}" aria-hidden="true">
     <svg
-        class="block h-[80px] w-full -scale-x-100 lg:h-[329px]"
+        class="block w-full -scale-x-100 {{ $height }}"
         viewBox="0 0 1920 329"
         fill="none"
         preserveAspectRatio="none"

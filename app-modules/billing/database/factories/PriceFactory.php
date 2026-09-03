@@ -6,6 +6,7 @@ namespace TresPontosTech\Billing\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Date;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 
@@ -24,10 +25,17 @@ class PriceFactory extends Factory
             'unit_amount_decimal' => $this->faker->randomNumber(),
             'active' => $this->faker->boolean(),
             'provider_price_id' => $this->faker->word(),
+            'audience' => PriceAudienceEnum::Subsidized,
             'metadata' => $this->faker->words(),
             'created_at' => Date::now(),
             'updated_at' => Date::now(),
             'billing_plan_id' => Plan::factory(),
         ];
+    }
+
+    /** Preço de quem não tem empregador subsidiando: valor cheio. */
+    public function standalone(): self
+    {
+        return $this->state(['audience' => PriceAudienceEnum::Standalone]);
     }
 }

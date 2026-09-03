@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use TresPontosTech\Billing\Barte\BarteClient;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 
 class SyncBartePlans extends Command
@@ -56,17 +57,22 @@ class SyncBartePlans extends Command
                         'unit_amount_decimal' => (int) round($value['valuePerMonth'] * 100),
                         'active' => $bartePlan['active'],
                         'default' => true,
+                        'audience' => PriceAudienceEnum::Subsidized,
                         'metadata' => [],
                     ]
                 ));
 
-            $this->syncFlammaPrices($plan, $bartePlan);
+            $this->syncStandalonePrices($plan, $bartePlan);
         }
 
         $this->info('Planos sincronizados: ' . $plans->count());
     }
 
-    private const FLAMMA_PRICES = [
+    /**
+     * Valor cheio, para quem não tem empregador subsidiando. Vive aqui porque
+     * não existe na Barte: lá só está cadastrado o valor subsidiado.
+     */
+    private const STANDALONE_PRICES = [
         'flamma-gold-barte' => 25000,
         'flamma-platinum-barte' => 30000,
     ];
@@ -74,24 +80,26 @@ class SyncBartePlans extends Command
     /**
      * @param  array<string, mixed>  $bartePlan
      */
-    private function syncFlammaPrices(Plan $plan, array $bartePlan): void
+    private function syncStandalonePrices(Plan $plan, array $bartePlan): void
     {
-        $flammaPriceInCents = self::FLAMMA_PRICES[$plan->slug] ?? null;
+        $standalonePriceInCents = self::STANDALONE_PRICES[$plan->slug] ?? null;
 
-        if ($flammaPriceInCents === null) {
+        if ($standalonePriceInCents === null) {
             return;
         }
 
         $plan->prices()->updateOrCreate(
+            // O sufixo fica: assinaturas ativas gravaram este id em stripe_price.
             ['provider_price_id' => $bartePlan['uuid'] . '-standalone-user'],
             [
                 'billing_scheme' => 'per_unit',
                 'tiers_mode' => 'not-selected',
                 'type' => 'recurring',
-                'unit_amount_decimal' => $flammaPriceInCents,
+                'unit_amount_decimal' => $standalonePriceInCents,
                 'active' => $bartePlan['active'],
                 'default' => false,
-                'metadata' => ['tenant' => 'flamma-company'],
+                'audience' => PriceAudienceEnum::Standalone,
+                'metadata' => [],
             ]
         );
     }

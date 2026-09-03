@@ -55,6 +55,8 @@ check: test-rector test-pint test-pest ## Run Pint code style fixer, PHPStan wit
 
 .PHONY: essentials-seeder
 essentials-seeder: ## Run the essentials seeder
+	@echo "Creating the MinIO bucket..."
+	@docker compose --file docker-compose.yml run --rm flamma-minio-bucket
 	@echo "Running Essentials Seeder..."
 	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Essentials Seeder completed."

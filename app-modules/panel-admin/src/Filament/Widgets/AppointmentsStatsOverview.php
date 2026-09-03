@@ -21,7 +21,7 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
     public array $tableFilterState = [];
 
     /**
-     * @var object{total: int, scheduled: int, pending: int, cancelled: int, completed: int}|null
+     * @var object{total: int, scheduled: int, pending: int, cancelled: int, completed: int, noShow: int}|null
      */
     private ?object $aggregates = null;
 
@@ -41,13 +41,14 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
             $this->scheduledStat(),
             $this->pendingStat(),
             $this->cancellationsStat(),
+            $this->noShowStat(),
             $this->conclusionRateStat(),
             $this->cancellationRateStat(),
         ];
     }
 
     /**
-     * @return object{total: int, scheduled: int, pending: int, cancelled: int, completed: int}
+     * @return object{total: int, scheduled: int, pending: int, cancelled: int, completed: int, noShow: int}
      */
     private function aggregates(): object
     {
@@ -93,6 +94,7 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
                     'count(*) filter (where status = ?) as pending',
                     'count(*) filter (where status in (?, ?)) as cancelled',
                     'count(*) filter (where status = ?) as completed',
+                    'count(*) filter (where status = ?) as no_show',
                 ]),
                 [
                     AppointmentStatus::Active->value,
@@ -100,6 +102,7 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
                     AppointmentStatus::Cancelled->value,
                     AppointmentStatus::CancelledLate->value,
                     AppointmentStatus::Completed->value,
+                    AppointmentStatus::NoShow->value,
                 ]
             )
             ->toBase()
@@ -111,6 +114,7 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
             'pending' => (int) ($row->pending ?? 0),
             'cancelled' => (int) ($row->cancelled ?? 0),
             'completed' => (int) ($row->completed ?? 0),
+            'noShow' => (int) ($row->no_show ?? 0),
         ];
     }
 
@@ -148,6 +152,15 @@ class AppointmentsStatsOverview extends StatsOverviewWidget
         return Stat::make(__('panel-admin::widgets.appointments_stats.cancellations'), $cancelled)
             ->description(__('panel-admin::widgets.appointments_stats.cancellations_description'))
             ->color('danger');
+    }
+
+    private function noShowStat(): Stat
+    {
+        $noShow = (int) $this->aggregates()->noShow;
+
+        return Stat::make(__('panel-admin::widgets.appointments_stats.no_shows'), $noShow)
+            ->description(__('panel-admin::widgets.appointments_stats.no_shows_description'))
+            ->color(AppointmentStatus::NoShow->getColor());
     }
 
     private function conclusionRateStat(): Stat

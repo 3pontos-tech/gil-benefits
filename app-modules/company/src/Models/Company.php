@@ -27,7 +27,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
-use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -93,6 +92,18 @@ class Company extends Model implements HasAvatar, HasMedia
         return 'slug';
     }
 
+    /**
+     * Se esta empresa banca parte da mensalidade dos colaboradores.
+     *
+     * O tenant default é o balde de quem não tem empregador, então ninguém
+     * subsidia nada ali: aqueles usuários pagam o valor cheio. É o que decide
+     * qual audiência de preço vale no checkout (PriceAudienceEnum).
+     */
+    public function subsidizesEmployees(): bool
+    {
+        return $this->slug !== self::DEFAULT_SLUG;
+    }
+
     public function hasActivePlan(): bool
     {
         return filled($this->activeContractualPlan());
@@ -100,11 +111,9 @@ class Company extends Model implements HasAvatar, HasMedia
 
     public function activeContractualPlan(): ?CompanyPlan
     {
-        return CompanyPlan::query()->where('company_id', $this->id)
-            ->where('status', CompanyPlanStatusEnum::Active->value)
-            ->whereNull('deleted_at')
-            ->where(fn (Builder $query) => $query->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
+        return CompanyPlan::query()
+            ->where('company_id', $this->id)
+            ->activeOn()
             ->first();
     }
 
@@ -193,6 +202,21 @@ class Company extends Model implements HasAvatar, HasMedia
     public function subscriptions(): MorphMany
     {
         return $this->morphMany(Subscription::class, 'subscriptionable');
+    }
+
+    /**
+     * Exclui a empresa-balde que abriga os assinantes avulsos.
+     *
+     * Ela não é cliente: entrar num ranking de receita por empresa a deixaria em
+     * primeiro lugar permanentemente e dispararia o alerta de concentração todo
+     * mês sem significar nada (FLM-41, D-11).
+     *
+     * @param  Builder<$this>  $query
+     */
+    #[Scope]
+    protected function withoutDefault(Builder $query): void
+    {
+        $query->whereNot('slug', self::DEFAULT_SLUG);
     }
 
     public function generateToken(Uuid|string $key): void

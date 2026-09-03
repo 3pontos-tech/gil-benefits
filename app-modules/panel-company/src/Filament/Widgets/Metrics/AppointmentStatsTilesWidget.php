@@ -55,7 +55,7 @@ class AppointmentStatsTilesWidget extends StatsOverviewWidget
                 ->description(__('panel-company::widgets.appointment_stats.attendance_rate_description', [
                     'rate' => MetricsNumber::percent($stats->attendanceRate),
                     'completed' => $stats->completed,
-                    'total' => $stats->completed + $stats->cancelled,
+                    'total' => $stats->finalized,
                 ]))
                 ->icon('heroicon-o-chart-bar')
                 ->color($attendanceColor),

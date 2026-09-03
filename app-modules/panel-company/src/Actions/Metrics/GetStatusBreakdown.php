@@ -34,6 +34,7 @@ final class GetStatusBreakdown
             AppointmentStatus::Pending->value => 'amber',
             AppointmentStatus::Cancelled->value => 'red',
             AppointmentStatus::CancelledLate->value => 'orange',
+            AppointmentStatus::NoShow->value => 'purple',
         ];
     }
 

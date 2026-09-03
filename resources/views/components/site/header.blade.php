@@ -84,11 +84,11 @@
                         x-cloak
                         x-show="open"
                         x-transition.opacity
-                        class="absolute end-0 top-full z-20 mt-2 w-screen max-w-[14rem] rounded-lg bg-white p-1 shadow-lg ring-1 ring-black/5"
+                        class="absolute end-0 top-full z-20 mt-2 w-screen max-w-[14rem] bg-white p-1 shadow-lg ring-1 ring-black/5"
                     >
                         @foreach ($userLinks as $link)
                             <a href="{{ $link['url'] }}"
-                               class="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-[var(--site-nav-hover-bg)]">
+                               class="flex w-full items-center gap-2 p-2 text-sm hover:bg-[var(--site-nav-hover-bg)]">
                                 <span class="text-sm font-medium text-[var(--site-nav-text)]">{{ $link['label'] }}</span>
                             </a>
                         @endforeach
@@ -96,7 +96,7 @@
                         <form method="POST" action="{{ route('filament.guest.auth.logout') }}">
                             @csrf
                             <button type="submit"
-                                    class="flex w-full items-center gap-2 rounded-md p-2 text-sm hover:bg-[var(--site-nav-hover-bg)]">
+                                    class="flex w-full items-center gap-2 p-2 text-sm hover:bg-[var(--site-nav-hover-bg)]">
                                 <span class="text-sm font-medium text-[var(--site-nav-text)]">Sair</span>
                             </button>
                         </form>

@@ -21,6 +21,7 @@ enum AppointmentHistoryActor: string implements HasColor, HasIcon, HasLabel
 {
     case Admin = 'admin';
     case User = 'user';
+    case Consultant = 'consultant';
 
     public function getLabel(): string
     {
@@ -32,6 +33,7 @@ enum AppointmentHistoryActor: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::Admin => Heroicon::ShieldCheck,
             self::User => Heroicon::User,
+            self::Consultant => Heroicon::AcademicCap,
         };
     }
 
@@ -43,6 +45,7 @@ enum AppointmentHistoryActor: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::Admin => Color::Indigo,
             self::User => Color::Gray,
+            self::Consultant => Color::Purple,
         };
     }
 }

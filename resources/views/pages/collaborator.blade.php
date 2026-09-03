@@ -22,9 +22,27 @@
     {{-- A altura acompanha a foto de fundo (1920 × 1136 = 59,1667vw), que é w-full/h-auto:
          com a altura fixa em px, abaixo de 1920 sobrava fundo claro sob a imagem. --}}
     <section id="colaborador" class="relative scroll-mt-28 lg:left-1/2 lg:-mx-[50vw] lg:h-[59.1667vw] lg:w-screen">
-        <div class="absolute inset-x-0 top-0 -z-10 hidden lg:block" aria-hidden="true">
+        {{-- -top-1.5: as primeiras ~4 linhas de pixels do arquivo são brancas e abriam
+             um fio entre o topo da foto e a navbar — subir 6px as esconde sob ela. --}}
+        <div class="absolute inset-x-0 -top-1.5 -z-10 hidden lg:block" aria-hidden="true">
             <img src="{{ asset('img/colaborador/hero-bg.webp') }}" alt=""
                  class="h-auto w-full" fetchpriority="high" decoding="async">
+
+            {{--
+                Grafismo do Figma: banda vermelha de 30px contornando o degrau entre o
+                painel claro e a foto, mais o bloco solto ao lado da faixa inferior direita.
+                As coordenadas vêm do recorte medido no próprio hero-bg.webp (palco
+                1920×1136): borda em x=1174 (y 0–382), x=1036 (y 382–758), full-bleed em
+                y=758 e o bloco da direita entre y 1002–1112. As bordas externas avançam
+                6px para dentro da foto: cravadas na fronteira exata, o anti-aliasing do
+                arquivo deixava um fio claro entre o vermelho e a imagem. Como o SVG usa
+                o mesmo palco da foto, o encaixe acompanha qualquer largura.
+            --}}
+            <svg class="absolute inset-0 h-auto w-full text-brand-primary" viewBox="0 0 1920 1136"
+                 fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1180 0V388H1042V764H0V728H1006V352H1144V0Z" fill="currentColor"/>
+                <path d="M1144 996H1180V1112H1144V996Z" fill="currentColor"/>
+            </svg>
         </div>
 
         {{-- O texto acompanha a foto, que escala com a viewport: em px fixos ele descia
@@ -48,7 +66,6 @@
                         class="fm-btn w-full! sm:w-[273px]!"
                         variant="light-brand"
                         size="xl-tight"
-                        rounded="none"
                         href="#planos"
                     >
                         Conhecer planos
@@ -57,7 +74,6 @@
                         class="fm-btn w-full! sm:w-[273px]!"
                         variant="flat"
                         size="xl-tight"
-                        rounded="none"
                         href="https://wa.me/5511976205711?text=Flamma"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -89,7 +105,7 @@
         />
 
         <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-7">
-            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-[64px]">
+            <h2 class="fm-reveal text-center text-[32px] font-bold leading-[1.5] text-high lg:text-left lg:text-[64px]">
                 O que é o <span class="text-brand-primary">Flamma</span>?
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
@@ -127,24 +143,13 @@
         </div>
 
         {{--
-            No Figma o título ocupa a largura toda (1676, centralizado) e o botão fica
-            ABAIXO dele, também centralizado — Frame 20222 em x=701,5 com 273 de largura
-            dá centro 838, que é 1676/2. O Blade original punha os dois lado a lado.
+            O botão "Fazer meu cadastro" que o Figma punha abaixo do título migrou para
+            a seção "Mais que uma ferramenta", abaixo do card da citação.
         --}}
         <div class="flex flex-col items-center gap-8 text-center">
             <h2 class="fm-reveal w-full text-[32px] font-bold leading-[1.5] text-high lg:text-[64px]">
                 Do acesso à primeira sessão
             </h2>
-            <x-button
-                class="fm-reveal fm-btn w-full! sm:w-[273px]!"
-                data-fm-delay="1"
-                variant="flat"
-                size="xl-tight"
-                rounded="none"
-                href="/app/register"
-            >
-                Fazer meu cadastro
-            </x-button>
         </div>
 
         {{--
@@ -281,6 +286,19 @@
                         </p>
                     </div>
                 </div>
+
+                {{-- Veio da seção "Do acesso à primeira sessão", onde ficava abaixo do título.
+                     border-0!: sobre a massa escura, a borda outline-light do flat vira um
+                     contorno branco — aqui o botão é só o vermelho chapado. --}}
+                <x-button
+                    class="fm-reveal-left fm-btn border-0! w-full! sm:w-[273px]!"
+                    data-fm-delay="2"
+                    variant="flat"
+                    size="xl-tight"
+                    href="/app/register"
+                >
+                    Fazer meu cadastro
+                </x-button>
             </div>
 
             <ul class="fm-reveal-right flex w-full flex-col gap-8
@@ -326,10 +344,14 @@
                 <img src="{{ asset('img/privacy.webp') }}" alt=""
                      class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
 
+                {{-- Base 0,4% abaixo do topo da faixa (19,69%), como na /para-empresas:
+                     encostar exato deixava um fio branco de arredondamento. O right-[42.3%]
+                     é o limite à esquerda: deixa a lateral 0,15% sobre o bloco da foto
+                     (x ≥ 57,55%) — qualquer valor maior abre um vão branco entre eles. --}}
                 <x-graphism
                     type="collaborator-arrow-alt"
                     data-fm-static
-                    class="absolute bottom-[19.69%] right-[41.5%] hidden w-[17.4%] xl:block"
+                    class="absolute bottom-[19.29%] right-[42.3%] hidden w-[17.4%] xl:block"
                 />
             </div>
         </div>
@@ -350,7 +372,6 @@
                 data-fm-delay="2"
                 variant="flat"
                 size="xl-tight"
-                rounded="none"
                 href="#planos"
             >
                 Simular contratação
@@ -362,11 +383,20 @@
          6. ESCOLHA SEU PLANO — 8298:3587
          Bloco NOVO. Preço em gradiente rose→orange via bg-clip-text.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="planos" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[440px] lg:px-[62px]">
-        {{-- Vector 15 (8298:3477): 1920×419, começa 200px dentro desta seção. --}}
-        <div class="absolute left-1/2 top-[200px] -z-10 -ml-[50vw] hidden w-screen lg:block"
+    {{-- O design pedia 440px de respiro após a Privacidade; encurtado para 160. --}}
+    <section id="planos" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[160px] lg:px-[62px]">
+        {{--
+            Vector 15 (8298:3477): 1920×419. Ancorado pela base da seção (= base dos
+            cards), como no Figma: a faixa desce 78px além dos cards, o bloco alto da
+            direita sobe ao lado do segundo card e os degraus da esquerda cortam o
+            terço de baixo do primeiro. Altura fixa em px (o preserveAspectRatio="none"
+            estica só na horizontal): com aspect-ratio, abaixo de 1920 a faixa encolhia
+            e terminava no meio dos cards. O painel translúcido do canto inferior
+            direito é o Rectangle do frame, em % do palco.
+        --}}
+        <div class="absolute left-1/2 top-[calc(100%-341px)] -z-10 -ml-[50vw] hidden h-[419px] w-screen lg:block"
              aria-hidden="true">
-            <svg class="block aspect-[1920/419] w-full" viewBox="0 0 1920 419" fill="none"
+            <svg class="absolute inset-0 size-full" viewBox="0 0 1920 419" fill="none"
                  preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 419V341.461V271.675H88V300.106H215.5V341.461H297H571.947V279.34H758.593V250.029H945.739V176.751H1129.88V116.691H1336.54V26.4208H1467H1591V0H1920V419H0Z"
                       fill="url(#colabPlansGradient)"/>
@@ -378,6 +408,8 @@
                     </linearGradient>
                 </defs>
             </svg>
+
+            <div class="absolute left-[72.7%] top-[58.7%] h-[41.3%] w-[27.3%] bg-white/32"></div>
         </div>
         <header class="mx-auto flex flex-col gap-4 text-center lg:max-w-[1418px]">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
@@ -452,7 +484,6 @@
                     data-fm-delay="2"
                     variant="flat"
                     size="xl-tight"
-                    rounded="none"
                     href="/app/register"
                 >
                     Fazer meu cadastro
@@ -479,7 +510,7 @@
             colunas, título 44, corpo 16.
         --}}
         <div class="grid grid-cols-1 items-center gap-10 lg:grid-cols-[min(36.875vw,708px)_1fr] lg:gap-[min(7.3958vw,142px)]">
-            <div class="relative">
+            <div class="fm-zoom-scope relative">
                 <div class="fm-reveal-left fm-zoom aspect-[708/589] w-full overflow-hidden">
                     <img src="{{ asset('img/colaborador/colegas.webp') }}"
                          alt="Colegas de trabalho conversando sobre finanças"
@@ -489,14 +520,16 @@
                 {{--
                     Grafismo: a mesma seta grossa da marca espelhada na vertical (aponta ↙),
                     apoiada no canto inferior esquerdo da foto — 230px no Figma, 23 para fora
-                    dela à esquerda e 55 abaixo, e passando POR CIMA da imagem (por isso vem
-                    depois dela no DOM). Estática, como as outras que se encaixam numa
-                    composição.
+                    dela à esquerda — e passando POR CIMA da imagem (por isso vem depois dela
+                    no DOM). O fm-zoom-follow a amplia junto com o zoom da foto no hover.
+                    O bottom de 2,5vw (eram os 55px/2,8646vw do Figma) deixa o braço
+                    horizontal ~4px sobreposto à base da foto: com o valor original ele
+                    começava 3px abaixo dela, abrindo um fio branco.
                 --}}
                 <x-graphism
                     type="arrow"
                     data-fm-static
-                    class="absolute bottom-[calc(min(2.8646vw,55px)*-1)] left-[calc(min(1.1979vw,23px)*-1)] hidden w-[min(11.9792vw,230px)] -scale-y-100 lg:block"
+                    class="fm-zoom-follow absolute bottom-[calc(min(2.5vw,48px)*-1)] left-[calc(min(1.1979vw,23px)*-1)] hidden w-[min(11.9792vw,230px)] -scale-y-100 lg:block"
                 />
             </div>
 
@@ -516,7 +549,6 @@
                     data-fm-delay="2"
                     variant="flat"
                     size="xl-tight"
-                    rounded="none"
                     href="https://wa.me/5511976205711?text=Flamma"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -532,7 +564,7 @@
          Card final; foto 761×556 à direita. Mesma foto da CTA da
          /para-empresas (magnific_a-photorealistic-cinemati).
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="comecar" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 pb-20 sm:px-8 lg:mt-[109px] lg:px-[62px] lg:pb-0">
+    <section id="comecar" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[109px] lg:px-[62px]">
         <div class="fm-reveal-scale flex flex-col items-center gap-8 border border-outline-light bg-elevation-01dp p-6 lg:flex-row lg:gap-8 lg:p-16">
             <div class="flex flex-col gap-8 lg:flex-1">
                 <div class="flex flex-col gap-4 lg:gap-[22px]">
@@ -548,7 +580,6 @@
                     class="fm-btn w-full! sm:w-[248px]!"
                     variant="flat"
                     size="xl-tight"
-                    rounded="none"
                     href="/app/register"
                 >
                     Agende sua primeira sessão
@@ -564,7 +595,9 @@
     </section>
 
 
-    {{-- Onda em degraus que faz a transição para o rodapé (Vector 20 no design) --}}
-    <x-sections.footer-wave top-margin="mt-20 lg:mt-[317px]" />
+    {{-- Onda em degraus que faz a transição para o rodapé (Vector 20 no design),
+         encurtada como na home para o card final ficar mais perto do rodapé
+         (o design pedia 317px de respiro + onda de 329px) --}}
+    <x-sections.footer-wave top-margin="mt-12 lg:mt-10" height="h-[80px] lg:h-[180px]" />
 </div>
 </x-layouts.site>

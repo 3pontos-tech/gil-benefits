@@ -40,10 +40,13 @@
             />
 
             {{--
-                A seta se encaixa no vértice do degrau: a base dela encosta no topo da
-                faixa cheia (80,31%) e a lateral direita avança 1% para dentro do bloco
-                largo (57,55%). Ancorada por baixo e pela direita, o encaixe se mantém
-                em qualquer largura. Não flutua (`data-fm-static`) para não sair do lugar.
+                A seta se encaixa no vértice do degrau. A base desce 0,4% além do topo da
+                faixa cheia (80,31%): encostar exato (19,69%) deixava um fio branco de
+                arredondamento entre ela e a faixa. A lateral direita avança 0,45% para
+                dentro do bloco largo (57,55%) — sem sobrepor um pouco, o mesmo fio branco
+                aparecia na vertical. Ancorada por baixo e pela direita, o encaixe se
+                mantém em qualquer largura. Não flutua (`data-fm-static`) para não sair
+                do lugar.
 
                 Abaixo de xl ela sai de cena: com a foto já bem baixa, o parágrafo (que
                 tem piso de 16px) chegaria a encostar no braço de baixo da seta.
@@ -51,7 +54,7 @@
             <x-graphism
                 type="arrow"
                 data-fm-static
-                class="absolute bottom-[19.69%] right-[41.5%] hidden w-[17.4%] rotate-180 xl:block"
+                class="absolute bottom-[19.29%] right-[42%] hidden w-[17.4%] rotate-180 xl:block"
             />
         </div>
     </div>
@@ -73,7 +76,6 @@
         <x-button
             class="w-full! sm:w-fit! lg:w-[clamp(250px,17.3958vw,334px)]!"
             variant="flat"
-            rounded="none"
             href="#simulador"
         >
             Simular contratação

@@ -106,6 +106,34 @@ it('does not offer rescheduling for a completed appointment', function (): void 
         ->assertSee(AppointmentStatus::Completed->getLabel());
 });
 
+it('treats a no-show appointment as needing rescheduling, never as completed', function (): void {
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::NoShow)
+        ->create(['user_id' => $this->employee->getKey(), 'appointment_at' => now()->subDay()]);
+
+    $rows = livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->viewData('rows')
+        ->keyBy('id');
+
+    expect($rows[$appointment->getKey()]['needsRescheduling'])->toBeTrue()
+        ->and($rows[$appointment->getKey()]['isNoShow'])->toBeTrue()
+        ->and($rows[$appointment->getKey()]['isCompleted'])->toBeFalse()
+        ->and($rows[$appointment->getKey()]['canCancel'])->toBeFalse()
+        ->and($rows[$appointment->getKey()]['canReschedule'])->toBeFalse();
+});
+
+it('renders the no-show row with the status enum purple, not the cancellation red', function (): void {
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::NoShow)
+        ->create(['user_id' => $this->employee->getKey(), 'appointment_at' => now()->subDay()]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->assertSuccessful()
+        ->assertSee('bg-purple-500', false)
+        ->assertDontSee('bg-danger-500', false);
+});
+
 it('cancels the appointment picked by the row action', function (): void {
     $target = Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)

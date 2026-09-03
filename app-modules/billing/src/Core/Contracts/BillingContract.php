@@ -8,13 +8,19 @@ use App\Models\Users\User;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Company\Models\Company;
 
+/**
+ * What every payment provider must do: sell a subscription and answer whether a
+ * billable has one.
+ *
+ * Anything a provider might not be able to do lives in its own interface —
+ * SupportsCreditPurchase, SupportsSubscriptionCancellation — so a driver
+ * declares its capabilities instead of implementing a method that throws.
+ */
 interface BillingContract
 {
     public function ensureCustomerExists(Company|User $billable): void;
 
     public function isSubscribed(Company|User $billable, string $planSlug): bool;
-
-    public function hasActivePlan(Company $company): bool;
 
     public function createCheckout(Company|User $billable, CheckoutData $data): string;
 
@@ -26,8 +32,4 @@ interface BillingContract
     public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string;
 
     public function hasActiveSubscription(Company|User $billable): bool;
-
-    public function cancelSubscription(Company|User $billable): void;
-
-    public function purchaseCredits(Company|User $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string;
 }

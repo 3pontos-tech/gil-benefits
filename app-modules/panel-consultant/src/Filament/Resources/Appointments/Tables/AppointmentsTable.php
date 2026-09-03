@@ -8,6 +8,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\PanelConsultant\Filament\Actions\CreateAppointmentRecordAction;
+use TresPontosTech\PanelConsultant\Filament\Actions\MarkNoShowAction;
 use TresPontosTech\PanelConsultant\Filament\Actions\ReviewAppointmentRecordAction;
 use TresPontosTech\PanelConsultant\Filament\Actions\ViewPreviousRecordSummaryAction;
 
@@ -33,6 +34,7 @@ class AppointmentsTable
                 ViewPreviousRecordSummaryAction::make(),
                 CreateAppointmentRecordAction::make(),
                 ReviewAppointmentRecordAction::make(),
+                MarkNoShowAction::make(),
                 ViewAction::make(),
             ]);
 

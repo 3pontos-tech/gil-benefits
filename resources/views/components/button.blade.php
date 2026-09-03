@@ -5,7 +5,7 @@
     'color' => 'primary',
     'variant' => 'solid',
     'size' => 'lg',       // xs|sm|md|lg|xl|xl-tight
-    'rounded' => 'sm',  // full|lg|md|sm
+    'rounded' => 'none',  // none|full|lg|md|sm — o site é todo de cantos retos
     'block' => false,
     'disabled' => false,
     'loading' => false,
@@ -30,7 +30,7 @@
     $roundCls = [
         'full' => 'rounded-full', 'lg' => 'rounded-xl', 'md' => 'rounded-lg', 'sm' => 'rounded-md',
         'none' => 'rounded-none',
-    ][$rounded] ?? 'rounded-sm';
+    ][$rounded] ?? 'rounded-none';
 
     // xl é a medida do CTA no Figma: 16px de padding vertical + 24px de linha = 56 de altura,
     // e 32 na horizontal (o botão do hero tem 221 de largura para um rótulo de 157).
