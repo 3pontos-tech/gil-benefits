@@ -45,6 +45,16 @@ class Subscription extends BaseSubscriptionModel
 
     public const array STATUSES_WITHOUT_ACCESS = ['pending', 'inactive', 'defaulter'];
 
+    /**
+     * Status em que a assinatura nunca chegou a valer, nos três provedores.
+     *
+     * Diferente de {@see self::STATUSES_WITHOUT_ACCESS}, que responde "tem acesso agora":
+     * `defaulter`, `inactive` e `canceled` não dão acesso, mas já deram um dia — para elas o
+     * `created_at` é uma âncora de ciclo legítima. Para as daqui, não é: a linha existe desde
+     * o checkout e o `created_at` é anterior a qualquer pagamento.
+     */
+    public const array STATUSES_NEVER_ACTIVATED = ['pending', 'incomplete', 'incomplete_expired'];
+
     protected $table = 'billing_subscriptions';
 
     public function active(): bool

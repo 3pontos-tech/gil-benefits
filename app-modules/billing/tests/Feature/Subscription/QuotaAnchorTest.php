@@ -121,6 +121,35 @@ it('backfills the anchor of a legacy active subscription', function (): void {
         ->toBe('2025-09-12 08:15:00');
 });
 
+it('backfills a legacy barte subscription that lapsed into delinquency', function (): void {
+    $user = User::factory()->create();
+    $id = legacySubscriptionWithoutAnchor($user, 'defaulter', '2026-01-13 08:15:00');
+
+    runQuotaAnchorBackfill();
+
+    // Ela existe desde a contratação, em janeiro. Sem âncora vinda do backfill, o
+    // retorno da inadimplência carimbaria com a data do retorno e moveria a virada.
+    expect(Subscription::query()->findOrFail($id)->quota_anchor_at->toDateString())
+        ->toBe('2026-01-13');
+
+    travelTo('2026-09-03 11:00');
+    Subscription::query()->findOrFail($id)->update(['stripe_status' => Subscription::STATUS_ACTIVE]);
+
+    expect(Subscription::query()->findOrFail($id)->quota_anchor_at->toDateString())
+        ->toBe('2026-01-13');
+});
+
+it('backfills subscriptions that no longer grant access but once did', function (): void {
+    $user = User::factory()->create();
+    $inactive = legacySubscriptionWithoutAnchor($user, 'inactive', '2026-02-10 08:00:00');
+    $canceled = legacySubscriptionWithoutAnchor(User::factory()->create(), 'canceled', '2026-07-24 08:00:00');
+
+    runQuotaAnchorBackfill();
+
+    expect(Subscription::query()->findOrFail($inactive)->quota_anchor_at->toDateString())->toBe('2026-02-10')
+        ->and(Subscription::query()->findOrFail($canceled)->quota_anchor_at->toDateString())->toBe('2026-07-24');
+});
+
 it('leaves a legacy pending subscription without an anchor, so activation can set it', function (): void {
     $user = User::factory()->create();
     $id = legacySubscriptionWithoutAnchor($user, 'pending', '2025-09-12 08:15:00');
@@ -136,8 +165,8 @@ it('leaves a legacy pending subscription without an anchor, so activation can se
         ->toBe('2026-01-20 17:00:00');
 });
 
-it('does not anchor a stripe subscription that is only trialing', function (): void {
-    $id = legacySubscriptionWithoutAnchor(User::factory()->create(), 'trialing', '2025-09-12 08:15:00');
+it('does not anchor a stripe subscription that never completed', function (): void {
+    $id = legacySubscriptionWithoutAnchor(User::factory()->create(), 'incomplete', '2025-09-12 08:15:00');
 
     runQuotaAnchorBackfill();
 

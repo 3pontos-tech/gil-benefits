@@ -30,7 +30,7 @@ return new class extends Migration
     {
         DB::table('billing_subscriptions')
             ->whereNull('quota_anchor_at')
-            ->where('stripe_status', Subscription::STATUS_ACTIVE)
+            ->whereNotIn('stripe_status', Subscription::STATUSES_NEVER_ACTIVATED)
             ->update(['quota_anchor_at' => DB::raw('created_at')]);
     }
 
