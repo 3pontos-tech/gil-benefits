@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
@@ -461,13 +462,13 @@ it('reads each subscription lifecycle status as its own transition', function ()
 });
 
 it('anchors the quota cycle on the first paid charge, not on checkout', function (): void {
-    Carbon::setTestNow('2026-08-01 09:00:00');
+    Date::setTestNow('2026-08-01 09:00:00');
     pendingVirtuSubscription($this->user);
 
     // A linha nasce no checkout, antes de qualquer pagamento: sem âncora.
     expect(Subscription::query()->firstOrFail()->quota_anchor_at)->toBeNull();
 
-    Carbon::setTestNow('2026-08-03 14:30:00');
+    Date::setTestNow('2026-08-03 14:30:00');
     resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto());
 
     expect(Subscription::query()->firstOrFail()->quota_anchor_at->toDateTimeString())
@@ -475,15 +476,15 @@ it('anchors the quota cycle on the first paid charge, not on checkout', function
 });
 
 it('does not move the quota anchor on later recurring charges', function (): void {
-    Carbon::setTestNow('2026-08-03 14:30:00');
+    Date::setTestNow('2026-08-03 14:30:00');
     pendingVirtuSubscription($this->user);
     resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto());
 
     // O comentário do handler avisa: toda cobrança seguinte cai na mesma linha.
-    Carbon::setTestNow('2026-09-03 14:30:00');
+    Date::setTestNow('2026-09-03 14:30:00');
     resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto(['saleId' => 2004]));
 
-    Carbon::setTestNow('2026-10-03 14:30:00');
+    Date::setTestNow('2026-10-03 14:30:00');
     resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto(['saleId' => 3005]));
 
     expect(Subscription::query()->firstOrFail()->quota_anchor_at->toDateTimeString())

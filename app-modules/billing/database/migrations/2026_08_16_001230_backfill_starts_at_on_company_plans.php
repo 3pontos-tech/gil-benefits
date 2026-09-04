@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -33,7 +33,7 @@ return new class extends Migration
                     DB::table('company_plans')
                         ->where('id', $plan->id)
                         ->update([
-                            'starts_at' => Carbon::parse($plan->created_at ?? now())->toDateString(),
+                            'starts_at' => Date::parse($plan->created_at ?? now())->toDateString(),
                         ]);
                 }
             });
