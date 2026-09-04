@@ -13,7 +13,7 @@ use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 
 /**
- * Descobre de qual contrato a cota desta pessoa vem, devolvendo limite e âncora.
+ * Descobre de qual contrato a cota desta pessoa vem, devolvendo limite, âncora e empresa.
  *
  * A cota tem exatamente duas origens: o plano contratual da empresa e a assinatura
  * do próprio usuário, nesta ordem de precedência. A assinatura de uma empresa nunca
@@ -25,15 +25,22 @@ final readonly class ResolveQuotaAllowance
      * A empresa considerada é a do tenant selecionado na tela, com fallback para
      * `employerCompanyId()` fora de um painel (console, jobs, e-mail). Sem isso a
      * cota poderia vir de uma empresa diferente da que a tela está exibindo.
+     *
+     * `$companyId` fixa a empresa em vez de deduzi-la do contexto. Quem já tem em mãos
+     * a linha que gastou a cota — um agendamento, por exemplo — passa a empresa dela e
+     * não fica à mercê do tenant ativo no momento da leitura.
      */
-    public function for(User $user): QuotaAllowance
+    public function for(User $user, ?string $companyId = null): QuotaAllowance
     {
-        $contractualPlan = $this->contractualPlanFor($user);
+        $companyId ??= $this->companyIdFor($user);
+
+        $contractualPlan = $this->contractualPlanFor($user, $companyId);
 
         if ($contractualPlan instanceof CompanyPlan) {
             return new QuotaAllowance(
                 $contractualPlan->monthly_appointments_per_employee,
                 CarbonImmutable::instance($contractualPlan->starts_at ?? $contractualPlan->created_at),
+                $companyId,
             );
         }
 
@@ -53,6 +60,7 @@ final readonly class ResolveQuotaAllowance
         return new QuotaAllowance(
             (int) ($subscription->price->monthly_appointments ?? 0),
             CarbonImmutable::instance($anchor),
+            $companyId,
         );
     }
 
@@ -64,15 +72,27 @@ final readonly class ResolveQuotaAllowance
      * resolver o plano por outro caminho faz o card exibir limite de uma empresa e
      * saldo de outra, e para quem tem contrato em duas empresas isso vira "2 de 1".
      */
-    public function contractualPlanFor(User $user): ?CompanyPlan
+    public function contractualPlanFor(User $user, ?string $companyId = null): ?CompanyPlan
     {
-        $tenant = Filament::getTenant();
-        $companyId = $tenant instanceof Company ? $tenant->getKey() : $user->employerCompanyId();
+        $companyId ??= $this->companyIdFor($user);
 
         if ($companyId === null) {
             return null;
         }
 
         return CompanyPlan::query()->where('company_id', $companyId)->activeOn()->first();
+    }
+
+    /**
+     * A empresa sob a qual esta pessoa está sendo lida agora.
+     *
+     * É a mesma expressão que `BookAppointmentAction` grava em `appointments.company_id`,
+     * de propósito: o que conta o consumo e o que registra o consumo precisam concordar.
+     */
+    private function companyIdFor(User $user): ?string
+    {
+        $tenant = Filament::getTenant();
+
+        return $tenant instanceof Company ? $tenant->getKey() : $user->employerCompanyId();
     }
 }

@@ -42,7 +42,7 @@ it('shows the holder name and the consultant of the latest appointment', functio
 
     $appointment = Appointment::factory()
         ->withStatus(AppointmentStatus::Completed)
-        ->create(['user_id' => $employee->getKey()]);
+        ->create(['user_id' => $employee->getKey(), 'company_id' => $employee->employerCompanyId()]);
 
     livewire(PlanCreditsWidget::class)
         ->assertSuccessful()
@@ -56,12 +56,12 @@ it('ignores cancelled appointments when naming the current consultant', function
 
     $kept = Appointment::factory()
         ->withStatus(AppointmentStatus::Completed)
-        ->create(['user_id' => $employee->getKey(), 'appointment_at' => now()->subWeek()]);
+        ->create(['user_id' => $employee->getKey(), 'company_id' => $employee->employerCompanyId(), 'appointment_at' => now()->subWeek()]);
 
     // Mais recente, porem cancelada: nao representa vinculo com consultor.
     Appointment::factory()
         ->withStatus(AppointmentStatus::Cancelled)
-        ->create(['user_id' => $employee->getKey(), 'appointment_at' => now()->subDay()]);
+        ->create(['user_id' => $employee->getKey(), 'company_id' => $employee->employerCompanyId(), 'appointment_at' => now()->subDay()]);
 
     expect(livewire(PlanCreditsWidget::class)->assertOk()->viewData('consultantName'))
         ->toBe($kept->consultant->name);
@@ -171,7 +171,7 @@ it('lists every applicable block reason at once', function (): void {
 
     Appointment::factory()
         ->withStatus(AppointmentStatus::Active)
-        ->create(['user_id' => $employee->getKey()]);
+        ->create(['user_id' => $employee->getKey(), 'company_id' => $employee->employerCompanyId()]);
 
     livewire(PlanCreditsWidget::class)
         ->assertOk()
@@ -184,7 +184,7 @@ it('shows only the ongoing reason when the user still has quota', function (): v
 
     Appointment::factory()
         ->withStatus(AppointmentStatus::Active)
-        ->create(['user_id' => $employee->getKey()]);
+        ->create(['user_id' => $employee->getKey(), 'company_id' => $employee->employerCompanyId()]);
 
     livewire(PlanCreditsWidget::class)
         ->assertOk()
@@ -197,7 +197,7 @@ it('checks ongoing-appointment eligibility with a single query', function (): vo
 
     Appointment::factory()
         ->withStatus(AppointmentStatus::Active)
-        ->create(['user_id' => $employee->getKey()]);
+        ->create(['user_id' => $employee->getKey(), 'company_id' => $employee->employerCompanyId()]);
 
     $ongoingChecks = 0;
     DB::listen(function ($query) use (&$ongoingChecks): void {
@@ -218,7 +218,7 @@ describe('appointment guard', function (): void {
         $employee = actingAsEmployee();
         $appointment = Appointment::factory()
             ->withStatus(AppointmentStatus::Active)
-            ->create(['user_id' => $employee->getKey()]);
+            ->create(['user_id' => $employee->getKey(), 'company_id' => $employee->employerCompanyId()]);
 
         livewire(PlanCreditsWidget::class)
             ->assertOk()
@@ -243,7 +243,7 @@ describe('appointment guard', function (): void {
         $employee = actingAsSubscribedEmployee();
         $appointment = Appointment::factory()
             ->withStatus(AppointmentStatus::Active)
-            ->create(['user_id' => $employee->getKey()]);
+            ->create(['user_id' => $employee->getKey(), 'company_id' => $employee->employerCompanyId()]);
 
         livewire(PlanCreditsWidget::class)
             ->assertOk()
@@ -264,7 +264,7 @@ describe('appointment guard', function (): void {
         $employee = actingAsSubscribedEmployee();
         $appointment = Appointment::factory()
             ->withStatus(AppointmentStatus::Active)
-            ->create(['user_id' => $employee->getKey()]);
+            ->create(['user_id' => $employee->getKey(), 'company_id' => $employee->employerCompanyId()]);
 
         livewire(PlanCreditsWidget::class)
             ->assertOk()

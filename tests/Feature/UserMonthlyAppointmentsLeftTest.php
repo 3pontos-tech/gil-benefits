@@ -9,6 +9,7 @@ use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Company\Models\Company;
 
 use function Pest\Laravel\travelTo;
 
@@ -23,12 +24,18 @@ function anchorContractualPlanOn(User $employee, string $anchor): void
 
 }
 
+/**
+ * Reserva pela mesma empresa que `BookAppointmentAction` gravaria — nula para quem
+ * assina por conta própria. Sem isso a factory inventa uma empresa por agendamento e
+ * a contagem, que é escopada por empresa, nunca os encontra.
+ */
 function bookingFor(User $employee, AppointmentStatus $status = AppointmentStatus::Pending): Appointment
 {
     return Appointment::factory()
         ->withStatus($status)
         ->create([
             'user_id' => $employee->getKey(),
+            'company_id' => $employee->employerCompanyId(),
             'appointment_at' => now()->addDays(3),
         ]);
 }
@@ -238,3 +245,74 @@ it('keeps individual subscription cycles independent from each other', function 
 
     expect($late->fresh()->monthly_appointments_left)->toBe(1);
 });
+
+/**
+ * Emprega a mesma pessoa numa segunda empresa, também com plano contratual ativo.
+ */
+function secondEmployerFor(User $employee, string $anchor): Company
+{
+    $company = Company::factory()->create();
+    $company->employees()->attach($employee->getKey());
+
+    CompanyPlan::query()->create([
+        'company_id' => $company->getKey(),
+        'plan_id' => Plan::factory()->createOne(['active' => true])->getKey(),
+        'status' => 'active',
+        'monthly_appointments_per_employee' => 1,
+        'starts_at' => $anchor,
+        'seats' => 10,
+    ]);
+
+    return $company;
+}
+
+it('does not spend the quota of one company on a booking made at another', function (): void {
+    travelTo('2026-09-11 10:00');
+    $employee = actingAsEmployee();
+    anchorContractualPlanOn($employee, '2026-03-10');
+
+    $firstEmployer = filament()->getTenant();
+    $secondEmployer = secondEmployerFor($employee, '2026-03-10');
+
+    // A reserva nasce sob a segunda empresa, como BookAppointmentAction gravaria.
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create([
+            'user_id' => $employee->getKey(),
+            'company_id' => $secondEmployer->getKey(),
+            'appointment_at' => now()->addDays(3),
+        ]);
+
+    expect($employee->fresh()->monthly_appointments_left)->toBe(1);
+
+    filament()->setTenant($secondEmployer);
+    expect($employee->fresh()->monthly_appointments_left)->toBe(0);
+
+    filament()->setTenant($firstEmployer);
+    expect($employee->fresh()->monthly_appointments_left)->toBe(1);
+});
+
+it('keeps a refund stamped at one company out of the other company balance', function (): void {
+    travelTo('2026-09-11 10:00');
+    $employee = actingAsEmployee();
+    anchorContractualPlanOn($employee, '2026-03-10');
+
+    $firstEmployer = filament()->getTenant();
+    $secondEmployer = secondEmployerFor($employee, '2026-03-10');
+
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Cancelled)
+        ->create([
+            'user_id' => $employee->getKey(),
+            'company_id' => $secondEmployer->getKey(),
+            'appointment_at' => now()->addDays(3),
+            'quota_refunded_at' => now(),
+        ]);
+
+    expect($employee->fresh()->monthly_appointments_left)->toBe(1);
+
+    filament()->setTenant($secondEmployer);
+    expect($employee->fresh()->monthly_appointments_left)->toBe(2);
+
+    filament()->setTenant($firstEmployer);
+})->group('quota');

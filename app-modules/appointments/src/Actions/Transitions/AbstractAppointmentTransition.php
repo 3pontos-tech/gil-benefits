@@ -99,6 +99,10 @@ abstract class AbstractAppointmentTransition
      *
      * Nada é carimbado quando o ciclo do débito ainda é o corrente: nesse caso o
      * próprio cancelamento tira a reserva da contagem e a cota volta sozinha.
+     *
+     * A allowance é resolvida pela empresa do próprio agendamento, não pelo tenant
+     * ativo: cancelar pelo admin, por job ou por outra empresa do mesmo usuário leria
+     * outra âncora e devolveria a consulta no ciclo errado.
      */
     private function stampQuotaRefundIfCycleClosed(): void
     {
@@ -111,7 +115,7 @@ abstract class AbstractAppointmentTransition
             return;
         }
 
-        $allowance = resolve(ResolveQuotaAllowance::class)->for($this->appointment->user);
+        $allowance = resolve(ResolveQuotaAllowance::class)->for($this->appointment->user, $this->appointment->company_id);
 
         if ($allowance->isEmpty()) {
             return;

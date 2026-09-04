@@ -472,12 +472,13 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
                 $cycle = QuotaCycle::forAnchor($allowance->anchor);
 
                 $used = (int) $this->appointments()
+                    ->where('company_id', $allowance->companyId)
                     ->where('created_at', '>=', $cycle->start)
                     ->where('created_at', '<', $cycle->end)
                     ->where('status', '!=', AppointmentStatus::Cancelled->value)
                     ->count();
 
-                return max($allowance->limit - $used + $this->quotaRefundsInCycle($cycle), 0);
+                return max($allowance->limit - $used + $this->quotaRefundsInCycle($cycle, $allowance->companyId), 0);
             }
         )->shouldCache();
     }
@@ -489,10 +490,15 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
      * devolveria nada: a contagem do ciclo corrente nunca a incluiu. O carimbo é feito
      * no cancelamento, onde ainda se sabe se a consulta foi paga com cota ou com
      * crédito avulso, e vale só para o ciclo em que o cancelamento aconteceu.
+     *
+     * Escopado pela mesma empresa que resolveu o limite: um `company_id` nulo vira
+     * `whereNull` pelo próprio query builder, então quem não tem empresa continua
+     * contando os agendamentos que também nasceram sem empresa.
      */
-    private function quotaRefundsInCycle(QuotaCycle $cycle): int
+    private function quotaRefundsInCycle(QuotaCycle $cycle, ?string $companyId): int
     {
         return (int) $this->appointments()
+            ->where('company_id', $companyId)
             ->whereNotNull('quota_refunded_at')
             ->where('quota_refunded_at', '>=', $cycle->start)
             ->where('quota_refunded_at', '<', $cycle->end)

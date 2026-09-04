@@ -23,6 +23,7 @@ it('gives no reason at all while the person can book', function (): void {
 it('blames the ongoing consultation, not the quota', function () use ($ongoing, $noQuota): void {
     Appointment::factory()->withStatus(AppointmentStatus::Pending)->create([
         'user_id' => $this->employee->getKey(),
+        'company_id' => $this->employee->employerCompanyId(),
         'appointment_at' => now()->addDays(3),
         // Reserva de um ciclo que já fechou: a cota está cheia, o bloqueio é só a consulta.
         'created_at' => now()->subMonths(2),
@@ -37,6 +38,7 @@ it('blames the ongoing consultation, not the quota', function () use ($ongoing, 
 it('blames the quota when the cycle is spent and nothing is pending', function () use ($ongoing, $noQuota): void {
     Appointment::factory()->withStatus(AppointmentStatus::Completed)->create([
         'user_id' => $this->employee->getKey(),
+        'company_id' => $this->employee->employerCompanyId(),
         'appointment_at' => now()->subDays(3),
     ]);
 
@@ -49,6 +51,7 @@ it('blames the quota when the cycle is spent and nothing is pending', function (
 it('states both when both apply', function () use ($ongoing, $noQuota): void {
     Appointment::factory()->withStatus(AppointmentStatus::Pending)->create([
         'user_id' => $this->employee->getKey(),
+        'company_id' => $this->employee->employerCompanyId(),
         'appointment_at' => now()->addDays(3),
     ]);
 

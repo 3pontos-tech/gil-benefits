@@ -30,12 +30,17 @@ function employeeAnchoredOnDayTen(): User
     return $employee;
 }
 
+/**
+ * A empresa vai junto porque é dela que a devolução resolve a âncora — a factory,
+ * sozinha, inventaria uma empresa sem plano e nada seria carimbado.
+ */
 function bookingOnLastDayOfCycle(User $employee): Appointment
 {
     return Appointment::factory()
         ->withStatus(AppointmentStatus::Pending)
         ->create([
             'user_id' => $employee->getKey(),
+            'company_id' => $employee->employerCompanyId(),
             'appointment_at' => '2026-09-12 14:00',
         ]);
 }

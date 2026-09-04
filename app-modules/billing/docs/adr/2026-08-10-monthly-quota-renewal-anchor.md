@@ -209,6 +209,16 @@ backfilled with the plan's `created_at`.
 customer-visible effect (the day an employee gets their appointment back). Leaving the
 record incomplete and papering over it in code makes that effect unauditable.
 
+**Amended 2026-09-04 — a `?? created_at` guard survived in `ResolveQuotaAllowance`.** The
+resolver reads `$plan->starts_at ?? $plan->created_at`, and the same shape for
+`quota_anchor_at`. That is literally the expression this decision rejects, so it is worth
+stating plainly: it is a guard against a null column, not the policy. The policy holds —
+the admin form requires the field, the backfill filled every existing row, and there is no
+other production write path to `company_plans`. What keeps the guard is that both columns
+are still nullable in the schema, and `CarbonImmutable::instance(null)` throws. The branch
+is reachable only from `CompanyPlanFactory`, whose default leaves `starts_at` null, and
+therefore from `EssentialsSeeder`. Delete it if either column ever becomes `NOT NULL`.
+
 **Rejected — default to the 1st of the month:** two companies with contracts starting on
 different dates would renew on the same day, and the 1st has no relationship to either
 contract.
@@ -288,6 +298,21 @@ so the row — and now the renewal day — is whatever the database returns firs
 user also belongs to the shared default company, so this also closes a latent hazard: if
 the default company ever got an active contractual plan, it could become everyone's quota
 source.
+
+**Amended 2026-09-04 — the consumption count is scoped by that same company.** Resolving
+the *allowance* per tenant while counting `User::appointments()` unscoped mixed the two:
+someone employed at two companies had one company's limit debited by both companies'
+bookings, and a refund stamped at one appeared in the other's balance. `QuotaAllowance`
+now carries the resolved `companyId`, and both the consumption count and the refund count
+filter on it. That filter is the same expression `BookAppointmentAction` writes into
+`appointments.company_id` (`$payload->companyId ?? $user->employerCompanyId()`), on
+purpose: what records a consumption and what counts it have to agree. A null company —
+an individual subscriber with no employer — matches the bookings created without one.
+
+The refund path resolves its allowance from `appointments.company_id` rather than from the
+ambient tenant. A cancellation can arrive from the admin panel, from a job, or while the
+person has another company selected, and each of those would otherwise read a different
+anchor and return the appointment to the wrong cycle.
 
 **Rejected — always `employerCompanyId()`:** `PlanCreditsWidget` and `UserCreditsPage`
 already filter credits by the selected tenant; taking the quota from a different company
