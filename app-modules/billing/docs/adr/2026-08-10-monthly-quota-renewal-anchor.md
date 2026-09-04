@@ -236,6 +236,18 @@ Stripe enters through Cashier's `WebhookController`, which writes to the table d
 and rows are also created by console command and by factory. Stamping in any single writer
 would leave the others without an anchor.
 
+**Amended 2026-09-04 — the provider's timestamp wins over the observer's.** The observer
+writes `now()`, which is when *this worker processed the event*, not when the subscription
+became active. The webhook is queued and can be redelivered: a charge approved at 23:58 and
+retried after midnight anchored the customer on the following day, permanently. Where the
+payload carries the moment — Virtu's `occurredAt` — `SubscriptionDTO::$activatedAt` now
+carries it to `UpsertSubscription`, which fills the column before saving, so the observer
+finds it non-null and stays quiet. Providers with no such field (Barte's DTO has none, and
+Stripe enters through Cashier's own controller) keep falling back to the observer. The
+value is converted to the app timezone first: Virtu sends UTC, the column is read back in
+app time, and `QuotaCycle` cuts the anchor at start of day — 02:00 UTC is still the day
+before in São Paulo, so storing the wrong wall clock reproduces the same defect inverted.
+
 The filter is `stripe_status = 'active'`. Both providers share this table and this column
 with different vocabularies — `pending|active|defaulter|inactive` against
 `active|trialing|past_due|canceled|incomplete|…` — and `active` is the only value common

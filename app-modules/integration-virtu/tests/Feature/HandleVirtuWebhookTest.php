@@ -13,6 +13,7 @@ use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionDefaulted;
 use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Billing\Core\Support\QuotaCycle;
 use TresPontosTech\IntegrationVirtu\Actions\HandleVirtuWebhook;
 use TresPontosTech\IntegrationVirtu\DTO\VirtuWebhookDTO;
 use TresPontosTech\IntegrationVirtu\VirtuAdapter;
@@ -24,12 +25,15 @@ beforeEach(function (): void {
     $this->user = User::factory()->create();
 });
 
-function virtuWebhookDto(array $data = [], string $event = 'TRANSACTION'): VirtuWebhookDTO
-{
+function virtuWebhookDto(
+    array $data = [],
+    string $event = 'TRANSACTION',
+    string $occurredAt = '2026-08-03T10:00:00.000Z',
+): VirtuWebhookDTO {
     return VirtuWebhookDTO::fromArray([
         'event' => $event,
         'idempotencyKey' => 'transaction:SALE:1003:SUCCESS',
-        'occurredAt' => '2026-08-03T10:00:00.000Z',
+        'occurredAt' => $occurredAt,
         'data' => array_merge([
             'saleId' => 1003,
             'checkoutId' => 'checkout_fake1',
@@ -471,8 +475,25 @@ it('anchors the quota cycle on the first paid charge, not on checkout', function
     Date::setTestNow('2026-08-03 14:30:00');
     resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto());
 
+    // occurredAt do payload (10:00Z), convertido para o fuso do app — nao as 14:30 em
+    // que este worker rodou.
     expect(Subscription::query()->firstOrFail()->quota_anchor_at->toDateTimeString())
-        ->toBe('2026-08-03 14:30:00');
+        ->toBe('2026-08-03 07:00:00');
+});
+
+it('anchors on the day the charge was approved, not the day it was processed', function (): void {
+    Date::setTestNow('2026-08-03 20:00:00');
+    pendingVirtuSubscription($this->user);
+
+    // Aprovada as 23h00 de 03/ago em Sao Paulo (02h00Z de 04/ago), reentregue depois da
+    // meia-noite. Sem a hora do provedor, a pessoa viraria todo dia 4 para sempre.
+    Date::setTestNow('2026-08-04 00:40:00');
+    resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto(occurredAt: '2026-08-04T02:00:00.000Z'));
+
+    $anchor = Subscription::query()->firstOrFail()->quota_anchor_at;
+
+    expect($anchor->toDateTimeString())->toBe('2026-08-03 23:00:00')
+        ->and(QuotaCycle::forAnchor($anchor)->start->toDateString())->toBe('2026-08-03');
 });
 
 it('does not move the quota anchor on later recurring charges', function (): void {
@@ -482,11 +503,11 @@ it('does not move the quota anchor on later recurring charges', function (): voi
 
     // O comentário do handler avisa: toda cobrança seguinte cai na mesma linha.
     Date::setTestNow('2026-09-03 14:30:00');
-    resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto(['saleId' => 2004]));
+    resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto(['saleId' => 2004], occurredAt: '2026-09-03T10:00:00.000Z'));
 
     Date::setTestNow('2026-10-03 14:30:00');
-    resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto(['saleId' => 3005]));
+    resolve(HandleVirtuWebhook::class)->handle(virtuWebhookDto(['saleId' => 3005], occurredAt: '2026-10-03T10:00:00.000Z'));
 
     expect(Subscription::query()->firstOrFail()->quota_anchor_at->toDateTimeString())
-        ->toBe('2026-08-03 14:30:00');
+        ->toBe('2026-08-03 07:00:00');
 });
