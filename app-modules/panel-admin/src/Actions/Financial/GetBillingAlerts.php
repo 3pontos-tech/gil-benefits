@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelAdmin\Actions\Financial;
 
 use Carbon\CarbonImmutable;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use TresPontosTech\Billing\Core\Enums\CompanyFinancialStatusEnum;
@@ -85,6 +86,7 @@ final class GetBillingAlerts
         return new BillingAlert(
             key: 'due_soon',
             severity: 'warning',
+            icon: Heroicon::OutlinedClock,
             companies: $matching,
             totalCents: $this->sum($matching),
             isEstimatedDate: true,
@@ -117,6 +119,7 @@ final class GetBillingAlerts
         return new BillingAlert(
             key: 'recently_cancelled',
             severity: 'danger',
+            icon: Heroicon::OutlinedUserMinus,
             companies: $matching,
             totalCents: $this->lostValue($matching, $recent),
         );
@@ -162,6 +165,7 @@ final class GetBillingAlerts
         return new BillingAlert(
             key: 'delinquent',
             severity: 'danger',
+            icon: Heroicon::OutlinedExclamationTriangle,
             companies: $matching,
             totalCents: $this->sum($matching),
         );

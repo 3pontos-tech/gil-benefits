@@ -45,6 +45,15 @@ class FinancialCluster extends Cluster
     }
 
     /**
+     * O Filament deriva o breadcrumb do nome da classe ("Financial"), e não do
+     * rótulo de navegação — a sidebar sai traduzida e o topo da página não.
+     */
+    public static function getClusterBreadcrumb(): ?string
+    {
+        return __('panel-admin::resources.financial_cluster.navigation_label');
+    }
+
+    /**
      * O item leva direto ao dashboard, e não à página-índice do cluster.
      *
      * A página-índice existiria só para listar links que a navegação interna já

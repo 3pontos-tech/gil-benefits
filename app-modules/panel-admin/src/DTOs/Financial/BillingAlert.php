@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelAdmin\DTOs\Financial;
 
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
 
 /**
@@ -21,6 +22,7 @@ final readonly class BillingAlert
     public function __construct(
         public string $key,
         public string $severity,
+        public Heroicon $icon,
         public Collection $companies,
         public int $totalCents,
         public bool $isEstimatedDate = false,

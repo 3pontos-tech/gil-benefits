@@ -15,6 +15,7 @@ use TresPontosTech\PanelAdmin\Actions\Financial\GetPaymentTotals;
 use TresPontosTech\PanelAdmin\DTOs\Financial\BillingAlert;
 use TresPontosTech\PanelAdmin\DTOs\Financial\FinancialFilters;
 use TresPontosTech\PanelAdmin\DTOs\Financial\PaymentStatusRow;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Financial\FinancialCluster;
 use TresPontosTech\PanelAdmin\Filament\Pages\Financial\Billing;
 use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\BillingAlertsWidget;
 use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\PaymentTotalsWidget;
@@ -175,6 +176,20 @@ describe('alertas de cobrança', function (): void {
     });
 });
 
+describe('aparência dos alertas', function (): void {
+    it('pinta cada alerta com o callout da sua gravidade', function (): void {
+        billingCompany('Atrasada', 'defaulter', CarbonImmutable::create(2026, 3, 30));
+
+        Livewire::test(BillingAlertsWidget::class)
+            ->assertOk()
+            ->assertSeeHtml('fi-callout')
+            ->assertSeeHtml('fi-color-warning')
+            ->assertSeeHtml('fi-color-danger')
+            ->assertSeeText('Atrasada')
+            ->assertSeeText('Data estimada pelo ciclo mensal');
+    });
+});
+
 describe('dispensa por sessão', function (): void {
     it('esconde o alerta dispensado e mantém os demais', function (): void {
         billingCompany('Atrasada', 'defaulter', CarbonImmutable::create(2026, 3, 30));
@@ -198,6 +213,15 @@ describe('tela', function (): void {
             ->assertOk()
             ->assertSeeLivewire(BillingAlertsWidget::class)
             ->assertSeeLivewire(PaymentTotalsWidget::class);
+    });
+
+    it('traduz o breadcrumb do cluster', function (): void {
+        expect(FinancialCluster::getClusterBreadcrumb())->toBe('Financeiro');
+
+        Livewire::test(Billing::class)
+            ->assertOk()
+            ->assertSeeText('Financeiro')
+            ->assertDontSeeText('Financial');
     });
 
     it('fecha para Admin comum', function (): void {

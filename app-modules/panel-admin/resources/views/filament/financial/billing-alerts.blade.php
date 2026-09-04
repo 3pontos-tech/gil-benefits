@@ -1,40 +1,41 @@
-{{-- Alertas de cobrança (STORY-237). Dispensáveis por sessão. --}}
+{{--
+    Alertas de cobrança (STORY-237). Dispensáveis por sessão.
+
+    Usa o callout do Filament em vez de utilitários Tailwind soltos: o tema do
+    painel só compila as classes que encontra nas fontes declaradas, e as classes
+    do callout já vêm no CSS base, com fundo e anel tingidos pela cor nos dois
+    temas.
+--}}
 @php($alerts = $this->alerts())
 
 <div class="flex flex-col gap-3">
     @foreach ($alerts as $alert)
-        <div @class([
-            'flex items-start justify-between gap-4 rounded-xl border p-4',
-            'border-warning-300 bg-warning-50 dark:border-warning-500/30 dark:bg-warning-500/10' => $alert->severity === 'warning',
-            'border-danger-300 bg-danger-50 dark:border-danger-500/30 dark:bg-danger-500/10' => $alert->severity === 'danger',
-        ])>
-            <div class="min-w-0">
-                <p class="text-sm font-semibold text-gray-950 dark:text-white">
-                    {{ trans_choice('panel-admin::widgets.financial.alerts.' . $alert->key, $alert->count(), [
-                        'total' => number_format($alert->count(), 0, ',', '.'),
-                        'value' => 'R$ ' . number_format($alert->totalCents / 100, 2, ',', '.'),
-                    ]) }}
-                </p>
-
-                <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                    {{ $alert->companies->take(3)->pluck('companyName')->join(', ') }}@if ($alert->count() > 3){{ __('panel-admin::widgets.financial.alerts.and_more', ['total' => $alert->count() - 3]) }}@endif
-                </p>
-
-                @if ($alert->isEstimatedDate)
-                    <p class="mt-1 text-xs italic text-gray-500 dark:text-gray-400">
+        <x-filament::callout
+            :color="$alert->severity"
+            :icon="$alert->icon"
+            :heading="trans_choice('panel-admin::widgets.financial.alerts.' . $alert->key, $alert->count(), [
+                'total' => number_format($alert->count(), 0, ',', '.'),
+                'value' => 'R$ ' . number_format($alert->totalCents / 100, 2, ',', '.'),
+            ])"
+            :description="$alert->companies->take(3)->pluck('companyName')->join(', ') . ($alert->count() > 3 ? __('panel-admin::widgets.financial.alerts.and_more', ['total' => $alert->count() - 3]) : '')"
+        >
+            @if ($alert->isEstimatedDate)
+                <x-slot name="footer">
+                    <x-filament::badge color="gray" size="sm" icon="heroicon-m-information-circle">
                         {{ __('panel-admin::widgets.financial.alerts.estimated_date') }}
-                    </p>
-                @endif
-            </div>
+                    </x-filament::badge>
+                </x-slot>
+            @endif
 
-            <x-filament::icon-button
-                icon="heroicon-o-x-mark"
-                color="gray"
-                size="sm"
-                class="shrink-0"
-                :label="__('panel-admin::widgets.financial.alerts.dismiss')"
-                wire:click="dismiss('{{ $alert->key }}')"
-            />
-        </div>
+            <x-slot name="controls">
+                <x-filament::icon-button
+                    icon="heroicon-o-x-mark"
+                    color="gray"
+                    size="sm"
+                    :label="__('panel-admin::widgets.financial.alerts.dismiss')"
+                    wire:click="dismiss('{{ $alert->key }}')"
+                />
+            </x-slot>
+        </x-filament::callout>
     @endforeach
 </div>
