@@ -54,6 +54,14 @@
                 {{-- O total fica subordinado, como o "/100" dos cards de indicador. --}}
                 <span class="text-[14px] font-medium text-gray-400 dark:text-gray-500">/{{ $monthlyLimit }}</span>
             </p>
+
+            {{-- A data de virada é a resposta que o cliente não tinha enquanto a janela
+                 era rolante. Fica subordinada ao número, que é a informação principal. --}}
+            @if ($renewsAt !== null)
+                <p class="mt-1 text-[14px] text-gray-400 dark:text-gray-500">
+                    {{ __('panel-app::widgets.plan_credits.renews_at', ['date' => $renewsAt->format('d/m')]) }}
+                </p>
+            @endif
         </div>
 
         <div class="border border-gray-200 px-4 py-3 dark:border-white/10">

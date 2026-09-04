@@ -44,6 +44,7 @@ use TresPontosTech\Consultants\Models\Consultant;
  * @property string|null $google_event_id
  * @property string|null $cancelled_by
  * @property CancellationActor|null $cancellation_actor
+ * @property Carbon|null $quota_refunded_at
  * @property-read AbstractAppointmentTransition $current_transition
  */
 #[UseFactory(AppointmentFactory::class)]
@@ -191,6 +192,7 @@ class Appointment extends Model
             'status' => AppointmentStatus::class,
             'category_type' => AppointmentCategoryEnum::class,
             'cancellation_actor' => CancellationActor::class,
+            'quota_refunded_at' => 'datetime',
         ];
     }
 

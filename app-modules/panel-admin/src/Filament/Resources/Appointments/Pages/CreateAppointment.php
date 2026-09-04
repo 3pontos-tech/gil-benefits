@@ -57,6 +57,7 @@ class CreateAppointment extends CreateRecord
 
         event(new CreditConsumed(new CreditDTO(
             holderId: $appointment->user_id,
+            companyId: $appointment->company_id,
             appointmentId: $appointment->getKey(),
         )));
     }
