@@ -290,3 +290,4 @@ Com uma empresa de virada conhecida e um usuário com assinatura própria. Confe
   | [#254](https://github.com/3pontos-tech/gil-benefits/issues/254) | E-mail de crédito renovado (STORY-376) sem gatilho | Escopo removido; volta se houver decisão |
   | [#255](https://github.com/3pontos-tech/gil-benefits/issues/255) | Assinatura de empresa não gera cota (STORY-373 errada) | Texto de story a corrigir, ou feature nova |
   | [#256](https://github.com/3pontos-tech/gil-benefits/issues/256) | Devolução de cota invisível no admin | Custo aceito da rota escolhida |
+  | [#275](https://github.com/3pontos-tech/gil-benefits/issues/275) | A devolução pós-virada deve existir? | **No ar, sem story** — decisão de produto pendente |

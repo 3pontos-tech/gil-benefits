@@ -28,6 +28,7 @@ use TresPontosTech\PanelApp\DTOs\PlanSummary;
 use TresPontosTech\PanelApp\Enums\PlanStatus;
 use TresPontosTech\PanelApp\Filament\Concerns\SchedulesAppointments;
 use TresPontosTech\PanelApp\Filament\Pages\UserCreditsPage;
+use TresPontosTech\PanelApp\Support\BookingBlockReasons;
 
 class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
 {
@@ -72,7 +73,7 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             'renewsAt' => $this->renewalDate($user),
             'creditsTotal' => $availableCredits,
             'canCreateAppointment' => $canCreateAppointment,
-            'blockReasons' => $this->blockReasons($hasOngoingAppointment, $monthlyLeft, $hasCredit),
+            'blockReasons' => BookingBlockReasons::from($hasOngoingAppointment, $monthlyLeft > 0 || $hasCredit),
             'holderName' => str($user->name)->trim()->upper()->value(),
             'consultantName' => $this->currentConsultantName($user),
             'creditsUrl' => UserCreditsPage::getUrl(),
@@ -146,24 +147,6 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
     #[On('appointment-booked')]
     #[On('appointment-rescheduled')]
     public function refresh(): void {}
-
-    /**
-     * @return list<string>
-     */
-    private function blockReasons(bool $hasOngoingAppointment, int $monthlyLeft, bool $hasCredit): array
-    {
-        $reasons = [];
-
-        if ($hasOngoingAppointment) {
-            $reasons[] = __('panel-app::widgets.plans_overview.ongoing_appointment');
-        }
-
-        if ($monthlyLeft <= 0 && ! $hasCredit) {
-            $reasons[] = __('panel-app::widgets.plans_overview.no_appointments_available');
-        }
-
-        return $reasons;
-    }
 
     private function plan(): ?PlanSummary
     {

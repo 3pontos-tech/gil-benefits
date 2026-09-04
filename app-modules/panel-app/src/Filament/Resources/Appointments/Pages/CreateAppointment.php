@@ -17,6 +17,7 @@ use TresPontosTech\Appointments\Actions\BookAppointmentAction;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\AppointmentWizard;
+use TresPontosTech\PanelApp\Support\BookingBlockReasons;
 
 class CreateAppointment extends CreateRecord
 {
@@ -35,7 +36,7 @@ class CreateAppointment extends CreateRecord
         if (! $user->canCreateAppointment()) {
             Notification::make()
                 ->title(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
-                ->body(__('panel-app::resources.appointments.pages.create.no_appointments_available'))
+                ->body(implode(' ', BookingBlockReasons::for($user)))
                 ->danger()
                 ->send();
 

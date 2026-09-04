@@ -372,6 +372,14 @@ would require the table rejected in D11.
 > D13–D17, which routed the refund through the credit ledger. Those five decisions are
 > reproduced at the end of this section for the record, together with the reason they
 > were dropped.
+>
+> **Open with product — issue #275.** The revision settled *how* the refund is produced,
+> not *whether* it should exist, and the epic points the other way: US-374 states that
+> unused cycle credit expires at close, and the epic's own out-of-scope list says
+> "reembolso de créditos expirados — não previsto". No story asks for this behaviour; it
+> originated here, as Q12. It ships as described below, and the implementation was kept
+> deliberately minimal so that removing it is one column and one term if product decides
+> the consultation should simply be lost.
 
 **The case.** Renewal on the 10th. The person books on **9 Sep** (last day of their
 cycle) an appointment for **12 Sep**; the debit sits in the cycle that closed on the 9th.
@@ -420,6 +428,12 @@ Tracked in issue #256.
 
 **Rejected — refund nothing:** the person cancelled within the rules, and the sign flip
 above makes it read as punishment for good behaviour.
+
+*This rejection is the part now reopened in issue #275,* on an argument this ADR did not
+weigh: someone who simply never books in a cycle loses it without discussion, so refunding
+the canceller leaves them ahead of the no-shower, with neither having been seen. The
+counter-argument is that the canceller was barred from rebooking inside the closed cycle by
+the one-open-appointment rule, while the person who never booked had the month free.
 
 **Rejected — issue a `UserCredit` with an expiry, recorded as a `CreditGrant` with a
 `reason` (the original D13–D17).** It was chosen first and then dropped once implementation
