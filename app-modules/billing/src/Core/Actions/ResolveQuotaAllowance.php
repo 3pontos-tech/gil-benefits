@@ -88,8 +88,12 @@ final readonly class ResolveQuotaAllowance
      *
      * É a mesma expressão que `BookAppointmentAction` grava em `appointments.company_id`,
      * de propósito: o que conta o consumo e o que registra o consumo precisam concordar.
+     *
+     * Pública porque crédito responde à mesma pergunta e não pode usar o `companyId` da
+     * allowance: quem não tem plano recebe `QuotaAllowance::none()`, cuja empresa é nula,
+     * e é justamente quem depende de crédito para agendar.
      */
-    private function companyIdFor(User $user): ?string
+    public function companyIdFor(User $user): ?string
     {
         $tenant = Filament::getTenant();
 

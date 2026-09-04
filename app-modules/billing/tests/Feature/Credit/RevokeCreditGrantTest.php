@@ -52,7 +52,10 @@ it('keeps grant_id on a donated credit after it is consumed', function (): void 
         targetUser: $user,
     ));
 
-    resolve(ConsumeCredit::class)->execute(new CreditDTO(holderId: (string) $user->getKey()));
+    resolve(ConsumeCredit::class)->execute(new CreditDTO(
+        holderId: (string) $user->getKey(),
+        companyId: $company->getKey(),
+    ));
 
     $credit = UserCredit::query()->where('grant_id', $grant->getKey())->first();
 

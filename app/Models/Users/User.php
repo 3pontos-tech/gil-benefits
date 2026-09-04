@@ -380,22 +380,31 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * Determine if the user is eligible to create a new appointment.
+     * Se esta pessoa pode abrir uma consultoria agora.
      *
-     * Rules:
-     * - Must have monthly appointments left.
-     * - Must not have any ongoing appointment (i.e., previous one must be completed or cancelled).
+     * São duas condições: ter com que pagar — cota do ciclo ou crédito avulso — e não ter
+     * consultoria em aberto, porque é uma por vez.
      */
     public function canCreateAppointment(): bool
     {
-        return ($this->monthly_appointments_left > 0 || $this->hasAvailableCredit())
+        $companyId = resolve(ResolveQuotaAllowance::class)->companyIdFor($this);
+
+        return ($this->monthly_appointments_left > 0 || $this->hasAvailableCredit($companyId))
             && ! $this->hasOngoingAppointment();
     }
 
-    public function hasAvailableCredit(): bool
+    /**
+     * Crédito disponível nesta empresa.
+     *
+     * A empresa é obrigatória de propósito. Crédito nasce vinculado a uma — a coluna nem
+     * aceita nulo — e as telas que o mostram já filtram pelo tenant. Perguntar sem empresa
+     * deixava quem tem crédito na empresa A agendar na empresa B, gastando o crédito da A.
+     */
+    public function hasAvailableCredit(?string $companyId): bool
     {
         return UserCredit::query()
             ->where('holder_id', $this->getKey())
+            ->where('company_id', $companyId)
             ->where('status', UserCreditStatusEnum::Available)
             ->exists();
     }

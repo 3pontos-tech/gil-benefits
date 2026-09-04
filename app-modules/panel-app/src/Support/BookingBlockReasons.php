@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelApp\Support;
 
 use App\Models\Users\User;
+use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 
 /**
  * Por que esta pessoa não pode agendar agora, nas palavras que ela entende.
@@ -53,7 +54,8 @@ final class BookingBlockReasons
 
         return self::from(
             $user->hasOngoingAppointment(),
-            $user->monthly_appointments_left > 0 || $user->hasAvailableCredit(),
+            $user->monthly_appointments_left > 0
+                || $user->hasAvailableCredit(resolve(ResolveQuotaAllowance::class)->companyIdFor($user)),
         );
     }
 }
