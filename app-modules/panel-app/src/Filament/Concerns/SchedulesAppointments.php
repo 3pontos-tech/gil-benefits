@@ -22,6 +22,7 @@ use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\AppointmentWizard;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\PickSlotStep;
+use TresPontosTech\PanelApp\Support\BookingBlockReasons;
 
 /**
  * Wizard de agendamento em modal: categoria → data e hora → revisão → sucesso.
@@ -237,7 +238,7 @@ trait SchedulesAppointments
     {
         Notification::make()
             ->title(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
-            ->body(__('panel-app::resources.appointments.pages.create.no_appointments_available'))
+            ->body(implode(' ', BookingBlockReasons::for(auth()->user())))
             ->danger()
             ->send();
     }

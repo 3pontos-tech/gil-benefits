@@ -31,9 +31,15 @@ beforeEach(function (): void {
 });
 
 it('consumes a credit when the user has no monthly quota', function (): void {
-    // A user with no company/plan always has monthly_appointments_left = 0.
-    $user = User::factory()->create();
-    $credit = UserCredit::factory()->available()->create(['holder_id' => $user->getKey()]);
+    // Employed by a company with no plan: monthly_appointments_left = 0.
+    $company = Company::factory()->create();
+    $user = User::factory()->employee()->create();
+    $company->employees()->attach($user->getKey());
+
+    $credit = UserCredit::factory()->available()->create([
+        'holder_id' => $user->getKey(),
+        'company_id' => $company->getKey(),
+    ]);
 
     ($this->createViaAdmin)($user);
 
@@ -52,7 +58,10 @@ it('does not consume a credit when the user still has monthly quota', function (
     $user = User::factory()->employee()->create();
     $company->employees()->attach($user->getKey());
 
-    $credit = UserCredit::factory()->available()->create(['holder_id' => $user->getKey()]);
+    $credit = UserCredit::factory()->available()->create([
+        'holder_id' => $user->getKey(),
+        'company_id' => $company->getKey(),
+    ]);
 
     ($this->createViaAdmin)($user);
 

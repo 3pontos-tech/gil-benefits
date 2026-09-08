@@ -7,6 +7,11 @@ namespace TresPontosTech\Billing\Core\DTOs;
 use Illuminate\Support\Carbon;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
 
+/**
+ * `activatedAt` é o instante que o PROVEDOR carimbou no evento, não o instante em que este
+ * worker o processou. Só existe para virar âncora do ciclo de cota, e só quem tem esse dado
+ * no payload preenche — os demais caem no `now()` do observer.
+ */
 final readonly class SubscriptionDTO
 {
     public function __construct(
@@ -18,6 +23,7 @@ final readonly class SubscriptionDTO
         public string $planSlug,
         public int $quantity,
         public ?Carbon $endsAt,
+        public ?Carbon $activatedAt = null,
     ) {}
 
     public static function make(

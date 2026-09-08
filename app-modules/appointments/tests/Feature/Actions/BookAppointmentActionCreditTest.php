@@ -21,10 +21,25 @@ function makeBookDto(User $user): BookAppointmentDTO
     );
 }
 
-// A user with no company/plan always has monthly_appointments_left = 0.
+// Employed by a company with no contractual plan: monthly_appointments_left = 0, and this
+// is exactly who depends on a credit to book.
 function userWithNoQuota(): User
 {
-    return User::factory()->create();
+    $company = Company::factory()->create();
+    $user = User::factory()->employee()->create();
+    $company->employees()->attach($user->getKey());
+
+    return $user;
+}
+
+// A credit always belongs to a company, and consumption picks from the one being booked
+// under — the factory alone would invent an unrelated company per row.
+function creditFor(User $user): UserCredit
+{
+    return UserCredit::factory()->available()->create([
+        'holder_id' => $user->getKey(),
+        'company_id' => $user->employerCompanyId(),
+    ]);
 }
 
 // A user with an active contractual plan that grants quota > 0 and no prior appointments.
@@ -43,7 +58,7 @@ function userWithQuota(int $limit = 2): User
 
 it('consumes a credit when monthly quota is exhausted', function (): void {
     $user = userWithNoQuota();
-    $credit = UserCredit::factory()->available()->create(['holder_id' => $user->getKey()]);
+    $credit = creditFor($user);
 
     resolve(BookAppointmentAction::class)->handle(makeBookDto($user));
 
@@ -52,7 +67,7 @@ it('consumes a credit when monthly quota is exhausted', function (): void {
 
 it('links the consumed credit to the created appointment', function (): void {
     $user = userWithNoQuota();
-    $credit = UserCredit::factory()->available()->create(['holder_id' => $user->getKey()]);
+    $credit = creditFor($user);
 
     resolve(BookAppointmentAction::class)->handle(makeBookDto($user));
 
@@ -63,8 +78,8 @@ it('links the consumed credit to the created appointment', function (): void {
 
 it('consumes the first available credit when multiple exist', function (): void {
     $user = userWithNoQuota();
-    $first = UserCredit::factory()->available()->create(['holder_id' => $user->getKey()]);
-    $second = UserCredit::factory()->available()->create(['holder_id' => $user->getKey()]);
+    $first = creditFor($user);
+    $second = creditFor($user);
 
     resolve(BookAppointmentAction::class)->handle(makeBookDto($user));
 
@@ -74,7 +89,7 @@ it('consumes the first available credit when multiple exist', function (): void 
 
 it('does not consume a credit when monthly quota is still available', function (): void {
     $user = userWithQuota(2);
-    $credit = UserCredit::factory()->available()->create(['holder_id' => $user->getKey()]);
+    $credit = creditFor($user);
 
     resolve(BookAppointmentAction::class)->handle(makeBookDto($user));
 
@@ -94,4 +109,33 @@ it('creates the appointment regardless of credit availability', function (): voi
     resolve(BookAppointmentAction::class)->handle(makeBookDto($user));
 
     expect($user->appointments()->count())->toBeOne();
+});
+
+it('does not spend a credit held at another company', function (): void {
+    $user = userWithNoQuota();
+    $otherCompany = Company::factory()->create();
+    $otherCompany->employees()->attach($user->getKey());
+
+    $credit = UserCredit::factory()->available()->create([
+        'holder_id' => $user->getKey(),
+        'company_id' => $otherCompany->getKey(),
+    ]);
+
+    resolve(BookAppointmentAction::class)->handle(makeBookDto($user));
+
+    expect($credit->refresh()->status)->toBe(UserCreditStatusEnum::Available)
+        ->and($credit->appointment_id)->toBeNull();
+});
+
+it('does not let a credit at another company unblock booking', function (): void {
+    $user = userWithNoQuota();
+    $otherCompany = Company::factory()->create();
+    $otherCompany->employees()->attach($user->getKey());
+
+    UserCredit::factory()->available()->create([
+        'holder_id' => $user->getKey(),
+        'company_id' => $otherCompany->getKey(),
+    ]);
+
+    expect($user->fresh()->canCreateAppointment())->toBeFalse();
 });

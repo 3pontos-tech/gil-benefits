@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationVirtu\Actions;
 
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
@@ -84,6 +85,7 @@ final class HandleVirtuWebhook
             planSlug: $subscription->type,
             quantity: $subscription->quantity ?? 1,
             endsAt: null,
+            activatedAt: $this->occurredAt($dto),
         )));
     }
 
@@ -114,7 +116,7 @@ final class HandleVirtuWebhook
                 $this->subscriptionDTO($subscription, 'defaulter', null)
             ),
             $dto->isReactivation() => new SubscriptionActivated(
-                $this->subscriptionDTO($subscription, 'active', null)
+                $this->subscriptionDTO($subscription, 'active', null, $this->occurredAt($dto))
             ),
             default => null,
         };
@@ -132,8 +134,12 @@ final class HandleVirtuWebhook
         event($event);
     }
 
-    private function subscriptionDTO(Subscription $subscription, string $status, ?Carbon $endsAt): SubscriptionDTO
-    {
+    private function subscriptionDTO(
+        Subscription $subscription,
+        string $status,
+        ?Carbon $endsAt,
+        ?Carbon $activatedAt = null,
+    ): SubscriptionDTO {
         return new SubscriptionDTO(
             billableType: $subscription->subscriptionable_type,
             billableId: $subscription->subscriptionable_id,
@@ -143,7 +149,38 @@ final class HandleVirtuWebhook
             planSlug: $subscription->type,
             quantity: $subscription->quantity ?? 1,
             endsAt: $endsAt,
+            activatedAt: $activatedAt,
         );
+    }
+
+    /**
+     * O instante que a Virtu carimbou no evento, que vira âncora do ciclo de cota.
+     *
+     * O webhook é processado em fila e pode ser reentregue: sem isso, uma aprovação das
+     * 23h58 processada depois da meia-noite ancoraria a pessoa no dia seguinte, e a data de
+     * renovação dela nasceria errada de vez. Payload sem `occurredAt`, ou com data que não
+     * dá para ler, devolve nulo e o observer carimba como sempre carimbou.
+     *
+     * A Virtu manda em UTC e a coluna é lida no fuso do app, então converter não é detalhe:
+     * `QuotaCycle` corta a âncora no início do dia, e 02h UTC ainda é a véspera em São Paulo.
+     * Guardar o horário de parede errado erra o dia da virada — o mesmo defeito, ao contrário.
+     */
+    private function occurredAt(VirtuWebhookDTO $dto): ?Carbon
+    {
+        if (blank($dto->occurredAt)) {
+            return null;
+        }
+
+        try {
+            return Date::parse($dto->occurredAt)->setTimezone(config('app.timezone'));
+        } catch (InvalidFormatException) {
+            Log::warning('Virtu: occurredAt ilegivel, ancora cai no processamento.', [
+                'occurred_at' => $dto->occurredAt,
+                'checkout_id' => $dto->checkoutId,
+            ]);
+
+            return null;
+        }
     }
 
     private function creditOrderPaid(VirtuWebhookDTO $dto): bool
