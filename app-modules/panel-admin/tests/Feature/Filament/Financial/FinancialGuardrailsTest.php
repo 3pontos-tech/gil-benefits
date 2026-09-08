@@ -30,7 +30,7 @@ arch('o cockpit financeiro não conhece gateway')
     ])
     ->not->toUse([
         'TresPontosTech\IntegrationVirtu',
-        'TresPontosTech\Billing\Barte',
+        'TresPontosTech\IntegrationBarte',
         'TresPontosTech\Billing\Stripe',
     ]);
 

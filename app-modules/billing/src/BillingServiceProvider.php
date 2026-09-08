@@ -10,7 +10,6 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Override;
-use TresPontosTech\Billing\Barte\Commands\SyncBartePlans;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Commands\SyncBillingCustomersCommand;
 use TresPontosTech\Billing\Core\Commands\SyncStripeResourcesCommand;
@@ -40,7 +39,6 @@ class BillingServiceProvider extends ServiceProvider
 
         $this->commands([
             SyncStripeResourcesCommand::class,
-            SyncBartePlans::class,
             SyncBillingCustomersCommand::class,
         ]);
 
@@ -58,7 +56,6 @@ class BillingServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../routes/billing-routes.php');
         $this->loadTranslationsFrom(__DIR__ . '/../lang', 'billing');
         $this->mergeConfigFrom(__DIR__ . '/../config/billing.php', 'billing');
     }
