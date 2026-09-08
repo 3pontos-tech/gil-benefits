@@ -85,10 +85,14 @@ class CompanyPlan extends Model
      * Contratos ativos e vigentes no momento informado.
      *
      * A regra de vigência (status ativo, já começou, ainda não terminou, datas
-     * nulas valendo como "sem limite") estava escrita à mão dentro de
-     * `Company::activeContractualPlan()`. Extraída para cá porque o cockpit
-     * financeiro precisa da mesma regra em lote, para todas as empresas de uma
-     * vez, e duas cópias divergiriam na primeira mudança.
+     * nulas valendo como "sem limite") estava copiada em quatro lugares: aqui, em
+     * `Company::activeContractualPlan()`, no `PlanCreditsWidget` e no funil de
+     * engajamento. Extraída para cá porque o cockpit financeiro precisa da mesma
+     * regra em lote, e porque a cota mensal passou a depender dela para achar a
+     * âncora do ciclo — duas cópias divergiriam na primeira mudança.
+     *
+     * O `whereNull('deleted_at')` que as cópias antigas carregavam era redundante:
+     * `SoftDeletes` já aplica.
      *
      * @param  Builder<$this>  $query
      */

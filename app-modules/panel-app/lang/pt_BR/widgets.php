@@ -70,6 +70,7 @@ return [
         'consultant' => 'Consultor',
         'no_consultant' => 'Nenhum consultor ainda',
         'appointments_remaining' => 'agendamentos restantes este mês',
+        'renews_at' => 'Renova em :date',
         'book_appointment' => 'Agendar Consultoria',
     ],
 

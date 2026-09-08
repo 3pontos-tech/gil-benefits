@@ -34,6 +34,7 @@ readonly class BookAppointmentAction
         if (! $hasMonthlyQuota) {
             event(new CreditConsumed(new CreditDTO(
                 holderId: $user->getKey(),
+                companyId: $appointment->company_id,
                 appointmentId: $appointment->getKey(),
             )));
         }

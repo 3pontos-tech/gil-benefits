@@ -70,6 +70,7 @@ return [
         'consultant' => 'Consultant',
         'no_consultant' => 'No consultant yet',
         'appointments_remaining' => 'appointments remaining this month',
+        'renews_at' => 'Renews on :date',
         'book_appointment' => 'Book Consultation',
     ],
 
