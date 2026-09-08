@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 use Laravel\Cashier\Cashier;
 use Laravel\Cashier\Http\Controllers\WebhookController;
 use Symfony\Component\HttpFoundation\Response;
-use TresPontosTech\Billing\Core\Actions\Credit\IssueCredits;
-use TresPontosTech\Billing\Core\DTOs\CreditDTO;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Actions\IssueCredits;
+use TresPontosTech\Credits\DTOs\CreditDTO;
 
 class SubscriptionWebhookController extends WebhookController
 {

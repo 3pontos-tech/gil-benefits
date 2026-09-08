@@ -13,10 +13,10 @@ use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Events\Credit\AppointmentCreditUsed;
-use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Events\AppointmentCreditUsed;
+use TresPontosTech\Credits\Models\UserCredit;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\assertDatabaseMissing;

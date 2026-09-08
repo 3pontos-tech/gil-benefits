@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Actions\BookAppointmentAction;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
-use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Models\UserCredit;
 
 function makeBookDto(User $user): BookAppointmentDTO
 {

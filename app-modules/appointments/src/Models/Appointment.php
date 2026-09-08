@@ -24,9 +24,9 @@ use TresPontosTech\Appointments\Database\Factories\AppointmentFactory;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
-use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Credits\Models\UserCredit;
 
 /**
  * @property string $id

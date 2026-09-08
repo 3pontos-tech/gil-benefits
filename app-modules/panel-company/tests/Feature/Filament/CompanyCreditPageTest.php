@@ -5,9 +5,9 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\Testing\TestAction;
-use TresPontosTech\Billing\Core\Actions\Credit\GrantExtraCredit;
-use TresPontosTech\Billing\Core\DTOs\GrantCreditDTO;
-use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Credits\Actions\GrantExtraCredit;
+use TresPontosTech\Credits\DTOs\GrantCreditDTO;
+use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\PanelCompany\Filament\Pages\CompanyCreditPage;
 
 use function Pest\Laravel\assertDatabaseHas;

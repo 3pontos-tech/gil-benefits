@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Filament\Navigation\NavigationItem;
 use Filament\Pages\Enums\SubNavigationPosition;
-use TresPontosTech\Billing\Core\Enums\CreditOrderStatusEnum;
-use TresPontosTech\Billing\Core\Models\CreditOrder;
-use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Enums\CreditOrderStatusEnum;
+use TresPontosTech\Credits\Models\CreditOrder;
+use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\CreditsCluster;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Credits\Resources\CreditOrders\Pages\ListCreditOrders;
 

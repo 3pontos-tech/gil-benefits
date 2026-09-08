@@ -13,15 +13,15 @@ use TresPontosTech\Billing\Barte\DTOs\BarteWebhookDto;
 use TresPontosTech\Billing\Barte\Enums\BarteWebhookEventEnum;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
-use TresPontosTech\Billing\Core\Events\Credit\OrderCreditPurchased;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCancelled;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionDefaulted;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
-use TresPontosTech\Billing\Core\Models\CreditOrder;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Events\OrderCreditPurchased;
+use TresPontosTech\Credits\Models\CreditOrder;
 
 class HandleBarteWebhook
 {
@@ -131,8 +131,8 @@ class HandleBarteWebhook
         }
 
         Notification::make()
-            ->title(__('billing::notifications.credit_order_created.title'))
-            ->body(__('billing::notifications.credit_order_created.body', ['quantity' => $quantity]))
+            ->title(__('credits::notifications.credit_order_created.title'))
+            ->body(__('credits::notifications.credit_order_created.body', ['quantity' => $quantity]))
             ->warning()
             ->sendToDatabase($owner);
     }

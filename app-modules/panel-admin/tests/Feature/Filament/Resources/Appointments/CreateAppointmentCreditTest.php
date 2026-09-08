@@ -5,10 +5,10 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
-use TresPontosTech\Billing\Core\Models\UserCredit;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages\CreateAppointment;
 
 use function Pest\Livewire\livewire;

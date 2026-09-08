@@ -8,9 +8,7 @@ use TresPontosTech\Billing\Barte\DTOs\CreatePaymentLinkDto;
 use TresPontosTech\Billing\Barte\DTOs\PaymentOrderDto;
 use TresPontosTech\Billing\Barte\DTOs\PaymentSubscriptionDto;
 use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
-use TresPontosTech\Billing\Core\Actions\Credit\StartCreditOrder;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
-use TresPontosTech\Billing\Core\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
@@ -22,6 +20,8 @@ use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Actions\StartCreditOrder;
+use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
 
 final readonly class BarteAdapter implements BillingContract, SupportsCreditPurchase, SupportsSubscriptionCancellation

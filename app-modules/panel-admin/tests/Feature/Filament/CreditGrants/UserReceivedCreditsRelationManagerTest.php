@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
-use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Models\CreditGrant;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\EditCompany;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\EditUser;

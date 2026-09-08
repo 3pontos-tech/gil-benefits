@@ -4,8 +4,8 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Jobs\MarkAppointmentsAsCompleted;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Models\UserCredit;
 
 use function Pest\Laravel\assertDatabaseHas;
 

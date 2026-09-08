@@ -8,8 +8,8 @@ use App\Models\Users\User;
 use Filament\Resources\Pages\CreateRecord;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Billing\Core\DTOs\CreditDTO;
-use TresPontosTech\Billing\Core\Events\Credit\CreditConsumed;
+use TresPontosTech\Credits\DTOs\CreditDTO;
+use TresPontosTech\Credits\Events\CreditConsumed;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 
 class CreateAppointment extends CreateRecord
