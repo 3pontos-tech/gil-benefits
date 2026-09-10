@@ -9,6 +9,7 @@ return [
         'administration' => 'Administração',
         'appointments' => 'Agendamentos',
         'reports' => 'Relatórios',
+        'partners' => 'Parcerias',
     ],
     'appointments' => [
         'navigation_label' => 'Agendamentos',
@@ -356,6 +357,49 @@ return [
     ],
     'financial_cluster' => [
         'navigation_label' => 'Financeiro',
+    ],
+    'partners_cluster' => [
+        'navigation_label' => 'Parcerias',
+    ],
+    'voucher_batches' => [
+        'navigation_label' => 'Lotes de Voucher',
+        'model_label' => 'Lote de Voucher',
+        'plural_model_label' => 'Lotes de Voucher',
+        'form' => [
+            'program' => 'Programa da parceira',
+            'program_hint' => 'Somente contratos do tipo "Somente crédito" aparecem aqui.',
+            'seats_summary' => ':seats vagas',
+            'name' => 'Nome da campanha',
+            'quantity' => 'Quantidade de códigos',
+            'quantity_hint' => 'Um código por pessoa, uso único. Não pode passar das vagas do contrato.',
+            'expires_at' => 'Resgatável até',
+            'expires_at_hint' => 'Depois desta data o código não pode mais ser resgatado. Em branco, não expira.',
+            'notes' => 'Observações',
+        ],
+        'fields' => [
+            'created_at' => 'Gerado em',
+            'company' => 'Empresa parceira',
+            'name' => 'Campanha',
+            'codes' => 'Códigos',
+            'redeemed' => 'Resgatados',
+            'used' => 'Consumidos',
+            'expired' => 'Expirados',
+            'expires_at' => 'Resgatável até',
+            'no_expiry' => 'Sem prazo',
+            'creator' => 'Gerado por',
+        ],
+        'filters' => [
+            'expired' => 'Fora do prazo de resgate',
+        ],
+        'codes' => [
+            'title' => 'Códigos',
+            'code' => 'Código',
+            'redemptions' => 'Resgates',
+            'redeemed_by' => 'Resgatado por',
+            'not_redeemed' => 'Disponível',
+            'redeemed_at' => 'Resgatado em',
+            'filter_redeemed' => 'Já resgatado',
+        ],
     ],
     'credits_cluster' => [
         'navigation_label' => 'Créditos',
