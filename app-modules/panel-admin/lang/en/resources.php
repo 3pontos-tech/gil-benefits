@@ -234,6 +234,8 @@ return [
             'contractual_plans' => [
                 'title' => 'Contractual Plans',
                 'form' => [
+                    'kind' => 'Plan kind',
+                    'kind_hint' => 'Monthly quota renews appointments each cycle. Credits only grants no quota: access comes from issued credit, as in the voucher program.',
                     'plan' => 'Company Plan',
                     'seats' => 'Seats',
                     'monthly_value' => 'Monthly value',
@@ -246,11 +248,13 @@ return [
                     'notes' => 'Notes',
                 ],
                 'table' => [
+                    'kind' => 'Kind',
                     'plan' => 'Plan',
                     'seats' => 'Seats',
                     'monthly_value' => 'Monthly value',
                     'monthly_value_unknown' => 'Not on record',
                     'monthly_appointments' => 'Appointments/month',
+                    'monthly_appointments_none' => 'No quota',
                     'status' => 'Status',
                     'starts_at' => 'Start',
                     'ends_at' => 'End',

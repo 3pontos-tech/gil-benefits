@@ -20,6 +20,7 @@ use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Support\QuotaCycle;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
@@ -166,6 +167,18 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
         $contractualPlan?->loadMissing('plan');
 
         if ($contractualPlan !== null && $contractualPlan->plan !== null) {
+            if ($contractualPlan->kind === CompanyPlanKindEnum::CreditsOnly) {
+                return new PlanSummary(
+                    name: $contractualPlan->plan->name,
+                    status: PlanStatus::Active,
+                    description: $contractualPlan->plan->description,
+                    monthlyLimit: 0,
+                    features: [
+                        __('panel-app::widgets.plan_details.credits_only'),
+                    ],
+                );
+            }
+
             $limit = (int) $contractualPlan->monthly_appointments_per_employee;
 
             return new PlanSummary(

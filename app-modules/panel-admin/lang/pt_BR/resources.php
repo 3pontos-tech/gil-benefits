@@ -234,6 +234,8 @@ return [
             'contractual_plans' => [
                 'title' => 'Planos Contratuais',
                 'form' => [
+                    'kind' => 'Tipo de plano',
+                    'kind_hint' => 'Cota mensal renova consultas a cada ciclo. Somente crédito não concede cota: o acesso vem de crédito emitido, como no programa de vouchers.',
                     'plan' => 'Plano da Empresa',
                     'seats' => 'Cadeiras',
                     'monthly_value' => 'Valor mensal',
@@ -246,11 +248,13 @@ return [
                     'notes' => 'Observações',
                 ],
                 'table' => [
+                    'kind' => 'Tipo',
                     'plan' => 'Plano',
                     'seats' => 'Cadeiras',
                     'monthly_value' => 'Valor mensal',
                     'monthly_value_unknown' => 'Não cadastrado',
                     'monthly_appointments' => 'Consultas/mês',
+                    'monthly_appointments_none' => 'Sem cota',
                     'status' => 'Status',
                     'starts_at' => 'Início',
                     'ends_at' => 'Fim',
