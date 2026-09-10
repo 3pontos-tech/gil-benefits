@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8dd336f055c36682adb4e7fe6f95ee73",
+    "content-hash": "9c517ca6a0eddcc33100146b62aa05a5",
     "packages": [
         {
             "name": "3pontos-tech/appointments",
@@ -585,6 +585,39 @@
             "license": [
                 "proprietary"
             ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/vouchers",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/vouchers",
+                "reference": "b730cb93402e609beb8582684f93bdeda0b68c48"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\Vouchers\\VouchersServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\Vouchers\\": "src/",
+                    "TresPontosTech\\Vouchers\\Tests\\": "tests/",
+                    "TresPontosTech\\Vouchers\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\Vouchers\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Vouchers de consultoria: lotes de códigos por empresa parceira, resgate e encerramento de programa",
             "transport-options": {
                 "symlink": true,
                 "relative": true

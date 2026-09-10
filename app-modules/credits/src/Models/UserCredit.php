@@ -27,6 +27,7 @@ use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
  * @property string $company_id
  * @property string|null $grant_id
  * @property string|null $credit_order_id
+ * @property string|null $voucher_redemption_id
  * @property UserCreditStatusEnum $status
  * @property string|null $appointment_id
  * @property Carbon|null $transferred_at
@@ -54,6 +55,7 @@ class UserCredit extends Model
         'company_id',
         'grant_id',
         'credit_order_id',
+        'voucher_redemption_id',
         'status',
         'appointment_id',
         'transferred_at',
