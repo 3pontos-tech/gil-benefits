@@ -31,6 +31,8 @@ class VoucherCode extends Model implements HasMedia
 {
     public const QR_CODE_COLLECTION = 'qr-code';
 
+    public const QR_CODE_DISK = 'local';
+
     /** @use HasFactory<VoucherCodeFactory> */
     use HasFactory;
 
@@ -55,6 +57,7 @@ class VoucherCode extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection(self::QR_CODE_COLLECTION)
+            ->useDisk(self::QR_CODE_DISK)
             ->singleFile()
             ->acceptsMimeTypes(['image/png', 'image/svg+xml']);
     }
