@@ -3,6 +3,14 @@
 declare(strict_types=1);
 
 return [
+    'pdf' => [
+        'ready_title' => 'Voucher PDF ready',
+        'ready_body' => 'The cards for batch :batch are ready to print.',
+        'download' => 'Download PDF',
+        'failed_title' => 'Could not generate the PDF',
+        'failed_body' => 'Try again. If it keeps failing, let the engineering team know.',
+    ],
+
     'errors' => [
         'code_not_found' => 'Invalid voucher code.',
         'code_exhausted' => 'This code has already been used.',

@@ -3,6 +3,14 @@
 declare(strict_types=1);
 
 return [
+    'pdf' => [
+        'ready_title' => 'PDF de vouchers pronto',
+        'ready_body' => 'As carteirinhas do lote :batch estão prontas para impressão.',
+        'download' => 'Baixar PDF',
+        'failed_title' => 'Não foi possível gerar o PDF',
+        'failed_body' => 'Tente novamente. Se persistir, avise o time técnico.',
+    ],
+
     'errors' => [
         'code_not_found' => 'Código de voucher inválido.',
         'code_exhausted' => 'Este código já foi utilizado.',

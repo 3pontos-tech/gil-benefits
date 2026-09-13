@@ -46,6 +46,7 @@
         "3pontos-tech/tenant": "*",
         "3pontos-tech/user": "*",
         "3pontos-tech/vouchers": "*",
+        "barryvdh/laravel-dompdf": "^3.1",
         "basementdevs/filament-better-mails": "^5.0",
         "basementdevs/filament-webhooks": "^5.0",
         "filament/filament": "^5.0",

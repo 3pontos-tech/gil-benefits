@@ -11,5 +11,6 @@ class VouchersServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadTranslationsFrom(__DIR__ . '/../lang', 'vouchers');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'vouchers');
     }
 }

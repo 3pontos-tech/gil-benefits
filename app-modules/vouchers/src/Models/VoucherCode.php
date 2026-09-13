@@ -11,7 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Vouchers\Database\Factories\VoucherCodeFactory;
+use TresPontosTech\Vouchers\Support\VoucherRedemptionUrl;
 
 /**
  * @property string $id
@@ -23,12 +27,15 @@ use TresPontosTech\Vouchers\Database\Factories\VoucherCodeFactory;
  * @property Carbon|null $updated_at
  */
 #[UseFactory(VoucherCodeFactory::class)]
-class VoucherCode extends Model
+class VoucherCode extends Model implements HasMedia
 {
+    public const QR_CODE_COLLECTION = 'qr-code';
+
     /** @use HasFactory<VoucherCodeFactory> */
     use HasFactory;
 
     use HasUuids;
+    use InteractsWithMedia;
 
     protected $fillable = [
         'voucher_batch_id',
@@ -45,9 +52,26 @@ class VoucherCode extends Model
         ];
     }
 
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(self::QR_CODE_COLLECTION)
+            ->singleFile()
+            ->acceptsMimeTypes(['image/png', 'image/svg+xml']);
+    }
+
     public function isExhausted(): bool
     {
         return $this->redemptions_count >= $this->max_redemptions;
+    }
+
+    public function redemptionUrl(): string
+    {
+        return VoucherRedemptionUrl::for($this);
+    }
+
+    public function qrCode(): ?Media
+    {
+        return $this->getFirstMedia(self::QR_CODE_COLLECTION);
     }
 
     /**

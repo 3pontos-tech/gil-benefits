@@ -14,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Models\UserCredit;
@@ -33,12 +36,17 @@ use TresPontosTech\Vouchers\Database\Factories\VoucherBatchFactory;
  * @property Carbon|null $deleted_at
  */
 #[UseFactory(VoucherBatchFactory::class)]
-class VoucherBatch extends Model
+class VoucherBatch extends Model implements HasMedia
 {
+    public const PDF_COLLECTION = 'pdf';
+
+    public const PDF_DISK = 'local';
+
     /** @use HasFactory<VoucherBatchFactory> */
     use HasFactory;
 
     use HasUuids;
+    use InteractsWithMedia;
     use SoftDeletes;
 
     protected $fillable = [
@@ -57,6 +65,19 @@ class VoucherBatch extends Model
             'quantity' => 'integer',
             'expires_at' => 'datetime',
         ];
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(self::PDF_COLLECTION)
+            ->useDisk(self::PDF_DISK)
+            ->singleFile()
+            ->acceptsMimeTypes(['application/pdf']);
+    }
+
+    public function pdf(): ?Media
+    {
+        return $this->getFirstMedia(self::PDF_COLLECTION);
     }
 
     public function hasExpired(?Carbon $moment = null): bool
