@@ -14,9 +14,13 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Bus;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\Vouchers\Jobs\GenerateVoucherBatchPdfJob;
+use TresPontosTech\Vouchers\Jobs\GenerateVoucherQrCodesJob;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
+use TresPontosTech\Vouchers\Support\VoucherBatchPdfUrl;
 
 class VoucherBatchesTable
 {
@@ -91,26 +95,57 @@ class VoucherBatchesTable
             ->recordActions([
                 ViewAction::make(),
                 self::downloadPdfAction(),
+                self::regeneratePdfAction(),
             ]);
     }
 
     public static function downloadPdfAction(): Action
     {
         return Action::make('downloadPdf')
-            ->label(__('panel-admin::resources.voucher_batches.actions.download_pdf'))
-            ->icon(Heroicon::OutlinedArrowDownTray)
-            ->action(function (VoucherBatch $record): void {
-                /** @var User $user */
-                $user = auth()->user();
+            ->label(fn (VoucherBatch $record): string => $record->pdf() instanceof Media
+                ? __('panel-admin::resources.voucher_batches.actions.download_pdf')
+                : __('panel-admin::resources.voucher_batches.actions.generate_pdf'))
+            ->icon(fn (VoucherBatch $record): Heroicon => $record->pdf() instanceof Media
+                ? Heroicon::OutlinedArrowDownTray
+                : Heroicon::OutlinedDocumentArrowDown)
+            ->action(function (VoucherBatch $record) {
+                if ($record->pdf() instanceof Media) {
+                    return redirect()->away(VoucherBatchPdfUrl::for($record));
+                }
 
-                dispatch(new GenerateVoucherBatchPdfJob($record->getKey(), $user->getKey()));
+                self::queuePdf($record);
 
-                Notification::make()
-                    ->info()
-                    ->title(__('panel-admin::resources.voucher_batches.actions.pdf_queued_title'))
-                    ->body(__('panel-admin::resources.voucher_batches.actions.pdf_queued_body'))
-                    ->send();
+                return null;
             });
+    }
+
+    public static function regeneratePdfAction(): Action
+    {
+        return Action::make('regeneratePdf')
+            ->label(__('panel-admin::resources.voucher_batches.actions.regenerate_pdf'))
+            ->icon(Heroicon::OutlinedArrowPath)
+            ->color('gray')
+            ->requiresConfirmation()
+            ->modalDescription(__('panel-admin::resources.voucher_batches.actions.regenerate_pdf_hint'))
+            ->visible(fn (VoucherBatch $record): bool => $record->pdf() instanceof Media)
+            ->action(fn (VoucherBatch $record) => self::queuePdf($record));
+    }
+
+    private static function queuePdf(VoucherBatch $batch): void
+    {
+        /** @var User $user */
+        $user = auth()->user();
+
+        Bus::chain([
+            new GenerateVoucherQrCodesJob($batch->getKey()),
+            new GenerateVoucherBatchPdfJob($batch->getKey(), $user->getKey()),
+        ])->dispatch();
+
+        Notification::make()
+            ->info()
+            ->title(__('panel-admin::resources.voucher_batches.actions.pdf_queued_title'))
+            ->body(__('panel-admin::resources.voucher_batches.actions.pdf_queued_body'))
+            ->send();
     }
 
     /**

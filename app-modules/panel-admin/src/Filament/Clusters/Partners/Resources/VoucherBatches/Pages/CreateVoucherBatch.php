@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Date;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\VoucherBatches\VoucherBatchResource;
 use TresPontosTech\Vouchers\Actions\GenerateVoucherBatch;
 use TresPontosTech\Vouchers\DTOs\GenerateVoucherBatchData;
+use TresPontosTech\Vouchers\Jobs\GenerateVoucherQrCodesJob;
 
 class CreateVoucherBatch extends CreateRecord
 {
@@ -21,7 +22,7 @@ class CreateVoucherBatch extends CreateRecord
         /** @var User|null $admin */
         $admin = auth()->user();
 
-        return resolve(GenerateVoucherBatch::class)->handle(new GenerateVoucherBatchData(
+        $batch = resolve(GenerateVoucherBatch::class)->handle(new GenerateVoucherBatchData(
             companyPlanId: (string) $data['company_plan_id'],
             name: (string) $data['name'],
             quantity: (int) $data['quantity'],
@@ -29,6 +30,10 @@ class CreateVoucherBatch extends CreateRecord
             createdBy: $admin?->id,
             notes: $data['notes'] ?? null,
         ));
+
+        dispatch(new GenerateVoucherQrCodesJob($batch->getKey()));
+
+        return $batch;
     }
 
     protected function getRedirectUrl(): string

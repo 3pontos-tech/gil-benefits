@@ -18,6 +18,7 @@ class ViewVoucherBatch extends ViewRecord
     {
         return [
             VoucherBatchesTable::downloadPdfAction(),
+            VoucherBatchesTable::regeneratePdfAction(),
         ];
     }
 
