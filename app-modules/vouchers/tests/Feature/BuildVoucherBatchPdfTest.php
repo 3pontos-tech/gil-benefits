@@ -129,3 +129,16 @@ it('does not queue a second job for the same batch', function (): void {
 
     Queue::assertPushed(GenerateVoucherBatchPdfJob::class, 1);
 });
+
+it('makes every card link back to the redemption page', function (): void {
+    $batch = batchWithCodes(2);
+    $codes = $batch->codes;
+
+    $output = resolve(BuildVoucherBatchPdf::class)->handle($batch)->output();
+
+    expect($output)->toContain('/URI');
+
+    $codes->each(function ($code) use ($output): void {
+        expect($output)->toContain('voucher=' . $code->code);
+    });
+});

@@ -99,6 +99,12 @@
             white-space: nowrap;
         }
 
+        p.code a,
+        table.qr-box a {
+            color: #1b1b1f;
+            text-decoration: none;
+        }
+
         table.qr-box {
             width: 20mm;
             border-collapse: collapse;
@@ -145,14 +151,14 @@
                                     <p class="eyebrow">Cortesia de</p>
                                     <p class="partner">{{ $companyName }}</p>
                                     <p class="eyebrow">Seu código</p>
-                                    <p class="code">{{ $card->code }}</p>
+                                    <p class="code"><a href="{{ $card->redemptionUrl() }}">{{ $card->code }}</a></p>
                                 </td>
                                 <td class="qr">
                                     <table class="qr-box">
                                         <tr>
                                             <td>
                                                 @if ($card->qrCode() !== null)
-                                                    <img src="{{ $card->qrCode()->getPath() }}" alt="">
+                                                    <a href="{{ $card->redemptionUrl() }}"><img src="{{ $card->qrCode()->getPath() }}" alt=""></a>
                                                 @else
                                                     QR
                                                 @endif
