@@ -20,6 +20,7 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Vouchers\Actions\RedeemVoucher;
 use TresPontosTech\Vouchers\Exceptions\VoucherRedemptionException;
 use TresPontosTech\Vouchers\Support\VoucherCodeGenerator;
+use TresPontosTech\Vouchers\Support\VoucherRedemptionUrl;
 
 class RedeemVoucherPage extends Page implements HasForms
 {
@@ -38,6 +39,15 @@ class RedeemVoucherPage extends Page implements HasForms
     protected static ?int $navigationSort = 4;
 
     public ?string $code = null;
+
+    public function mount(): void
+    {
+        $fromLink = request()->query(VoucherRedemptionUrl::QUERY_PARAMETER);
+
+        if (is_string($fromLink) && filled($fromLink)) {
+            $this->code = VoucherCodeGenerator::normalize($fromLink);
+        }
+    }
 
     public static function canAccess(): bool
     {
