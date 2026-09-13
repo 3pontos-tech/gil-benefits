@@ -11,7 +11,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Tenancy\EditTenantProfile as BaseEditTenantProfile;
 use Filament\Schemas\Components\EmbeddedTable;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -22,7 +21,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Actions\CreateAndAttachAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSeatsCounterAction;
@@ -66,10 +64,6 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                 TextInput::make('name')
                     ->label(__('panel-company::resources.pages.edit_tenant.form_name'))
                     ->maxLength(255)
-                    ->live(onBlur: true, debounce: 500)
-                    ->afterStateUpdated(function (Set $set, $state): void {
-                        $set('slug', Str::slug($state));
-                    })
                     ->readOnly(),
                 TextInput::make('tax_id')
                     ->label(__('panel-company::resources.pages.edit_tenant.form_tax_id'))
