@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\VoucherBatches\Tables;
 
+use App\Models\Users\User;
+use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
+use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Vouchers\Jobs\GenerateVoucherBatchPdfJob;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
 
 class VoucherBatchesTable
@@ -85,7 +90,27 @@ class VoucherBatchesTable
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 ViewAction::make(),
+                self::downloadPdfAction(),
             ]);
+    }
+
+    public static function downloadPdfAction(): Action
+    {
+        return Action::make('downloadPdf')
+            ->label(__('panel-admin::resources.voucher_batches.actions.download_pdf'))
+            ->icon(Heroicon::OutlinedArrowDownTray)
+            ->action(function (VoucherBatch $record): void {
+                /** @var User $user */
+                $user = auth()->user();
+
+                dispatch(new GenerateVoucherBatchPdfJob($record->getKey(), $user->getKey()));
+
+                Notification::make()
+                    ->info()
+                    ->title(__('panel-admin::resources.voucher_batches.actions.pdf_queued_title'))
+                    ->body(__('panel-admin::resources.voucher_batches.actions.pdf_queued_body'))
+                    ->send();
+            });
     }
 
     /**

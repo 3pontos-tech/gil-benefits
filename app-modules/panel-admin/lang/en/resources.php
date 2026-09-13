@@ -391,6 +391,11 @@ return [
         'filters' => [
             'expired' => 'Past redemption window',
         ],
+        'actions' => [
+            'download_pdf' => 'Generate PDF',
+            'pdf_queued_title' => 'Generating the PDF',
+            'pdf_queued_body' => 'We will let you know in the notification bell as soon as it is ready to download.',
+        ],
         'codes' => [
             'title' => 'Codes',
             'code' => 'Code',

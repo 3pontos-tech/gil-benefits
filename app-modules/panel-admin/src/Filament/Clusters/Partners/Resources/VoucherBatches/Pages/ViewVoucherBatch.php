@@ -7,11 +7,19 @@ namespace TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Voucher
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Schema;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\VoucherBatches\Tables\VoucherBatchesTable;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\VoucherBatches\VoucherBatchResource;
 
 class ViewVoucherBatch extends ViewRecord
 {
     protected static string $resource = VoucherBatchResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            VoucherBatchesTable::downloadPdfAction(),
+        ];
+    }
 
     public function infolist(Schema $schema): Schema
     {

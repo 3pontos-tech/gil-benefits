@@ -391,6 +391,11 @@ return [
         'filters' => [
             'expired' => 'Fora do prazo de resgate',
         ],
+        'actions' => [
+            'download_pdf' => 'Gerar PDF',
+            'pdf_queued_title' => 'Gerando o PDF',
+            'pdf_queued_body' => 'Avisaremos aqui na central de notificações assim que estiver pronto para baixar.',
+        ],
         'codes' => [
             'title' => 'Códigos',
             'code' => 'Código',

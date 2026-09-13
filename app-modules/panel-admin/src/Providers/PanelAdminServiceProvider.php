@@ -17,6 +17,7 @@ class PanelAdminServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->loadRoutesFrom(__DIR__ . '/../../routes/panel-admin-routes.php');
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'panel-admin');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'panel-admin');
 
