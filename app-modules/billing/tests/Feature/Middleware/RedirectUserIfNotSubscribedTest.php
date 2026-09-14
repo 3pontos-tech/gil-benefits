@@ -13,6 +13,8 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Models\UserCredit;
+use TresPontosTech\Vouchers\Database\Factories\VoucherRedemptionFactory;
 
 use function Pest\Laravel\actingAs;
 
@@ -161,4 +163,47 @@ it('allows access when employee subscription is trialing', function (): void {
     $response = $this->middleware->handle($this->request, $this->next);
 
     expect($response->getContent())->toBe('ok');
+});
+
+it('lets a voucher holder into the default tenant without any subscription', function (): void {
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_voucher',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'expires_at' => now()->addMonth(),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getContent())->toBe('ok');
+});
+
+it('sends the voucher holder back to the storefront once the voucher lapsed', function (): void {
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_lapsed',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'expires_at' => now()->subDay(),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('available-subscriptions');
 });
