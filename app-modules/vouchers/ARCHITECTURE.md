@@ -1,9 +1,12 @@
 # Módulo de Vouchers
 
 Voucher é o canal pelo qual uma empresa parceira distribui consultoria sem que a pessoa
-passe por pagamento. O admin gera um lote de códigos vinculado ao programa da parceira, e
-cada pessoa **já vinculada àquela empresa** informa o seu código dentro do app para receber
-um crédito de consultoria.
+passe por pagamento. O admin gera um lote de códigos vinculado ao programa da parceira, a
+parceira entrega as carteirinhas, e **quem recebe se cadastra sozinho no tenant padrão**
+informando o código no próprio formulário de cadastro.
+
+Quem resgata **não entra na empresa parceira**. Fica na Flamma como qualquer avulso; o que a
+parceira ganha é a visibilidade de quem resgatou e o que fez com a consultoria.
 
 O módulo não introduz um novo tipo de benefício: o crédito emitido é o mesmo `user_credits`
 de sempre, e o voucher é apenas uma **quarta origem de emissão**, ao lado de compra avulsa,
@@ -20,10 +23,13 @@ que ele entrega é um `UserCredit` (credits). Colocar o voucher dentro de `credi
 regra daquele módulo, que só importa `BillingProviderEnum` do billing; colocar dentro de
 `billing` faria o billing conhecer crédito, acoplamento removido no #274.
 
-A única marca que o voucher deixa nos módulos de baixo é a coluna
-`user_credits.voucher_redemption_id`, no mesmo formato de `grant_id` e `credit_order_id`.
+As duas marcas que o voucher deixa nos módulos de baixo são colunas em `user_credits`:
+`voucher_redemption_id`, no mesmo formato de `grant_id` e `credit_order_id`, e `expires_at`.
 `CreditDTO` e `IssueCredits` carregam o identificador como string: credits sabe o nome da
 origem, nunca a classe.
+
+Os middlewares que liberam o painel também não importam nada daqui — perguntam
+`User::hasActiveVoucherCredit()`, que lê as colunas do próprio ledger.
 
 ---
 
@@ -35,8 +41,8 @@ origem, nunca a classe.
 | `voucher_codes` | Um código: `code` único, `max_redemptions` (1 hoje), `redemptions_count` |
 | `voucher_redemptions` | Trilha nominal do resgate, única por `(voucher_code_id, user_id)` |
 
-`company_plan_id` no lote é o que dá ao resgate o alvo do lock e à expiração o escopo do
-programa, sem inferir nada por empresa.
+`company_plan_id` no lote é o que dá ao resgate o alvo do lock e ao crédito a data de
+validade, sem inferir nada por empresa.
 
 ---
 
@@ -45,10 +51,11 @@ programa, sem inferir nada por empresa.
 Um `CompanyPlan` com `kind = credits_only`:
 
 - `ResolveQuotaAllowance` devolve `QuotaAllowance::none()` para ele, então ninguém ganha cota mensal;
-- `Company::hasActivePlan()` continua verdadeiro, então `RedirectUserIfNotSubscribed` libera o
-  acesso no primeiro passo e `RedirectIfAnamneseNotCompleted` exige a anamnese normalmente —
-  sem uma linha de middleware alterada;
-- `seats` é a capacidade de resgatadores, e `ends_at` é o prazo do programa.
+- `Company::hasActivePlan()` continua verdadeiro, e é isso que dá ao dono da parceira o acesso
+  ao `/company` para acompanhar a campanha;
+- `ends_at` é o prazo do programa, do qual sai a validade de cada crédito resgatado.
+
+`seats` não é checado no resgate: ninguém é anexado à parceira, então não há assento a ocupar.
 
 Quando a parceira passa a pagar de verdade, o caminho é **linha nova** em `company_plans`:
 encerrar a de voucher e abrir a contratual. Virar o `kind` da mesma linha manteria a âncora
@@ -63,42 +70,76 @@ do ciclo de cota na data do início da cortesia.
 ```
 lock no programa
     → programa vigente e credits_only?
-    → a pessoa tem vínculo ativo com a empresa do lote?
     → lote dentro do prazo de resgate?
     → código com uso disponível?
     → pessoa já resgatou algum código deste lote?
+    → pessoa já tem um voucher de pé?
     → cria voucher_redemption, incrementa o código, emite 1 crédito
 ```
 
-O código só vale para quem **já é da empresa do lote**: um código da Incorporadora A na mão
-de alguém da Incorporadora B é recusado. Isso também é o que mantém o resgate simples — ele
-não cria vínculo nem consome assento, porque a pessoa já ocupava um. `seats` continua sendo
-enforçado onde as pessoas entram na empresa, não aqui.
+O código não pergunta de onde a pessoa vem: quem tem a carteirinha resgata. Só duas regras
+recortam a pessoa — um resgate por lote, e **um voucher ativo por vez**. A segunda olha o
+ledger: barra quem tem crédito de voucher `available` dentro do prazo ou `in_use`, e libera
+assim que ele vira `used` ou `expired`.
 
-O lock é na linha do programa, e não na do código, porque as três invariantes de capacidade
-vivem em linhas diferentes: `max_redemptions` no código, `quantity` no lote e `seats` no
-programa. Travar só o código deixaria dois códigos distintos da mesma parceira passarem
-juntos pela checagem de vagas.
+O lock é na linha do programa, e não na do código, porque as invariantes de capacidade vivem
+em linhas diferentes: `max_redemptions` no código e `quantity` no lote.
 
-O crédito nasce com `owner_id = holder_id = ` resgatador e `company_id` da parceira. Auto-detido
-de propósito: no pool da parceira ele ficaria sujeito a `RevokeCreditsFromEmployees`, e a
-parceira poderia retomar uma consultoria já dada.
+O crédito nasce com `owner_id = holder_id = ` resgatador e `company_id` do **tenant padrão** —
+é onde a pessoa está e onde vai agendar. Auto-detido de propósito: num pool de empresa ele
+ficaria sujeito a `RevokeCreditsFromEmployees`, e alguém poderia retomar uma consultoria já
+dada. O vínculo com a campanha sobrevive inteiro em `voucher_redemption_id`.
 
-`ensureRedeemable()` roda as mesmas checagens sem o lock, para quem precisa validar um código
-sem resgatá-lo.
+`ensureRedeemable()` roda as checagens sem o lock, e aceita `null` no lugar da pessoa: no
+formulário de cadastro ela ainda não existe, então só as regras do código valem ali.
 
-A tela é `RedeemVoucherPage` no painel do app, visível apenas para quem está numa empresa cujo
-contrato vigente é `credits_only` — quem tem cota mensal não tem o que resgatar.
+A tela é o próprio formulário de cadastro (`UserRegistration`), com um campo opcional que o
+QR da carteirinha já preenche via `?voucher=`.
 
 ---
 
-## Encerramento
+## Validade
 
-Crédito de voucher não tem validade própria — o prazo é o `ends_at` do programa.
-`ExpireProgramCreditsJob` roda diariamente, e para cada programa `credits_only` já encerrado
-`ExpireProgramCredits` marca como `expired` os créditos daquele programa que ainda estão
-`available`. Crédito `in_use` fica intocado: quem agendou dentro do prazo tem a consultoria
-honrada, na mesma forma que `RevokeCreditGrant` já pratica.
+O prazo vive **no crédito**, gravado no resgate: quem resgatou no último dia da campanha leva
+o mesmo prazo de quem resgatou no primeiro, e encerrar o contrato mais cedo não derruba o que
+já foi entregue. A data é a menor entre o `ends_at` do programa e o `expires_at` do lote; sem
+nenhuma das duas, o crédito não vence.
+
+`ExpireVoucherCreditsJob` roda diariamente e `ExpireVoucherCredits` marca como `expired` todo
+crédito de voucher `available` cuja data passou. Crédito `in_use` fica intocado: quem agendou
+dentro do prazo tem a consultoria honrada, na mesma forma que `RevokeCreditGrant` já pratica.
+
+Entre o vencimento e a passagem do job existe uma janela de horas. Ela não vaza: as consultas
+que decidem acesso e consumo (`hasAvailableCredit`, `hasActiveVoucherCredit`, `ConsumeCredit`)
+aplicam o escopo `notExpired`, que compara a data na hora da pergunta. O job é quem acerta o
+status para os relatórios.
+
+Se a pessoa não usou o crédito dentro do prazo, perdeu. Não há devolução nem prorrogação.
+
+---
+
+## Acesso de quem entrou por voucher
+
+Duas portas do painel do app olhavam só para assinatura e contrato de empresa. Ambas ganharam
+uma terceira condição, aditiva:
+
+| Middleware | O que mudou |
+|---|---|
+| `RedirectUserIfNotSubscribed` (billing) | No tenant padrão, além da assinatura avulsa, um voucher vigente basta. Vencido, a pessoa cai na vitrine como qualquer avulso. |
+| `RedirectIfAnamneseNotCompleted` (panel-app) | Sem isso, quem entrou por campanha atravessaria a anamnese sem preencher. |
+
+---
+
+## O que a parceira enxerga
+
+`VoucherRedemptionsPage`, no painel da empresa: quem resgatou, de qual campanha, quando, e a
+situação da consultoria.
+
+O relatório não sai das páginas de Métricas de propósito — elas filtram
+`appointments.company_id`, que num resgate aponta para o tenant padrão, e agrupam por
+departamento, que resgatador nenhum tem. O status do crédito responde tudo: `available` é
+quem resgatou e não usou, `in_use` é quem agendou, `used` é consultoria realizada e `expired`
+é quem deixou o prazo passar.
 
 ---
 
@@ -108,11 +149,14 @@ honrada, na mesma forma que `RevokeCreditGrant` já pratica.
 |---|---|
 | `src/Actions/GenerateVoucherBatch.php` | Cria o lote e N códigos numa transação, com retry na colisão |
 | `src/Actions/RedeemVoucher.php` | Resgate autoritativo sob lock, e a checagem sem lock para o formulário |
-| `src/Actions/ExpireProgramCredits.php` | `available` → `expired` nos créditos de um programa encerrado |
+| `src/Actions/ExpireVoucherCredits.php` | `available` → `expired` nos créditos de voucher fora do prazo |
+| `src/Actions/GenerateVoucherQrCodes.php` | Um QR por código, atrás do adapter `QrCodeGenerator` |
+| `src/Actions/BuildVoucherBatchPdf.php` | Folha de carteirinhas para impressão |
 | `src/Support/VoucherCodeGenerator.php` | Código aleatório em alfabeto sem caracteres ambíguos |
+| `src/Support/VoucherRedemptionUrl.php` | O endereço que o QR carrega: o cadastro, com o código na query |
 | `src/Models/VoucherBatch.php` | O lote, e a consulta dos créditos que saíram dele |
 | `database/seeders/VoucherProgramPlanSeeder.php` | Item de catálogo que dá nome ao contrato de parceria |
 
-A tela do resgatador vive fora do módulo, em
-`app-modules/panel-app/src/Filament/Pages/RedeemVoucherPage.php`, junto das outras páginas do
-painel do app.
+As telas vivem fora do módulo: o resgate em
+`app-modules/panel-app/src/Filament/Pages/UserRegistration.php` e o acompanhamento da parceira
+em `app-modules/panel-company/src/Filament/Pages/VoucherRedemptionsPage.php`.
