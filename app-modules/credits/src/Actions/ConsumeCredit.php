@@ -16,6 +16,9 @@ final readonly class ConsumeCredit
      * Sem o recorte por empresa, agendar numa empresa consumia o crédito guardado em outra:
      * a fila é por titular, e o titular pode ter crédito em mais de uma. O saldo da outra
      * empresa some sem que nada tenha sido agendado lá.
+     *
+     * Entre os disponíveis, o que vence primeiro sai antes — crédito de voucher tem data e
+     * o comprado não, então gastar o perene deixaria o de prazo apodrecer na fila.
      */
     public function execute(CreditDTO $dto): void
     {
@@ -23,6 +26,8 @@ final readonly class ConsumeCredit
             ->where('holder_id', $dto->holderId)
             ->where('company_id', $dto->companyId)
             ->where('status', UserCreditStatusEnum::Available)
+            ->notExpired()
+            ->orderByRaw('expires_at is null, expires_at asc')
             ->oldest()
             ->first()
             ?->update([

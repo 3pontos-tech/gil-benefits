@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Credits\Models;
 
 use App\Models\Users\User;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +30,7 @@ use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
  * @property string|null $credit_order_id
  * @property string|null $voucher_redemption_id
  * @property UserCreditStatusEnum $status
+ * @property Carbon|null $expires_at
  * @property string|null $appointment_id
  * @property Carbon|null $transferred_at
  * @property Carbon|null $created_at
@@ -57,6 +59,7 @@ class UserCredit extends Model
         'credit_order_id',
         'voucher_redemption_id',
         'status',
+        'expires_at',
         'appointment_id',
         'transferred_at',
     ];
@@ -65,6 +68,7 @@ class UserCredit extends Model
     {
         return [
             'status' => UserCreditStatusEnum::class,
+            'expires_at' => 'datetime',
             'transferred_at' => 'datetime',
         ];
     }
@@ -115,6 +119,22 @@ class UserCredit extends Model
     public function grant(): BelongsTo
     {
         return $this->belongsTo(CreditGrant::class, 'grant_id');
+    }
+
+    /**
+     * Crédito de voucher morre com a campanha; os demais não têm data e passam direto.
+     *
+     * @param  Builder<UserCredit>  $query
+     * @return Builder<UserCredit>
+     */
+    #[Scope]
+    protected function notExpired(Builder $query, ?CarbonInterface $moment = null): Builder
+    {
+        $moment ??= now();
+
+        return $query->where(fn (Builder $inner): Builder => $inner
+            ->whereNull('expires_at')
+            ->orWhere('expires_at', '>', $moment));
     }
 
     /**

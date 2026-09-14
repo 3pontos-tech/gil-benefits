@@ -406,6 +406,25 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             ->where('holder_id', $this->getKey())
             ->where('company_id', $companyId)
             ->where('status', UserCreditStatusEnum::Available)
+            ->notExpired()
+            ->exists();
+    }
+
+    /**
+     * Crédito de voucher ainda de pé — disponível dentro do prazo, ou já preso a um
+     * agendamento. É o que sustenta o acesso ao painel de quem entrou por campanha e
+     * nunca assinou nada.
+     */
+    public function hasActiveVoucherCredit(): bool
+    {
+        return UserCredit::query()
+            ->where('holder_id', $this->getKey())
+            ->whereNotNull('voucher_redemption_id')
+            ->where(fn (Builder $query): Builder => $query
+                ->where(fn (Builder $available): Builder => $available
+                    ->where('status', UserCreditStatusEnum::Available)
+                    ->notExpired())
+                ->orWhere('status', UserCreditStatusEnum::InUse))
             ->exists();
     }
 

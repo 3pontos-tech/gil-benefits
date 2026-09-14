@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Credits\DTOs;
 
+use Carbon\CarbonInterface;
+
 final readonly class CreditDTO
 {
     public function __construct(
@@ -15,5 +17,6 @@ final readonly class CreditDTO
         public string|int|null $grantId = null,
         public ?string $creditOrderId = null,
         public ?string $voucherRedemptionId = null,
+        public ?CarbonInterface $expiresAt = null,
     ) {}
 }
