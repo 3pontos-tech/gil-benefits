@@ -17,6 +17,6 @@ return [
         'already_redeemed' => 'You have already redeemed this code.',
         'batch_expired' => 'This code is past its redemption window.',
         'program_inactive' => 'This partner company program is no longer active.',
-        'not_from_user_company' => 'This code does not belong to your company.',
+        'already_holds_voucher' => 'You already have a voucher consultancy to use.',
     ],
 ];

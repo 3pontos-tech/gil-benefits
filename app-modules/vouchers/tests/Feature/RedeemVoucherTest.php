@@ -8,7 +8,6 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\Credits\Models\UserCredit;
-use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Vouchers\Actions\RedeemVoucher;
 use TresPontosTech\Vouchers\Events\VoucherRedeemed;
 use TresPontosTech\Vouchers\Exceptions\VoucherRedemptionException;
@@ -16,10 +15,15 @@ use TresPontosTech\Vouchers\Models\VoucherBatch;
 use TresPontosTech\Vouchers\Models\VoucherCode;
 
 use function Pest\Laravel\assertDatabaseHas;
+use function Pest\Laravel\assertDatabaseMissing;
 
-function voucherProgram(int $seats = 10): CompanyPlan
+beforeEach(function (): void {
+    Company::factory()->create(['slug' => Company::DEFAULT_SLUG]);
+});
+
+function voucherProgram(array $state = []): CompanyPlan
 {
-    return CompanyPlan::factory()->active()->creditsOnly()->create(['seats' => $seats]);
+    return CompanyPlan::factory()->active()->creditsOnly()->create($state);
 }
 
 function codeFor(CompanyPlan $plan, array $batch = [], array $code = []): VoucherCode
@@ -29,162 +33,154 @@ function codeFor(CompanyPlan $plan, array $batch = [], array $code = []): Vouche
         ->create($code);
 }
 
-function memberOf(string $companyId, Roles $role = Roles::Employee, bool $active = true): User
-{
-    $user = User::factory()->create();
-    $user->companies()->attach($companyId, ['role' => $role->value, 'active' => $active]);
-
-    return $user->fresh();
-}
-
 function redeem(User $user, string $code): mixed
 {
     return resolve(RedeemVoucher::class)->handle($user, $code);
 }
 
-it('issues one credit scoped to the partner company', function (): void {
+it('issues one credit in the default tenant, not in the partner company', function (): void {
     $plan = voucherProgram();
     $code = codeFor($plan);
-    $user = memberOf($plan->company_id);
+    $user = User::factory()->create();
 
     $redemption = redeem($user, $code->code);
 
     assertDatabaseHas('user_credits', [
         'holder_id' => $user->getKey(),
         'owner_id' => $user->getKey(),
-        'company_id' => $plan->company_id,
+        'company_id' => Company::default()->getKey(),
         'voucher_redemption_id' => $redemption->getKey(),
         'status' => UserCreditStatusEnum::Available->value,
     ]);
 
+    assertDatabaseMissing('user_credits', ['company_id' => $plan->company_id]);
+
     expect(UserCredit::query()->where('holder_id', $user->getKey())->count())->toBe(1);
 });
 
-it('makes the credit visible to the redeemer under the partner company', function (): void {
+it('keeps the campaign reachable from the credit', function (): void {
     $plan = voucherProgram();
     $code = codeFor($plan);
-    $user = memberOf($plan->company_id);
 
-    redeem($user, $code->code);
+    $redemption = redeem(User::factory()->create(), $code->code);
 
-    expect($user->fresh()->hasAvailableCredit($plan->company_id))->toBeTrue();
+    expect($redemption->credits()->count())->toBe(1)
+        ->and($redemption->code->batch->company_id)->toBe($plan->company_id);
 });
 
-it('does not create or change any company membership', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan);
-    $user = memberOf($plan->company_id);
+it('makes the credit usable in the default tenant', function (): void {
+    $code = codeFor(voucherProgram());
+    $user = User::factory()->create();
 
     redeem($user, $code->code);
 
-    expect($user->fresh()->companies()->count())->toBe(1);
+    expect($user->fresh()->hasAvailableCredit(Company::default()->getKey()))->toBeTrue()
+        ->and($user->fresh()->hasActiveVoucherCredit())->toBeTrue();
+});
+
+it('does not attach the redeemer to the partner company', function (): void {
+    $plan = voucherProgram();
+    $code = codeFor($plan);
+    $user = User::factory()->create();
+
+    redeem($user, $code->code);
+
+    expect($user->fresh()->companies()->count())->toBe(0);
+});
+
+it('stamps the credit with the campaign end date', function (): void {
+    $plan = voucherProgram(['ends_at' => now()->addMonths(3)]);
+    $code = codeFor($plan);
+    $user = User::factory()->create();
+
+    redeem($user, $code->code);
+
+    expect($user->credits()->sole()->expires_at?->toDateString())
+        ->toBe($plan->ends_at->toDateString());
+});
+
+it('prefers the batch deadline when it falls before the campaign end', function (): void {
+    $plan = voucherProgram(['ends_at' => now()->addMonths(3)]);
+    $deadline = now()->addMonth();
+    $code = codeFor($plan, batch: ['expires_at' => $deadline]);
+    $user = User::factory()->create();
+
+    redeem($user, $code->code);
+
+    expect($user->credits()->sole()->expires_at?->toDateString())
+        ->toBe($deadline->toDateString());
+});
+
+it('leaves the credit open ended when neither carries a date', function (): void {
+    $code = codeFor(voucherProgram(['ends_at' => null]), batch: ['expires_at' => null]);
+    $user = User::factory()->create();
+
+    redeem($user, $code->code);
+
+    expect($user->credits()->sole()->expires_at)->toBeNull();
 });
 
 it('counts the redemption on the code', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan);
+    $code = codeFor(voucherProgram());
 
-    redeem(memberOf($plan->company_id), $code->code);
+    redeem(User::factory()->create(), $code->code);
 
     expect($code->fresh()->redemptions_count)->toBe(1)
         ->and($code->fresh()->isExhausted())->toBeTrue();
 });
 
 it('accepts the code in lower case and with surrounding spaces', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan);
-    $user = memberOf($plan->company_id);
+    $code = codeFor(voucherProgram());
+    $user = User::factory()->create();
 
     redeem($user, '  ' . strtolower($code->code) . ' ');
 
-    expect($user->fresh()->hasAvailableCredit($plan->company_id))->toBeTrue();
+    expect($user->fresh()->hasActiveVoucherCredit())->toBeTrue();
 });
 
 it('fires an event once the redemption is committed', function (): void {
     Event::fake([VoucherRedeemed::class]);
 
-    $plan = voucherProgram();
-    $code = codeFor($plan);
+    $code = codeFor(voucherProgram());
 
-    redeem(memberOf($plan->company_id), $code->code);
+    redeem(User::factory()->create(), $code->code);
 
     Event::assertDispatched(VoucherRedeemed::class);
 });
-
-it('lets a company manager redeem as well', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan);
-    $manager = memberOf($plan->company_id, Roles::CompanyManager);
-
-    redeem($manager, $code->code);
-
-    expect($manager->fresh()->hasAvailableCredit($plan->company_id))->toBeTrue();
-});
-
-it('rejects someone who does not belong to the program company', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan);
-
-    redeem(User::factory()->create(), $code->code);
-})->throws(VoucherRedemptionException::class);
-
-it('rejects a member of another company holding the code', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan);
-    $outsider = memberOf(Company::factory()->create()->getKey());
-
-    expect(fn (): mixed => redeem($outsider, $code->code))
-        ->toThrow(VoucherRedemptionException::class);
-
-    expect(UserCredit::query()->count())->toBe(0);
-});
-
-it('rejects a member whose link to the company is inactive', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan);
-    $former = memberOf($plan->company_id, active: false);
-
-    redeem($former, $code->code);
-})->throws(VoucherRedemptionException::class);
 
 it('rejects an unknown code', function (): void {
     redeem(User::factory()->create(), 'ZZZZ-ZZZZ');
 })->throws(VoucherRedemptionException::class);
 
 it('rejects a code that reached its redemption limit', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan, code: ['max_redemptions' => 1, 'redemptions_count' => 1]);
+    $code = codeFor(voucherProgram(), code: ['max_redemptions' => 1, 'redemptions_count' => 1]);
 
-    redeem(memberOf($plan->company_id), $code->code);
+    redeem(User::factory()->create(), $code->code);
 })->throws(VoucherRedemptionException::class);
 
 it('rejects a code past the batch redemption window', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan, batch: ['expires_at' => now()->subDay()]);
+    $code = codeFor(voucherProgram(), batch: ['expires_at' => now()->subDay()]);
 
-    redeem(memberOf($plan->company_id), $code->code);
+    redeem(User::factory()->create(), $code->code);
 })->throws(VoucherRedemptionException::class);
 
 it('rejects redemption when the program is no longer active', function (): void {
-    $plan = CompanyPlan::factory()->creditsOnly()->expired()->create();
-    $code = codeFor($plan);
+    $code = codeFor(CompanyPlan::factory()->creditsOnly()->expired()->create());
 
-    redeem(memberOf($plan->company_id), $code->code);
+    redeem(User::factory()->create(), $code->code);
 })->throws(VoucherRedemptionException::class);
 
 it('rejects redemption against a monthly quota plan', function (): void {
-    $plan = CompanyPlan::factory()->active()->create();
-    $code = codeFor($plan);
+    $code = codeFor(CompanyPlan::factory()->active()->create());
 
-    redeem(memberOf($plan->company_id), $code->code);
+    redeem(User::factory()->create(), $code->code);
 })->throws(VoucherRedemptionException::class);
 
 it('rejects a second redemption from the same batch by the same person', function (): void {
-    $plan = voucherProgram();
-    $batch = VoucherBatch::factory()->forPlan($plan)->create();
+    $batch = VoucherBatch::factory()->forPlan(voucherProgram())->create();
     $first = VoucherCode::factory()->for($batch, 'batch')->create();
     $second = VoucherCode::factory()->for($batch, 'batch')->create();
-    $user = memberOf($plan->company_id);
+    $user = User::factory()->create();
 
     redeem($user, $first->code);
 
@@ -194,22 +190,52 @@ it('rejects a second redemption from the same batch by the same person', functio
     expect(UserCredit::query()->where('holder_id', $user->getKey())->count())->toBe(1);
 });
 
-it('allows redeeming codes from two different batches', function (): void {
-    $plan = voucherProgram();
-    $first = codeFor($plan);
-    $second = codeFor($plan);
-    $user = memberOf($plan->company_id);
+it('rejects a second voucher while the first one is still standing', function (): void {
+    $user = User::factory()->create();
 
-    redeem($user, $first->code);
-    redeem($user, $second->code);
+    redeem($user, codeFor(voucherProgram())->code);
+
+    expect(fn (): mixed => redeem($user, codeFor(voucherProgram())->code))
+        ->toThrow(VoucherRedemptionException::class);
+
+    expect(UserCredit::query()->where('holder_id', $user->getKey())->count())->toBe(1);
+});
+
+it('rejects a second voucher while the first one is booked', function (): void {
+    $user = User::factory()->create();
+
+    redeem($user, codeFor(voucherProgram())->code);
+    $user->credits()->update(['status' => UserCreditStatusEnum::InUse]);
+
+    expect(fn (): mixed => redeem($user, codeFor(voucherProgram())->code))
+        ->toThrow(VoucherRedemptionException::class);
+});
+
+it('lets the person redeem again once the consultancy happened', function (): void {
+    $user = User::factory()->create();
+
+    redeem($user, codeFor(voucherProgram())->code);
+    $user->credits()->update(['status' => UserCreditStatusEnum::Used]);
+
+    redeem($user, codeFor(voucherProgram())->code);
+
+    expect(UserCredit::query()->where('holder_id', $user->getKey())->count())->toBe(2);
+});
+
+it('lets the person redeem again once the previous voucher expired', function (): void {
+    $user = User::factory()->create();
+
+    redeem($user, codeFor(voucherProgram())->code);
+    $user->credits()->update(['expires_at' => now()->subDay()]);
+
+    redeem($user, codeFor(voucherProgram())->code);
 
     expect(UserCredit::query()->where('holder_id', $user->getKey())->count())->toBe(2);
 });
 
 it('leaves nothing behind when the redemption fails', function (): void {
-    $plan = voucherProgram();
-    $code = codeFor($plan, batch: ['expires_at' => now()->subDay()]);
-    $user = memberOf($plan->company_id);
+    $code = codeFor(voucherProgram(), batch: ['expires_at' => now()->subDay()]);
+    $user = User::factory()->create();
 
     try {
         redeem($user, $code->code);

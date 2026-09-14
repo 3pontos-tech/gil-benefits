@@ -33,8 +33,8 @@ class VoucherRedemptionException extends RuntimeException
         return new self(__('vouchers::vouchers.errors.program_inactive'));
     }
 
-    public static function notFromUserCompany(): self
+    public static function alreadyHoldsVoucher(): self
     {
-        return new self(__('vouchers::vouchers.errors.not_from_user_company'));
+        return new self(__('vouchers::vouchers.errors.already_holds_voucher'));
     }
 }

@@ -17,6 +17,6 @@ return [
         'already_redeemed' => 'Você já resgatou este código.',
         'batch_expired' => 'Este código está fora do prazo de resgate.',
         'program_inactive' => 'O programa desta empresa parceira não está mais vigente.',
-        'not_from_user_company' => 'Este código não pertence à sua empresa.',
+        'already_holds_voucher' => 'Você já tem uma consultoria de voucher para usar.',
     ],
 ];
