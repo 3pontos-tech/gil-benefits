@@ -4,6 +4,19 @@ declare(strict_types=1);
 
 return [
     'pages' => [
+        'voucher_redemptions' => [
+            'navigation_label' => 'Vouchers',
+            'title' => 'Resgates de voucher',
+            'subheading' => 'Quem recebeu um voucher da sua campanha e o que já fez com ele.',
+            'columns' => [
+                'user' => 'Resgatado por',
+                'code' => 'Código',
+                'batch' => 'Campanha',
+                'redeemed_at' => 'Resgatado em',
+                'status' => 'Situação da consultoria',
+                'expires_at' => 'Válido até',
+            ],
+        ],
         'credits' => [
             'navigation_label' => 'Créditos',
             'title' => 'Créditos',
