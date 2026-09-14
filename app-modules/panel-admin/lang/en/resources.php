@@ -368,7 +368,8 @@ return [
         'form' => [
             'program' => 'Partner program',
             'program_hint' => 'Only contracts of kind "Credits only" are listed here.',
-            'seats_summary' => ':seats seats',
+            'validity_summary' => 'valid until :date',
+            'validity_open' => 'no deadline set',
             'name' => 'Campaign name',
             'quantity' => 'Number of codes',
             'quantity_hint' => 'One code per person, single use. It cannot exceed the contract seats.',

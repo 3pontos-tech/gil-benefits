@@ -9,6 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Carbon;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 
@@ -63,8 +64,21 @@ class VoucherBatchForm
             ->activeOn()
             ->get()
             ->mapWithKeys(fn (CompanyPlan $plan): array => [
-                $plan->getKey() => sprintf('%s — %s', $plan->company?->name, __('panel-admin::resources.voucher_batches.form.seats_summary', ['seats' => $plan->seats])),
+                $plan->getKey() => sprintf('%s — %s', $plan->company?->name, self::validitySummary($plan)),
             ])
             ->all();
+    }
+
+    /**
+     * O prazo do programa é o que o admin precisa ver aqui: é dele que sai a validade de
+     * cada crédito resgatado. Assento não diz nada — ninguém entra na parceira.
+     */
+    private static function validitySummary(CompanyPlan $plan): string
+    {
+        return $plan->ends_at instanceof Carbon
+            ? (string) __('panel-admin::resources.voucher_batches.form.validity_summary', [
+                'date' => $plan->ends_at->format('d/m/Y'),
+            ])
+            : (string) __('panel-admin::resources.voucher_batches.form.validity_open');
     }
 }

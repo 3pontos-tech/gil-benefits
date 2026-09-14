@@ -368,7 +368,8 @@ return [
         'form' => [
             'program' => 'Programa da parceira',
             'program_hint' => 'Somente contratos do tipo "Somente crédito" aparecem aqui.',
-            'seats_summary' => ':seats vagas',
+            'validity_summary' => 'válido até :date',
+            'validity_open' => 'sem prazo definido',
             'name' => 'Nome da campanha',
             'quantity' => 'Quantidade de códigos',
             'quantity_hint' => 'Um código por pessoa, uso único. Não pode passar das vagas do contrato.',
