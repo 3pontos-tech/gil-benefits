@@ -6,19 +6,18 @@ namespace TresPontosTech\Vouchers\Support;
 
 use TresPontosTech\Vouchers\Models\VoucherCode;
 
+/**
+ * O QR da carteirinha cai no cadastro, não numa página interna: quem recebe o voucher
+ * ainda não tem conta. Montada pelo NOME da rota para o módulo não depender do painel.
+ */
 final class VoucherRedemptionUrl
 {
-    public const ROUTE = 'filament.app.pages.redeem-voucher';
+    public const ROUTE = 'filament.app.auth.register';
 
     public const QUERY_PARAMETER = 'voucher';
 
     public static function for(VoucherCode $code): string
     {
-        $code->loadMissing('batch.company');
-
-        return route(self::ROUTE, [
-            'tenant' => $code->batch->company?->slug,
-            self::QUERY_PARAMETER => $code->code,
-        ]);
+        return route(self::ROUTE, [self::QUERY_PARAMETER => $code->code]);
     }
 }

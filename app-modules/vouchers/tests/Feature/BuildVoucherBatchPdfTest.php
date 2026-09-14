@@ -40,15 +40,13 @@ it('names the file after the batch', function (): void {
         ->toBe('vouchers-campanha-de-lancamento.pdf');
 });
 
-it('points the redemption link at the partner tenant with the code', function (): void {
-    $batch = batchWithCodes(1);
-    $code = $batch->codes()->sole();
+it('points the redemption link at the signup form with the code', function (): void {
+    $code = batchWithCodes(1)->codes()->sole();
 
     $url = VoucherRedemptionUrl::for($code);
 
-    expect($url)->toContain($batch->company->slug)
-        ->and($url)->toContain('voucher=' . $code->code)
-        ->and($url)->toContain('redeem-voucher');
+    expect($url)->toContain(route(VoucherRedemptionUrl::ROUTE))
+        ->and($url)->toContain('voucher=' . $code->code);
 });
 
 it('keeps a single qr image per code', function (): void {

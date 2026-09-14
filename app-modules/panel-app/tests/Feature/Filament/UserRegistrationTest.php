@@ -2,9 +2,14 @@
 
 use App\Models\Users\Detail;
 use App\Models\Users\User;
+use Livewire\Livewire;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\Vouchers\Models\VoucherBatch;
+use TresPontosTech\Vouchers\Models\VoucherCode;
+use TresPontosTech\Vouchers\Support\VoucherRedemptionUrl;
 
 use function Pest\Laravel\assertAuthenticatedAs;
 use function Pest\Laravel\assertDatabaseCount;
@@ -86,4 +91,85 @@ it('should not register a user with a document_id that already exists', function
 
     assertDatabaseMissing(User::class, ['email' => 'joe@doe.com']);
     assertDatabaseCount(Detail::class, 1);
+});
+
+function registrationForm(array $overrides = []): array
+{
+    return [
+        'name' => 'John',
+        'email' => 'joe@doe.com',
+        'password' => 'password123',
+        'passwordConfirmation' => 'password123',
+        'tax_id' => '562.590.047-70',
+        ...$overrides,
+    ];
+}
+
+function campaignCode(array $plan = []): VoucherCode
+{
+    return VoucherCode::factory()
+        ->for(
+            VoucherBatch::factory()->forPlan(CompanyPlan::factory()->active()->creditsOnly()->create($plan)),
+            'batch',
+        )
+        ->create();
+}
+
+it('redeems the voucher informed at signup', function (): void {
+    $code = campaignCode(['ends_at' => now()->addMonths(2)]);
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm(['voucher' => strtolower($code->code)]))
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $user = User::query()->where('email', 'joe@doe.com')->sole();
+
+    expect($user->hasActiveVoucherCredit())->toBeTrue()
+        ->and($user->credits()->sole()->company_id)->toBe(Company::default()->getKey())
+        ->and($code->fresh()->redemptions_count)->toBe(1);
+});
+
+it('registers just fine without a voucher', function (): void {
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm())
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    expect(User::query()->where('email', 'joe@doe.com')->sole()->credits()->count())->toBe(0);
+});
+
+it('refuses an unknown voucher before creating anyone', function (): void {
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm(['voucher' => 'ZZZZ-ZZZZ']))
+        ->call('register')
+        ->assertHasFormErrors(['voucher']);
+
+    assertDatabaseMissing(User::class, ['email' => 'joe@doe.com']);
+});
+
+it('refuses a voucher past the batch window', function (): void {
+    $code = VoucherCode::factory()
+        ->for(
+            VoucherBatch::factory()
+                ->forPlan(CompanyPlan::factory()->active()->creditsOnly()->create())
+                ->state(['expires_at' => now()->subDay()]),
+            'batch',
+        )
+        ->create();
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm(['voucher' => $code->code]))
+        ->call('register')
+        ->assertHasFormErrors(['voucher']);
+
+    assertDatabaseMissing(User::class, ['email' => 'joe@doe.com']);
+});
+
+it('prefills the field from the card link', function (): void {
+    $code = campaignCode();
+
+    Livewire::withQueryParams([VoucherRedemptionUrl::QUERY_PARAMETER => strtolower($code->code)])
+        ->test(UserRegistration::class)
+        ->assertFormSet(['voucher' => $code->code]);
 });

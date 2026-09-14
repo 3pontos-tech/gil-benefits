@@ -9,6 +9,7 @@ use TresPontosTech\Vouchers\Contracts\QrCodeGenerator;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
 use TresPontosTech\Vouchers\Models\VoucherCode;
 use TresPontosTech\Vouchers\Support\ChillerlanQrCodeGenerator;
+use TresPontosTech\Vouchers\Support\VoucherRedemptionUrl;
 
 function batchOfCodes(int $quantity = 3): VoucherBatch
 {
@@ -88,7 +89,7 @@ it('encodes the redemption link of each code', function (): void {
     $batch->codes->each(function (VoucherCode $code) use ($payloads): void {
         expect($payloads)->toContain($code->redemptionUrl());
         expect($code->redemptionUrl())
-            ->toContain($code->batch->company->slug)
+            ->toContain(route(VoucherRedemptionUrl::ROUTE))
             ->toContain('voucher=' . $code->code);
     });
 });
