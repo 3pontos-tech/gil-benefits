@@ -28,6 +28,7 @@ class ConsultantPanelProvider extends PanelProvider
         return $panel
             ->id('consultant')
             ->path('consultant')
+            ->favicon(asset('favicon.ico'))
             ->colors([
                 'primary' => Color::Amber,
             ])

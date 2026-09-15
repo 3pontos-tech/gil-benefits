@@ -33,6 +33,7 @@ class GuestPanelProvider extends PanelProvider
         return $panel
             ->id('guest')
             ->path('')
+            ->favicon(asset('favicon.ico'))
             ->defaultThemeMode(ThemeMode::Light)
             ->colors([
                 'primary' => Color::hex('FD0342'),
