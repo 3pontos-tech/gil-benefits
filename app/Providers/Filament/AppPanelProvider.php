@@ -38,6 +38,7 @@ class AppPanelProvider extends PanelProvider
         return $panel
             ->id('app')
             ->path('app')
+            ->favicon(asset('favicon.ico'))
             ->login(LoginPage::class)
             ->profile(EditUserProfile::class, isSimple: false)
             ->colors([

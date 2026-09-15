@@ -40,6 +40,7 @@ class CompanyPanelProvider extends PanelProvider
         return $panel
             ->id('company')
             ->path('company')
+            ->favicon(asset('favicon.ico'))
             ->tenant(Company::class, slugAttribute: 'slug')
             ->login(LoginPage::class)
             ->profile(EditUserProfile::class)
