@@ -25,7 +25,18 @@ class GenerateVoucherBatchPdfJob implements ShouldBeUnique, ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $timeout = 300;
+    /**
+     * Um lote de 500 leva cerca de dois minutos e meio para desenhar; a folga cobre lotes
+     * maiores sem depender do acaso. O worker precisa de um limite maior que este, senão
+     * o processo morre antes e o job volta para a fila sem nunca ser marcado como falho.
+     */
+    public int $timeout = 900;
+
+    /**
+     * Estourar o tempo é terminal. Sem isto, um lote grande demais volta para a fila a cada
+     * execução e ocupa o worker para sempre, segurando tudo que estiver atrás dele.
+     */
+    public bool $failOnTimeout = true;
 
     public function __construct(
         public string $batchId,

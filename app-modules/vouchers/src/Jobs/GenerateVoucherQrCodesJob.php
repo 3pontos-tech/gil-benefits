@@ -23,6 +23,8 @@ class GenerateVoucherQrCodesJob implements ShouldBeUnique, ShouldQueue
 
     public int $timeout = 600;
 
+    public bool $failOnTimeout = true;
+
     public function __construct(
         public string $batchId,
     ) {}
