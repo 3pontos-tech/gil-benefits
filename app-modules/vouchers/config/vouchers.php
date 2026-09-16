@@ -24,4 +24,24 @@ return [
         'quietzone_size' => (int) env('VOUCHER_QR_QUIETZONE', 4),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Carteirinha impressa
+    |--------------------------------------------------------------------------
+    |
+    | A arte é desenhada numa prancha de 1080 x 1350 px e impressa na proporção
+    | 4:5; `width_mm` é a única medida física, e todo o resto deriva dela. Em
+    | 120mm o menor texto da arte sai com 5,4pt, que ainda se lê em papel, e o
+    | QR fica com 25mm, bem acima do mínimo que uma câmera de celular resolve.
+    |
+    | Frente e verso saem em páginas consecutivas, para impressão frente e
+    | verso direta.
+    |
+    */
+    'card' => [
+        'width_mm' => (float) env('VOUCHER_CARD_WIDTH_MM', 120),
+        'support_email' => env('VOUCHER_SUPPORT_EMAIL', 'ajuda@flammabeneficios.com'),
+        'site' => env('VOUCHER_SITE', 'flammabeneficios.com'),
+    ],
+
 ];

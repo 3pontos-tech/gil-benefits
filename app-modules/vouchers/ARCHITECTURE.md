@@ -143,6 +143,27 @@ quem resgatou e não usou, `in_use` é quem agendou, `used` é consultoria reali
 
 ---
 
+## A carteirinha impressa
+
+A arte vem desenhada numa prancha de 1080 x 1350 px e o template guarda esses números
+literais, reescalados em tempo de render pela largura física de `vouchers.card.width_mm`
+(120mm por padrão). Conferir o template contra a arte de origem não exige refazer conta.
+
+Frente e verso saem em páginas consecutivas, para impressão frente e verso direta — um
+lote de N códigos gera 2N páginas.
+
+Duas restrições do dompdf moldaram o template. Flexbox e gradiente radial não existem,
+então o empilhamento virou posicionamento absoluto sobre uma página de tamanho fixo e os
+brilhos de fundo saíram. E largura de coluna em `<colgroup>` ou em `<td>` é ignorada
+dentro de um bloco absoluto — a tabela acaba dividida em partes iguais —, por isso não há
+tabela nenhuma aqui, só blocos posicionados.
+
+O prazo impresso é o de RESGATE, não o da consultoria: o crédito só ganha validade quando
+alguém informa o código. Vale a data que fechar primeiro, entre o fim do contrato e o
+prazo do lote.
+
+---
+
 ## Mapa de Arquivos
 
 | Caminho | Responsabilidade |
@@ -151,7 +172,7 @@ quem resgatou e não usou, `in_use` é quem agendou, `used` é consultoria reali
 | `src/Actions/RedeemVoucher.php` | Resgate autoritativo sob lock, e a checagem sem lock para o formulário |
 | `src/Actions/ExpireVoucherCredits.php` | `available` → `expired` nos créditos de voucher fora do prazo |
 | `src/Actions/GenerateVoucherQrCodes.php` | Um QR por código, atrás do adapter `QrCodeGenerator` |
-| `src/Actions/BuildVoucherBatchPdf.php` | Folha de carteirinhas para impressão |
+| `src/Actions/BuildVoucherBatchPdf.php` | Carteirinha frente e verso, uma por página, reescalada da arte |
 | `src/Support/VoucherCodeGenerator.php` | Código aleatório em alfabeto sem caracteres ambíguos |
 | `src/Support/VoucherRedemptionUrl.php` | O endereço que o QR carrega: o cadastro, com o código na query |
 | `src/Models/VoucherBatch.php` | O lote, e a consulta dos créditos que saíram dele |

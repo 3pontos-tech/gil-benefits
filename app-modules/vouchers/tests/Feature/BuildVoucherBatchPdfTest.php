@@ -26,10 +26,34 @@ function batchWithCodes(int $quantity = 7): VoucherBatch
     return $batch;
 }
 
-it('renders one page for every six cards', function (): void {
-    $pdf = resolve(BuildVoucherBatchPdf::class)->handle(batchWithCodes(7));
+it('renders a front and a back for every card', function (): void {
+    $output = resolve(BuildVoucherBatchPdf::class)->handle(batchWithCodes(3))->output();
 
-    expect($pdf->output())->toStartWith('%PDF-');
+    expect($output)->toStartWith('%PDF-')
+        ->and(substr_count($output, '/Type /Page' . chr(10)))->toBe(6);
+});
+
+it('sizes the sheet to the configured width, keeping the 4:5 of the artwork', function (): void {
+    config()->set('vouchers.card.width_mm', 120);
+
+    $output = resolve(BuildVoucherBatchPdf::class)->handle(batchWithCodes(1))->output();
+
+    expect($output)->toContain('/MediaBox [0.000 0.000 340.157 425.197]');
+});
+
+it('prints whichever deadline closes the redemption first', function (): void {
+    $plan = CompanyPlan::factory()->active()->creditsOnly()->create(['ends_at' => now()->addMonths(3)]);
+    $batch = VoucherBatch::factory()->forPlan($plan)->create(['expires_at' => now()->addMonth()]);
+
+    expect(resolve(BuildVoucherBatchPdf::class)->deadline($batch)?->toDateString())
+        ->toBe(now()->addMonth()->toDateString());
+});
+
+it('says the card has no deadline when neither side carries one', function (): void {
+    $plan = CompanyPlan::factory()->active()->creditsOnly()->create(['ends_at' => null]);
+    $batch = VoucherBatch::factory()->forPlan($plan)->create(['expires_at' => null]);
+
+    expect(resolve(BuildVoucherBatchPdf::class)->deadline($batch))->toBeNull();
 });
 
 it('names the file after the batch', function (): void {
