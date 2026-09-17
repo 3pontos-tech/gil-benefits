@@ -398,8 +398,6 @@ return [
             'generate_pdf' => 'Gerar PDF',
             'regenerate_pdf' => 'Gerar novamente',
             'regenerate_pdf_hint' => 'Refaz as carteirinhas com os dados atuais da empresa. O arquivo anterior é substituído.',
-            'pdf_queued_title' => 'Gerando o PDF',
-            'pdf_queued_body' => 'Avisaremos aqui na central de notificações assim que estiver pronto para baixar.',
         ],
         'codes' => [
             'title' => 'Códigos',

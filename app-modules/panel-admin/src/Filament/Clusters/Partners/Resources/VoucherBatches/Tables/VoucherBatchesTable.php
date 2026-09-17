@@ -7,18 +7,15 @@ namespace TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Voucher
 use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
-use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Bus;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
-use TresPontosTech\Vouchers\Jobs\GenerateVoucherBatchPdfJob;
-use TresPontosTech\Vouchers\Jobs\GenerateVoucherQrCodesJob;
+use TresPontosTech\Vouchers\Actions\RequestVoucherBatchPdf;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
 use TresPontosTech\Vouchers\Support\VoucherBatchPdfUrl;
 
@@ -136,16 +133,7 @@ class VoucherBatchesTable
         /** @var User $user */
         $user = auth()->user();
 
-        Bus::chain([
-            new GenerateVoucherQrCodesJob($batch->getKey()),
-            new GenerateVoucherBatchPdfJob($batch->getKey(), $user->getKey()),
-        ])->dispatch();
-
-        Notification::make()
-            ->info()
-            ->title(__('panel-admin::resources.voucher_batches.actions.pdf_queued_title'))
-            ->body(__('panel-admin::resources.voucher_batches.actions.pdf_queued_body'))
-            ->send();
+        resolve(RequestVoucherBatchPdf::class)->handle($batch, $user);
     }
 
     /**

@@ -398,8 +398,6 @@ return [
             'generate_pdf' => 'Generate PDF',
             'regenerate_pdf' => 'Generate again',
             'regenerate_pdf_hint' => 'Rebuilds the cards with the company details as they are now. The previous file is replaced.',
-            'pdf_queued_title' => 'Generating the PDF',
-            'pdf_queued_body' => 'We will let you know in the notification bell as soon as it is ready to download.',
         ],
         'codes' => [
             'title' => 'Codes',
