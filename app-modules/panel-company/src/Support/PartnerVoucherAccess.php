@@ -18,9 +18,11 @@ final class PartnerVoucherAccess
         if (! $user instanceof User) {
             return false;
         }
+
         if ($user->isAdmin()) {
             return true;
         }
+
         if ($user->isCompanyOwner($company)) {
             return true;
         }
