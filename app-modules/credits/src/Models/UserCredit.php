@@ -31,6 +31,7 @@ use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
  * @property string|null $voucher_redemption_id
  * @property UserCreditStatusEnum $status
  * @property Carbon|null $expires_at
+ * @property Carbon|null $used_at
  * @property string|null $appointment_id
  * @property Carbon|null $transferred_at
  * @property Carbon|null $created_at
@@ -60,6 +61,7 @@ class UserCredit extends Model
         'voucher_redemption_id',
         'status',
         'expires_at',
+        'used_at',
         'appointment_id',
         'transferred_at',
     ];
@@ -69,6 +71,7 @@ class UserCredit extends Model
         return [
             'status' => UserCreditStatusEnum::class,
             'expires_at' => 'datetime',
+            'used_at' => 'datetime',
             'transferred_at' => 'datetime',
         ];
     }
