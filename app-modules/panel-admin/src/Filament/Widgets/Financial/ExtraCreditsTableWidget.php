@@ -69,6 +69,15 @@ class ExtraCreditsTableWidget extends TableWidget
                         ? __('panel-admin::widgets.financial.extra_credits.granted_free')
                         : ''),
 
+                TextColumn::make('voucher')
+                    ->label(__('panel-admin::widgets.financial.extra_credits.voucher'))
+                    ->alignEnd()
+                    ->sortable()
+                    ->formatStateUsing(fn (mixed $state): string => EngagementNumber::integer((int) $state))
+                    ->description(fn (array $record): string => (int) $record['voucher'] > 0
+                        ? __('panel-admin::widgets.financial.extra_credits.voucher_partner')
+                        : ''),
+
                 TextColumn::make('purchased_value_cents')
                     ->label(__('panel-admin::widgets.financial.extra_credits.value'))
                     ->alignEnd()
