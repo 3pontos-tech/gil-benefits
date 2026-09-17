@@ -125,7 +125,7 @@ final readonly class RedeemVoucher
             throw VoucherRedemptionException::alreadyRedeemed();
         }
 
-        if ($user->hasActiveVoucherCredit()) {
+        if ($user->holdsLiveVoucher()) {
             throw VoucherRedemptionException::alreadyHoldsVoucher();
         }
     }

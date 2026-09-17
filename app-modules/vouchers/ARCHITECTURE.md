@@ -37,7 +37,7 @@ Os middlewares que liberam o painel também não importam nada daqui — pergunt
 
 | Tabela | Papel |
 |---|---|
-| `voucher_batches` | Lote gerado pelo admin: `company_id`, `company_plan_id`, `quantity`, `expires_at` (prazo de resgate), `created_by`, `notes` |
+| `voucher_batches` | Lote gerado pelo admin: `company_id`, `company_plan_id`, `quantity`, `expires_at` (prazo de resgate — obrigatório no form, nunca depois do fim do contrato), `created_by`, `notes` |
 | `voucher_codes` | Um código: `code` único, `max_redemptions` (1 hoje), `redemptions_count` |
 | `voucher_redemptions` | Trilha nominal do resgate, única por `(voucher_code_id, user_id)` |
 
@@ -53,7 +53,9 @@ Um `CompanyPlan` com `kind = credits_only`:
 - `ResolveQuotaAllowance` devolve `QuotaAllowance::none()` para ele, então ninguém ganha cota mensal;
 - `Company::hasActivePlan()` continua verdadeiro, e é isso que dá ao dono da parceira o acesso
   ao `/company` para acompanhar a campanha;
-- `ends_at` é o prazo do programa, do qual sai a validade de cada crédito resgatado.
+- `ends_at` é o prazo do programa, do qual sai a validade de cada crédito resgatado. É
+  **obrigatório** neste tipo de contrato: sem ele o crédito nunca venceria e quem não
+  agendasse teria acesso ao painel para sempre. Cota mensal continua podendo ficar aberta.
 
 `seats` não é checado no resgate: ninguém é anexado à parceira, então não há assento a ocupar.
 
@@ -79,8 +81,10 @@ lock no programa
 
 O código não pergunta de onde a pessoa vem: quem tem a carteirinha resgata. Só duas regras
 recortam a pessoa — um resgate por lote, e **um voucher ativo por vez**. A segunda olha o
-ledger: barra quem tem crédito de voucher `available` dentro do prazo ou `in_use`, e libera
-assim que ele vira `used` ou `expired`.
+ledger (`User::holdsLiveVoucher()`): barra quem tem crédito de voucher `available` dentro do
+prazo ou `in_use`, e libera assim que ele vira `used` ou `expired`. A carência de acesso
+descrita abaixo **não** entra nesta conta — quem já fez a consultoria pode aceitar o brinde
+de outra campanha no dia seguinte.
 
 O lock é na linha do programa, e não na do código, porque as invariantes de capacidade vivem
 em linhas diferentes: `max_redemptions` no código e `quantity` no lote.
@@ -121,12 +125,33 @@ Se a pessoa não usou o crédito dentro do prazo, perdeu. Não há devolução n
 ## Acesso de quem entrou por voucher
 
 Duas portas do painel do app olhavam só para assinatura e contrato de empresa. Ambas ganharam
-uma terceira condição, aditiva:
+uma terceira condição, aditiva, que é `User::hasVoucherAccess()`:
 
 | Middleware | O que mudou |
 |---|---|
-| `RedirectUserIfNotSubscribed` (billing) | No tenant padrão, além da assinatura avulsa, um voucher vigente basta. Vencido, a pessoa cai na vitrine como qualquer avulso. |
+| `RedirectUserIfNotSubscribed` (billing) | No tenant padrão, além da assinatura avulsa, um voucher vigente ou recém-usado basta. Vencido, a pessoa cai na vitrine como qualquer avulso. |
 | `RedirectIfAnamneseNotCompleted` (panel-app) | Sem isso, quem entrou por campanha atravessaria a anamnese sem preencher. |
+
+### Carência depois da consultoria
+
+O crédito é a única porta de quem entrou por voucher. Cortar no instante em que a consultoria
+é concluída deixaria a pessoa sem ver o que ficou dela — e sem tempo para decidir se assina.
+Por isso `hasVoucherAccess()` aceita também o crédito `used` enquanto durar **o mais longo**
+entre dois prazos: `vouchers.access_grace_days` (10 por padrão) contados de
+`user_credits.used_at`, que o listener grava na hora do consumo, e a validade original do
+voucher em `expires_at`. A carência é um piso — quem usa no último dia ainda leva os 10 —,
+e a validade é o que a parceira pagou, então não se corta antes dela acabar.
+
+`used` é terminal — consulta concluída ou falta não volta atrás —, então cada crédito abre uma
+janela só, e ninguém empilha carências cancelando e remarcando. `expired` não ganha carência:
+é quem não usou. Crédito comprado ou dado pelo admin tampouco, porque quem os tem entra por
+outra porta (ver #279 para a exceção que ainda falta).
+
+A carência conta a partir da conclusão, não da data da consulta: se ninguém marcar e o job das
+08:00 fechar no dia seguinte, a pessoa ganha um dia a mais, nunca a menos.
+
+A única coisa que a carência dá de graça é acesso sem consultoria — quem falta de propósito
+queima o voucher por dez dias de um painel onde não consegue agendar. Aceito.
 
 ---
 

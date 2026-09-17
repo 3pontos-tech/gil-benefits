@@ -125,7 +125,7 @@ it('redeems the voucher informed at signup', function (): void {
 
     $user = User::query()->where('email', 'joe@doe.com')->sole();
 
-    expect($user->hasActiveVoucherCredit())->toBeTrue()
+    expect($user->holdsLiveVoucher())->toBeTrue()
         ->and($user->credits()->sole()->company_id)->toBe(Company::default()->getKey())
         ->and($code->fresh()->redemptions_count)->toBe(1);
 });

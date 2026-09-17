@@ -38,6 +38,23 @@ return [
     | verso direta.
     |
     */
+    /*
+    |--------------------------------------------------------------------------
+    | Carência depois da consultoria
+    |--------------------------------------------------------------------------
+    |
+    | Quem entrou por voucher só tem o crédito como porta do painel. Cortar no
+    | instante em que a consultoria é concluída deixaria a pessoa sem ver o que
+    | ficou dela — orientações, documentos compartilhados — e sem tempo para
+    | decidir se assina. Estes dias mantêm a porta aberta depois do uso.
+    |
+    | A janela conta a partir de `user_credits.used_at` e é um piso: se a validade
+    | original do voucher for mais longa, vale ela. Só para acesso — resgatar um
+    | voucher novo continua liberado assim que o anterior é usado.
+    |
+    */
+    'access_grace_days' => (int) env('VOUCHER_ACCESS_GRACE_DAYS', 10),
+
     'card' => [
         'width_mm' => (float) env('VOUCHER_CARD_WIDTH_MM', 120),
         'support_email' => env('VOUCHER_SUPPORT_EMAIL', 'ajuda@flammabeneficios.com'),

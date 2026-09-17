@@ -38,7 +38,7 @@ class RedirectIfAnamneseNotCompleted
         // campanha atravessaria a anamnese sem preencher.
         $hasSubscription = $tenant->hasActivePlan()
             || $user->activeSubscription()->exists()
-            || $user->hasActiveVoucherCredit();
+            || $user->hasVoucherAccess();
 
         if (! $hasSubscription) {
             return $next($request);

@@ -75,7 +75,7 @@ it('makes the credit usable in the default tenant', function (): void {
     redeem($user, $code->code);
 
     expect($user->fresh()->hasAvailableCredit(Company::default()->getKey()))->toBeTrue()
-        ->and($user->fresh()->hasActiveVoucherCredit())->toBeTrue();
+        ->and($user->fresh()->holdsLiveVoucher())->toBeTrue();
 });
 
 it('does not attach the redeemer to the partner company', function (): void {
@@ -135,7 +135,7 @@ it('accepts the code in lower case and with surrounding spaces', function (): vo
 
     redeem($user, '  ' . strtolower($code->code) . ' ');
 
-    expect($user->fresh()->hasActiveVoucherCredit())->toBeTrue();
+    expect($user->fresh()->holdsLiveVoucher())->toBeTrue();
 });
 
 it('fires an event once the redemption is committed', function (): void {
@@ -211,11 +211,15 @@ it('rejects a second voucher while the first one is booked', function (): void {
         ->toThrow(VoucherRedemptionException::class);
 });
 
-it('lets the person redeem again once the consultancy happened', function (): void {
+it('lets the person redeem again once the consultancy happened, even inside the access grace', function (): void {
+    config()->set('vouchers.access_grace_days', 10);
     $user = User::factory()->create();
 
     redeem($user, codeFor(voucherProgram())->code);
-    $user->credits()->update(['status' => UserCreditStatusEnum::Used]);
+    $user->credits()->update(['status' => UserCreditStatusEnum::Used, 'used_at' => now()]);
+
+    expect($user->fresh()->hasVoucherAccess())->toBeTrue()
+        ->and($user->fresh()->holdsLiveVoucher())->toBeFalse();
 
     redeem($user, codeFor(voucherProgram())->code);
 

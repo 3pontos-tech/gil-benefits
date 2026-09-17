@@ -83,3 +83,20 @@ it('leaves alone whoever already answered it', function (): void {
 
     expect($response->getContent())->toBe('ok');
 });
+
+it('still asks during the grace after the consultancy', function (): void {
+    config()->set('vouchers.access_grace_days', 10);
+
+    UserCredit::factory()->used()->create([
+        'holder_id' => $this->user->getKey(),
+        'owner_id' => $this->user->getKey(),
+        'company_id' => $this->company->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'used_at' => now()->subDays(3),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('anamnese');
+});

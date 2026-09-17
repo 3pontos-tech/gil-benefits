@@ -88,7 +88,7 @@ readonly class RedirectUserIfNotSubscribed
         // estiver de pé. Vencido o prazo, cai na vitrine como qualquer avulso.
         if (! $tenant->subsidizesEmployees()) {
             $hasValidSubscription = $this->hasStandalonePriceSubscription($employee)
-                || $employee->hasActiveVoucherCredit();
+                || $employee->hasVoucherAccess();
         }
 
         if ($hasValidSubscription) {

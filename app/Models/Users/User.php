@@ -411,21 +411,55 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * Crédito de voucher ainda de pé — disponível dentro do prazo, ou já preso a um
-     * agendamento. É o que sustenta o acesso ao painel de quem entrou por campanha e
-     * nunca assinou nada.
+     * Voucher ainda por gastar — disponível dentro do prazo, ou já preso a um agendamento.
+     *
+     * É a pergunta do resgate: enquanto isto for verdade, a pessoa não pega outro voucher.
+     * Usado não conta, mesmo dentro da carência de acesso; quem já fez a consultoria pode
+     * aceitar o brinde de outra campanha.
      */
-    public function hasActiveVoucherCredit(): bool
+    public function holdsLiveVoucher(): bool
+    {
+        return $this->liveVoucherCredits()->exists();
+    }
+
+    /**
+     * Se o voucher ainda sustenta o acesso ao painel.
+     *
+     * Além do voucher por gastar, vale o já usado enquanto durar o mais longo entre dois
+     * prazos: a carência depois da consultoria e a validade original do voucher. Quem entrou
+     * por campanha não tem outra porta, e a parceira pagou por um período — cortar antes dele
+     * acabar faria a pessoa sentir que perdeu tempo de acesso. `used` é terminal, então cada
+     * crédito gera uma janela só.
+     */
+    public function hasVoucherAccess(): bool
+    {
+        $graceDays = (int) config('vouchers.access_grace_days');
+
+        return $this->liveVoucherCredits()
+            ->orWhere(fn (Builder $used): Builder => $used
+                ->where('holder_id', $this->getKey())
+                ->whereNotNull('voucher_redemption_id')
+                ->where('status', UserCreditStatusEnum::Used)
+                ->where(fn (Builder $window): Builder => $window
+                    ->where('used_at', '>', now()->subDays($graceDays))
+                    ->orWhere('expires_at', '>', now())))
+            ->exists();
+    }
+
+    /**
+     * @return Builder<UserCredit>
+     */
+    private function liveVoucherCredits(): Builder
     {
         return UserCredit::query()
-            ->where('holder_id', $this->getKey())
-            ->whereNotNull('voucher_redemption_id')
-            ->where(fn (Builder $query): Builder => $query
-                ->where(fn (Builder $available): Builder => $available
-                    ->where('status', UserCreditStatusEnum::Available)
-                    ->notExpired())
-                ->orWhere('status', UserCreditStatusEnum::InUse))
-            ->exists();
+            ->where(fn (Builder $live): Builder => $live
+                ->where('holder_id', $this->getKey())
+                ->whereNotNull('voucher_redemption_id')
+                ->where(fn (Builder $query): Builder => $query
+                    ->where(fn (Builder $available): Builder => $available
+                        ->where('status', UserCreditStatusEnum::Available)
+                        ->notExpired())
+                    ->orWhere('status', UserCreditStatusEnum::InUse)));
     }
 
     /** @return HasMany<UserCredit, $this> */
