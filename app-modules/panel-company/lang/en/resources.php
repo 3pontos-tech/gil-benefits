@@ -4,6 +4,52 @@ declare(strict_types=1);
 
 return [
     'pages' => [
+        'vouchers' => [
+            'group' => 'Vouchers',
+        ],
+        'voucher_campaigns' => [
+            'navigation_label' => 'Campaigns',
+            'title' => 'Voucher campaigns',
+            'subheading' => 'Each batch of cards, how much of it was redeemed and how much can still be used.',
+            'columns' => [
+                'name' => 'Campaign',
+                'expires_at' => 'Redeemable until',
+                'codes' => 'Codes',
+                'redeemed' => 'Redeemed',
+                'available' => 'Still to use',
+            ],
+            'actions' => [
+                'view_codes' => 'View codes',
+            ],
+        ],
+        'voucher_codes' => [
+            'navigation_label' => 'Codes',
+            'title' => 'Voucher codes',
+            'subheading' => 'Every code from your campaigns, with the QR printed on each card.',
+            'columns' => [
+                'qr' => 'QR',
+                'code' => 'Code',
+                'batch' => 'Campaign',
+                'status' => 'Status',
+                'redeemed_by' => 'Redeemed by',
+                'redeemed_at' => 'Redeemed at',
+            ],
+            'status' => [
+                'free' => 'Free',
+                'redeemed' => 'Redeemed',
+            ],
+            'filters' => [
+                'batch' => 'Campaign',
+                'redeemed' => 'Redeemed',
+            ],
+            'stats' => [
+                'total' => 'Codes issued',
+                'available' => 'Still to use',
+                'available_description' => 'cards nobody redeemed yet',
+                'redeemed' => 'Redeemed',
+                'redeemed_description' => "already became someone's credit",
+            ],
+        ],
         'voucher_redemptions' => [
             'navigation_label' => 'Vouchers',
             'title' => 'Voucher redemptions',

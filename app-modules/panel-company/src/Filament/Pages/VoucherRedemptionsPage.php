@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TresPontosTech\PanelCompany\Filament\Pages;
 
-use App\Models\Users\User;
 use BackedEnum;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
@@ -16,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\PanelCompany\Filament\Concerns\ShowsVoucherProgram;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
 use TresPontosTech\Vouchers\Models\VoucherRedemption;
 
@@ -31,12 +31,15 @@ use TresPontosTech\Vouchers\Models\VoucherRedemption;
 class VoucherRedemptionsPage extends Page implements HasTable
 {
     use InteractsWithTable;
+    use ShowsVoucherProgram;
 
     protected static ?string $slug = 'voucher-redemptions';
 
     protected string $view = 'company-voucher-redemptions';
 
-    protected static BackedEnum|string|null $navigationIcon = Heroicon::Ticket;
+    protected static BackedEnum|string|null $navigationIcon = Heroicon::Users;
+
+    protected static ?int $navigationSort = 3;
 
     public static function getNavigationLabel(): string
     {
@@ -51,23 +54,6 @@ class VoucherRedemptionsPage extends Page implements HasTable
     public function getSubheading(): ?string
     {
         return __('panel-company::resources.pages.voucher_redemptions.subheading');
-    }
-
-    public static function canAccess(): bool
-    {
-        /** @var User $user */
-        $user = auth()->user();
-
-        if (! $user->isAdmin() && ! $user->isCompanyOwner() && ! $user->isCompanyManager()) {
-            return false;
-        }
-
-        /** @var Company|null $tenant */
-        $tenant = filament()->getTenant();
-
-        return $tenant instanceof Company && VoucherBatch::query()
-            ->where('company_id', $tenant->getKey())
-            ->exists();
     }
 
     public function table(Table $table): Table

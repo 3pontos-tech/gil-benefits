@@ -4,6 +4,52 @@ declare(strict_types=1);
 
 return [
     'pages' => [
+        'vouchers' => [
+            'group' => 'Vouchers',
+        ],
+        'voucher_campaigns' => [
+            'navigation_label' => 'Campanhas',
+            'title' => 'Campanhas de voucher',
+            'subheading' => 'Cada lote de carteirinhas, quanto já foi resgatado e quanto ainda pode ser usado.',
+            'columns' => [
+                'name' => 'Campanha',
+                'expires_at' => 'Resgate até',
+                'codes' => 'Códigos',
+                'redeemed' => 'Resgatados',
+                'available' => 'Ainda para usar',
+            ],
+            'actions' => [
+                'view_codes' => 'Ver códigos',
+            ],
+        ],
+        'voucher_codes' => [
+            'navigation_label' => 'Códigos',
+            'title' => 'Códigos de voucher',
+            'subheading' => 'Todos os códigos das suas campanhas, com o QR de cada carteirinha.',
+            'columns' => [
+                'qr' => 'QR',
+                'code' => 'Código',
+                'batch' => 'Campanha',
+                'status' => 'Situação',
+                'redeemed_by' => 'Resgatado por',
+                'redeemed_at' => 'Resgatado em',
+            ],
+            'status' => [
+                'free' => 'Livre',
+                'redeemed' => 'Resgatado',
+            ],
+            'filters' => [
+                'batch' => 'Campanha',
+                'redeemed' => 'Resgatado',
+            ],
+            'stats' => [
+                'total' => 'Códigos emitidos',
+                'available' => 'Ainda para usar',
+                'available_description' => 'carteirinhas que ninguém resgatou',
+                'redeemed' => 'Resgatados',
+                'redeemed_description' => 'já viraram crédito de alguém',
+            ],
+        ],
         'voucher_redemptions' => [
             'navigation_label' => 'Vouchers',
             'title' => 'Resgates de voucher',

@@ -157,8 +157,19 @@ queima o voucher por dez dias de um painel onde não consegue agendar. Aceito.
 
 ## O que a parceira enxerga
 
-`VoucherRedemptionsPage`, no painel da empresa: quem resgatou, de qual campanha, quando, e a
-situação da consultoria.
+Três páginas no painel da empresa, num grupo "Vouchers", visíveis para dono e gestor de
+empresa que tenha ao menos um lote (`ShowsVoucherProgram`):
+
+| Página | O que mostra |
+|---|---|
+| `VoucherBatchesPage` | Cada campanha com códigos emitidos, resgatados e **ainda para usar**, e o botão de PDF — mesmo esquema do admin: se a folha existe, baixa; se não, entra na fila (`RequestVoucherBatchPdf`) e a pessoa é avisada quando ficar pronta. |
+| `VoucherCodesPage` | Todos os códigos, com o QR de cada carteirinha, situação (livre/resgatado) e quem resgatou. Contadores no topo. |
+| `VoucherRedemptionsPage` | Quem resgatou, de qual campanha, quando, e a situação da consultoria. |
+
+PDF e QR ficam em disco privado e saem por rotas próprias do painel da empresa
+(`partner/voucher-batches/{batch}/pdf`, `partner/voucher-codes/{code}/qr`), autorizadas
+por `PartnerVoucherAccess` — dono, gestor ou admin. O prefixo `partner/` é para não disputar
+com as rotas `company/{tenant}/...` do Filament.
 
 O relatório não sai das páginas de Métricas de propósito — elas filtram
 `appointments.company_id`, que num resgate aponta para o tenant padrão, e agrupam por
@@ -198,6 +209,7 @@ prazo do lote.
 | `src/Actions/ExpireVoucherCredits.php` | `available` → `expired` nos créditos de voucher fora do prazo |
 | `src/Actions/GenerateVoucherQrCodes.php` | Um QR por código, atrás do adapter `QrCodeGenerator` |
 | `src/Actions/BuildVoucherBatchPdf.php` | Carteirinha frente e verso, uma por página, reescalada da arte |
+| `src/Actions/RequestVoucherBatchPdf.php` | Enfileira QR e PDF e avisa quem pediu — usado pelo admin e pela parceira |
 | `src/Support/VoucherCodeGenerator.php` | Código aleatório em alfabeto sem caracteres ambíguos |
 | `src/Support/VoucherRedemptionUrl.php` | O endereço que o QR carrega: o cadastro, com o código na query |
 | `src/Models/VoucherBatch.php` | O lote, e a consulta dos créditos que saíram dele |
@@ -205,4 +217,4 @@ prazo do lote.
 
 As telas vivem fora do módulo: o resgate em
 `app-modules/panel-app/src/Filament/Pages/UserRegistration.php` e o acompanhamento da parceira
-em `app-modules/panel-company/src/Filament/Pages/VoucherRedemptionsPage.php`.
+em `app-modules/panel-company/src/Filament/Pages/Voucher*Page.php`.
