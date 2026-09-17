@@ -246,6 +246,7 @@ return [
                     'overlap_error' => 'There is already an active plan with overlapping validity for this company.',
                     'starts_at' => 'Validity start',
                     'ends_at' => 'Validity end',
+                    'ends_at_hint' => 'Required for a voucher program: this date becomes the validity of every redeemed credit. Without it the credit would never expire and anyone who never booked would keep panel access indefinitely.',
                     'notes' => 'Notes',
                 ],
                 'table' => [
@@ -374,7 +375,7 @@ return [
             'quantity' => 'Number of codes',
             'quantity_hint' => 'One code per person, single use. It cannot exceed the contract seats.',
             'expires_at' => 'Redeemable until',
-            'expires_at_hint' => 'After this date the code can no longer be redeemed. Leave empty for no deadline.',
+            'expires_at_hint' => 'After this date the code can no longer be redeemed. It cannot go past the end of the program.',
             'notes' => 'Notes',
         ],
         'fields' => [

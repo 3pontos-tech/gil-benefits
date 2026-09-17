@@ -8,6 +8,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Carbon;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
@@ -45,12 +46,30 @@ class VoucherBatchForm
                     ->label(__('panel-admin::resources.voucher_batches.form.expires_at'))
                     ->helperText(__('panel-admin::resources.voucher_batches.form.expires_at_hint'))
                     ->displayFormat('d/m/Y')
-                    ->afterOrEqual('today'),
+                    ->required()
+                    ->afterOrEqual('today')
+                    ->beforeOrEqual(fn (Get $get): ?string => self::programEndsAt($get)),
 
                 Textarea::make('notes')
                     ->label(__('panel-admin::resources.voucher_batches.form.notes'))
                     ->columnSpanFull(),
             ]);
+    }
+
+    /**
+     * O resgate já é recusado quando o programa encerra, então um prazo de lote depois do
+     * fim do contrato é uma data que nunca vale. Barrar no form evita imprimir carteirinha
+     * com uma promessa que o sistema não cumpre.
+     */
+    private static function programEndsAt(Get $get): ?string
+    {
+        $planId = $get('company_plan_id');
+
+        if (blank($planId)) {
+            return null;
+        }
+
+        return CompanyPlan::query()->whereKey($planId)->first()?->ends_at?->toDateString();
     }
 
     /**

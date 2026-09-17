@@ -246,6 +246,7 @@ return [
                     'overlap_error' => 'Já existe um plano ativo com vigência sobreposta para esta empresa.',
                     'starts_at' => 'Início da vigência',
                     'ends_at' => 'Fim da vigência',
+                    'ends_at_hint' => 'Obrigatório para programa de voucher: é esta data que vira a validade de cada crédito resgatado. Sem ela, o crédito nunca venceria e quem não agendasse teria acesso ao painel para sempre.',
                     'notes' => 'Observações',
                 ],
                 'table' => [
@@ -374,7 +375,7 @@ return [
             'quantity' => 'Quantidade de códigos',
             'quantity_hint' => 'Um código por pessoa, uso único. Não pode passar das vagas do contrato.',
             'expires_at' => 'Resgatável até',
-            'expires_at_hint' => 'Depois desta data o código não pode mais ser resgatado. Em branco, não expira.',
+            'expires_at_hint' => 'Depois desta data o código não pode mais ser resgatado. Não pode passar do fim da vigência do programa.',
             'notes' => 'Observações',
         ],
         'fields' => [

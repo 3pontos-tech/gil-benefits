@@ -46,6 +46,7 @@ it('generates the codes when the admin creates a batch', function (): void {
             'company_plan_id' => $plan->getKey(),
             'name' => 'Campanha Incorporadora',
             'quantity' => 12,
+            'expires_at' => now()->addMonth()->toDateString(),
         ])
         ->call('create')
         ->assertHasNoFormErrors();
@@ -54,6 +55,54 @@ it('generates the codes when the admin creates a batch', function (): void {
 
     expect($batch->company_id)->toBe($plan->company_id)
         ->and($batch->codes()->count())->toBe(12);
+});
+
+it('refuses a batch without a redemption deadline', function (): void {
+    $plan = CompanyPlan::factory()->active()->creditsOnly()->create();
+
+    livewire(CreateVoucherBatch::class)
+        ->fillForm([
+            'company_plan_id' => $plan->getKey(),
+            'name' => 'Campanha sem prazo',
+            'quantity' => 5,
+            'expires_at' => null,
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['expires_at' => 'required']);
+
+    expect(VoucherBatch::query()->exists())->toBeFalse();
+});
+
+it('refuses a redemption deadline past the end of the program', function (): void {
+    $plan = CompanyPlan::factory()->active()->creditsOnly()->create(['ends_at' => now()->addMonths(2)]);
+
+    livewire(CreateVoucherBatch::class)
+        ->fillForm([
+            'company_plan_id' => $plan->getKey(),
+            'name' => 'Campanha longa demais',
+            'quantity' => 5,
+            'expires_at' => now()->addMonths(3)->toDateString(),
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['expires_at']);
+
+    expect(VoucherBatch::query()->exists())->toBeFalse();
+});
+
+it('accepts a redemption deadline on the very last day of the program', function (): void {
+    $plan = CompanyPlan::factory()->active()->creditsOnly()->create(['ends_at' => now()->addMonths(2)]);
+
+    livewire(CreateVoucherBatch::class)
+        ->fillForm([
+            'company_plan_id' => $plan->getKey(),
+            'name' => 'Campanha ate o fim',
+            'quantity' => 5,
+            'expires_at' => $plan->ends_at->toDateString(),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    expect(VoucherBatch::query()->sole()->expires_at?->toDateString())->toBe($plan->ends_at->toDateString());
 });
 
 it('offers only credits only programs to attach the batch to', function (): void {

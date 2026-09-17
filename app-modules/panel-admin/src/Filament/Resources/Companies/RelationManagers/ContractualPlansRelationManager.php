@@ -141,7 +141,11 @@ class ContractualPlansRelationManager extends RelationManager
 
                 DatePicker::make('ends_at')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.ends_at'))
+                    ->helperText(fn (Get $get): ?string => $this->kindOf($get) === CompanyPlanKindEnum::CreditsOnly
+                        ? (string) __('panel-admin::resources.companies.relation_managers.contractual_plans.form.ends_at_hint')
+                        : null)
                     ->displayFormat('d/m/Y')
+                    ->required(fn (Get $get): bool => $this->kindOf($get) === CompanyPlanKindEnum::CreditsOnly)
                     ->afterOrEqual(fn (Get $get): ?string => $get('starts_at')),
 
                 Textarea::make('notes')
