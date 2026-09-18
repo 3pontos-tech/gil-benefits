@@ -162,7 +162,7 @@ empresa que tenha ao menos um lote (`ShowsVoucherProgram`):
 
 | Página | O que mostra |
 |---|---|
-| `VoucherBatchesPage` | Cada campanha com códigos emitidos, resgatados e **ainda para usar**, e o botão de PDF — mesmo esquema do admin: se a folha existe, baixa; se não, entra na fila (`RequestVoucherBatchPdf`) e a pessoa é avisada quando ficar pronta. |
+| `VoucherBatchesPage` | Cada campanha com códigos emitidos, resgatados e **ainda para usar**, e o botão de PDF — mesmo esquema do admin: se a folha existe, baixa; se não, entra na fila (`RequestVoucherBatchPdf`) e a pessoa é avisada quando ficar pronta, com o link da rota do painel de onde pediu. |
 | `VoucherCodesPage` | Todos os códigos, com o QR de cada carteirinha, situação (livre/resgatado) e quem resgatou. Contadores no topo. |
 | `VoucherRedemptionsPage` | Quem resgatou, de qual campanha, quando, e a situação da consultoria. |
 

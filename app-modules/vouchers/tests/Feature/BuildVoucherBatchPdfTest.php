@@ -12,6 +12,7 @@ use TresPontosTech\Vouchers\Actions\BuildVoucherBatchPdf;
 use TresPontosTech\Vouchers\Jobs\GenerateVoucherBatchPdfJob;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
 use TresPontosTech\Vouchers\Models\VoucherCode;
+use TresPontosTech\Vouchers\Support\VoucherBatchPdfUrl;
 use TresPontosTech\Vouchers\Support\VoucherRedemptionUrl;
 
 use function Pest\Laravel\travelTo;
@@ -111,6 +112,7 @@ it('stores the generated pdf on the private disk and notifies the requester', fu
     resolve(GenerateVoucherBatchPdfJob::class, [
         'batchId' => $batch->getKey(),
         'requestedById' => $admin->getKey(),
+        'downloadUrl' => VoucherBatchPdfUrl::for($batch),
     ])->handle(resolve(BuildVoucherBatchPdf::class));
 
     $media = $batch->fresh()->pdf();
@@ -119,7 +121,24 @@ it('stores the generated pdf on the private disk and notifies the requester', fu
         ->and($media->disk)->toBe('local')
         ->and($media->mime_type)->toBe('application/pdf')
         ->and($media->getPath())->toContain('/pdf/')
-        ->and($admin->notifications()->count())->toBe(1);
+        ->and($admin->notifications()->count())->toBe(1)
+        ->and(data_get($admin->notifications()->first()->data, 'actions.0.url'))->toBe(VoucherBatchPdfUrl::for($batch));
+});
+
+it('sends the requester to whatever download url the panel handed in', function (): void {
+    Storage::fake('local');
+
+    $batch = batchWithCodes(1);
+    $owner = User::factory()->create();
+
+    resolve(GenerateVoucherBatchPdfJob::class, [
+        'batchId' => $batch->getKey(),
+        'requestedById' => $owner->getKey(),
+        'downloadUrl' => 'https://partner.test/vouchers/sheet',
+    ])->handle(resolve(BuildVoucherBatchPdf::class));
+
+    expect(data_get($owner->notifications()->first()->data, 'actions.0.url'))
+        ->toBe('https://partner.test/vouchers/sheet');
 });
 
 it('keeps only the latest pdf for a batch', function (): void {
@@ -132,6 +151,7 @@ it('keeps only the latest pdf for a batch', function (): void {
         resolve(GenerateVoucherBatchPdfJob::class, [
             'batchId' => $batch->getKey(),
             'requestedById' => $admin->getKey(),
+            'downloadUrl' => VoucherBatchPdfUrl::for($batch),
         ])->handle(resolve(BuildVoucherBatchPdf::class));
     }
 
@@ -144,9 +164,9 @@ it('does not queue a second job for the same batch', function (): void {
     $batch = batchWithCodes(1);
     $admin = User::factory()->create();
 
-    dispatch(new GenerateVoucherBatchPdfJob($batch->getKey(), $admin->getKey()));
+    dispatch(new GenerateVoucherBatchPdfJob($batch->getKey(), $admin->getKey(), VoucherBatchPdfUrl::for($batch)));
 
-    expect((new GenerateVoucherBatchPdfJob($batch->getKey(), $admin->getKey()))->uniqueId())
+    expect((new GenerateVoucherBatchPdfJob($batch->getKey(), $admin->getKey(), VoucherBatchPdfUrl::for($batch)))->uniqueId())
         ->toBe($batch->getKey());
 
     Queue::assertPushed(GenerateVoucherBatchPdfJob::class, 1);

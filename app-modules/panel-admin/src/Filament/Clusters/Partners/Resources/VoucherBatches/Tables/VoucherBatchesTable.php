@@ -133,7 +133,7 @@ class VoucherBatchesTable
         /** @var User $user */
         $user = auth()->user();
 
-        resolve(RequestVoucherBatchPdf::class)->handle($batch, $user);
+        resolve(RequestVoucherBatchPdf::class)->handle($batch, $user, VoucherBatchPdfUrl::for($batch));
     }
 
     /**

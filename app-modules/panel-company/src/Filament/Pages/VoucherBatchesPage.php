@@ -104,7 +104,7 @@ class VoucherBatchesPage extends Page implements HasTable
                         /** @var User $user */
                         $user = auth()->user();
 
-                        resolve(RequestVoucherBatchPdf::class)->handle($record, $user);
+                        resolve(RequestVoucherBatchPdf::class)->handle($record, $user, PartnerVoucherUrls::pdf($record));
 
                         return null;
                     }),

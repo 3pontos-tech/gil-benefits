@@ -32,6 +32,7 @@ function sheetFor(VoucherBatch $batch, User $requester): void
     resolve(GenerateVoucherBatchPdfJob::class, [
         'batchId' => $batch->getKey(),
         'requestedById' => $requester->getKey(),
+        'downloadUrl' => PartnerVoucherUrls::pdf($batch),
     ])->handle(resolve(BuildVoucherBatchPdf::class));
 }
 

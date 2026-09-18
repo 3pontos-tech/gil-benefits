@@ -71,6 +71,7 @@ it('hands over the stored sheet instead of queueing again', function (): void {
     resolve(GenerateVoucherBatchPdfJob::class, [
         'batchId' => $batch->getKey(),
         'requestedById' => $this->owner->getKey(),
+        'downloadUrl' => PartnerVoucherUrls::pdf($batch),
     ])->handle(resolve(BuildVoucherBatchPdf::class));
 
     livewire(VoucherBatchesPage::class)

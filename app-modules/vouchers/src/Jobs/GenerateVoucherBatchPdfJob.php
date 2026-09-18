@@ -16,7 +16,6 @@ use Illuminate\Queue\SerializesModels;
 use Throwable;
 use TresPontosTech\Vouchers\Actions\BuildVoucherBatchPdf;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
-use TresPontosTech\Vouchers\Support\VoucherBatchPdfUrl;
 
 class GenerateVoucherBatchPdfJob implements ShouldBeUnique, ShouldQueue
 {
@@ -38,9 +37,15 @@ class GenerateVoucherBatchPdfJob implements ShouldBeUnique, ShouldQueue
      */
     public bool $failOnTimeout = true;
 
+    /**
+     * O link do aviso é decidido por quem pediu, no momento do pedido: cada painel tem a
+     * sua rota de download, e só a requisição sabe o host real. Montar a URL aqui dentro
+     * usaria APP_URL e sempre a rota do admin — a parceira clicaria e tomaria 403.
+     */
     public function __construct(
         public string $batchId,
         public string $requestedById,
+        public string $downloadUrl,
     ) {}
 
     public function uniqueId(): string
@@ -82,7 +87,7 @@ class GenerateVoucherBatchPdfJob implements ShouldBeUnique, ShouldQueue
             ->actions([
                 Action::make('download')
                     ->label(__('vouchers::vouchers.pdf.download'))
-                    ->url(VoucherBatchPdfUrl::for($batch))
+                    ->url($this->downloadUrl)
                     ->openUrlInNewTab()
                     ->markAsRead(),
             ])

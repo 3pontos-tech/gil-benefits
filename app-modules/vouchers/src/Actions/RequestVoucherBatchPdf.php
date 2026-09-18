@@ -16,15 +16,16 @@ use TresPontosTech\Vouchers\Models\VoucherBatch;
  *
  * Os QR saem antes do PDF e cada um em seu job: são ~10s para 500 códigos e minutos para
  * desenhar as páginas, e nenhum dos dois cabe na requisição. A notificação de "pronto" sai
- * do próprio job do PDF, para quem pediu.
+ * do próprio job do PDF, para quem pediu, apontando para a rota de download do painel de
+ * onde o pedido veio.
  */
 final readonly class RequestVoucherBatchPdf
 {
-    public function handle(VoucherBatch $batch, User $requestedBy): void
+    public function handle(VoucherBatch $batch, User $requestedBy, string $downloadUrl): void
     {
         Bus::chain([
             new GenerateVoucherQrCodesJob($batch->getKey()),
-            new GenerateVoucherBatchPdfJob($batch->getKey(), $requestedBy->getKey()),
+            new GenerateVoucherBatchPdfJob($batch->getKey(), $requestedBy->getKey(), $downloadUrl),
         ])->dispatch();
 
         Notification::make()
