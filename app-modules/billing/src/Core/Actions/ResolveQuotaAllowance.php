@@ -8,6 +8,7 @@ use App\Models\Users\User;
 use Carbon\CarbonImmutable;
 use Filament\Facades\Filament;
 use TresPontosTech\Billing\Core\DTOs\QuotaAllowance;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
@@ -37,8 +38,12 @@ final readonly class ResolveQuotaAllowance
         $contractualPlan = $this->contractualPlanFor($user, $companyId);
 
         if ($contractualPlan instanceof CompanyPlan) {
+            if ($contractualPlan->kind === CompanyPlanKindEnum::CreditsOnly) {
+                return QuotaAllowance::none();
+            }
+
             return new QuotaAllowance(
-                $contractualPlan->monthly_appointments_per_employee,
+                (int) $contractualPlan->monthly_appointments_per_employee,
                 CarbonImmutable::instance($contractualPlan->starts_at ?? $contractualPlan->created_at),
                 $companyId,
             );

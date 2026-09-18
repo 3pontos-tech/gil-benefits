@@ -56,6 +56,7 @@ readonly class RedirectUserIfNotSubscribed
             return to_route($inactiveRoute, ['tenant' => $tenant->slug]);
         }
 
+        /** @var User $employee */
         $employee = auth()->user();
 
         // TODO: Employee needs to pick a plan to continue
@@ -81,8 +82,13 @@ readonly class RedirectUserIfNotSubscribed
 
         // Sem empregador, a assinatura só vale se foi comprada pelo valor
         // cheio — quem entrou por um preço subsidiado não pode ficar aqui.
+        //
+        // O voucher de campanha entra por fora da assinatura: a consultoria já foi
+        // paga pela empresa parceira, e quem resgatou fica aqui enquanto o crédito
+        // estiver de pé. Vencido o prazo, cai na vitrine como qualquer avulso.
         if (! $tenant->subsidizesEmployees()) {
-            $hasValidSubscription = $this->hasStandalonePriceSubscription($employee);
+            $hasValidSubscription = $this->hasStandalonePriceSubscription($employee)
+                || $employee->hasVoucherAccess();
         }
 
         if ($hasValidSubscription) {

@@ -93,6 +93,16 @@ class Company extends Model implements HasAvatar, HasMedia
     }
 
     /**
+     * O tenant compartilhado, onde mora quem não tem empregador.
+     *
+     * @see AttachToDefaultCompany
+     */
+    public static function default(): self
+    {
+        return self::query()->where('slug', self::DEFAULT_SLUG)->firstOrFail();
+    }
+
+    /**
      * Se esta empresa banca parte da mensalidade dos colaboradores.
      *
      * O tenant default é o balde de quem não tem empregador, então ninguém

@@ -15,6 +15,6 @@ class MarkCreditUsedOnAppointmentListener
         UserCredit::query()
             ->where('appointment_id', $event->appointmentId)
             ->where('status', UserCreditStatusEnum::InUse)
-            ->update(['status' => UserCreditStatusEnum::Used]);
+            ->update(['status' => UserCreditStatusEnum::Used, 'used_at' => now()]);
     }
 }

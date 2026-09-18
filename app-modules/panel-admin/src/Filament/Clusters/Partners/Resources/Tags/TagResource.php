@@ -28,6 +28,11 @@ class TagResource extends Resource
 
     protected static ?string $cluster = PartnersCluster::class;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     protected static ?string $recordTitleAttribute = 'name';
 
     public static function form(Schema $schema): Schema

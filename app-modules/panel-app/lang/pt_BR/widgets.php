@@ -33,6 +33,7 @@ return [
         'view_plan' => 'Ver plano',
         'close' => 'Fechar',
         'monthly_appointments' => '{1} :count consulta por mês|[2,*] :count consultas por mês',
+        'credits_only' => 'Consultoria por crédito, sem cota mensal',
         'whatsapp' => 'Acesso ao WhatsApp',
         'materials' => 'Materiais exclusivos',
     ],

@@ -34,7 +34,11 @@ class RedirectIfAnamneseNotCompleted
             return $next($request);
         }
 
-        $hasSubscription = $tenant->hasActivePlan() || $user->activeSubscription()->exists();
+        // O voucher é a terceira porta de entrada: sem ele na conta, quem chegou por
+        // campanha atravessaria a anamnese sem preencher.
+        $hasSubscription = $tenant->hasActivePlan()
+            || $user->activeSubscription()->exists()
+            || $user->hasVoucherAccess();
 
         if (! $hasSubscription) {
             return $next($request);
