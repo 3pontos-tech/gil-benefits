@@ -1,0 +1,25 @@
+{
+	"name": "3pontos-tech/vouchers",
+	"description": "Vouchers de consultoria: lotes de códigos por empresa parceira, resgate e encerramento de programa",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {
+    },
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\Vouchers\\": "src/",
+			"TresPontosTech\\Vouchers\\Tests\\": "tests/",
+			"TresPontosTech\\Vouchers\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\Vouchers\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\Vouchers\\VouchersServiceProvider"
+			]
+		}
+	}
+}

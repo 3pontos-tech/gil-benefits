@@ -9,6 +9,7 @@ use Livewire\Livewire;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Enums\CreditOrderStatusEnum;
 use TresPontosTech\Credits\Models\CreditGrant;
@@ -20,6 +21,9 @@ use TresPontosTech\PanelAdmin\DTOs\Financial\FinancialFilters;
 use TresPontosTech\PanelAdmin\Filament\Pages\Financial\ConsultingUsage;
 use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ConsultingVolumeWidget;
 use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ExtraCreditsTableWidget;
+use TresPontosTech\Vouchers\Models\VoucherBatch;
+use TresPontosTech\Vouchers\Models\VoucherCode;
+use TresPontosTech\Vouchers\Models\VoucherRedemption;
 
 use function Pest\Laravel\travelTo;
 
@@ -139,6 +143,34 @@ describe('créditos por origem', function (): void {
             ->and($row->purchased)->toBe(1)
             ->and($row->granted)->toBe(1)
             ->and($row->total())->toBe(3);
+    });
+
+    it('atribui o crédito de voucher à parceira que pagou a campanha, não ao tenant padrão', function (): void {
+        $flamma = Company::factory()->create(['slug' => Company::DEFAULT_SLUG, 'name' => 'Flamma']);
+        $partner = Company::factory()->create(['name' => 'Incorporadora Alfa']);
+        $holder = User::factory()->create();
+
+        $plan = CompanyPlan::factory()->active()->creditsOnly()->for($partner)->create();
+        $code = VoucherCode::factory()->for(VoucherBatch::factory()->forPlan($plan), 'batch')->create();
+        $redemption = VoucherRedemption::factory()->create(['voucher_code_id' => $code->getKey(), 'user_id' => $holder->getKey()]);
+
+        $appointment = appointmentWith(AppointmentStatus::Completed, $flamma);
+        UserCredit::factory()->create([
+            'company_id' => $flamma->getKey(),
+            'owner_id' => $holder->getKey(),
+            'holder_id' => $holder->getKey(),
+            'appointment_id' => $appointment->getKey(),
+            'voucher_redemption_id' => $redemption->getKey(),
+        ]);
+
+        $rows = resolve(GetExtraCredits::class)->handle($this->filters);
+
+        expect($rows)->toHaveCount(1)
+            ->and($rows->first()->companyName)->toBe('Incorporadora Alfa')
+            ->and($rows->first()->voucher)->toBe(1)
+            ->and($rows->first()->fromPlan)->toBe(0)
+            ->and($rows->first()->purchasedValueCents)->toBe(0)
+            ->and($rows->first()->total())->toBe(1);
     });
 
     it('valoriza o crédito comprado pela fatia do pedido, não pelo total', function (): void {

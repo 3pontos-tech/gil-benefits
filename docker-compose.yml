@@ -64,7 +64,7 @@ services:
       start_period: 10s
 
   flamma-minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: flamma-minio
     restart: no
     hostname: dev
@@ -88,7 +88,7 @@ services:
       start_period: 10s
 
   flamma-minio-bucket:
-    image: minio/mc:latest
+    image: quay.io/minio/mc:latest
     restart: no
     depends_on:
       flamma-minio:

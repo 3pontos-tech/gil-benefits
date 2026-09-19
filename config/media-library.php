@@ -34,6 +34,10 @@ use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Support\DocumentPathGenerator;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Support\SupportTicketPathGenerator;
+use TresPontosTech\Vouchers\Models\VoucherBatch;
+use TresPontosTech\Vouchers\Models\VoucherCode;
+use TresPontosTech\Vouchers\Support\VoucherBatchPdfPathGenerator;
+use TresPontosTech\Vouchers\Support\VoucherQrCodePathGenerator;
 
 return [
 
@@ -134,6 +138,8 @@ return [
         Company::class => CompanyLogoPathGenerator::class,
         User::class => UserAvatarPathGenerator::class,
         SupportTicket::class => SupportTicketPathGenerator::class,
+        VoucherCode::class => VoucherQrCodePathGenerator::class,
+        VoucherBatch::class => VoucherBatchPdfPathGenerator::class,
     ],
 
     /*

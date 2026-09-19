@@ -19,6 +19,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -45,6 +46,14 @@ class ContractualPlansRelationManager extends RelationManager
     {
         return $schema
             ->components([
+                Select::make('kind')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.kind'))
+                    ->helperText(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.kind_hint'))
+                    ->options(CompanyPlanKindEnum::class)
+                    ->default(CompanyPlanKindEnum::MonthlyQuota)
+                    ->required()
+                    ->live(),
+
                 Select::make('plan_id')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.plan'))
                     ->options(
@@ -82,7 +91,9 @@ class ContractualPlansRelationManager extends RelationManager
                     ->integer()
                     ->minValue(1)
                     ->default(1)
-                    ->required(),
+                    ->visible(fn (Get $get): bool => $this->kindOf($get) === CompanyPlanKindEnum::MonthlyQuota)
+                    ->required(fn (Get $get): bool => $this->kindOf($get) === CompanyPlanKindEnum::MonthlyQuota)
+                    ->dehydrateStateUsing(fn (?string $state): ?int => blank($state) ? null : (int) $state),
 
                 Select::make('status')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.status'))
@@ -130,13 +141,26 @@ class ContractualPlansRelationManager extends RelationManager
 
                 DatePicker::make('ends_at')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.ends_at'))
+                    ->helperText(fn (Get $get): ?string => $this->kindOf($get) === CompanyPlanKindEnum::CreditsOnly
+                        ? (string) __('panel-admin::resources.companies.relation_managers.contractual_plans.form.ends_at_hint')
+                        : null)
                     ->displayFormat('d/m/Y')
+                    ->required(fn (Get $get): bool => $this->kindOf($get) === CompanyPlanKindEnum::CreditsOnly)
                     ->afterOrEqual(fn (Get $get): ?string => $get('starts_at')),
 
                 Textarea::make('notes')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.form.notes'))
                     ->columnSpanFull(),
             ]);
+    }
+
+    private function kindOf(Get $get): CompanyPlanKindEnum
+    {
+        $kind = $get('kind');
+
+        return $kind instanceof CompanyPlanKindEnum
+            ? $kind
+            : CompanyPlanKindEnum::tryFrom((string) $kind) ?? CompanyPlanKindEnum::MonthlyQuota;
     }
 
     public function table(Table $table): Table
@@ -161,8 +185,14 @@ class ContractualPlansRelationManager extends RelationManager
                     ->badge(fn (CompanyPlan $record): bool => $record->monthly_value_cents === null)
                     ->color(fn (CompanyPlan $record): string => $record->monthly_value_cents === null ? 'warning' : 'gray'),
 
+                TextColumn::make('kind')
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.kind'))
+                    ->badge()
+                    ->color(fn (CompanyPlanKindEnum $state): array => $state->getColor()),
+
                 TextColumn::make('monthly_appointments_per_employee')
-                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.monthly_appointments')),
+                    ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.monthly_appointments'))
+                    ->placeholder(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.monthly_appointments_none')),
 
                 TextColumn::make('status')
                     ->label(__('panel-admin::resources.companies.relation_managers.contractual_plans.table.status'))
