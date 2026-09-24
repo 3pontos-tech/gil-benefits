@@ -4,7 +4,7 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
-use TresPontosTech\Billing\Stripe\Subscription\User\RedirectUserIfNotSubscribed;
+use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\UserDashboard;
 use TresPontosTech\PanelApp\Filament\Widgets\JourneyHeroWidget;

@@ -11,9 +11,9 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Icons\Heroicon;
-use TresPontosTech\Billing\Core\Actions\Credit\GrantExtraCredit;
-use TresPontosTech\Billing\Core\DTOs\GrantCreditDTO;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Actions\GrantExtraCredit;
+use TresPontosTech\Credits\DTOs\GrantCreditDTO;
 
 class GrantExtraCreditAction extends Action
 {

@@ -25,7 +25,7 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use TresPontosTech\Billing\Stripe\Subscription\User\UserBillingProvider;
+use TresPontosTech\Billing\Core\Filament\UserBillingProvider;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\EditUserProfile;
 use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;

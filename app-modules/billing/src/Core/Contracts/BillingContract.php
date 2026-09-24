@@ -13,8 +13,8 @@ use TresPontosTech\Company\Models\Company;
  * billable has one.
  *
  * Anything a provider might not be able to do lives in its own interface —
- * SupportsCreditPurchase, SupportsSubscriptionCancellation — so a driver
- * declares its capabilities instead of implementing a method that throws.
+ * SupportsCreditPurchase (credits module), SupportsSubscriptionCancellation — so
+ * a driver declares its capabilities instead of implementing a method that throws.
  */
 interface BillingContract
 {

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Database\Factories\CompanyPlanFactory;
 use TresPontosTech\Company\Models\Company;
@@ -20,9 +21,10 @@ use TresPontosTech\Company\Models\Company;
  * @property string $id
  * @property string $company_id
  * @property int $plan_id
+ * @property CompanyPlanKindEnum $kind
  * @property int $seats
  * @property int|null $monthly_value_cents
- * @property int $monthly_appointments_per_employee
+ * @property int|null $monthly_appointments_per_employee
  * @property CompanyPlanStatusEnum $status
  * @property Carbon|null $starts_at
  * @property Carbon|null $ends_at
@@ -45,6 +47,7 @@ class CompanyPlan extends Model
     protected $fillable = [
         'company_id',
         'plan_id',
+        'kind',
         'seats',
         'monthly_value_cents',
         'monthly_appointments_per_employee',
@@ -57,12 +60,18 @@ class CompanyPlan extends Model
     protected function casts(): array
     {
         return [
+            'kind' => CompanyPlanKindEnum::class,
             'status' => CompanyPlanStatusEnum::class,
             'starts_at' => 'date',
             'ends_at' => 'date',
             'monthly_appointments_per_employee' => 'integer',
             'monthly_value_cents' => 'integer',
         ];
+    }
+
+    public function grantsMonthlyQuota(): bool
+    {
+        return $this->kind->grantsMonthlyQuota();
     }
 
     /**
@@ -85,10 +94,14 @@ class CompanyPlan extends Model
      * Contratos ativos e vigentes no momento informado.
      *
      * A regra de vigência (status ativo, já começou, ainda não terminou, datas
-     * nulas valendo como "sem limite") estava escrita à mão dentro de
-     * `Company::activeContractualPlan()`. Extraída para cá porque o cockpit
-     * financeiro precisa da mesma regra em lote, para todas as empresas de uma
-     * vez, e duas cópias divergiriam na primeira mudança.
+     * nulas valendo como "sem limite") estava copiada em quatro lugares: aqui, em
+     * `Company::activeContractualPlan()`, no `PlanCreditsWidget` e no funil de
+     * engajamento. Extraída para cá porque o cockpit financeiro precisa da mesma
+     * regra em lote, e porque a cota mensal passou a depender dela para achar a
+     * âncora do ciclo — duas cópias divergiriam na primeira mudança.
+     *
+     * O `whereNull('deleted_at')` que as cópias antigas carregavam era redundante:
+     * `SoftDeletes` já aplica.
      *
      * @param  Builder<$this>  $query
      */

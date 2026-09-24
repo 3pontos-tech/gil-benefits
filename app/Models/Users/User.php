@@ -31,7 +31,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Cache;
 use Laravel\Cashier\Billable;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
@@ -40,16 +39,16 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Models\CompanyPlan;
-use TresPontosTech\Billing\Core\Models\CreditGrant;
+use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
-use TresPontosTech\Billing\Core\Models\UserCredit;
+use TresPontosTech\Billing\Core\Support\QuotaCycle;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Models\CreditGrant;
+use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\Permissions\Role;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
@@ -380,42 +379,87 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             ->exists();
     }
 
-    public function forgetMonthlyAppointmentsLeftCache(): void
-    {
-        if ($this->getKey() === null) {
-            return;
-        }
-
-        Cache::forget($this->getMonthlyAppointmentsLeftCacheKey());
-    }
-
-    protected function getMonthlyAppointmentsLeftCacheKey(): string
-    {
-        /** @var string $key */
-        $key = $this->getKey();
-
-        return sprintf('user:%s:monthly_appointments_left', $key);
-    }
-
     /**
-     * Determine if the user is eligible to create a new appointment.
+     * Se esta pessoa pode abrir uma consultoria agora.
      *
-     * Rules:
-     * - Must have monthly appointments left.
-     * - Must not have any ongoing appointment (i.e., previous one must be completed or cancelled).
+     * São duas condições: ter com que pagar — cota do ciclo ou crédito avulso — e não ter
+     * consultoria em aberto, porque é uma por vez.
      */
     public function canCreateAppointment(): bool
     {
-        return ($this->monthly_appointments_left > 0 || $this->hasAvailableCredit())
+        $companyId = resolve(ResolveQuotaAllowance::class)->companyIdFor($this);
+
+        return ($this->monthly_appointments_left > 0 || $this->hasAvailableCredit($companyId))
             && ! $this->hasOngoingAppointment();
     }
 
-    public function hasAvailableCredit(): bool
+    /**
+     * Crédito disponível nesta empresa.
+     *
+     * A empresa é obrigatória de propósito. Crédito nasce vinculado a uma — a coluna nem
+     * aceita nulo — e as telas que o mostram já filtram pelo tenant. Perguntar sem empresa
+     * deixava quem tem crédito na empresa A agendar na empresa B, gastando o crédito da A.
+     */
+    public function hasAvailableCredit(?string $companyId): bool
     {
         return UserCredit::query()
             ->where('holder_id', $this->getKey())
+            ->where('company_id', $companyId)
             ->where('status', UserCreditStatusEnum::Available)
+            ->notExpired()
             ->exists();
+    }
+
+    /**
+     * Voucher ainda por gastar — disponível dentro do prazo, ou já preso a um agendamento.
+     *
+     * É a pergunta do resgate: enquanto isto for verdade, a pessoa não pega outro voucher.
+     * Usado não conta, mesmo dentro da carência de acesso; quem já fez a consultoria pode
+     * aceitar o brinde de outra campanha.
+     */
+    public function holdsLiveVoucher(): bool
+    {
+        return $this->liveVoucherCredits()->exists();
+    }
+
+    /**
+     * Se o voucher ainda sustenta o acesso ao painel.
+     *
+     * Além do voucher por gastar, vale o já usado enquanto durar o mais longo entre dois
+     * prazos: a carência depois da consultoria e a validade original do voucher. Quem entrou
+     * por campanha não tem outra porta, e a parceira pagou por um período — cortar antes dele
+     * acabar faria a pessoa sentir que perdeu tempo de acesso. `used` é terminal, então cada
+     * crédito gera uma janela só.
+     */
+    public function hasVoucherAccess(): bool
+    {
+        $graceDays = (int) config('vouchers.access_grace_days');
+
+        return $this->liveVoucherCredits()
+            ->orWhere(fn (Builder $used): Builder => $used
+                ->where('holder_id', $this->getKey())
+                ->whereNotNull('voucher_redemption_id')
+                ->where('status', UserCreditStatusEnum::Used)
+                ->where(fn (Builder $window): Builder => $window
+                    ->where('used_at', '>', now()->subDays($graceDays))
+                    ->orWhere('expires_at', '>', now())))
+            ->exists();
+    }
+
+    /**
+     * @return Builder<UserCredit>
+     */
+    private function liveVoucherCredits(): Builder
+    {
+        return UserCredit::query()
+            ->where(fn (Builder $live): Builder => $live
+                ->where('holder_id', $this->getKey())
+                ->whereNotNull('voucher_redemption_id')
+                ->where(fn (Builder $query): Builder => $query
+                    ->where(fn (Builder $available): Builder => $available
+                        ->where('status', UserCreditStatusEnum::Available)
+                        ->notExpired())
+                    ->orWhere('status', UserCreditStatusEnum::InUse)));
     }
 
     /** @return HasMany<UserCredit, $this> */
@@ -458,7 +502,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * Computed, cached monthly appointments left in the last 30 days window.
+     * Consultas restantes no ciclo corrente, ancorado na data de contratação.
+     *
+     * Cota não acumula: o que sobra num ciclo não passa para o seguinte. O débito
+     * é do ciclo que contém o `created_at` da reserva, não o `appointment_at`, para
+     * que marcar perto da virada não queime o ciclo seguinte e para que remarcar
+     * nunca mexa na cota.
+     *
+     * `shouldCache()` memoriza o resultado na instância, e só nela: nada além de
+     * reidratar o model invalida essa memória, então quem precisar do valor depois de
+     * criar ou cancelar um agendamento tem que reler de uma instância nova. Não há
+     * cache entre requests de propósito — o valor decide se alguém consome crédito, e
+     * um saldo com minutos de atraso decide errado.
      *
      * @return Attribute<int, never>
      */
@@ -470,51 +525,46 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
                     return 0;
                 }
 
-                $cacheKey = $this->getMonthlyAppointmentsLeftCacheKey();
+                $allowance = resolve(ResolveQuotaAllowance::class)->for($this);
 
-                /** @var int $result */
-                $result = Cache::remember($cacheKey, now()->addMinute(), function (): int {
-                    $monthlyLimit = $this->resolveMonthlyAppointmentLimit();
+                if ($allowance->isEmpty()) {
+                    return 0;
+                }
 
-                    if ($monthlyLimit <= 0) {
-                        return 0;
-                    }
+                $cycle = QuotaCycle::forAnchor($allowance->anchor);
 
-                    $used = (int) $this->appointments()
-                        ->where('created_at', '>=', now()->subDays(30))
-                        ->where('status', '!=', AppointmentStatus::Cancelled->value)
-                        ->count();
+                $used = (int) $this->appointments()
+                    ->where('company_id', $allowance->companyId)
+                    ->where('created_at', '>=', $cycle->start)
+                    ->where('created_at', '<', $cycle->end)
+                    ->where('status', '!=', AppointmentStatus::Cancelled->value)
+                    ->count();
 
-                    return max($monthlyLimit - $used, 0);
-                });
-
-                return $result;
+                return max($allowance->limit - $used + $this->quotaRefundsInCycle($cycle, $allowance->companyId), 0);
             }
         )->shouldCache();
     }
 
     /**
-     * Monthly appointment quota, prioritizing the company plan (CompanyPlan)
-     * over the individual subscription when both exist.
+     * Consultas devolvidas neste ciclo por cancelamento válido feito depois da virada.
+     *
+     * Quando a reserva foi debitada de um ciclo que já fechou, cancelar no prazo não
+     * devolveria nada: a contagem do ciclo corrente nunca a incluiu. O carimbo é feito
+     * no cancelamento, onde ainda se sabe se a consulta foi paga com cota ou com
+     * crédito avulso, e vale só para o ciclo em que o cancelamento aconteceu.
+     *
+     * Escopado pela mesma empresa que resolveu o limite: um `company_id` nulo vira
+     * `whereNull` pelo próprio query builder, então quem não tem empresa continua
+     * contando os agendamentos que também nasceram sem empresa.
      */
-    private function resolveMonthlyAppointmentLimit(): int
+    private function quotaRefundsInCycle(QuotaCycle $cycle, ?string $companyId): int
     {
-        $contractualPlan = CompanyPlan::query()
-            ->whereIn('company_id', $this->companies()->select('companies.id'))
-            ->where('status', CompanyPlanStatusEnum::Active->value)
-            ->whereNull('deleted_at')
-            ->where(fn (Builder $q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-            ->where(fn (Builder $q) => $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()))
-            ->first();
-
-        if ($contractualPlan !== null) {
-            return (int) $contractualPlan->monthly_appointments_per_employee;
-        }
-
-        /** @var Subscription|null $subscription */
-        $subscription = $this->activeSubscription()->with('price')->first();
-
-        return (int) ($subscription?->price->monthly_appointments ?? 0);
+        return (int) $this->appointments()
+            ->where('company_id', $companyId)
+            ->whereNotNull('quota_refunded_at')
+            ->where('quota_refunded_at', '>=', $cycle->start)
+            ->where('quota_refunded_at', '<', $cycle->end)
+            ->count();
     }
 
     /**

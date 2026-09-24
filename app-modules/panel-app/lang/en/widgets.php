@@ -33,6 +33,7 @@ return [
         'view_plan' => 'View plan',
         'close' => 'Close',
         'monthly_appointments' => '{1} :count appointment per month|[2,*] :count appointments per month',
+        'credits_only' => 'Consultancy by credit, no monthly quota',
         'whatsapp' => 'WhatsApp access',
         'materials' => 'Exclusive materials',
     ],
@@ -70,6 +71,7 @@ return [
         'consultant' => 'Consultant',
         'no_consultant' => 'No consultant yet',
         'appointments_remaining' => 'appointments remaining this month',
+        'renews_at' => 'Renews on :date',
         'book_appointment' => 'Book Consultation',
     ],
 

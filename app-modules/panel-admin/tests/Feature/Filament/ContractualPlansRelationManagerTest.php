@@ -7,6 +7,7 @@ use Filament\Actions\Testing\TestAction;
 use Livewire\Features\SupportTesting\Testable;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -120,4 +121,79 @@ describe('valor mensal do contrato', function (): void {
             ->assertOk()
             ->assertSeeText('Não cadastrado');
     });
+});
+
+it('recusa um contrato sem data de início', function (): void {
+    contractsManager($this->company)
+        ->assertOk()
+        ->callAction(TestAction::make('create')->table(), data: [
+            'plan_id' => $this->plan->getKey(),
+            'seats' => 10,
+            'monthly_appointments_per_employee' => 1,
+            'status' => CompanyPlanStatusEnum::Active->value,
+            'starts_at' => null,
+        ])
+        // starts_at virou a âncora do ciclo de cota: sem ela o contrato ancoraria
+        // no created_at do registro, que não tem relação com o contrato.
+        ->assertHasActionErrors(['starts_at' => 'required']);
+});
+
+it('cria o contrato quando a data de início é informada', function (): void {
+    contractsManager($this->company)
+        ->assertOk()
+        ->callAction(TestAction::make('create')->table(), data: [
+            'plan_id' => $this->plan->getKey(),
+            'seats' => 10,
+            'monthly_appointments_per_employee' => 1,
+            'status' => CompanyPlanStatusEnum::Active->value,
+            'starts_at' => '2026-03-10',
+        ])
+        ->assertHasNoActionErrors();
+
+    expect(CompanyPlan::query()->where('company_id', $this->company->getKey())->exists())->toBeTrue();
+});
+
+it('recusa um programa de voucher sem data de fim', function (): void {
+    contractsManager($this->company)
+        ->callAction(TestAction::make('create')->table(), data: [
+            'kind' => CompanyPlanKindEnum::CreditsOnly->value,
+            'plan_id' => $this->plan->getKey(),
+            'seats' => 10,
+            'status' => CompanyPlanStatusEnum::Active->value,
+            'starts_at' => '2026-03-10',
+            'ends_at' => null,
+        ])
+        ->assertHasActionErrors(['ends_at' => 'required']);
+
+    expect(CompanyPlan::query()->where('company_id', $this->company->getKey())->exists())->toBeFalse();
+});
+
+it('cria o programa de voucher quando a data de fim é informada', function (): void {
+    contractsManager($this->company)
+        ->callAction(TestAction::make('create')->table(), data: [
+            'kind' => CompanyPlanKindEnum::CreditsOnly->value,
+            'plan_id' => $this->plan->getKey(),
+            'seats' => 10,
+            'status' => CompanyPlanStatusEnum::Active->value,
+            'starts_at' => '2026-03-10',
+            'ends_at' => '2026-06-10',
+        ])
+        ->assertHasNoActionErrors();
+
+    expect(CompanyPlan::query()->where('company_id', $this->company->getKey())->value('ends_at'))
+        ->not->toBeNull();
+});
+
+it('segue aceitando cota mensal sem data de fim', function (): void {
+    contractsManager($this->company)
+        ->callAction(TestAction::make('create')->table(), data: [
+            'kind' => CompanyPlanKindEnum::MonthlyQuota->value,
+            'plan_id' => $this->plan->getKey(),
+            'seats' => 10,
+            'monthly_appointments_per_employee' => 1,
+            'status' => CompanyPlanStatusEnum::Active->value,
+            'starts_at' => '2026-03-10',
+            'ends_at' => null,
+        ])
+        ->assertHasNoActionErrors();
 });

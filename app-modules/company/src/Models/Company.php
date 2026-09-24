@@ -28,12 +28,12 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
-use TresPontosTech\Billing\Core\Models\CreditGrant;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
-use TresPontosTech\Billing\Core\Observers\CompanyCreditsObserver;
 use TresPontosTech\Company\Actions\AttachToDefaultCompany;
 use TresPontosTech\Company\Database\Factories\CompanyFactory;
+use TresPontosTech\Credits\Models\CreditGrant;
+use TresPontosTech\Credits\Observers\CompanyCreditsObserver;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Policies\CompanyPolicy;
 
@@ -90,6 +90,16 @@ class Company extends Model implements HasAvatar, HasMedia
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    /**
+     * O tenant compartilhado, onde mora quem não tem empregador.
+     *
+     * @see AttachToDefaultCompany
+     */
+    public static function default(): self
+    {
+        return self::query()->where('slug', self::DEFAULT_SLUG)->firstOrFail();
     }
 
     /**

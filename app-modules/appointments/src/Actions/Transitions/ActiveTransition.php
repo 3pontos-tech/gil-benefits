@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\Appointments\Actions\Transitions;
 
 use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Actions\AppointmentHistory\StoreAppointmentHistoryAction;
 use TresPontosTech\Appointments\DTO\StoreAppointmentHistoryDTO;
@@ -17,8 +16,8 @@ use TresPontosTech\Appointments\Events\AppointmentCompleted;
 use TresPontosTech\Appointments\Events\AppointmentNoShow;
 use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
-use TresPontosTech\Billing\Core\Enums\UserCreditStatusEnum;
-use TresPontosTech\Billing\Core\Events\Credit\AppointmentCreditUsed;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Events\AppointmentCreditUsed;
 
 final class ActiveTransition extends AbstractAppointmentTransition
 {
@@ -71,9 +70,6 @@ final class ActiveTransition extends AbstractAppointmentTransition
         $previousStatus = $this->appointment->status;
 
         $this->appointment->update(['status' => AppointmentStatus::NoShow]);
-
-        $this->appointment->loadMissing('user');
-        DB::afterCommit(fn () => $this->appointment->user->forgetMonthlyAppointmentsLeftCache());
 
         event(new AppointmentCreditUsed((string) $this->appointment->getKey()));
 

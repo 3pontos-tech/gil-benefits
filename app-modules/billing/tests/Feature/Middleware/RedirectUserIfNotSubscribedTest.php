@@ -8,11 +8,13 @@ use Illuminate\Support\Facades\Http;
 use Laravel\Cashier\Cashier;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
+use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
-use TresPontosTech\Billing\Stripe\Subscription\User\RedirectUserIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Models\UserCredit;
+use TresPontosTech\Vouchers\Database\Factories\VoucherRedemptionFactory;
 
 use function Pest\Laravel\actingAs;
 
@@ -161,4 +163,188 @@ it('allows access when employee subscription is trialing', function (): void {
     $response = $this->middleware->handle($this->request, $this->next);
 
     expect($response->getContent())->toBe('ok');
+});
+
+it('lets a voucher holder into the default tenant without any subscription', function (): void {
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_voucher',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'expires_at' => now()->addMonth(),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getContent())->toBe('ok');
+});
+
+it('sends the voucher holder back to the storefront once the voucher lapsed', function (): void {
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_lapsed',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'expires_at' => now()->subDay(),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('available-subscriptions');
+});
+
+it('keeps the door open for a few days after the voucher consultancy', function (): void {
+    config()->set('vouchers.access_grace_days', 10);
+
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_grace',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->used()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'used_at' => now()->subDays(9),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getContent())->toBe('ok');
+});
+
+it('closes the door once the grace after the consultancy runs out', function (): void {
+    config()->set('vouchers.access_grace_days', 10);
+
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_grace_over',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->used()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'used_at' => now()->subDays(11),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('available-subscriptions');
+});
+
+it('gives no grace to a voucher that lapsed without being used', function (): void {
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_expired',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->expired()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'expires_at' => now()->subDay(),
+        'used_at' => null,
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('available-subscriptions');
+});
+
+it('gives no grace to a purchased credit that was used', function (): void {
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_bought',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->used()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => null,
+        'used_at' => now()->subDay(),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('available-subscriptions');
+});
+
+it('keeps the door open past the grace while the voucher itself is still valid', function (): void {
+    config()->set('vouchers.access_grace_days', 10);
+
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_long_voucher',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->used()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'used_at' => now()->subDays(20),
+        'expires_at' => now()->addDays(10),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getContent())->toBe('ok');
+});
+
+it('closes the door once both the grace and the voucher validity are gone', function (): void {
+    config()->set('vouchers.access_grace_days', 10);
+
+    $flammaCompany = Company::factory()->create([
+        'slug' => Company::DEFAULT_SLUG,
+        'stripe_id' => 'cus_flamma_both_gone',
+    ]);
+    $flammaCompany->employees()->attach($this->employee->getKey());
+    filament()->setTenant($flammaCompany);
+
+    UserCredit::factory()->used()->create([
+        'holder_id' => $this->employee->getKey(),
+        'owner_id' => $this->employee->getKey(),
+        'company_id' => $flammaCompany->getKey(),
+        'voucher_redemption_id' => VoucherRedemptionFactory::new()->create()->getKey(),
+        'used_at' => now()->subDays(20),
+        'expires_at' => now()->subDay(),
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('available-subscriptions');
 });

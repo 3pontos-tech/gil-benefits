@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -25,6 +26,7 @@ class CompanyPlanFactory extends Factory
                 'type' => BillableTypeEnum::Company,
                 'provider_product_id' => null,
             ]),
+            'kind' => CompanyPlanKindEnum::MonthlyQuota,
             'seats' => $this->faker->numberBetween(1, 100),
             'monthly_appointments_per_employee' => 1,
             'status' => CompanyPlanStatusEnum::Active,
@@ -41,6 +43,14 @@ class CompanyPlanFactory extends Factory
             'status' => CompanyPlanStatusEnum::Active,
             'starts_at' => null,
             'ends_at' => null,
+        ]);
+    }
+
+    public function creditsOnly(): self
+    {
+        return $this->state([
+            'kind' => CompanyPlanKindEnum::CreditsOnly,
+            'monthly_appointments_per_employee' => null,
         ]);
     }
 

@@ -5,10 +5,10 @@ use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
+use TresPontosTech\Billing\Core\Http\Middleware\RedirectCompanyIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
-use TresPontosTech\Billing\Stripe\Subscription\Company\RedirectCompanyIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
 
 use function Pest\Laravel\actingAs;
