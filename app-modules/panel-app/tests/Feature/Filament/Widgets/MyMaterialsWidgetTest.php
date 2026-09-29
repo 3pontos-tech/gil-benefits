@@ -49,3 +49,16 @@ it('deletes an own document from the grid', function (): void {
 
     assertSoftDeleted('documents', ['id' => $mine->getKey()]);
 });
+
+it('renders the grid when an own document has no type', function (): void {
+    $untyped = Document::factory()->create([
+        'documentable_type' => test()->employee->getMorphClass(),
+        'documentable_id' => test()->employee->getKey(),
+        'active' => true,
+        'type' => null,
+    ]);
+
+    livewire(MyMaterialsWidget::class)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$untyped]);
+});
