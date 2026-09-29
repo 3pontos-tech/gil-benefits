@@ -57,7 +57,7 @@ class MyMaterialsWidget extends TableWidget
                 ]),
             ])
             ->contentGrid(['md' => 2, 'xl' => 4])
-            ->recordClasses(fn (Document $record): string => 'fi-apt-doc-' . $record->type->value)
+            ->recordClasses(fn (Document $record): string => 'fi-apt-doc-' . ($record->type->value ?? 'default'))
             ->recordActions([
                 ActionGroup::make([
                     DownloadDocumentFilamentAction::make()
