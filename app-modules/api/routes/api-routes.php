@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LoginController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LogoutController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\AvatarController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\JourneyController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\MeController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\PasswordController;
 use TresPontosTech\Api\Http\Middleware\EnsureAppAccess;
@@ -29,5 +30,6 @@ Route::prefix('api/v1')
             Route::put('me/password', PasswordController::class)->name('me.password');
             Route::post('me/avatar', [AvatarController::class, 'store'])->name('me.avatar.store');
             Route::delete('me/avatar', [AvatarController::class, 'destroy'])->name('me.avatar.destroy');
+            Route::get('me/journey', JourneyController::class)->name('me.journey');
         });
     });
