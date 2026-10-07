@@ -32,6 +32,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Laravel\Cashier\Billable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -80,6 +81,7 @@ use TresPontosTech\User\Models\UserAnamnese;
 class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasMedia, HasTenants
 {
     use Billable;
+    use HasApiTokens;
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -377,6 +379,24 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             ->where('name', $tenantRole->value)
             ->whereHas('permissions', fn (Builder $query): Builder => $query->where('name', $permission))
             ->exists();
+    }
+
+    /**
+     * Se esta pessoa é público do aplicativo do colaborador (API v1).
+     *
+     * Entra quem tem vínculo ativo em company_employees com alguma empresa, inclusive a
+     * padrão: plano da empresa, assinatura individual ou voucher. Consultores também são
+     * ligados à empresa padrão no cadastro, por isso ficam de fora explicitamente: eles
+     * usam o painel do consultor. Admin e dono sem vínculo não entram porque o app não
+     * tem o que mostrar a eles.
+     */
+    public function canUseApp(): bool
+    {
+        if ($this->hasRole(Roles::Consultant->value)) {
+            return false;
+        }
+
+        return $this->companies()->wherePivot('active', true)->exists();
     }
 
     /**

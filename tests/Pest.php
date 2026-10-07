@@ -16,6 +16,7 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -243,6 +244,30 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
     filament()->setCurrentPanel(FilamentPanel::User->value);
     actingAs($user);
     filament()->setTenant($company);
+
+    return $user;
+}
+
+/**
+ * Colaborador B2B autenticado pela API do app (token Sanctum com a ability `employee`).
+ */
+function actingAsApiEmployee(): User
+{
+    $user = actingAsEmployee();
+
+    Sanctum::actingAs($user, ['employee']);
+
+    return $user;
+}
+
+/**
+ * Assinante individual autenticado pela API do app (token Sanctum com a ability `employee`).
+ */
+function actingAsApiSubscriber(int $monthlyLimit = 1): User
+{
+    $user = actingAsSubscribedEmployee($monthlyLimit);
+
+    Sanctum::actingAs($user, ['employee']);
 
     return $user;
 }
