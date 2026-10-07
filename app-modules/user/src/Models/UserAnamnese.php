@@ -48,6 +48,19 @@ class UserAnamnese extends Model
         ];
     }
 
+    /**
+     * As cinco respostas preenchidas. Hoje as colunas são NOT NULL, mas a anamnese
+     * progressiva do app (S9) passa a gravar respostas parciais.
+     */
+    public function isComplete(): bool
+    {
+        return filled($this->life_moment)
+            && filled($this->main_motivation)
+            && filled($this->money_relationship)
+            && filled($this->plans_monthly_expenses)
+            && filled($this->tried_financial_strategies);
+    }
+
     /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
