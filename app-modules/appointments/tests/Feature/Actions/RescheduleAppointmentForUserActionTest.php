@@ -102,7 +102,7 @@ it('rethrows when the current consultant is busy and the sync already reverted',
         ->and($fresh->status)->toBe(AppointmentStatus::Active);
 });
 
-it('restores the appointment and reports when the sync fails unexpectedly', function (): void {
+it('restores the appointment and rethrows without reporting when the sync fails unexpectedly', function (): void {
     Exceptions::fake();
     consultantAvailableOn(Date::parse('2026-10-12'));
 
@@ -117,7 +117,7 @@ it('restores the appointment and reports when the sync fails unexpectedly', func
     expect(fn () => resolve(RescheduleAppointmentForUserAction::class)->handle($this->appointment, $this->user, '2026-10-12 10:00:00'))
         ->toThrow(RuntimeException::class);
 
-    Exceptions::assertReported(RuntimeException::class);
+    Exceptions::assertNotReported(RuntimeException::class);
 
     expect($this->appointment->refresh()->appointment_at->toDateTimeString())->toBe('2026-10-10 14:00:00');
 });

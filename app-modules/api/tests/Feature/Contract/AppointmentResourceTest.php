@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
@@ -15,11 +16,13 @@ beforeEach(function (): void {
 });
 
 it('exposes every key the app reads from Appointment', function (): void {
+    $consultant = Consultant::factory()->create();
     $appointment = appointmentFor($this->employee, AppointmentStatus::Completed, now()->subDays(2), [
-        'consultant_id' => Consultant::factory()->create()->getKey(),
+        'consultant_id' => $consultant->getKey(),
+        'category_type' => AppointmentCategoryEnum::PersonalFinance,
     ]);
     AppointmentFeedback::factory()->create(['appointment_id' => $appointment->id, 'user_id' => $this->employee->id]);
-    AppointmentRecord::factory()->published()->create(['appointment_id' => $appointment->id]);
+    $record = AppointmentRecord::factory()->published()->create(['appointment_id' => $appointment->id]);
 
     getJson(route('api.v1.appointments.show', $appointment))
         ->assertOk()
@@ -31,6 +34,11 @@ it('exposes every key the app reads from Appointment', function (): void {
             'record' => ['published_at', 'content'],
             'can_reschedule', 'can_cancel', 'cancel_impact', 'materials', 'created_at',
         ]])
+        ->assertJsonPath('data.category_label', 'Finanças pessoais')
+        ->assertJsonPath('data.consultant.id', $consultant->id)
+        ->assertJsonPath('data.consultant.name', $consultant->name)
+        ->assertJsonPath('data.record.content', $record->content)
+        ->assertJsonPath('data.record.published_at', '2026-10-07T10:00:00-03:00')
         ->assertJsonPath('data.materials', [])
         ->assertJsonPath('data.consultant.avatar_url', null)
         ->assertJsonPath('data.duration_minutes', 60);

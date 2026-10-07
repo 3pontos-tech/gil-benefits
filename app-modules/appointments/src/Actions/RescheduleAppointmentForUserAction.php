@@ -22,7 +22,8 @@ final readonly class RescheduleAppointmentForUserAction
      * Move o agendamento do próprio colaborador para um horário oferecido, mantendo o consultor
      * atual. A sincronização da agenda (histórico, Zap, Google Calendar) é a mesma do painel admin;
      * se o consultor estiver ocupado no novo horário ela reverte o registro e relança
-     * SlotUnavailableException; qualquer outra falha é revertida aqui, reportada e relançada.
+     * SlotUnavailableException; qualquer outra falha é revertida aqui e relançada, sem reportar: quem chama decide (o painel
+     * reporta e avisa o usuário; na API o handler reporta uma única vez).
      *
      * SyncAppointmentScheduleAction é resolvida no uso, e não no construtor, porque os testes do
      * painel a substituem por uma classe anônima via app()->instance().
@@ -57,8 +58,6 @@ final readonly class RescheduleAppointmentForUserAction
                 'appointment_at' => $previousAppointmentAt,
                 'consultant_id' => $previousConsultantId,
             ]);
-
-            report($throwable);
 
             throw $throwable;
         }

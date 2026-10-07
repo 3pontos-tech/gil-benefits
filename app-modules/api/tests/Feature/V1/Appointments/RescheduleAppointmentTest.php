@@ -102,6 +102,26 @@ it('refuses when the current consultant is busy and keeps the original time', fu
         ->and($fresh->status)->toBe(AppointmentStatus::Active);
 });
 
+it('refuses an appointment_at before the lead with the lead message', function (): void {
+    patchJson(route('api.v1.appointments.update', $this->appointment), ['appointment_at' => '2026-10-08T09:00:00-03:00'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['appointment_at' => 'Escolha um horário com pelo menos 2 dias de antecedência.']);
+});
+
+it('validates appointment_at', function (mixed $value): void {
+    patchJson(route('api.v1.appointments.update', $this->appointment), ['appointment_at' => $value])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['appointment_at']);
+})->with(['missing' => [null], 'not a date' => ['not-a-date']]);
+
+it('normalises a UTC appointment_at to the application timezone', function (): void {
+    patchJson(route('api.v1.appointments.update', $this->appointment), ['appointment_at' => '2026-10-12T13:00:00.000Z'])
+        ->assertOk()
+        ->assertJsonPath('data.appointment_at', '2026-10-12T10:00:00-03:00');
+
+    expect($this->appointment->refresh()->appointment_at->toDateTimeString())->toBe('2026-10-12 10:00:00');
+});
+
 it('answers 404 for another employee appointment', function (): void {
     $other = appointmentFor(User::factory()->employee()->create(), AppointmentStatus::Pending, Date::parse('2026-10-10 14:00:00'));
 

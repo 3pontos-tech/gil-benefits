@@ -32,11 +32,19 @@ final readonly class BookableSlots
     {
         $day = $this->inAppTimezone($day);
 
-        if ($day->copy()->startOfDay()->lt(now()->addDays(Appointment::BOOKING_LEAD_DAYS)->startOfDay())) {
+        if ($day->copy()->startOfDay()->lt($this->firstBookableDay())) {
             return [];
         }
 
         return $this->availableSlots->handle($day);
+    }
+
+    /**
+     * Primeiro dia com horários oferecidos: hoje + BOOKING_LEAD_DAYS, à meia-noite, no fuso da aplicação.
+     */
+    public function firstBookableDay(): Carbon
+    {
+        return $this->inAppTimezone(now())->addDays(Appointment::BOOKING_LEAD_DAYS)->startOfDay();
     }
 
     /**

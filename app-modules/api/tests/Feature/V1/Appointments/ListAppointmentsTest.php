@@ -48,6 +48,21 @@ it('filters upcoming, pending and history the way the app segments them', functi
         ->assertJsonPath('data.*.id', [$e->id, $c->id, $d->id]);
 });
 
+it('keeps a pending appointment from earlier today in upcoming, not in history', function (): void {
+    $this->travelTo('2026-10-07 10:00:00');
+    $employee = actingAsApiEmployee();
+
+    $earlierToday = appointmentFor($employee, AppointmentStatus::Pending, Date::parse('2026-10-07 08:00:00'));
+
+    getJson(route('api.v1.appointments.index', ['status' => 'upcoming']))
+        ->assertOk()
+        ->assertJsonPath('data.*.id', [$earlierToday->id]);
+
+    getJson(route('api.v1.appointments.index', ['status' => 'history']))
+        ->assertOk()
+        ->assertJsonCount(0, 'data');
+});
+
 it('rejects an unknown status filter', function (): void {
     actingAsApiEmployee();
 

@@ -504,12 +504,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     public function hasOngoingAppointment(): bool
     {
         return $this->appointments()
-            ->whereNotIn('status', [
-                AppointmentStatus::Completed->value,
-                AppointmentStatus::Cancelled->value,
-                AppointmentStatus::CancelledLate->value,
-                AppointmentStatus::NoShow->value,
-            ])
+            ->whereNotIn('status', array_map(fn (AppointmentStatus $status): string => $status->value, AppointmentStatus::closed()))
             ->exists();
     }
 

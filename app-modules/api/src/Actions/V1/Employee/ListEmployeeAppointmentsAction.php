@@ -8,7 +8,6 @@ use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use TresPontosTech\Api\Enums\AppointmentListFilter;
-use TresPontosTech\Api\Http\Resources\V1\Employee\AppointmentResource;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 
@@ -21,13 +20,14 @@ final readonly class ListEmployeeAppointmentsAction
      * cliente: `upcoming` = pendente ou confirmado de hoje em diante (ordem crescente); `pending` =
      * pendentes, com qualquer data (crescente); `history` = encerrados, cancelados, no-show e os
      * pendentes/confirmados cuja data já passou (decrescente). Sem filtro, tudo em ordem decrescente,
-     * como a tabela do painel.
+     * como a tabela do painel. `$with` são as relações a carregar, definidas por quem serializa.
      *
+     * @param  list<string>  $with
      * @return LengthAwarePaginator<int, Appointment>
      */
-    public function handle(User $user, ?AppointmentListFilter $filter): LengthAwarePaginator
+    public function handle(User $user, ?AppointmentListFilter $filter, array $with = []): LengthAwarePaginator
     {
-        $query = $user->appointments()->with(AppointmentResource::EAGER_LOADS);
+        $query = $user->appointments()->with($with);
         $today = today();
 
         match ($filter) {
@@ -40,12 +40,7 @@ final readonly class ListEmployeeAppointmentsAction
                 ->oldest('appointment_at'),
             AppointmentListFilter::History => $query
                 ->where(fn (Builder $closed): Builder => $closed
-                    ->whereIn('status', [
-                        AppointmentStatus::Completed->value,
-                        AppointmentStatus::Cancelled->value,
-                        AppointmentStatus::CancelledLate->value,
-                        AppointmentStatus::NoShow->value,
-                    ])
+                    ->whereIn('status', array_map(fn (AppointmentStatus $status): string => $status->value, AppointmentStatus::closed()))
                     ->orWhere('appointment_at', '<', $today))
                 ->latest('appointment_at'),
             null => $query->latest('appointment_at'),

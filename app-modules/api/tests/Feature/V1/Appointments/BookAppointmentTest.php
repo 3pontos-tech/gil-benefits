@@ -79,6 +79,18 @@ it('refuses with credit while another appointment is open', function (): void {
         ->assertJsonValidationErrors(['credit' => 'Você possui uma consultoria em andamento. Finalize a anterior para agendar outra.']);
 });
 
+it('lists one credit error per reason when both apply', function (): void {
+    appointmentFor($this->employee, AppointmentStatus::Pending, now()->addWeek());
+    Sanctum::actingAs($this->employee->fresh(), ['employee']);
+
+    postJson(route('api.v1.appointments.store'), $this->payload)
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.credit', [
+            __('appointments::resources.appointments.booking_block.ongoing_appointment'),
+            __('appointments::resources.appointments.booking_block.no_appointments_available'),
+        ]);
+});
+
 it('refuses an appointment_at before the lead', function (): void {
     consultantAvailableOn(Date::parse('2026-10-08'));
 

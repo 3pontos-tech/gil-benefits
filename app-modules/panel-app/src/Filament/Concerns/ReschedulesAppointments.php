@@ -153,7 +153,9 @@ trait ReschedulesAppointments
                     Notification::make()->title(__('panel-app::resources.appointments.reschedule.slot_unavailable'))->danger()->send();
 
                     return;
-                } catch (Throwable) {
+                } catch (Throwable $throwable) {
+                    report($throwable);
+
                     Notification::make()->title(__('panel-app::resources.appointments.reschedule.failed'))->danger()->send();
 
                     return;

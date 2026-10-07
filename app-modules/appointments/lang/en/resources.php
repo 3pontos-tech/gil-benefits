@@ -60,6 +60,16 @@ return [
             'slot_unavailable' => 'This time slot is no longer available. Please select another.',
             'consultant_unavailable' => 'This consultant is not available for the selected time slot.',
             'calendar_event_failed' => 'Failed to create the Google Calendar event. Try saving again or check the integration.',
+            'cannot_reschedule' => 'This appointment can no longer be rescheduled.',
+            'cannot_cancel' => 'This appointment can no longer be cancelled.',
+            'feedback_requires_completion' => 'Only a completed consultation can be rated.',
+            'feedback_already_given' => 'This consultation has already been rated.',
+            'invalid_rating' => 'The rating must be between 1 and 5.',
+        ],
+
+        'booking_block' => [
+            'ongoing_appointment' => 'You have an ongoing consultation. Complete the previous one to book another.',
+            'no_appointments_available' => 'You have no available appointments this month.',
         ],
 
         'records' => [

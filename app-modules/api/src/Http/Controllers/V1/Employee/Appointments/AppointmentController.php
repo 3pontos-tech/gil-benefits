@@ -32,7 +32,7 @@ class AppointmentController
         /** @var User $user */
         $user = $request->user();
 
-        return AppointmentResource::collection($list->handle($user, $request->enum('status', AppointmentListFilter::class)));
+        return AppointmentResource::collection($list->handle($user, $request->enum('status', AppointmentListFilter::class), AppointmentResource::EAGER_LOADS));
     }
 
     public function show(Request $request, string $appointment): AppointmentResource

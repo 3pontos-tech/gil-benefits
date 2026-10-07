@@ -38,9 +38,10 @@ final readonly class ScheduleAppointmentForUserAction
         string $categoryType,
         ?string $appointmentAt,
         ?string $notes = null,
-        int|string|null $companyId = null,
     ): Appointment {
-        throw_unless($user->canCreateAppointment(), BookingBlockedException::because(BookingBlockReasons::for($user)));
+        if (! $user->canCreateAppointment()) {
+            throw BookingBlockedException::because(BookingBlockReasons::for($user));
+        }
 
         $slotAt = $this->bookableSlots->parse($appointmentAt);
 
@@ -51,7 +52,6 @@ final readonly class ScheduleAppointmentForUserAction
             categoryType: AppointmentCategoryEnum::from($categoryType),
             appointmentAt: $slotAt,
             notes: $notes,
-            companyId: $companyId,
         ));
     }
 }

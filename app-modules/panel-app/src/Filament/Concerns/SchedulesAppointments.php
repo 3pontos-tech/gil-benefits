@@ -56,7 +56,7 @@ trait SchedulesAppointments
                 $user = auth()->user();
 
                 if (! $user->canCreateAppointment()) {
-                    $this->notifyCannotBook();
+                    $this->notifyCannotBook(BookingBlockReasons::for($user));
 
                     throw new Cancel;
                 }
@@ -130,8 +130,8 @@ trait SchedulesAppointments
                         (string) ($arguments['category_type'] ?? ''),
                         is_string($appointmentAt) ? $appointmentAt : null,
                     );
-                } catch (BookingBlockedException) {
-                    $this->notifyCannotBook();
+                } catch (BookingBlockedException $bookingBlockedException) {
+                    $this->notifyCannotBook($bookingBlockedException->reasons);
 
                     return;
                 } catch (SlotUnavailableException) {
@@ -228,11 +228,14 @@ trait SchedulesAppointments
         ];
     }
 
-    private function notifyCannotBook(): void
+    /**
+     * @param  list<string>  $reasons
+     */
+    private function notifyCannotBook(array $reasons): void
     {
         Notification::make()
             ->title(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
-            ->body(implode(' ', BookingBlockReasons::for(auth()->user())))
+            ->body(implode(' ', $reasons))
             ->danger()
             ->send();
     }
