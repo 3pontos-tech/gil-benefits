@@ -68,7 +68,7 @@ it('refuses a slot outside the availability and keeps the time', function (): vo
     expect($this->appointment->refresh()->appointment_at->toDateTimeString())->toBe('2026-10-10 14:00:00');
 });
 
-it('rethrows when the current consultant is busy and the sync already reverted', function (): void {
+it('drops the consultant and returns to Pending when they are busy at the new time', function (): void {
     $originalAt = Date::parse('2026-10-10 14:00:00');
     $targetAt = Date::parse('2026-10-12 10:00:00');
     $consultant = consultantAvailableOn($originalAt, $targetAt);
@@ -92,14 +92,43 @@ it('rethrows when the current consultant is busy and the sync already reverted',
         ->addPeriod('10:00', '11:00')
         ->save();
 
-    expect(fn () => resolve(RescheduleAppointmentForUserAction::class)->handle($appointment, $this->user, $targetAt->toDateTimeString()))
-        ->toThrow(SlotUnavailableException::class);
+    $outcome = resolve(RescheduleAppointmentForUserAction::class)->handle($appointment, $this->user, $targetAt->toDateTimeString());
 
     $fresh = $appointment->refresh();
 
-    expect($fresh->appointment_at->toDateTimeString())->toBe($originalAt->toDateTimeString())
-        ->and($fresh->consultant_id)->toBe($consultant->getKey())
-        ->and($fresh->status)->toBe(AppointmentStatus::Active);
+    expect($fresh->appointment_at->toDateTimeString())->toBe($targetAt->toDateTimeString())
+        ->and($fresh->consultant_id)->toBeNull()
+        ->and($fresh->status)->toBe(AppointmentStatus::Pending)
+        ->and($outcome->appointment->consultant_id)->toBeNull()
+        ->and(AppointmentHistory::query()
+            ->where('appointment_id', $appointment->getKey())
+            ->where('action_type', AppointmentHistoryActionType::ConsultantLeft)
+            ->exists()
+        )->toBeTrue();
+});
+
+it('keeps the consultant when the chosen time is the current one', function (): void {
+    $at = Date::parse('2026-10-12 10:00:00');
+    $consultant = consultantAvailableOn($at);
+    consultantAvailableOn($at);
+
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::Active)
+        ->recycle($consultant)
+        ->create([
+            'user_id' => $this->user->getKey(),
+            'company_id' => $this->user->employerCompanyId(),
+            'appointment_at' => $at,
+        ]);
+    resolve(AssignConsultantAction::class)->handle($appointment);
+
+    resolve(RescheduleAppointmentForUserAction::class)->handle($appointment, $this->user, $at->toDateTimeString());
+
+    $fresh = $appointment->refresh();
+
+    expect($fresh->consultant_id)->toBe($consultant->getKey())
+        ->and($fresh->status)->toBe(AppointmentStatus::Active)
+        ->and($fresh->appointment_at->toDateTimeString())->toBe($at->toDateTimeString());
 });
 
 it('restores the appointment and rethrows without reporting when the sync fails unexpectedly', function (): void {

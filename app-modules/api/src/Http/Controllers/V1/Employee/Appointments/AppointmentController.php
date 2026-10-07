@@ -67,7 +67,8 @@ class AppointmentController
     }
 
     /**
-     * Janela fechada volta em `appointment`; horário fora da oferta ou consultor ocupado em `appointment_at`.
+     * Janela fechada volta em `appointment`; horário fora da oferta em `appointment_at`. Consultor
+     * ocupado no novo horário sai do encontro, que volta `pending` com `consultant: null`.
      *
      * @throws Throwable
      */

@@ -170,6 +170,7 @@ trait ReschedulesAppointments
                 $this->replaceMountedAction('rescheduleConfirmed', [
                     'appointment' => $appointment->getKey(),
                     'previous_at' => $previousAppointmentAt->toDateTimeString(),
+                    'unassigned' => blank($outcome->appointment->consultant_id),
                 ]);
             });
     }
@@ -182,7 +183,9 @@ trait ReschedulesAppointments
             ->modalWidth(Width::Large)
             ->modalAlignment(Alignment::Start)
             ->modalHeading(__('panel-app::resources.appointments.reschedule.confirmed.heading'))
-            ->modalDescription(__('panel-app::resources.appointments.reschedule.confirmed.description'))
+            ->modalDescription(fn (array $arguments): string => ($arguments['unassigned'] ?? false)
+                ? __('panel-app::resources.appointments.reschedule.confirmed.description_unassigned')
+                : __('panel-app::resources.appointments.reschedule.confirmed.description'))
             ->modalSubmitActionLabel(__('panel-app::resources.appointments.reschedule.confirmed.finish'))
             ->modalCancelAction(false)
             ->modalFooterActionsAlignment(Alignment::End)

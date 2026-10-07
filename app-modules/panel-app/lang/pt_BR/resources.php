@@ -99,6 +99,7 @@ return [
             'confirmed' => [
                 'heading' => 'Reagendamento confirmado!',
                 'description' => 'Sua consulta foi reagendada com sucesso. O novo agendamento já está confirmado.',
+                'description_unassigned' => 'Sua consulta foi reagendada, mas seu consultor não estava disponível neste horário. Vamos atribuir um novo consultor e avisaremos você em breve.',
                 'before' => 'Antes',
                 'now' => 'Agora',
                 'awaiting_confirmation' => 'Aguardando confirmação',

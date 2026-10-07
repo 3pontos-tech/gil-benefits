@@ -99,6 +99,7 @@ return [
             'confirmed' => [
                 'heading' => 'Rescheduling confirmed!',
                 'description' => 'Your consultation was rescheduled successfully. The new booking is confirmed.',
+                'description_unassigned' => 'Your consultation was rescheduled, but your consultant was not available at this time. We will assign a new one and let you know shortly.',
                 'before' => 'Before',
                 'now' => 'Now',
                 'awaiting_confirmation' => 'Awaiting confirmation',
