@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\AppointmentController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\FeedbackController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\SlotController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LoginController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LogoutController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\AvatarController;
@@ -31,5 +34,13 @@ Route::prefix('api/v1')
             Route::post('me/avatar', [AvatarController::class, 'store'])->name('me.avatar.store');
             Route::delete('me/avatar', [AvatarController::class, 'destroy'])->name('me.avatar.destroy');
             Route::get('me/journey', JourneyController::class)->name('me.journey');
+
+            Route::get('appointments/slots', SlotController::class)->name('appointments.slots');
+            Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
+            Route::post('appointments', [AppointmentController::class, 'store'])->name('appointments.store');
+            Route::get('appointments/{appointment}', [AppointmentController::class, 'show'])->whereUuid('appointment')->name('appointments.show');
+            Route::patch('appointments/{appointment}', [AppointmentController::class, 'update'])->whereUuid('appointment')->name('appointments.update');
+            Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->whereUuid('appointment')->name('appointments.destroy');
+            Route::post('appointments/{appointment}/feedback', FeedbackController::class)->whereUuid('appointment')->name('appointments.feedback.store');
         });
     });
