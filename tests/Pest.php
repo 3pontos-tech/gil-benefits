@@ -26,6 +26,7 @@ use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Company\Actions\AttachToDefaultCompany;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
@@ -268,6 +269,19 @@ function actingAsApiSubscriber(int $monthlyLimit = 1): User
     $user = actingAsSubscribedEmployee($monthlyLimit);
 
     Sanctum::actingAs($user, ['employee']);
+
+    return $user;
+}
+
+/**
+ * Usuário ligado só à empresa padrão, como sai do cadastro (assinante individual ou voucher).
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function defaultCompanyUser(array $attributes = []): User
+{
+    $user = User::factory()->create($attributes);
+    resolve(AttachToDefaultCompany::class)->execute($user, Roles::User);
 
     return $user;
 }
