@@ -175,8 +175,8 @@ it('lists every applicable block reason at once', function (): void {
 
     livewire(PlanCreditsWidget::class)
         ->assertOk()
-        ->assertSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
-        ->assertSeeText(__('panel-app::widgets.plans_overview.no_appointments_available'));
+        ->assertSeeText(__('appointments::resources.appointments.booking_block.ongoing_appointment'))
+        ->assertSeeText(__('appointments::resources.appointments.booking_block.no_appointments_available'));
 });
 
 it('shows only the ongoing reason when the user still has quota', function (): void {
@@ -188,8 +188,8 @@ it('shows only the ongoing reason when the user still has quota', function (): v
 
     livewire(PlanCreditsWidget::class)
         ->assertOk()
-        ->assertSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
-        ->assertDontSeeText(__('panel-app::widgets.plans_overview.no_appointments_available'));
+        ->assertSeeText(__('appointments::resources.appointments.booking_block.ongoing_appointment'))
+        ->assertDontSeeText(__('appointments::resources.appointments.booking_block.no_appointments_available'));
 });
 
 it('checks ongoing-appointment eligibility with a single query', function (): void {
@@ -222,7 +222,7 @@ describe('appointment guard', function (): void {
 
         livewire(PlanCreditsWidget::class)
             ->assertOk()
-            ->assertSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
+            ->assertSeeText(__('appointments::resources.appointments.booking_block.ongoing_appointment'))
             ->mountAction('scheduleAppointment')
             ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
             ->assertActionNotMounted();
@@ -234,7 +234,7 @@ describe('appointment guard', function (): void {
 
         livewire(PlanCreditsWidget::class)
             ->assertOk()
-            ->assertDontSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
+            ->assertDontSeeText(__('appointments::resources.appointments.booking_block.ongoing_appointment'))
             ->mountAction('scheduleAppointment')
             ->assertActionMounted('scheduleAppointment');
     });
@@ -268,7 +268,7 @@ describe('appointment guard', function (): void {
 
         livewire(PlanCreditsWidget::class)
             ->assertOk()
-            ->assertSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
+            ->assertSeeText(__('appointments::resources.appointments.booking_block.ongoing_appointment'))
             ->mountAction('scheduleAppointment')
             ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
             ->assertActionNotMounted();
@@ -280,7 +280,7 @@ describe('appointment guard', function (): void {
 
         livewire(PlanCreditsWidget::class)
             ->assertOk()
-            ->assertDontSeeText(__('panel-app::widgets.plans_overview.ongoing_appointment'))
+            ->assertDontSeeText(__('appointments::resources.appointments.booking_block.ongoing_appointment'))
             ->mountAction('scheduleAppointment')
             ->assertActionMounted('scheduleAppointment');
     });

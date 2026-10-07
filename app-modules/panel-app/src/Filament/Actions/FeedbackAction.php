@@ -5,8 +5,10 @@ namespace TresPontosTech\PanelApp\Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
+use TresPontosTech\Appointments\Actions\SubmitAppointmentFeedbackAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\Appointments\Models\AppointmentFeedback;
+use TresPontosTech\Appointments\Exceptions\AppointmentFeedbackException;
+use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Forms\Components\StarRating;
 
 class FeedbackAction extends Action
@@ -38,21 +40,12 @@ class FeedbackAction extends Action
                 ->rows(3),
         ]);
 
-        $this->action(function ($record, array $data): void {
-            if (filled($record->feedback)) {
+        $this->action(function (Appointment $record, array $data): void {
+            try {
+                resolve(SubmitAppointmentFeedbackAction::class)->handle($record, auth()->user(), (int) $data['rating'], $data['comment'] ?? null);
+            } catch (AppointmentFeedbackException) {
                 return;
             }
-
-            if (! in_array((int) $data['rating'], range(1, 5), strict: true)) {
-                return;
-            }
-
-            AppointmentFeedback::query()->create([
-                'appointment_id' => $record->id,
-                'user_id' => auth()->id(),
-                'rating' => $data['rating'],
-                'comment' => blank($data['comment']) ? null : $data['comment'],
-            ]);
 
             Notification::make()
                 ->title(__('panel-app::resources.appointments.feedback.submitted'))

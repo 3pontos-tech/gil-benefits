@@ -16,7 +16,7 @@ use TresPontosTech\Credits\Events\CreditConsumed;
 
 readonly class BookAppointmentAction
 {
-    public function handle(BookAppointmentDTO $payload): void
+    public function handle(BookAppointmentDTO $payload): Appointment
     {
         $user = User::query()->find($payload->userId);
 
@@ -40,6 +40,8 @@ readonly class BookAppointmentAction
         }
 
         $this->notifyAdmins($appointment);
+
+        return $appointment;
     }
 
     private function notifyAdmins(Appointment $appointment): void

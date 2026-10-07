@@ -13,11 +13,10 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Date;
 use Throwable;
-use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
-use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
+use TresPontosTech\Appointments\Actions\RescheduleAppointmentForUserAction;
+use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\AppointmentWizard;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\PickSlotStep;
 
 /**
@@ -140,66 +139,28 @@ trait ReschedulesAppointments
                     return;
                 }
 
-                // Os argumentos vêm do cliente: o horário precisa existir na
-                // disponibilidade real (e respeitar a antecedência). Também
-                // blinda o Date::parse logo abaixo contra payload malformado.
-                if (! AppointmentWizard::isBookableSlot($arguments['appointment_at'] ?? null)) {
-                    Notification::make()
-                        ->title(__('panel-app::resources.appointments.reschedule.slot_unavailable'))
-                        ->danger()
-                        ->send();
-
-                    return;
-                }
-
-                $newAppointmentAt = Date::parse($arguments['appointment_at']);
                 $previousAppointmentAt = $appointment->appointment_at;
-                $previousConsultantId = $appointment->consultant_id;
-
-                $appointment->update(['appointment_at' => $newAppointmentAt]);
+                $appointmentAt = $arguments['appointment_at'] ?? null;
 
                 try {
-                    // Reaproveita o mesmo pós-processamento do painel admin:
-                    // histórico de reagendamento, re-bloqueio da agenda e Google
-                    // Calendar. Num horário indisponível a action reverte o
-                    // registro antes de relançar.
-                    $calendarSynced = resolve(SyncAppointmentScheduleAction::class)
-                        ->handle($appointment, $previousConsultantId, $previousAppointmentAt, AppointmentHistoryActor::User);
-                } catch (SlotUnavailableException) {
-                    Notification::make()
-                        ->title(__('panel-app::resources.appointments.reschedule.slot_unavailable'))
-                        ->danger()
-                        ->send();
+                    $outcome = resolve(RescheduleAppointmentForUserAction::class)
+                        ->handle($appointment, auth()->user(), is_string($appointmentAt) ? $appointmentAt : null);
+                } catch (AppointmentStateException) {
+                    $this->notifyCannotReschedule();
 
                     return;
-                } catch (Throwable $throwable) {
-                    // A sync reverte sozinha só no horário indisponível; em
-                    // qualquer outra falha o registro ficaria com o horário novo
-                    // e os efeitos colaterais pela metade. Restaura para manter
-                    // a promessa do wizard e reporta para investigação.
-                    $appointment->update([
-                        'appointment_at' => $previousAppointmentAt,
-                        'consultant_id' => $previousConsultantId,
-                    ]);
+                } catch (SlotUnavailableException) {
+                    Notification::make()->title(__('panel-app::resources.appointments.reschedule.slot_unavailable'))->danger()->send();
 
-                    report($throwable);
-
-                    Notification::make()
-                        ->title(__('panel-app::resources.appointments.reschedule.failed'))
-                        ->danger()
-                        ->send();
+                    return;
+                } catch (Throwable) {
+                    Notification::make()->title(__('panel-app::resources.appointments.reschedule.failed'))->danger()->send();
 
                     return;
                 }
 
-                // A sync devolve false quando a consulta foi salva mas o Google
-                // Calendar falhou; sem o aviso o usuário confirmaria sem saber
-                // que a agenda externa pode ter ficado para trás.
-                if (! $calendarSynced) {
-                    Notification::make()
-                        ->title(__('panel-app::resources.appointments.reschedule.calendar_sync_failed'))
-                        ->warning()
-                        ->send();
+                if (! $outcome->calendarSynced) {
+                    Notification::make()->title(__('panel-app::resources.appointments.reschedule.calendar_sync_failed'))->warning()->send();
                 }
 
                 $this->dispatch('appointment-rescheduled');

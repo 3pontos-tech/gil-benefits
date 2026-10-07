@@ -29,6 +29,7 @@ use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Actions\AttachToDefaultCompany;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\Permissions\Roles;
 use Zap\Facades\Zap;
 
@@ -251,24 +252,30 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
 
 /**
  * Colaborador B2B autenticado pela API do app (token Sanctum com a ability `employee`).
+ *
+ * A API não tem tenant Filament: cota e crédito resolvem pela empresa empregadora, como em produção.
  */
 function actingAsApiEmployee(): User
 {
     $user = actingAsEmployee();
 
     Sanctum::actingAs($user, ['employee']);
+    filament()->setTenant(null);
 
     return $user;
 }
 
 /**
  * Assinante individual autenticado pela API do app (token Sanctum com a ability `employee`).
+ *
+ * A API não tem tenant Filament: cota e crédito resolvem pela empresa empregadora, como em produção.
  */
 function actingAsApiSubscriber(int $monthlyLimit = 1): User
 {
     $user = actingAsSubscribedEmployee($monthlyLimit);
 
     Sanctum::actingAs($user, ['employee']);
+    filament()->setTenant(null);
 
     return $user;
 }
@@ -319,4 +326,34 @@ function consultantAvailableOn(CarbonInterface ...$days): Consultant
     }
 
     return $consultant;
+}
+
+/**
+ * Agendamento do colaborador na empresa empregadora e sem consultor — como BookAppointmentAction grava.
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function appointmentFor(User $user, AppointmentStatus $status, CarbonInterface $appointmentAt, array $attributes = []): Appointment
+{
+    return Appointment::factory()->withStatus($status)->withoutConsultant()->create([
+        'user_id' => $user->getKey(),
+        'company_id' => $user->employerCompanyId(),
+        'appointment_at' => $appointmentAt,
+        ...$attributes,
+    ]);
+}
+
+/**
+ * Crédito avulso do colaborador na empresa empregadora (a factory inventaria outra empresa).
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function standaloneCreditFor(User $user, array $attributes = []): UserCredit
+{
+    return UserCredit::factory()->available()->create([
+        'owner_id' => $user->getKey(),
+        'holder_id' => $user->getKey(),
+        'company_id' => $user->employerCompanyId(),
+        ...$attributes,
+    ]);
 }

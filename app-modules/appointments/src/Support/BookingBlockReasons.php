@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\PanelApp\Support;
+namespace TresPontosTech\Appointments\Support;
 
 use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
@@ -31,11 +31,11 @@ final class BookingBlockReasons
         $reasons = [];
 
         if ($hasOngoingAppointment) {
-            $reasons[] = __('panel-app::widgets.plans_overview.ongoing_appointment');
+            $reasons[] = __('appointments::resources.appointments.booking_block.ongoing_appointment');
         }
 
         if (! $hasQuotaOrCredit) {
-            $reasons[] = __('panel-app::widgets.plans_overview.no_appointments_available');
+            $reasons[] = __('appointments::resources.appointments.booking_block.no_appointments_available');
         }
 
         return $reasons;

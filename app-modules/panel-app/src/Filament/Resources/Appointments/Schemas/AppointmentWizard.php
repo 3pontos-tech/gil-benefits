@@ -12,11 +12,10 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Throwable;
-use TresPontosTech\Appointments\Actions\GetAvailableSlotsAction;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Support\BookableSlots;
 
 class AppointmentWizard
 {
@@ -89,43 +88,6 @@ class AppointmentWizard
             return [];
         }
 
-        // Espelho da antecedência mínima que os pickers aplicam via minDate:
-        // sem isso a regra dos :days dias só existiria no navegador.
-        if ($startDate->startOfDay()->lt(now()->addDays(Appointment::BOOKING_LEAD_DAYS)->startOfDay())) {
-            return [];
-        }
-
-        return self::getAvailableTimeSlots($startDate);
-    }
-
-    /**
-     * Um horário só é agendável se estiver na lista que o próprio painel
-     * oferece. Os argumentos das actions são forjáveis pelo cliente, então os
-     * passos de confirmação validam por aqui antes de persistir.
-     */
-    public static function isBookableSlot(mixed $value): bool
-    {
-        if (! is_string($value) || blank($value)) {
-            return false;
-        }
-
-        try {
-            $slotAt = Date::parse($value);
-        } catch (Throwable) {
-            return false;
-        }
-
-        return array_key_exists(
-            $slotAt->toDateTimeString(),
-            self::availableSlots($slotAt->toDateString()),
-        );
-    }
-
-    /**
-     * @return array<string, string>
-     */
-    private static function getAvailableTimeSlots(Carbon $startDate): array
-    {
-        return resolve(GetAvailableSlotsAction::class)->handle($startDate);
+        return resolve(BookableSlots::class)->forDay($startDate);
     }
 }

@@ -19,6 +19,7 @@ use Filament\Widgets\Widget;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Support\BookingBlockReasons;
 use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
@@ -29,7 +30,6 @@ use TresPontosTech\PanelApp\DTOs\PlanSummary;
 use TresPontosTech\PanelApp\Enums\PlanStatus;
 use TresPontosTech\PanelApp\Filament\Concerns\SchedulesAppointments;
 use TresPontosTech\PanelApp\Filament\Pages\UserCreditsPage;
-use TresPontosTech\PanelApp\Support\BookingBlockReasons;
 
 class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
 {

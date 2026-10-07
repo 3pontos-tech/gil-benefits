@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\PanelApp\Support\BookingBlockReasons;
+use TresPontosTech\Appointments\Support\BookingBlockReasons;
 
 use function Pest\Laravel\travelTo;
 
-$ongoing = fn (): string => __('panel-app::widgets.plans_overview.ongoing_appointment');
-$noQuota = fn (): string => __('panel-app::widgets.plans_overview.no_appointments_available');
+$ongoing = fn (): string => __('appointments::resources.appointments.booking_block.ongoing_appointment');
+$noQuota = fn (): string => __('appointments::resources.appointments.booking_block.no_appointments_available');
 
 beforeEach(function (): void {
     travelTo('2026-09-03 10:00');

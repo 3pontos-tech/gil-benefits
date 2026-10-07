@@ -19,8 +19,6 @@ return [
     'plans_overview' => [
         'plan_heading' => 'Plano :name',
         'schedule_appointment' => 'Agendar Consultoria',
-        'no_appointments_available' => 'Você não possui agendamentos disponíveis neste mês.',
-        'ongoing_appointment' => 'Você possui uma consultoria em andamento. Finalize a anterior para agendar outra.',
     ],
 
     'plan_status' => [

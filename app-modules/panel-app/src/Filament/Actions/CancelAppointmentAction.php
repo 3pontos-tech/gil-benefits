@@ -8,9 +8,8 @@ use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
-use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
-use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\Appointments\Enums\CancellationActor;
+use TresPontosTech\Appointments\Actions\CancelAppointmentForUserAction;
+use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Contracts\ShowsCancelledConfirmation;
 
@@ -29,10 +28,7 @@ class CancelAppointmentAction extends Action
         $this->icon(Heroicon::XMark);
         $this->color('danger');
 
-        $this->visible(fn (Appointment $record): bool => in_array($record->status, [
-            AppointmentStatus::Pending,
-            AppointmentStatus::Active,
-        ], strict: true) && $record->appointment_at->isFuture());
+        $this->visible(fn (Appointment $record): bool => $record->canBeCancelled());
 
         $this->requiresConfirmation();
 
@@ -66,14 +62,11 @@ class CancelAppointmentAction extends Action
         ));
 
         $this->action(function (Appointment $record): void {
-            if ($record->user_id !== auth()->id()) {
+            try {
+                resolve(CancelAppointmentForUserAction::class)->handle($record, auth()->user());
+            } catch (AppointmentStateException) {
                 return;
             }
-
-            $record->current_transition->handle(new TransitionData(
-                cancellationActor: CancellationActor::User,
-                cancelledBy: auth()->user(),
-            ));
 
             $livewire = $this->getLivewire();
             if (! $livewire instanceof Component) {

@@ -15,9 +15,9 @@ use Illuminate\Contracts\Support\Arrayable;
 use Throwable;
 use TresPontosTech\Appointments\Actions\BookAppointmentAction;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
+use TresPontosTech\Appointments\Support\BookingBlockReasons;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\AppointmentWizard;
-use TresPontosTech\PanelApp\Support\BookingBlockReasons;
 
 class CreateAppointment extends CreateRecord
 {
