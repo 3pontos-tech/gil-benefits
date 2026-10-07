@@ -193,3 +193,25 @@ it('shows the cancelled appointment and credit state on the confirmation content
     expect($render(false))
         ->not->toContain(__('panel-app::resources.appointments.cancel.confirmed.credit_processing'));
 });
+
+it('marks the credit as used when cancelled inside the notice period', function (): void {
+    $appointment = appointmentIn(Appointment::CANCELLATION_WINDOW_HOURS - 1);
+
+    $credit = UserCredit::factory()->create([
+        'owner_id' => $this->employee->getKey(),
+        'holder_id' => $this->employee->getKey(),
+        'company_id' => filament()->getTenant()->getKey(),
+        'appointment_id' => $appointment->getKey(),
+        'status' => UserCreditStatusEnum::InUse,
+    ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('cancelAppointment', arguments: ['appointment' => $appointment->getKey()])
+        ->assertSuccessful();
+
+    $credit->refresh();
+
+    expect($appointment->refresh()->status)->toBe(AppointmentStatus::CancelledLate)
+        ->and($credit->status)->toBe(UserCreditStatusEnum::Used)
+        ->and($credit->used_at)->not->toBeNull();
+});
