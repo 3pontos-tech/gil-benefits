@@ -46,13 +46,16 @@ it('lets a B2B employee sign in', function (): void {
         ->assertJsonPath('data.user.id', $employee->id);
 });
 
-it('matches the email regardless of case', function (): void {
-    $user = defaultCompanyUser(['email' => 'maria@example.com']);
+it('matches the email regardless of case', function (string $stored, string $typed): void {
+    $user = defaultCompanyUser(['email' => $stored]);
 
-    postJson(route('api.v1.auth.login'), [...loginCredentials($user), 'email' => 'Maria@Example.com'])
+    postJson(route('api.v1.auth.login'), [...loginCredentials($user), 'email' => $typed])
         ->assertOk()
         ->assertJsonPath('data.user.id', $user->id);
-});
+})->with([
+    'stored with capitals by the panel, sent lowercased by the app' => ['Maria.Silva@Example.com', 'maria.silva@example.com'],
+    'stored lowercased, typed with capitals' => ['maria@example.com', 'Maria@Example.com'],
+]);
 
 it('issues a working token', function (): void {
     $user = defaultCompanyUser();
