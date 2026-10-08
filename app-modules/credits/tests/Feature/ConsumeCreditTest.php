@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Actions\ConsumeCredit;
@@ -97,4 +99,22 @@ it('ties the spent credit to the appointment', function (): void {
     consumeOneCredit($this->holder, $this->company, (string) $appointment->getKey());
 
     expect($credit->fresh()->appointment_id)->toBe((string) $appointment->getKey());
+});
+
+it('picks the credit inside a transaction so the row lock holds until it is marked in use', function (): void {
+    $credit = availableCreditFor($this->holder, $this->company);
+    $levelsWhenPicking = [];
+    $outerLevel = DB::transactionLevel();
+
+    DB::listen(function (QueryExecuted $query) use (&$levelsWhenPicking): void {
+        if (str_starts_with($query->sql, 'select') && str_contains($query->sql, 'from "user_credits"')) {
+            $levelsWhenPicking[] = DB::transactionLevel();
+        }
+    });
+
+    consumeOneCredit($this->holder, $this->company);
+
+    expect($levelsWhenPicking)->not->toBeEmpty()
+        ->and(min($levelsWhenPicking))->toBeGreaterThan($outerLevel)
+        ->and($credit->refresh()->status)->toBe(UserCreditStatusEnum::InUse);
 });

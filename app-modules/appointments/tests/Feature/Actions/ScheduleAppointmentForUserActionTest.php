@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\Appointments\Actions\ScheduleAppointmentForUserAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\BookingBlockedException;
@@ -101,4 +103,40 @@ it('consumes a standalone credit once the quota is spent', function (): void {
 
     expect($credit->status)->toBe(UserCreditStatusEnum::InUse)
         ->and($credit->appointment_id)->toBe($appointment->getKey());
+});
+
+it('checks the allowance against the database, not the quota cached on the given user', function (): void {
+    consultantAvailableOn(Date::parse('2026-10-09'));
+
+    expect($this->user->monthly_appointments_left)->toBe(1);
+
+    exhaustQuotaOf($this->user);
+
+    expect(fn () => resolve(ScheduleAppointmentForUserAction::class)
+        ->handle($this->user, 'personal_finance', '2026-10-09 09:00:00'))
+        ->toThrow(BookingBlockedException::class);
+
+    expect(Appointment::query()->where('status', AppointmentStatus::Pending)->count())->toBe(0);
+});
+
+it('sees a booking committed by a concurrent request while it waited for the lock', function (): void {
+    consultantAvailableOn(Date::parse('2026-10-09'));
+    $user = $this->user;
+    $competitorBooked = false;
+
+    DB::listen(function (QueryExecuted $query) use ($user, &$competitorBooked): void {
+        if ($competitorBooked || DB::transactionLevel() === 0 || ! str_contains($query->sql, 'from "users"')) {
+            return;
+        }
+
+        $competitorBooked = true;
+        appointmentFor($user, AppointmentStatus::Pending, Date::parse('2026-10-09 10:00:00'));
+    });
+
+    expect(fn () => resolve(ScheduleAppointmentForUserAction::class)
+        ->handle($user, 'personal_finance', '2026-10-09 09:00:00'))
+        ->toThrow(BookingBlockedException::class);
+
+    expect($competitorBooked)->toBeTrue()
+        ->and(Appointment::query()->where('appointment_at', '2026-10-09 09:00:00')->exists())->toBeFalse();
 });
