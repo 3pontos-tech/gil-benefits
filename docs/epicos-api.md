@@ -344,9 +344,10 @@ para ter tudo da consultoria num lugar só.
 
 **Tarefas:**
 
-- Migrations: `document_user_states` (`id uuid, document_id, user_id, viewed_at, favorited_at, timestamps`, unique
-  `(document_id, user_id)`); `appointment_document` (`appointment_id, document_id, timestamps`, unique). Models
-  `DocumentUserState` e relações `Document::states()`, `Document::appointments()`, `Appointment::documents()`.
+- Migration `document_user_states` (`id uuid, document_id, user_id, viewed_at, favorited_at, timestamps`, unique
+  `(document_id, user_id)`), model `DocumentUserState` e `Document::states()`. **O vínculo material ↔ encontro
+  (`appointment_document`) saiu da v1** e virou a issue #296 (envolve o painel do consultor e regras de visibilidade);
+  o app remove o bloco "Materiais relacionados" até lá (gil-benefits-mobile#2) e a API segue devolvendo `materials: []`.
 - `MaterialResource`: `id, title, type` (`DocumentExtensionTypeEnum`), `link`, `file { name, mime_type, size, url }`
   (media `documents`, URL temporária 60 min inline), `uploaded_by` (`documentable_type` = users → `employee`, senão
   `consultant`), `shared_by { id, name }` (consultor do `document_shares` ou o próprio usuário), `shared_at`
@@ -367,7 +368,7 @@ para ter tudo da consultoria num lugar só.
 **Definition of Done:**
 
 - Telas 18–23 e "Enviar doc" do app funcionam com arquivos reais no R2.
-- Painel do consultor pode (story futura de UI) vincular documentos a encontros; a API já devolve `materials[]`.
+- O vínculo com encontros fica na #296.
 
 ---
 
