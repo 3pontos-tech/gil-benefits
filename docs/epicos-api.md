@@ -248,7 +248,7 @@ para gerir minha consultoria pelo app com a mesma régua do painel.
 | GET | `/v1/appointments/{id}` | — | `{ data: Appointment }` · `404` |
 | GET | `/v1/appointments/slots` | `?month=YYYY-MM` | `{ data: { "2026-10-07T09:00:00-03:00": "09:00", … } }` (chave = instante ISO com offset; o app devolve a chave no POST/PATCH) |
 | POST | `/v1/appointments` | `{ category_type, appointment_at, notes? }` | `201 { data: Appointment }` · `422` (`credit`, `appointment_at`, `category_type`) |
-| PATCH | `/v1/appointments/{id}` | `{ appointment_at }` | `{ data: Appointment }` · `422` |
+| PATCH | `/v1/appointments/{id}` | `{ appointment_at }` | `{ data: Appointment }` (consultor ocupado → `pending`, `consultant: null`) · `422` (`appointment`, `appointment_at`) |
 | DELETE | `/v1/appointments/{id}` | — | `200 { data: Appointment }` (status `cancelled`) · `422` |
 | POST | `/v1/appointments/{id}/feedback` | `{ rating 1-5, comment? }` | `201 { data: Appointment }` · `422` (planejado; sem tela no app ainda) |
 

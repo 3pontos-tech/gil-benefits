@@ -67,7 +67,7 @@ it('refuses a slot outside the availability with appointment_at', function (): v
     expect($this->appointment->refresh()->appointment_at->toDateTimeString())->toBe('2026-10-10 14:00:00');
 });
 
-it('refuses when the current consultant is busy and keeps the original time', function (): void {
+it('drops a busy consultant and returns the appointment as pending', function (): void {
     $originalAt = Date::parse('2026-10-10 14:00:00');
     $targetAt = Date::parse('2026-10-12 10:00:00');
     $consultant = consultantAvailableOn($originalAt, $targetAt);
@@ -92,18 +92,16 @@ it('refuses when the current consultant is busy and keeps the original time', fu
         ->save();
 
     patchJson(route('api.v1.appointments.update', $active), ['appointment_at' => $this->newAt])
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors(['appointment_at']);
+        ->assertOk()
+        ->assertJsonPath('data.appointment_at', $this->newAt)
+        ->assertJsonPath('data.status', AppointmentStatus::Pending->value)
+        ->assertJsonPath('data.consultant', null);
 
     $fresh = $active->refresh();
 
-    expect($fresh->appointment_at->toDateTimeString())->toBe($originalAt->toDateTimeString())
-        ->and($fresh->consultant_id)->toBe($consultant->getKey())
-        ->and($fresh->status)->toBe(AppointmentStatus::Active)
-        ->and(AppointmentHistory::query()
-            ->where('appointment_id', $active->getKey())
-            ->where('action_type', AppointmentHistoryActionType::ReScheduled)
-            ->exists())->toBeFalse();
+    expect($fresh->appointment_at->toDateTimeString())->toBe($targetAt->toDateTimeString())
+        ->and($fresh->consultant_id)->toBeNull()
+        ->and($fresh->status)->toBe(AppointmentStatus::Pending);
 });
 
 it('refuses an appointment_at before the lead with the lead message', function (): void {

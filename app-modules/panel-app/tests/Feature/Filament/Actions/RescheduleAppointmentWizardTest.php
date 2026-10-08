@@ -263,7 +263,7 @@ it('enforces the booking lead when rescheduling even if the day has availability
     expect($appointment->refresh()->appointment_at->toDateTimeString())->toBe($previousAt);
 });
 
-it('keeps the consultant and refuses the slot when they are busy at the new time', function (): void {
+it('drops the consultant and returns to Pending when they are busy at the new time', function (): void {
     $originalAt = now()->addDays(3)->setTime(14, 0);
     $targetAt = now()->addDays(5)->setTime(10, 0);
     $consultant = consultantAvailableOn($originalAt, $targetAt);
@@ -286,17 +286,19 @@ it('keeps the consultant and refuses the slot when they are busy at the new time
         ->addPeriod('10:00', '11:00')
         ->save();
 
-    livewire(LatestAppointmentsWidget::class)
+    $component = livewire(LatestAppointmentsWidget::class)
         ->callAction('rescheduleReview', arguments: [
             'appointment' => $appointment->getKey(),
             'appointment_at' => $targetAt->toDateTimeString(),
         ])
-        ->assertNotified(__('panel-app::resources.appointments.reschedule.slot_unavailable'))
-        ->assertNotDispatched('appointment-rescheduled');
+        ->assertDispatched('appointment-rescheduled')
+        ->assertActionMounted('rescheduleConfirmed');
+
+    expect($component->instance()->mountedActions[0]['arguments']['unassigned'])->toBeTrue();
 
     $fresh = $appointment->refresh();
 
-    expect($fresh->appointment_at->toDateTimeString())->toBe($originalAt->toDateTimeString())
-        ->and($fresh->consultant_id)->toBe($consultant->getKey())
-        ->and($fresh->status)->toBe(AppointmentStatus::Active);
+    expect($fresh->appointment_at->toDateTimeString())->toBe($targetAt->toDateTimeString())
+        ->and($fresh->consultant_id)->toBeNull()
+        ->and($fresh->status)->toBe(AppointmentStatus::Pending);
 });
