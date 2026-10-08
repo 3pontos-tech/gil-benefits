@@ -85,6 +85,21 @@ it('attaches a guest ticket to the registered user whose email matches the visit
     expect($ticket->user_id)->toBe($user->id);
 });
 
+it('matches the visitor email whatever its capitalization', function (): void {
+    $user = User::factory()->create(['email' => 'visitor@example.com']);
+
+    $ticket = resolve(CreateSupportTicketAction::class)->execute(new CreateSupportTicketDTO(
+        category: SupportTicketCategoryEnum::Bug,
+        subject: 'subject',
+        description: 'description',
+        visitorName: 'Visitor',
+        visitorEmail: 'Visitor@Example.com',
+        environment: 'testing',
+    ));
+
+    expect($ticket->user_id)->toBe($user->id);
+});
+
 it('leaves the ticket without a user when no registered email matches', function (): void {
     $ticket = resolve(CreateSupportTicketAction::class)->execute(dto());
 

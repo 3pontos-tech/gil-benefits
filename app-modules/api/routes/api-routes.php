@@ -9,6 +9,9 @@ use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\FeedbackControl
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\SlotController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LoginController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LogoutController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Credits\CreditsController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Materials\MaterialController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Materials\MaterialStateController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\AvatarController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\JourneyController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\MeController;
@@ -42,5 +45,13 @@ Route::prefix('api/v1')
             Route::patch('appointments/{appointment}', [AppointmentController::class, 'update'])->whereUuid('appointment')->name('appointments.update');
             Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->whereUuid('appointment')->name('appointments.destroy');
             Route::post('appointments/{appointment}/feedback', FeedbackController::class)->whereUuid('appointment')->name('appointments.feedback.store');
+
+            Route::get('credits', CreditsController::class)->name('credits.show');
+
+            Route::get('materials', [MaterialController::class, 'index'])->name('materials.index');
+            Route::post('materials', [MaterialController::class, 'store'])->name('materials.store');
+            Route::delete('materials/{document}', [MaterialController::class, 'destroy'])->whereUuid('document')->name('materials.destroy');
+            Route::patch('materials/{document}/favorite', [MaterialStateController::class, 'favorite'])->whereUuid('document')->name('materials.favorite');
+            Route::patch('materials/{document}/viewed', [MaterialStateController::class, 'viewed'])->whereUuid('document')->name('materials.viewed');
         });
     });

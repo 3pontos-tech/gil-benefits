@@ -131,20 +131,12 @@ return [
         'wizard' => [
             'steps' => [
                 'category_type' => 'Consulting Category',
-                'pick_datetime' => 'Pick Date & Time',
-                'review_confirm' => 'Review & Confirm',
             ],
             'labels' => [
                 'category_type' => 'Select the consulting category',
                 'date' => 'Date',
                 'available_times' => 'Available Times',
-                'duration' => 'Duration',
-                'duration_default' => '60 minutes',
-                'summary' => 'Summary',
                 'notes' => 'Notes',
-            ],
-            'actions' => [
-                'submit' => 'Start researching',
             ],
         ],
     ],

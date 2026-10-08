@@ -44,6 +44,10 @@ readonly class BookAppointmentAction
         return $appointment;
     }
 
+    /**
+     * O e-mail só entra na fila depois do commit: quando o agendamento roda dentro de uma
+     * transação (ScheduleAppointmentForUserAction) e ela é desfeita, nenhum aviso sai.
+     */
     private function notifyAdmins(Appointment $appointment): void
     {
         $recipients = config('appointments.admin_notification_recipients', []);
@@ -53,7 +57,7 @@ readonly class BookAppointmentAction
         }
 
         try {
-            Mail::to($recipients)->queue(new AppointmentRequestedAdminMail($appointment));
+            Mail::to($recipients)->queue((new AppointmentRequestedAdminMail($appointment))->afterCommit());
         } catch (Throwable $throwable) {
             report($throwable);
         }

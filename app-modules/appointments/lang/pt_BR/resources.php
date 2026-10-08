@@ -131,20 +131,12 @@ return [
         'wizard' => [
             'steps' => [
                 'category_type' => 'Categoria de consultoria',
-                'pick_datetime' => 'Escolher Data e Hora',
-                'review_confirm' => 'Revisar e Confirmar',
             ],
             'labels' => [
                 'category_type' => 'Selecione a categoria de consultoria',
                 'date' => 'Data',
                 'available_times' => 'Horários Disponíveis',
-                'duration' => 'Duração',
-                'duration_default' => '60 minutos',
-                'summary' => 'Resumo',
                 'notes' => 'Observações',
-            ],
-            'actions' => [
-                'submit' => 'Iniciar pesquisa',
             ],
         ],
     ],

@@ -62,6 +62,7 @@ class UserCreditsPage extends Page implements HasTable
             ->description(__('panel-app::resources.credits.history.description'))
             ->columns([
                 TextColumn::make('status')
+                    ->state(fn (UserCredit $record): UserCreditStatusEnum => $record->effectiveStatus())
                     ->badge()
                     ->label(__('panel-app::resources.credits.columns.status'))
                     ->icon(fn (UserCreditStatusEnum $state): Heroicon => match ($state) {
@@ -70,7 +71,7 @@ class UserCreditsPage extends Page implements HasTable
                         UserCreditStatusEnum::Expired => Heroicon::XMark,
                     })
                     ->extraCellAttributes(fn (UserCredit $record): array => [
-                        'class' => 'fi-apt-credit-' . str_replace('_', '-', $record->status->value),
+                        'class' => 'fi-apt-credit-' . str_replace('_', '-', $record->effectiveStatus()->value),
                         'data-apt-label' => __('panel-app::resources.credits.columns.status'),
                     ]),
                 TextColumn::make('appointment.category_type')

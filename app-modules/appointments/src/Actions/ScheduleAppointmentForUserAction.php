@@ -6,6 +6,7 @@ namespace TresPontosTech\Appointments\Actions;
 
 use App\Models\Users\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Exceptions\BookingBlockedException;
@@ -27,6 +28,13 @@ final readonly class ScheduleAppointmentForUserAction
      * entre os oferecidos (antecedência mínima e disponibilidade real) e só então a reserva é
      * criada como pendente, debitando cota ou prendendo um crédito. Não atribui consultor.
      *
+     * Checagem e criação rodam numa transação que trava a linha do usuário (`lockForUpdate`).
+     * Dois pedidos simultâneos da mesma pessoa (duplo clique, duplo toque, reenvio do app)
+     * passam um de cada vez: o segundo só confere o saldo depois que o primeiro gravou, e é
+     * recusado em vez de criar um encontro sem cota ou crédito correspondente (#288). A
+     * checagem usa o usuário recarregado sob a trava, porque `monthly_appointments_left`
+     * fica memoizado na instância recebida.
+     *
      * `$appointmentAt` e `$categoryType` chegam como o cliente enviou; valor malformado conta como
      * horário indisponível, e categoria inválida lança ValueError como hoje (BookAppointmentDTO).
      *
@@ -39,19 +47,23 @@ final readonly class ScheduleAppointmentForUserAction
         ?string $appointmentAt,
         ?string $notes = null,
     ): Appointment {
-        if (! $user->canCreateAppointment()) {
-            throw BookingBlockedException::because(BookingBlockReasons::for($user));
-        }
+        return DB::transaction(function () use ($user, $categoryType, $appointmentAt, $notes): Appointment {
+            $lockedUser = User::query()->whereKey($user->getKey())->lockForUpdate()->firstOrFail();
 
-        $slotAt = $this->bookableSlots->parse($appointmentAt);
+            if (! $lockedUser->canCreateAppointment()) {
+                throw BookingBlockedException::because(BookingBlockReasons::for($lockedUser));
+            }
 
-        throw_unless($slotAt instanceof Carbon, SlotUnavailableException::class);
+            $slotAt = $this->bookableSlots->parse($appointmentAt);
 
-        return $this->bookAppointment->handle(new BookAppointmentDTO(
-            userId: $user->getKey(),
-            categoryType: AppointmentCategoryEnum::from($categoryType),
-            appointmentAt: $slotAt,
-            notes: $notes,
-        ));
+            throw_unless($slotAt instanceof Carbon, SlotUnavailableException::class);
+
+            return $this->bookAppointment->handle(new BookAppointmentDTO(
+                userId: $lockedUser->getKey(),
+                categoryType: AppointmentCategoryEnum::from($categoryType),
+                appointmentAt: $slotAt,
+                notes: $notes,
+            ));
+        });
     }
 }

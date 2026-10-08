@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Shared\Pages\LoginPage;
+use App\Filament\Shared\Pages\RequestPasswordResetPage;
 use App\Http\Middleware\IdentifyDefaultTenantOffTenantRoutes;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -67,7 +68,7 @@ class AppPanelProvider extends PanelProvider
                 ],
             ])
             ->registration(UserRegistration::class)
-            ->passwordReset()
+            ->passwordReset(RequestPasswordResetPage::class)
             // Sem isso o layout do Filament cai no fallback de 7xl (80rem) e sobra
             // uma faixa vazia entre a sidebar e o conteúdo nas telas largas.
             ->maxContentWidth(Width::Full)

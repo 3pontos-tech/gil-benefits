@@ -21,16 +21,22 @@ class UserCreditStatsWidget extends StatsOverviewWidget
 
     protected ?string $pollingInterval = null;
 
+    /**
+     * "Disponível" segue a mesma régua do agendamento: crédito com validade vencida não
+     * conta, mesmo que a coluna ainda diga `available` até o job da madrugada.
+     */
     protected function getStats(): array
     {
-        $stats = UserCredit::query()
+        $credits = UserCredit::query()
             ->where('holder_id', auth()->id())
-            ->where('company_id', Filament::getTenant()?->getKey())
+            ->where('company_id', Filament::getTenant()?->getKey());
+
+        $stats = (clone $credits)
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status');
 
-        $available = (int) ($stats[UserCreditStatusEnum::Available->value] ?? 0);
+        $available = (clone $credits)->where('status', UserCreditStatusEnum::Available)->notExpired()->count();
         $inUse = (int) ($stats[UserCreditStatusEnum::InUse->value] ?? 0);
         $used = (int) ($stats[UserCreditStatusEnum::Used->value] ?? 0);
         $total = $available + $inUse + $used;

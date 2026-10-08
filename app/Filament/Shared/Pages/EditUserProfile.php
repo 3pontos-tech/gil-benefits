@@ -6,10 +6,12 @@ use App\Models\Users\User;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\EditProfile;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use TresPontosTech\User\Support\EmailAddress;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class EditUserProfile extends EditProfile
@@ -43,6 +45,19 @@ class EditUserProfile extends EditProfile
             ->circleCropper()
             ->maxFiles(1)
             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp']);
+    }
+
+    /**
+     * O e-mail é gravado em minúsculas (#291): a validação de único compara a forma
+     * normalizada, senão `Ana@x.com` passaria e quebraria no índice do banco ao gravar.
+     */
+    protected function getEmailFormComponent(): Component
+    {
+        $component = parent::getEmailFormComponent();
+
+        return $component instanceof TextInput
+            ? $component->mutateStateForValidationUsing(fn (?string $state): ?string => EmailAddress::normalize($state))
+            : $component;
     }
 
     protected function getPhoneFormComponent(): Component

@@ -102,9 +102,9 @@ it('drops the consultant and returns to Pending when they are busy at the new ti
         ->and($outcome->appointment->consultant_id)->toBeNull()
         ->and(AppointmentHistory::query()
             ->where('appointment_id', $appointment->getKey())
-            ->where('action_type', AppointmentHistoryActionType::ConsultantLeft)
-            ->exists()
-        )->toBeTrue();
+            ->whereIn('action_type', [AppointmentHistoryActionType::ReScheduled, AppointmentHistoryActionType::ConsultantLeft])
+            ->count()
+        )->toBe(2);
 });
 
 it('keeps the consultant when the chosen time is the current one', function (): void {

@@ -4,6 +4,8 @@ namespace App\Providers\Filament;
 
 use App\Filament\Shared\Pages\EditUserProfile;
 use App\Filament\Shared\Pages\LoginPage;
+use App\Filament\Shared\Pages\RegisterPage;
+use App\Filament\Shared\Pages\RequestPasswordResetPage;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -61,8 +63,8 @@ class CompanyPanelProvider extends PanelProvider
             ])
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
-            ->passwordReset()
-            ->registration()
+            ->passwordReset(RequestPasswordResetPage::class)
+            ->registration(RegisterPage::class)
             ->tenantRegistration(RegisterTenant::class)
             ->tenantProfile(EditTenantProfile::class)
             ->brandLogo(function (): ?HtmlString {
