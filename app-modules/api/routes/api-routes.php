@@ -16,6 +16,7 @@ use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\AvatarController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\JourneyController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\MeController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\PasswordController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Notifications\NotificationController;
 use TresPontosTech\Api\Http\Middleware\EnsureAppAccess;
 use TresPontosTech\Api\Http\Middleware\ForceJsonAndLocale;
 
@@ -53,5 +54,8 @@ Route::prefix('api/v1')
             Route::delete('materials/{document}', [MaterialController::class, 'destroy'])->whereUuid('document')->name('materials.destroy');
             Route::patch('materials/{document}/favorite', [MaterialStateController::class, 'favorite'])->whereUuid('document')->name('materials.favorite');
             Route::patch('materials/{document}/viewed', [MaterialStateController::class, 'viewed'])->whereUuid('document')->name('materials.viewed');
+
+            Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+            Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->whereUuid('notification')->name('notifications.read');
         });
     });

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace TresPontosTech\Credits\Listeners;
 
 use App\Models\Users\User;
-use Filament\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use TresPontosTech\Credits\Events\CreditsDelivered;
+use TresPontosTech\Credits\Notifications\CreditsDeliveredNotification;
 
 class NotifyOwnerOfCreditsDeliveredListener implements ShouldQueue
 {
@@ -15,10 +15,6 @@ class NotifyOwnerOfCreditsDeliveredListener implements ShouldQueue
     {
         $owner = User::query()->findOrFail($event->ownerId);
 
-        Notification::make()
-            ->title(__('credits::notifications.credits_delivered.title'))
-            ->body(__('credits::notifications.credits_delivered.body', ['quantity' => $event->quantity]))
-            ->success()
-            ->sendToDatabase($owner);
+        $owner->notify(new CreditsDeliveredNotification($event->quantity));
     }
 }
