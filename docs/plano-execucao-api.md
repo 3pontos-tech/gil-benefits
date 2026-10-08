@@ -101,7 +101,7 @@ Ordem obrigatória:
 
 ### S7 · Materiais (2 dias)
 
-- [ ] Migrations `document_user_states` e `appointment_document`; models/relações (`Document::states()`, `Document::appointments()`, `Appointment::documents()`).
+- [ ] Migration `document_user_states`; model e `Document::states()`. (`appointment_document` saiu da v1: #296.)
 - [ ] `UploadMaterialAction` no módulo `consultants`; `CreateSharedDocument` do painel passa a usá-la (teste de regressão).
 - [ ] `MaterialResource`, `StoreMaterialRequest`, `MaterialController` (index/store/destroy), `MaterialStateController` (favorite/viewed).
 - [ ] Testes da S7 + contrato. Upload em teste com `UploadedFile::fake()` e `Storage::fake('r2')`.
