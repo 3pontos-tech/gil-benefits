@@ -96,6 +96,20 @@ it('counts only credits of the current tenant', function (): void {
     expect(livewire(PlanCreditsWidget::class)->assertOk()->viewData('creditsTotal'))->toBe(2);
 });
 
+it('leaves out a credit past its validity, as booking does', function (): void {
+    $employee = actingAsEmployee();
+    $tenant = filament()->getTenant();
+
+    UserCredit::factory()->available()->create([
+        'owner_id' => $employee->id,
+        'holder_id' => $employee->id,
+        'company_id' => $tenant->getKey(),
+        'expires_at' => now()->subHour(),
+    ]);
+
+    expect(livewire(PlanCreditsWidget::class)->assertOk()->viewData('creditsTotal'))->toBe(0);
+});
+
 it('counts credits from both origins in the card total', function (): void {
     $employee = actingAsEmployee(); // CompanyPlan ativo
     $tenant = filament()->getTenant();

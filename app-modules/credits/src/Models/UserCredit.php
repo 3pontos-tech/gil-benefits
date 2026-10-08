@@ -125,6 +125,34 @@ class UserCredit extends Model
     }
 
     /**
+     * O status que vale agora. Crédito com data de validade vencida já não pode ser usado
+     * (`notExpired()`), mas a coluna só vira `expired` quando o job da madrugada roda; até
+     * lá, quem mostra o crédito precisa dizer o mesmo que o agendamento considera.
+     */
+    public function effectiveStatus(?CarbonInterface $moment = null): UserCreditStatusEnum
+    {
+        $moment ??= now();
+
+        if ($this->status === UserCreditStatusEnum::Available
+            && $this->expires_at instanceof CarbonInterface
+            && $this->expires_at->lessThanOrEqualTo($moment)) {
+            return UserCreditStatusEnum::Expired;
+        }
+
+        return $this->status;
+    }
+
+    /**
+     * Crédito da empresa é o que o dono (quem pagou) repassou a outra pessoa: compra da
+     * empresa distribuída ao colaborador. Comprado pela própria pessoa, concedido a ela
+     * pela equipe ou vindo de voucher, dono e portador são a mesma pessoa.
+     */
+    public function isFromCompany(): bool
+    {
+        return $this->owner_id !== $this->holder_id;
+    }
+
+    /**
      * Crédito de voucher morre com a campanha; os demais não têm data e passam direto.
      *
      * @param  Builder<UserCredit>  $query
