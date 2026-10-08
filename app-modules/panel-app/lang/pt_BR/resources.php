@@ -124,10 +124,7 @@ return [
         'pages' => [
             'create' => [
                 'cannot_book_now' => 'Não é possível agendar agora',
-                'book_appointment' => 'Agendar Consultoria',
-                'booked_successfully' => 'Consultoria agendada com sucesso',
                 'booking_failed' => 'Falha ao agendar consultoria',
-                'back_to_list' => 'Voltar para a listagem',
             ],
         ],
     ],
