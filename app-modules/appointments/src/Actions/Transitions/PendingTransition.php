@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Actions\Transitions;
 
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Events\AppointmentBooked;
 use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Exceptions\MissingTransitionDataException;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
+use TresPontosTech\Appointments\Notifications\AppointmentConfirmedNotification;
 
 final class PendingTransition extends AbstractAppointmentTransition
 {
@@ -56,12 +56,9 @@ final class PendingTransition extends AbstractAppointmentTransition
             return;
         }
 
-        Notification::make()
-            ->title(__('appointments::resources.appointments.notifications.scheduled.title'))
-            ->body(__('appointments::resources.appointments.notifications.scheduled.body'))
-            ->success()
-            ->sendToDatabase($this->appointment->user)
-            ->send();
+        $notification = new AppointmentConfirmedNotification($this->appointment);
+        $this->appointment->user->notify($notification);
+        $notification->flash();
 
         $this->appointment->loadMissing('consultant');
         $consultant = $this->appointment->consultant;
