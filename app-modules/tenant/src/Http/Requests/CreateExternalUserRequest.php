@@ -6,6 +6,7 @@ namespace TresPontosTech\Tenant\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use TresPontosTech\User\Support\EmailAddress;
 
 class CreateExternalUserRequest extends FormRequest
 {
@@ -15,6 +16,16 @@ class CreateExternalUserRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * O e-mail é gravado em minúsculas (#291): validação e gravação recebem a forma normalizada.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('email')) {
+            $this->merge(['email' => EmailAddress::normalize($this->string('email')->toString())]);
+        }
     }
 
     /**

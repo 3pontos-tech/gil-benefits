@@ -18,6 +18,7 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Rules\UniqueAtCompany;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
+use TresPontosTech\User\Support\EmailAddress;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
 class CreateAndAttachAction extends CreateAction
@@ -82,6 +83,7 @@ class CreateAndAttachAction extends CreateAction
                         ->required(),
                     TextInput::make('email')
                         ->rules(['email', 'unique:users,email'])
+                        ->mutateStateForValidationUsing(fn (?string $state): ?string => EmailAddress::normalize($state))
                         ->email()
                         ->required(),
                     TextInput::make('password')

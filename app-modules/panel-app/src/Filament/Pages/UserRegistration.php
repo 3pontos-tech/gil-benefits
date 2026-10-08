@@ -4,10 +4,10 @@ namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use App\Filament\Shared\Fields\DocumentIdInput;
 use App\Filament\Shared\Fields\TaxIdInput;
+use App\Filament\Shared\Pages\RegisterPage;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Closure;
-use Filament\Auth\Pages\Register;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -22,7 +22,7 @@ use TresPontosTech\Vouchers\Exceptions\VoucherRedemptionException;
 use TresPontosTech\Vouchers\Support\VoucherCodeGenerator;
 use TresPontosTech\Vouchers\Support\VoucherRedemptionUrl;
 
-final class UserRegistration extends Register
+final class UserRegistration extends RegisterPage
 {
     #[Override]
     public function form(Schema $schema): Schema

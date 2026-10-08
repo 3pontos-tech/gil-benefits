@@ -103,3 +103,18 @@ it('refuses an empty update', function (): void {
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['name' => 'Informe o campo que deseja atualizar.']);
 });
+
+it('stores a new email in lowercase and refuses one taken in another capitalization', function (): void {
+    $employee = employeeWithDetail();
+    User::factory()->create(['email' => 'taken@example.com']);
+
+    patchJson(route('api.v1.me.update'), ['email' => 'Taken@Example.com', 'current_password' => 'password'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['email']);
+
+    patchJson(route('api.v1.me.update'), ['email' => 'Novo@Example.com', 'current_password' => 'password'])
+        ->assertOk()
+        ->assertJsonPath('data.email', 'novo@example.com');
+
+    expect($employee->fresh()->email)->toBe('novo@example.com');
+});
