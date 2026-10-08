@@ -11,7 +11,7 @@ return new class extends Migration
 {
     /**
      * Converte para a forma canônica (sem espaços, minúsculo) os e-mails gravados antes do
-     * mutator do User (#291). Em 2026-10-07 havia 1 caso em 182 usuários e nenhuma colisão.
+     * mutator do User (#291).
      *
      * Se a forma canônica já pertencer a outra conta, a linha fica como está e a colisão
      * vai para o log: são duas contas da mesma pessoa, e juntá-las (encontros, créditos,
