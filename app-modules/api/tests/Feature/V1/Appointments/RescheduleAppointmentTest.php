@@ -99,7 +99,11 @@ it('refuses when the current consultant is busy and keeps the original time', fu
 
     expect($fresh->appointment_at->toDateTimeString())->toBe($originalAt->toDateTimeString())
         ->and($fresh->consultant_id)->toBe($consultant->getKey())
-        ->and($fresh->status)->toBe(AppointmentStatus::Active);
+        ->and($fresh->status)->toBe(AppointmentStatus::Active)
+        ->and(AppointmentHistory::query()
+            ->where('appointment_id', $active->getKey())
+            ->where('action_type', AppointmentHistoryActionType::ReScheduled)
+            ->exists())->toBeFalse();
 });
 
 it('refuses an appointment_at before the lead with the lead message', function (): void {
