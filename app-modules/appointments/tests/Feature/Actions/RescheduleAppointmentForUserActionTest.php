@@ -99,7 +99,11 @@ it('rethrows when the current consultant is busy and the sync already reverted',
 
     expect($fresh->appointment_at->toDateTimeString())->toBe($originalAt->toDateTimeString())
         ->and($fresh->consultant_id)->toBe($consultant->getKey())
-        ->and($fresh->status)->toBe(AppointmentStatus::Active);
+        ->and($fresh->status)->toBe(AppointmentStatus::Active)
+        ->and(AppointmentHistory::query()
+            ->where('appointment_id', $appointment->getKey())
+            ->where('action_type', AppointmentHistoryActionType::ReScheduled)
+            ->exists())->toBeFalse();
 });
 
 it('restores the appointment and rethrows without reporting when the sync fails unexpectedly', function (): void {

@@ -86,6 +86,65 @@ it('records a re_scheduled history entry when only the time changes', function (
         ->and(Date::parse($history->new_values['appointment_at'])->format('H:i'))->toBe('15:00');
 });
 
+it('does not record a reschedule the consultant could not take', function (): void {
+    $day = Date::now()->addDays(3);
+    $from = $day->copy()->setTime(10, 0);
+    $busyAt = $day->copy()->setTime(16, 0);
+
+    $consultant = Consultant::factory()->create(['email' => 'consultant@workspace.com']);
+    ($this->makeAvailable)($day, $consultant);
+    ($this->fakeCalendar)();
+
+    Zap::for($consultant)
+        ->named('Existing Appointment')
+        ->appointment()
+        ->from($day->toDateString())
+        ->to($day->copy()->addDay()->toDateString())
+        ->addPeriod('16:00', '17:00')
+        ->save();
+
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $consultant->id,
+        'appointment_at' => $from,
+        'status' => AppointmentStatus::Active,
+    ]);
+    resolve(AssignConsultantAction::class)->handle($appointment);
+
+    livewire(EditAppointment::class, ['record' => $appointment->getRouteKey()])
+        ->fillForm(['appointment_at' => $busyAt->toDateTimeString()])
+        ->fillForm(['consultant_id' => $consultant->id])
+        ->call('save');
+
+    expect(Appointment::query()->findOrFail($appointment->id)->appointment_at->format('H:i'))->toBe('10:00')
+        ->and(AppointmentHistory::query()->where('appointment_id', $appointment->id)->count())->toBe(0);
+});
+
+it('records both the reschedule and the consultant change when both happen', function (): void {
+    $day = Date::now()->addDays(3);
+
+    $previous = Consultant::factory()->create(['email' => 'previous@workspace.com']);
+    $next = Consultant::factory()->create(['email' => 'next@workspace.com']);
+    ($this->makeAvailable)($day, $previous);
+    ($this->makeAvailable)($day, $next);
+    ($this->fakeCalendar)();
+
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $previous->id,
+        'appointment_at' => $day->copy()->setTime(10, 0),
+        'status' => AppointmentStatus::Active,
+    ]);
+    resolve(AssignConsultantAction::class)->handle($appointment);
+
+    livewire(EditAppointment::class, ['record' => $appointment->getRouteKey()])
+        ->fillForm(['appointment_at' => $day->copy()->setTime(15, 0)->toDateTimeString()])
+        ->fillForm(['consultant_id' => $next->id])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(AppointmentHistory::query()->where('appointment_id', $appointment->id)->pluck('action_type')->sortBy->value->values()->all())
+        ->toBe([AppointmentHistoryActionType::ConsultantChanged, AppointmentHistoryActionType::ReScheduled]);
+});
+
 it('records a consultant_changed history entry when the consultant is swapped', function (): void {
     $day = Date::now()->addDays(3);
     $at = $day->copy()->setTime(10, 0);
