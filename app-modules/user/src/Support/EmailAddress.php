@@ -14,6 +14,9 @@ use Illuminate\Support\Str;
  */
 final class EmailAddress
 {
+    /**
+     * @return ($email is string ? string : null)
+     */
     public static function normalize(?string $email): ?string
     {
         if ($email === null) {
