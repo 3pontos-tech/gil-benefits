@@ -13,6 +13,7 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\DTOs\ImportUsersResultDTO;
 use TresPontosTech\User\Mail\WelcomeUserMail;
+use TresPontosTech\User\Support\EmailAddress;
 
 class PersistImportedUsersAction
 {
@@ -43,7 +44,7 @@ class PersistImportedUsersAction
                         User::query()->insert($items->map(fn (array $item): array => [
                             'id' => $item['id'],
                             'name' => trim($item['row']['name']),
-                            'email' => strtolower(trim($item['row']['email'])),
+                            'email' => EmailAddress::normalize($item['row']['email']),
                             'password' => $item['hashed_password'],
                             'created_at' => $now,
                             'updated_at' => $now,
