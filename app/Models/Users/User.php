@@ -55,6 +55,7 @@ use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
 use TresPontosTech\User\Models\UserAnamnese;
+use TresPontosTech\User\Support\EmailAddress;
 
 /**
  * @property string $id
@@ -514,6 +515,17 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * O e-mail é gravado sempre na forma canônica (sem espaços, minúsculo), venha de onde
+     * vier o cadastro: painel, admin, empresa, importação ou API (#291).
+     *
+     * @return Attribute<string, string|null>
+     */
+    protected function email(): Attribute
+    {
+        return Attribute::make(set: fn (?string $value): ?string => EmailAddress::normalize($value));
     }
 
     /**

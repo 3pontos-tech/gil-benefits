@@ -7,6 +7,7 @@ namespace TresPontosTech\Api\Http\Requests\V1\Employee;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
+use TresPontosTech\User\Support\EmailAddress;
 
 /**
  * Edição de um campo por vez, como a tela 29 do app. Trocar o e-mail pede a senha atual,
@@ -20,6 +21,16 @@ class UpdateMeRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    /**
+     * O e-mail é gravado em minúsculas (#291): validação e gravação recebem a forma normalizada.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('email')) {
+            $this->merge(['email' => EmailAddress::normalize($this->string('email')->toString())]);
+        }
     }
 
     /**

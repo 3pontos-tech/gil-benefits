@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Shared\Pages\LoginPage;
+use App\Filament\Shared\Pages\RequestPasswordResetPage;
 use Basement\BetterMails\Filament\FilamentBetterEmailPlugin;
 use Basement\Webhooks\FilamentWebhookPlugin;
 use Filament\Http\Middleware\Authenticate;
@@ -36,7 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.ico'))
             ->login(LoginPage::class)
             ->profile(EditUserProfile::class)
-            ->passwordReset()
+            ->passwordReset(RequestPasswordResetPage::class)
             ->databaseNotifications()
             ->colors([
                 'primary' => Color::Blue,

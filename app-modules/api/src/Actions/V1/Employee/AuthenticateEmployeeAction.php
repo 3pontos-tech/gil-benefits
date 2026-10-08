@@ -9,6 +9,7 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Hash;
 use TresPontosTech\Api\DTOs\EmployeeSession;
 use TresPontosTech\Api\Exceptions\EmployeeLoginException;
+use TresPontosTech\User\Support\EmailAddress;
 
 final readonly class AuthenticateEmployeeAction
 {
@@ -47,13 +48,11 @@ final readonly class AuthenticateEmployeeAction
     }
 
     /**
-     * Busca sem diferenciar maiúsculas: o cadastro do painel e a API de tenant gravam o
-     * e-mail como foi digitado, mas o app envia sempre em minúsculas.
+     * O e-mail é gravado em minúsculas (#291), então a busca normaliza a entrada e compara
+     * direto, usando o índice único da coluna.
      */
     private function findByEmail(string $email): ?User
     {
-        return User::query()
-            ->whereRaw('lower(email) = ?', [mb_strtolower($email)])
-            ->first();
+        return User::query()->where('email', EmailAddress::normalize($email))->first();
     }
 }
