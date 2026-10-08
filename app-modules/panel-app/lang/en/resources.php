@@ -93,7 +93,7 @@ return [
                 'new_time' => 'New time',
                 'duration' => 'Duration',
                 'duration_value' => '60 minutes',
-                'notice' => 'Your current time will be replaced after confirmation.',
+                'notice' => 'Your current time will be replaced after confirmation. If your consultant is not available at the new time, the appointment goes back to the assignment queue.',
                 'submit' => 'Confirm',
             ],
             'confirmed' => [

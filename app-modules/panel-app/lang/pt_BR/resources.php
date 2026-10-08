@@ -93,7 +93,7 @@ return [
                 'new_time' => 'Novo horário',
                 'duration' => 'Duração',
                 'duration_value' => '60 minutos',
-                'notice' => 'Seu horário atual será substituído após confirmação.',
+                'notice' => 'Seu horário atual será substituído após confirmação. Se o seu consultor não estiver disponível no novo horário, o agendamento voltará para a fila de atribuição.',
                 'submit' => 'Confirmar',
             ],
             'confirmed' => [
