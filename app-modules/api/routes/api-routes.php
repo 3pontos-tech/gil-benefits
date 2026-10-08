@@ -9,6 +9,7 @@ use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\FeedbackControl
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\SlotController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LoginController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LogoutController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Credits\CreditsController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\AvatarController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\JourneyController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\MeController;
@@ -42,5 +43,7 @@ Route::prefix('api/v1')
             Route::patch('appointments/{appointment}', [AppointmentController::class, 'update'])->whereUuid('appointment')->name('appointments.update');
             Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->whereUuid('appointment')->name('appointments.destroy');
             Route::post('appointments/{appointment}/feedback', FeedbackController::class)->whereUuid('appointment')->name('appointments.feedback.store');
+
+            Route::get('credits', CreditsController::class)->name('credits.show');
         });
     });

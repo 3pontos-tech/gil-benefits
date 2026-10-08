@@ -60,6 +60,7 @@ class PlanCreditsWidget extends Widget implements HasActions, HasSchemas
             ->where('holder_id', $user->getKey())
             ->where('company_id', filament()->getTenant()?->getKey())
             ->where('status', UserCreditStatusEnum::Available)
+            ->notExpired()
             ->count();
 
         $monthlyLeft = $user->monthly_appointments_left;
