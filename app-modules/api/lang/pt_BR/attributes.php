@@ -17,8 +17,13 @@ return [
     'new_password' => 'nova senha',
     'notes' => 'observações',
     'password' => 'senha',
+    'life_moment' => 'momento de vida',
+    'main_motivation' => 'motivação',
+    'money_relationship' => 'relação com dinheiro',
     'phone_number' => 'telefone',
+    'plans_monthly_expenses' => 'planejamento de gastos',
     'title' => 'título',
+    'tried_financial_strategies' => 'estratégias já tentadas',
     'rating' => 'nota',
     'status' => 'status',
 ];

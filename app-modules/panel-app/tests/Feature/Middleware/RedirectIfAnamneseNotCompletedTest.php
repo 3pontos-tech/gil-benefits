@@ -100,3 +100,26 @@ it('still asks during the grace after the consultancy', function (): void {
     expect($response->getStatusCode())->toBe(302)
         ->and($response->headers->get('Location'))->toContain('anamnese');
 });
+
+it('keeps sending to the anamnese while it is only partly answered', function (): void {
+    voucherCreditFor($this->user, $this->company, now()->addMonth()->toDateTimeString());
+    UserAnamneseFactory::new()->create([
+        'user_id' => $this->user->getKey(),
+        'main_motivation' => null,
+        'tried_financial_strategies' => null,
+    ]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getStatusCode())->toBe(302)
+        ->and($response->headers->get('Location'))->toContain('anamnese');
+});
+
+it('lets through once the five answers are there', function (): void {
+    voucherCreditFor($this->user, $this->company, now()->addMonth()->toDateTimeString());
+    UserAnamneseFactory::new()->create(['user_id' => $this->user->getKey()]);
+
+    $response = $this->middleware->handle($this->request, $this->next);
+
+    expect($response->getContent())->toBe('ok');
+});

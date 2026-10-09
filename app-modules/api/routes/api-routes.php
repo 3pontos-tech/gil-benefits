@@ -12,6 +12,7 @@ use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LogoutController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Credits\CreditsController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Materials\MaterialController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Materials\MaterialStateController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\AnamneseController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\AvatarController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\JourneyController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\MeController;
@@ -38,6 +39,8 @@ Route::prefix('api/v1')
             Route::post('me/avatar', [AvatarController::class, 'store'])->name('me.avatar.store');
             Route::delete('me/avatar', [AvatarController::class, 'destroy'])->name('me.avatar.destroy');
             Route::get('me/journey', JourneyController::class)->name('me.journey');
+            Route::get('me/anamnese', [AnamneseController::class, 'show'])->name('me.anamnese.show');
+            Route::put('me/anamnese', [AnamneseController::class, 'update'])->name('me.anamnese.update');
 
             Route::get('appointments/slots', SlotController::class)->name('appointments.slots');
             Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');

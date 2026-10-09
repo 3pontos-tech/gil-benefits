@@ -26,7 +26,7 @@ class RedirectIfAnamneseNotCompleted
         /** @var Company|null $tenant */
         $tenant = filament()->getTenant();
 
-        if ($user === null || $user->anamnese !== null) {
+        if ($user === null || $user->anamnese?->isComplete() === true) {
             return $next($request);
         }
 
