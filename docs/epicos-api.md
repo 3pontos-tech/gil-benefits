@@ -422,7 +422,9 @@ Como colaborador, quero responder meu perfil financeiro aos poucos pelo app, par
 - `SaveAnamneseAction` ganha um modo de merge parcial (ou nova `UpsertAnamneseAnswersAction`), preservando o
   `updateOrCreate` por `user_id`; o wizard do painel segue exigindo tudo na validação do formulário.
 - `MeResource.anamnese_completed` = cinco campos preenchidos; `RedirectIfAnamneseNotCompleted` passa a usar a mesma
-  verificação (hoje é "existe linha").
+  verificação (hoje é "existe linha"), e o wizard do painel abre com as respostas já dadas no app.
+- A jornada usa o `life_moment` assim que ele é respondido (decisão de 2026-10-08): só ele entra no score; os quatro
+  textos são contexto para o consultor.
 
 **Subtarefas:**
 
