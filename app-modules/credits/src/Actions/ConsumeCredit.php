@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Credits\Actions;
 
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\Credits\DTOs\CreditDTO;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\Credits\Models\UserCredit;
@@ -19,20 +20,27 @@ final readonly class ConsumeCredit
      *
      * Entre os disponíveis, o que vence primeiro sai antes — crédito de voucher tem data e
      * o comprado não, então gastar o perene deixaria o de prazo apodrecer na fila.
+     *
+     * A escolha trava a linha (`lockForUpdate`) até o fim da transação: dois agendamentos
+     * simultâneos não podem ler o mesmo crédito como disponível, senão o segundo sobrescreve
+     * o `appointment_id` do primeiro e um dos encontros fica sem crédito nenhum (#288).
      */
     public function execute(CreditDTO $dto): void
     {
-        UserCredit::query()
-            ->where('holder_id', $dto->holderId)
-            ->where('company_id', $dto->companyId)
-            ->where('status', UserCreditStatusEnum::Available)
-            ->notExpired()
-            ->orderByRaw('expires_at is null, expires_at asc')
-            ->oldest()
-            ->first()
-            ?->update([
-                'status' => UserCreditStatusEnum::InUse,
-                'appointment_id' => $dto->appointmentId,
-            ]);
+        DB::transaction(function () use ($dto): void {
+            UserCredit::query()
+                ->where('holder_id', $dto->holderId)
+                ->where('company_id', $dto->companyId)
+                ->where('status', UserCreditStatusEnum::Available)
+                ->notExpired()
+                ->orderByRaw('expires_at is null, expires_at asc')
+                ->oldest()
+                ->lockForUpdate()
+                ->first()
+                ?->update([
+                    'status' => UserCreditStatusEnum::InUse,
+                    'appointment_id' => $dto->appointmentId,
+                ]);
+        });
     }
 }

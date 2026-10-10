@@ -27,6 +27,15 @@ Usamos [SemVer](https://semver.org/lang/pt-BR/) no formato `MAJOR.MINOR.PATCH`, 
 
 Senão: `feat:` → **MINOR**; `fix:`/`chore:`/`refactor:` → **PATCH**.
 
+### API do app (`/api/v1`)
+
+O app mobile publicado nas lojas continua chamando a versão antiga da API até o usuário atualizar. Por isso:
+
+- **MAJOR:** mudança incompatível em `/api/v1`: remover ou renomear rota ou campo, mudar tipo ou formato, tornar obrigatório um campo opcional, endurecer validação ou mudar o significado de um status. Precisa de coordenação com a versão do app e, se o app antigo não puder seguir, de uma `/api/v2`.
+- **MINOR:** rota nova, campo novo na resposta ou campo opcional novo na requisição.
+
+Os testes em `app-modules/api/tests/Feature/Contract` cobrem as chaves de cada resposta. Se uma chave que já existia saiu ou mudou de formato nesses testes, a release é MAJOR; chave nova é MINOR. Detalhes em `app-modules/api/README.md`.
+
 ### O teste das 3 perguntas
 
 Antes de escolher a versão, responda:

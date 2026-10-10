@@ -15,6 +15,7 @@ use TresPontosTech\Support\Jobs\DispatchSupportTicketJob;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Services\ProtocolGenerator;
+use TresPontosTech\User\Support\EmailAddress;
 
 class CreateSupportTicketAction
 {
@@ -88,7 +89,7 @@ class CreateSupportTicketAction
         }
 
         return User::query()
-            ->where('email', $email)
+            ->where('email', EmailAddress::normalize($email))
             ->value('id');
     }
 }

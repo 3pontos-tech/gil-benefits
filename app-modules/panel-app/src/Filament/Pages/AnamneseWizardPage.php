@@ -43,9 +43,22 @@ class AnamneseWizardPage extends Page
      */
     public array $data = [];
 
+    /**
+     * Abre com o que a pessoa já respondeu no app, para não precisar redigitar.
+     */
     public function mount(): void
     {
-        $this->form->fill();
+        /** @var User $user */
+        $user = auth()->user();
+        $anamnese = $user->anamnese;
+
+        $this->form->fill($anamnese === null ? [] : [
+            'life_moment' => $anamnese->life_moment?->value,
+            'main_motivation' => $anamnese->main_motivation,
+            'money_relationship' => $anamnese->money_relationship,
+            'plans_monthly_expenses' => $anamnese->plans_monthly_expenses,
+            'tried_financial_strategies' => $anamnese->tried_financial_strategies,
+        ]);
     }
 
     public function form(Schema $schema): Schema

@@ -23,6 +23,7 @@ use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransitio
 use TresPontosTech\Appointments\Database\Factories\AppointmentFactory;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Enums\CancelImpact;
 use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -183,6 +184,30 @@ class Appointment extends Model
     {
         return in_array($this->status, [AppointmentStatus::Pending, AppointmentStatus::Active], strict: true)
             && now()->diffInHours($this->appointment_at, absolute: false) >= self::RESCHEDULE_WINDOW_HOURS;
+    }
+
+    /**
+     * Se o colaborador ainda pode cancelar este agendamento: pendente ou confirmado e com o horário
+     * no futuro. É a regra de visibilidade do botão "Cancelar" do painel; dentro das 4 horas ele
+     * continua podendo cancelar, só perde o crédito (ver cancelImpact()).
+     */
+    public function canBeCancelled(): bool
+    {
+        return in_array($this->status, [AppointmentStatus::Pending, AppointmentStatus::Active], strict: true)
+            && $this->appointment_at->isFuture();
+    }
+
+    /**
+     * Destino do crédito se o cancelamento acontecer agora; null quando não há o que cancelar.
+     * Mesma régua de AppointmentStatus::resolveCancellationStatus() para o ator User.
+     */
+    public function cancelImpact(): ?CancelImpact
+    {
+        if (! $this->canBeCancelled()) {
+            return null;
+        }
+
+        return $this->isLateCancellation() ? CancelImpact::LosesCredit : CancelImpact::ReturnsCredit;
     }
 
     protected function casts(): array

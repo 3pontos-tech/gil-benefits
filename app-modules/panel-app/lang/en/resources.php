@@ -93,12 +93,13 @@ return [
                 'new_time' => 'New time',
                 'duration' => 'Duration',
                 'duration_value' => '60 minutes',
-                'notice' => 'Your current time will be replaced after confirmation.',
+                'notice' => 'Your current time will be replaced after confirmation. If your consultant is not available at the new time, the appointment goes back to the assignment queue.',
                 'submit' => 'Confirm',
             ],
             'confirmed' => [
                 'heading' => 'Rescheduling confirmed!',
                 'description' => 'Your consultation was rescheduled successfully. The new booking is confirmed.',
+                'description_unassigned' => 'Your consultation was rescheduled, but your consultant was not available at this time. We will assign a new one and let you know shortly.',
                 'before' => 'Before',
                 'now' => 'Now',
                 'awaiting_confirmation' => 'Awaiting confirmation',
@@ -124,10 +125,7 @@ return [
         'pages' => [
             'create' => [
                 'cannot_book_now' => 'Cannot book now',
-                'book_appointment' => 'Book Appointment',
-                'booked_successfully' => 'Appointment booked successfully',
                 'booking_failed' => 'Failed to book appointment',
-                'back_to_list' => 'Back to list',
             ],
         ],
     ],

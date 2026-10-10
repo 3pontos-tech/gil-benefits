@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Actions\Transitions;
 
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Actions\AppointmentHistory\StoreAppointmentHistoryAction;
 use TresPontosTech\Appointments\DTO\StoreAppointmentHistoryDTO;
@@ -16,6 +15,7 @@ use TresPontosTech\Appointments\Events\AppointmentCompleted;
 use TresPontosTech\Appointments\Events\AppointmentNoShow;
 use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
+use TresPontosTech\Appointments\Notifications\AppointmentCompletedNotification;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\Credits\Events\AppointmentCreditUsed;
 
@@ -108,12 +108,9 @@ final class ActiveTransition extends AbstractAppointmentTransition
 
         $this->appointment->loadMissing(['user', 'consultant']);
 
-        Notification::make()
-            ->title(__('appointments::resources.appointments.notifications.completed.title'))
-            ->body(__('appointments::resources.appointments.notifications.completed.body'))
-            ->success()
-            ->sendToDatabase($this->appointment->user)
-            ->send();
+        $notification = new AppointmentCompletedNotification($this->appointment);
+        $this->appointment->user->notify($notification);
+        $notification->flash();
 
         Mail::to($this->appointment->user->email)->queue(new AppointmentCompletedMail($this->appointment));
     }

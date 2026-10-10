@@ -1,0 +1,23 @@
+{
+	"name": "3pontos-tech/api",
+	"description": "API HTTP versionada: colaborador (app) e, futuramente, empresa",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\Api\\": "src/",
+			"TresPontosTech\\Api\\Tests\\": "tests/",
+			"TresPontosTech\\Api\\Database\\Factories\\": "database/factories/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\Api\\Providers\\ApiServiceProvider"
+			]
+		}
+	}
+}

@@ -6,6 +6,8 @@ namespace App\Filament\Shared\Pages;
 
 use App\Filament\FilamentPanel;
 use Filament\Auth\Pages\Login;
+use SensitiveParameter;
+use TresPontosTech\User\Support\EmailAddress;
 
 class LoginPage extends Login
 {
@@ -21,6 +23,20 @@ class LoginPage extends Login
             ...$this->credentialsForCurrentPanel(),
             'remember' => true,
         ]);
+    }
+
+    /**
+     * O e-mail é gravado em minúsculas; quem digita com outra capitalização entra igual (#291).
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function getCredentialsFromFormData(#[SensitiveParameter] array $data): array
+    {
+        return [
+            ...parent::getCredentialsFromFormData($data),
+            'email' => EmailAddress::normalize($data['email']),
+        ];
     }
 
     /**

@@ -5,6 +5,8 @@ declare(strict_types=1);
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\PanelApp\Filament\Widgets\LatestAppointmentsWidget;
 
 use function Pest\Livewire\livewire;
@@ -149,4 +151,92 @@ it('rejects a malformed appointment_at without a server error', function (): voi
         ])
         ->assertSuccessful()
         ->assertNotified(__('panel-app::resources.appointments.reschedule.slot_unavailable'));
+});
+
+it('books with the monthly quota and leaves the standalone credit alone', function (): void {
+    $appointmentAt = now()->addDays(5)->setTime(14, 0);
+    consultantAvailableOn($appointmentAt);
+
+    $credit = UserCredit::factory()->available()->create([
+        'owner_id' => $this->employee->getKey(),
+        'holder_id' => $this->employee->getKey(),
+        'company_id' => filament()->getTenant()->getKey(),
+    ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('scheduleReview', arguments: [
+            'category_type' => AppointmentCategoryEnum::PersonalFinance->value,
+            'appointment_at' => $appointmentAt->toDateTimeString(),
+        ])
+        ->assertActionMounted('scheduleConfirmed');
+
+    $appointment = Appointment::query()->where('user_id', $this->employee->getKey())->firstOrFail();
+    $credit->refresh();
+
+    expect($appointment->status)->toBe(AppointmentStatus::Pending)
+        ->and($credit->status)->toBe(UserCreditStatusEnum::Available)
+        ->and($credit->appointment_id)->toBeNull();
+});
+
+it('books with a standalone credit once the monthly quota is spent', function (): void {
+    $appointmentAt = now()->addDays(5)->setTime(14, 0);
+    consultantAvailableOn($appointmentAt);
+
+    $completed = Appointment::factory()
+        ->withStatus(AppointmentStatus::Completed)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'company_id' => filament()->getTenant()->getKey(),
+            'appointment_at' => now()->subDays(3),
+        ]);
+
+    $credit = UserCredit::factory()->available()->create([
+        'owner_id' => $this->employee->getKey(),
+        'holder_id' => $this->employee->getKey(),
+        'company_id' => filament()->getTenant()->getKey(),
+    ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('scheduleReview', arguments: [
+            'category_type' => AppointmentCategoryEnum::PersonalFinance->value,
+            'appointment_at' => $appointmentAt->toDateTimeString(),
+        ])
+        ->assertActionMounted('scheduleConfirmed');
+
+    $appointment = Appointment::query()
+        ->whereKeyNot($completed->getKey())
+        ->where('user_id', $this->employee->getKey())
+        ->firstOrFail();
+    $credit->refresh();
+
+    expect($appointment->status)->toBe(AppointmentStatus::Pending)
+        ->and($credit->status)->toBe(UserCreditStatusEnum::InUse)
+        ->and($credit->appointment_id)->toBe($appointment->getKey());
+});
+
+it('refuses to book when neither quota nor credit is left', function (): void {
+    Appointment::factory()
+        ->withStatus(AppointmentStatus::Completed)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'company_id' => filament()->getTenant()->getKey(),
+            'appointment_at' => now()->subDays(3),
+        ]);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->mountAction('scheduleAppointment')
+        ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+        ->assertActionNotMounted();
+
+    $appointmentAt = now()->addDays(5)->setTime(14, 0);
+    consultantAvailableOn($appointmentAt);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('scheduleReview', arguments: [
+            'category_type' => AppointmentCategoryEnum::PersonalFinance->value,
+            'appointment_at' => $appointmentAt->toDateTimeString(),
+        ])
+        ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'));
+
+    expect(Appointment::query()->where('user_id', $this->employee->getKey())->count())->toBe(1);
 });

@@ -93,12 +93,13 @@ return [
                 'new_time' => 'Novo horário',
                 'duration' => 'Duração',
                 'duration_value' => '60 minutos',
-                'notice' => 'Seu horário atual será substituído após confirmação.',
+                'notice' => 'Seu horário atual será substituído após confirmação. Se o seu consultor não estiver disponível no novo horário, o agendamento voltará para a fila de atribuição.',
                 'submit' => 'Confirmar',
             ],
             'confirmed' => [
                 'heading' => 'Reagendamento confirmado!',
                 'description' => 'Sua consulta foi reagendada com sucesso. O novo agendamento já está confirmado.',
+                'description_unassigned' => 'Sua consulta foi reagendada, mas seu consultor não estava disponível neste horário. Vamos atribuir um novo consultor e avisaremos você em breve.',
                 'before' => 'Antes',
                 'now' => 'Agora',
                 'awaiting_confirmation' => 'Aguardando confirmação',
@@ -124,10 +125,7 @@ return [
         'pages' => [
             'create' => [
                 'cannot_book_now' => 'Não é possível agendar agora',
-                'book_appointment' => 'Agendar Consultoria',
-                'booked_successfully' => 'Consultoria agendada com sucesso',
                 'booking_failed' => 'Falha ao agendar consultoria',
-                'back_to_list' => 'Voltar para a listagem',
             ],
         ],
     ],

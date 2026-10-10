@@ -16,13 +16,13 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Date;
 use Throwable;
-use TresPontosTech\Appointments\Actions\BookAppointmentAction;
-use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
+use TresPontosTech\Appointments\Actions\ScheduleAppointmentForUserAction;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
+use TresPontosTech\Appointments\Exceptions\BookingBlockedException;
+use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\AppointmentWizard;
+use TresPontosTech\Appointments\Support\BookingBlockReasons;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\PickSlotStep;
-use TresPontosTech\PanelApp\Support\BookingBlockReasons;
 
 /**
  * Wizard de agendamento em modal: categoria → data e hora → revisão → sucesso.
@@ -56,7 +56,7 @@ trait SchedulesAppointments
                 $user = auth()->user();
 
                 if (! $user->canCreateAppointment()) {
-                    $this->notifyCannotBook();
+                    $this->notifyCannotBook(BookingBlockReasons::for($user));
 
                     throw new Cancel;
                 }
@@ -122,31 +122,25 @@ trait SchedulesAppointments
             ->action(function (array $arguments): void {
                 /** @var User $user */
                 $user = auth()->user();
+                $appointmentAt = $arguments['appointment_at'] ?? null;
 
-                // O saldo pode ter mudado entre abrir o wizard e confirmar.
-                if (! $user->canCreateAppointment()) {
-                    $this->notifyCannotBook();
+                try {
+                    resolve(ScheduleAppointmentForUserAction::class)->handle(
+                        $user,
+                        (string) ($arguments['category_type'] ?? ''),
+                        is_string($appointmentAt) ? $appointmentAt : null,
+                    );
+                } catch (BookingBlockedException $bookingBlockedException) {
+                    $this->notifyCannotBook($bookingBlockedException->reasons);
 
                     return;
-                }
-
-                // Os argumentos vêm do cliente: o horário precisa existir na
-                // disponibilidade real (e respeitar a antecedência) para um
-                // mountAction forjado não criar consulta em slot inválido.
-                if (! AppointmentWizard::isBookableSlot($arguments['appointment_at'] ?? null)) {
+                } catch (SlotUnavailableException) {
                     Notification::make()
                         ->title(__('panel-app::resources.appointments.reschedule.slot_unavailable'))
                         ->danger()
                         ->send();
 
                     return;
-                }
-
-                try {
-                    resolve(BookAppointmentAction::class)->handle(BookAppointmentDTO::make($user->getKey(), [
-                        'category_type' => $arguments['category_type'],
-                        'appointment_at' => $arguments['appointment_at'],
-                    ]));
                 } catch (Throwable) {
                     Notification::make()
                         ->title(__('panel-app::resources.appointments.pages.create.booking_failed'))
@@ -234,11 +228,14 @@ trait SchedulesAppointments
         ];
     }
 
-    private function notifyCannotBook(): void
+    /**
+     * @param  list<string>  $reasons
+     */
+    private function notifyCannotBook(array $reasons): void
     {
         Notification::make()
             ->title(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
-            ->body(implode(' ', BookingBlockReasons::for(auth()->user())))
+            ->body(implode(' ', $reasons))
             ->danger()
             ->send();
     }

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
@@ -10,6 +11,7 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
 use TresPontosTech\PanelApp\Filament\Widgets\LatestAppointmentsWidget;
+use Zap\Facades\Zap;
 
 use function Pest\Livewire\livewire;
 
@@ -243,4 +245,60 @@ it('warns when the appointment moved but the calendar sync failed', function ():
         ->assertActionMounted('rescheduleConfirmed')
         ->assertNotified(__('panel-app::resources.appointments.reschedule.calendar_sync_failed'))
         ->assertDispatched('appointment-rescheduled');
+});
+
+it('enforces the booking lead when rescheduling even if the day has availability', function (): void {
+    $appointment = reschedulableAppointment();
+    $previousAt = $appointment->appointment_at->toDateTimeString();
+    $tomorrow = now()->addDay()->setTime(10, 0);
+    consultantAvailableOn($tomorrow);
+
+    livewire(LatestAppointmentsWidget::class)
+        ->callAction('rescheduleReview', arguments: [
+            'appointment' => $appointment->getKey(),
+            'appointment_at' => $tomorrow->toDateTimeString(),
+        ])
+        ->assertNotified(__('panel-app::resources.appointments.reschedule.slot_unavailable'));
+
+    expect($appointment->refresh()->appointment_at->toDateTimeString())->toBe($previousAt);
+});
+
+it('drops the consultant and returns to Pending when they are busy at the new time', function (): void {
+    $originalAt = now()->addDays(3)->setTime(14, 0);
+    $targetAt = now()->addDays(5)->setTime(10, 0);
+    $consultant = consultantAvailableOn($originalAt, $targetAt);
+    consultantAvailableOn($targetAt);
+
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::Active)
+        ->recycle($consultant)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => $originalAt,
+        ]);
+    resolve(AssignConsultantAction::class)->handle($appointment);
+
+    Zap::for($consultant)
+        ->named('Busy')
+        ->appointment()
+        ->from($targetAt->toDateString())
+        ->to($targetAt->copy()->addDay()->toDateString())
+        ->addPeriod('10:00', '11:00')
+        ->save();
+
+    $component = livewire(LatestAppointmentsWidget::class)
+        ->callAction('rescheduleReview', arguments: [
+            'appointment' => $appointment->getKey(),
+            'appointment_at' => $targetAt->toDateTimeString(),
+        ])
+        ->assertDispatched('appointment-rescheduled')
+        ->assertActionMounted('rescheduleConfirmed');
+
+    expect($component->instance()->mountedActions[0]['arguments']['unassigned'])->toBeTrue();
+
+    $fresh = $appointment->refresh();
+
+    expect($fresh->appointment_at->toDateTimeString())->toBe($targetAt->toDateTimeString())
+        ->and($fresh->consultant_id)->toBeNull()
+        ->and($fresh->status)->toBe(AppointmentStatus::Pending);
 });

@@ -60,6 +60,16 @@ return [
             'slot_unavailable' => 'Este horário não está mais disponível. Por favor, selecione outro.',
             'consultant_unavailable' => 'Este consultor não está disponível para o horário selecionado.',
             'calendar_event_failed' => 'Falha ao criar o evento no Google Calendar. Tente salvar novamente ou verifique a integração.',
+            'cannot_reschedule' => 'Este agendamento não pode mais ser reagendado.',
+            'cannot_cancel' => 'Este agendamento não pode mais ser cancelado.',
+            'feedback_requires_completion' => 'Só é possível avaliar uma consultoria concluída.',
+            'feedback_already_given' => 'Esta consultoria já foi avaliada.',
+            'invalid_rating' => 'A nota deve ser de 1 a 5.',
+        ],
+
+        'booking_block' => [
+            'ongoing_appointment' => 'Você possui uma consultoria em andamento. Finalize a anterior para agendar outra.',
+            'no_appointments_available' => 'Você não possui agendamentos disponíveis neste mês.',
         ],
 
         'records' => [
@@ -121,20 +131,12 @@ return [
         'wizard' => [
             'steps' => [
                 'category_type' => 'Categoria de consultoria',
-                'pick_datetime' => 'Escolher Data e Hora',
-                'review_confirm' => 'Revisar e Confirmar',
             ],
             'labels' => [
                 'category_type' => 'Selecione a categoria de consultoria',
                 'date' => 'Data',
                 'available_times' => 'Horários Disponíveis',
-                'duration' => 'Duração',
-                'duration_default' => '60 minutos',
-                'summary' => 'Resumo',
                 'notes' => 'Observações',
-            ],
-            'actions' => [
-                'submit' => 'Iniciar pesquisa',
             ],
         ],
     ],

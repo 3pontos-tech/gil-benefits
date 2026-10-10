@@ -32,6 +32,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Laravel\Cashier\Billable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -54,6 +55,7 @@ use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
 use TresPontosTech\User\Models\UserAnamnese;
+use TresPontosTech\User\Support\EmailAddress;
 
 /**
  * @property string $id
@@ -80,6 +82,7 @@ use TresPontosTech\User\Models\UserAnamnese;
 class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasMedia, HasTenants
 {
     use Billable;
+    use HasApiTokens;
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -380,6 +383,24 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
+     * Se esta pessoa é público do aplicativo do colaborador (API v1).
+     *
+     * Entra quem tem vínculo ativo em company_employees com alguma empresa, inclusive a
+     * padrão: plano da empresa, assinatura individual ou voucher. Consultores também são
+     * ligados à empresa padrão no cadastro, por isso ficam de fora explicitamente: eles
+     * usam o painel do consultor. Admin e dono sem vínculo não entram porque o app não
+     * tem o que mostrar a eles.
+     */
+    public function canUseApp(): bool
+    {
+        if ($this->hasRole(Roles::Consultant->value)) {
+            return false;
+        }
+
+        return $this->companies()->wherePivot('active', true)->exists();
+    }
+
+    /**
      * Se esta pessoa pode abrir uma consultoria agora.
      *
      * São duas condições: ter com que pagar — cota do ciclo ou crédito avulso — e não ter
@@ -484,12 +505,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     public function hasOngoingAppointment(): bool
     {
         return $this->appointments()
-            ->whereNotIn('status', [
-                AppointmentStatus::Completed->value,
-                AppointmentStatus::Cancelled->value,
-                AppointmentStatus::CancelledLate->value,
-                AppointmentStatus::NoShow->value,
-            ])
+            ->whereNotIn('status', array_map(fn (AppointmentStatus $status): string => $status->value, AppointmentStatus::closed()))
             ->exists();
     }
 
@@ -499,6 +515,17 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * O e-mail é gravado sempre na forma canônica (sem espaços, minúsculo), venha de onde
+     * vier o cadastro: painel, admin, empresa, importação ou API (#291).
+     *
+     * @return Attribute<string, string|null>
+     */
+    protected function email(): Attribute
+    {
+        return Attribute::make(set: fn (?string $value): ?string => EmailAddress::normalize($value));
     }
 
     /**
