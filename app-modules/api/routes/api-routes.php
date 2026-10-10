@@ -18,6 +18,7 @@ use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\JourneyController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\MeController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\PasswordController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Notifications\NotificationController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Tickets\TicketController;
 use TresPontosTech\Api\Http\Middleware\EnsureAppAccess;
 use TresPontosTech\Api\Http\Middleware\ForceJsonAndLocale;
 
@@ -60,5 +61,9 @@ Route::prefix('api/v1')
 
             Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
             Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->whereUuid('notification')->name('notifications.read');
+
+            Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
+            Route::post('tickets', [TicketController::class, 'store'])->name('tickets.store');
+            Route::patch('tickets/{ticket}', [TicketController::class, 'update'])->whereUuid('ticket')->name('tickets.update');
         });
     });
