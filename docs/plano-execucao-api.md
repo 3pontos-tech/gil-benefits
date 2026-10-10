@@ -135,11 +135,11 @@ Ordem obrigatória:
 ### S11 · Contrato, documentação e PR (1,5 dia)
 
 - [ ] `tests/Feature/Contract/*ResourceTest.php` para Me, Journey, Appointment, Credits, Material, Notification, Anamnese, Ticket (chaves + formato de datas).
-- [ ] `config/cors.php`: `api/*` liberado para `http://localhost:8081` (app no navegador, dev).
+- [ ] CORS: `api/*` liberado para `http://localhost:8081` (app no navegador, dev). O padrão do Laravel já libera; teste do preflight em vez de `config/cors.php`.
 - [ ] `app-modules/api/README.md`: como rodar com o app, variáveis, comandos.
 - [ ] `RELEASING.md`: linha sobre `/api/v1` (incompatível = MAJOR, aditiva = MINOR).
 - [ ] Registrar a dívida da API de tenant (mover para `api/.../V1/Company` quando tocada) numa issue.
-- [ ] `php artisan route:list --path=api/v1` confere 28 rotas com os middlewares certos; `make check` verde; Larastan do módulo no nível dos demais.
+- [ ] `php artisan route:list --path=api/v1` confere 28 rotas do colaborador (mais as 2 da empresa, ainda no `tenant`) com os middlewares certos; `make check` verde; Larastan do módulo no nível dos demais.
 - [ ] PR sai de draft: descrição com dependência nova, as três migrations, "nenhuma env obrigatória", link para o épico e para a página de especificação, este checklist marcado.
 
 **Gate 4:** suíte inteira verde no CI (`_pint`, `_rector`, `_phpstan`, `_pest`); revisão do PR; merge em `develop`.

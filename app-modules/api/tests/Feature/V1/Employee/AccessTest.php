@@ -105,3 +105,15 @@ it('returns validation errors in Portuguese', function (): void {
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['email' => 'O campo email deve ser um endereço de e-mail válido.']);
 });
+
+it('answers the browser preflight of the app running on the web in development', function (): void {
+    $this->call('OPTIONS', route('api.v1.auth.login'), server: [
+        'HTTP_ORIGIN' => 'http://localhost:8081',
+        'HTTP_ACCESS_CONTROL_REQUEST_METHOD' => 'POST',
+        'HTTP_ACCESS_CONTROL_REQUEST_HEADERS' => 'authorization, content-type',
+    ])
+        ->assertNoContent()
+        ->assertHeader('Access-Control-Allow-Origin', '*')
+        ->assertHeader('Access-Control-Allow-Methods', 'POST')
+        ->assertHeader('Access-Control-Allow-Headers', 'authorization, content-type');
+});

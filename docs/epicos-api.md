@@ -453,12 +453,15 @@ Como colaborador, quero abrir e acompanhar chamados pelo app, para pedir ajuda s
 **Tarefas:**
 
 - `SupportTicketResource`: `id, protocol, category, subject, description, status, created_at, updated_at`.
-- Listagem: `SupportTicket::query()->withoutGlobalScopes()->where('user_id', $user->id)->latest()->paginate(20)`
-  (mesmo filtro do `SupportTicketResource` do painel); registrar o motivo do `withoutGlobalScopes` em docblock.
-- Criação: `CreateSupportTicketAction::execute(new CreateSupportTicketDTO(category, subject, description, userId, companyId,
-  url: null, browser: 'app', device: 'mobile', environment: app()->environment()))`.
-- Finalizar: `SupportTicketPolicy::update` (dono) + `TransitionSupportTicketStatusAction::execute($ticket, Closed)`;
-  `InvalidTransitionException` → 422 `status` "Este chamado já foi encerrado.". Só `closed` é aceito do colaborador.
+- Listagem: `ListEmployeeTicketsAction` (`where('user_id', $user->id)`), `latest()->paginate(20)`. Sem
+  `withoutGlobalScopes()`: o escopo de tenancy do Filament só filtra quando há um painel aberto, o que não acontece na
+  API; o filtro por `user_id` já traz os chamados de qualquer empresa e os da central de ajuda.
+- Criação: `CreateSupportTicketAction::execute(new CreateSupportTicketDTO(category, subject, description, userId,
+  companyId: $user->employerCompanyId(), url: null, browser: 'app', device: 'mobile', environment: app()->environment()))`.
+  `description` até 5000 caracteres (o painel não limita; a API aceita envio direto).
+- Finalizar: a posse vem da consulta acima (chamado alheio → 404; não existe `SupportTicketPolicy`) +
+  `TransitionSupportTicketStatusAction::execute($ticket, Closed)`; `InvalidTransitionException` → 422 `status` "Este
+  chamado já foi encerrado.". Só `closed` é aceito do colaborador. Corrida entre duas mudanças simultâneas: #300.
 
 **Subtarefas:**
 
@@ -480,7 +483,8 @@ Como time, quero garantir que a API e o app falem o mesmo contrato e que qualque
 
 - Teste de contrato por resource (`assertJsonStructure` com as chaves listadas em cada story), agrupado em
   `tests/Feature/Contract/*Test.php` do módulo.
-- `config/cors.php`: liberar `api/*` para `http://localhost:8081` (só para o app rodando no navegador em desenvolvimento).
+- CORS para o app no navegador (`http://localhost:8081`): o padrão do Laravel 12 já libera `api/*` para qualquer origem
+  sem credenciais, que é o caso de uma API por token; sem `config/cors.php`, com um teste do preflight no `AccessTest`.
 - README do módulo (`app-modules/api/README.md`): como rodar com o app — `make env-up` ou `php artisan serve --port=8000`;
   no app `EXPO_PUBLIC_API_URL=http://127.0.0.1:8000` com `adb reverse tcp:8000 tcp:8000` (emulador no WSL) ou o IP da máquina no celular.
 - Atualizar `gil-benefits-mobile/docs/api-contract.md` e o app: remover `POST /v1/auth/biometric` (biometria destrava o token
@@ -489,7 +493,7 @@ Como time, quero garantir que a API e o app falem o mesmo contrato e que qualque
   no texto "Benefício oferecido por…", e `POST /v1/credits/request` marcado como estacionado (#285).
 - Anotar em `RELEASING.md` a convenção: mudança incompatível em `/api/v1` é MAJOR; aditiva é MINOR.
 - Registrar a dívida: mover `tenant/src/Http/Controllers/Api/v1/UsersController` e `VerifyTenantTokenMiddleware` para
-  `api/.../V1/Company` na próxima mudança da integração da empresa (mesmas rotas e header; os testes vão junto).
+  `api/.../V1/Company` na próxima mudança da integração da empresa (mesmas rotas e header; os testes vão junto): #293.
 
 **Definition of Done:**
 
