@@ -5,9 +5,11 @@ declare(strict_types=1);
 return [
     'appointment_at' => 'data e hora',
     'avatar' => 'foto',
+    'category' => 'categoria',
     'category_type' => 'assunto',
     'comment' => 'comentário',
     'current_password' => 'senha atual',
+    'description' => 'descrição',
     'device_name' => 'nome do dispositivo',
     'email' => 'e-mail',
     'favorite' => 'favorito',
@@ -26,4 +28,5 @@ return [
     'tried_financial_strategies' => 'estratégias já tentadas',
     'rating' => 'nota',
     'status' => 'status',
+    'subject' => 'assunto',
 ];
