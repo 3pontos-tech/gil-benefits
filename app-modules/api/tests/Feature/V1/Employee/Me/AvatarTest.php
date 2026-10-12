@@ -6,6 +6,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 use function Pest\Laravel\deleteJson;
+use function Pest\Laravel\post;
 use function Pest\Laravel\postJson;
 
 beforeEach(function (): void {
@@ -63,4 +64,12 @@ it('answers 200 when there is no photo to remove', function (): void {
     deleteJson(route('api.v1.me.avatar.destroy'))
         ->assertOk()
         ->assertJsonPath('data.avatar_url', null);
+});
+
+it('refuses an avatar larger than 4096 pixels on a side', function (): void {
+    actingAsApiEmployee();
+
+    post(route('api.v1.me.avatar.store'), ['avatar' => UploadedFile::fake()->image('enorme.png', 5000, 10)])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['avatar']);
 });

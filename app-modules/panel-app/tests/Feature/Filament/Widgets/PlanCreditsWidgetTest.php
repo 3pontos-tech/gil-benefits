@@ -238,7 +238,7 @@ describe('appointment guard', function (): void {
             ->assertOk()
             ->assertSeeText(__('appointments::resources.appointments.booking_block.ongoing_appointment'))
             ->mountAction('scheduleAppointment')
-            ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+            ->assertNotified(__('panel-app::resources.appointments.booking.cannot_book_now'))
             ->assertActionNotMounted();
 
         $appointment->update(['status' => AppointmentStatus::Cancelled]);
@@ -284,7 +284,7 @@ describe('appointment guard', function (): void {
             ->assertOk()
             ->assertSeeText(__('appointments::resources.appointments.booking_block.ongoing_appointment'))
             ->mountAction('scheduleAppointment')
-            ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+            ->assertNotified(__('panel-app::resources.appointments.booking.cannot_book_now'))
             ->assertActionNotMounted();
 
         $appointment->update(['status' => AppointmentStatus::Cancelled]);

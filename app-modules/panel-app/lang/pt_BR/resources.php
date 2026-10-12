@@ -122,11 +122,9 @@ return [
             'submit' => 'Enviar avaliação',
             'submitted' => 'Avaliação enviada com sucesso!',
         ],
-        'pages' => [
-            'create' => [
-                'cannot_book_now' => 'Não é possível agendar agora',
-                'booking_failed' => 'Falha ao agendar consultoria',
-            ],
+        'booking' => [
+            'cannot_book_now' => 'Não é possível agendar agora',
+            'booking_failed' => 'Falha ao agendar consultoria',
         ],
     ],
     'credits' => [

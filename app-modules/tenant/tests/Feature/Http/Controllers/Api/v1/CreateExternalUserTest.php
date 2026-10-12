@@ -76,3 +76,13 @@ it('should not allow creating a user in another tenant using a valid token from 
 
     expect($otherCompany->employees()->count())->toBe(0);
 });
+
+it('rejects an email sent as a list with 422 instead of failing', function (): void {
+    postJson(route('api.v1.company.users.store', ['tenant' => $this->company->slug]), [
+        'name' => 'Fulaninho',
+        'email' => ['fulaninho@gmail.com'],
+        'external_id' => '123456',
+    ], [
+        config('tenant.header') => $this->company->integration_access_key,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['email']);
+});

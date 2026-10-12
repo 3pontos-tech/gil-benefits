@@ -122,11 +122,9 @@ return [
             'submit' => 'Submit feedback',
             'submitted' => 'Feedback submitted successfully!',
         ],
-        'pages' => [
-            'create' => [
-                'cannot_book_now' => 'Cannot book now',
-                'booking_failed' => 'Failed to book appointment',
-            ],
+        'booking' => [
+            'cannot_book_now' => 'Cannot book now',
+            'booking_failed' => 'Failed to book appointment',
         ],
     ],
     'credits' => [

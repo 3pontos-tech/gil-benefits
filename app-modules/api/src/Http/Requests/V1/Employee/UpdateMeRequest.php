@@ -25,11 +25,14 @@ class UpdateMeRequest extends FormRequest
 
     /**
      * O e-mail é gravado em minúsculas (#291): validação e gravação recebem a forma normalizada.
+     * Valor que não é texto segue cru para a regra `string` recusar com 422.
      */
     protected function prepareForValidation(): void
     {
-        if ($this->has('email')) {
-            $this->merge(['email' => EmailAddress::normalize($this->string('email')->toString())]);
+        $email = $this->input('email');
+
+        if (is_string($email)) {
+            $this->merge(['email' => EmailAddress::normalize($email)]);
         }
     }
 

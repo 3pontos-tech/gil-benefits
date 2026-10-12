@@ -149,7 +149,7 @@ it('keeps each employee state apart', function (): void {
     $material = sharedMaterial($this->employee);
     $other = User::factory()->create();
     DocumentShare::factory()->create(['document_id' => $material->id, 'employee_id' => $other->id]);
-    DocumentUserState::query()->create(['document_id' => $material->id, 'user_id' => $other->id, 'favorited_at' => now(), 'viewed_at' => now()]);
+    DocumentUserState::factory()->viewed()->favorited()->for($material, 'document')->for($other)->create();
 
     getJson(route('api.v1.materials.index'))
         ->assertJsonPath('data.0.favorited_at', null)

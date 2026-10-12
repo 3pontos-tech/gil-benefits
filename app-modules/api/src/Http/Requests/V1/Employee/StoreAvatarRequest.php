@@ -17,12 +17,15 @@ class StoreAvatarRequest extends FormRequest
     }
 
     /**
+     * Até 5 MB e 4096 px de lado: a miniatura de 96 px é gerada na hora do envio, e uma imagem
+     * pequena em bytes mas enorme em pixels estouraria a memória ao ser decodificada.
+     *
      * @return array<string, list<string>>
      */
     public function rules(): array
     {
         return [
-            'avatar' => ['required', 'file', 'image', 'mimes:jpeg,png,webp', 'max:5120'],
+            'avatar' => ['required', 'file', 'image', 'mimes:jpeg,png,webp', 'max:5120', 'dimensions:max_width=4096,max_height=4096'],
         ];
     }
 

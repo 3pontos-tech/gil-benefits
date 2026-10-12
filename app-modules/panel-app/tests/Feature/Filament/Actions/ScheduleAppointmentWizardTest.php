@@ -25,7 +25,7 @@ it('refuses to open the wizard when the user cannot book', function (): void {
 
     livewire(LatestAppointmentsWidget::class)
         ->mountAction('scheduleAppointment')
-        ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+        ->assertNotified(__('panel-app::resources.appointments.booking.cannot_book_now'))
         ->assertActionNotMounted();
 });
 
@@ -96,7 +96,7 @@ it('re-checks the booking allowance on the final confirmation', function (): voi
 
     $component
         ->callMountedAction()
-        ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'));
+        ->assertNotified(__('panel-app::resources.appointments.booking.cannot_book_now'));
 
     expect(Appointment::query()->where('user_id', $this->employee->getKey())->count())->toBe(1)
         ->and(Appointment::query()->whereKeyNot($blocker->getKey())->where('user_id', $this->employee->getKey())->exists())->toBeFalse();
@@ -225,7 +225,7 @@ it('refuses to book when neither quota nor credit is left', function (): void {
 
     livewire(LatestAppointmentsWidget::class)
         ->mountAction('scheduleAppointment')
-        ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+        ->assertNotified(__('panel-app::resources.appointments.booking.cannot_book_now'))
         ->assertActionNotMounted();
 
     $appointmentAt = now()->addDays(5)->setTime(14, 0);
@@ -236,7 +236,7 @@ it('refuses to book when neither quota nor credit is left', function (): void {
             'category_type' => AppointmentCategoryEnum::PersonalFinance->value,
             'appointment_at' => $appointmentAt->toDateTimeString(),
         ])
-        ->assertNotified(__('panel-app::resources.appointments.pages.create.cannot_book_now'));
+        ->assertNotified(__('panel-app::resources.appointments.booking.cannot_book_now'));
 
     expect(Appointment::query()->where('user_id', $this->employee->getKey())->count())->toBe(1);
 });

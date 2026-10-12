@@ -143,7 +143,7 @@ trait SchedulesAppointments
                     return;
                 } catch (Throwable) {
                     Notification::make()
-                        ->title(__('panel-app::resources.appointments.pages.create.booking_failed'))
+                        ->title(__('panel-app::resources.appointments.booking.booking_failed'))
                         ->danger()
                         ->send();
 
@@ -234,7 +234,7 @@ trait SchedulesAppointments
     private function notifyCannotBook(array $reasons): void
     {
         Notification::make()
-            ->title(__('panel-app::resources.appointments.pages.create.cannot_book_now'))
+            ->title(__('panel-app::resources.appointments.booking.cannot_book_now'))
             ->body(implode(' ', $reasons))
             ->danger()
             ->send();

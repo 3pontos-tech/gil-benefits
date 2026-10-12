@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Timebox;
 use Illuminate\Testing\TestResponse;
 
+use function Pest\Laravel\patchJson;
 use function Pest\Laravel\postJson;
 use function Pest\Laravel\withServerVariables;
 
@@ -99,4 +100,16 @@ it('answers a correct login without waiting', function (): void {
     attemptLogin($user->email, 'password')->assertOk();
 
     expect($log->getArrayCopy())->toBe(['early']);
+});
+
+it('rejects an email sent as a list with 422 instead of failing', function (): void {
+    postJson(route('api.v1.auth.login'), ['email' => ['ana@empresa.com'], 'password' => 'x', 'device_name' => 'Android'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['email']);
+
+    actingAsApiEmployee();
+
+    patchJson(route('api.v1.me.update'), ['email' => ['ana@empresa.com'], 'current_password' => 'password'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['email']);
 });

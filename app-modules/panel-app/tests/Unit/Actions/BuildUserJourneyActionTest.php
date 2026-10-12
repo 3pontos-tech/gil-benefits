@@ -126,6 +126,9 @@ it('keeps the maturity ladder in sync with every life moment', function (): void
         ->toEqualCanonicalizing(LifeMoment::cases());
 });
 
+/**
+ * Saver vale 48; um assunto soma 3 e dois somam 7; engajamento 1/1 vale 20 e 1/2, 10.
+ */
 it('rebuilds the score at the end of each of the last months, oldest first', function (): void {
     $this->travelTo('2026-09-15 12:00:00');
 
@@ -150,7 +153,6 @@ it('rebuilds the score at the end of each of the last months, oldest first', fun
 
     $action = resolve(BuildUserJourneyAction::class);
 
-    // Saver vale 48; um assunto 3, dois 7; engajamento 1/1 = 20, 1/2 = 10.
     expect($action->monthlyHealthScores($user, 6))->toBe([
         '2026-04' => 48,
         '2026-05' => 71,

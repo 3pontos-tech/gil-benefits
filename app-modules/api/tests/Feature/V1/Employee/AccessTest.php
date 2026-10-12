@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
 use TresPontosTech\Api\Http\Middleware\ForceJsonAndLocale;
 use TresPontosTech\Company\Actions\AttachToDefaultCompany;
@@ -116,4 +117,55 @@ it('answers the browser preflight of the app running on the web in development',
         ->assertHeader('Access-Control-Allow-Origin', '*')
         ->assertHeader('Access-Control-Allow-Methods', 'POST')
         ->assertHeader('Access-Control-Allow-Headers', 'authorization, content-type');
+});
+
+/**
+ * Toda rota do colaborador, menos o login, com o método e um uuid no lugar de cada parâmetro.
+ * Lida das rotas registradas, então uma rota nova entra nos testes de acesso sozinha.
+ *
+ * @return list<array{0: string, 1: string, 2: string}>
+ */
+function protectedEmployeeRoutes(): array
+{
+    return collect(Route::getRoutes()->getRoutes())
+        ->filter(fn (Illuminate\Routing\Route $route): bool => str_starts_with((string) $route->getName(), 'api.v1.')
+            && $route->getName() !== 'api.v1.auth.login'
+            && ! str_starts_with((string) $route->getName(), 'api.v1.company.'))
+        ->map(fn (Illuminate\Routing\Route $route): array => [
+            (string) $route->getName(),
+            collect($route->methods())->reject(fn (string $method): bool => $method === 'HEAD')->first(),
+            '/' . preg_replace('/\{[^}]+\}/', (string) Str::uuid(), $route->uri()),
+        ])
+        ->values()
+        ->all();
+}
+
+it('covers the 27 protected employee routes, 28 with the login', function (): void {
+    expect(protectedEmployeeRoutes())->toHaveCount(27);
+});
+
+it('answers 401 on every employee route without a token', function (): void {
+    foreach (protectedEmployeeRoutes() as [$name, $method, $uri]) {
+        $this->json($method, $uri)->assertUnauthorized();
+    }
+});
+
+it('answers 403 on every employee route to a token without the employee ability', function (): void {
+    Sanctum::actingAs(actingAsEmployee(), ['company']);
+
+    foreach (protectedEmployeeRoutes() as [$name, $method, $uri]) {
+        $this->json($method, $uri)
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Esta conta não tem acesso ao aplicativo.');
+    }
+});
+
+it('answers 403 on every employee route to someone without the benefit', function (): void {
+    Sanctum::actingAs(defaultCompanyUser(), ['employee']);
+
+    foreach (protectedEmployeeRoutes() as [$name, $method, $uri]) {
+        $this->json($method, $uri)
+            ->assertForbidden()
+            ->assertJsonPath('message', 'Para usar o app, ative um plano pelo site.');
+    }
 });
