@@ -14,12 +14,14 @@ use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Support\BookableSlots;
 use TresPontosTech\Appointments\Support\BookingBlockReasons;
+use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 
 final readonly class ScheduleAppointmentForUserAction
 {
     public function __construct(
         private BookableSlots $bookableSlots,
         private BookAppointmentAction $bookAppointment,
+        private ResolveQuotaAllowance $resolveQuotaAllowance,
     ) {}
 
     /**
@@ -27,6 +29,10 @@ final readonly class ScheduleAppointmentForUserAction
      * poder agendar (cota ou crédito e nenhuma consultoria em aberto), o horário precisa estar
      * entre os oferecidos (antecedência mínima e disponibilidade real) e só então a reserva é
      * criada como pendente, debitando cota ou prendendo um crédito. Não atribui consultor.
+     *
+     * O encontro fica na empresa em que o saldo foi conferido (`companyIdFor`: o tenant aberto no
+     * painel, a empresa do app na API). Sem isso o painel conferia a cota de uma empresa e
+     * gravava o encontro na empregadora.
      *
      * Checagem e criação rodam numa transação que trava a linha do usuário (`lockForUpdate`).
      * Dois pedidos simultâneos da mesma pessoa (duplo clique, duplo toque, reenvio do app)
@@ -63,6 +69,7 @@ final readonly class ScheduleAppointmentForUserAction
                 categoryType: AppointmentCategoryEnum::from($categoryType),
                 appointmentAt: $slotAt,
                 notes: $notes,
+                companyId: $this->resolveQuotaAllowance->companyIdFor($lockedUser),
             ));
         });
     }

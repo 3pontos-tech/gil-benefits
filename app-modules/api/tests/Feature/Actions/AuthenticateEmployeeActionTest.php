@@ -11,7 +11,7 @@ use TresPontosTech\Api\Exceptions\EmployeeLoginException;
 
 it('returns the user and a plain text token for the device', function (): void {
     Event::fake([Login::class]);
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
 
     $session = resolve(AuthenticateEmployeeAction::class)->handle($user->email, 'password', 'Android');
 
@@ -22,7 +22,7 @@ it('returns the user and a plain text token for the device', function (): void {
 });
 
 it('does not tell an unknown email from a wrong password', function (?string $email): void {
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
 
     resolve(AuthenticateEmployeeAction::class)->handle($email ?? $user->email, 'wrong-password', 'Android');
 })->with([

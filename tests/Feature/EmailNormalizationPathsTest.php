@@ -197,7 +197,7 @@ it('lets the tenant API refuse a differently cased duplicate and store a new ema
 });
 
 it('lets the app API sign in whatever the capitalization', function (): void {
-    $user = defaultCompanyUser(['email' => 'Colaborador@Empresa.com']);
+    $user = standaloneSubscriber(['email' => 'Colaborador@Empresa.com']);
 
     expect($user->email)->toBe('colaborador@empresa.com');
 

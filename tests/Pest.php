@@ -23,6 +23,7 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -251,30 +252,79 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
 }
 
 /**
- * Colaborador B2B autenticado pela API do app (token Sanctum com a ability `employee`).
+ * Colaborador B2B autenticado pela API do app (token Sanctum com a ability `employee`), numa
+ * empresa com plano contratual ativo.
  *
- * A API não tem tenant Filament: cota e crédito resolvem pela empresa empregadora, como em produção.
+ * Como em produção, a requisição chega sem painel nem tenant do Filament: quem fixa a empresa
+ * é o EnsureAppAccess.
  */
 function actingAsApiEmployee(): User
 {
     $user = actingAsEmployee();
 
     Sanctum::actingAs($user, ['employee']);
+    filament()->setCurrentPanel(null);
     filament()->setTenant(null);
 
     return $user;
 }
 
 /**
- * Assinante individual autenticado pela API do app (token Sanctum com a ability `employee`).
+ * Assinante individual: ligado só à empresa padrão, com assinatura própria a preço cheio que dá
+ * `$monthlyLimit` consultorias por mês. É quem entra no app sem empresa por trás.
  *
- * A API não tem tenant Filament: cota e crédito resolvem pela empresa empregadora, como em produção.
+ * @param  array<string, mixed>  $attributes
+ */
+function standaloneSubscriber(array $attributes = [], int $monthlyLimit = 1): User
+{
+    $user = defaultCompanyUser($attributes);
+    subscribeStandalone($user, $monthlyLimit);
+
+    return $user;
+}
+
+/**
+ * Assinatura própria a preço cheio, a que vale na empresa padrão.
+ */
+function subscribeStandalone(User $user, int $monthlyLimit = 1): void
+{
+    $plan = Plan::factory()->createOne([
+        'type' => BillableTypeEnum::User->value,
+        'active' => true,
+    ]);
+
+    $price = Price::query()->create([
+        'billing_plan_id' => $plan->id,
+        'billing_scheme' => 'per_unit',
+        'tiers_mode' => 'volume',
+        'type' => 'recurring',
+        'unit_amount_decimal' => 9000,
+        'active' => true,
+        'provider_price_id' => 'price_standalone_' . uniqid(),
+        'audience' => PriceAudienceEnum::Standalone,
+        'monthly_appointments' => $monthlyLimit,
+        'whatsapp_enabled' => true,
+        'materials_enabled' => true,
+    ]);
+
+    $user->subscriptions()->create([
+        'type' => $plan->slug,
+        'stripe_id' => 'sub_standalone_' . uniqid(),
+        'stripe_status' => 'active',
+        'stripe_price' => $price->provider_price_id,
+        'quantity' => 1,
+    ]);
+}
+
+/**
+ * Assinante individual autenticado pela API do app (token Sanctum com a ability `employee`).
  */
 function actingAsApiSubscriber(int $monthlyLimit = 1): User
 {
-    $user = actingAsSubscribedEmployee($monthlyLimit);
+    $user = standaloneSubscriber(monthlyLimit: $monthlyLimit);
 
     Sanctum::actingAs($user, ['employee']);
+    filament()->setCurrentPanel(null);
     filament()->setTenant(null);
 
     return $user;

@@ -9,7 +9,7 @@ use function Pest\Laravel\getJson;
 use function Pest\Laravel\putJson;
 
 it('changes the password and signs the other devices out', function (): void {
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
     $phone = $user->createToken('Android', ['employee'])->plainTextToken;
     $tablet = $user->createToken('iPad', ['employee'])->plainTextToken;
 

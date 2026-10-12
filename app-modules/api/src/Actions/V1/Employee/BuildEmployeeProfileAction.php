@@ -6,18 +6,21 @@ namespace TresPontosTech\Api\Actions\V1\Employee;
 
 use App\Models\Users\User;
 use TresPontosTech\Api\DTOs\EmployeeProfile;
+use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Tenant\Models\TenantMember;
 
 final readonly class BuildEmployeeProfileAction
 {
+    public function __construct(private ResolveQuotaAllowance $resolveQuotaAllowance) {}
+
     /**
      * Junta o que o `MeResource` precisa.
      *
-     * A empresa é a empregadora (`employerCompanyId()`): a de verdade para quem tem uma,
-     * a padrão para assinante individual e voucher. Sem tenant Filament na API, é o mesmo
-     * contexto que cota e créditos já usam. "Membro desde" é a entrada nessa empresa;
-     * sem vínculo, a data do cadastro.
+     * A empresa é a do app (ResolveEmployeeCompanyAction), lida pelo mesmo `companyIdFor()` que
+     * cota e créditos usam: a empregadora com o benefício pago, ou a padrão para assinante
+     * individual e voucher. "Membro desde" é a entrada nessa empresa; sem vínculo, a data do
+     * cadastro.
      */
     public function handle(User $user): EmployeeProfile
     {
@@ -25,7 +28,7 @@ final readonly class BuildEmployeeProfileAction
 
         $company = $user->companies()
             ->withPivot('department_id')
-            ->whereKey($user->employerCompanyId())
+            ->whereKey($this->resolveQuotaAllowance->companyIdFor($user))
             ->with('media')
             ->first();
 

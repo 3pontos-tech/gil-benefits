@@ -98,7 +98,7 @@ it('opens a pending ticket with a protocol and routes it to the support team', f
 });
 
 it('files the individual subscriber ticket under the default company', function (): void {
-    $subscriber = defaultCompanyUser();
+    $subscriber = standaloneSubscriber();
     Sanctum::actingAs($subscriber, ['employee']);
 
     $response = postJson(route('api.v1.tickets.store'), [

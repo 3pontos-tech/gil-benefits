@@ -32,8 +32,13 @@ mesmas que o painel usa. O controller valida, chama a action e formata a respost
   `{ data: { token, user } }`. O token é um personal access token do Sanctum com a ability `employee` e validade de
   `API_TOKEN_TTL_DAYS` dias (padrão 90, sem renovação). `POST /api/v1/auth/logout` revoga o token atual.
 - As demais rotas pedem `Authorization: Bearer <token>`. Não há sessão web (`sanctum.guard = []`).
-- `EnsureAppAccess` libera quem tem vínculo ativo com uma empresa (colaborador ou assinante individual na empresa
-  padrão) e barra consultores e admins com 403.
+- Entra quem tem o **benefício pago**, pela mesma régua do painel (`ResolveBenefitAccess`, no `billing`): plano
+  contratual da empresa, assinatura própria ou voucher. Consultores e contas sem vínculo ativo ficam de fora. O
+  `EnsureAppAccess` confere a cada requisição; sem acesso, o login responde 422 em `email` e as demais rotas, 403,
+  com o motivo ("O plano da sua empresa está inativo…" ou "Para usar o app, ative um plano pelo site.").
+- A empresa da requisição é a primeira com vínculo ativo em que a pessoa tem o benefício, a empregadora antes da
+  padrão (`ResolveEmployeeCompanyAction`). Ela vira o tenant da requisição, e cota, crédito, agendamento, perfil e
+  chamado leem essa empresa, como a aberta na tela do painel.
 - Limites: 120 requisições por minuto por usuário e 5 tentativas de login por minuto por e-mail e IP
   (`config/api.php`).
 - Tokens vencidos saem no `sanctum:prune-expired` diário (`routes/console.php`).

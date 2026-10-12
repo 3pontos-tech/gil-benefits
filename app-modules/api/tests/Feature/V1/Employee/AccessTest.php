@@ -50,7 +50,7 @@ it('lets a company employee in', function (): void {
 });
 
 it('lets an individual subscriber linked only to the default company in', function (): void {
-    $subscriber = defaultCompanyUser();
+    $subscriber = standaloneSubscriber();
 
     Sanctum::actingAs($subscriber, ['employee']);
 
@@ -89,7 +89,7 @@ it('throttles each employee separately', function (): void {
     getJson(route('api.v1.me.show'))->assertOk();
     getJson(route('api.v1.me.show'))->assertTooManyRequests();
 
-    $otherEmployee = defaultCompanyUser();
+    $otherEmployee = standaloneSubscriber();
     Sanctum::actingAs($otherEmployee, ['employee']);
 
     getJson(route('api.v1.me.show'))->assertOk();

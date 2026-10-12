@@ -13,8 +13,13 @@ use TresPontosTech\User\Support\EmailAddress;
 
 final readonly class AuthenticateEmployeeAction
 {
+    public function __construct(private ResolveEmployeeCompanyAction $resolveCompany) {}
+
     /**
      * Troca e-mail e senha por um token do aparelho.
+     *
+     * Entra quem é público do app (User::canUseApp()) e tem o benefício pago em alguma empresa,
+     * pela mesma régua do painel; a empresa escolhida vale para o perfil que o login devolve.
      *
      * Cada aparelho guarda um token só: entrar de novo com o mesmo `device_name` substitui
      * o anterior. O token vale `api.token_ttl_days` e carrega a ability `employee`. O evento
@@ -32,6 +37,12 @@ final readonly class AuthenticateEmployeeAction
 
         if (! $user->canUseApp()) {
             throw EmployeeLoginException::noAccess();
+        }
+
+        $access = $this->resolveCompany->handle($user);
+
+        if (! $access->isGranted()) {
+            throw EmployeeLoginException::withoutBenefit($access);
         }
 
         $user->tokens()->where('name', $deviceName)->delete();

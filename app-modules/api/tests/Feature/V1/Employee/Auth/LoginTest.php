@@ -19,7 +19,7 @@ function loginCredentials(User $user, string $deviceName = 'Android', string $pa
 }
 
 it('signs an employee in and returns a device token with the profile', function (): void {
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
 
     $response = postJson(route('api.v1.auth.login'), loginCredentials($user))
         ->assertOk()
@@ -47,7 +47,7 @@ it('lets a B2B employee sign in', function (): void {
 });
 
 it('matches the email regardless of case', function (string $stored, string $typed): void {
-    $user = defaultCompanyUser(['email' => $stored]);
+    $user = standaloneSubscriber(['email' => $stored]);
 
     postJson(route('api.v1.auth.login'), [...loginCredentials($user), 'email' => $typed])
         ->assertOk()
@@ -58,7 +58,7 @@ it('matches the email regardless of case', function (string $stored, string $typ
 ]);
 
 it('issues a working token', function (): void {
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
 
     $token = postJson(route('api.v1.auth.login'), loginCredentials($user))->json('data.token');
 
@@ -68,7 +68,7 @@ it('issues a working token', function (): void {
 });
 
 it('keeps a single token per device', function (): void {
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
 
     postJson(route('api.v1.auth.login'), loginCredentials($user, 'Android'))->assertOk();
     postJson(route('api.v1.auth.login'), loginCredentials($user, 'Android'))->assertOk();
@@ -78,7 +78,7 @@ it('keeps a single token per device', function (): void {
 });
 
 it('rejects a wrong password on the email field', function (): void {
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
 
     postJson(route('api.v1.auth.login'), loginCredentials($user, password: 'wrong-password'))
         ->assertUnprocessable()
@@ -117,18 +117,18 @@ it('validates the payload in Portuguese', function (): void {
 });
 
 it('throttles the sixth attempt for the same email', function (): void {
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
 
     foreach (range(1, 5) as $attempt) {
         postJson(route('api.v1.auth.login'), loginCredentials($user, password: 'wrong'))->assertUnprocessable();
     }
 
     postJson(route('api.v1.auth.login'), loginCredentials($user, password: 'wrong'))->assertTooManyRequests();
-    postJson(route('api.v1.auth.login'), loginCredentials(defaultCompanyUser(), password: 'wrong'))->assertUnprocessable();
+    postJson(route('api.v1.auth.login'), loginCredentials(standaloneSubscriber(), password: 'wrong'))->assertUnprocessable();
 });
 
 it('rejects an expired token', function (): void {
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
     $token = postJson(route('api.v1.auth.login'), loginCredentials($user))->json('data.token');
 
     $this->travel(91)->days();

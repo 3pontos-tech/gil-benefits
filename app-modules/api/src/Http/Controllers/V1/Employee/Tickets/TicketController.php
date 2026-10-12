@@ -14,6 +14,7 @@ use TresPontosTech\Api\Actions\V1\Employee\ListEmployeeTicketsAction;
 use TresPontosTech\Api\Http\Requests\V1\Employee\StoreTicketRequest;
 use TresPontosTech\Api\Http\Requests\V1\Employee\UpdateTicketRequest;
 use TresPontosTech\Api\Http\Resources\V1\Employee\TicketResource;
+use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\Actions\TransitionSupportTicketStatusAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
@@ -39,10 +40,10 @@ class TicketController
     }
 
     /**
-     * A empresa é a empregadora (a API não tem a empresa aberta na tela, como o painel). A origem
+     * A empresa é a do app (a que o EnsureAppAccess escolheu, como a aberta na tela do painel). A origem
      * fica como `app`/`mobile`, que é o que a equipe vê no admin e no e-mail do chamado.
      */
-    public function store(StoreTicketRequest $request, CreateSupportTicketAction $createTicket): JsonResponse
+    public function store(StoreTicketRequest $request, CreateSupportTicketAction $createTicket, ResolveQuotaAllowance $resolveQuotaAllowance): JsonResponse
     {
         /** @var User $user */
         $user = $request->user();
@@ -55,7 +56,7 @@ class TicketController
             subject: $request->string('subject')->toString(),
             description: $request->string('description')->toString(),
             userId: $user->id,
-            companyId: $user->employerCompanyId(),
+            companyId: $resolveQuotaAllowance->companyIdFor($user),
             browser: 'app',
             device: 'mobile',
             environment: app()->environment(),

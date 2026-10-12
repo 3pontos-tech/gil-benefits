@@ -49,7 +49,7 @@ it('describes the employer company, department and membership date', function ()
 });
 
 it('uses the default company for an individual subscriber', function (): void {
-    $subscriber = defaultCompanyUser();
+    $subscriber = standaloneSubscriber();
     Sanctum::actingAs($subscriber, ['employee']);
 
     getJson(route('api.v1.me.show'))

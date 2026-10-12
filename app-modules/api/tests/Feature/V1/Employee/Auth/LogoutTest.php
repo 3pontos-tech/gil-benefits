@@ -8,7 +8,7 @@ use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
 
 it('revokes only the token of the device that signed out', function (): void {
-    $user = defaultCompanyUser();
+    $user = standaloneSubscriber();
 
     $phone = $user->createToken('Android', ['employee'])->plainTextToken;
     $tablet = $user->createToken('iPad', ['employee'])->plainTextToken;

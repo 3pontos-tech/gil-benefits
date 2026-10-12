@@ -193,11 +193,20 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
      * Every registered user is also attached to the shared default company, so a plain
      * "first company" would be a coin flip. Skip it and the real employer is what is
      * left; users who have nothing else fall back to the default company itself.
+     *
+     * Only active memberships count — a company that deactivated the person is no longer
+     * their employer — and the oldest one wins when there are several, so the answer is
+     * the same on every call.
      */
     public function employerCompanyId(): ?string
     {
-        return $this->companies()->where('slug', '!=', Company::DEFAULT_SLUG)->value('companies.id')
-            ?? $this->companies()->value('companies.id');
+        $memberships = fn (): BelongsToMany => $this->companies()
+            ->wherePivot('active', true)
+            ->oldest('company_employees.created_at')
+            ->orderBy('companies.id');
+
+        return $memberships()->where('slug', '!=', Company::DEFAULT_SLUG)->value('companies.id')
+            ?? $memberships()->value('companies.id');
     }
 
     /**

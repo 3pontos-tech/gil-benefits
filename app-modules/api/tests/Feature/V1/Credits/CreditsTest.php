@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Laravel\Sanctum\Sanctum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\Credits\Models\UserCredit;
@@ -37,8 +39,9 @@ it('lowers what is left once an appointment uses the quota', function (): void {
         ->assertJsonPath('data.monthly_quota.left', 0);
 });
 
-it('answers an empty quota to someone without a plan', function (): void {
-    Sanctum::actingAs(defaultCompanyUser(), ['employee']);
+it('answers an empty quota under a credits-only contract', function (): void {
+    $employee = actingAsApiEmployee();
+    CompanyPlan::query()->where('company_id', $employee->employerCompanyId())->update(['kind' => CompanyPlanKindEnum::CreditsOnly]);
 
     getJson(route('api.v1.credits.show'))
         ->assertOk()

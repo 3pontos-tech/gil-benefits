@@ -11,7 +11,10 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\BookingBlockedException;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
+use TresPontosTech\Permissions\Roles;
 
 beforeEach(function (): void {
     $this->travelTo('2026-10-07 10:00:00');
@@ -139,4 +142,19 @@ it('sees a booking committed by a concurrent request while it waited for the loc
 
     expect($competitorBooked)->toBeTrue()
         ->and(Appointment::query()->where('appointment_at', '2026-10-09 09:00:00')->exists())->toBeFalse();
+});
+
+it('records the appointment under the company whose balance was checked, the open tenant (2.6)', function (): void {
+    consultantAvailableOn(Date::parse('2026-10-09'));
+    $employer = Company::query()->findOrFail($this->user->employerCompanyId());
+    $other = Company::factory()->create();
+    $other->employees()->attach($this->user->getKey(), ['role' => Roles::Employee->value]);
+    CompanyPlan::factory()->active()->for($other)->create(['monthly_appointments_per_employee' => 2]);
+    filament()->setTenant($other);
+
+    $appointment = resolve(ScheduleAppointmentForUserAction::class)
+        ->handle($this->user, 'personal_finance', '2026-10-09 09:00:00');
+
+    expect($appointment->company_id)->toBe($other->id)
+        ->and($appointment->company_id)->not->toBe($employer->id);
 });
