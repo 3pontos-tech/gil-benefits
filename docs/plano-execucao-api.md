@@ -1,11 +1,12 @@
 # Plano de execução — API v1 do colaborador
 
-> Companheiro executável de `docs/epicos-api.md` (o quê e por quê) e da página de especificação com os snippets
-> (https://claude.ai/artifact/F6pLfrvfMPe4rqcegTzwvs, o como). Este documento diz **em que ordem, com que gate e com que
-> entregável** cada passo acontece. Marque as caixas conforme avança; ele é o checklist do PR.
+> Companheiro executável de `docs/epicos-api.md` (o quê e por quê). Este documento diz **em que ordem, com que gate e com
+> que entregável** cada passo acontece. O andamento de cada caixa é acompanhado no checklist do PR #286.
 >
 > Escrito em 2026-10-07. Decisões já tomadas (2026-10-06): Sanctum, token de 90 dias, acesso por vínculo ativo, senha atual
 > obrigatória, cancelamento com paridade ao painel, S12 e #285 fora da v1, URLs sem prefixo, um PR em `develop`.
+> Na revisão do PR (2026-10-11) o acesso por vínculo ativo virou acesso pelo benefício pago, pela régua do painel (ver o
+> épico).
 
 ## 0. Resumo
 

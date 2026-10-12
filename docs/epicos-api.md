@@ -45,11 +45,11 @@ negócio do painel `panel-app` (cota, créditos, janelas de cancelamento e reage
 | --- | --- | --- |
 | A1 | **Módulo único `app-modules/api`** (`TresPontosTech\Api`): toda API HTTP do produto vive nele, organizada por **versão e público**, não por cliente: `src/Http/Controllers/V1/Employee/*` (o app do colaborador, e qualquer outro cliente que fale pelo colaborador), `src/Http/Controllers/V1/Company/*` (a integração da empresa, hoje em `tenant`), e `Requests/`, `Resources/`, `Middleware/` compartilhados. Rotas em `routes/api-routes.php` com um grupo por público; `config/api.php`; `lang/pt_BR`; `tests/Feature/V1/{Employee,Company}`. A API de tenant **continua em `tenant` até ser tocada**; quando for, o controller e o middleware migram para `api/.../Company` sem mudar rota nem header (S11 registra a dívida). | Um público novo é uma pasta e um grupo de rotas, não um módulo; erros, resources, limites e testes de contrato ficam num lugar só. |
 | A2 | **Laravel Sanctum** (personal access tokens, um por dispositivo, ability `employee`, expiração 90 dias, `sanctum:prune-expired` diário). `User` ganha `HasApiTokens`. **Dependência nova: precisa de aprovação** (regra do AGENTS.md). | É o padrão do ecossistema para app nativo; Passport seria excesso. Sem stateful domains (sem SPA). |
-| A3 | Rotas `Route::prefix('api/v1')->name('api.v1.employee.')` com middleware `[ForceJsonAndLocale, ThrottleRequests:api-employee, SubstituteBindings]`; as protegidas somam `auth:sanctum`, `ability:employee` e `EnsureAppAccess` (vínculo ativo com alguma empresa). | Módulos não têm grupo `api`; o `SubstituteBindings` precisa ser explícito. `ForceJsonAndLocale` fixa `Accept: application/json` e `app()->setLocale('pt_BR')` para as mensagens de validação chegarem em português (o app as exibe como vêm). |
+| A3 | Rotas `Route::prefix('api/v1')->name('api.v1.employee.')` com middleware `[ForceJsonAndLocale, ThrottleRequests:api-employee, SubstituteBindings]`; as protegidas somam `auth:sanctum`, `ability:employee` e `EnsureAppAccess` (benefício pago em alguma empresa ativa, pela régua do painel; ver revisão de 2026-10-11). | Módulos não têm grupo `api`; o `SubstituteBindings` precisa ser explícito. `ForceJsonAndLocale` fixa `Accept: application/json` e `app()->setLocale('pt_BR')` para as mensagens de validação chegarem em português (o app as exibe como vêm). |
 | A4 | **Eloquent API Resources** para todas as respostas (`MeResource`, `JourneyResource`, `AppointmentResource`, `CreditsResource`, `MaterialResource`, `NotificationResource`, `AnamneseResource`, `SupportTicketResource`), sempre embrulhados em `data`; listas com `->paginate()` (o app lê `data` e `meta`, ignora `links`). | Orientação do CLAUDE.md para APIs; a API de tenant não usa porque só devolve 201/204. |
 | A5 | Erros no formato padrão do Laravel para JSON: `401 {"message":"Unauthenticated."}`, `403 {"message"}`, `404 {"message"}`, `422 {"message","errors":{campo:[...]}}`, `429 {"message"}`. Nada de handler customizado. | É exatamente o que o app já trata (`lib/api.ts`). |
 | A6 | Datas: `appointment_at`, `*_at` em ISO 8601 com offset no fuso da aplicação (`->toIso8601String()` após `setTimezone(config('app.timezone'))`); datas puras em `Y-m-d`; ids UUID; chaves `snake_case`. | Contrato do app. |
-| A7 | Autorização sempre pelo usuário do token: toda query parte de `$request->user()`; `AppointmentPolicy`, `DocumentPolicy`, `SupportTicketPolicy` com `view/update/delete` = dono. O `company_id` de contexto é `employerCompanyId()` (nenhuma rota recebe tenant). | Sem tenant Filament, as actions de cota e crédito já caem em `employerCompanyId()`. |
+| A7 | Autorização sempre pelo usuário do token: toda query parte de `$request->user()`; a posse vem da própria consulta (registro de outra pessoa não é encontrado e responde 404; não há policies). O `company_id` de contexto é a empresa do app, escolhida a cada requisição por `ResolveEmployeeCompanyAction` e fixada como tenant (nenhuma rota recebe tenant). | Cota, crédito e agendamento já perguntam a empresa por `ResolveQuotaAllowance::companyIdFor()`, que lê o tenant, como no painel. |
 | A8 | Regras que hoje estão em páginas Filament passam para actions do módulo de domínio e o painel passa a usá-las: `ScheduleAppointmentForUserAction` (lead + slot + cota/crédito + `BookAppointmentAction`), `RescheduleAppointmentAction`, `CancelAppointmentForUserAction`, `Appointment::canBeCancelled()`. `BookAppointmentAction::handle` passa a **retornar** o `Appointment`. | Uma régua só para painel e app; a API não pode depender de um schema Filament. |
 | A9 | URLs de arquivo (avatar, logo, materiais) são temporárias (60 min, sem `Content-Disposition: attachment` para o app abrir inline). | Já é o mecanismo do avatar e do logo; o app guarda `me` por 10 min e materiais por 1 min. |
 | A10 | Rate limit: `api-employee` 120 req/min por usuário (IP quando anônimo); `api-login` 5/min por e-mail+IP. | Alinha com o `rateLimit(5)` do login Filament. |
@@ -60,9 +60,9 @@ negócio do painel `panel-app` (cota, créditos, janelas de cancelamento e reage
 
 | Ponto | Decisão proposta neste desenho |
 | --- | --- |
-| 1 Auth | **Sanctum aprovado** (A2), token de 90 dias sem renovação. Login por `email` + `password` + `device_name`; falha de credencial responde `422` em `email` com `__('auth.failed')` (convenção Laravel; o app mostra sob o campo). Pode entrar quem tem vínculo ativo com alguma empresa, inclusive a padrão (B2B, assinatura individual, voucher); admin e dono sem vínculo, e consultores, recebem `422` em `email` "Esta conta não tem acesso ao aplicativo.". |
+| 1 Auth | **Sanctum aprovado** (A2), token de 90 dias sem renovação. Login por `email` + `password` + `device_name`; falha de credencial responde `422` em `email` com `__('auth.failed')` (convenção Laravel; o app mostra sob o campo). Pode entrar quem tem o benefício pago (plano contratual da empresa, assinatura própria ou voucher), pela mesma régua do painel (`ResolveBenefitAccess`); sem ele, `422` em `email` com o motivo ("O plano da sua empresa está inativo…" ou "Para usar o app, ative um plano pelo site."). Admin e dono sem vínculo, e consultores, recebem "Esta conta não tem acesso ao aplicativo.". |
 | 2 "Sem data" | **Confirmado fora da v1** (`appointment_at` continua obrigatório). Story separada (S12) cria a ação de painel "Pedir nova data" que zera a data e notifica; o app já tolera `null`. |
-| 3 Materiais | Duas tabelas novas: `document_user_states` (visto/favorito por usuário) e `appointment_document` (materiais do encontro). A segunda nasce vazia até o painel do consultor ganhar o vínculo. |
+| 3 Materiais | Uma tabela nova: `document_user_states` (visto/favorito por usuário). `appointment_document` (materiais do encontro) saiu da v1 e virou a #296; o encontro responde `materials: []`. |
 | 4 Biometria | **Não existe endpoint.** O app guarda o token no SecureStore e a biometria só o desbloqueia (mudança no app, regra 4.2). `POST /v1/auth/biometric` sai do contrato. |
 | 5 Trimestre | `quarter { completed, goal, starts_at, ends_at }` calculado em `BuildUserJourneyAction` sobre encontros concluídos no trimestre civil corrente; `goal` em `config('api.quarter_goal', 4)`. |
 | 6 `can_cancel` | **Paridade com o painel.** `Appointment::canBeCancelled()` = status ∈ {pending, active} **e** `appointment_at` futuro; o resource expõe também `cancel_impact: 'returns_credit' \| 'loses_credit' \| null` (`isLateCancellation()`). Dentro das 4 h o cancelamento vira `cancelled_late` e o crédito é perdido, como no painel; o app troca o texto do alerta conforme `cancel_impact` (mudança no app). |
@@ -71,7 +71,7 @@ negócio do painel `panel-app` (cota, créditos, janelas de cancelamento e reage
 | 9 Token expirado | Sanctum responde `401` para token revogado/expirado; nada a fazer. |
 | 10 Assuntos | Mantêm-se os seis casos de `AppointmentCategoryEnum`; sem caso novo. O app segue com a redação do Figma. |
 | 11 Consultor | **Confirmado no código**: o painel (`SchedulesAppointments::scheduleReviewAction`) só chama `BookAppointmentAction`; `AssignConsultantAction` é acionada pela equipe no painel admin. A API cria `pending` sem consultor e não atribui. |
-| 12 Jornada extra | `health_history` (6 meses) e `focus` calculados on the fly pela mesma fórmula do score, com cache de 1 h por usuário; sem tabela nova na v1. |
+| 12 Jornada extra | `health_history` (6 meses) e `focus` calculados on the fly pela mesma fórmula do score, sem cache entre requisições (decisão da S4); sem tabela nova na v1. |
 | 13 Pedir créditos | **Fora da v1.** O botão sai do app (flag `CREDITS_REQUEST_ENABLED`, código preservado) e o fluxo é discutido na issue [#285](https://github.com/3pontos-tech/gil-benefits/issues/285): chamado ao comercial, aviso ao gestor da empresa ou checkout. |
 | 14 Senha | **Confirmado:** a API exige `current_password` em `PUT /v1/me/password` e na troca de e-mail (mesma regra do `EditProfile`); a tela 30 do app ganha o campo "Senha atual". Após trocar, os outros tokens do usuário são revogados. |
 | 15 Anamnese | As quatro colunas de texto viram `nullable`; `PUT /v1/me/anamnese` faz merge parcial; o wizard do painel continua exigindo tudo na validação do formulário. |
@@ -95,10 +95,10 @@ e esqueleto de testes), para que as stories de endpoint só adicionem controller
 - `User` recebe `HasApiTokens`; migration `personal_access_tokens` (do Sanctum).
 - Estrutura por público desde o início: `Controllers/V1/Employee`, grupo de rotas `employee` (Sanctum) e um grupo `company`
   vazio apontando para a futura migração da API de tenant (A1).
-- Middleware `EnsureAppAccess` sobre `User::canUseApp()`: **vínculo ativo em `company_employees` com qualquer empresa,
-  inclusive a padrão** (`companies()->wherePivot('active', true)->exists()`); senão `403 {"message":"Conta sem acesso ao
-  aplicativo."}`. Cobre as três portas de entrada (plano da empresa, assinatura individual, voucher) sem exigir role
-  `employee` nem empresa cliente. Diferente do `panel-app`, admin e dono de empresa **sem vínculo** não entram: o app não
+- Middleware `EnsureAppAccess`: primeiro `User::canUseApp()` (vínculo ativo, sem ser consultor); depois o benefício pago
+  em alguma empresa ativa, pela régua do painel (`ResolveBenefitAccess`, extraída do `RedirectUserIfNotSubscribed` na
+  revisão de 2026-10-11). Sem ele, `403` com o motivo. Cobre as três portas de entrada (plano da empresa, assinatura
+  individual, voucher). Diferente do `panel-app`, admin e dono de empresa **sem vínculo** não entram: o app não
   tem o que mostrar a eles; para testar, recebem um vínculo de colaborador numa empresa de teste.
 - Middleware `ForceJsonAndLocale`: `Accept: application/json` + `setLocale('pt_BR')`.
 - Rate limiters `api-employee` e `api-login` (A10).
@@ -138,7 +138,8 @@ Como colaborador, quero entrar com e-mail e senha e continuar conectado neste ap
 
 - `LoginRequest`: `email` required/email/max:255, `password` required, `device_name` required/string/max:64.
 - `LoginController::store`: busca `User` por e-mail, `Hash::check`; falha → `ValidationException::withMessages(['email' => __('auth.failed')])`.
-  Em seguida `User::canUseApp()` (senão `422` em `email` "Esta conta não tem acesso ao aplicativo.") e
+  Em seguida `User::canUseApp()` e o benefício pago (senão `422` em `email` com o motivo), dentro de um `Timebox` como o
+  login do Filament, e
   `event(new Illuminate\Auth\Events\Login('sanctum', $user, false))` para o listener `RecordLastLogin` gravar `last_login_at`.
 - Token: `$user->createToken($deviceName, ['employee'], now()->addDays(config('api.token_ttl_days')))`; limitar a
   um token por `device_name` (apaga o anterior com o mesmo nome).
@@ -258,7 +259,7 @@ para gerir minha consultoria pelo app com a mesma régua do painel.
   (só quando `active` e futuro, como o painel), `consultant { id, name, avatar_url }` (media `avatars` do consultor; null
   enquanto pendente), `notes, feedback { rating, comment }, record { published_at, content }` (só `isPublished()`),
   `can_reschedule, can_cancel, cancel_impact` (`returns_credit` | `loses_credit` | `null` quando não cancelável),
-  `materials[] { id, title, type, shared_at }` (pivot `appointment_document`, S7), `created_at`.
+  `materials` (sempre `[]` na v1; o vínculo material ↔ encontro é a #296), `created_at`.
   Eager load `consultant.media, feedback, record, documents`.
 - `Appointment::canBeCancelled()` (status pending/active e futuro, a regra de visibilidade do painel) e
   `Appointment::cancelImpact()` (`isLateCancellation()`) ao lado de `canBeRescheduled()`; o painel passa a consultar os mesmos métodos.
@@ -273,12 +274,12 @@ para gerir minha consultoria pelo app com a mesma régua do painel.
     `current_transition->handle(new TransitionData(cancellationActor: CancellationActor::User, cancelledBy: $user))`,
     que resolve `cancelled` ou `cancelled_late` (crédito perdido) exatamente como o painel.
   - `SchedulesAppointments`, `ReschedulesAppointments` e `CancelAppointmentAction` do painel passam a delegar a elas.
-- Slots por mês: do primeiro dia elegível (`max(hoje + lead, início do mês)`) ao fim do mês, `GetAvailableSlotsAction::handle($dia, 60)`
+- Slots por mês: dentro da janela de agendamento (de hoje + 2 dias a hoje + 60 dias, `BookableSlots`, a mesma do painel), `GetAvailableSlotsAction::handle($dia, 60)`
   por dia com `Cache::remember` de `config('api.slots_cache_seconds')`; filtrar horários já passados; mesclar num único map.
 - `StoreAppointmentRequest`: `category_type` `Rule::enum(AppointmentCategoryEnum)`, `appointment_at` `date` e
   `after:` hoje + lead, `notes` `nullable|string|max:1000`. `RescheduleAppointmentRequest`: só `appointment_at`.
 - Feedback: `StoreFeedbackRequest` (`rating` 1-5, `comment` nullable ≤ 1000); só com status `completed` e sem feedback.
-- `AppointmentPolicy` (dono) registrada no provider do módulo.
+- Posse: o encontro é buscado em `$user->appointments()`; o de outra pessoa responde 404.
 
 **Subtarefas:**
 
@@ -310,7 +311,7 @@ Como colaborador, quero ver meus créditos e a cota do mês, para saber quantos 
 **Tarefas:**
 
 - `CreditsResource`: `monthly_quota` de `ResolveQuotaAllowance::for($user, $companyId)` (`limit`), `User::monthly_appointments_left`
-  (`left`) e `QuotaCycle::forAnchor(...)->end` (`renews_at`, `Y-m-d`); `null` quando o plano é só créditos.
+  (`left`) e `QuotaCycle::forAnchor(...)->end` (`renews_at`, `Y-m-d`); sem cota (plano só de créditos ou sem plano) vem `{ limit: 0, left: 0, renews_at: null }`.
   `credits[]` = `UserCredit::heldBy(collect([$user]))->forCompany($company)` incluindo expirados, cada um
   `{ id, status, owner_type, expires_at, used_at, appointment_id, grant_id, created_at, updated_at }`.
 - Alinhar a contagem de "disponíveis" com `notExpired()` (hoje o widget do painel e `hasAvailableCredit()` divergem).
@@ -357,7 +358,7 @@ para ter tudo da consultoria num lugar só.
 - `UploadMaterialAction` (módulo `consultants`, reutilizado pelo `CreateSharedDocument` do painel): cria `Document`
   (`documentable` = usuário, `type` pelo MIME, `active`) e `addMediaFromRequest('file')->toMediaCollection('documents')`.
 - Favorito/visto: `updateOrCreate` em `document_user_states`.
-- Remoção: `DocumentPolicy::delete` = `documentable` é o usuário; soft delete + desativar shares.
+- Remoção: `RemoveUploadedMaterialAction` (só quem enviou; o compartilhado pelo consultor responde 403 com o motivo); soft delete.
 
 **Subtarefas:**
 
@@ -539,3 +540,16 @@ e cada um passa o `make check` sozinho; o PR descreve as migrations (todas aditi
 antes de S5; `GetAvailableSlotsAction` por dia pode ficar lento com muitos consultores (cache por dia e,
 se necessário, um `GetAvailableSlotsForMonthAction` que leia o Zap uma vez); URLs temporárias do R2 exigem
 `AWS_URL`/credenciais corretas no ambiente que o app aponta.
+
+## Revisão do PR #286 (2026-10-11): decisões
+
+| Ponto | Decisão |
+| --- | --- |
+| Quem usa o app | A mesma régua do painel: plano contratual da empresa, assinatura própria ou voucher (`ResolveBenefitAccess`, extraída do `RedirectUserIfNotSubscribed`). A empresa da requisição é a primeira com vínculo ativo em que a pessoa tem o benefício, a empregadora antes da padrão e o vínculo mais antigo primeiro. Sem nenhuma, `422` no login e `403` nas demais rotas, com o motivo. |
+| Empresa da pessoa fora do app | `employerCompanyId()` só conta vínculos ativos, em ordem fixa (jobs, e-mails e admin). |
+| Sessões | Trocar a senha por qualquer caminho desconecta os aparelhos do app; na troca pelo app, o aparelho que pediu continua. |
+| Login | Teto por e-mail + IP (5/min) e por IP (20/min); conferência de senha com `Timebox`. |
+| Janela de agendamento | De hoje + 2 dias a hoje + 60 dias, numa regra só (`BookableSlots`) para painel, `/slots`, agendar e reagendar. |
+| Anamnese | Índice único em `user_id`, que a migration original pretendia e não criava. |
+| Migration de e-mail | Contas ativas primeiro; se a forma canônica pertence a uma conta apagada, o e-mail dela vira um marcador e o original vai para o log. |
+| Erros | Fora do 422, em pt_BR e sem detalhe interno; um 403 com motivo próprio o mantém. |
