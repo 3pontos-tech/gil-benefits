@@ -52,7 +52,7 @@ mesmas que o painel usa. O controller valida, chama a action e formata a respost
 | Formato | Sempre JSON, mesmo sem `Accept: application/json`; mensagens em `pt_BR`. |
 | Envelope | `{ data: ... }`. Listas paginadas trazem `links` e `meta` (`current_page`, `last_page`, `per_page`, `total`). |
 | Datas | Data e hora em ISO 8601 com offset (`2026-10-09T10:00:00-03:00`); data pura em `Y-m-d` (`ApiDates`). |
-| Erros | `422` com `{ message, errors: { campo: [...] } }`, inclusive para regras de domínio (horário indisponível, chamado encerrado); `401` sem token; `403` sem acesso ao app, sem a ability ou ao remover material que não é seu; `404` para recurso de outra pessoa; `429` no limite. |
+| Erros | `422` com `{ message, errors: { campo: [...] } }`, inclusive para regras de domínio (horário indisponível, chamado encerrado). Os demais em pt_BR e sem detalhe interno: `401` sem token; `403` sem acesso ao app (com o motivo), sem a ability ou ao remover material que não é seu; `404` "Não encontrado." para recurso inexistente ou de outra pessoa; `405`; `429` com `Retry-After`. |
 | Status | `201` só ao criar (encontro, avaliação, material, chamado); atualizações respondem `200` com o recurso; logout, troca de senha e remoções respondem `204`. |
 
 ## Rotas

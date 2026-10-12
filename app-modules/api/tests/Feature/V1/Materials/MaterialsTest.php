@@ -206,7 +206,9 @@ it('deletes only the employee own materials', function (): void {
     $own = ownMaterial($this->employee);
     $shared = sharedMaterial($this->employee);
 
-    deleteJson(route('api.v1.materials.destroy', $shared->id))->assertForbidden();
+    deleteJson(route('api.v1.materials.destroy', $shared->id))
+        ->assertForbidden()
+        ->assertExactJson(['message' => 'Só é possível remover os materiais que você enviou.']);
     deleteJson(route('api.v1.materials.destroy', $own->id))->assertNoContent();
 
     expect(Document::query()->find($own->id))->toBeNull()

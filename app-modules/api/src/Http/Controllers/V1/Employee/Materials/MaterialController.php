@@ -12,11 +12,13 @@ use Illuminate\Http\Response;
 use Illuminate\Http\UploadedFile;
 use Symfony\Component\HttpFoundation\Response as HttpStatus;
 use TresPontosTech\Api\Actions\V1\Employee\FindEmployeeMaterialAction;
+use TresPontosTech\Api\Actions\V1\Employee\ListEmployeeMaterialsAction;
 use TresPontosTech\Api\Http\Requests\V1\Employee\StoreMaterialRequest;
 use TresPontosTech\Api\Http\Resources\V1\Employee\MaterialResource;
-use TresPontosTech\Api\Support\EmployeeMaterials;
 use TresPontosTech\Consultants\Actions\MarkDocumentViewedAction;
+use TresPontosTech\Consultants\Actions\RemoveUploadedMaterialAction;
 use TresPontosTech\Consultants\Actions\UploadMaterialAction;
+use TresPontosTech\Consultants\Exceptions\MaterialRemovalException;
 
 class MaterialController
 {
@@ -24,20 +26,12 @@ class MaterialController
 
     public function __construct(private readonly FindEmployeeMaterialAction $findMaterial) {}
 
-    /**
-     * Enviados e compartilhados numa lista só, do mais recente ao mais antigo.
-     */
-    public function index(Request $request, EmployeeMaterials $materials): AnonymousResourceCollection
+    public function index(Request $request, ListEmployeeMaterialsAction $listMaterials): AnonymousResourceCollection
     {
         /** @var User $user */
         $user = $request->user();
 
-        return MaterialResource::collection(
-            $materials->visibleTo($user)
-                ->latest('shared_at')
-                ->orderByDesc('documents.id')
-                ->paginate(self::PER_PAGE),
-        );
+        return MaterialResource::collection($listMaterials->handle($user)->paginate(self::PER_PAGE));
     }
 
     /**
@@ -63,18 +57,18 @@ class MaterialController
     }
 
     /**
-     * Só os próprios materiais podem ser removidos; os do consultor respondem 403.
+     * Só os próprios materiais podem ser removidos; os do consultor respondem 403 com o motivo.
      */
-    public function destroy(Request $request, string $document): Response
+    public function destroy(Request $request, string $document, RemoveUploadedMaterialAction $removeMaterial): Response
     {
         /** @var User $user */
         $user = $request->user();
 
-        $material = $this->findMaterial->handle($user, $document);
-
-        abort_unless($material->isUploadedBy($user), HttpStatus::HTTP_FORBIDDEN);
-
-        $material->delete();
+        try {
+            $removeMaterial->handle($this->findMaterial->handle($user, $document), $user);
+        } catch (MaterialRemovalException $materialRemovalException) {
+            abort(HttpStatus::HTTP_FORBIDDEN, $materialRemovalException->getMessage());
+        }
 
         return response()->noContent();
     }

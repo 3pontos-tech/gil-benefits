@@ -4,11 +4,18 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Api\Providers;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Foundation\Exceptions\Handler;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\Exceptions\MissingAbilityException;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ApiServiceProvider extends ServiceProvider
 {
@@ -22,6 +29,7 @@ class ApiServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'api');
 
         $this->registerRateLimiters();
+        $this->registerErrorResponses();
     }
 
     /**
@@ -47,5 +55,51 @@ class ApiServiceProvider extends ServiceProvider
                     ->by('ip:' . $request->ip()),
             ];
         });
+    }
+
+    /**
+     * Erros fora do 422 da API do colaborador, em pt_BR e sem detalhe interno: o 404 do Laravel
+     * traz o nome da classe do model, e 403, 405 e 429 saem em inglês. Um 403 com motivo próprio
+     * (EnsureAppAccess, remoção de material) mantém a mensagem. A API da empresa segue como está.
+     */
+    private function registerErrorResponses(): void
+    {
+        $this->callAfterResolving(ExceptionHandler::class, function (ExceptionHandler $handler): void {
+            if (! $handler instanceof Handler) {
+                return;
+            }
+
+            $handler->renderable(fn (HttpException $exception, Request $request): ?JsonResponse => $this->replacesEmployeeError($exception, $request)
+                ? response()->json(['message' => $this->employeeErrorMessage($exception)], $exception->getStatusCode(), $exception->getHeaders())
+                : null);
+        });
+    }
+
+    private function replacesEmployeeError(HttpException $exception, Request $request): bool
+    {
+        return $request->is('api/v1/*')
+            && ! $request->is('api/v1/company/*')
+            && in_array($exception->getStatusCode(), [
+                Response::HTTP_FORBIDDEN,
+                Response::HTTP_NOT_FOUND,
+                Response::HTTP_METHOD_NOT_ALLOWED,
+                Response::HTTP_TOO_MANY_REQUESTS,
+            ], true);
+    }
+
+    private function employeeErrorMessage(HttpException $exception): string
+    {
+        $previous = $exception->getPrevious();
+
+        return match ($exception->getStatusCode()) {
+            Response::HTTP_NOT_FOUND => __('api::errors.not_found'),
+            Response::HTTP_METHOD_NOT_ALLOWED => __('api::errors.method_not_allowed'),
+            Response::HTTP_TOO_MANY_REQUESTS => __('api::errors.too_many_requests'),
+            default => match (true) {
+                $previous instanceof MissingAbilityException => __('api::auth.no_access'),
+                $previous instanceof AuthorizationException, blank($exception->getMessage()) => __('api::errors.forbidden'),
+                default => $exception->getMessage(),
+            },
+        };
     }
 }
