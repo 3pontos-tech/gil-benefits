@@ -16,8 +16,10 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use TresPontosTech\Appointments\Actions\GetAvailableSlotsAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
@@ -328,6 +330,21 @@ function actingAsApiSubscriber(int $monthlyLimit = 1): User
     filament()->setTenant(null);
 
     return $user;
+}
+
+/**
+ * Faz qualquer consulta à agenda dos consultores falhar: prova que um caminho responde sem
+ * calcular disponibilidade. A action é `readonly`, então o Mockery não consegue estendê-la.
+ */
+function forbidAgendaLookups(): void
+{
+    app()->instance(GetAvailableSlotsAction::class, new readonly class extends GetAvailableSlotsAction
+    {
+        public function handle(Carbon $date, int $durationMinutes = 60, int $bufferMinutes = 0): array
+        {
+            throw new RuntimeException('A agenda dos consultores não deveria ser consultada.');
+        }
+    });
 }
 
 /**

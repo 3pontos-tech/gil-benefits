@@ -79,6 +79,13 @@ class Appointment extends Model
      */
     public const BOOKING_LEAD_DAYS = 2;
 
+    /**
+     * How many days ahead a booking may start at most. One consultation is open at a time and
+     * the quota debited is the one of the cycle it was booked in, so the window stays at the
+     * current month and the next; the pickers use it as maxDate and the server enforces it.
+     */
+    public const BOOKING_HORIZON_DAYS = 60;
+
     protected $fillable = [
         'user_id',
         'consultant_id',

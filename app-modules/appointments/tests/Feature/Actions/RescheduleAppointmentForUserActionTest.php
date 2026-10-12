@@ -167,3 +167,12 @@ it('reports a failed calendar sync in the outcome', function (): void {
     expect($outcome->calendarSynced)->toBeFalse()
         ->and($this->appointment->refresh()->appointment_at->toDateTimeString())->toBe('2026-10-12 10:00:00');
 });
+
+it('refuses to move the appointment beyond the 60-day window', function (): void {
+    consultantAvailableOn(Date::parse('2026-12-07'));
+
+    expect(fn () => resolve(RescheduleAppointmentForUserAction::class)->handle($this->appointment, $this->user, '2026-12-07 09:00:00'))
+        ->toThrow(SlotUnavailableException::class);
+
+    expect($this->appointment->refresh()->appointment_at->toDateTimeString())->toBe('2026-10-10 14:00:00');
+});

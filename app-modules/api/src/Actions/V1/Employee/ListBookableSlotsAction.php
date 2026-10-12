@@ -15,9 +15,10 @@ final readonly class ListBookableSlotsAction
     public function __construct(private BookableSlots $bookableSlots) {}
 
     /**
-     * Horários livres do mês, do primeiro dia agendável (BookableSlots::firstBookableDay(), ou o 1º
-     * do mês se for depois) ao último, num único mapa "instante ISO 8601 com offset do fuso da
-     * aplicação" => "H:i". O app ecoa a chave no POST/PATCH. Cada dia é cacheado por
+     * Horários livres do mês, dentro da janela de agendamento (de BookableSlots::firstBookableDay() a
+     * lastBookableDay()), num único mapa "instante ISO 8601 com offset do fuso da
+     * aplicação" => "H:i". O app ecoa a chave no POST/PATCH. Mês fora da janela volta vazio sem
+     * calcular nada, então pedir meses distantes não custa a agenda dos consultores. Cada dia é cacheado por
      * `api.slots_cache_seconds`, porque a disponibilidade consulta a agenda de todos os consultores.
      *
      * @return array<string, string>
@@ -26,7 +27,7 @@ final readonly class ListBookableSlotsAction
     {
         $timezone = (string) config('app.timezone');
         $firstDay = Date::instance($month)->setTimezone($timezone)->startOfMonth()->max($this->bookableSlots->firstBookableDay());
-        $lastDay = Date::instance($month)->setTimezone($timezone)->endOfMonth()->startOfDay();
+        $lastDay = Date::instance($month)->setTimezone($timezone)->endOfMonth()->startOfDay()->min($this->bookableSlots->lastBookableDay());
 
         $slots = [];
 

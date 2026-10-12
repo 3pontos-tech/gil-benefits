@@ -24,7 +24,8 @@ final readonly class BookableSlots
 
     /**
      * Horários agendáveis do dia, no formato de GetAvailableSlotsAction ("Y-m-d H:i:s" => "H:i").
-     * Vazio quando o dia é anterior a hoje + BOOKING_LEAD_DAYS.
+     * Vazio fora da janela de agendamento (de hoje + BOOKING_LEAD_DAYS a hoje +
+     * BOOKING_HORIZON_DAYS), sem consultar a agenda dos consultores.
      *
      * @return array<string, string>
      */
@@ -32,7 +33,9 @@ final readonly class BookableSlots
     {
         $day = $this->inAppTimezone($day);
 
-        if ($day->copy()->startOfDay()->lt($this->firstBookableDay())) {
+        $startOfDay = $day->copy()->startOfDay();
+
+        if ($startOfDay->lt($this->firstBookableDay()) || $startOfDay->gt($this->lastBookableDay())) {
             return [];
         }
 
@@ -45,6 +48,14 @@ final readonly class BookableSlots
     public function firstBookableDay(): Carbon
     {
         return $this->inAppTimezone(now())->addDays(Appointment::BOOKING_LEAD_DAYS)->startOfDay();
+    }
+
+    /**
+     * Último dia com horários oferecidos: hoje + BOOKING_HORIZON_DAYS, à meia-noite, no fuso da aplicação.
+     */
+    public function lastBookableDay(): Carbon
+    {
+        return $this->inAppTimezone(now())->addDays(Appointment::BOOKING_HORIZON_DAYS)->startOfDay();
     }
 
     /**

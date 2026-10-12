@@ -67,6 +67,10 @@ mesmas que o painel usa. O controller valida, chama a action e formata a respost
 | Notificações | `GET notifications`, `PATCH notifications/{id}/read` |
 | Chamados | `GET/POST tickets`, `PATCH tickets/{id}` |
 
+A agenda oferece horários de hoje + 2 dias até hoje + 60 dias (`BookableSlots`, a mesma janela do painel). Um mês
+fora dela responde `{}` sem consultar a agenda dos consultores, e agendar ou reagendar fora dela dá 422 em
+`appointment_at`.
+
 Lista completa, com middlewares: `php artisan route:list --path=api/v1 -v`. O contrato que o app consome está em
 `gil-benefits-mobile/docs/api-contract.md`.
 

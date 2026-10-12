@@ -16,6 +16,7 @@ use TresPontosTech\Appointments\Actions\RescheduleAppointmentForUserAction;
 use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Support\BookableSlots;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Schemas\AppointmentWizard;
 
 /**
@@ -54,6 +55,7 @@ class RescheduleAppointmentAction extends Action
                 ->native(false)
                 ->displayFormat('d/m/Y')
                 ->minDate(now()->addDays(Appointment::BOOKING_LEAD_DAYS)->format('Y-m-d'))
+                ->maxDate(resolve(BookableSlots::class)->lastBookableDay()->format('Y-m-d'))
                 ->reactive()
                 ->afterStateUpdated(fn (callable $set) => $set('appointment_at', null)),
 

@@ -22,6 +22,10 @@ readonly class AssignConsultantAction
      * cadastrada no admin é recorrente e sem data de fim, por isso `end_date` nulo também conta;
      * `whereDate` compara só a data, igual no Postgres e no SQLite dos testes.
      *
+     * A trava vem antes de apagar o bloqueio anterior do próprio encontro, e em ordem de id: se
+     * cada transação apagasse a sua linha primeiro e só depois travasse as do consultor, uma
+     * esperaria pela linha apagada da outra e o Postgres abortaria uma delas por deadlock.
+     *
      * @throws SlotUnavailableException
      */
     public function handle(Appointment $appointment): void
@@ -31,11 +35,6 @@ readonly class AssignConsultantAction
         }
 
         DB::transaction(function () use ($appointment): void {
-            Schedule::query()
-                ->where('schedule_type', ScheduleTypes::APPOINTMENT)
-                ->whereJsonContains('metadata->appointment_id', $appointment->id)
-                ->delete();
-
             $consultant = $appointment->consultant;
 
             $day = $appointment->appointment_at->toDateString();
@@ -47,8 +46,14 @@ readonly class AssignConsultantAction
                 ->where(fn (Builder $query): Builder => $query
                     ->whereNull('end_date')
                     ->orWhereDate('end_date', '>=', $day))
+                ->orderBy('id')
                 ->lockForUpdate()
                 ->get();
+
+            Schedule::query()
+                ->where('schedule_type', ScheduleTypes::APPOINTMENT)
+                ->whereJsonContains('metadata->appointment_id', $appointment->id)
+                ->delete();
 
             $isAvailable = $consultant->isBookableAtTime(
                 $appointment->appointment_at->format('Y-m-d'),

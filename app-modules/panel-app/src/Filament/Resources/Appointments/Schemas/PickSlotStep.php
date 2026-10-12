@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Get;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Support\BookableSlots;
 
 /**
  * Campos de data e horário compartilhados pelos wizards de agendamento e de
@@ -30,6 +31,7 @@ class PickSlotStep
                         ->hiddenLabel()
                         ->view('filament.app.appointments.wizard.calendar-field', [
                             'minDate' => fn (): string => now()->addDays(Appointment::BOOKING_LEAD_DAYS)->toDateString(),
+                            'maxDate' => fn (): string => resolve(BookableSlots::class)->lastBookableDay()->toDateString(),
                         ])
                         ->required()
                         ->columnSpan(['md' => 3]),

@@ -70,3 +70,20 @@ it('validates the month format', function (string $month): void {
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['month']);
 })->with(['2026-13', '10/2026', '']);
+
+it('stops the month at the end of the 60-day window', function (): void {
+    consultantAvailableOn(Date::parse('2026-12-04'), Date::parse('2026-12-06'), Date::parse('2026-12-07'));
+
+    $keys = array_keys(getJson(route('api.v1.appointments.slots', ['month' => '2026-12']))->assertOk()->json('data'));
+
+    expect(collect($keys)->contains(fn (string $key): bool => str_starts_with($key, '2026-12-06')))->toBeTrue()
+        ->and(collect($keys)->contains(fn (string $key): bool => str_starts_with($key, '2026-12-07')))->toBeFalse();
+});
+
+it('answers an empty month beyond the window without computing the agenda', function (string $month): void {
+    forbidAgendaLookups();
+
+    $response = getJson(route('api.v1.appointments.slots', ['month' => $month]))->assertOk();
+
+    expect($response->getContent())->toBe('{"data":{}}');
+})->with(['three months ahead' => '2027-01', 'far future' => '9999-12', 'past month' => '2026-09']);

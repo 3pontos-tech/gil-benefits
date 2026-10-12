@@ -251,3 +251,34 @@ it('locks a dated availability that covers the day', function (): void {
 
     expect(rowsLockedWhileAssigning($appointment))->toBe(1);
 });
+
+/**
+ * Travar antes de apagar o bloqueio anterior, em ordem de id: duas atribuições ao mesmo consultor
+ * esperam uma pela outra em vez de cada uma esperar a linha apagada da outra (deadlock).
+ */
+it('locks the consultant agenda before deleting the previous block, in id order', function (): void {
+    $consultant = Consultant::factory()->create();
+    $date = Date::now()->addDays(3);
+    Zap::for($consultant)->named('Availability')->availability()
+        ->from($date->toDateString())->to($date->copy()->addDay()->toDateString())
+        ->addPeriod('08:00', '18:00')->save();
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $consultant->id,
+        'appointment_at' => $date->copy()->setTime(10, 0),
+        'status' => AppointmentStatus::Active,
+    ]);
+    $statements = [];
+    DB::listen(function (QueryExecuted $query) use (&$statements): void {
+        $statements[] = $query->sql;
+    });
+
+    resolve(AssignConsultantAction::class)->handle($appointment);
+
+    $lock = collect($statements)->search(fn (string $sql): bool => str_starts_with($sql, 'select') && str_contains($sql, '"schedulable_id"'));
+    $delete = collect($statements)->search(fn (string $sql): bool => str_starts_with($sql, 'delete from "schedules"'));
+
+    expect($lock)->toBeInt()
+        ->and($delete)->toBeInt()
+        ->and($lock)->toBeLessThan($delete)
+        ->and($statements[$lock])->toContain('order by "id" asc');
+});

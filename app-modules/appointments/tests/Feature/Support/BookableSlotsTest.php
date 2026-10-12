@@ -46,3 +46,30 @@ it('parses garbage, blanks and unavailable times as null', function (?string $va
     'outside availability' => ['2026-10-09 03:00:00'],
     'before the lead' => ['2026-10-08 09:00:00'],
 ]);
+
+describe('booking horizon (60 days)', function (): void {
+    beforeEach(function (): void {
+        $this->travelTo('2026-10-07 10:00:00');
+    });
+
+    it('ends the window 60 days from today', function (): void {
+        expect(resolve(BookableSlots::class)->lastBookableDay()->toDateTimeString())->toBe('2026-12-06 00:00:00');
+    });
+
+    it('offers the last day of the window and nothing after it', function (): void {
+        consultantAvailableOn(Date::parse('2026-12-06'), Date::parse('2026-12-07'));
+        $slots = resolve(BookableSlots::class);
+
+        expect($slots->forDay(Date::parse('2026-12-06')))->not->toBeEmpty()
+            ->and($slots->forDay(Date::parse('2026-12-07')))->toBe([])
+            ->and($slots->contains(Date::parse('2026-12-06 09:00:00')))->toBeTrue()
+            ->and($slots->contains(Date::parse('2026-12-07 09:00:00')))->toBeFalse()
+            ->and($slots->parse('2026-12-07T09:00:00-03:00'))->toBeNull();
+    });
+
+    it('does not ask the consultants agenda for a day outside the window', function (string $day): void {
+        forbidAgendaLookups();
+
+        expect(resolve(BookableSlots::class)->forDay(Date::parse($day)))->toBe([]);
+    })->with(['day after the window' => '2026-12-07', 'far future' => '9999-12-01', 'before the lead time' => '2026-10-08']);
+});

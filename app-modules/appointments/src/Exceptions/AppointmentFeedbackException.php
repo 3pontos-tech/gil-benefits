@@ -8,6 +8,11 @@ use RuntimeException;
 
 class AppointmentFeedbackException extends RuntimeException
 {
+    public static function notTheAttendee(): self
+    {
+        return new self(__('appointments::resources.appointments.exceptions.feedback_not_the_attendee'));
+    }
+
     public static function requiresCompletion(): self
     {
         return new self(__('appointments::resources.appointments.exceptions.feedback_requires_completion'));

@@ -120,3 +120,20 @@ it('stores the notes', function (): void {
         ->assertCreated()
         ->assertJsonPath('data.notes', 'Quero falar de dívidas.');
 });
+
+it('refuses a slot beyond the 60-day window', function (): void {
+    consultantAvailableOn(Date::parse('2026-12-07'));
+
+    postJson(route('api.v1.appointments.store'), [...$this->payload, 'appointment_at' => '2026-12-07T09:00:00-03:00'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['appointment_at']);
+
+    expect(Appointment::query()->count())->toBe(0);
+});
+
+it('accepts the last day of the window', function (): void {
+    consultantAvailableOn(Date::parse('2026-12-06'));
+
+    postJson(route('api.v1.appointments.store'), [...$this->payload, 'appointment_at' => '2026-12-06T09:00:00-03:00'])
+        ->assertCreated();
+});
