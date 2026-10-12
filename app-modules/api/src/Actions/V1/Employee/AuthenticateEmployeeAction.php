@@ -7,6 +7,7 @@ namespace TresPontosTech\Api\Actions\V1\Employee;
 use App\Models\Users\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Timebox;
 use TresPontosTech\Api\DTOs\EmployeeSession;
 use TresPontosTech\Api\Exceptions\EmployeeLoginException;
 use TresPontosTech\User\Support\EmailAddress;
@@ -29,11 +30,7 @@ final readonly class AuthenticateEmployeeAction
      */
     public function handle(string $email, string $password, string $deviceName): EmployeeSession
     {
-        $user = $this->findByEmail($email);
-
-        if (! $user instanceof User || ! Hash::check($password, $user->password)) {
-            throw EmployeeLoginException::invalidCredentials();
-        }
+        $user = $this->verifyCredentials($email, $password);
 
         if (! $user->canUseApp()) {
             throw EmployeeLoginException::noAccess();
@@ -56,6 +53,28 @@ final readonly class AuthenticateEmployeeAction
         event(new Login('sanctum', $user, false));
 
         return new EmployeeSession($user->refresh(), $token->plainTextToken);
+    }
+
+    /**
+     * Confere e-mail e senha num tempo mínimo fixo (`auth.timebox_duration`), como o login do
+     * Filament: e-mail inexistente não roda o hash e responderia mais rápido, entregando quais
+     * contas existem. Só o acerto devolve antes do tempo.
+     *
+     * @throws EmployeeLoginException
+     */
+    private function verifyCredentials(string $email, string $password): User
+    {
+        return resolve(Timebox::class)->call(function (Timebox $timebox) use ($email, $password): User {
+            $user = $this->findByEmail($email);
+
+            if (! $user instanceof User || ! Hash::check($password, $user->password)) {
+                throw EmployeeLoginException::invalidCredentials();
+            }
+
+            $timebox->returnEarly();
+
+            return $user;
+        }, (int) config('auth.timebox_duration', 200_000));
     }
 
     /**

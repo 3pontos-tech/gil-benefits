@@ -48,13 +48,15 @@ return [
     | Limites de requisição
     |--------------------------------------------------------------------------
     |
-    | `employee` vale por usuário autenticado (IP quando anônimo); `login` vale
-    | por e-mail + IP, alinhado ao rateLimit(5) do login Filament.
+    | `employee` vale por usuário autenticado. O login tem dois tetos: por
+    | e-mail + IP, alinhado ao rateLimit(5) do login Filament, e por IP, mais
+    | alto, contra quem testa uma senha em muitos e-mails.
     |
     */
 
     'rate_limits' => [
         'employee_per_minute' => 120,
         'login_per_minute' => 5,
+        'login_per_minute_per_ip' => 20,
     ],
 ];

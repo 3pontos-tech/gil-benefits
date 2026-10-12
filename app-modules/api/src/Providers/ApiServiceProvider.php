@@ -25,16 +25,27 @@ class ApiServiceProvider extends ServiceProvider
     }
 
     /**
-     * Limites por público (A10): o colaborador autenticado conta por usuário e o
-     * anônimo por IP; o login conta por e-mail + IP para não travar um escritório
-     * inteiro atrás do mesmo NAT por causa de uma única conta.
+     * Limites por público (A10). O colaborador conta por usuário: a autenticação roda antes do
+     * throttle, então toda requisição que chega aqui já tem dono.
+     *
+     * O login tem dois tetos. Por e-mail + IP, para uma conta não travar um escritório inteiro
+     * atrás do mesmo NAT; e por IP, mais alto, para um IP não testar senhas em e-mails diferentes
+     * sem limite (o painel limita por IP).
      */
     private function registerRateLimiters(): void
     {
         RateLimiter::for('api-employee', fn (Request $request): Limit => Limit::perMinute((int) config('api.rate_limits.employee_per_minute'))
             ->by($request->user()?->getAuthIdentifier() ?? $request->ip()));
 
-        RateLimiter::for('api-login', fn (Request $request): Limit => Limit::perMinute((int) config('api.rate_limits.login_per_minute'))
-            ->by(Str::lower($request->string('email')->toString()) . '|' . $request->ip()));
+        RateLimiter::for('api-login', function (Request $request): array {
+            $email = $request->input('email');
+
+            return [
+                Limit::perMinute((int) config('api.rate_limits.login_per_minute'))
+                    ->by('email:' . (is_string($email) ? Str::lower($email) : '') . '|' . $request->ip()),
+                Limit::perMinute((int) config('api.rate_limits.login_per_minute_per_ip'))
+                    ->by('ip:' . $request->ip()),
+            ];
+        });
     }
 }

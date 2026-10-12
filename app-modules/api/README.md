@@ -39,8 +39,10 @@ mesmas que o painel usa. O controller valida, chama a action e formata a respost
 - A empresa da requisição é a primeira com vínculo ativo em que a pessoa tem o benefício, a empregadora antes da
   padrão (`ResolveEmployeeCompanyAction`). Ela vira o tenant da requisição, e cota, crédito, agendamento, perfil e
   chamado leem essa empresa, como a aberta na tela do painel.
-- Limites: 120 requisições por minuto por usuário e 5 tentativas de login por minuto por e-mail e IP
-  (`config/api.php`).
+- Limites (`config/api.php`): 120 requisições por minuto por usuário; no login, 5 tentativas por minuto por e-mail e
+  IP e 20 por IP, e a conferência de senha leva sempre o mesmo tempo mínimo (`Timebox`), como no painel.
+- Trocar a senha por qualquer caminho (app, "esqueci a senha", perfil do painel, admin) desconecta os aparelhos do app
+  (`UserObserver`); na troca pelo app, o aparelho que pediu continua conectado.
 - Tokens vencidos saem no `sanctum:prune-expired` diário (`routes/console.php`).
 
 ## Convenções da resposta
