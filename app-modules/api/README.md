@@ -42,7 +42,8 @@ mesmas que o painel usa. O controller valida, chama a action e formata a respost
 - Limites (`config/api.php`): 120 requisições por minuto por usuário; no login, 5 tentativas por minuto por e-mail e
   IP e 20 por IP, e a conferência de senha leva sempre o mesmo tempo mínimo (`Timebox`), como no painel.
 - Trocar a senha por qualquer caminho (app, "esqueci a senha", perfil do painel, admin) desconecta os aparelhos do app
-  (`UserObserver`); na troca pelo app, o aparelho que pediu continua conectado.
+  (`RevokeAppTokensAction`, chamada em cada um desses caminhos); na troca pelo app, o aparelho que pediu continua
+  conectado. O rehash do hash no login do painel não desconecta.
 - Tokens vencidos saem no `sanctum:prune-expired` diário (`routes/console.php`).
 
 ## Convenções da resposta

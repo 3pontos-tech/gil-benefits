@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use TresPontosTech\User\Actions\RevokeAppTokensAction;
 use TresPontosTech\User\Support\EmailAddress;
 use Ysfkaya\FilamentPhoneInput\Forms\PhoneInput;
 
@@ -111,6 +112,19 @@ class EditUserProfile extends EditProfile
     /**
      * @param  array<string, mixed>  $data
      */
+    /**
+     * Senha trocada no perfil desconecta os aparelhos do app (RevokeAppTokensAction). Vale para os
+     * quatro painéis, que herdam esta página.
+     */
+    protected function afterSave(): void
+    {
+        $user = $this->getUser();
+
+        if ($user instanceof User && $user->wasChanged('password')) {
+            resolve(RevokeAppTokensAction::class)->handle($user);
+        }
+    }
+
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         /** @var User $record */
