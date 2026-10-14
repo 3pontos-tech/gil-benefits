@@ -8,9 +8,9 @@ use App\Models\Users\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use TresPontosTech\Api\Actions\V1\Employee\ListEmployeeNotificationsAction;
-use TresPontosTech\Api\Actions\V1\Employee\MarkEmployeeNotificationReadAction;
-use TresPontosTech\Api\Http\Resources\V1\Employee\NotificationResource;
+use TresPontosTech\Api\Actions\Employee\Notifications\ListEmployeeNotificationsAction;
+use TresPontosTech\Api\Actions\Employee\Notifications\MarkEmployeeNotificationReadAction;
+use TresPontosTech\Api\Http\Resources\V1\Employee\Notifications\NotificationResource;
 
 class NotificationController
 {

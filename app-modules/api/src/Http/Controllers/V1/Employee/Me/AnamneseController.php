@@ -8,8 +8,8 @@ use App\Models\Users\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use TresPontosTech\Api\Http\Requests\V1\Employee\UpdateAnamneseRequest;
-use TresPontosTech\Api\Http\Resources\V1\Employee\AnamneseResource;
+use TresPontosTech\Api\Http\Requests\V1\Employee\Me\UpdateAnamneseRequest;
+use TresPontosTech\Api\Http\Resources\V1\Employee\Me\AnamneseResource;
 use TresPontosTech\User\Actions\UpsertAnamneseAnswersAction;
 use TresPontosTech\User\Models\UserAnamnese;
 

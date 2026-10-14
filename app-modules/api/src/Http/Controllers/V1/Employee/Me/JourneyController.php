@@ -6,8 +6,8 @@ namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Me;
 
 use App\Models\Users\User;
 use Illuminate\Http\Request;
-use TresPontosTech\Api\Actions\V1\Employee\BuildEmployeeJourneyAction;
-use TresPontosTech\Api\Http\Resources\V1\Employee\JourneyResource;
+use TresPontosTech\Api\Actions\Employee\Me\BuildEmployeeJourneyAction;
+use TresPontosTech\Api\Http\Resources\V1\Employee\Me\JourneyResource;
 
 class JourneyController
 {

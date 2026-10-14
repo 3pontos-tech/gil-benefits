@@ -9,7 +9,7 @@ use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use TresPontosTech\Api\Actions\V1\Employee\ResolveAppAccessAction;
+use TresPontosTech\Api\Actions\Employee\Auth\ResolveAppAccessAction;
 
 /**
  * A conferência é a cada requisição porque o plano pode vencer, ou a empresa desativar a pessoa,

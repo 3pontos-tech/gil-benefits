@@ -9,12 +9,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Symfony\Component\HttpFoundation\Response;
-use TresPontosTech\Api\Actions\V1\Employee\CloseEmployeeTicketAction;
-use TresPontosTech\Api\Actions\V1\Employee\ListEmployeeTicketsAction;
-use TresPontosTech\Api\Actions\V1\Employee\OpenEmployeeTicketAction;
-use TresPontosTech\Api\Http\Requests\V1\Employee\StoreTicketRequest;
-use TresPontosTech\Api\Http\Requests\V1\Employee\UpdateTicketRequest;
-use TresPontosTech\Api\Http\Resources\V1\Employee\TicketResource;
+use TresPontosTech\Api\Actions\Employee\Tickets\CloseEmployeeTicketAction;
+use TresPontosTech\Api\Actions\Employee\Tickets\ListEmployeeTicketsAction;
+use TresPontosTech\Api\Actions\Employee\Tickets\OpenEmployeeTicketAction;
+use TresPontosTech\Api\Http\Requests\V1\Employee\Tickets\StoreTicketRequest;
+use TresPontosTech\Api\Http\Requests\V1\Employee\Tickets\UpdateTicketRequest;
+use TresPontosTech\Api\Http\Resources\V1\Employee\Tickets\TicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 
 class TicketController

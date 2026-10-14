@@ -6,8 +6,8 @@ namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Credits;
 
 use App\Models\Users\User;
 use Illuminate\Http\Request;
-use TresPontosTech\Api\Actions\V1\Employee\BuildEmployeeCreditsAction;
-use TresPontosTech\Api\Http\Resources\V1\Employee\CreditsResource;
+use TresPontosTech\Api\Actions\Employee\Credits\BuildEmployeeCreditsAction;
+use TresPontosTech\Api\Http\Resources\V1\Employee\Credits\CreditsResource;
 
 class CreditsController
 {

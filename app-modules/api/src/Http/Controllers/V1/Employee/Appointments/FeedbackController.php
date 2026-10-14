@@ -7,8 +7,8 @@ namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments;
 use App\Models\Users\User;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use TresPontosTech\Api\Http\Requests\V1\Employee\StoreFeedbackRequest;
-use TresPontosTech\Api\Http\Resources\V1\Employee\AppointmentResource;
+use TresPontosTech\Api\Http\Requests\V1\Employee\Appointments\StoreFeedbackRequest;
+use TresPontosTech\Api\Http\Resources\V1\Employee\Appointments\AppointmentResource;
 use TresPontosTech\Appointments\Actions\SubmitAppointmentFeedbackAction;
 
 class FeedbackController

@@ -18,7 +18,7 @@ use Laravel\Sanctum\Exceptions\MissingAbilityException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
-use TresPontosTech\Api\Exceptions\EmployeeLoginException;
+use TresPontosTech\Api\Exceptions\Employee\Auth\EmployeeLoginException;
 use TresPontosTech\Appointments\Exceptions\AppointmentFeedbackException;
 use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
 use TresPontosTech\Appointments\Exceptions\BookingBlockedException;

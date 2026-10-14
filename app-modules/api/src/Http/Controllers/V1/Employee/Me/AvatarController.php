@@ -7,9 +7,9 @@ namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Me;
 use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
-use TresPontosTech\Api\Actions\V1\Employee\BuildEmployeeProfileAction;
-use TresPontosTech\Api\Http\Requests\V1\Employee\StoreAvatarRequest;
-use TresPontosTech\Api\Http\Resources\V1\Employee\MeResource;
+use TresPontosTech\Api\Actions\Employee\Me\BuildEmployeeProfileAction;
+use TresPontosTech\Api\Http\Requests\V1\Employee\Me\StoreAvatarRequest;
+use TresPontosTech\Api\Http\Resources\V1\Employee\Me\MeResource;
 use TresPontosTech\User\Actions\UpdateUserAvatarAction;
 
 class AvatarController

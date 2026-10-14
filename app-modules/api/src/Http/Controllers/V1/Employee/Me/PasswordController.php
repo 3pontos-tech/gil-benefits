@@ -6,7 +6,7 @@ namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Me;
 
 use App\Models\Users\User;
 use Illuminate\Http\Response;
-use TresPontosTech\Api\Http\Requests\V1\Employee\UpdatePasswordRequest;
+use TresPontosTech\Api\Http\Requests\V1\Employee\Me\UpdatePasswordRequest;
 use TresPontosTech\User\Actions\ChangeUserPasswordAction;
 
 class PasswordController

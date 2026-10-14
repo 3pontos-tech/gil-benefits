@@ -6,9 +6,9 @@ namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Materials;
 
 use App\Models\Users\User;
 use Illuminate\Http\Request;
-use TresPontosTech\Api\Actions\V1\Employee\FindEmployeeMaterialAction;
-use TresPontosTech\Api\Http\Requests\V1\Employee\FavoriteMaterialRequest;
-use TresPontosTech\Api\Http\Resources\V1\Employee\MaterialResource;
+use TresPontosTech\Api\Actions\Employee\Materials\FindEmployeeMaterialAction;
+use TresPontosTech\Api\Http\Requests\V1\Employee\Materials\FavoriteMaterialRequest;
+use TresPontosTech\Api\Http\Resources\V1\Employee\Materials\MaterialResource;
 use TresPontosTech\Consultants\Actions\MarkDocumentViewedAction;
 use TresPontosTech\Consultants\Actions\SetDocumentFavoriteAction;
 

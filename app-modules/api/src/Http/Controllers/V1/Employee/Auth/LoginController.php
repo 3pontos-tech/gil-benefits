@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Auth;
 
 use Illuminate\Http\JsonResponse;
-use TresPontosTech\Api\Actions\V1\Employee\AuthenticateEmployeeAction;
-use TresPontosTech\Api\Actions\V1\Employee\BuildEmployeeProfileAction;
-use TresPontosTech\Api\Http\Requests\V1\Employee\LoginRequest;
-use TresPontosTech\Api\Http\Resources\V1\Employee\MeResource;
+use TresPontosTech\Api\Actions\Employee\Auth\AuthenticateEmployeeAction;
+use TresPontosTech\Api\Actions\Employee\Me\BuildEmployeeProfileAction;
+use TresPontosTech\Api\Http\Requests\V1\Employee\Auth\LoginRequest;
+use TresPontosTech\Api\Http\Resources\V1\Employee\Me\MeResource;
 
 class LoginController
 {

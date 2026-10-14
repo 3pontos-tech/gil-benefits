@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments;
 
 use Illuminate\Http\JsonResponse;
-use TresPontosTech\Api\Actions\V1\Employee\ListBookableSlotsAction;
-use TresPontosTech\Api\Http\Requests\V1\Employee\ListSlotsRequest;
+use TresPontosTech\Api\Actions\Employee\Appointments\ListBookableSlotsAction;
+use TresPontosTech\Api\Http\Requests\V1\Employee\Appointments\ListSlotsRequest;
 
 class SlotController
 {
