@@ -8,9 +8,6 @@ use Illuminate\Foundation\Http\FormRequest;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Support\BookableSlots;
 
-/**
- * Mesma regra de antecedência por dia inteiro do agendamento (StoreAppointmentRequest).
- */
 class RescheduleAppointmentRequest extends FormRequest
 {
     public function authorize(): bool

@@ -12,9 +12,6 @@ use TresPontosTech\Api\Http\Resources\V1\Employee\Me\MeResource;
 
 class LoginController
 {
-    /**
-     * Falhas de login voltam como 422 em `email`, que é onde o app mostra o erro.
-     */
     public function __invoke(
         LoginRequest $request,
         AuthenticateEmployeeAction $authenticate,

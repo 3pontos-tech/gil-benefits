@@ -36,9 +36,6 @@ class AppointmentController
         return new AppointmentResource($this->ownedAppointment($request, $appointment));
     }
 
-    /**
-     * Sem saldo ou com consultoria em aberto volta em `credit`; horário fora da oferta em `appointment_at`.
-     */
     public function store(StoreAppointmentRequest $request, ScheduleAppointmentForUserAction $schedule): JsonResponse
     {
         /** @var User $user */
@@ -57,8 +54,7 @@ class AppointmentController
     }
 
     /**
-     * Janela fechada volta em `appointment`; horário fora da oferta em `appointment_at`. Consultor
-     * ocupado no novo horário sai do encontro, que volta `pending` com `consultant: null`.
+     * Consultor ocupado no novo horário sai do encontro, que volta `pending` com `consultant: null`.
      *
      * @throws Throwable
      */
@@ -77,8 +73,8 @@ class AppointmentController
     }
 
     /**
-     * Encontro passado ou já encerrado volta em `appointment`. Responde 200 com o status resultante
-     * (`cancelled` ou `cancelled_late`), que é o que o app deve exibir.
+     * Responde 200 com o status resultante (`cancelled` ou `cancelled_late`), que é o que o app deve
+     * exibir.
      */
     public function destroy(Request $request, string $appointment, CancelAppointmentForUserAction $cancel): AppointmentResource
     {

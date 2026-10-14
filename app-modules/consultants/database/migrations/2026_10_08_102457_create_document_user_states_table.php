@@ -9,9 +9,6 @@ use TresPontosTech\Consultants\Models\Document;
 
 return new class extends Migration
 {
-    /**
-     * Estado de cada material para cada pessoa: quando viu pela primeira vez e se favoritou.
-     */
     public function up(): void
     {
         Schema::create('document_user_states', function (Blueprint $table): void {

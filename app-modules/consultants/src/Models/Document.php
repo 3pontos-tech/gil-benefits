@@ -88,9 +88,6 @@ class Document extends Model implements HasMedia
         $this->addMediaCollection('documents');
     }
 
-    /**
-     * Se o material foi enviado por esta pessoa (e não compartilhado por um consultor).
-     */
     public function isUploadedBy(User $user): bool
     {
         return $this->documentable_type === $user->getMorphClass()

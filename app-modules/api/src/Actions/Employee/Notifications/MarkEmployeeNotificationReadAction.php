@@ -13,7 +13,7 @@ final readonly class MarkEmployeeNotificationReadAction
     public function __construct(private ListEmployeeNotificationsAction $listNotifications) {}
 
     /**
-     * Marca como lido um aviso da pessoa; marcar de novo não muda a data da primeira leitura.
+     * Marcar de novo não muda a data da primeira leitura.
      *
      * @throws ModelNotFoundException<DatabaseNotification>
      */

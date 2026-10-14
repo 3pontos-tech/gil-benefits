@@ -7,11 +7,11 @@ namespace TresPontosTech\Appointments\Actions;
 use App\Models\Users\User;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
+use TresPontosTech\Appointments\DTO\UserJourney;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
-use TresPontosTech\Appointments\DTO\UserJourney;
 use TresPontosTech\User\Enums\LifeMoment;
 
 class BuildUserJourneyAction
@@ -161,8 +161,6 @@ class BuildUserJourneyAction
     }
 
     /**
-     * Score recalculado só com o que existia antes de `$cutoff`.
-     *
      * @param  Collection<int, Appointment>  $completed
      * @param  Collection<int, CarbonInterface>  $ratedAt
      */

@@ -10,9 +10,6 @@ use Illuminate\Notifications\DatabaseNotification;
 use TresPontosTech\Api\Support\ApiDates;
 
 /**
- * `type` é o tipo do aviso (NotificationKind); `data` traz os textos, o tom e o id do
- * encontro ou do material que o toque abre.
- *
  * @mixin DatabaseNotification
  */
 class NotificationResource extends JsonResource

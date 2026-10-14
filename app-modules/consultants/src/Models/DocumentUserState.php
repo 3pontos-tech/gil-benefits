@@ -14,8 +14,6 @@ use Illuminate\Support\Carbon;
 use TresPontosTech\Consultants\Database\Factories\DocumentUserStateFactory;
 
 /**
- * Quando a pessoa viu o material pela primeira vez e se o favoritou.
- *
  * @property string $id
  * @property string $document_id
  * @property string $user_id

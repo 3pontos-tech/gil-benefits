@@ -31,10 +31,8 @@ class NotificationController
     }
 
     /**
-     * Aviso de outra pessoa responde 404.
-     *
-     * O envelope `data` é montado aqui porque o Laravel não embrulha um resource que já tem
-     * uma chave `data` (o conteúdo do aviso), e o app espera `{ data: Notification }`.
+     * O envelope `data` é montado aqui porque o Laravel não embrulha um resource que já tem uma chave
+     * `data` (o conteúdo do aviso), e o app espera `{ data: Notification }`.
      */
     public function read(Request $request, string $notification, MarkEmployeeNotificationReadAction $markRead): JsonResponse
     {

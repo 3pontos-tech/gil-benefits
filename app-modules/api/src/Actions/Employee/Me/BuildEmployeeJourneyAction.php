@@ -33,9 +33,6 @@ final readonly class BuildEmployeeJourneyAction
         );
     }
 
-    /**
-     * Encontros concluídos no trimestre civil corrente contra a meta do config.
-     */
     private function quarter(User $user): QuarterProgress
     {
         $startsAt = now()->startOfQuarter();
@@ -94,9 +91,6 @@ final readonly class BuildEmployeeJourneyAction
         );
     }
 
-    /**
-     * Até um terço dos assuntos pede atenção; a partir de dois terços está bem coberto.
-     */
     private function topicsFocus(int $covered, int $total): FocusItem
     {
         $ratio = $total > 0 ? $covered / $total : 0;

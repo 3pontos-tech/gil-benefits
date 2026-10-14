@@ -10,18 +10,25 @@ por público (`V1/Employee`; `V1/Company` quando a integração da empresa migra
 
 ```
 app-modules/api
-├── config/api.php              validade do token, meta do trimestre, URLs temporárias, limites
-├── lang/pt_BR                  mensagens e nomes de campos da API
-├── routes/api-routes.php       todas as rotas, prefixo api/v1, nomes api.v1.*
-├── src/Actions/V1/Employee     consultas e montagem de respostas próprias do app
-├── src/DTOs                    dados que os resources formatam (perfil, jornada, créditos)
-├── src/Http/Controllers/V1/Employee
-├── src/Http/Middleware         ForceJsonAndLocale, EnsureAppAccess
-├── src/Http/Requests/V1/Employee
-├── src/Http/Resources/V1/Employee
-├── src/Support                 ApiDates (formato das datas), EmployeeMaterials
-└── tests/Feature               V1/* por área e Contract/* por resource
+├── config/api.php                      validade do token, meta do trimestre, URLs temporárias, limites
+├── lang/pt_BR                          mensagens e nomes de campos da API
+├── routes/api-routes.php               todas as rotas, prefixo api/v1, nomes api.v1.*
+├── src/Actions/Employee/<recurso>      acesso, consultas e montagem de respostas próprias do app
+├── src/DTOs/Employee/<recurso>         dados que os resources formatam (perfil, jornada, créditos, acesso)
+├── src/Enums/Employee/<recurso>
+├── src/Exceptions/Employee/<recurso>
+├── src/Http/Controllers/V1/Employee/<recurso>
+├── src/Http/Middleware                 ForceJsonAndLocale, EnsureAppAccess
+├── src/Http/Requests/V1/Employee/<recurso>
+├── src/Http/Resources/V1/Employee/<recurso>
+├── src/Providers/ApiServiceProvider    limites de requisição e o contrato de erros (exceção de domínio → 422)
+├── src/Support                         ApiDates (formato das datas)
+└── tests/Feature                       V1/Employee/<recurso>, Actions/Employee/<recurso> e Contract/* por resource
 ```
+
+Só a camada HTTP (controllers, requests e resources), que é o contrato, carrega a versão. Os recursos são os mesmos
+dos controllers: `Appointments`, `Auth`, `Credits`, `Materials`, `Me`, `Notifications`, `Tickets`. O nível `Employee`
+é o público; a API da empresa entra ao lado (`Company`) quando sair do módulo `tenant` (#293).
 
 Regras de negócio ficam nos módulos de domínio (`appointments`, `credits`, `support`, `user`, `consultants`) e são as
 mesmas que o painel usa. O controller valida, chama a action e formata a resposta; não decide regra.
@@ -120,12 +127,13 @@ Mudança incompatível em `/api/v1` (remover ou renomear campo, mudar tipo, endu
 
 1. Regra no módulo de domínio, como action com `handle()`; o painel deve poder usar a mesma.
 2. Request em `Http/Requests/V1/Employee`, com `attributes()` traduzidos em `lang/pt_BR/attributes.php`.
-3. Controller fino; exceção de domínio vira `ValidationException` no campo que o app mostra.
+3. Controller fino, sem `try/catch`: a exceção de domínio ganha uma linha em
+   `ApiServiceProvider::registerDomainRefusals()` (vira 422 no campo que o app mostra) e entra em `DOMAIN_REFUSALS`,
+   para não ser relatada como erro.
 4. Resource com datas via `ApiDates`.
 5. Rota em `routes/api-routes.php` dentro do grupo autenticado, com `whereUuid` nos ids.
-6. Testes em `V1/*` e no `Contract/*`.
+6. Testes em `V1/Employee/<recurso>` e no `Contract/*`.
 
 ## Dívidas conhecidas
 
-- A jornada é montada pelo `BuildUserJourneyAction` do `panel-app`, então este módulo depende dele (#292).
 - A API da empresa (`/api/v1/company/{tenant}/users`) ainda mora no módulo `tenant` (#293).

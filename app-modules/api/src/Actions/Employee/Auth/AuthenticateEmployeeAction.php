@@ -18,14 +18,11 @@ final readonly class AuthenticateEmployeeAction
     public function __construct(private ResolveAppAccessAction $resolveAppAccess) {}
 
     /**
-     * Troca e-mail e senha por um token do aparelho.
-     *
      * Quem entra é decidido pela ResolveAppAccessAction; o login fixa a empresa liberada como o
-     * EnsureAppAccess faz nas outras rotas, porque o perfil que ele devolve já é dessa empresa.
-     *
-     * Cada aparelho guarda um token só: entrar de novo com o mesmo `device_name` substitui
-     * o anterior. O token vale `api.token_ttl_days` e carrega a ability `employee`. O evento
-     * `Login` alimenta o `RecordLastLogin`, como no login do painel.
+     * EnsureAppAccess faz nas outras rotas, porque o perfil que ele devolve já é dessa empresa. Cada
+     * aparelho guarda um token só: entrar de novo com o mesmo `device_name` substitui o anterior. O
+     * token vale `api.token_ttl_days` e carrega a ability `employee`. O evento `Login` alimenta o
+     * `RecordLastLogin`, como no login do painel.
      *
      * @throws EmployeeLoginException
      */

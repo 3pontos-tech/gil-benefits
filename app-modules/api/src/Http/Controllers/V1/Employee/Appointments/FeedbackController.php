@@ -13,9 +13,6 @@ use TresPontosTech\Appointments\Actions\SubmitAppointmentFeedbackAction;
 
 class FeedbackController
 {
-    /**
-     * Encontro alheio é 404; consultoria não concluída ou já avaliada volta em `appointment`.
-     */
     public function __invoke(StoreFeedbackRequest $request, string $appointment, SubmitAppointmentFeedbackAction $submit): JsonResponse
     {
         /** @var User $user */

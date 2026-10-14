@@ -42,25 +42,16 @@ final readonly class BookableSlots
         return $this->availableSlots->handle($day);
     }
 
-    /**
-     * Primeiro dia com horários oferecidos: hoje + BOOKING_LEAD_DAYS, à meia-noite, no fuso da aplicação.
-     */
     public function firstBookableDay(): Carbon
     {
         return $this->inAppTimezone(now())->addDays(Appointment::BOOKING_LEAD_DAYS)->startOfDay();
     }
 
-    /**
-     * Último dia com horários oferecidos: hoje + BOOKING_HORIZON_DAYS, à meia-noite, no fuso da aplicação.
-     */
     public function lastBookableDay(): Carbon
     {
         return $this->inAppTimezone(now())->addDays(Appointment::BOOKING_HORIZON_DAYS)->startOfDay();
     }
 
-    /**
-     * Se o horário está na lista que o próprio produto oferece para aquele dia.
-     */
     public function contains(CarbonInterface $slotAt): bool
     {
         $slotAt = $this->inAppTimezone($slotAt);

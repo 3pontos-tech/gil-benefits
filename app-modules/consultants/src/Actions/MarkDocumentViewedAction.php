@@ -11,7 +11,7 @@ use TresPontosTech\Consultants\Models\DocumentUserState;
 final readonly class MarkDocumentViewedAction
 {
     /**
-     * Registra a primeira vez que a pessoa abriu o material; abrir de novo não muda a data.
+     * Abrir de novo não muda a data.
      */
     public function handle(Document $document, User $user): DocumentUserState
     {

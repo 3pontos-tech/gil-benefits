@@ -9,9 +9,6 @@ use App\Notifications\NotificationContent;
 use App\Notifications\NotificationKind;
 use App\Notifications\NotificationTone;
 
-/**
- * A compra de créditos foi paga e os créditos chegaram.
- */
 final class CreditsDeliveredNotification extends ContentNotification
 {
     public function __construct(private readonly int $quantity) {}

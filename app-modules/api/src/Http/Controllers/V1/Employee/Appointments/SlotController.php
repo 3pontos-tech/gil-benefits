@@ -11,8 +11,7 @@ use TresPontosTech\Api\Http\Requests\V1\Employee\Appointments\ListSlotsRequest;
 class SlotController
 {
     /**
-     * Horários livres do mês, com chaves ISO 8601 e offset. Vazio sai como objeto `{}`, que é o que o
-     * contrato promete.
+     * Vazio sai como objeto `{}`, que é o que o contrato promete.
      */
     public function __invoke(ListSlotsRequest $request, ListBookableSlotsAction $listSlots): JsonResponse
     {

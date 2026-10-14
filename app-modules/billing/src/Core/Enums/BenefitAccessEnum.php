@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\Billing\Core\Enums;
 
 /**
- * Se uma pessoa tem o benefício pago numa empresa, e por qual porta.
- *
  * @see ResolveBenefitAccess
  */
 enum BenefitAccessEnum: string

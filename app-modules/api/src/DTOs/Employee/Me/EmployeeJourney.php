@@ -6,9 +6,6 @@ namespace TresPontosTech\Api\DTOs\Employee\Me;
 
 use TresPontosTech\Appointments\DTO\UserJourney;
 
-/**
- * A jornada do painel mais o que só o app mostra: trimestre, histórico e foco.
- */
 final readonly class EmployeeJourney
 {
     /**

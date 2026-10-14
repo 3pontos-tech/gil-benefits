@@ -49,9 +49,6 @@ class TicketController
             ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    /**
-     * Já encerrado volta 422 em `status`; chamado de outra pessoa responde 404.
-     */
     public function update(UpdateTicketRequest $request, string $ticket, CloseEmployeeTicketAction $closeTicket): TicketResource
     {
         /** @var User $user */

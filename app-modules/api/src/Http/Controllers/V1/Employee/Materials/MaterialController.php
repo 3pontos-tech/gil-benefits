@@ -55,9 +55,6 @@ class MaterialController
             ->setStatusCode(HttpStatus::HTTP_CREATED);
     }
 
-    /**
-     * Só os próprios materiais podem ser removidos; os do consultor respondem 403 com o motivo.
-     */
     public function destroy(Request $request, string $document, RemoveUploadedMaterialAction $removeMaterial): Response
     {
         /** @var User $user */

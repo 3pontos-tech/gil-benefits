@@ -8,9 +8,6 @@ use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 use TresPontosTech\Credits\Models\UserCredit;
 
-/**
- * Cota do ciclo e créditos avulsos do colaborador na empresa empregadora.
- */
 final readonly class EmployeeCredits
 {
     /**

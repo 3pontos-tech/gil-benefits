@@ -7,8 +7,6 @@ namespace TresPontosTech\Api\DTOs\Employee\Auth;
 use App\Models\Users\User;
 
 /**
- * Resultado do login no app: quem entrou e o token do aparelho, em texto puro.
- *
  * O texto puro só existe neste momento; no banco fica apenas o hash.
  */
 final readonly class EmployeeSession

@@ -23,9 +23,6 @@ class MeController
         return new MeResource($this->buildProfile->handle($user));
     }
 
-    /**
-     * A única falha de domínio é telefone sem cadastro completo, que volta em `phone_number`.
-     */
     public function update(UpdateMeRequest $request, UpdateUserProfileAction $updateProfile): MeResource
     {
         /** @var User $user */

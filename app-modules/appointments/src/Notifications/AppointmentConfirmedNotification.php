@@ -10,9 +10,6 @@ use App\Notifications\NotificationKind;
 use App\Notifications\NotificationTone;
 use TresPontosTech\Appointments\Models\Appointment;
 
-/**
- * O encontro ganhou consultor e está confirmado.
- */
 final class AppointmentConfirmedNotification extends ContentNotification
 {
     public function __construct(private readonly Appointment $appointment) {}

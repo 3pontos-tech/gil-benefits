@@ -10,9 +10,6 @@ use App\Notifications\NotificationKind;
 use App\Notifications\NotificationTone;
 use TresPontosTech\Appointments\Models\Appointment;
 
-/**
- * O encontro foi cancelado. Cancelado em cima da hora, o texto avisa que o crédito foi consumido.
- */
 final class AppointmentCancelledNotification extends ContentNotification
 {
     public function __construct(

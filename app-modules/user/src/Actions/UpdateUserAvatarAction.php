@@ -10,8 +10,6 @@ use Illuminate\Http\UploadedFile;
 final readonly class UpdateUserAvatarAction
 {
     /**
-     * Troca a foto de perfil, ou remove quando `$avatar` é nulo.
-     *
      * A coleção `user_avatar` é singleFile: a nova foto substitui a anterior sozinha.
      */
     public function handle(User $user, ?UploadedFile $avatar): User
