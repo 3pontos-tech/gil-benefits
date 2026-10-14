@@ -6,6 +6,7 @@ namespace TresPontosTech\Api\Http\Requests\V1\Employee;
 
 use Illuminate\Foundation\Http\FormRequest;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Support\BookableSlots;
 
 /**
  * Mesma regra de antecedência por dia inteiro do agendamento (StoreAppointmentRequest).
@@ -23,7 +24,12 @@ class RescheduleAppointmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'appointment_at' => ['required', 'date', 'after_or_equal:' . now()->addDays(Appointment::BOOKING_LEAD_DAYS)->toDateString()],
+            'appointment_at' => [
+                'required',
+                'date',
+                'after_or_equal:' . now()->addDays(Appointment::BOOKING_LEAD_DAYS)->toDateString(),
+                'before_or_equal:' . resolve(BookableSlots::class)->lastBookableDay()->endOfDay()->toDateTimeString(),
+            ],
         ];
     }
 
@@ -34,6 +40,7 @@ class RescheduleAppointmentRequest extends FormRequest
     {
         return [
             'appointment_at.after_or_equal' => __('api::validation.appointment_lead', ['days' => Appointment::BOOKING_LEAD_DAYS]),
+            'appointment_at.before_or_equal' => __('api::validation.appointment_horizon', ['days' => Appointment::BOOKING_HORIZON_DAYS]),
         ];
     }
 

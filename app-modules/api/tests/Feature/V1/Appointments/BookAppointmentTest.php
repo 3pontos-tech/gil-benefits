@@ -126,9 +126,17 @@ it('refuses a slot beyond the 60-day window', function (): void {
 
     postJson(route('api.v1.appointments.store'), [...$this->payload, 'appointment_at' => '2026-12-07T09:00:00-03:00'])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['appointment_at']);
+        ->assertJsonValidationErrors(['appointment_at' => 'Escolha um horário em até 60 dias.']);
 
     expect(Appointment::query()->count())->toBe(0);
+});
+
+it('accepts a late slot on the last day of the window, sent in UTC', function (): void {
+    consultantAvailableOn(Date::parse('2026-12-06'));
+
+    postJson(route('api.v1.appointments.store'), [...$this->payload, 'appointment_at' => '2026-12-06T20:00:00Z'])
+        ->assertCreated()
+        ->assertJsonPath('data.appointment_at', '2026-12-06T17:00:00-03:00');
 });
 
 it('accepts the last day of the window', function (): void {

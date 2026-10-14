@@ -56,9 +56,10 @@ final readonly class AuthenticateEmployeeAction
     }
 
     /**
-     * Confere e-mail e senha num tempo mínimo fixo (`auth.timebox_duration`), como o login do
-     * Filament: e-mail inexistente não roda o hash e responderia mais rápido, entregando quais
-     * contas existem. Só o acerto devolve antes do tempo.
+     * Confere e-mail e senha num tempo mínimo fixo, o mesmo do login do Filament: e-mail
+     * inexistente não roda o hash e responderia mais rápido, entregando quais contas existem. Só o
+     * acerto devolve antes do tempo. São 200 ms; `auth.timebox_duration` não está definida no
+     * projeto e só muda isso se for criada.
      *
      * @throws EmployeeLoginException
      */

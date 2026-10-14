@@ -129,3 +129,13 @@ it('answers 404 for another employee appointment', function (): void {
 
     patchJson(route('api.v1.appointments.update', $other), ['appointment_at' => $this->newAt])->assertNotFound();
 });
+
+it('refuses a new time beyond the 60-day window with its own message', function (): void {
+    consultantAvailableOn(Date::parse('2026-12-07'));
+
+    patchJson(route('api.v1.appointments.update', $this->appointment), ['appointment_at' => '2026-12-07T09:00:00-03:00'])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['appointment_at' => 'Escolha um horário em até 60 dias.']);
+
+    expect($this->appointment->refresh()->appointment_at->toDateTimeString())->toBe('2026-10-10 14:00:00');
+});
