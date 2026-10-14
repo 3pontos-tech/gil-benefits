@@ -8,7 +8,6 @@ use App\Models\Users\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Api\Actions\V1\Employee\CloseEmployeeTicketAction;
 use TresPontosTech\Api\Actions\V1\Employee\ListEmployeeTicketsAction;
@@ -17,7 +16,6 @@ use TresPontosTech\Api\Http\Requests\V1\Employee\StoreTicketRequest;
 use TresPontosTech\Api\Http\Requests\V1\Employee\UpdateTicketRequest;
 use TresPontosTech\Api\Http\Resources\V1\Employee\TicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
-use TresPontosTech\Support\Exceptions\InvalidTransitionException;
 
 class TicketController
 {
@@ -59,10 +57,6 @@ class TicketController
         /** @var User $user */
         $user = $request->user();
 
-        try {
-            return new TicketResource($closeTicket->handle($user, $ticket));
-        } catch (InvalidTransitionException) {
-            throw ValidationException::withMessages(['status' => __('api::validation.ticket_already_closed')]);
-        }
+        return new TicketResource($closeTicket->handle($user, $ticket));
     }
 }

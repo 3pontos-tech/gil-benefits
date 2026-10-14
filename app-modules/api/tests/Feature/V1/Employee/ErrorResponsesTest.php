@@ -3,10 +3,16 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\Sanctum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
+use TresPontosTech\Support\Models\SupportTicket;
 
 use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\get;
@@ -92,3 +98,45 @@ function registeredWithoutPlan(): User
 {
     return defaultCompanyUser();
 }
+
+describe('domain refusals', function (): void {
+    beforeEach(function (): void {
+        $this->travelTo('2026-10-07 10:00:00');
+    });
+
+    it('answers a booking refused for two reasons in the format Laravel gives a ValidationException', function (): void {
+        $employee = actingAsApiEmployee();
+        appointmentFor($employee, AppointmentStatus::Pending, now()->addDays(3));
+        consultantAvailableOn(Date::parse('2026-10-09'));
+
+        $response = postJson(route('api.v1.appointments.store'), ['category_type' => 'personal_finance', 'appointment_at' => '2026-10-09T09:00:00-03:00'])
+            ->assertUnprocessable();
+
+        $reasons = $response->json('errors.credit');
+
+        expect($reasons)->toHaveCount(2)
+            ->and($response->json('message'))->toBe(ValidationException::withMessages(['credit' => $reasons])->getMessage());
+    });
+
+    it('does not report the refusals of the app as errors', function (): void {
+        Exceptions::fake();
+        $employee = actingAsApiEmployee();
+        appointmentFor($employee, AppointmentStatus::Pending, now()->addDays(3));
+
+        postJson(route('api.v1.appointments.store'), ['category_type' => 'personal_finance', 'appointment_at' => '2026-10-09T09:00:00-03:00'])
+            ->assertUnprocessable();
+        patchJson(route('api.v1.tickets.update', SupportTicket::factory()->create(['user_id' => $employee->id, 'status' => 'closed'])), ['status' => 'closed'])
+            ->assertUnprocessable();
+
+        Exceptions::assertNothingReported();
+    });
+
+    it('leaves the same exception alone outside the employee API', function (): void {
+        Exceptions::fake();
+        Route::get('_probe-refusal', fn () => throw new SlotUnavailableException);
+
+        getJson('/_probe-refusal')->assertServerError();
+
+        Exceptions::assertReported(SlotUnavailableException::class);
+    });
+});

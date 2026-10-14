@@ -18,7 +18,6 @@ use TresPontosTech\Api\Http\Resources\V1\Employee\MaterialResource;
 use TresPontosTech\Consultants\Actions\MarkDocumentViewedAction;
 use TresPontosTech\Consultants\Actions\RemoveUploadedMaterialAction;
 use TresPontosTech\Consultants\Actions\UploadMaterialAction;
-use TresPontosTech\Consultants\Exceptions\MaterialRemovalException;
 
 class MaterialController
 {
@@ -64,11 +63,7 @@ class MaterialController
         /** @var User $user */
         $user = $request->user();
 
-        try {
-            $removeMaterial->handle($this->findMaterial->handle($user, $document), $user);
-        } catch (MaterialRemovalException $materialRemovalException) {
-            abort(HttpStatus::HTTP_FORBIDDEN, $materialRemovalException->getMessage());
-        }
+        $removeMaterial->handle($this->findMaterial->handle($user, $document), $user);
 
         return response()->noContent();
     }

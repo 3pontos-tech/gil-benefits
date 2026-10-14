@@ -6,12 +6,10 @@ namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments;
 
 use App\Models\Users\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Api\Http\Requests\V1\Employee\StoreFeedbackRequest;
 use TresPontosTech\Api\Http\Resources\V1\Employee\AppointmentResource;
 use TresPontosTech\Appointments\Actions\SubmitAppointmentFeedbackAction;
-use TresPontosTech\Appointments\Exceptions\AppointmentFeedbackException;
 
 class FeedbackController
 {
@@ -25,16 +23,12 @@ class FeedbackController
 
         $owned = $user->appointments()->with(AppointmentResource::EAGER_LOADS)->findOrFail($appointment);
 
-        try {
-            $submit->handle(
-                $owned,
-                $user,
-                $request->integer('rating'),
-                $request->filled('comment') ? $request->string('comment')->toString() : null,
-            );
-        } catch (AppointmentFeedbackException $appointmentFeedbackException) {
-            throw ValidationException::withMessages(['appointment' => $appointmentFeedbackException->getMessage()]);
-        }
+        $submit->handle(
+            $owned,
+            $user,
+            $request->integer('rating'),
+            $request->filled('comment') ? $request->string('comment')->toString() : null,
+        );
 
         return new AppointmentResource($owned->load(AppointmentResource::EAGER_LOADS))
             ->response($request)

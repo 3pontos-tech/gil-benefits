@@ -8,7 +8,6 @@ use App\Models\Users\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 use TresPontosTech\Api\Actions\V1\Employee\ListEmployeeAppointmentsAction;
@@ -20,9 +19,6 @@ use TresPontosTech\Api\Http\Resources\V1\Employee\AppointmentResource;
 use TresPontosTech\Appointments\Actions\CancelAppointmentForUserAction;
 use TresPontosTech\Appointments\Actions\RescheduleAppointmentForUserAction;
 use TresPontosTech\Appointments\Actions\ScheduleAppointmentForUserAction;
-use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
-use TresPontosTech\Appointments\Exceptions\BookingBlockedException;
-use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
 
 class AppointmentController
@@ -48,18 +44,12 @@ class AppointmentController
         /** @var User $user */
         $user = $request->user();
 
-        try {
-            $appointment = $schedule->handle(
-                $user,
-                $request->string('category_type')->toString(),
-                $request->string('appointment_at')->toString(),
-                $request->filled('notes') ? $request->string('notes')->toString() : null,
-            );
-        } catch (BookingBlockedException $bookingBlockedException) {
-            throw ValidationException::withMessages(['credit' => $bookingBlockedException->reasons]);
-        } catch (SlotUnavailableException $slotUnavailableException) {
-            throw ValidationException::withMessages(['appointment_at' => $slotUnavailableException->getMessage()]);
-        }
+        $appointment = $schedule->handle(
+            $user,
+            $request->string('category_type')->toString(),
+            $request->string('appointment_at')->toString(),
+            $request->filled('notes') ? $request->string('notes')->toString() : null,
+        );
 
         return new AppointmentResource($appointment->load(AppointmentResource::EAGER_LOADS))
             ->response($request)
@@ -77,17 +67,11 @@ class AppointmentController
         /** @var User $user */
         $user = $request->user();
 
-        try {
-            $outcome = $reschedule->handle(
-                $this->ownedAppointment($request, $appointment),
-                $user,
-                $request->string('appointment_at')->toString(),
-            );
-        } catch (AppointmentStateException $appointmentStateException) {
-            throw ValidationException::withMessages(['appointment' => $appointmentStateException->getMessage()]);
-        } catch (SlotUnavailableException $slotUnavailableException) {
-            throw ValidationException::withMessages(['appointment_at' => $slotUnavailableException->getMessage()]);
-        }
+        $outcome = $reschedule->handle(
+            $this->ownedAppointment($request, $appointment),
+            $user,
+            $request->string('appointment_at')->toString(),
+        );
 
         return new AppointmentResource($outcome->appointment->load(AppointmentResource::EAGER_LOADS));
     }
@@ -101,11 +85,7 @@ class AppointmentController
         /** @var User $user */
         $user = $request->user();
 
-        try {
-            $cancelled = $cancel->handle($this->ownedAppointment($request, $appointment), $user);
-        } catch (AppointmentStateException $appointmentStateException) {
-            throw ValidationException::withMessages(['appointment' => $appointmentStateException->getMessage()]);
-        }
+        $cancelled = $cancel->handle($this->ownedAppointment($request, $appointment), $user);
 
         return new AppointmentResource($cancelled->load(AppointmentResource::EAGER_LOADS));
     }
