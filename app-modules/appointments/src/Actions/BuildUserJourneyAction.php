@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\PanelApp\Actions;
+namespace TresPontosTech\Appointments\Actions;
 
 use App\Models\Users\User;
 use Carbon\CarbonInterface;
@@ -11,7 +11,7 @@ use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
-use TresPontosTech\PanelApp\DTOs\UserJourney;
+use TresPontosTech\Appointments\DTO\UserJourney;
 use TresPontosTech\User\Enums\LifeMoment;
 
 class BuildUserJourneyAction

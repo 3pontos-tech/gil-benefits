@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\PanelApp\DTOs;
+namespace TresPontosTech\Appointments\DTO;
 
 use Carbon\CarbonInterface;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;

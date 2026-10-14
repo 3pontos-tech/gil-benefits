@@ -10,9 +10,9 @@ use TresPontosTech\Api\DTOs\FocusItem;
 use TresPontosTech\Api\DTOs\HealthPoint;
 use TresPontosTech\Api\DTOs\QuarterProgress;
 use TresPontosTech\Api\Enums\FocusTone;
+use TresPontosTech\Appointments\Actions\BuildUserJourneyAction;
+use TresPontosTech\Appointments\DTO\UserJourney;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
-use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
-use TresPontosTech\PanelApp\DTOs\UserJourney;
 use TresPontosTech\User\Enums\LifeMoment;
 
 final readonly class BuildEmployeeJourneyAction

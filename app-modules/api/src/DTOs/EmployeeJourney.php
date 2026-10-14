@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Api\DTOs;
 
-use TresPontosTech\PanelApp\DTOs\UserJourney;
+use TresPontosTech\Appointments\DTO\UserJourney;
 
 /**
  * A jornada do painel mais o que só o app mostra: trimestre, histórico e foco.

@@ -8,7 +8,7 @@ use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentFeedback;
-use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
+use TresPontosTech\Appointments\Actions\BuildUserJourneyAction;
 use TresPontosTech\User\Enums\LifeMoment;
 use TresPontosTech\User\Models\UserAnamnese;
 
