@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Api\Exceptions;
 
 use RuntimeException;
-use TresPontosTech\Api\DTOs\EmployeeCompanyAccess;
+use TresPontosTech\Api\DTOs\AppAccess;
 
 class EmployeeLoginException extends RuntimeException
 {
@@ -17,16 +17,12 @@ class EmployeeLoginException extends RuntimeException
         return new self(__('api::auth.failed'));
     }
 
-    public static function noAccess(): self
-    {
-        return new self(__('api::auth.no_access'));
-    }
-
     /**
-     * Senha certa, mas sem o benefício pago em nenhuma empresa: o motivo diz o que fazer.
+     * Senha certa, mas sem acesso ao app: o motivo diz o que fazer (plano da empresa inativo, plano
+     * próprio a ativar, ou conta que não é do app).
      */
-    public static function withoutBenefit(EmployeeCompanyAccess $access): self
+    public static function denied(AppAccess $access): self
     {
-        return new self($access->denialMessage());
+        return new self($access->message());
     }
 }

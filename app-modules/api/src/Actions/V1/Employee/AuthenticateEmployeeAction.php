@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Api\Actions\V1\Employee;
 
 use App\Models\Users\User;
+use Filament\Facades\Filament;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Timebox;
@@ -14,13 +15,13 @@ use TresPontosTech\User\Support\EmailAddress;
 
 final readonly class AuthenticateEmployeeAction
 {
-    public function __construct(private ResolveEmployeeCompanyAction $resolveCompany) {}
+    public function __construct(private ResolveAppAccessAction $resolveAppAccess) {}
 
     /**
      * Troca e-mail e senha por um token do aparelho.
      *
-     * Entra quem é público do app (User::canUseApp()) e tem o benefício pago em alguma empresa,
-     * pela mesma régua do painel; a empresa escolhida vale para o perfil que o login devolve.
+     * Quem entra é decidido pela ResolveAppAccessAction; o login fixa a empresa liberada como o
+     * EnsureAppAccess faz nas outras rotas, porque o perfil que ele devolve já é dessa empresa.
      *
      * Cada aparelho guarda um token só: entrar de novo com o mesmo `device_name` substitui
      * o anterior. O token vale `api.token_ttl_days` e carrega a ability `employee`. O evento
@@ -32,15 +33,13 @@ final readonly class AuthenticateEmployeeAction
     {
         $user = $this->verifyCredentials($email, $password);
 
-        if (! $user->canUseApp()) {
-            throw EmployeeLoginException::noAccess();
-        }
-
-        $access = $this->resolveCompany->handle($user);
+        $access = $this->resolveAppAccess->handle($user);
 
         if (! $access->isGranted()) {
-            throw EmployeeLoginException::withoutBenefit($access);
+            throw EmployeeLoginException::denied($access);
         }
+
+        Filament::setTenant($access->company, isQuiet: true);
 
         $user->tokens()->where('name', $deviceName)->delete();
 

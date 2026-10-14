@@ -17,7 +17,7 @@ final readonly class BuildEmployeeProfileAction
     /**
      * Junta o que o `MeResource` precisa.
      *
-     * A empresa é a do app (ResolveEmployeeCompanyAction), lida pelo mesmo `companyIdFor()` que
+     * A empresa é a do app (ResolveAppAccessAction, fixada pelo EnsureAppAccess), lida pelo mesmo `companyIdFor()` que
      * cota e créditos usam: a empregadora com o benefício pago, ou a padrão para assinante
      * individual e voucher. "Membro desde" é a entrada nessa empresa; sem vínculo, a data do
      * cadastro.
