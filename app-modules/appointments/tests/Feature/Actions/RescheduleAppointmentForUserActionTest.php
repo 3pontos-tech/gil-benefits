@@ -3,9 +3,12 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Exceptions;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
+use TresPontosTech\Appointments\Actions\CancelAppointmentForUserAction;
 use TresPontosTech\Appointments\Actions\RescheduleAppointmentForUserAction;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
@@ -175,4 +178,63 @@ it('refuses to move the appointment beyond the 60-day window', function (): void
         ->toThrow(SlotUnavailableException::class);
 
     expect($this->appointment->refresh()->appointment_at->toDateTimeString())->toBe('2026-10-10 14:00:00');
+});
+
+/**
+ * Duplo toque: os dois pedidos carregaram o encontro antes de qualquer um mover. Com a trava, o
+ * segundo relê o horário já movido e não repete histórico, Zap nem Calendar.
+ */
+it('moves only once when two requests loaded the appointment before either moved it', function (): void {
+    consultantAvailableOn(Date::parse('2026-10-12'));
+    $first = Appointment::query()->findOrFail($this->appointment->getKey());
+    $second = Appointment::query()->findOrFail($this->appointment->getKey());
+
+    resolve(RescheduleAppointmentForUserAction::class)->handle($first, $this->user, '2026-10-12 10:00:00');
+    resolve(RescheduleAppointmentForUserAction::class)->handle($second, $this->user, '2026-10-12 10:00:00');
+
+    $rescheduled = AppointmentHistory::query()
+        ->where('appointment_id', $this->appointment->getKey())
+        ->where('action_type', AppointmentHistoryActionType::ReScheduled)
+        ->count();
+
+    expect($rescheduled)->toBe(1)
+        ->and($this->appointment->refresh()->appointment_at->toDateTimeString())->toBe('2026-10-12 10:00:00');
+});
+
+it('refuses to move an appointment that was cancelled after it was loaded', function (): void {
+    consultantAvailableOn(Date::parse('2026-10-12'));
+    $stale = Appointment::query()->findOrFail($this->appointment->getKey());
+
+    resolve(CancelAppointmentForUserAction::class)->handle($this->appointment, $this->user);
+
+    expect($stale->status)->toBe(AppointmentStatus::Pending)
+        ->and(fn () => resolve(RescheduleAppointmentForUserAction::class)->handle($stale, $this->user, '2026-10-12 10:00:00'))
+        ->toThrow(AppointmentStateException::class);
+
+    expect($this->appointment->refresh()->status)->toBe(AppointmentStatus::Cancelled)
+        ->and($this->appointment->appointment_at->toDateTimeString())->toBe('2026-10-10 14:00:00');
+});
+
+it('locks the appointment row before checking it', function (): void {
+    consultantAvailableOn(Date::parse('2026-10-12'));
+    $statements = [];
+    DB::listen(function (QueryExecuted $query) use (&$statements): void {
+        $statements[] = $query->sql;
+    });
+
+    resolve(RescheduleAppointmentForUserAction::class)->handle($this->appointment, $this->user, '2026-10-12 10:00:00');
+
+    $lock = collect($statements)->search(fn (string $sql): bool => str_starts_with($sql, 'select') && str_contains($sql, '"appointments"') && str_contains($sql, 'limit 1'));
+    $update = collect($statements)->search(fn (string $sql): bool => str_starts_with($sql, 'update "appointments"'));
+
+    expect($lock)->toBeInt()->and($update)->toBeInt()->and($lock)->toBeLessThan($update);
+});
+
+it('keeps the instance it received in step with the database, which the panel reads', function (): void {
+    consultantAvailableOn(Date::parse('2026-10-12'));
+
+    $outcome = resolve(RescheduleAppointmentForUserAction::class)->handle($this->appointment, $this->user, '2026-10-12 10:00:00');
+
+    expect($this->appointment->appointment_at->toDateTimeString())->toBe('2026-10-12 10:00:00')
+        ->and($outcome->appointment->is($this->appointment))->toBeTrue();
 });
