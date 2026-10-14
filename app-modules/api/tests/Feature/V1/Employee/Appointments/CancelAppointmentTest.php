@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
@@ -55,7 +56,7 @@ it('cancels late, spends the credit and answers cancelled_late', function (): vo
 
 it('frees the monthly quota on an on-time cancellation', function (): void {
     $appointment = appointmentFor($this->employee, AppointmentStatus::Pending, now()->addHours(5));
-    Sanctum::actingAs($this->employee->fresh(), ['employee']);
+    Sanctum::actingAs($this->employee->fresh(), [TokenAbility::Employee->value]);
 
     expect($this->employee->fresh()->monthly_appointments_left)->toBe(0);
 

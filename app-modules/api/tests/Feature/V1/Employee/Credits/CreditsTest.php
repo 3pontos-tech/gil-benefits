@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -32,7 +33,7 @@ it('reports the monthly quota of the company plan and when it renews', function 
 it('lowers what is left once an appointment uses the quota', function (): void {
     $employee = actingAsApiEmployee();
     appointmentFor($employee, AppointmentStatus::Pending, now()->addDays(3));
-    Sanctum::actingAs($employee->fresh(), ['employee']);
+    Sanctum::actingAs($employee->fresh(), [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.credits.show'))
         ->assertJsonPath('data.monthly_quota.limit', 1)

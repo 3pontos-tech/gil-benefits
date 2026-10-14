@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Contracts\Auth\Factory;
+use TresPontosTech\Api\Enums\TokenAbility;
 
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
@@ -10,8 +11,8 @@ use function Pest\Laravel\postJson;
 it('revokes only the token of the device that signed out', function (): void {
     $user = standaloneSubscriber();
 
-    $phone = $user->createToken('Android', ['employee'])->plainTextToken;
-    $tablet = $user->createToken('iPad', ['employee'])->plainTextToken;
+    $phone = $user->createToken('Android', [TokenAbility::Employee->value])->plainTextToken;
+    $tablet = $user->createToken('iPad', [TokenAbility::Employee->value])->plainTextToken;
 
     postJson(route('api.v1.auth.logout'), headers: ['Authorization' => 'Bearer ' . $phone])
         ->assertNoContent();

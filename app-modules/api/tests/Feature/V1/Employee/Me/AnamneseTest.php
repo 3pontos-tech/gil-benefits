@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\User\Models\UserAnamnese;
 
 use function Pest\Laravel\getJson;
@@ -52,21 +53,21 @@ it('reports the anamnese as completed only with the five answers', function (): 
         'money_relationship' => 'b',
         'plans_monthly_expenses' => 'c',
     ])->assertOk();
-    Sanctum::actingAs($this->employee->fresh(), ['employee']);
+    Sanctum::actingAs($this->employee->fresh(), [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))
         ->assertJsonPath('data.anamnese_completed', false)
         ->assertJsonPath('data.life_moment', 'saver');
 
     putJson(route('api.v1.me.anamnese.update'), ['tried_financial_strategies' => 'd'])->assertOk();
-    Sanctum::actingAs($this->employee->fresh(), ['employee']);
+    Sanctum::actingAs($this->employee->fresh(), [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))->assertJsonPath('data.anamnese_completed', true);
 });
 
 it('uses the life moment in the journey as soon as it is answered', function (): void {
     putJson(route('api.v1.me.anamnese.update'), ['life_moment' => 'endebted'])->assertOk();
-    Sanctum::actingAs($this->employee->fresh(), ['employee']);
+    Sanctum::actingAs($this->employee->fresh(), [TokenAbility::Employee->value]);
     app()->forgetScopedInstances();
 
     getJson(route('api.v1.me.journey'))

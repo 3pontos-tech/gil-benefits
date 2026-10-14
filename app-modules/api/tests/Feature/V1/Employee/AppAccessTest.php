@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -143,7 +144,7 @@ it('signs in only who has the benefit, with the reason otherwise', function (Clo
 
 it('checks the benefit on every request, with the same reason', function (Closure $person): void {
     [$user, $expectedCompany, $message] = $person();
-    Sanctum::actingAs($user, ['employee']);
+    Sanctum::actingAs($user, [TokenAbility::Employee->value]);
 
     $response = getJson(route('api.v1.me.show'));
 
@@ -171,7 +172,7 @@ it('runs a deactivated employee on their own plan, not on the former employer qu
     joinCompany($daniel, employerWithContract(perEmployee: 5), active: false);
     subscribeStandalone($daniel, 3);
     consultantAvailableOn(Date::parse('2026-10-09'));
-    Sanctum::actingAs($daniel, ['employee']);
+    Sanctum::actingAs($daniel, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.credits.show'))->assertOk()->assertJsonPath('data.monthly_quota.limit', 3);
 
@@ -188,7 +189,7 @@ it('runs an employee of a company without a plan on their own plan', function ()
     $employer = Company::factory()->create();
     joinCompany($eva, $employer);
     subscribeStandalone($eva, 3);
-    Sanctum::actingAs($eva, ['employee']);
+    Sanctum::actingAs($eva, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.credits.show'))->assertOk()->assertJsonPath('data.monthly_quota.limit', 3);
 
@@ -203,7 +204,7 @@ it('prefers the employer over the default company when both grant the benefit', 
     $employer = employerWithContract(perEmployee: 5);
     joinCompany($ana, $employer);
     subscribeStandalone($ana, 3);
-    Sanctum::actingAs($ana, ['employee']);
+    Sanctum::actingAs($ana, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $employer->id);
     getJson(route('api.v1.credits.show'))->assertOk()->assertJsonPath('data.monthly_quota.limit', 5);
@@ -215,7 +216,7 @@ it('picks the oldest active membership among employers, the same on every reques
     $second = employerWithContract();
     joinCompany($person, $first, since: $firstIsOlder ? '2025-01-01 00:00:00' : '2026-06-01 00:00:00');
     joinCompany($person, $second, since: $firstIsOlder ? '2026-06-01 00:00:00' : '2025-01-01 00:00:00');
-    Sanctum::actingAs($person, ['employee']);
+    Sanctum::actingAs($person, [TokenAbility::Employee->value]);
 
     $expected = $firstIsOlder ? $first->id : $second->id;
 
@@ -231,7 +232,7 @@ it('skips an older employer without the benefit for a newer one that has it', fu
     $current = employerWithContract();
     joinCompany($person, $lapsed, since: '2024-01-01 00:00:00');
     joinCompany($person, $current, since: '2026-01-01 00:00:00');
-    Sanctum::actingAs($person, ['employee']);
+    Sanctum::actingAs($person, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $current->id);
 });
@@ -240,7 +241,7 @@ it('cuts the session off when the company contract ends after the login', functi
     $ana = registeredPerson();
     $employer = employerWithContract();
     joinCompany($ana, $employer);
-    $token = $ana->createToken('Android', ['employee'])->plainTextToken;
+    $token = $ana->createToken('Android', [TokenAbility::Employee->value])->plainTextToken;
 
     getJson(route('api.v1.me.show'), ['Authorization' => 'Bearer ' . $token])->assertOk();
 
@@ -261,7 +262,7 @@ it('cuts the session off when the employer deactivates the person', function ():
     $ana = registeredPerson();
     $employer = employerWithContract();
     joinCompany($ana, $employer);
-    $token = $ana->createToken('Android', ['employee'])->plainTextToken;
+    $token = $ana->createToken('Android', [TokenAbility::Employee->value])->plainTextToken;
 
     getJson(route('api.v1.me.show'), ['Authorization' => 'Bearer ' . $token])->assertOk();
 

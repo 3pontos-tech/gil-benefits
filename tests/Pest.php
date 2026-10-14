@@ -19,6 +19,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Appointments\Actions\GetAvailableSlotsAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -264,7 +265,7 @@ function actingAsApiEmployee(): User
 {
     $user = actingAsEmployee();
 
-    Sanctum::actingAs($user, ['employee']);
+    Sanctum::actingAs($user, [TokenAbility::Employee->value]);
     filament()->setCurrentPanel(null);
     filament()->setTenant(null);
 
@@ -325,7 +326,7 @@ function actingAsApiSubscriber(int $monthlyLimit = 1): User
 {
     $user = standaloneSubscriber(monthlyLimit: $monthlyLimit);
 
-    Sanctum::actingAs($user, ['employee']);
+    Sanctum::actingAs($user, [TokenAbility::Employee->value]);
     filament()->setCurrentPanel(null);
     filament()->setTenant(null);
 

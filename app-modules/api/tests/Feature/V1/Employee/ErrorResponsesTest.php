@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -77,7 +78,7 @@ it('answers a token without the employee ability with the no-access message', fu
 
 it('keeps the reason of a 403 raised by the app rules', function (): void {
     $user = registeredWithoutPlan();
-    Sanctum::actingAs($user, ['employee']);
+    Sanctum::actingAs($user, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))
         ->assertForbidden()

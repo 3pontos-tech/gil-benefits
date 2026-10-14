@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Api\Http\Middleware\ForceJsonAndLocale;
 use TresPontosTech\Company\Actions\AttachToDefaultCompany;
 use TresPontosTech\Permissions\Roles;
@@ -53,7 +54,7 @@ it('lets a company employee in', function (): void {
 it('lets an individual subscriber linked only to the default company in', function (): void {
     $subscriber = standaloneSubscriber();
 
-    Sanctum::actingAs($subscriber, ['employee']);
+    Sanctum::actingAs($subscriber, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))
         ->assertOk()
@@ -61,7 +62,7 @@ it('lets an individual subscriber linked only to the default company in', functi
 });
 
 it('keeps out accounts that are not the app audience', function (User $user): void {
-    Sanctum::actingAs($user, ['employee']);
+    Sanctum::actingAs($user, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))
         ->assertForbidden()
@@ -91,7 +92,7 @@ it('throttles each employee separately', function (): void {
     getJson(route('api.v1.me.show'))->assertTooManyRequests();
 
     $otherEmployee = standaloneSubscriber();
-    Sanctum::actingAs($otherEmployee, ['employee']);
+    Sanctum::actingAs($otherEmployee, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))->assertOk();
 });
@@ -161,7 +162,7 @@ it('answers 403 on every employee route to a token without the employee ability'
 });
 
 it('answers 403 on every employee route to someone without the benefit', function (): void {
-    Sanctum::actingAs(defaultCompanyUser(), ['employee']);
+    Sanctum::actingAs(defaultCompanyUser(), [TokenAbility::Employee->value]);
 
     foreach (protectedEmployeeRoutes() as [$name, $method, $uri]) {
         $this->json($method, $uri)

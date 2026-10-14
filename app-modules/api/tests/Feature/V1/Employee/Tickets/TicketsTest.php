@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
@@ -99,7 +100,7 @@ it('opens a pending ticket with a protocol and routes it to the support team', f
 
 it('files the individual subscriber ticket under the default company', function (): void {
     $subscriber = standaloneSubscriber();
-    Sanctum::actingAs($subscriber, ['employee']);
+    Sanctum::actingAs($subscriber, [TokenAbility::Employee->value]);
 
     $response = postJson(route('api.v1.tickets.store'), [
         'category' => 'general_question',

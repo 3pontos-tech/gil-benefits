@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Support\Facades\Route;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\AppointmentController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\FeedbackController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\SlotController;
@@ -31,7 +32,7 @@ Route::prefix('api/v1')
             ->middleware('throttle:api-login')
             ->name('auth.login');
 
-        Route::middleware(['auth:sanctum', 'ability:employee', EnsureAppAccess::class])->group(function (): void {
+        Route::middleware(['auth:sanctum', 'ability:' . TokenAbility::Employee->value, EnsureAppAccess::class])->group(function (): void {
             Route::post('auth/logout', LogoutController::class)->name('auth.logout');
 
             Route::get('me', [MeController::class, 'show'])->name('me.show');

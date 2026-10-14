@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\Detail;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\User\Models\UserAnamnese;
@@ -50,7 +51,7 @@ it('describes the employer company, department and membership date', function ()
 
 it('uses the default company for an individual subscriber', function (): void {
     $subscriber = standaloneSubscriber();
-    Sanctum::actingAs($subscriber, ['employee']);
+    Sanctum::actingAs($subscriber, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))
         ->assertOk()
@@ -65,7 +66,7 @@ it('reports the anamnese state', function (): void {
         ->assertJsonPath('data.life_moment', null);
 
     $anamnese = UserAnamnese::factory()->for($employee)->create();
-    Sanctum::actingAs($employee->fresh(), ['employee']);
+    Sanctum::actingAs($employee->fresh(), [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))
         ->assertJsonPath('data.anamnese_completed', true)

@@ -10,6 +10,7 @@ use Filament\Auth\Pages\PasswordReset\ResetPassword;
 use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\PanelAdmin\Filament\Pages\EditUserProfile as AdminEditUserProfile;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\EditUser;
 use TresPontosTech\PanelApp\Filament\Pages\EditUserProfile;
@@ -27,7 +28,7 @@ use function Pest\Livewire\livewire;
 function appTokensOf(User $user, int $count = 2): array
 {
     return collect(range(1, $count))
-        ->map(fn (int $device): string => $user->createToken('device-' . $device, ['employee'])->plainTextToken)
+        ->map(fn (int $device): string => $user->createToken('device-' . $device, [TokenAbility::Employee->value])->plainTextToken)
         ->all();
 }
 
@@ -169,7 +170,7 @@ it('ignores a token to keep that belongs to someone else', function (): void {
     $user = standaloneSubscriber();
     $someoneElse = standaloneSubscriber();
     appTokensOf($user, 2);
-    $foreignToken = $someoneElse->createToken('Android', ['employee'])->accessToken;
+    $foreignToken = $someoneElse->createToken('Android', [TokenAbility::Employee->value])->accessToken;
 
     resolve(RevokeAppTokensAction::class)->handle($user, keep: $foreignToken);
 

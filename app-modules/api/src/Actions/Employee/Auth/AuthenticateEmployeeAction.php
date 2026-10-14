@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Timebox;
 use TresPontosTech\Api\DTOs\Employee\Auth\EmployeeSession;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Api\Exceptions\Employee\Auth\EmployeeLoginException;
 use TresPontosTech\User\Support\EmailAddress;
 
@@ -42,7 +43,7 @@ final readonly class AuthenticateEmployeeAction
 
         $token = $user->createToken(
             $deviceName,
-            ['employee'],
+            [TokenAbility::Employee->value],
             now()->addDays((int) config('api.token_ttl_days')),
         );
 

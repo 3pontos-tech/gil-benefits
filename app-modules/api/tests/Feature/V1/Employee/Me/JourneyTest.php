@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -67,7 +68,7 @@ it('flags the life moment by how much it weighs', function (?LifeMoment $stage, 
 
     if ($stage instanceof LifeMoment) {
         UserAnamnese::factory()->for($employee)->create(['life_moment' => $stage]);
-        Sanctum::actingAs($employee->fresh(), ['employee']);
+        Sanctum::actingAs($employee->fresh(), [TokenAbility::Employee->value]);
     }
 
     getJson(route('api.v1.me.journey'))

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Support\Facades\Hash;
+use TresPontosTech\Api\Enums\TokenAbility;
 
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\putJson;
 
 it('changes the password and signs the other devices out', function (): void {
     $user = standaloneSubscriber();
-    $phone = $user->createToken('Android', ['employee'])->plainTextToken;
-    $tablet = $user->createToken('iPad', ['employee'])->plainTextToken;
+    $phone = $user->createToken('Android', [TokenAbility::Employee->value])->plainTextToken;
+    $tablet = $user->createToken('iPad', [TokenAbility::Employee->value])->plainTextToken;
 
     putJson(route('api.v1.me.password'), [
         'current_password' => 'password',

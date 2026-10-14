@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Date;
 use Laravel\Sanctum\Sanctum;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
@@ -49,7 +50,7 @@ it('normalises a UTC appointment_at to the application timezone', function (): v
 it('consumes a standalone credit once the quota is spent', function (): void {
     appointmentFor($this->employee, AppointmentStatus::Completed, now()->subDays(3));
     $credit = standaloneCreditFor($this->employee);
-    Sanctum::actingAs($this->employee->fresh(), ['employee']);
+    Sanctum::actingAs($this->employee->fresh(), [TokenAbility::Employee->value]);
 
     $response = postJson(route('api.v1.appointments.store'), $this->payload)->assertCreated();
 
@@ -61,7 +62,7 @@ it('consumes a standalone credit once the quota is spent', function (): void {
 
 it('refuses with credit when there is neither quota nor credit', function (): void {
     appointmentFor($this->employee, AppointmentStatus::Completed, now()->subDays(3));
-    Sanctum::actingAs($this->employee->fresh(), ['employee']);
+    Sanctum::actingAs($this->employee->fresh(), [TokenAbility::Employee->value]);
 
     postJson(route('api.v1.appointments.store'), $this->payload)
         ->assertUnprocessable()
@@ -72,7 +73,7 @@ it('refuses with credit when there is neither quota nor credit', function (): vo
 
 it('refuses with credit while another appointment is open', function (): void {
     appointmentFor($this->employee, AppointmentStatus::Pending, now()->addWeek());
-    Sanctum::actingAs($this->employee->fresh(), ['employee']);
+    Sanctum::actingAs($this->employee->fresh(), [TokenAbility::Employee->value]);
 
     postJson(route('api.v1.appointments.store'), $this->payload)
         ->assertUnprocessable()
@@ -81,7 +82,7 @@ it('refuses with credit while another appointment is open', function (): void {
 
 it('lists one credit error per reason when both apply', function (): void {
     appointmentFor($this->employee, AppointmentStatus::Pending, now()->addWeek());
-    Sanctum::actingAs($this->employee->fresh(), ['employee']);
+    Sanctum::actingAs($this->employee->fresh(), [TokenAbility::Employee->value]);
 
     postJson(route('api.v1.appointments.store'), $this->payload)
         ->assertUnprocessable()
