@@ -1,11 +1,6 @@
 <x-layouts.site title="Saúde financeira corporativa" description="A Flamma é uma solução de saúde financeira que ajuda empresas a cuidar do bem-estar dos colaboradores, com orientação especializada para organizar as finanças e planejar o futuro.">
 <div class="fm-page overflow-x-clip">
 
-    {{-- ══════════════════════════════════════════════════════════════
-         1. HERO — 8298:497
-         Full-bleed com gradiente rose→orange. Três retângulos brancos
-         a 32% compõem o fundo (Rectangle 1242/1243/1244 no Figma).
-         ══════════════════════════════════════════════════════════════ --}}
     <section id="home"
              class="relative left-1/2 -mx-[50vw] w-screen overflow-hidden scroll-mt-28"
              style="background: linear-gradient(106deg, #FD0342 15.42%, #FF803C 84.58%)">
