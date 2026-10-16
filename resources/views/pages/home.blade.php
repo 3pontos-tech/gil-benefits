@@ -388,7 +388,7 @@
         <div class="flex flex-col-reverse items-center gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[16px] lg:flex-row lg:p-8">
             <div class="fm-reveal-left fm-zoom aspect-[609/630] w-full overflow-hidden lg:w-[609px] lg:shrink-0">
                 <img src="{{ asset('img/home/cta.webp') }}"
-                     alt="Time reunido conversando sobre a implementação"
+                     alt="Colaboradora sorrindo enquanto usa o celular no escritório"
                      class="size-full object-cover" loading="lazy" decoding="async">
             </div>
 
