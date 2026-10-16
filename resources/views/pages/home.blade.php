@@ -199,24 +199,17 @@
         </div>
     </section>
 
-    {{-- ══════════════════════════════════════════════════════════════
-         5. O PLANO ACOMPANHA O CRESCIMENTO — 8298:551
-         A foto do frame saiu: no lugar entra o simulador de preço, o mesmo
-         da página Para Empresas. Os grafismos (Vector 9 + estrela + seta)
-         desceram para a seção do CTA, logo abaixo.
-         ══════════════════════════════════════════════════════════════ --}}
-    <section id="pricing" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[73px] lg:px-[62px]">
+    <section id="pricing" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-20 lg:px-[62px]">
         <header class="flex flex-col gap-8 text-center">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
                 O plano acompanha o <span class="text-brand-primary">crescimento</span> do seu time
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                Faça a simulação, descubra o melhor plano para sua empresa e, se ficar com
-                alguma dúvida, entre em contato.
+                Simule o valor para o seu time abaixo. Ficou com alguma dúvida? É só falar com a gente.
             </p>
         </header>
 
-        <div class="fm-reveal mt-10 lg:mt-20">
+        <div class="fm-reveal mt-10 lg:mt-8">
             <livewire:pricing-calculator />
         </div>
     </section>
