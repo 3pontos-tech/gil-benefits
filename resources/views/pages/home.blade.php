@@ -450,44 +450,28 @@
         </div>
     </section>
 
-    {{-- ══════════════════════════════════════════════════════════════
-         7. PERGUNTAS FREQUENTES — 8298:556
-         Accordion com Alpine, no mesmo padrão que a home já usava.
-         ══════════════════════════════════════════════════════════════ --}}
-    <section id="faq" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[74px] lg:px-[62px]">
-        <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-[825px_1fr]">
-            <div class="flex flex-col justify-center gap-8 px-0 py-4 lg:gap-16 lg:px-8">
-                <div class="flex flex-col gap-6 lg:gap-[27px]">
-                    <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                        Perguntas frequentes
-                    </h2>
-                    <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                        Separamos as respostas para as perguntas que mais recebemos.
-                    </p>
-                </div>
-                <x-button
-                    class="fm-reveal-left fm-btn w-full! sm:w-fit!"
-                    data-fm-delay="2"
-                    variant="flat"
-                    size="xl"
-                    href="https://wa.me/5511976205711?text=Flamma"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Fale com a gente
-                </x-button>
+    <section id="faq" class="relative mx-auto mt-24 max-w-[941px] scroll-mt-28 px-5 sm:px-8 lg:mt-20 lg:px-0">
+        <div class="flex flex-col gap-8">
+            <div class="flex flex-col gap-6 lg:gap-[27px] lg:px-8 lg:py-4">
+                <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                    Perguntas frequentes
+                </h2>
+                <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                    Entenda como a Flamma pode fazer parte da estratégia de saúde e bem-estar da sua empresa.
+                </p>
             </div>
 
-            <div class="flex flex-col justify-center gap-2">
+            <div class="flex flex-col justify-center gap-4">
                 @foreach ([
-                    ['Como funciona o processo de atendimento?', 'Cada colaborador agenda uma sessão individual de até 60 minutos com um consultor especializado, no horário que preferir. O atendimento é contínuo e acompanha a evolução de cada pessoa.'],
-                    ['Posso alterar minhas informações cadastrais?', 'Sim. As informações cadastrais podem ser atualizadas a qualquer momento pelo próprio colaborador, direto na plataforma.'],
-                    ['Quais são as formas de pagamento aceitas?', 'O plano empresarial é faturado mensalmente conforme o número de colaboradores. Fale com a gente para conhecer as condições disponíveis.'],
-                    ['Existe um prazo de cancelamento?', 'O cancelamento pode ser solicitado a qualquer momento, respeitando o ciclo de faturamento vigente.'],
-                    ['Como posso entrar em contato com o suporte?', 'Pelo canal de atendimento da plataforma ou pelo e-mail de contato no rodapé. Respondemos em até um dia útil.'],
+                    ['O que é a Flamma?', 'A Flamma é uma solução de saúde financeira para empresas. Ela oferece aos colaboradores orientação financeira especializada, em sessões individuais, para organizar as finanças, tomar decisões com mais segurança e planejar o futuro.'],
+                    ['Por que a saúde financeira é importante para as empresas?', 'Preocupações com dinheiro afetam o sono, a saúde, a concentração e a energia das pessoas, e esses impactos chegam ao trabalho. Cuidar da saúde financeira amplia a estratégia de bem-estar da empresa e ajuda a prevenir que dificuldades se tornem problemas maiores.'],
+                    ['A Flamma é apenas para pessoas endividadas?', 'Não. A Flamma apoia diferentes momentos financeiros: organizar o orçamento, lidar com dívidas, construir uma reserva, realizar objetivos e começar a investir.'],
+                    ['Como a Flamma funciona para empresas?', 'A empresa contrata o benefício com valor por colaborador, e cada pessoa do time passa a ter acesso à orientação financeira, agendando suas sessões no horário que preferir.'],
+                    ['Como funciona a privacidade das informações dos colaboradores?', 'A empresa contrata o benefício, mas quem decide o que compartilhar em cada sessão é o colaborador, e essa informação fica só entre ele e o consultor.'],
+                    ['Como implementar a Flamma na minha empresa?', 'Fale com o nosso time. Vamos entender a estrutura e as necessidades da sua empresa e apresentar as possibilidades de implementação.'],
                 ] as $i => $faq)
                     <div x-data="{ open: false }"
-                         class="fm-reveal-right fm-faq group rounded border border-outline-light bg-elevation-01dp transition-colors duration-300 hover:border-brand-primary"
+                         class="fm-reveal fm-faq group rounded border border-outline-light bg-elevation-01dp transition-colors duration-300 hover:border-brand-primary"
                          :class="{ 'border-brand-primary': open }"
                          data-fm-delay="{{ min($i + 1, 3) }}">
                         <h3 class="flex">
@@ -517,6 +501,17 @@
                     </div>
                 @endforeach
             </div>
+
+            <x-button
+                class="fm-reveal fm-btn w-full! sm:w-fit!"
+                variant="flat"
+                size="xl"
+                href="https://wa.me/5511976205711?text=Flamma"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Fale com a gente
+            </x-button>
         </div>
     </section>
 
