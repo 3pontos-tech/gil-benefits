@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Illuminate\Foundation\Http\Middleware\TrimStrings;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Support\Timebox;
 use Illuminate\Testing\TestResponse;
 
@@ -77,6 +79,22 @@ it('still lets other accounts behind the same IP in after one account is locked'
 
     attemptLogin($locked->email)->assertTooManyRequests();
     attemptLogin($colleague->email, 'password')->assertOk();
+});
+
+/**
+ * O TrimStrings global já tira os espaços; desligado aqui, o teste prova que o limiter usa a
+ * forma canônica do login (EmailAddress) por conta própria.
+ */
+it('counts the attempts by the canonical email, the same one the login looks up', function (): void {
+    config()->set('auth.timebox_duration', 0);
+    TrimStrings::skipWhen(fn (): bool => true);
+    $user = standaloneSubscriber();
+
+    foreach (range(1, 5) as $attempt) {
+        attemptLogin($user->email)->assertUnprocessable();
+    }
+
+    attemptLogin('  ' . Str::upper($user->email) . '  ')->assertTooManyRequests();
 });
 
 it('takes the same minimum time for an unknown email and a wrong password', function (string $case): void {

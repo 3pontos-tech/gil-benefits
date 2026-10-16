@@ -12,7 +12,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\Exceptions\MissingAbilityException;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +25,7 @@ use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Consultants\Exceptions\MaterialRemovalException;
 use TresPontosTech\Support\Exceptions\InvalidTransitionException;
 use TresPontosTech\User\Exceptions\ProfileUpdateException;
+use TresPontosTech\User\Support\EmailAddress;
 
 class ApiServiceProvider extends ServiceProvider
 {
@@ -74,7 +74,7 @@ class ApiServiceProvider extends ServiceProvider
 
             return [
                 Limit::perMinute((int) config('api.rate_limits.login_per_minute'))
-                    ->by('email:' . (is_string($email) ? Str::lower($email) : '') . '|' . $request->ip()),
+                    ->by('email:' . (is_string($email) ? EmailAddress::normalize($email) : '') . '|' . $request->ip()),
                 Limit::perMinute((int) config('api.rate_limits.login_per_minute_per_ip'))
                     ->by('ip:' . $request->ip()),
             ];
