@@ -214,6 +214,59 @@
         </div>
     </section>
 
+    <section id="momentos" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[383px] lg:px-[62px]">
+        <svg class="pointer-events-none absolute -top-[498px] left-1/2 -z-10 -ml-[50vw] hidden h-[570px] w-screen lg:block"
+             viewBox="0 0 1920 570" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M1926 246.5H-6V0H69.5V92H151H334.616V166.999H393.603H1046.54V200.926H1489.79H1576.83H1670.43H1766.18V130.5H1846.5V50.5H1926V246.5Z"
+                  fill="url(#momentosBandTop)"/>
+            <path transform="translate(0 241)"
+                  d="M1932 0H-12V133.448H238.594V94H417.3V133.448H1047.08V76.5H1493.08H1580.66H1674.85H1771.18L1770.17 174H1843.41V329H1932V0Z"
+                  fill="url(#momentosBandBottom)"/>
+            <defs>
+                <linearGradient id="momentosBandTop" x1="-6" y1="148.5" x2="89.04" y2="566.34" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FF803C"/>
+                    <stop offset="1" stop-color="#FD0342"/>
+                </linearGradient>
+                <linearGradient id="momentosBandBottom" x1="-12" y1="164.5" x2="232.68" y2="-480.32" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FF803C"/>
+                    <stop offset="1" stop-color="#FD0342"/>
+                </linearGradient>
+            </defs>
+        </svg>
+        <x-graphism type="asterisk" class="absolute left-1/2 top-[722px] -z-10 -ml-[calc(50vw+134px)] hidden size-[270px] lg:block" />
+
+        <header class="flex flex-col gap-8 text-center">
+            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                <span class="text-brand-primary">Saúde financeira</span> não começa nem termina nas dívidas.
+            </h2>
+            <div class="fm-reveal flex flex-col text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                <p>Cada pessoa vive um momento financeiro diferente. Algumas precisam reorganizar o orçamento ou lidar com dívidas. Outras querem construir uma reserva, realizar uma conquista ou começar a investir.</p>
+                <p>A Flamma entende que saúde financeira não é apenas resolver problemas. É também criar condições para tomar decisões melhores e construir o futuro.</p>
+            </div>
+        </header>
+
+        <div class="mt-10 grid grid-cols-1 gap-8 lg:mt-[70px] lg:grid-cols-2">
+            @foreach ([
+                ['icon' => 'chart-pie',         'title' => 'Organização financeira',  'text' => 'Mais clareza sobre o orçamento, os gastos e as prioridades.'],
+                ['icon' => 'shield-check',      'title' => 'Reserva e proteção',      'text' => 'Planejamento para lidar com imprevistos e desenvolver maior segurança financeira.'],
+                ['icon' => 'arrows-clockwise',  'title' => 'Dívidas e reorganização', 'text' => 'Orientação para compreender compromissos financeiros e construir caminhos possíveis.'],
+                ['icon' => 'target',            'title' => 'Sonhos e objetivos',      'text' => 'Organização para transformar planos pessoais em metas financeiras.'],
+                ['icon' => 'trend-up',          'title' => 'Investimentos e futuro',  'text' => 'Orientação para tomar decisões mais conscientes sobre patrimônio e planejamento de longo prazo.'],
+            ] as $i => $card)
+                <article @class([
+                             'fm-card fm-reveal flex flex-col gap-4 border border-outline-light bg-elevation-01dp p-8',
+                             'lg:col-span-2 lg:mx-auto lg:w-[832px]' => $loop->last,
+                         ])
+                         data-fm-delay="{{ $i % 2 + 1 }}">
+                    <img src="{{ asset('svg/home/icon-' . $card['icon'] . '.svg') }}" alt=""
+                         class="fm-card-icon size-11 shrink-0" loading="lazy" decoding="async">
+                    <h3 class="text-2xl font-bold text-high lg:text-[32px]">{{ $card['title'] }}</h3>
+                    <p class="text-base font-medium leading-[1.5] text-medium">{{ $card['text'] }}</p>
+                </article>
+            @endforeach
+        </div>
+    </section>
+
     {{-- ══════════════════════════════════════════════════════════════
          6. CTA — DÊ AO SEU TIME O CUIDADO QUE ELE MERECE — 8298:406
          O lg:mt-[330px] abre espaço para a faixa esquerda do Vector 9 (222px
