@@ -210,7 +210,7 @@ it('prefers the employer over the default company when both grant the benefit', 
     getJson(route('api.v1.credits.show'))->assertOk()->assertJsonPath('data.monthly_quota.limit', 5);
 });
 
-it('picks the oldest active membership among employers, the same on every request', function (bool $firstIsOlder): void {
+it('picks the newest active membership among employers, the same on every request', function (bool $firstIsOlder): void {
     $person = registeredPerson();
     $first = employerWithContract();
     $second = employerWithContract();
@@ -218,20 +218,20 @@ it('picks the oldest active membership among employers, the same on every reques
     joinCompany($person, $second, since: $firstIsOlder ? '2026-06-01 00:00:00' : '2025-01-01 00:00:00');
     Sanctum::actingAs($person, [TokenAbility::Employee->value]);
 
-    $expected = $firstIsOlder ? $first->id : $second->id;
+    $expected = $firstIsOlder ? $second->id : $first->id;
 
     foreach (range(1, 3) as $attempt) {
         getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $expected);
     }
 })->with(['first is older' => [true], 'second is older' => [false]]);
 
-it('skips an older employer without the benefit for a newer one that has it', function (): void {
+it('skips a newer employer without the benefit for an older one that has it', function (): void {
     $person = registeredPerson();
     $lapsed = Company::factory()->create();
     CompanyPlan::factory()->expired()->for($lapsed)->create();
     $current = employerWithContract();
-    joinCompany($person, $lapsed, since: '2024-01-01 00:00:00');
-    joinCompany($person, $current, since: '2026-01-01 00:00:00');
+    joinCompany($person, $lapsed, since: '2026-01-01 00:00:00');
+    joinCompany($person, $current, since: '2024-01-01 00:00:00');
     Sanctum::actingAs($person, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $current->id);

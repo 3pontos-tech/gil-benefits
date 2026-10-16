@@ -195,14 +195,15 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
      * left; users who have nothing else fall back to the default company itself.
      *
      * Only active memberships count — a company that deactivated the person is no longer
-     * their employer — and the oldest one wins when there are several, so the answer is
-     * the same on every call.
+     * their employer — and the newest one wins when there are several: two active employers
+     * come from a job change where the former company forgot to deactivate the person, and
+     * the newest is where they work now.
      */
     public function employerCompanyId(): ?string
     {
         $memberships = fn (): BelongsToMany => $this->companies()
             ->wherePivot('active', true)
-            ->oldest('company_employees.created_at')
+            ->latest('company_employees.created_at')
             ->orderBy('companies.id');
 
         return $memberships()->where('slug', '!=', Company::DEFAULT_SLUG)->value('companies.id')

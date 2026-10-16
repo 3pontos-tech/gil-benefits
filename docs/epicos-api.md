@@ -545,7 +545,7 @@ se necessário, um `GetAvailableSlotsForMonthAction` que leia o Zap uma vez); UR
 
 | Ponto | Decisão |
 | --- | --- |
-| Quem usa o app | A mesma régua do painel: plano contratual da empresa, assinatura própria ou voucher (`ResolveBenefitAccess`, extraída do `RedirectUserIfNotSubscribed`). A empresa da requisição é a primeira com vínculo ativo em que a pessoa tem o benefício, a empregadora antes da padrão e o vínculo mais antigo primeiro. Sem nenhuma, `422` no login e `403` nas demais rotas, com o motivo. |
+| Quem usa o app | A mesma régua do painel: plano contratual da empresa, assinatura própria ou voucher (`ResolveBenefitAccess`, extraída do `RedirectUserIfNotSubscribed`). A empresa da requisição é a primeira com vínculo ativo em que a pessoa tem o benefício, a empregadora antes da padrão e o vínculo mais novo primeiro. Sem nenhuma, `422` no login e `403` nas demais rotas, com o motivo. |
 | Empresa da pessoa fora do app | `employerCompanyId()` só conta vínculos ativos, em ordem fixa (jobs, e-mails e admin). |
 | Sessões | Trocar a senha por qualquer caminho desconecta os aparelhos do app; na troca pelo app, o aparelho que pediu continua. |
 | Login | Teto por e-mail + IP (5/min) e por IP (20/min); conferência de senha com `Timebox`. |
@@ -567,4 +567,4 @@ se necessário, um `GetAvailableSlotsForMonthAction` que leia o Zap uma vez); UR
 | Jornada | Saiu do `panel-app` para o `appointments` (#292). |
 | Pastas do módulo | Versão só na camada HTTP; `Employee/<recurso>` em actions, DTOs, enums e exceções. |
 | Docblocks | Registram o porquê; prosa que narra o código sai (`.ai/guidelines/workflow/docblocks.blade.php`). |
-| `employerCompanyId()` | Só vínculos ativos, o mais antigo primeiro: muda o admin agendando para alguém e a cota lida por jobs. |
+| `employerCompanyId()` | Só vínculos ativos, o mais novo primeiro (duas empregadoras ativas vêm de uma troca de emprego em que a anterior esqueceu de desativar a pessoa): muda o admin agendando para alguém e a cota lida por jobs. |

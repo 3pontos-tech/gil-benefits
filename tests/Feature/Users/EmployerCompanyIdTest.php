@@ -45,13 +45,17 @@ it('answers the active employer when another one deactivated the person', functi
     expect($this->user->employerCompanyId())->toBe($current->id);
 });
 
-it('answers the oldest active employer, whatever the creation order', function (bool $firstIsOlder): void {
+/**
+ * Duas empregadoras ativas vêm de uma troca de emprego em que a anterior esqueceu de desativar
+ * a pessoa: a mais nova é onde ela trabalha.
+ */
+it('answers the newest active employer, whatever the creation order', function (bool $firstIsOlder): void {
     $first = Company::factory()->create();
     $second = Company::factory()->create();
     employerMembership($this->user, $first, since: $firstIsOlder ? '2025-01-01 00:00:00' : '2026-06-01 00:00:00');
     employerMembership($this->user, $second, since: $firstIsOlder ? '2026-06-01 00:00:00' : '2025-01-01 00:00:00');
 
-    expect($this->user->employerCompanyId())->toBe($firstIsOlder ? $first->id : $second->id);
+    expect($this->user->employerCompanyId())->toBe($firstIsOlder ? $second->id : $first->id);
 })->with(['first is older' => [true], 'second is older' => [false]]);
 
 it('answers nothing when no membership is active', function (): void {
