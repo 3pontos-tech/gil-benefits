@@ -1,13 +1,4 @@
-<x-layouts.site title="Clube de Benefícios" description="O benefício que cuida do bem-estar financeiro do seu time: consultoria financeira individual para cada colaborador.">
-{{--
-    Home institucional — Figma node 8298:404 ("Página institucional")
-    Ordem e copy conforme o Figma. As classes fm-* são animadas por
-    flamma-motion.css / flamma-motion.js.
-
-    Assets esperados em public/img/home/ e public/svg/home/ — veja o
-    bloco de curl no HANDOFF-home.md.
---}}
-
+<x-layouts.site title="Saúde financeira corporativa" description="A Flamma é uma solução de saúde financeira que ajuda empresas a cuidar do bem-estar dos colaboradores, com orientação especializada para organizar as finanças e planejar o futuro.">
 <div class="fm-page overflow-x-clip">
 
     {{-- ══════════════════════════════════════════════════════════════
@@ -29,22 +20,21 @@
         <div class="relative mx-auto flex max-w-[1800px] flex-col gap-10 px-5 py-16 sm:px-8 lg:h-[822px] lg:flex-row lg:items-center lg:gap-[42px] lg:px-[62px] lg:py-20">
             <div class="flex flex-col gap-6 lg:w-[891px] lg:gap-8">
                 <h1 class="fm-reveal fm-in text-[32px] font-bold leading-[1.5] text-light lg:text-5xl">
-                    O benefício que cuida do bem-estar financeiro do seu time.
+                    Saúde financeira também é saúde corporativa.
                 </h1>
                 <p class="fm-reveal fm-in text-base font-medium leading-[1.5] text-light lg:text-xl lg:font-normal" data-fm-delay="1">
-                    Levamos equilíbrio ao bolso (e à vida) de quem faz sua empresa acontecer,
-                    com planejamento financeiro, acompanhamento individual e sigilo absoluto.
+                    A Flamma é uma solução de saúde financeira que ajuda empresas a cuidar do bem-estar
+                    dos colaboradores, oferecendo orientação especializada para organizar as finanças,
+                    tomar decisões com mais segurança e planejar o futuro.
                 </p>
                 <x-button
                     class="fm-reveal fm-in fm-btn w-full! sm:w-fit!"
                     data-fm-delay="2"
                     variant="light"
                     size="xl"
-                    href="https://wa.me/5511976205711?text=Flamma"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href="#expediente"
                 >
-                    Fazer cotação gratuita
+                    Conheça a Flamma
                 </x-button>
             </div>
 
