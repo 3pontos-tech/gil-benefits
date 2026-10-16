@@ -389,6 +389,37 @@
         </div>
     </section>
 
+    <section id="implementacao" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-12 lg:px-[62px]">
+        <div class="flex flex-col-reverse items-center gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[16px] lg:flex-row lg:p-8">
+            <div class="fm-reveal-left fm-zoom aspect-[609/630] w-full overflow-hidden lg:w-[609px] lg:shrink-0">
+                <img src="{{ asset('img/home/cta.webp') }}"
+                     alt="Time reunido conversando sobre a implementação"
+                     class="size-full object-cover" loading="lazy" decoding="async">
+            </div>
+
+            <div class="flex flex-col gap-8 lg:flex-1">
+                <h2 class="fm-reveal-right text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                    Uma solução que se <span class="text-brand-primary">adapta à realidade</span> da sua empresa.
+                </h2>
+                <div class="fm-reveal-right flex flex-col text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                    <p>Cada organização possui uma estrutura, uma cultura e diferentes necessidades de cuidado com seus colaboradores.</p>
+                    <p>Converse com nosso time para conhecer as possibilidades de implementação da Flamma e entender como incorporar a saúde financeira à sua estratégia de saúde e bem-estar.</p>
+                </div>
+                <x-button
+                    class="fm-reveal-right fm-btn w-full! sm:w-fit!"
+                    data-fm-delay="2"
+                    variant="flat"
+                    size="xl"
+                    href="https://wa.me/5511976205711?text=Flamma"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Converse com nosso time
+                </x-button>
+            </div>
+        </div>
+    </section>
+
     {{-- ══════════════════════════════════════════════════════════════
          6. CTA — DÊ AO SEU TIME O CUIDADO QUE ELE MERECE — 8298:406
          O lg:mt-[330px] abre espaço para a faixa esquerda do Vector 9 (222px
