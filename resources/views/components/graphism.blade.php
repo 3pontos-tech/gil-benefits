@@ -62,19 +62,6 @@
             ],
         ],
 
-        // Home — asterisco sobre a massa escura do "plano" (Group 31834), cortado
-        // à direita: o traço horizontal segue até 540 num viewBox de 488.
-        'home-asterisk' => [
-            'viewBox' => '0 0 488 550',
-            'stroke' => '61.0935',
-            'paths' => [
-                'M270.248 0V550',
-                'M540.671 274.9H0',
-                'M461.412 80.4873L79.0996 469.396',
-                'M461.548 469.41L79.2363 80.501',
-            ],
-        ],
-
         // Colaborador — seta ↘ ao lado do hero (Group 31818).
         'collaborator-arrow' => [
             'viewBox' => '0 0 324 337',

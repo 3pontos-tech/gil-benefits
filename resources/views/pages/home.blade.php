@@ -420,68 +420,33 @@
         </div>
     </section>
 
-    {{-- ══════════════════════════════════════════════════════════════
-         6. CTA — DÊ AO SEU TIME O CUIDADO QUE ELE MERECE — 8298:406
-         O lg:mt-[330px] abre espaço para a faixa esquerda do Vector 9 (222px
-         de altura no palco) passar entre o simulador e o headline sem escurecer
-         o fundo do texto.
-         ══════════════════════════════════════════════════════════════ --}}
-    <section id="contratar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[330px] lg:px-[62px]">
-        {{--
-            Vector 9 (8298:516) — massa escura de 1920×1254, agora ancorada nesta seção:
-            o topo fica 650px acima dela, de modo que a faixa esquerda do desenho
-            (y 393–615 do palco) cai no vão entre o simulador e o headline, a coluna da
-            direita sobe atrás do card do simulador e a base termina junto da foto.
-            A estrela (Group 31834) mora sobre ela: left 74,58% · top 28,07% ·
-            28,16% × 43,86% do palco.
-        --}}
-        {{-- Altura fixa em px (não aspect-ratio): o vão acima e a posição da faixa são
-             medidas fixas do layout, então o palco não pode escalar com a viewport —
-             o preserveAspectRatio="none" estica os degraus só na horizontal. --}}
-        <div class="pointer-events-none absolute -top-[650px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block"
-             aria-hidden="true">
-            <div class="relative h-[1254px] w-full">
-                <svg class="absolute inset-0 size-full" viewBox="0 0 1920 1254" fill="none"
-                     preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M980 615H0V393H1486.5V380H1637.5V1L1920 0V1253.77L1798 1254V862L1487 857.5V664H980V615Z"
-                          fill="#39393A"/>
-                </svg>
+    <section id="contratar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-12 lg:px-[62px]">
+        <x-graphism type="asterisk" class="absolute -top-[45px] left-1/2 -z-10 -ml-[calc(50vw+150px)] hidden size-[330px] lg:block" />
+        <x-graphism type="home-arrow" data-fm-static class="absolute left-1/2 top-[242px] -z-10 ml-[calc(50vw-279px)] hidden w-[295px] lg:block" />
 
-                <x-graphism type="home-asterisk"
-                            data-fm-static
-                            class="absolute left-[74.58%] top-[28.07%] h-[43.86%] w-[28.16%]" />
-            </div>
-        </div>
-
-        {{-- Grafismo: seta ↖ encostada na borda esquerda, sobre o topo da faixa escura --}}
-        <x-graphism type="arrow" data-fm-static class="absolute -top-[330px] left-1/2 -z-10 -ml-[50vw] hidden w-[270px] lg:block" />
-        <div class="flex flex-col items-center justify-between gap-10 lg:flex-row lg:gap-16">
-            <div class="flex flex-col gap-8 lg:w-[822px]">
-                <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                    Dê ao seu time o <span class="text-brand-primary">cuidado</span> financeiro que ele merece
-                </h2>
-                <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                    Mais que um benefício, uma mudança real na relação com o dinheiro,
-                    com reflexo direto nos resultados da empresa.
-                </p>
-                <x-button
-                    class="fm-reveal-left fm-btn w-full! sm:w-fit!"
-                    data-fm-delay="2"
-                    variant="flat"
-                    size="xl"
-                    href="https://wa.me/5511976205711?text=Flamma"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Cotação gratuita
-                </x-button>
-            </div>
-
-            <div class="fm-reveal-right fm-zoom aspect-[677/596] w-full overflow-hidden lg:w-[677px] lg:shrink-0">
-                <img src="{{ asset('img/home/cta.webp') }}"
-                     alt="Time comemorando resultados financeiros"
+        <div class="flex flex-col items-center gap-8 rounded border border-outline-light bg-white/16 p-6 text-center backdrop-blur-[8px] lg:p-8">
+            <div class="fm-reveal-scale fm-zoom aspect-[1434/576] w-full overflow-hidden lg:w-[1434px] lg:max-w-full">
+                <img src="{{ asset('img/home/plan.webp') }}"
+                     alt="Equipe reunida em um ambiente de trabalho"
                      class="size-full object-cover" loading="lazy" decoding="async">
             </div>
+            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                Amplie o cuidado com <span class="text-brand-primary">quem faz</span> sua empresa acontecer.
+            </h2>
+            <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                A saúde financeira faz parte do bem-estar das pessoas. Com a Flamma, sua empresa pode incorporar essa dimensão à estratégia de cuidado e oferecer mais apoio para que os colaboradores lidem com o presente e planejem o futuro.
+            </p>
+            <x-button
+                class="fm-reveal fm-btn w-full! sm:w-fit!"
+                data-fm-delay="2"
+                variant="flat"
+                size="xl"
+                href="https://wa.me/5511976205711?text=Flamma"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Conheça a Flamma
+            </x-button>
         </div>
     </section>
 
