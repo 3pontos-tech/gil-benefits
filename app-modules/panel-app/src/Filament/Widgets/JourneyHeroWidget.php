@@ -7,7 +7,7 @@ namespace TresPontosTech\PanelApp\Filament\Widgets;
 use App\Models\Users\User;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\On;
-use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
+use TresPontosTech\Appointments\Actions\BuildUserJourneyAction;
 use TresPontosTech\PanelApp\Filament\Pages\AnamneseWizardPage;
 
 class JourneyHeroWidget extends Widget

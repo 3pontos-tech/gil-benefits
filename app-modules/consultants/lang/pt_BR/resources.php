@@ -45,4 +45,10 @@ return [
             'sunday' => 'Domingo',
         ],
     ],
+
+    'materials' => [
+        'exceptions' => [
+            'not_uploaded_by_you' => 'Só é possível remover os materiais que você enviou.',
+        ],
+    ],
 ];

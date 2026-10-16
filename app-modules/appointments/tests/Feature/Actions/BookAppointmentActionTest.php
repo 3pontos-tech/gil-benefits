@@ -133,3 +133,19 @@ it('still creates the appointment when the admin notification fails to queue', f
     ]);
     Exceptions::assertReported(RuntimeException::class);
 });
+
+it('returns the created appointment', function (): void {
+    $user = User::factory()->create();
+
+    $dto = new BookAppointmentDTO(
+        userId: $user->getKey(),
+        categoryType: AppointmentCategoryEnum::PersonalFinance,
+        appointmentAt: Date::now()->addDays(3)->setTime(10, 0),
+    );
+
+    $appointment = resolve(BookAppointmentAction::class)->handle($dto);
+
+    expect($appointment)->toBeInstanceOf(Appointment::class)
+        ->and($appointment->exists)->toBeTrue()
+        ->and($appointment->status)->toBe(AppointmentStatus::Pending);
+});

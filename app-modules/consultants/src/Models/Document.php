@@ -75,9 +75,23 @@ class Document extends Model implements HasMedia
         return $this->hasMany(DocumentShare::class);
     }
 
+    /**
+     * @return HasMany<DocumentUserState, $this>
+     */
+    public function states(): HasMany
+    {
+        return $this->hasMany(DocumentUserState::class);
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('documents');
+    }
+
+    public function isUploadedBy(User $user): bool
+    {
+        return $this->documentable_type === $user->getMorphClass()
+            && $this->documentable_id === $user->getKey();
     }
 
     public function hasLink(): bool
