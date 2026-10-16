@@ -267,6 +267,58 @@
         </div>
     </section>
 
+    <section id="diferenciais" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[242px] lg:px-[62px]">
+        <svg class="pointer-events-none absolute -top-[162px] left-1/2 -z-10 -ml-[50vw] hidden h-[895px] w-screen lg:block"
+             viewBox="0 0 1920 895" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M579.544 0H-7V895H284.819V825H782.74V760.5H942.614V190.5H1142.94V124.5H1495.43V36H1919.5V0H579.544Z"
+                  fill="#39393A"/>
+            <path transform="translate(1 0)"
+                  d="M199.415 796H80.4813V873H0V0H1321.93L1319 68H1013.62V132H901.838V325H494.513V726.77H199.415V796Z"
+                  fill="url(#diferenciaisBand)"/>
+            <defs>
+                <linearGradient id="diferenciaisBand" x1="0" y1="928.56" x2="1708.05" y2="-22.38" gradientUnits="userSpaceOnUse">
+                    <stop offset="0.62" stop-color="#E2410A"/>
+                    <stop offset="1" stop-color="#FD0342"/>
+                </linearGradient>
+            </defs>
+        </svg>
+
+        <div class="relative flex flex-col items-center gap-8 lg:flex-row">
+            <div class="absolute -left-[47px] top-[358px] hidden h-[176px] w-[527px] bg-white/32 lg:block" aria-hidden="true"></div>
+            <div class="absolute left-[286px] top-0 hidden h-[176px] w-[527px] bg-white/32 lg:block" aria-hidden="true"></div>
+
+            <div class="relative flex flex-col gap-8 lg:w-[790px] lg:shrink-0">
+                <h2 class="fm-reveal-left bg-elevation-surface px-8 py-4 text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                    Uma solução de saúde financeira para <span class="text-brand-primary">pessoas reais.</span>
+                </h2>
+                <div class="fm-reveal-left flex flex-col bg-elevation-surface px-8 py-4 text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                    <p>Não existe uma única realidade financeira dentro de uma empresa. Cada colaborador possui desafios, prioridades e objetivos diferentes.</p>
+                    <p>A Flamma oferece orientação financeira especializada para ajudar pessoas a compreender melhor sua situação, organizar decisões e desenvolver uma relação mais saudável com o dinheiro.</p>
+                    <p>Tudo isso com uma abordagem que considera a realidade individual, respeita a privacidade e valoriza o cuidado humano.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-1 flex-col gap-4 lg:px-8 lg:py-4">
+                <h3 class="fm-reveal-right text-center text-[32px] font-bold leading-[1.5] text-high lg:text-[44px]">Diferenciais</h3>
+                <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
+                    @foreach ([
+                        ['Orientação especializada', 'Apoio para compreender desafios e tomar decisões financeiras mais conscientes.'],
+                        ['Olhar individualizado', 'Cada realidade financeira exige prioridades e caminhos diferentes.'],
+                        ['Cuidado sem julgamentos', 'Uma abordagem que acolhe diferentes situações, sem culpabilizar o colaborador por suas dificuldades.'],
+                        ['Foco na evolução', 'Saúde financeira é uma construção que envolve organização, prevenção e planejamento ao longo da vida.'],
+                    ] as $i => $item)
+                        <article class="fm-card fm-reveal-right flex flex-col gap-3 rounded border border-outline-light bg-elevation-surface px-8 py-4"
+                                 data-fm-delay="{{ $i % 2 + 1 }}">
+                            <x-graphism type="asterisk" class="fm-card-icon m-0.5 size-10" />
+                            <h4 class="text-xl font-bold leading-[1.5] text-high">{{ $item[0] }}</h4>
+                            <p class="text-base font-medium leading-[1.5] text-medium">{{ $item[1] }}</p>
+                        </article>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- ══════════════════════════════════════════════════════════════
          6. CTA — DÊ AO SEU TIME O CUIDADO QUE ELE MERECE — 8298:406
          O lg:mt-[330px] abre espaço para a faixa esquerda do Vector 9 (222px
