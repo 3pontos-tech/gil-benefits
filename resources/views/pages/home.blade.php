@@ -365,6 +365,30 @@
         </x-button>
     </section>
 
+    <section id="historia" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-20 lg:px-[62px]">
+        <div class="flex flex-col items-center gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[16px] lg:flex-row lg:p-8">
+            <div class="flex flex-col gap-8 lg:flex-1 lg:px-4">
+                <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                    Por trás de cada <span class="text-brand-primary">decisão financeira</span>, existe uma história.
+                </h2>
+                <div class="fm-reveal-left flex flex-col text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                    <p>Dinheiro não é apenas uma questão de números. Envolve escolhas, responsabilidades, preocupações e sonhos.</p>
+                    <p>Por isso, a Flamma valoriza o acompanhamento humano e a orientação especializada, considerando que cada pessoa possui uma realidade financeira diferente.</p>
+                    <p>Mais do que oferecer informações, queremos ajudar colaboradores a compreender suas possibilidades e tomar decisões com mais confiança.</p>
+                </div>
+                <p class="fm-reveal-left text-xl font-bold leading-[1.5] text-high lg:text-2xl" data-fm-delay="2">
+                    Informação orienta. Acompanhamento ajuda a transformar conhecimento em decisão.
+                </p>
+            </div>
+
+            <div class="fm-reveal-right fm-zoom aspect-[609/630] w-full overflow-hidden lg:w-[609px] lg:shrink-0">
+                <img src="{{ asset('img/home/story.webp') }}"
+                     alt="Colaboradora sorrindo durante uma conversa no escritório"
+                     class="size-full object-cover" loading="lazy" decoding="async">
+            </div>
+        </div>
+    </section>
+
     {{-- ══════════════════════════════════════════════════════════════
          6. CTA — DÊ AO SEU TIME O CUIDADO QUE ELE MERECE — 8298:406
          O lg:mt-[330px] abre espaço para a faixa esquerda do Vector 9 (222px
