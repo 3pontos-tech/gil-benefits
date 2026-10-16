@@ -128,7 +128,7 @@
         </div>
     </section>
 
-    <section id="challenge" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-24 lg:px-[62px]">
+    <section id="challenge" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-20 lg:px-[62px]">
         <div class="flex flex-col gap-8">
             <header class="flex flex-col gap-4">
                 <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
@@ -142,7 +142,6 @@
             </header>
 
             <div class="grid grid-cols-1 gap-0 md:grid-cols-2">
-                {{-- Coluna rose — para a empresa --}}
                 <div class="fm-reveal-left flex flex-col gap-8 border border-outline-light bg-brand-primary p-8">
                     <div class="flex flex-col gap-4">
                         <h3 class="text-2xl font-bold leading-[1.5] text-light lg:text-[32px]">Para sua empresa</h3>
@@ -150,9 +149,9 @@
                     </div>
                     <div class="flex flex-col gap-8">
                         @foreach ([
-                            ['Mais produtividade', 'Colaboradores com finanças organizadas trabalham mais focados e engajados.'],
-                            ['Menos turnover', 'Diminuição de faltas e menos rotatividade, com um time mais estável.'],
-                            ['Retenção de talento', 'Um diferencial competitivo que valoriza o bem-estar de quem trabalha com você.'],
+                            ['Cuidado mais completo', 'Inclua a saúde financeira na estratégia de saúde e bem-estar corporativo.'],
+                            ['Prevenção', 'Ofereça orientação antes que as dificuldades financeiras se tornem problemas maiores.'],
+                            ['Bem-estar no trabalho', 'Ajude a reduzir uma fonte de preocupação que pode acompanhar o colaborador durante o expediente.'],
                         ] as $item)
                             <div class="flex flex-col gap-3">
                                 <p class="text-xl font-bold leading-[1.5] text-light">{{ $item[0] }}</p>
@@ -164,15 +163,12 @@
                         class="fm-btn w-full!"
                         variant="light-brand"
                         size="xl"
-                        href="https://wa.me/5511976205711?text=Flamma"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="#diferenciais"
                     >
-                        Fale com a gente
+                        Conheça nossa solução
                     </x-button>
                 </div>
 
-                {{-- Coluna clara — para o colaborador --}}
                 <div class="fm-reveal-right flex flex-col gap-8 border border-outline-light bg-elevation-01dp p-8">
                     <div class="flex flex-col gap-4">
                         <h3 class="text-2xl font-bold leading-[1.5] text-high lg:text-[32px]">Para seu colaborador</h3>
@@ -180,9 +176,9 @@
                     </div>
                     <div class="flex flex-col gap-8">
                         @foreach ([
-                            ['Consultoria personalizada', 'Sessões individuais, focadas na realidade financeira de cada pessoa.'],
-                            ['Controle financeiro', 'Ferramentas para organizar dívidas, criar orçamento e planejar o futuro.'],
-                            ['Menos ansiedade', 'Mais tranquilidade no dia a dia, com uma relação mais saudável com o dinheiro.'],
+                            ['Mais clareza', 'Compreenda melhor a própria realidade financeira e organize prioridades.'],
+                            ['Mais autonomia', 'Tome decisões financeiras com informação, orientação e segurança.'],
+                            ['Mais possibilidades', 'Planeje conquistas, prepare-se para imprevistos e construa objetivos para o futuro.'],
                         ] as $item)
                             <div class="flex flex-col gap-3">
                                 <p class="text-xl font-bold leading-[1.5] text-high">{{ $item[0] }}</p>
@@ -194,11 +190,9 @@
                         class="fm-btn w-full!"
                         variant="flat"
                         size="xl"
-                        href="https://wa.me/5511976205711?text=Flamma"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="#diferenciais"
                     >
-                        Fale com a gente
+                        Conheça nossa solução
                     </x-button>
                 </div>
             </div>
