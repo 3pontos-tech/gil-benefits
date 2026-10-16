@@ -73,7 +73,7 @@
         </div>
     </section>
 
-    <div class="relative left-1/2 -mx-[50vw] -z-10 hidden w-screen lg:block lg:-mt-[460px]"
+    <div class="relative left-1/2 -mx-[50vw] -z-10 hidden w-screen lg:block lg:-mt-[calc(26vw-39px)]"
          aria-hidden="true">
         <svg class="block aspect-[1920/499] w-full text-brand-primary" viewBox="0 0 1920 499" fill="none"
              preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -97,7 +97,7 @@
                 </div>
             </div>
 
-            <div class="fm-reveal-scale fm-zoom aspect-[741/642] w-full overflow-hidden lg:w-[741px] lg:shrink-0">
+            <div class="fm-reveal-scale fm-zoom aspect-[741/642] w-full overflow-hidden lg:w-[46%] lg:shrink-0">
                 <img src="{{ asset('img/home/care.webp') }}"
                      alt="Colegas conversando em volta de uma mesa com notebooks"
                      class="size-full object-cover" loading="lazy" decoding="async">
@@ -282,7 +282,7 @@
             <div class="absolute -left-[47px] top-[358px] hidden h-[176px] w-[527px] bg-white/32 lg:block" aria-hidden="true"></div>
             <div class="absolute left-[286px] top-0 hidden h-[176px] w-[527px] bg-white/32 lg:block" aria-hidden="true"></div>
 
-            <div class="relative flex flex-col gap-8 lg:w-[790px] lg:shrink-0">
+            <div class="relative flex flex-col gap-8 lg:w-[47%] lg:shrink-0">
                 <h2 class="fm-reveal-left bg-elevation-surface px-8 py-4 text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
                     Uma solução de saúde financeira para <span class="text-brand-primary">pessoas reais.</span>
                 </h2>
@@ -315,7 +315,7 @@
     </section>
 
     <section id="jornada" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[263px] lg:px-[62px]">
-        <x-graphism type="asterisk" class="absolute left-1/2 top-[429px] -z-10 ml-[calc(50vw-343px)] hidden size-[640px] lg:block" />
+        <x-graphism type="asterisk" class="absolute left-1/2 top-[429px] -z-10 ml-[calc(50vw-343px)] hidden size-[640px] 2xl:block" />
 
         <header class="flex flex-col gap-8">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
@@ -376,7 +376,7 @@
                 </p>
             </div>
 
-            <div class="fm-reveal-right fm-zoom aspect-[609/630] w-full overflow-hidden lg:w-[609px] lg:shrink-0">
+            <div class="fm-reveal-right fm-zoom aspect-[609/630] w-full overflow-hidden lg:w-[38%] lg:shrink-0">
                 <img src="{{ asset('img/home/story.webp') }}"
                      alt="Colaboradora sorrindo durante uma conversa no escritório"
                      class="size-full object-cover" loading="lazy" decoding="async">
@@ -386,7 +386,7 @@
 
     <section id="implementacao" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-12 lg:px-[62px]">
         <div class="flex flex-col-reverse items-center gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[16px] lg:flex-row lg:p-8">
-            <div class="fm-reveal-left fm-zoom aspect-[609/630] w-full overflow-hidden lg:w-[609px] lg:shrink-0">
+            <div class="fm-reveal-left fm-zoom aspect-[609/630] w-full overflow-hidden lg:w-[38%] lg:shrink-0">
                 <img src="{{ asset('img/home/cta.webp') }}"
                      alt="Colaboradora sorrindo enquanto usa o celular no escritório"
                      class="size-full object-cover" loading="lazy" decoding="async">
