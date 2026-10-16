@@ -319,6 +319,52 @@
         </div>
     </section>
 
+    <section id="jornada" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[263px] lg:px-[62px]">
+        <x-graphism type="asterisk" class="absolute left-1/2 top-[429px] -z-10 ml-[calc(50vw-343px)] hidden size-[640px] lg:block" />
+
+        <header class="flex flex-col gap-8">
+            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                Saúde financeira de um jeito mais <span class="text-brand-primary">simples e acessível</span>.
+            </h2>
+            <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                A Flamma conecta empresas e colaboradores a uma jornada de cuidado financeiro, com orientação para diferentes necessidades e momentos da vida.
+            </p>
+        </header>
+
+        <ol class="mt-10 flex flex-col lg:mt-12">
+            @foreach ([
+                ['n' => '01', 'title' => 'A empresa incorpora a Flamma', 'text' => 'A saúde financeira passa a fazer parte da estratégia de cuidado com os colaboradores.'],
+                ['n' => '02', 'title' => 'O colaborador acessa a solução', 'text' => 'Cada pessoa encontra orientação de acordo com suas necessidades e objetivos financeiros.'],
+                ['n' => '03', 'title' => 'A jornada financeira começa', 'text' => 'Com apoio especializado, o colaborador pode desenvolver mais clareza sobre suas finanças e planejar os próximos passos.'],
+            ] as $i => $step)
+                <li class="fm-reveal flex gap-6 lg:gap-8" data-fm-delay="{{ $i + 1 }}">
+                    <div class="flex w-20 shrink-0 flex-col items-center gap-4 lg:w-[125px]">
+                        <span class="fm-step-n flex size-20 items-center justify-center rounded-full border border-outline-light bg-white/32 text-[32px] font-bold leading-[1.5] text-brand-primary lg:size-[121px] lg:text-5xl"
+                              aria-hidden="true">{{ $step['n'] }}</span>
+                        @unless ($loop->last)
+                            <span class="mb-4 min-h-12 w-1 flex-1 bg-brand-primary lg:min-h-[68px]" aria-hidden="true"></span>
+                        @endunless
+                    </div>
+                    <div class="flex flex-col gap-4 pb-8 lg:p-8">
+                        <h3 class="text-2xl font-bold text-high lg:text-[32px]">{{ $step['title'] }}</h3>
+                        <p class="text-base font-medium leading-[1.5] text-medium">{{ $step['text'] }}</p>
+                    </div>
+                </li>
+            @endforeach
+        </ol>
+
+        <x-button
+            class="fm-reveal fm-btn mt-4 w-full! sm:w-fit! lg:mt-12"
+            variant="flat"
+            size="xl"
+            href="https://wa.me/5511976205711?text=Flamma"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            Saiba como implementar
+        </x-button>
+    </section>
+
     {{-- ══════════════════════════════════════════════════════════════
          6. CTA — DÊ AO SEU TIME O CUIDADO QUE ELE MERECE — 8298:406
          O lg:mt-[330px] abre espaço para a faixa esquerda do Vector 9 (222px
