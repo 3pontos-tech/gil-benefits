@@ -47,40 +47,32 @@
         </div>
     </section>
 
-    {{-- ══════════════════════════════════════════════════════════════
-         2. POR QUE CONFIAR NO FLAMMA? — 8298:522
-         ══════════════════════════════════════════════════════════════ --}}
-    <section id="por-que-confiar" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[113px] lg:px-[62px]">
+    <section id="expediente" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[71px] lg:px-[62px]">
         <header class="flex flex-col gap-6 text-center">
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                Por que confiar no <span class="text-brand-primary">Flamma</span>?
+                A <span class="text-brand-primary">preocupação financeira</span> entra no expediente.
             </h2>
-            <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                Cuidar do financeiro dos seus colaboradores é cuidar do resultado da sua empresa,
-                e poucos tratam isso com a atenção que merece.
-            </p>
+            <div class="fm-reveal flex flex-col text-base font-medium leading-[1.5] text-medium" data-fm-delay="1">
+                <p>As preocupações com dinheiro não ficam em casa. Elas podem afetar o sono, a saúde, a concentração e a energia de quem faz sua empresa acontecer.</p>
+                <p>Quando a vida financeira está em desequilíbrio, seus impactos podem ultrapassar a esfera pessoal e chegar ao ambiente de trabalho.</p>
+            </div>
         </header>
 
         <div class="mt-10 grid grid-cols-1 gap-8 lg:mt-[65px] lg:grid-cols-3">
             @foreach ([
-                ['img' => 'card-especialistas.webp', 'icon' => 'users',    'title' => 'Especialistas', 'text' => 'Consultores especializados oferecem sessões individuais de até 60 minutos, focadas nas necessidades de cada colaborador.', 'alt' => 'Consultora atendendo uma colaboradora'],
-                ['img' => 'card-realidade.webp',     'icon' => 'target',   'title' => 'Realidade',     'text' => '42% dos brasileiros apontam o dinheiro como principal fonte de preocupação, reforçando a importância do cuidado financeiro.', 'alt' => 'Pessoa organizando as contas'],
-                ['img' => 'card-sigilo.webp',        'icon' => 'lock-key', 'title' => 'Sigilo',        'text' => 'O colaborador pode compartilhar seus planos e dificuldades com liberdade, sabendo que suas informações permanecem em sigilo.', 'alt' => 'Sessão individual e sigilosa'],
+                ['icon' => 'wallet',      'title' => 'Pouca margem para imprevistos', 'text' => '87% dos trabalhadores pesquisados possuem menos de um salário guardado como reserva financeira.', 'source' => 'SalaryFits / Serasa Experian (2025) e Icatu e Onze (2025)'],
+                ['icon' => 'brain',       'title' => 'A preocupação afeta o trabalho', 'text' => '60% dos profissionais pesquisados afirmam que as preocupações financeiras afetam diretamente seu rendimento profissional.', 'source' => 'Icatu e Onze — Raio-X da Saúde Financeira dos Brasileiros 2025, via InfoMoney'],
+                ['icon' => 'heart-pulse', 'title' => 'Do bolso para a saúde', 'text' => '8 em cada 10 pessoas inadimplentes pesquisadas relatam efeitos na saúde física ou mental.', 'source' => 'SalaryFits / Serasa Experian (2025); CNDL / SPC Brasil'],
             ] as $i => $card)
                 <article class="fm-card fm-reveal flex flex-col gap-6 border border-outline-light bg-elevation-01dp p-6 lg:p-8"
                          data-fm-delay="{{ $i + 1 }}">
-                    <div class="fm-zoom aspect-[478/327] w-full overflow-hidden">
-                        <img src="{{ asset('img/home/' . $card['img']) }}" alt="{{ $card['alt'] }}"
-                             class="size-full object-cover" loading="lazy" decoding="async">
-                    </div>
                     <div class="flex flex-col gap-6 p-4">
-                        <div class="flex items-center gap-6">
-                            <img src="{{ asset('svg/home/icon-' . $card['icon'] . '.svg') }}" alt=""
-                                 class="fm-card-icon size-11 shrink-0" loading="lazy" decoding="async">
-                            <h3 class="text-2xl font-bold text-dark">{{ $card['title'] }}</h3>
-                        </div>
+                        <img src="{{ asset('svg/home/icon-' . $card['icon'] . '.svg') }}" alt=""
+                             class="fm-card-icon size-11 shrink-0" loading="lazy" decoding="async">
+                        <h3 class="text-2xl font-bold text-high">{{ $card['title'] }}</h3>
                         <p class="text-base font-medium leading-[1.5] text-medium">{{ $card['text'] }}</p>
                     </div>
+                    <p class="text-sm leading-[1.3] text-medium"><strong>Fonte:</strong> {{ $card['source'] }}</p>
                 </article>
             @endforeach
         </div>
