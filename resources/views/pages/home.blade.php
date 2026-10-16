@@ -78,14 +78,7 @@
         </div>
     </section>
 
-    {{-- ══════════════════════════════════════════════════════════════
-         Vector 8 — faixa em degraus que sobe pela esquerda e passa por trás
-         do rodapé dos cards. No Figma vai de y 1517 a 2015,5 numa página em
-         que os cards terminam em 1765: ou seja, ela invade 248px do bloco de
-         cima e ainda sobra 80px até o título seguinte. Daí a margem negativa
-         aqui e o mt reduzido na seção abaixo.
-         ══════════════════════════════════════════════════════════════ --}}
-    <div class="relative left-1/2 -mx-[50vw] -z-10 hidden w-screen lg:block lg:-mt-[248px]"
+    <div class="relative left-1/2 -mx-[50vw] -z-10 hidden w-screen lg:block lg:-mt-[460px]"
          aria-hidden="true">
         <svg class="block aspect-[1920/499] w-full text-brand-primary" viewBox="0 0 1920 499" fill="none"
              preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -94,29 +87,29 @@
         </svg>
     </div>
 
-    {{-- ══════════════════════════════════════════════════════════════
-         3. COMO O FLAMMA CHEGA ATÉ O SEU TIME? — 8430:376
-         Números 01/02/03 em 64px rose.
-         ══════════════════════════════════════════════════════════════ --}}
-    <section id="how-it-works" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[80px] lg:px-[62px]">
-        {{-- Grafismo: seta do Figma (Frame 20324), canto superior direito.
-             O -top-20 é o mesmo valor do lg:mt-[80px] desta seção, e é o que faz a
-             seta encostar na base da faixa em degraus acima em vez de sobrar um vão. --}}
-        <x-graphism type="home-arrow" data-fm-static class="absolute -top-20 right-0 -z-10 hidden w-[295px] lg:block" />
+    <section id="how-it-works" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[143px] lg:px-[62px]">
+        <x-graphism type="home-arrow" data-fm-static class="absolute -top-[115px] right-0 -z-10 hidden w-[295px] lg:block" />
+        <x-graphism type="asterisk" class="absolute left-1/2 top-[614px] -z-10 -ml-[calc(50vw+111px)] hidden size-[270px] lg:block" />
 
-        <header class="flex flex-col gap-8 lg:max-w-[1531px]">
-            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                Como o Flamma chega até o seu time?
-            </h2>
-            {{-- O max-w segura o subtítulo em duas linhas, longe da seta que sangra
-                 no canto direito da seção. --}}
-            <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:max-w-5xl lg:text-xl lg:font-normal" data-fm-delay="1">
-                Da contratação à primeira sessão, cuidamos de cada detalhe para que o processo
-                seja simples para você e acolhedor para o seu time.
-            </p>
-        </header>
+        <div class="flex flex-col items-center gap-8 border border-outline-light bg-elevation-01dp p-6 lg:flex-row lg:p-8">
+            <div class="flex flex-col gap-8 lg:flex-1">
+                <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
+                    Cuidar da <span class="text-brand-primary">saúde do colaborador</span> também é olhar para a vida financeira.
+                </h2>
+                <div class="fm-reveal flex flex-col text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
+                    <p>Saúde física, mental e financeira estão conectadas. Quando uma dessas dimensões está em desequilíbrio, as outras também podem ser afetadas.</p>
+                    <p>Incorporar a saúde financeira à estratégia de cuidado é ampliar o olhar sobre o bem-estar das pessoas, considerando desafios que fazem parte da vida dentro e fora do trabalho.</p>
+                </div>
+            </div>
 
-        <div class="mt-9 grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div class="fm-reveal-scale fm-zoom aspect-[741/642] w-full overflow-hidden lg:w-[741px] lg:shrink-0">
+                <img src="{{ asset('img/home/care.webp') }}"
+                     alt="Colegas conversando em volta de uma mesa com notebooks"
+                     class="size-full object-cover" loading="lazy" decoding="async">
+            </div>
+        </div>
+
+        <div class="mt-8 grid grid-cols-1 gap-8 lg:mt-[84px] lg:grid-cols-3">
             @foreach ([
                 ['n' => '01', 'title' => 'Contratação', 'text' => 'A empresa escolhe o pacote ideal para o tamanho do time.'],
                 ['n' => '02', 'title' => 'Agendamento', 'text' => 'Cada colaborador agenda sua sessão no horário que preferir.'],
@@ -135,41 +128,6 @@
         </div>
     </section>
 
-    {{-- ══════════════════════════════════════════════════════════════
-         Vector 7 (8298:453) + Imagem (8298:584) — bloco de respiro do Figma:
-         massa escura em degraus de ponta a ponta, com uma foto de 1675×940
-         apoiada nela. A foto fica em 123/2712 num palco de 1920×1094, ou seja
-         left 6,406% · top 5,027% · 87,24% × 85,92%.
-
-         Este bloco não vinha no Blade do handoff — a foto nem estava na lista
-         de download, foi exportada do nó 8298:584.
-         ══════════════════════════════════════════════════════════════ --}}
-    {{-- Bloco desativado por ora, a pedido — some junto o grafismo cinza em degraus.
-    <div class="relative left-1/2 -mx-[50vw] mt-16 hidden w-screen lg:block lg:mt-[118px]">
-        <div class="relative aspect-[1920/1094] w-full">
-            <svg class="absolute inset-0 size-full" viewBox="0 0 1920 1094" fill="none"
-                 preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M0 0V468.782L123.532 470.357V680.338H820.214V754.356H1455.88V1094H1921V0H0Z"
-                      fill="#39393A"/>
-            </svg>
-
-            <div class="fm-zoom fm-reveal-scale absolute left-[6.406%] top-[5.027%] h-[85.92%] w-[87.24%] overflow-hidden">
-                <img src="{{ asset('img/home/story.webp') }}"
-                     alt="Colaboradora sorrindo durante uma conversa no escritório"
-                     class="size-full object-cover" loading="lazy" decoding="async">
-            </div>
-        </div>
-    </div>
-    --}}
-
-    {{-- ══════════════════════════════════════════════════════════════
-         4. O ESTRESSE FINANCEIRO CUSTA CARO — 8298:415
-         Duas colunas: rose (empresa) e clara (colaborador).
-         A foto 577×760 que o Figma punha à direita saiu — os cards
-         ocupam a largura toda da seção.
-         ══════════════════════════════════════════════════════════════ --}}
-    {{-- O lg:mt-24 é temporário: quando o bloco de imagem acima voltar, o valor
-         original era lg:-mt-[19px], que encostava a seção na base da foto. --}}
     <section id="challenge" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-24 lg:px-[62px]">
         <div class="flex flex-col gap-8">
             <header class="flex flex-col gap-4">
