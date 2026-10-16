@@ -127,7 +127,7 @@
                 >
                     <h4 class="text-sm font-medium">
                         @if($loop->last)
-                            +{{ $tier['max'] - 1 }} Colaboradores
+                            +{{ $tier['min'] - 1 }} Colaboradores
                         @else
                             {{ $tier['min'] }} a {{ $tier['max'] }} Colaboradores
                         @endif
