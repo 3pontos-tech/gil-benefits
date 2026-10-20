@@ -352,7 +352,7 @@
             class="fm-reveal fm-btn mt-4 w-full! sm:w-fit! lg:mt-12"
             variant="flat"
             size="xl"
-            href="https://wa.me/5511976205711?text=Flamma"
+            :href="config('services.whatsapp.url')"
             target="_blank"
             rel="noopener noreferrer"
         >
@@ -405,7 +405,7 @@
                     data-fm-delay="2"
                     variant="flat"
                     size="xl"
-                    href="https://wa.me/5511976205711?text=Flamma"
+                    :href="config('services.whatsapp.url')"
                     target="_blank"
                     rel="noopener noreferrer"
                 >
@@ -436,7 +436,7 @@
                 data-fm-delay="2"
                 variant="flat"
                 size="xl"
-                href="https://wa.me/5511976205711?text=Flamma"
+                :href="config('services.whatsapp.url')"
                 target="_blank"
                 rel="noopener noreferrer"
             >
@@ -501,7 +501,7 @@
                 class="fm-reveal fm-btn w-full! sm:w-fit!"
                 variant="flat"
                 size="xl"
-                href="https://wa.me/5511976205711?text=Flamma"
+                :href="config('services.whatsapp.url')"
                 target="_blank"
                 rel="noopener noreferrer"
             >

@@ -488,7 +488,7 @@
                     data-fm-delay="2"
                     variant="flat"
                     size="xl-tight"
-                    href="https://wa.me/5511976205711?text=Flamma"
+                    :href="config('services.whatsapp.url')"
                     target="_blank"
                     rel="noopener noreferrer"
                 >

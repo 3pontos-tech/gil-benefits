@@ -53,4 +53,8 @@ return [
         'webhook_secret' => env('BARTE_WEBHOOK_SECRET'),
     ],
 
+    'whatsapp' => [
+        'url' => env('WHATSAPP_URL', 'https://wa.me/5511976205711?text=Flamma'),
+    ],
+
 ];
