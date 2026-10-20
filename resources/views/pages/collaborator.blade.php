@@ -438,7 +438,7 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         8. VOCÊ E SEUS COLEGAS — 8451:1101
+         8. QUE TAL LEVAR A FLAMMA PARA SUA EMPRESA? — 8451:1101
          Foto à ESQUERDA (708×588), texto à direita.
          ══════════════════════════════════════════════════════════════ --}}
     <section id="indicar" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[80px] lg:px-[62px]">
@@ -475,12 +475,12 @@
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-8">
                     <h2 class="fm-reveal-right text-[32px] font-bold leading-[1.5] text-high lg:text-[clamp(28px,2.2917vw,44px)]">
-                        Você e seus colegas com mais <span class="text-brand-primary">organização financeira</span>.
+                        Que tal levar a <span class="text-brand-primary">Flamma para sua empresa</span>?
                     </h2>
                     <p class="fm-reveal-right text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                        data-fm-delay="1">
-                        Indique o Flamma para o RH da sua empresa e dê o primeiro passo para seu
-                        bem-estar financeiro.
+                        Indique a Flamma ao RH e ajude a ampliar o cuidado com a saúde financeira de
+                        todo o time.
                     </p>
                 </div>
                 <x-button
