@@ -21,13 +21,12 @@
 
         <div class="relative flex flex-col gap-4 lg:max-w-[822px]">
             <h2 class="text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                Por que investir na <span class="text-brand-primary">saúde financeira</span> dos seus
-                colaboradores?
+                A <span class="text-brand-primary">preocupação financeira</span> não fica fora do trabalho.
             </h2>
 
             <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal">
-                O estresse financeiro reduz foco, memória e capacidade de decisão, e isso aparece direto nos
-                indicadores de RH, com mais erros, menos produtividade, mais faltas e mais pedidos de demissão.
+                Dívidas, insegurança e dificuldades financeiras podem afetar o sono, a atenção e o bem-estar.
+                Cuidar dessa dimensão também faz parte de uma estratégia de saúde corporativa.
             </p>
 
             {{-- Asterisco abaixo do texto; a faixa em gradiente logo depois corta a metade
