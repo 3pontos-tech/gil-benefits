@@ -350,21 +350,11 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         6. ESCOLHA SEU PLANO — 8298:3587
-         Bloco NOVO. Preço em gradiente rose→orange via bg-clip-text.
+         6. DESCUBRA COMO COMEÇAR SUA JORNADA — 9085:420
+         Card translúcido sobre o Vector 15, que começa 176px acima da base do card.
          ══════════════════════════════════════════════════════════════ --}}
-    {{-- O design pedia 440px de respiro após a Privacidade; encurtado para 160. --}}
-    <section id="planos" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[160px] lg:px-[62px]">
-        {{--
-            Vector 15 (8298:3477): 1920×419. Ancorado pela base da seção (= base dos
-            cards), como no Figma: a faixa desce 78px além dos cards, o bloco alto da
-            direita sobe ao lado do segundo card e os degraus da esquerda cortam o
-            terço de baixo do primeiro. Altura fixa em px (o preserveAspectRatio="none"
-            estica só na horizontal): com aspect-ratio, abaixo de 1920 a faixa encolhia
-            e terminava no meio dos cards. O painel translúcido do canto inferior
-            direito é o Rectangle do frame, em % do palco.
-        --}}
-        <div class="absolute left-1/2 top-[calc(100%-341px)] -z-10 -ml-[50vw] hidden h-[419px] w-screen lg:block"
+    <section id="acesso" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[160px] lg:px-[62px]">
+        <div class="absolute left-1/2 top-[calc(100%-176px)] -z-10 -ml-[50vw] hidden h-[419px] w-screen lg:block"
              aria-hidden="true">
             <svg class="absolute inset-0 size-full" viewBox="0 0 1920 419" fill="none"
                  preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -381,47 +371,27 @@
 
             <div class="absolute left-[72.7%] top-[58.7%] h-[41.3%] w-[27.3%] bg-white/32"></div>
         </div>
-        <header class="mx-auto flex flex-col gap-4 text-center lg:max-w-[1418px]">
-            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
-                Escolha <span class="text-brand-primary">seu</span> plano
-            </h2>
-            <p class="fm-reveal mx-auto text-base font-medium leading-[1.5] text-medium lg:max-w-[1418px] lg:text-xl"
-               data-fm-delay="1">
-                Cada pacote foi pensado para acompanhar você no seu ritmo, unindo sessões com um
-                consultor financeiro, materiais exclusivos e suporte personalizado via IA para
-                tornar suas decisões financeiras mais simples.
-            </p>
-        </header>
+        <x-graphism class="absolute right-[81px] top-[260px] -z-10 hidden size-[347px] lg:block" />
 
-        <div class="mx-auto mt-10 grid grid-cols-1 gap-8 lg:mt-16 lg:max-w-[1418px] lg:grid-cols-2">
-            @foreach ([
-                ['preco' => 'R$ 179,90', 'sessoes' => '1 Sessão/mês'],
-                ['preco' => 'R$ 279,90', 'sessoes' => '2 Sessões/mês'],
-            ] as $i => $plano)
-                <div class="fm-card fm-reveal flex flex-col items-center justify-center gap-8 overflow-hidden border border-outline-light bg-elevation-01dp p-8"
-                     data-fm-delay="{{ $i + 1 }}">
-                    <div class="flex w-full flex-col text-center leading-[1.5]">
-                        <p class="text-base font-medium text-dark">Mensal</p>
-                        {{-- gradiente do Figma: 165.6deg, #fd0342 15.42% → #ff803c 84.58% --}}
-                        <p class="bg-gradient-to-br from-brand-primary to-brand-secondary bg-clip-text text-[36px] font-bold leading-[1.5] text-transparent lg:text-5xl">
-                            {{ $plano['preco'] }}
-                        </p>
-                    </div>
-                    <ul class="flex w-full flex-col gap-8">
-                        @foreach ([
-                            ['calendar-check', $plano['sessoes']],
-                            ['book-open-text', 'Materiais exclusivos'],
-                            ['robot', 'Suporte personalizado via IA'],
-                        ] as $item)
-                            <li class="flex items-center gap-2.5 rounded">
-                                <img src="{{ asset('svg/colaborador/' . $item[0] . '.svg') }}" alt=""
-                                     class="size-6 shrink-0" loading="lazy" decoding="async">
-                                <span class="flex-1 text-base font-medium leading-[1.5] text-dark">{{ $item[1] }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endforeach
+        <div class="fm-reveal flex flex-col gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[8px]
+            lg:ml-[min(6.1458vw,118px)] lg:w-[min(49.375vw,948px)] lg:p-16">
+            <div class="flex flex-col gap-8">
+                <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.2917vw,44px)]">
+                    Descubra como começar <span class="text-brand-primary">sua jornada.</span>
+                </h2>
+                <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl">
+                    Conheça as possibilidades de acesso à Flamma e encontre o caminho para começar a cuidar da sua
+                    saúde financeira.
+                </p>
+            </div>
+            <x-button
+                class="fm-btn w-full! sm:w-fit!"
+                variant="flat"
+                size="xl-tight"
+                href="#cadastro"
+            >
+                Conheça as opções de acesso
+            </x-button>
         </div>
     </section>
 
