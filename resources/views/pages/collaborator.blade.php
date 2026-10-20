@@ -312,7 +312,7 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         5. PRIVACIDADE EM PRIMEIRO LUGAR — 8298:3446
+         5. SUAS FINANÇAS SÃO ASSUNTO SEU — 8298:3446
          A foto sangra de ponta a ponta e traz no próprio arquivo o recorte em degrau
          (alpha) e a seta vermelha.
 
@@ -329,7 +329,7 @@
         <div class="flex flex-col gap-8 lg:ml-[min(6.4063vw,123px)] lg:w-[calc(34.5vw-62px)] lg:max-w-none xl:w-[min(36.3021vw,697px)]">
             <div class="flex flex-col gap-4">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.2917vw,44px)]">
-                    <span class="text-brand-primary">Privacidade</span> em primeiro lugar.
+                    <span class="text-brand-primary">Suas finanças</span> são assunto <span class="text-brand-primary">seu.</span>
                 </h2>
                 <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                    data-fm-delay="1">
@@ -342,7 +342,7 @@
                 data-fm-delay="2"
                 variant="flat"
                 size="xl-tight"
-                href="#planos"
+                href="#acesso"
             >
                 Simular contratação
             </x-button>
