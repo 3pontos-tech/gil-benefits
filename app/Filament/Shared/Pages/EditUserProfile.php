@@ -110,9 +110,6 @@ class EditUserProfile extends EditProfile
     }
 
     /**
-     * @param  array<string, mixed>  $data
-     */
-    /**
      * Senha trocada no perfil desconecta os aparelhos do app (RevokeAppTokensAction). Vale para os
      * quatro painéis, que herdam esta página.
      */
@@ -125,6 +122,9 @@ class EditUserProfile extends EditProfile
         }
     }
 
+    /**
+     * @param  array<string, mixed>  $data
+     */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         /** @var User $record */
