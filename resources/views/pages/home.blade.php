@@ -361,7 +361,7 @@
     </section>
 
     <section id="historia" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-20 lg:px-[62px]">
-        <div class="flex flex-col items-center gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[16px] lg:flex-row lg:p-8">
+        <div class="flex flex-col items-center gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[16px] lg:flex-row lg:p-16">
             <div class="flex flex-col gap-8 lg:flex-1 lg:px-4">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
                     Por trás de cada <span class="text-brand-primary">decisão financeira</span>, existe uma história.
@@ -376,19 +376,19 @@
                 </p>
             </div>
 
-            <div class="fm-reveal-right fm-zoom aspect-[609/630] w-full overflow-hidden lg:w-[38%] lg:shrink-0">
-                <img src="{{ asset('img/home/story.webp') }}"
-                     alt="Colaboradora sorrindo durante uma conversa no escritório"
+            <div class="fm-reveal-right fm-zoom aspect-[741/642] w-full overflow-hidden lg:w-[46%] lg:shrink-0">
+                <img src="{{ asset('img/home/historia.webp') }}"
+                     alt="Colaborador em videochamada com uma consultora sorridente na tela do notebook"
                      class="size-full object-cover" loading="lazy" decoding="async">
             </div>
         </div>
     </section>
 
     <section id="implementacao" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-12 lg:px-[62px]">
-        <div class="flex flex-col-reverse items-center gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[16px] lg:flex-row lg:p-8">
-            <div class="fm-reveal-left fm-zoom aspect-[609/630] w-full overflow-hidden lg:w-[38%] lg:shrink-0">
-                <img src="{{ asset('img/home/cta.webp') }}"
-                     alt="Colaboradora sorrindo enquanto usa o celular no escritório"
+        <div class="flex flex-col-reverse items-center gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[16px] lg:flex-row lg:p-16">
+            <div class="fm-reveal-left fm-zoom aspect-[741/642] w-full overflow-hidden lg:w-[46%] lg:shrink-0">
+                <img src="{{ asset('img/home/implementacao.webp') }}"
+                     alt="Colaborador sorrindo enquanto usa o celular no escritório"
                      class="size-full object-cover" loading="lazy" decoding="async">
             </div>
 
@@ -419,10 +419,10 @@
         <x-graphism type="asterisk" class="absolute -top-[45px] left-1/2 -z-10 -ml-[calc(50vw+150px)] hidden size-[330px] lg:block" />
         <x-graphism type="home-arrow" data-fm-static class="absolute left-1/2 top-[242px] -z-10 ml-[calc(50vw-279px)] hidden w-[295px] lg:block" />
 
-        <div class="flex flex-col items-center gap-8 rounded border border-outline-light bg-white/16 p-6 text-center backdrop-blur-[8px] lg:p-8">
-            <div class="fm-reveal-scale fm-zoom aspect-[1434/576] w-full overflow-hidden lg:w-[1434px] lg:max-w-full">
-                <img src="{{ asset('img/home/plan.webp') }}"
-                     alt="Equipe reunida em um ambiente de trabalho"
+        <div class="flex flex-col items-center gap-8 rounded border border-outline-light bg-white/16 p-6 text-center backdrop-blur-[8px] lg:p-16">
+            <div class="fm-reveal-scale fm-zoom aspect-[1434/580] w-full overflow-hidden lg:w-[1434px] lg:max-w-full">
+                <img src="{{ asset('img/home/cta.webp') }}"
+                     alt="Duas colegas conversando e rindo durante um café no escritório"
                      class="size-full object-cover" loading="lazy" decoding="async">
             </div>
             <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
