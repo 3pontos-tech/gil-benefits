@@ -1,16 +1,3 @@
-{{--
-    Simulador de preço da /para-empresas (#simulador).
-
-    Tudo — cabeçalho, controles e CTA — mora dentro de um card claro único. A seção
-    tem a massa escura em degraus sangrando por baixo do simulador, e com o cabeçalho
-    solto (fora do card) o título em text-high caía sobre o cinza-escuro e ficava
-    ilegível. O card também dá ao bloco a mesma largura e o mesmo alinhamento da foto
-    logo acima, com a massa aparecendo só nas laterais.
-
-    Tipografia, cores e o CTA seguem o resto do site: título de bloco em 24/32px,
-    corpo em 16/20px, vermelho da marca (--brand-primary) nos destaques e no estado
-    ativo, e o botão no mesmo padrão dos outros CTAs (chapado, sem raio, xl).
---}}
 <div class="flex w-full flex-col gap-8 border border-outline-light bg-elevation-surface p-6 text-medium lg:gap-10 lg:p-12">
     <header class="flex flex-col gap-4">
         <h3 class="text-2xl font-bold leading-[1.5] text-high lg:text-[32px]">Adicionar colaboradores</h3>
@@ -127,7 +114,7 @@
                 >
                     <h4 class="text-sm font-medium">
                         @if($loop->last)
-                            +{{ $tier['max'] - 1 }} Colaboradores
+                            +{{ $tier['min'] - 1 }} Colaboradores
                         @else
                             {{ $tier['min'] }} a {{ $tier['max'] }} Colaboradores
                         @endif

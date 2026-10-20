@@ -27,7 +27,7 @@
         >
             <div class="flex flex-col gap-4 lg:gap-[1.8229cqw]">
                 <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[max(28px,2.5cqw)]">
-                    Leve <span class="text-brand-primary">saúde financeira</span> para dentro da sua empresa.
+                    Cuidar da <span class="text-brand-primary">saúde financeira</span> também é cuidar do seu time.
                 </h2>
 
                 <p class="text-base font-medium leading-[1.5] text-medium lg:text-[max(16px,1.0417cqw)] lg:font-normal lg:text-dark">
@@ -50,9 +50,11 @@
                 class="w-full! shrink-0 sm:w-fit! lg:w-[max(250px,17.4%)]!"
                 variant="flat"
                 size="xl"
-                href="#simulador"
+                href="https://wa.me/5511976205711?text=Flamma"
+                target="_blank"
+                rel="noopener noreferrer"
             >
-                Simular contratação
+                Fale com nosso time
             </x-button>
         </div>
 

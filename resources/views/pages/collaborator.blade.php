@@ -1,4 +1,4 @@
-<x-layouts.site title="Para Colaboradores" description="Consultoria financeira individual, pensada para quem quer organizar as finanças e planejar o futuro com apoio de especialistas.">
+<x-layouts.site title="Para Colaboradores" description="Organize suas finanças, planeje suas conquistas e tome decisões com mais segurança com a Flamma.">
 {{--
     Página do colaborador — Figma node 8298:3441 ("Pagina colaborador")
     Ordem e copy conforme o Figma. Classes fm-* animadas por flamma-motion.
@@ -8,40 +8,25 @@
     ligeiramente diferente. Depois que as duas páginas estiverem no ar, valem
     ser extraídas para componentes Blade. Veja o HANDOFF-colaborador.md.
 
-    Assets novos em public/img/colaborador/ e public/svg/colaborador/.
-    Assets reaproveitados de public/img/companies/ e public/svg/companies/.
+    Assets novos em public/img/colaborador/; os cards da jornada reaproveitam public/img/companies/.
 --}}
 
 <div class="fm-page overflow-x-clip">
 
     {{-- ══════════════════════════════════════════════════════════════
          1. HERO — 8298:3487 sobre Vector 17 (8298:3486)
-         O Vector 17 é uma foto 1920×1156 com recorte em degrau no alpha
-         do PNG — mesma técnica do bloco de privacidade da /para-empresas.
+         Foto com recorte em degrau no alpha do arquivo e a faixa vermelha
+         contornando o degrau, no mesmo palco (1920×1121).
          ══════════════════════════════════════════════════════════════ --}}
-    {{-- A altura acompanha a foto de fundo (1920 × 1136 = 59,1667vw), que é w-full/h-auto:
-         com a altura fixa em px, abaixo de 1920 sobrava fundo claro sob a imagem. --}}
-    <section id="colaborador" class="relative scroll-mt-28 lg:left-1/2 lg:-mx-[50vw] lg:h-[59.1667vw] lg:w-screen">
-        {{-- -top-1.5: as primeiras ~4 linhas de pixels do arquivo são brancas e abriam
-             um fio entre o topo da foto e a navbar — subir 6px as esconde sob ela. --}}
-        <div class="absolute inset-x-0 -top-1.5 -z-10 hidden lg:block" aria-hidden="true">
+    <section id="colaborador" class="relative scroll-mt-28 lg:left-1/2 lg:-mx-[50vw] lg:h-[58.3854vw] lg:w-screen">
+        <div class="absolute inset-x-0 top-0 -z-10 hidden lg:block" aria-hidden="true">
             <img src="{{ asset('img/colaborador/hero-bg.webp') }}" alt=""
                  class="h-auto w-full" fetchpriority="high" decoding="async">
 
-            {{--
-                Grafismo do Figma: banda vermelha de 30px contornando o degrau entre o
-                painel claro e a foto, mais o bloco solto ao lado da faixa inferior direita.
-                As coordenadas vêm do recorte medido no próprio hero-bg.webp (palco
-                1920×1136): borda em x=1174 (y 0–382), x=1036 (y 382–758), full-bleed em
-                y=758 e o bloco da direita entre y 1002–1112. As bordas externas avançam
-                6px para dentro da foto: cravadas na fronteira exata, o anti-aliasing do
-                arquivo deixava um fio claro entre o vermelho e a imagem. Como o SVG usa
-                o mesmo palco da foto, o encaixe acompanha qualquer largura.
-            --}}
-            <svg class="absolute inset-0 h-auto w-full text-brand-primary" viewBox="0 0 1920 1136"
+            <svg class="absolute inset-0 h-auto w-full text-brand-primary" viewBox="0 0 1920 1121"
                  fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1180 0V388H1042V764H0V728H1006V352H1144V0Z" fill="currentColor"/>
-                <path d="M1144 996H1180V1112H1144V996Z" fill="currentColor"/>
+                <path d="M1102.5 0V438H964.5V794.5H0V758.5H928.5V402H1066.5V0Z" fill="currentColor"/>
+                <path d="M1066.5 1027H1102.5V1097H1066.5V1027Z" fill="currentColor"/>
             </svg>
         </div>
 
@@ -52,12 +37,12 @@
             <div class="flex flex-col gap-8 lg:max-w-[min(43.0208vw,826px)]">
                 <div class="flex flex-col gap-4">
                     <h1 class="fm-reveal fm-in text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.5vw,48px)]">
-                        <span class="text-brand-primary">Cuide do seu dinheiro</span> com a ajuda de um especialista.
+                        Seus <span class="text-brand-primary">planos merecem</span> sair do papel.
                     </h1>
                     <p class="fm-reveal fm-in text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(16px,1.0417vw,20px)]"
                        data-fm-delay="1">
-                        Consultoria financeira individual, pensada para quem quer organizar suas
-                        finanças e planejar o futuro com apoio de quem realmente entende do assunto.
+                        Organize suas finanças, planeje suas conquistas e tome decisões com mais
+                        segurança. A Flamma ajuda você a cuidar do dinheiro para viver seus próximos passos.
                     </p>
                 </div>
 
@@ -66,19 +51,17 @@
                         class="fm-btn w-full! sm:w-[273px]!"
                         variant="light-brand"
                         size="xl-tight"
-                        href="#planos"
+                        href="#o-que-e"
                     >
-                        Conhecer planos
+                        Conheça a Flamma
                     </x-button>
                     <x-button
                         class="fm-btn w-full! sm:w-[273px]!"
                         variant="flat"
                         size="xl-tight"
-                        href="https://wa.me/5511976205711?text=Flamma"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="#indicar"
                     >
-                        Indicar minha empresa
+                        Indique para sua empresa
                     </x-button>
                 </div>
             </div>
@@ -104,20 +87,19 @@
             class="absolute -top-12 right-1/2 -z-10 -mr-[50vw] hidden w-[324px] xl:block"
         />
 
-        <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-7">
+        <div class="flex flex-col gap-4 lg:max-w-[1051px]">
             <h2 class="fm-reveal text-center text-[32px] font-bold leading-[1.5] text-high lg:text-left lg:text-[64px]">
-                O que é o <span class="text-brand-primary">Flamma</span>?
+                <span class="text-brand-primary">Seu dinheiro</span> pode ajudar a construir seus próximos planos.
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                O Flamma é um benefício corporativo de saúde financeira, oferecido pela sua
-                empresa, que conecta você a consultores especializados para organizar suas
-                finanças, sair das dívidas e planejar o futuro com mais segurança.
+                A Flamma é uma solução de saúde financeira que oferece orientação para você organizar
+                suas finanças, lidar com desafios e planejar o futuro com mais confiança.
             </p>
         </div>
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         3. DO ACESSO À PRIMEIRA SESSÃO — 8451:1039
+         3. SUA JORNADA FINANCEIRA COMEÇA POR VOCÊ — 8451:1039
          Mesmos 3 cards da /para-empresas (mesmas fotos), com rótulos
          e textos próprios do colaborador.
          ══════════════════════════════════════════════════════════════ --}}
@@ -142,49 +124,44 @@
             </div>
         </div>
 
-        {{--
-            O botão "Fazer meu cadastro" que o Figma punha abaixo do título migrou para
-            a seção "Mais que uma ferramenta", abaixo do card da citação.
-        --}}
         <div class="flex flex-col items-center gap-8 text-center">
             <h2 class="fm-reveal w-full text-[32px] font-bold leading-[1.5] text-high lg:text-[64px]">
-                Do acesso à primeira sessão
+                Sua <span class="text-brand-primary">jornada financeira</span> começa por você.
             </h2>
         </div>
 
         {{--
             Mesmos cards da /para-empresas: conferido no Figma que a geometria é idêntica
             (Group 31943 em 33,33 com 482,228 × 327,671, Ellipse 114 em 95,85/309,38,
-            produto em 51,53/65,08 com 428,746 × 278,836). Só mudam ícone, título e texto —
-            aqui é Contratação / Ativação / Consultoria.
+            produto em 51,53/65,08 com 428,746 × 278,836). Só mudam número, título e texto.
         --}}
         <div class="mt-8 grid grid-cols-1 gap-8 lg:mt-14 lg:grid-cols-3">
             @foreach ([
                 [
-                    'icon' => 'handshake.svg',
+                    'number' => '01',
                     'image' => 'card-contract.webp',
-                    'title' => 'Contratação',
-                    'description' => 'Sua empresa contrata o pacote de horas disponível pro time.',
+                    'title' => 'Acesso',
+                    'description' => 'Confira como utilizar a Flamma na sua empresa.',
                     'stage' => [
                         'shadow' => ['shape' => 'ellipse', 'left' => 62.85, 'top' => 276.38, 'width' => 340.109, 'height' => 26.601],
                         'prod' => ['left' => 18.53, 'top' => 32.08, 'width' => 428.746, 'height' => 278.836],
                     ],
                 ],
                 [
-                    'icon' => 'check-circle.svg',
+                    'number' => '02',
                     'image' => 'card-reality.webp',
-                    'title' => 'Ativação',
-                    'description' => 'Você recebe seu acesso e agenda no horário que preferir.',
+                    'title' => 'Orientação',
+                    'description' => 'Encontre apoio para suas necessidades financeiras.',
                     'stage' => [
                         'shadow' => ['shape' => 'ellipse', 'left' => 145.85, 'top' => 284.32, 'width' => 190.523, 'height' => 26.601],
                         'prod' => ['left' => 57.45, 'top' => 0, 'width' => 376.992, 'height' => 327.671],
                     ],
                 ],
                 [
-                    'icon' => 'users.svg',
+                    'number' => '03',
                     'image' => 'card-secrecy.webp',
-                    'title' => 'Consultoria',
-                    'description' => 'Sessões individuais e sigilosas, só entre você e o consultor.',
+                    'title' => 'Evolução',
+                    'description' => 'Organize prioridades e avance em seus objetivos.',
                     'stage' => [
                         'shadow' => [
                             'shape' => 'polygon',
@@ -201,7 +178,7 @@
                 <x-partials.illustration-card
                     class="fm-card fm-reveal"
                     :data-fm-delay="$i + 1"
-                    :icon="$card['icon']"
+                    :number="$card['number']"
                     :image="$card['image']"
                     :stage="$card['stage']"
                     :title="$card['title']"
@@ -209,10 +186,21 @@
                 />
             @endforeach
         </div>
+
+        <div class="mt-8 flex justify-center">
+            <x-button
+                class="fm-reveal fm-btn w-full! sm:w-[273px]!"
+                variant="flat"
+                size="xl-tight"
+                href="#acesso"
+            >
+                Conheça a Flamma
+            </x-button>
+        </div>
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         4. MAIS QUE UMA FERRAMENTA — 8298:3472 + pilares 8298:3653
+         4. CADA PESSOA TEM SEUS PLANOS — 8298:3472 + pilares 8298:3653
          Mesmo bloco da /para-empresas.
          ══════════════════════════════════════════════════════════════ --}}
     {{--
@@ -261,7 +249,8 @@
                             lg:flex lg:min-h-[min(9.5833vw,184px)] lg:items-center lg:p-[min(1.6667vw,32px)]"
                     >
                         <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(24px,2.0833vw,40px)]">
-                            Mais que uma ferramenta, um <span class="text-brand-primary">consultor de verdade</span>
+                            Cada pessoa tem seus <span class="text-brand-primary">planos</span>.<br>
+                            E sua própria <span class="text-brand-primary">realidade</span>.
                         </h2>
                     </div>
                 </div>
@@ -281,8 +270,8 @@
                         data-fm-delay="1"
                     >
                         <p class="text-base font-medium leading-[1.5] text-dark lg:text-[clamp(14px,0.8333vw,16px)]">
-                            Cada colaborador tem uma conversa real com alguém que entende sua situação
-                            financeira, muito além do que qualquer planilha consegue oferecer.
+                            Seja para sair das dívidas, construir uma reserva ou realizar uma conquista, a
+                            Flamma ajuda você a encontrar caminhos para sua vida financeira.
                         </p>
                     </div>
                 </div>
@@ -304,9 +293,9 @@
             <ul class="fm-reveal-right flex w-full flex-col gap-8
                 lg:me-[min(3.9062vw,75px)] lg:mt-[min(4.6354vw,89px)] lg:w-[min(30.3646vw,583px)] lg:gap-[min(2.6042vw,50px)]">
                 @foreach ([
-                    ['Consultor humano', 'Cada sessão é conduzida por um especialista que escuta antes de orientar.'],
-                    ['Personalização real', 'O ponto de partida é sempre a realidade financeira do colaborador.'],
-                    ['Acompanhamento contínuo', 'O foco é construir uma mudança de comportamento duradoura.'],
+                    ['Apoio especializado', 'Orientação para tomar decisões com segurança.'],
+                    ['Sua realidade importa', 'Seus desafios e objetivos são únicos.'],
+                    ['Olhar para o futuro', 'Organização e planejamento para seus próximos passos.'],
                 ] as $pilar)
                     <li class="fm-pillar flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-[min(1.25vw,24px)]">
                         <x-graphism class="w-[46px] lg:w-[clamp(28px,2.1354vw,41px)]" />
@@ -322,44 +311,24 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         5. PRIVACIDADE EM PRIMEIRO LUGAR — 8298:3446
-         Mesmo bloco da /para-empresas, com o mesmo arquivo (img/privacy.webp) e as
-         mesmas medidas de recorte:
-
-             bloco estreito   x ≥ 78,2%    até y 13,5%
-             bloco largo      x ≥ 57,55%   até y 80,31%
-             faixa cheia      x ≥ 0        de  y 80,31%
-
-         A foto sangra de ponta a ponta e traz o recorte em degrau no alpha, e a seta se
-         encaixa no vértice onde a foto se alarga — por isso ela mora dentro do bloco de
-         mídia, ancorada por baixo e pela direita, e não flutua (`data-fm-static`).
+         5. SUAS FINANÇAS SÃO ASSUNTO SEU — 8298:3446
+         A foto sangra de ponta a ponta e traz no próprio arquivo o recorte em degrau
+         (alpha) e a seta vermelha.
 
          A tipografia sai em vw porque a foto (e com ela a seta) escala pela viewport: com
          tamanhos fixos, o parágrafo passava por cima da diagonal.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="privacidade" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[295px] lg:min-h-[calc(37.0313vw-91px)] lg:px-[62px]">
-        <div class="pointer-events-none absolute -top-[91px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block"
+    <section id="privacidade" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[295px] lg:min-h-[calc(37.0313vw-30px)] lg:px-[62px] xl:min-h-[calc(37.0313vw-91px)]">
+        <div class="pointer-events-none absolute -top-[30px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block xl:-top-[91px]"
              aria-hidden="true">
-            <div class="relative">
-                <img src="{{ asset('img/privacy.webp') }}" alt=""
-                     class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
-
-                {{-- Base 0,4% abaixo do topo da faixa (19,69%), como na /para-empresas:
-                     encostar exato deixava um fio branco de arredondamento. O right-[42.3%]
-                     é o limite à esquerda: deixa a lateral 0,15% sobre o bloco da foto
-                     (x ≥ 57,55%) — qualquer valor maior abre um vão branco entre eles. --}}
-                <x-graphism
-                    type="collaborator-arrow-alt"
-                    data-fm-static
-                    class="absolute bottom-[19.29%] right-[42.3%] hidden w-[17.4%] xl:block"
-                />
-            </div>
+            <img src="{{ asset('img/privacy.webp') }}" alt=""
+                 class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
         </div>
 
-        <div class="flex flex-col gap-8 lg:ml-[min(6.4063vw,123px)] lg:w-[min(36.3021vw,697px)] lg:max-w-none">
+        <div class="flex flex-col gap-8 lg:ml-[min(6.4063vw,123px)] lg:w-[calc(34.5vw-62px)] lg:max-w-none xl:w-[min(36.3021vw,697px)]">
             <div class="flex flex-col gap-4">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.2917vw,44px)]">
-                    <span class="text-brand-primary">Privacidade</span> em primeiro lugar.
+                    <span class="text-brand-primary">Suas finanças</span> são assunto <span class="text-brand-primary">seu.</span>
                 </h2>
                 <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                    data-fm-delay="1">
@@ -372,7 +341,7 @@
                 data-fm-delay="2"
                 variant="flat"
                 size="xl-tight"
-                href="#planos"
+                href="#acesso"
             >
                 Simular contratação
             </x-button>
@@ -380,21 +349,11 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         6. ESCOLHA SEU PLANO — 8298:3587
-         Bloco NOVO. Preço em gradiente rose→orange via bg-clip-text.
+         6. DESCUBRA COMO COMEÇAR SUA JORNADA — 9085:420
+         Card translúcido sobre o Vector 15, que começa 176px acima da base do card.
          ══════════════════════════════════════════════════════════════ --}}
-    {{-- O design pedia 440px de respiro após a Privacidade; encurtado para 160. --}}
-    <section id="planos" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[160px] lg:px-[62px]">
-        {{--
-            Vector 15 (8298:3477): 1920×419. Ancorado pela base da seção (= base dos
-            cards), como no Figma: a faixa desce 78px além dos cards, o bloco alto da
-            direita sobe ao lado do segundo card e os degraus da esquerda cortam o
-            terço de baixo do primeiro. Altura fixa em px (o preserveAspectRatio="none"
-            estica só na horizontal): com aspect-ratio, abaixo de 1920 a faixa encolhia
-            e terminava no meio dos cards. O painel translúcido do canto inferior
-            direito é o Rectangle do frame, em % do palco.
-        --}}
-        <div class="absolute left-1/2 top-[calc(100%-341px)] -z-10 -ml-[50vw] hidden h-[419px] w-screen lg:block"
+    <section id="acesso" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[160px] lg:px-[62px]">
+        <div class="absolute left-1/2 top-[calc(100%-176px)] -z-10 -ml-[50vw] hidden h-[419px] w-screen lg:block"
              aria-hidden="true">
             <svg class="absolute inset-0 size-full" viewBox="0 0 1920 419" fill="none"
                  preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -411,52 +370,33 @@
 
             <div class="absolute left-[72.7%] top-[58.7%] h-[41.3%] w-[27.3%] bg-white/32"></div>
         </div>
-        <header class="mx-auto flex flex-col gap-4 text-center lg:max-w-[1418px]">
-            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
-                Escolha <span class="text-brand-primary">seu</span> plano
-            </h2>
-            <p class="fm-reveal mx-auto text-base font-medium leading-[1.5] text-medium lg:max-w-[1418px] lg:text-xl"
-               data-fm-delay="1">
-                Cada pacote foi pensado para acompanhar você no seu ritmo, unindo sessões com um
-                consultor financeiro, materiais exclusivos e suporte personalizado via IA para
-                tornar suas decisões financeiras mais simples.
-            </p>
-        </header>
+        <x-graphism class="absolute -top-[209px] left-1/2 -z-10 -ml-[calc(50vw+6px)] hidden size-[264px] lg:block" />
+        <x-graphism color="light" class="absolute right-[81px] top-[260px] -z-10 hidden size-[347px] lg:block" />
 
-        <div class="mx-auto mt-10 grid grid-cols-1 gap-8 lg:mt-16 lg:max-w-[1418px] lg:grid-cols-2">
-            @foreach ([
-                ['preco' => 'R$ 179,90', 'sessoes' => '1 Sessão/mês'],
-                ['preco' => 'R$ 279,90', 'sessoes' => '2 Sessões/mês'],
-            ] as $i => $plano)
-                <div class="fm-card fm-reveal flex flex-col items-center justify-center gap-8 overflow-hidden border border-outline-light bg-elevation-01dp p-8"
-                     data-fm-delay="{{ $i + 1 }}">
-                    <div class="flex w-full flex-col text-center leading-[1.5]">
-                        <p class="text-base font-medium text-dark">Mensal</p>
-                        {{-- gradiente do Figma: 165.6deg, #fd0342 15.42% → #ff803c 84.58% --}}
-                        <p class="bg-gradient-to-br from-brand-primary to-brand-secondary bg-clip-text text-[36px] font-bold leading-[1.5] text-transparent lg:text-5xl">
-                            {{ $plano['preco'] }}
-                        </p>
-                    </div>
-                    <ul class="flex w-full flex-col gap-8">
-                        @foreach ([
-                            ['calendar-check', $plano['sessoes']],
-                            ['book-open-text', 'Materiais exclusivos'],
-                            ['robot', 'Suporte personalizado via IA'],
-                        ] as $item)
-                            <li class="flex items-center gap-2.5 rounded">
-                                <img src="{{ asset('svg/colaborador/' . $item[0] . '.svg') }}" alt=""
-                                     class="size-6 shrink-0" loading="lazy" decoding="async">
-                                <span class="flex-1 text-base font-medium leading-[1.5] text-dark">{{ $item[1] }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endforeach
+        <div class="fm-reveal flex flex-col gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[8px]
+            lg:ml-[min(6.1458vw,118px)] lg:w-[min(49.375vw,948px)] lg:p-16">
+            <div class="flex flex-col gap-8">
+                <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.2917vw,44px)]">
+                    Descubra como começar <span class="text-brand-primary">sua jornada.</span>
+                </h2>
+                <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl">
+                    Conheça as possibilidades de acesso à Flamma e encontre o caminho para começar a cuidar da sua
+                    saúde financeira.
+                </p>
+            </div>
+            <x-button
+                class="fm-btn w-full! sm:w-fit!"
+                variant="flat"
+                size="xl-tight"
+                href="#cadastro"
+            >
+                Conheça as opções de acesso
+            </x-button>
         </div>
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         7. SUA EMPRESA JÁ TEM O FLAMMA? — 8451:1092
+         7. A FLAMMA JÁ ESTÁ NA SUA EMPRESA? — 8451:1092
          Foto (Vector 16) sangra à direita, 700×587.
          ══════════════════════════════════════════════════════════════ --}}
     <section id="cadastro" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[159px] lg:px-[62px]">
@@ -471,35 +411,34 @@
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-4">
                     <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:max-w-[min(42.8125vw,822px)] lg:text-[clamp(28px,2.2917vw,44px)]">
-                        Sua empresa já tem o <span class="text-brand-primary">Flamma</span>?
+                        A <span class="text-brand-primary">Flamma</span> já está na sua empresa?
                     </h2>
                     <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                        data-fm-delay="1">
-                        Se o benefício já está disponível na sua empresa, cadastre-se agora e
-                        marque seu primeiro atendimento com um consultor!
+                        Confira como acessar a solução e comece a cuidar da sua vida financeira.
                     </p>
                 </div>
                 <x-button
-                    class="fm-reveal-left fm-btn w-full! shrink-0 sm:w-[184px]!"
+                    class="fm-reveal-left fm-btn w-full! shrink-0 sm:w-fit!"
                     data-fm-delay="2"
                     variant="flat"
                     size="xl-tight"
-                    href="/app/register"
+                    href="/app/login"
                 >
-                    Fazer meu cadastro
+                    Acessar Flamma
                 </x-button>
             </div>
 
-            <div class="fm-reveal-right fm-zoom hidden aspect-[700/587] w-full lg:ml-auto lg:block">
+            <div class="fm-reveal-right fm-zoom hidden aspect-[1400/1164] w-full lg:ml-auto lg:block">
                 <img src="{{ asset('img/colaborador/cadastro.webp') }}"
-                     alt="Colaborador acessando a plataforma"
+                     alt="Pessoa mostrando a Flamma na tela do celular"
                      class="size-full object-cover" loading="lazy" decoding="async">
             </div>
         </div>
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         8. VOCÊ E SEUS COLEGAS — 8451:1101
+         8. QUE TAL LEVAR A FLAMMA PARA SUA EMPRESA? — 8451:1101
          Foto à ESQUERDA (708×588), texto à direita.
          ══════════════════════════════════════════════════════════════ --}}
     <section id="indicar" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[80px] lg:px-[62px]">
@@ -536,12 +475,12 @@
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-8">
                     <h2 class="fm-reveal-right text-[32px] font-bold leading-[1.5] text-high lg:text-[clamp(28px,2.2917vw,44px)]">
-                        Você e seus colegas com mais <span class="text-brand-primary">organização financeira</span>.
+                        Que tal levar a <span class="text-brand-primary">Flamma para sua empresa</span>?
                     </h2>
                     <p class="fm-reveal-right text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                        data-fm-delay="1">
-                        Indique o Flamma para o RH da sua empresa e dê o primeiro passo para seu
-                        bem-estar financeiro.
+                        Indique a Flamma ao RH e ajude a ampliar o cuidado com a saúde financeira de
+                        todo o time.
                     </p>
                 </div>
                 <x-button
@@ -560,7 +499,7 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         9. COMECE AGORA — 8451:1110
+         9. SEU FUTURO COMEÇA COM AS DECISÕES DE HOJE — 8451:1110
          Card final; foto 761×556 à direita. Mesma foto da CTA da
          /para-empresas (magnific_a-photorealistic-cinemati).
          ══════════════════════════════════════════════════════════════ --}}
@@ -569,20 +508,21 @@
             <div class="flex flex-col gap-8 lg:flex-1">
                 <div class="flex flex-col gap-4 lg:gap-[22px]">
                     <h2 class="text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                        Comece <span class="text-brand-primary">agora</span>
+                        Seu <span class="text-brand-primary">futuro</span> começa com as decisões de
+                        <span class="text-brand-primary">hoje</span>.
                     </h2>
                     <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal">
-                        Marque sua primeira sessão com um consultor Flamma e comece a organizar
-                        suas finanças com quem entende do assunto!
+                        Dê o primeiro passo para organizar suas finanças, planejar suas conquistas e
+                        construir uma relação mais saudável com o dinheiro.
                     </p>
                 </div>
                 <x-button
-                    class="fm-btn w-full! sm:w-[248px]!"
+                    class="fm-btn w-full! sm:w-fit!"
                     variant="flat"
                     size="xl-tight"
                     href="/app/register"
                 >
-                    Agende sua primeira sessão
+                    Comece sua jornada
                 </x-button>
             </div>
 

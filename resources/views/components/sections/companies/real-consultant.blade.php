@@ -1,16 +1,16 @@
 @php
     $highlights = [
         [
-            'title' => 'Consultor humano',
-            'description' => 'Cada sessão é conduzida por um especialista que escuta antes de orientar.',
+            'title' => 'Orientação humana',
+            'description' => 'Apoio especializado para decisões financeiras.',
         ],
         [
-            'title' => 'Personalização real',
-            'description' => 'O ponto de partida é sempre a realidade financeira do colaborador.',
+            'title' => 'Olhar individualizado',
+            'description' => 'Cada realidade exige caminhos diferentes.',
         ],
         [
-            'title' => 'Acompanhamento contínuo',
-            'description' => 'O foco é construir uma mudança de comportamento duradoura.',
+            'title' => 'Cuidado contínuo',
+            'description' => 'Saúde financeira envolve prevenção e evolução.',
         ],
     ];
 @endphp
@@ -109,8 +109,7 @@
                 lg:absolute lg:left-[18.6%] lg:top-[31.7%] lg:flex lg:min-h-[24.1%] lg:w-[53.5%] lg:items-center lg:p-[1.6667cqw]"
         >
             <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[max(24px,2.0833cqw)]">
-                Mais que uma ferramenta, um
-                <span class="text-brand-primary">consultor de verdade</span>
+                Mais que informação, <span class="text-brand-primary">orientação para a vida real.</span>
             </h2>
         </div>
 
