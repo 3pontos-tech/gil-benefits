@@ -499,7 +499,7 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         9. COMECE AGORA — 8451:1110
+         9. SEU FUTURO COMEÇA COM AS DECISÕES DE HOJE — 8451:1110
          Card final; foto 761×556 à direita. Mesma foto da CTA da
          /para-empresas (magnific_a-photorealistic-cinemati).
          ══════════════════════════════════════════════════════════════ --}}
@@ -508,20 +508,21 @@
             <div class="flex flex-col gap-8 lg:flex-1">
                 <div class="flex flex-col gap-4 lg:gap-[22px]">
                     <h2 class="text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                        Comece <span class="text-brand-primary">agora</span>
+                        Seu <span class="text-brand-primary">futuro</span> começa com as decisões de
+                        <span class="text-brand-primary">hoje</span>.
                     </h2>
                     <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal">
-                        Marque sua primeira sessão com um consultor Flamma e comece a organizar
-                        suas finanças com quem entende do assunto!
+                        Dê o primeiro passo para organizar suas finanças, planejar suas conquistas e
+                        construir uma relação mais saudável com o dinheiro.
                     </p>
                 </div>
                 <x-button
-                    class="fm-btn w-full! sm:w-[248px]!"
+                    class="fm-btn w-full! sm:w-fit!"
                     variant="flat"
                     size="xl-tight"
                     href="/app/register"
                 >
-                    Agende sua primeira sessão
+                    Comece sua jornada
                 </x-button>
             </div>
 
