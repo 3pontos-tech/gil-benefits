@@ -201,7 +201,7 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         4. MAIS QUE UMA FERRAMENTA — 8298:3472 + pilares 8298:3653
+         4. CADA PESSOA TEM SEUS PLANOS — 8298:3472 + pilares 8298:3653
          Mesmo bloco da /para-empresas.
          ══════════════════════════════════════════════════════════════ --}}
     {{--
@@ -250,7 +250,8 @@
                             lg:flex lg:min-h-[min(9.5833vw,184px)] lg:items-center lg:p-[min(1.6667vw,32px)]"
                     >
                         <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(24px,2.0833vw,40px)]">
-                            Mais que uma ferramenta, um <span class="text-brand-primary">consultor de verdade</span>
+                            Cada pessoa tem seus <span class="text-brand-primary">planos</span>.<br>
+                            E sua própria <span class="text-brand-primary">realidade</span>.
                         </h2>
                     </div>
                 </div>
@@ -270,8 +271,8 @@
                         data-fm-delay="1"
                     >
                         <p class="text-base font-medium leading-[1.5] text-dark lg:text-[clamp(14px,0.8333vw,16px)]">
-                            Cada colaborador tem uma conversa real com alguém que entende sua situação
-                            financeira, muito além do que qualquer planilha consegue oferecer.
+                            Seja para sair das dívidas, construir uma reserva ou realizar uma conquista, a
+                            Flamma ajuda você a encontrar caminhos para sua vida financeira.
                         </p>
                     </div>
                 </div>
@@ -293,9 +294,9 @@
             <ul class="fm-reveal-right flex w-full flex-col gap-8
                 lg:me-[min(3.9062vw,75px)] lg:mt-[min(4.6354vw,89px)] lg:w-[min(30.3646vw,583px)] lg:gap-[min(2.6042vw,50px)]">
                 @foreach ([
-                    ['Consultor humano', 'Cada sessão é conduzida por um especialista que escuta antes de orientar.'],
-                    ['Personalização real', 'O ponto de partida é sempre a realidade financeira do colaborador.'],
-                    ['Acompanhamento contínuo', 'O foco é construir uma mudança de comportamento duradoura.'],
+                    ['Apoio especializado', 'Orientação para tomar decisões com segurança.'],
+                    ['Sua realidade importa', 'Seus desafios e objetivos são únicos.'],
+                    ['Olhar para o futuro', 'Organização e planejamento para seus próximos passos.'],
                 ] as $pilar)
                     <li class="fm-pillar flex flex-col gap-4 lg:flex-row lg:items-center lg:gap-[min(1.25vw,24px)]">
                         <x-graphism class="w-[46px] lg:w-[clamp(28px,2.1354vw,41px)]" />
