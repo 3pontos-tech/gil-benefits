@@ -2,7 +2,6 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Shared\Pages\EditUserProfile;
 use App\Filament\Shared\Pages\LoginPage;
 use App\Filament\Shared\Pages\RegisterPage;
 use App\Filament\Shared\Pages\RequestPasswordResetPage;
@@ -32,6 +31,7 @@ use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\CommandDashboard;
+use TresPontosTech\PanelCompany\Filament\Pages\EditUserProfile;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\RegisterTenant;
 
