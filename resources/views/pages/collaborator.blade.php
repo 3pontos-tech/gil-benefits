@@ -38,12 +38,12 @@
             <div class="flex flex-col gap-8 lg:max-w-[min(43.0208vw,826px)]">
                 <div class="flex flex-col gap-4">
                     <h1 class="fm-reveal fm-in text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.5vw,48px)]">
-                        <span class="text-brand-primary">Cuide do seu dinheiro</span> com a ajuda de um especialista.
+                        Seus <span class="text-brand-primary">planos merecem</span> sair do papel.
                     </h1>
                     <p class="fm-reveal fm-in text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(16px,1.0417vw,20px)]"
                        data-fm-delay="1">
-                        Consultoria financeira individual, pensada para quem quer organizar suas
-                        finanças e planejar o futuro com apoio de quem realmente entende do assunto.
+                        Organize suas finanças, planeje suas conquistas e tome decisões com mais
+                        segurança. A Flamma ajuda você a cuidar do dinheiro para viver seus próximos passos.
                     </p>
                 </div>
 
@@ -52,19 +52,17 @@
                         class="fm-btn w-full! sm:w-[273px]!"
                         variant="light-brand"
                         size="xl-tight"
-                        href="#planos"
+                        href="#o-que-e"
                     >
-                        Conhecer planos
+                        Conheça a Flamma
                     </x-button>
                     <x-button
                         class="fm-btn w-full! sm:w-[273px]!"
                         variant="flat"
                         size="xl-tight"
-                        href="https://wa.me/5511976205711?text=Flamma"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="#indicar"
                     >
-                        Indicar minha empresa
+                        Indique para sua empresa
                     </x-button>
                 </div>
             </div>
