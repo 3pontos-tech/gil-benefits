@@ -100,7 +100,7 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         3. DO ACESSO À PRIMEIRA SESSÃO — 8451:1039
+         3. SUA JORNADA FINANCEIRA COMEÇA POR VOCÊ — 8451:1039
          Mesmos 3 cards da /para-empresas (mesmas fotos), com rótulos
          e textos próprios do colaborador.
          ══════════════════════════════════════════════════════════════ --}}
@@ -125,49 +125,44 @@
             </div>
         </div>
 
-        {{--
-            O botão "Fazer meu cadastro" que o Figma punha abaixo do título migrou para
-            a seção "Mais que uma ferramenta", abaixo do card da citação.
-        --}}
         <div class="flex flex-col items-center gap-8 text-center">
             <h2 class="fm-reveal w-full text-[32px] font-bold leading-[1.5] text-high lg:text-[64px]">
-                Do acesso à primeira sessão
+                Sua <span class="text-brand-primary">jornada financeira</span> começa por você.
             </h2>
         </div>
 
         {{--
             Mesmos cards da /para-empresas: conferido no Figma que a geometria é idêntica
             (Group 31943 em 33,33 com 482,228 × 327,671, Ellipse 114 em 95,85/309,38,
-            produto em 51,53/65,08 com 428,746 × 278,836). Só mudam ícone, título e texto —
-            aqui é Contratação / Ativação / Consultoria.
+            produto em 51,53/65,08 com 428,746 × 278,836). Só mudam número, título e texto.
         --}}
         <div class="mt-8 grid grid-cols-1 gap-8 lg:mt-14 lg:grid-cols-3">
             @foreach ([
                 [
-                    'icon' => 'handshake.svg',
+                    'number' => '01',
                     'image' => 'card-contract.webp',
-                    'title' => 'Contratação',
-                    'description' => 'Sua empresa contrata o pacote de horas disponível pro time.',
+                    'title' => 'Acesso',
+                    'description' => 'Confira como utilizar a Flamma na sua empresa.',
                     'stage' => [
                         'shadow' => ['shape' => 'ellipse', 'left' => 62.85, 'top' => 276.38, 'width' => 340.109, 'height' => 26.601],
                         'prod' => ['left' => 18.53, 'top' => 32.08, 'width' => 428.746, 'height' => 278.836],
                     ],
                 ],
                 [
-                    'icon' => 'check-circle.svg',
+                    'number' => '02',
                     'image' => 'card-reality.webp',
-                    'title' => 'Ativação',
-                    'description' => 'Você recebe seu acesso e agenda no horário que preferir.',
+                    'title' => 'Orientação',
+                    'description' => 'Encontre apoio para suas necessidades financeiras.',
                     'stage' => [
                         'shadow' => ['shape' => 'ellipse', 'left' => 145.85, 'top' => 284.32, 'width' => 190.523, 'height' => 26.601],
                         'prod' => ['left' => 57.45, 'top' => 0, 'width' => 376.992, 'height' => 327.671],
                     ],
                 ],
                 [
-                    'icon' => 'users.svg',
+                    'number' => '03',
                     'image' => 'card-secrecy.webp',
-                    'title' => 'Consultoria',
-                    'description' => 'Sessões individuais e sigilosas, só entre você e o consultor.',
+                    'title' => 'Evolução',
+                    'description' => 'Organize prioridades e avance em seus objetivos.',
                     'stage' => [
                         'shadow' => [
                             'shape' => 'polygon',
@@ -184,13 +179,24 @@
                 <x-partials.illustration-card
                     class="fm-card fm-reveal"
                     :data-fm-delay="$i + 1"
-                    :icon="$card['icon']"
+                    :number="$card['number']"
                     :image="$card['image']"
                     :stage="$card['stage']"
                     :title="$card['title']"
                     :description="$card['description']"
                 />
             @endforeach
+        </div>
+
+        <div class="mt-8 flex justify-center">
+            <x-button
+                class="fm-reveal fm-btn w-full! sm:w-[273px]!"
+                variant="light-brand"
+                size="xl-tight"
+                href="#acesso"
+            >
+                Conheça a Flamma
+            </x-button>
         </div>
     </section>
 
