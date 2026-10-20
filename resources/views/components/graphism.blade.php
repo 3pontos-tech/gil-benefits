@@ -75,19 +75,6 @@
             ],
         ],
 
-        // Colaborador — a mesma seta na seção de privacidade (Group 31819), com
-        // alguns pixels a mais de folga à direita.
-        'collaborator-arrow-alt' => [
-            'viewBox' => '0 0 335 337',
-            'stroke' => '77.8678',
-            'paths' => [
-                'M295.23 336.428L295.23 -1.07115e-05',
-                'M0 297.473L298.988 297.472',
-            ],
-            'fills' => [
-                'M86.3658 87.1675L58.5444 114.398L268.94 332.614L296.761 305.384L324.583 278.154L114.187 59.9372L86.3658 87.1675Z',
-            ],
-        ],
     ];
 
     $glyph = $glyphs[$type] ?? $glyphs['asterisk'];

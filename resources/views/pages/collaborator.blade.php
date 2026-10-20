@@ -309,16 +309,8 @@
 
     {{-- ══════════════════════════════════════════════════════════════
          5. PRIVACIDADE EM PRIMEIRO LUGAR — 8298:3446
-         Mesmo bloco da /para-empresas, com o mesmo arquivo (img/privacy.webp) e as
-         mesmas medidas de recorte:
-
-             bloco estreito   x ≥ 78,2%    até y 13,5%
-             bloco largo      x ≥ 57,55%   até y 80,31%
-             faixa cheia      x ≥ 0        de  y 80,31%
-
-         A foto sangra de ponta a ponta e traz o recorte em degrau no alpha, e a seta se
-         encaixa no vértice onde a foto se alarga — por isso ela mora dentro do bloco de
-         mídia, ancorada por baixo e pela direita, e não flutua (`data-fm-static`).
+         A foto sangra de ponta a ponta e traz no próprio arquivo o recorte em degrau
+         (alpha) e a seta vermelha.
 
          A tipografia sai em vw porque a foto (e com ela a seta) escala pela viewport: com
          tamanhos fixos, o parágrafo passava por cima da diagonal.
@@ -326,23 +318,11 @@
     <section id="privacidade" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[295px] lg:min-h-[calc(37.0313vw-91px)] lg:px-[62px]">
         <div class="pointer-events-none absolute -top-[91px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block"
              aria-hidden="true">
-            <div class="relative">
-                <img src="{{ asset('img/privacy.webp') }}" alt=""
-                     class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
-
-                {{-- Base 0,4% abaixo do topo da faixa (19,69%), como na /para-empresas:
-                     encostar exato deixava um fio branco de arredondamento. O right-[42.3%]
-                     é o limite à esquerda: deixa a lateral 0,15% sobre o bloco da foto
-                     (x ≥ 57,55%) — qualquer valor maior abre um vão branco entre eles. --}}
-                <x-graphism
-                    type="collaborator-arrow-alt"
-                    data-fm-static
-                    class="absolute bottom-[19.29%] right-[42.3%] hidden w-[17.4%] xl:block"
-                />
-            </div>
+            <img src="{{ asset('img/privacy.webp') }}" alt=""
+                 class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
         </div>
 
-        <div class="flex flex-col gap-8 lg:ml-[min(6.4063vw,123px)] lg:w-[min(36.3021vw,697px)] lg:max-w-none">
+        <div class="flex flex-col gap-8 lg:ml-[min(6.4063vw,123px)] lg:w-[calc(34.5vw-62px)] lg:max-w-none xl:w-[min(36.3021vw,697px)]">
             <div class="flex flex-col gap-4">
                 <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.2917vw,44px)]">
                     <span class="text-brand-primary">Privacidade</span> em primeiro lugar.
