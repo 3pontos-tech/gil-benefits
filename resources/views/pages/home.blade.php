@@ -33,7 +33,7 @@
                 </x-button>
             </div>
 
-            <div class="fm-reveal-scale fm-in fm-zoom relative w-full overflow-hidden lg:h-[584px] lg:w-[674px] lg:shrink-0">
+            <div class="fm-reveal-scale fm-in fm-zoom relative aspect-[674/584] w-full overflow-hidden lg:w-[674px] lg:shrink-0">
                 <img src="{{ asset('img/home/hero.webp') }}"
                      alt="Equipe reunida em frente ao computador durante uma sessão de consultoria"
                      class="size-full object-cover"
