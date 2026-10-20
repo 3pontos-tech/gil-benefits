@@ -101,7 +101,6 @@
            hook é um data-attribute: casar por classe utilitária quebrava a cada
            ajuste de layout. */
         addClass($('[data-card-prod]', card), 'fm-card-prod');
-        addClass(byClass(card, 'size-[31px]')[0], 'fm-card-icon');
       });
     }
 
