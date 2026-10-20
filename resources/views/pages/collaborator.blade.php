@@ -396,7 +396,7 @@
     </section>
 
     {{-- ══════════════════════════════════════════════════════════════
-         7. SUA EMPRESA JÁ TEM O FLAMMA? — 8451:1092
+         7. A FLAMMA JÁ ESTÁ NA SUA EMPRESA? — 8451:1092
          Foto (Vector 16) sangra à direita, 700×587.
          ══════════════════════════════════════════════════════════════ --}}
     <section id="cadastro" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[159px] lg:px-[62px]">
@@ -411,28 +411,27 @@
             <div class="flex flex-col gap-8">
                 <div class="flex flex-col gap-4">
                     <h2 class="fm-reveal-left text-[32px] font-bold leading-[1.5] text-high lg:max-w-[min(42.8125vw,822px)] lg:text-[clamp(28px,2.2917vw,44px)]">
-                        Sua empresa já tem o <span class="text-brand-primary">Flamma</span>?
+                        A <span class="text-brand-primary">Flamma</span> já está na sua empresa?
                     </h2>
                     <p class="fm-reveal-left text-base font-medium leading-[1.5] text-medium lg:max-w-[min(30.1042vw,578px)] lg:text-[clamp(14px,0.8333vw,16px)] lg:font-normal"
                        data-fm-delay="1">
-                        Se o benefício já está disponível na sua empresa, cadastre-se agora e
-                        marque seu primeiro atendimento com um consultor!
+                        Confira como acessar a solução e comece a cuidar da sua vida financeira.
                     </p>
                 </div>
                 <x-button
-                    class="fm-reveal-left fm-btn w-full! shrink-0 sm:w-[184px]!"
+                    class="fm-reveal-left fm-btn w-full! shrink-0 sm:w-fit!"
                     data-fm-delay="2"
                     variant="flat"
                     size="xl-tight"
-                    href="/app/register"
+                    href="/app/login"
                 >
-                    Fazer meu cadastro
+                    Acessar Flamma
                 </x-button>
             </div>
 
-            <div class="fm-reveal-right fm-zoom hidden aspect-[700/587] w-full lg:ml-auto lg:block">
+            <div class="fm-reveal-right fm-zoom hidden aspect-[1400/1164] w-full lg:ml-auto lg:block">
                 <img src="{{ asset('img/colaborador/cadastro.webp') }}"
-                     alt="Colaborador acessando a plataforma"
+                     alt="Pessoa mostrando a Flamma na tela do celular"
                      class="size-full object-cover" loading="lazy" decoding="async">
             </div>
         </div>
