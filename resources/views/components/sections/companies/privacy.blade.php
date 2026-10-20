@@ -1,28 +1,23 @@
-<section class="relative scroll-mt-28 lg:min-h-[min(38.125vw,732px)]" id="privacidade">
+<section class="relative scroll-mt-28 lg:min-h-[calc(37.0313vw-30px)] xl:min-h-[calc(37.0313vw-100px)]" id="privacidade">
     <div
         data-privacy-media
-        class="pointer-events-none absolute top-0 right-[calc(50%-50vw)] -z-10 hidden w-[min(60.156vw,1155px)] lg:block"
+        class="pointer-events-none absolute -top-[30px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block xl:-top-[100px]"
         aria-hidden="true"
     >
         <img
-            src="{{ asset('img/companies/privacy.webp') }}"
+            src="{{ asset('img/privacy.webp') }}"
             alt=""
-            class="block aspect-[1155/732] w-full"
+            class="block aspect-[1920/711] w-full"
             loading="lazy"
             decoding="async"
-        />
-
-        <x-graphism
-            type="collaborator-arrow"
-            data-fm-static
-            class="absolute left-0 top-[36.2%] hidden w-[28.05%] xl:block"
         />
     </div>
 
     <div
         data-privacy-text
         class="flex flex-col items-center gap-4 text-center
-            lg:w-[min(42.8125vw,822px)] lg:items-start lg:gap-[min(1.6667vw,32px)] lg:pt-[min(3.9063vw,75px)] lg:text-left"
+            lg:w-[calc(41vw-62px)] lg:items-start lg:gap-[min(1.6667vw,32px)] lg:pt-[min(2.6042vw,50px)] lg:text-left
+            xl:w-[min(42.8125vw,822px)]"
     >
         <h2 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-[clamp(28px,2.2917vw,44px)]">
             <span class="text-brand-primary">Privacidade</span> em primeiro lugar.
