@@ -2,6 +2,7 @@
     'title' => '',
     'description' => '',
     'icon' => '',    // nome do svg em public/svg/companies
+    'number' => null,
     'image' => '',   // ilustração 3D em public/img/companies
     'stage' => [],   // geometria das camadas, em px do palco 482,229 × 327,671 do Figma
 ])
@@ -76,18 +77,25 @@
     </div>
 
     <div class="flex flex-col gap-6 p-4">
-        <div class="flex items-center gap-6">
-            <img
-                src="{{ asset('svg/companies/' . $icon) }}"
-                alt=""
-                class="fm-card-icon size-[31px] shrink-0"
-                loading="lazy"
-                decoding="async"
-            />
-            <h3 class="text-2xl font-bold leading-[1.5] text-high">
-                {{ $title }}
-            </h3>
-        </div>
+        @if ($number)
+            <div class="flex flex-col gap-4">
+                <p class="text-[40px] font-bold leading-[1.5] text-brand-primary lg:text-5xl" aria-hidden="true">{{ $number }}</p>
+                <h3 class="text-2xl font-bold text-high">{{ $title }}</h3>
+            </div>
+        @else
+            <div class="flex items-center gap-6">
+                <img
+                    src="{{ asset('svg/companies/' . $icon) }}"
+                    alt=""
+                    class="fm-card-icon size-[31px] shrink-0"
+                    loading="lazy"
+                    decoding="async"
+                />
+                <h3 class="text-2xl font-bold leading-[1.5] text-high">
+                    {{ $title }}
+                </h3>
+            </div>
+        @endif
 
         <p class="text-base font-medium leading-[1.5] text-medium">
             {{ $description }}
