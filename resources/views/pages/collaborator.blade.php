@@ -16,32 +16,18 @@
 
     {{-- ══════════════════════════════════════════════════════════════
          1. HERO — 8298:3487 sobre Vector 17 (8298:3486)
-         O Vector 17 é uma foto 1920×1156 com recorte em degrau no alpha
-         do PNG — mesma técnica do bloco de privacidade da /para-empresas.
+         Foto com recorte em degrau no alpha do arquivo e a faixa vermelha
+         contornando o degrau, no mesmo palco (1920×1121).
          ══════════════════════════════════════════════════════════════ --}}
-    {{-- A altura acompanha a foto de fundo (1920 × 1136 = 59,1667vw), que é w-full/h-auto:
-         com a altura fixa em px, abaixo de 1920 sobrava fundo claro sob a imagem. --}}
-    <section id="colaborador" class="relative scroll-mt-28 lg:left-1/2 lg:-mx-[50vw] lg:h-[59.1667vw] lg:w-screen">
-        {{-- -top-1.5: as primeiras ~4 linhas de pixels do arquivo são brancas e abriam
-             um fio entre o topo da foto e a navbar — subir 6px as esconde sob ela. --}}
-        <div class="absolute inset-x-0 -top-1.5 -z-10 hidden lg:block" aria-hidden="true">
+    <section id="colaborador" class="relative scroll-mt-28 lg:left-1/2 lg:-mx-[50vw] lg:h-[58.3854vw] lg:w-screen">
+        <div class="absolute inset-x-0 top-0 -z-10 hidden lg:block" aria-hidden="true">
             <img src="{{ asset('img/colaborador/hero-bg.webp') }}" alt=""
                  class="h-auto w-full" fetchpriority="high" decoding="async">
 
-            {{--
-                Grafismo do Figma: banda vermelha de 30px contornando o degrau entre o
-                painel claro e a foto, mais o bloco solto ao lado da faixa inferior direita.
-                As coordenadas vêm do recorte medido no próprio hero-bg.webp (palco
-                1920×1136): borda em x=1174 (y 0–382), x=1036 (y 382–758), full-bleed em
-                y=758 e o bloco da direita entre y 1002–1112. As bordas externas avançam
-                6px para dentro da foto: cravadas na fronteira exata, o anti-aliasing do
-                arquivo deixava um fio claro entre o vermelho e a imagem. Como o SVG usa
-                o mesmo palco da foto, o encaixe acompanha qualquer largura.
-            --}}
-            <svg class="absolute inset-0 h-auto w-full text-brand-primary" viewBox="0 0 1920 1136"
+            <svg class="absolute inset-0 h-auto w-full text-brand-primary" viewBox="0 0 1920 1121"
                  fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M1180 0V388H1042V764H0V728H1006V352H1144V0Z" fill="currentColor"/>
-                <path d="M1144 996H1180V1112H1144V996Z" fill="currentColor"/>
+                <path d="M1102.5 0V438H964.5V794.5H0V758.5H928.5V402H1066.5V0Z" fill="currentColor"/>
+                <path d="M1066.5 1027H1102.5V1097H1066.5V1027Z" fill="currentColor"/>
             </svg>
         </div>
 
