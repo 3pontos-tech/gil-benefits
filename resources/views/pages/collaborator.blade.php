@@ -88,14 +88,13 @@
             class="absolute -top-12 right-1/2 -z-10 -mr-[50vw] hidden w-[324px] xl:block"
         />
 
-        <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-7">
+        <div class="flex flex-col gap-4 lg:max-w-[1051px]">
             <h2 class="fm-reveal text-center text-[32px] font-bold leading-[1.5] text-high lg:text-left lg:text-[64px]">
-                O que é o <span class="text-brand-primary">Flamma</span>?
+                <span class="text-brand-primary">Seu dinheiro</span> pode ajudar a construir seus próximos planos.
             </h2>
             <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                O Flamma é um benefício corporativo de saúde financeira, oferecido pela sua
-                empresa, que conecta você a consultores especializados para organizar suas
-                finanças, sair das dívidas e planejar o futuro com mais segurança.
+                A Flamma é uma solução de saúde financeira que oferece orientação para você organizar
+                suas finanças, lidar com desafios e planejar o futuro com mais confiança.
             </p>
         </div>
     </section>
