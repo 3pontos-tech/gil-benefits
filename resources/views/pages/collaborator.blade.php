@@ -318,8 +318,8 @@
          A tipografia sai em vw porque a foto (e com ela a seta) escala pela viewport: com
          tamanhos fixos, o parágrafo passava por cima da diagonal.
          ══════════════════════════════════════════════════════════════ --}}
-    <section id="privacidade" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[295px] lg:min-h-[calc(37.0313vw-91px)] lg:px-[62px]">
-        <div class="pointer-events-none absolute -top-[91px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block"
+    <section id="privacidade" class="relative mx-auto mt-20 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[295px] lg:min-h-[calc(37.0313vw-30px)] lg:px-[62px] xl:min-h-[calc(37.0313vw-91px)]">
+        <div class="pointer-events-none absolute -top-[30px] left-1/2 -z-10 -ml-[50vw] hidden w-screen lg:block xl:-top-[91px]"
              aria-hidden="true">
             <img src="{{ asset('img/privacy.webp') }}" alt=""
                  class="block aspect-[1920/711] w-full" loading="lazy" decoding="async">
