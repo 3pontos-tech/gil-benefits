@@ -9,6 +9,7 @@ use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Tests\Fakes\FakeBillingContract;
+use TresPontosTech\Billing\Core\Actions\ResolveBenefitAccess;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -58,7 +59,7 @@ function makeUserMiddleware(
     // como "sem assinatura" em vez de derrubar o teste.
     $manager->shouldReceive('getDriver')->andReturn(new FakeBillingContract);
 
-    return new RedirectUserIfNotSubscribed(resolve(PlanRepository::class), $manager);
+    return new RedirectUserIfNotSubscribed(new ResolveBenefitAccess(resolve(PlanRepository::class), $manager), $manager);
 }
 
 function fakeRequest(): Request

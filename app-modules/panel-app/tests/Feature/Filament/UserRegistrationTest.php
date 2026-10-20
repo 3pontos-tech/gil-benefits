@@ -173,3 +173,23 @@ it('prefills the field from the card link', function (): void {
         ->test(UserRegistration::class)
         ->assertFormSet(['voucher' => $code->code]);
 });
+
+it('stores the email in lowercase', function (): void {
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm(['email' => 'Joe.Doe@Example.COM']))
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    assertDatabaseHas(User::class, ['email' => 'joe.doe@example.com']);
+});
+
+it('refuses an email that only differs in capitalization from an existing one', function (): void {
+    User::factory()->create(['email' => 'joe@doe.com']);
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm(['email' => 'Joe@Doe.com']))
+        ->call('register')
+        ->assertHasFormErrors(['email' => 'unique']);
+
+    assertDatabaseCount(User::class, 1);
+});

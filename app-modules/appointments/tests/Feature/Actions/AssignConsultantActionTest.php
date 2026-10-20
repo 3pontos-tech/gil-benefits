@@ -1,6 +1,8 @@
 <?php
 
+use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\Appointments\Actions\AssignConsultantAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
@@ -181,4 +183,102 @@ it('replaces the existing APPOINTMENT schedule when reassigning the same appoint
         ->whereJsonContains('metadata->appointment_id', $appointment->id)
         ->count()
     )->toBe(1);
+});
+
+/**
+ * Roda a action e devolve quantas linhas a consulta de trava (`... for update` sobre os schedules
+ * do consultor) selecionou no momento em que rodou, antes de a action gravar o bloqueio do encontro. O SQLite ignora o FOR UPDATE, então o que dá para provar aqui é que
+ * a trava pega as linhas certas; a espera em si é garantida pelo Postgres.
+ */
+function rowsLockedWhileAssigning(Appointment $appointment): int
+{
+    $rowsLocked = null;
+    $captured = false;
+
+    DB::listen(function (QueryExecuted $query) use (&$rowsLocked, &$captured): void {
+        if ($captured || ! str_starts_with($query->sql, 'select') || ! str_contains($query->sql, '"schedulable_id"')) {
+            return;
+        }
+
+        $captured = true;
+        $rowsLocked = count(DB::select($query->sql, $query->bindings));
+    });
+
+    resolve(AssignConsultantAction::class)->handle($appointment);
+
+    return $rowsLocked ?? 0;
+}
+
+it('locks the open-ended weekly availability the admin registers', function (): void {
+    $this->travelTo('2026-10-07 10:00:00');
+    $consultant = Consultant::factory()->create();
+
+    Zap::for($consultant)
+        ->named('Comercial')
+        ->availability()
+        ->from('2026-09-01')
+        ->weekDays(['monday', 'tuesday', 'wednesday', 'thursday', 'friday'], '08:00', '20:00')
+        ->save();
+
+    expect(Schedule::query()->where('schedulable_id', $consultant->id)->value('end_date'))->toBeNull();
+
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $consultant->id,
+        'appointment_at' => Date::parse('2026-10-08 10:00:00'),
+        'status' => AppointmentStatus::Active,
+    ]);
+
+    expect(rowsLockedWhileAssigning($appointment))->toBe(1);
+});
+
+it('locks a dated availability that covers the day', function (): void {
+    $consultant = Consultant::factory()->create();
+    $date = Date::now()->addDays(3);
+
+    Zap::for($consultant)
+        ->named('Availability')
+        ->availability()
+        ->from($date->toDateString())
+        ->to($date->copy()->addDay()->toDateString())
+        ->addPeriod('08:00', '18:00')
+        ->save();
+
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $consultant->id,
+        'appointment_at' => $date->copy()->setTime(10, 0),
+        'status' => AppointmentStatus::Active,
+    ]);
+
+    expect(rowsLockedWhileAssigning($appointment))->toBe(1);
+});
+
+/**
+ * Travar antes de apagar o bloqueio anterior, em ordem de id: duas atribuições ao mesmo consultor
+ * esperam uma pela outra em vez de cada uma esperar a linha apagada da outra (deadlock).
+ */
+it('locks the consultant agenda before deleting the previous block, in id order', function (): void {
+    $consultant = Consultant::factory()->create();
+    $date = Date::now()->addDays(3);
+    Zap::for($consultant)->named('Availability')->availability()
+        ->from($date->toDateString())->to($date->copy()->addDay()->toDateString())
+        ->addPeriod('08:00', '18:00')->save();
+    $appointment = Appointment::factory()->create([
+        'consultant_id' => $consultant->id,
+        'appointment_at' => $date->copy()->setTime(10, 0),
+        'status' => AppointmentStatus::Active,
+    ]);
+    $statements = [];
+    DB::listen(function (QueryExecuted $query) use (&$statements): void {
+        $statements[] = $query->sql;
+    });
+
+    resolve(AssignConsultantAction::class)->handle($appointment);
+
+    $lock = collect($statements)->search(fn (string $sql): bool => str_starts_with($sql, 'select') && str_contains($sql, '"schedulable_id"'));
+    $delete = collect($statements)->search(fn (string $sql): bool => str_starts_with($sql, 'delete from "schedules"'));
+
+    expect($lock)->toBeInt()
+        ->and($delete)->toBeInt()
+        ->and($lock)->toBeLessThan($delete)
+        ->and($statements[$lock])->toContain('order by "id" asc');
 });

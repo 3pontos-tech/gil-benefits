@@ -7,8 +7,8 @@ namespace TresPontosTech\PanelApp\Filament\Widgets;
 use App\Models\Users\User;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\On;
+use TresPontosTech\Appointments\Actions\BuildUserJourneyAction;
 use TresPontosTech\Appointments\Enums\AppointmentCategoryEnum;
-use TresPontosTech\PanelApp\Actions\BuildUserJourneyAction;
 
 class FinancialTopicsWidget extends Widget
 {

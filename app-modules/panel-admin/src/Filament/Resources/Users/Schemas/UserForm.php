@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Schema;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\User\Support\EmailAddress;
 
 class UserForm
 {
@@ -25,6 +26,7 @@ class UserForm
                             ->label(__('panel-admin::resources.users.form.email'))
                             ->email()
                             ->unique()
+                            ->mutateStateForValidationUsing(fn (?string $state): ?string => EmailAddress::normalize($state))
                             ->required(),
                         TextInput::make('password')
                             ->label(__('panel-admin::resources.users.form.password'))

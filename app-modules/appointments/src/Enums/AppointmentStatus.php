@@ -73,6 +73,16 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
         };
     }
 
+    /**
+     * Status que encerram a consultoria: não contam como em andamento e entram no histórico.
+     *
+     * @return list<self>
+     */
+    public static function closed(): array
+    {
+        return [self::Completed, self::Cancelled, self::CancelledLate, self::NoShow];
+    }
+
     public static function resolveCancellationStatus(Appointment $appointment, CancellationActor $actor): self
     {
         if ($actor !== CancellationActor::User) {

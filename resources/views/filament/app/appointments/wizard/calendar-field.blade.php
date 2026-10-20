@@ -8,6 +8,7 @@
     $slotStatePath = Str::beforeLast($statePath, '.') . '.appointment_at';
     $selected = $getState();
     $minDate = $minDate instanceof Closure ? $minDate() : $minDate;
+    $maxDate = ($maxDate ?? null) instanceof Closure ? $maxDate() : ($maxDate ?? null);
 
     $monthNames = collect(range(1, 12))
         ->map(fn (int $month): string => Str::ucfirst(Carbon::create(2026, $month, 1)->translatedFormat('F')))
@@ -26,6 +27,7 @@
     x-data="{
         selected: @js($selected),
         min: @js($minDate),
+        max: @js($maxDate),
         monthNames: @js($monthNames),
         weekdayFull: @js($weekdayFull),
         viewYear: 0,
@@ -62,7 +64,7 @@
                     iso,
                     day: date.getDate(),
                     inMonth: date.getMonth() === this.viewMonth,
-                    disabled: iso < this.min,
+                    disabled: iso < this.min || (this.max !== null && iso > this.max),
                 }
             })
         },
