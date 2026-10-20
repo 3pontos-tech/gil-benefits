@@ -2,10 +2,10 @@
     {{--
         overflow-x-clip contém as faixas que sangram de ponta a ponta (`w-screen`) sem gerar
         barra de rolagem horizontal. O espaçamento vertical não é uniforme: o design vai de
-        ~16px entre o hero e a seção seguinte até ~490px antes do simulador, então cada
+        ~16px entre o hero e a seção seguinte até 80px entre os blocos finais, então cada
         seção carrega a sua própria margem. Os valores de lg vêm das coordenadas do Figma:
         hero→investir 16 · investir→fluxo 0 · fluxo→consultor 0 · consultor→privacidade 80 ·
-        privacidade→plano 80 · plano→contratar 215.
+        privacidade→proposta 80 · proposta→contratar 80.
 
         O container é `max-w-[1800px]` com 62px de padding, e não 1676 direto: no Figma o
         CONTEÚDO tem 1676px, com 122px de margem lateral numa prancheta de 1920. 1800 − 2×62
@@ -34,10 +34,10 @@
         </div>
 
         <div class="mx-auto mt-20 max-w-[1800px] px-5 sm:px-8 lg:mt-20 lg:px-[62px]">
-            <x-sections.companies.plan />
+            <x-sections.companies.solution />
         </div>
 
-        <div class="mx-auto mt-20 max-w-[1800px] px-5 sm:px-8 lg:mt-[215px] lg:px-[62px]">
+        <div class="mx-auto mt-20 max-w-[1800px] px-5 sm:px-8 lg:mt-20 lg:px-[62px]">
             <x-sections.companies.final-cta />
         </div>
 

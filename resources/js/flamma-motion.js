@@ -47,7 +47,7 @@
     var flow = $('#como-funciona');
     var tool = $('#consultor');
     var privacy = $('#privacidade');
-    var plan = $('#simulador');
+    var solution = $('#proposta');
     var cta = $('#contratar');
 
     var scope = hero.closest('.overflow-x-clip') || $('.fi-page-content') || document.body;
@@ -70,7 +70,7 @@
       }
     });
 
-    $$('a[href="#simulador"], a[href="#contratar"]').forEach(function (a) { addClass(a, 'fm-btn'); });
+    $$('a[href="#proposta"], a[href="#contratar"]').forEach(function (a) { addClass(a, 'fm-btn'); });
 
     /* Hero — acima da dobra: entra imediatamente, mas em cascata */
     var heroGrid = $('.grid', hero);
@@ -121,16 +121,9 @@
       reveal($('[data-privacy-media]', privacy), 'reveal-right');
     }
 
-    if (plan) {
-      reveal($('header', plan), 'reveal');
-      var planFrame = firstByClass(plan, 'aspect-[1670/804]');
-      reveal(planFrame, 'reveal-scale', 1);
-      addClass(planFrame, 'fm-zoom');
-      addClass(planFrame, 'fm-zoom--slow');
-      reveal($('[wire\\:id]', plan), 'reveal', 2);
-      $$('button', plan).forEach(function (b) {
-        if (/orçamento/i.test(b.textContent)) addClass(b, 'fm-btn');
-      });
+    if (solution) {
+      reveal(solution.lastElementChild, 'reveal-scale');
+      addClass($('[data-solution-photo]', solution), 'fm-zoom');
     }
 
     if (cta) {
