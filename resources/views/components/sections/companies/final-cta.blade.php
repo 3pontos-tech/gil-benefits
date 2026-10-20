@@ -50,7 +50,7 @@
                 class="w-full! shrink-0 sm:w-fit! lg:w-[max(250px,17.4%)]!"
                 variant="flat"
                 size="xl"
-                href="https://wa.me/5511976205711?text=Flamma"
+                :href="config('services.whatsapp.url')"
                 target="_blank"
                 rel="noopener noreferrer"
             >

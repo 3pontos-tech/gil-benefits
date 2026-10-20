@@ -35,7 +35,7 @@
             <x-button
                 class="mt-2 w-full! sm:w-fit!"
                 variant="flat"
-                href="https://wa.me/5511976205711?text=Flamma"
+                :href="config('services.whatsapp.url')"
                 target="_blank"
                 rel="noopener noreferrer"
             >
