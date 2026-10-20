@@ -23,21 +23,23 @@
     <div class="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[1fr_654px] lg:gap-12">
         <div class="flex flex-col gap-4 lg:max-w-[822px] lg:gap-8">
             <h1 class="text-[32px] font-bold leading-[1.5] text-dark lg:text-5xl">
-                O <span class="text-brand-primary">bem-estar financeiro</span> do seu time em forma de
-                <span class="text-brand-primary">benefício</span>
+                A <span class="text-brand-primary">saúde financeira</span> do seu time também importa
+                <span class="text-brand-primary">para sua empresa</span>.
             </h1>
 
             <p class="text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal">
-                Se seu colaborador está organizado financeiramente, a empresa tem menos turnover, mais
-                produtividade e uma cultura mais forte.
+                Incorpore a saúde financeira à sua estratégia de cuidado e ofereça orientação especializada
+                para apoiar o bem-estar dos colaboradores.
             </p>
 
             <x-button
                 class="mt-2 w-full! sm:w-fit!"
                 variant="flat"
-                href="#proposta"
+                href="https://wa.me/5511976205711?text=Flamma"
+                target="_blank"
+                rel="noopener noreferrer"
             >
-                Simular contratação
+                Fale com nosso time
             </x-button>
         </div>
 
