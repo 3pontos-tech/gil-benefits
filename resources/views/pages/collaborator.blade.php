@@ -1,4 +1,4 @@
-<x-layouts.site title="Para Colaboradores" description="Consultoria financeira individual, pensada para quem quer organizar as finanças e planejar o futuro com apoio de especialistas.">
+<x-layouts.site title="Para Colaboradores" description="Organize suas finanças, planeje suas conquistas e tome decisões com mais segurança com a Flamma.">
 {{--
     Página do colaborador — Figma node 8298:3441 ("Pagina colaborador")
     Ordem e copy conforme o Figma. Classes fm-* animadas por flamma-motion.
@@ -8,8 +8,7 @@
     ligeiramente diferente. Depois que as duas páginas estiverem no ar, valem
     ser extraídas para componentes Blade. Veja o HANDOFF-colaborador.md.
 
-    Assets novos em public/img/colaborador/ e public/svg/colaborador/.
-    Assets reaproveitados de public/img/companies/ e public/svg/companies/.
+    Assets novos em public/img/colaborador/; os cards da jornada reaproveitam public/img/companies/.
 --}}
 
 <div class="fm-page overflow-x-clip">
@@ -191,7 +190,7 @@
         <div class="mt-8 flex justify-center">
             <x-button
                 class="fm-reveal fm-btn w-full! sm:w-[273px]!"
-                variant="light-brand"
+                variant="flat"
                 size="xl-tight"
                 href="#acesso"
             >
@@ -371,7 +370,8 @@
 
             <div class="absolute left-[72.7%] top-[58.7%] h-[41.3%] w-[27.3%] bg-white/32"></div>
         </div>
-        <x-graphism class="absolute right-[81px] top-[260px] -z-10 hidden size-[347px] lg:block" />
+        <x-graphism class="absolute -top-[209px] left-1/2 -z-10 -ml-[calc(50vw+6px)] hidden size-[264px] lg:block" />
+        <x-graphism color="light" class="absolute right-[81px] top-[260px] -z-10 hidden size-[347px] lg:block" />
 
         <div class="fm-reveal flex flex-col gap-8 rounded border border-outline-light bg-white/32 p-6 backdrop-blur-[8px]
             lg:ml-[min(6.1458vw,118px)] lg:w-[min(49.375vw,948px)] lg:p-16">
