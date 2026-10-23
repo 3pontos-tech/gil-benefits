@@ -26,8 +26,7 @@
                 <h4 class="text-base font-bold leading-[1.5]">Ajuda e Conteúdo</h4>
 
                 <ul class="flex flex-col gap-5 text-sm">
-                    {{-- A âncora #assessment saiu da home na reconstrução; a seção equivalente é esta. --}}
-                    <li><a href="{{ route('site.home') }}#por-que-confiar" class="transition hover:opacity-80">Por que confiar</a></li>
+                    <li><a href="{{ route('site.home') }}#diferenciais" class="transition hover:opacity-80">Diferenciais</a></li>
                     <li><a href="{{ route('site.home') }}#pricing" class="transition hover:opacity-80">Preços</a></li>
                     <li><a href="{{ route('site.home') }}#faq" class="transition hover:opacity-80">FAQ</a></li>
                     <li>

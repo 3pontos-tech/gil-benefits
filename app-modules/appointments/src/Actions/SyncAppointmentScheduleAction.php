@@ -36,6 +36,11 @@ final readonly class SyncAppointmentScheduleAction
     ) {}
 
     /**
+     * O `re_scheduled` só é gravado depois que o novo horário foi reservado na agenda do
+     * consultor: se ele estiver ocupado, `blockAgenda` reverte o registro e relança, e o
+     * histórico não pode ficar com um reagendamento que não aconteceu (#294). Nos caminhos
+     * sem reserva (sem consultor, ou consultor removido) não há o que falhar depois.
+     *
      * @return bool false when a Google Calendar operation failed (the appointment was still saved).
      */
     public function handle(
@@ -51,25 +56,33 @@ final readonly class SyncAppointmentScheduleAction
             return true;
         }
 
-        if ($timeChanged) {
-            $this->recordHistory($appointment, AppointmentHistoryActionType::ReScheduled, $actor);
-        }
-
         if ($consultantChanged && blank($appointment->consultant_id)) {
+            $this->recordRescheduleIf($timeChanged, $appointment, $actor);
             $this->recordHistory($appointment, AppointmentHistoryActionType::ConsultantLeft, $actor);
 
             return $this->unassign($appointment, $previousConsultantId);
         }
 
         if (blank($appointment->consultant_id)) {
+            $this->recordRescheduleIf($timeChanged, $appointment, $actor);
+
             return true;
         }
 
         $this->blockAgenda($appointment, $previousConsultantId, $previousAppointmentAt);
 
+        $this->recordRescheduleIf($timeChanged, $appointment, $actor);
+
         return $consultantChanged
             ? $this->reassign($appointment, $previousConsultantId, $actor)
             : $this->reschedule($appointment);
+    }
+
+    private function recordRescheduleIf(bool $timeChanged, Appointment $appointment, AppointmentHistoryActor $actor): void
+    {
+        if ($timeChanged) {
+            $this->recordHistory($appointment, AppointmentHistoryActionType::ReScheduled, $actor);
+        }
     }
 
     private function recordHistory(Appointment $appointment, AppointmentHistoryActionType $type, AppointmentHistoryActor $actor): void

@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
+use TresPontosTech\User\Support\EmailAddress;
 
 class ValidateUserImportAction
 {
@@ -37,7 +38,7 @@ class ValidateUserImportAction
         $rows->each(function (array $row): void {
             $rowNumber = $row['__row_number'];
             $name = trim((string) ($row['name'] ?? ''));
-            $email = strtolower(trim((string) ($row['email'] ?? '')));
+            $email = EmailAddress::normalize((string) ($row['email'] ?? ''));
             $taxId = trim((string) ($row['tax_id'] ?? '')) ?: null;
             $phoneNumber = trim((string) ($row['phone_number'] ?? '')) ?: null;
             $documentId = trim((string) ($row['document_id'] ?? '')) ?: null;
@@ -199,7 +200,7 @@ class ValidateUserImportAction
      */
     private function validateDuplicateEmails(Collection $rows): void
     {
-        $emails = $rows->map(fn (array $row): string => strtolower(trim((string) ($row['email'] ?? ''))));
+        $emails = $rows->map(fn (array $row): string => EmailAddress::normalize((string) ($row['email'] ?? '')));
 
         $emails->filter(fn (string $email): bool => filled($email))
             ->duplicates()
@@ -213,18 +214,22 @@ class ValidateUserImportAction
     }
 
     /**
+     * Conta também usuários excluídos (soft delete): eles continuam ocupando o e-mail no
+     * índice único, e o `insert` da importação quebraria em vez de apontar a linha.
+     *
      * @param  Collection<int, array<string, mixed>>  $rows
      */
     private function validateExistingEmails(Collection $rows): void
     {
-        $emails = $rows->map(fn (array $row): string => strtolower(trim((string) ($row['email'] ?? ''))));
+        $emails = $rows->map(fn (array $row): string => EmailAddress::normalize((string) ($row['email'] ?? '')));
 
         $emailToRow = $rows
-            ->filter(fn (array $row): bool => filled(strtolower(trim((string) ($row['email'] ?? '')))))
-            ->keyBy(fn (array $row): string => strtolower(trim((string) $row['email'])))
+            ->filter(fn (array $row): bool => filled(EmailAddress::normalize((string) ($row['email'] ?? ''))))
+            ->keyBy(fn (array $row): string => EmailAddress::normalize((string) $row['email']))
             ->map(fn (array $row): int => $row['__row_number']);
 
         User::query()
+            ->withTrashed()
             ->whereIn('email', $emails->filter()->unique()->all())
             ->pluck('email')
             ->each(function (string $email) use ($emailToRow): void {

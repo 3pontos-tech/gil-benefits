@@ -16,17 +16,24 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
+use TresPontosTech\Api\Enums\TokenAbility;
+use TresPontosTech\Appointments\Actions\GetAvailableSlotsAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
+use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Company\Actions\AttachToDefaultCompany;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
+use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\Permissions\Roles;
 use Zap\Facades\Zap;
 
@@ -247,6 +254,113 @@ function actingAsSubscribedEmployee(int $monthlyLimit = 1): User
     return $user;
 }
 
+/**
+ * Colaborador B2B autenticado pela API do app (token Sanctum com a ability `employee`), numa
+ * empresa com plano contratual ativo.
+ *
+ * Como em produção, a requisição chega sem painel nem tenant do Filament: quem fixa a empresa
+ * é o EnsureAppAccess.
+ */
+function actingAsApiEmployee(): User
+{
+    $user = actingAsEmployee();
+
+    Sanctum::actingAs($user, [TokenAbility::Employee->value]);
+    filament()->setCurrentPanel(null);
+    filament()->setTenant(null);
+
+    return $user;
+}
+
+/**
+ * Assinante individual: ligado só à empresa padrão, com assinatura própria a preço cheio que dá
+ * `$monthlyLimit` consultorias por mês. É quem entra no app sem empresa por trás.
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function standaloneSubscriber(array $attributes = [], int $monthlyLimit = 1): User
+{
+    $user = defaultCompanyUser($attributes);
+    subscribeStandalone($user, $monthlyLimit);
+
+    return $user;
+}
+
+/**
+ * Assinatura própria a preço cheio, a que vale na empresa padrão.
+ */
+function subscribeStandalone(User $user, int $monthlyLimit = 1): void
+{
+    $plan = Plan::factory()->createOne([
+        'type' => BillableTypeEnum::User->value,
+        'active' => true,
+    ]);
+
+    $price = Price::query()->create([
+        'billing_plan_id' => $plan->id,
+        'billing_scheme' => 'per_unit',
+        'tiers_mode' => 'volume',
+        'type' => 'recurring',
+        'unit_amount_decimal' => 9000,
+        'active' => true,
+        'provider_price_id' => 'price_standalone_' . uniqid(),
+        'audience' => PriceAudienceEnum::Standalone,
+        'monthly_appointments' => $monthlyLimit,
+        'whatsapp_enabled' => true,
+        'materials_enabled' => true,
+    ]);
+
+    $user->subscriptions()->create([
+        'type' => $plan->slug,
+        'stripe_id' => 'sub_standalone_' . uniqid(),
+        'stripe_status' => 'active',
+        'stripe_price' => $price->provider_price_id,
+        'quantity' => 1,
+    ]);
+}
+
+/**
+ * Assinante individual autenticado pela API do app (token Sanctum com a ability `employee`).
+ */
+function actingAsApiSubscriber(int $monthlyLimit = 1): User
+{
+    $user = standaloneSubscriber(monthlyLimit: $monthlyLimit);
+
+    Sanctum::actingAs($user, [TokenAbility::Employee->value]);
+    filament()->setCurrentPanel(null);
+    filament()->setTenant(null);
+
+    return $user;
+}
+
+/**
+ * Faz qualquer consulta à agenda dos consultores falhar: prova que um caminho responde sem
+ * calcular disponibilidade. A action é `readonly`, então o Mockery não consegue estendê-la.
+ */
+function forbidAgendaLookups(): void
+{
+    app()->instance(GetAvailableSlotsAction::class, new readonly class extends GetAvailableSlotsAction
+    {
+        public function handle(Carbon $date, int $durationMinutes = 60, int $bufferMinutes = 0): array
+        {
+            throw new RuntimeException('A agenda dos consultores não deveria ser consultada.');
+        }
+    });
+}
+
+/**
+ * Usuário ligado só à empresa padrão, como sai do cadastro (assinante individual ou voucher).
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function defaultCompanyUser(array $attributes = []): User
+{
+    $user = User::factory()->create($attributes);
+    resolve(AttachToDefaultCompany::class)->execute($user, Roles::User);
+
+    return $user;
+}
+
 function actingAsConsultant(): Consultant
 {
     $consultant = Consultant::factory()->createOne();
@@ -280,4 +394,34 @@ function consultantAvailableOn(CarbonInterface ...$days): Consultant
     }
 
     return $consultant;
+}
+
+/**
+ * Agendamento do colaborador na empresa empregadora e sem consultor — como BookAppointmentAction grava.
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function appointmentFor(User $user, AppointmentStatus $status, CarbonInterface $appointmentAt, array $attributes = []): Appointment
+{
+    return Appointment::factory()->withStatus($status)->withoutConsultant()->create([
+        'user_id' => $user->getKey(),
+        'company_id' => $user->employerCompanyId(),
+        'appointment_at' => $appointmentAt,
+        ...$attributes,
+    ]);
+}
+
+/**
+ * Crédito avulso do colaborador na empresa empregadora (a factory inventaria outra empresa).
+ *
+ * @param  array<string, mixed>  $attributes
+ */
+function standaloneCreditFor(User $user, array $attributes = []): UserCredit
+{
+    return UserCredit::factory()->available()->create([
+        'owner_id' => $user->getKey(),
+        'holder_id' => $user->getKey(),
+        'company_id' => $user->employerCompanyId(),
+        ...$attributes,
+    ]);
 }

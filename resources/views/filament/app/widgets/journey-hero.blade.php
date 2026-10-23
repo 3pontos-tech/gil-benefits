@@ -1,4 +1,4 @@
-@php use TresPontosTech\PanelApp\DTOs\UserJourney; @endphp
+@php use TresPontosTech\Appointments\DTO\UserJourney; @endphp
 @php /** @var UserJourney $journey */ @endphp
 @php
     // Cada card: ícone, tom da paleta do painel, valor, total opcional e delta do mês.

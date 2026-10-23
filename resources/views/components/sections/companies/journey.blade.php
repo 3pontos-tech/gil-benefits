@@ -11,9 +11,9 @@
      */
     $steps = [
         [
-            'icon' => 'handshake.svg',
             'image' => 'card-contract.webp',
-            'title' => 'Contratação',
+            'number' => '01',
+            'title' => 'Implementação',
             'description' => 'Você escolhe o pacote ideal para o tamanho do seu time.',
             'stage' => [
                 'shadow' => ['shape' => 'ellipse', 'left' => 62.85, 'top' => 276.38, 'width' => 340.109, 'height' => 26.601],
@@ -21,9 +21,9 @@
             ],
         ],
         [
-            'icon' => 'target.svg',
             'image' => 'card-reality.webp',
-            'title' => 'Realidade',
+            'number' => '02',
+            'title' => 'Acesso',
             'description' => 'Seu time recebe acesso e agenda no horário que preferir.',
             'stage' => [
                 'shadow' => ['shape' => 'ellipse', 'left' => 145.85, 'top' => 284.32, 'width' => 190.523, 'height' => 26.601],
@@ -31,9 +31,9 @@
             ],
         ],
         [
-            'icon' => 'lock-key.svg',
             'image' => 'card-secrecy.webp',
-            'title' => 'Sigilo',
+            'number' => '03',
+            'title' => 'Orientação',
             'description' => 'Sessões individuais e sigilosas, sem que a empresa precise acompanhar ou intermediar.',
             'stage' => [
                 'shadow' => [
@@ -76,12 +76,12 @@
     <div class="relative mx-auto flex max-w-[1800px] flex-col gap-8 px-5 sm:px-8 lg:gap-[74px] lg:px-[62px]">
         <header class="flex flex-col items-center gap-4 text-center lg:gap-8">
             <h2 class="text-[32px] font-bold leading-[1.5] text-light lg:text-[64px]">
-                Do fechamento à primeira sessão
+                Saúde financeira integrada à sua estratégia de cuidado.
             </h2>
 
             <p class="text-base font-medium leading-[1.5] text-light lg:text-xl lg:font-normal">
-                Depois da contratação o processo roda sozinho, sem gerar trabalho extra para o RH. Cada
-                colaborador recebe o acesso, escolhe o horário e é atendido por um consultor especializado.
+                A Flamma oferece uma jornada de orientação financeira que considera diferentes realidades, com
+                uma implementação alinhada às necessidades da empresa.
             </p>
         </header>
 
@@ -92,7 +92,7 @@
             @foreach ($steps as $step)
                 <x-partials.illustration-card
                     class="w-[284px] shrink-0 snap-start lg:w-auto lg:shrink"
-                    :icon="$step['icon']"
+                    :number="$step['number']"
                     :image="$step['image']"
                     :stage="$step['stage']"
                     :title="$step['title']"

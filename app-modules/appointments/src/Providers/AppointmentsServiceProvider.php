@@ -7,13 +7,20 @@ namespace TresPontosTech\Appointments\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use TresPontosTech\Appointments\Actions\BuildUserJourneyAction;
 use TresPontosTech\Appointments\Support\AiCircuitBreaker;
 
 class AppointmentsServiceProvider extends ServiceProvider
 {
+    /**
+     * A jornada é memoizada por requisição (`scoped`): os widgets da Home do painel a leem duas
+     * vezes no mesmo carregamento e compartilham o cálculo.
+     */
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../../config/appointments.php', 'appointments');
+
+        $this->app->scoped(BuildUserJourneyAction::class);
 
         $this->app->bind(AiCircuitBreaker::class, fn (): AiCircuitBreaker => new AiCircuitBreaker(
             cooldownMinutes: (int) config('appointments.ai.circuit_cooldown_minutes', 3),

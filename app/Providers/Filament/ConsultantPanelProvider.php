@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Shared\Pages\LoginPage;
+use App\Filament\Shared\Pages\RequestPasswordResetPage;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -37,7 +38,7 @@ class ConsultantPanelProvider extends PanelProvider
             ->pages([
                 ConsultantDashboard::class,
             ])
-            ->passwordReset()
+            ->passwordReset(RequestPasswordResetPage::class)
             ->discoverResources(in: base_path('app-modules/panel-consultant/src/Filament/Resources'), for: 'TresPontosTech\\PanelConsultant\\Filament\\Resources')
             ->discoverPages(in: base_path('app-modules/panel-consultant/src/Filament/Pages'), for: 'TresPontosTech\\PanelConsultant\\Filament\\Pages')
             ->discoverWidgets(in: base_path('app-modules/panel-consultant/src/Filament/Widgets'), for: 'TresPontosTech\\PanelConsultant\\Filament\\Widgets')

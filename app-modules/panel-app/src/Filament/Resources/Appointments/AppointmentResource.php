@@ -7,7 +7,6 @@ use Filament\Resources\Resource;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages\CreateAppointment;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\PanelApp\Filament\Resources\Appointments\Tables\AppointmentsTable;
 use UnitEnum;
@@ -62,7 +61,6 @@ class AppointmentResource extends Resource
     {
         return [
             'index' => ListAppointments::route('/'),
-            'create' => CreateAppointment::route('/create'),
         ];
     }
 }

@@ -32,6 +32,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use Laravel\Cashier\Billable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -54,6 +55,7 @@ use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
 use TresPontosTech\User\Models\UserAnamnese;
+use TresPontosTech\User\Support\EmailAddress;
 
 /**
  * @property string $id
@@ -80,6 +82,7 @@ use TresPontosTech\User\Models\UserAnamnese;
 class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasMedia, HasTenants
 {
     use Billable;
+    use HasApiTokens;
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
@@ -190,11 +193,21 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
      * Every registered user is also attached to the shared default company, so a plain
      * "first company" would be a coin flip. Skip it and the real employer is what is
      * left; users who have nothing else fall back to the default company itself.
+     *
+     * Only active memberships count — a company that deactivated the person is no longer
+     * their employer — and the newest one wins when there are several: two active employers
+     * come from a job change where the former company forgot to deactivate the person, and
+     * the newest is where they work now.
      */
     public function employerCompanyId(): ?string
     {
-        return $this->companies()->where('slug', '!=', Company::DEFAULT_SLUG)->value('companies.id')
-            ?? $this->companies()->value('companies.id');
+        $memberships = fn (): BelongsToMany => $this->companies()
+            ->wherePivot('active', true)
+            ->latest('company_employees.created_at')
+            ->orderBy('companies.id');
+
+        return $memberships()->where('slug', '!=', Company::DEFAULT_SLUG)->value('companies.id')
+            ?? $memberships()->value('companies.id');
     }
 
     /**
@@ -484,12 +497,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     public function hasOngoingAppointment(): bool
     {
         return $this->appointments()
-            ->whereNotIn('status', [
-                AppointmentStatus::Completed->value,
-                AppointmentStatus::Cancelled->value,
-                AppointmentStatus::CancelledLate->value,
-                AppointmentStatus::NoShow->value,
-            ])
+            ->whereNotIn('status', array_map(fn (AppointmentStatus $status): string => $status->value, AppointmentStatus::closed()))
             ->exists();
     }
 
@@ -499,6 +507,17 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * O e-mail é gravado sempre na forma canônica (sem espaços, minúsculo), venha de onde
+     * vier o cadastro: painel, admin, empresa, importação ou API (#291).
+     *
+     * @return Attribute<string, string|null>
+     */
+    protected function email(): Attribute
+    {
+        return Attribute::make(set: fn (?string $value): ?string => EmailAddress::normalize($value));
     }
 
     /**

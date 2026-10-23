@@ -17,3 +17,7 @@ Schedule::job(new MarkAppointmentsAsCompleted)
 Schedule::job(new ExpireVoucherCreditsJob)
     ->dailyAt('03:00')
     ->withoutOverlapping();
+
+Schedule::command('sanctum:prune-expired --hours=24')
+    ->daily()
+    ->withoutOverlapping();
