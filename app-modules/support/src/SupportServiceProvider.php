@@ -16,6 +16,8 @@ class SupportServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/support.php', 'support');
+
+        $this->app->singleton(TicketSenderManager::class);
     }
 
     public function boot(): void
