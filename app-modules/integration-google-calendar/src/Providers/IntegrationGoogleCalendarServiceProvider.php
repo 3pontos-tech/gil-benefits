@@ -5,13 +5,10 @@ declare(strict_types=1);
 namespace TresPontosTech\IntegrationGoogleCalendar\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use TresPontosTech\Appointments\Contracts\AppointmentCalendar;
-use TresPontosTech\Appointments\Events\AppointmentCancelled;
 use TresPontosTech\IntegrationGoogleCalendar\AppointmentCalendarSynchronizer;
 use TresPontosTech\IntegrationGoogleCalendar\Console\Commands\SyncGoogleCalendarsCommand;
-use TresPontosTech\IntegrationGoogleCalendar\Listeners\RemoveCalendarEventOnAppointmentCancelled;
 
 class IntegrationGoogleCalendarServiceProvider extends ServiceProvider
 {
@@ -25,8 +22,6 @@ class IntegrationGoogleCalendarServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
-
-        Event::listen(AppointmentCancelled::class, RemoveCalendarEventOnAppointmentCancelled::class);
 
         $this->commands([
             SyncGoogleCalendarsCommand::class,
