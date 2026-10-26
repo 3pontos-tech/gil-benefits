@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Billing\Core\Contracts;
 
 use App\Models\Users\User;
+use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Company\Models\Company;
 
@@ -26,10 +27,7 @@ interface BillingContract
 
     public function checkoutOpensInNewTab(): bool;
 
-    /**
-     * @param  array<string, mixed>  $options
-     */
-    public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string;
+    public function billingPortal(Company|User $billable, string $returnUrl): BillingPortal;
 
     public function hasActiveSubscription(Company|User $billable): bool;
 }

@@ -13,6 +13,7 @@ use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Http\Middleware\RedirectCompanyIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
+use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Company\Models\Company;
 
 class CompanyBillingProvider implements BillingProvider
@@ -33,12 +34,12 @@ class CompanyBillingProvider implements BillingProvider
 
             $driver->ensureCustomerExists($tenant);
 
-            $url = $driver->getBillingPortalUrl(
+            $portal = $driver->billingPortal(
                 billable: $tenant,
                 returnUrl: Dashboard::getUrl(),
             );
 
-            return redirect($url);
+            return redirect($portal->url ?? BillingManagePage::getUrl(tenant: $tenant));
         };
     }
 

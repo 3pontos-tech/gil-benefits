@@ -9,6 +9,7 @@ use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
+use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
 use TresPontosTech\PanelApp\Filament\Pages\UserDashboard;
 
 class UserBillingProvider implements BillingProvider
@@ -28,12 +29,12 @@ class UserBillingProvider implements BillingProvider
 
             $driver->ensureCustomerExists($user);
 
-            $url = $driver->getBillingPortalUrl(
+            $portal = $driver->billingPortal(
                 billable: $user,
                 returnUrl: UserDashboard::getUrl(),
             );
 
-            return redirect($url);
+            return redirect($portal->url ?? UserBillingManagePage::getUrl());
         };
     }
 

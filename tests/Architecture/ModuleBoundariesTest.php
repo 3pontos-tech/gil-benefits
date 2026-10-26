@@ -11,8 +11,6 @@ use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\IntegrationBarte\Actions\HandleBarteWebhook;
-use TresPontosTech\IntegrationBarte\BarteAdapter;
-use TresPontosTech\IntegrationVirtu\VirtuAdapter;
 use TresPontosTech\User\Concerns\ChecksImportCompletion;
 use TresPontosTech\Vouchers\Actions\RequestVoucherBatchPdf;
 use TresPontosTech\Vouchers\Jobs\GenerateVoucherBatchPdfJob;
@@ -60,9 +58,6 @@ $filamentUi = [
 ];
 
 $presentationBaseline = [
-    // arq-01 step 2
-    BarteAdapter::class,
-    VirtuAdapter::class,
     // arq-01 step 3
     AppointmentRecordPublishedMail::class,
     // arq-01 step 5

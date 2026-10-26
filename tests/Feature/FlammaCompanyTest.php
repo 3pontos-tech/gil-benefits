@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
@@ -62,9 +63,9 @@ it('should redirect to available subscriptions if company is not flamma company'
             return 'www.google.com';
         }
 
-        public function getBillingPortalUrl(User|Company $billable, string $returnUrl, array $options = []): string
+        public function billingPortal(User|Company $billable, string $returnUrl): BillingPortal
         {
-            return 'billingPortal';
+            return BillingPortal::external('billingPortal');
         }
 
         public function hasActiveSubscription(User|Company $billable): bool
@@ -129,9 +130,9 @@ it('should render EditTenantProfile correctly if company has active plans', func
             return 'www.google.com';
         }
 
-        public function getBillingPortalUrl(User|Company $billable, string $returnUrl, array $options = []): string
+        public function billingPortal(User|Company $billable, string $returnUrl): BillingPortal
         {
-            return 'billingPortal';
+            return BillingPortal::external('billingPortal');
         }
 
         public function hasActiveSubscription(User|Company $billable): bool
