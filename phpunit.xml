@@ -9,6 +9,10 @@
             <directory>tests/Feature</directory>
         </testsuite>
 
+        <testsuite name="Architecture">
+            <directory>tests/Architecture</directory>
+        </testsuite>
+
         <testsuite name="Modules">
             <directory suffix="Test.php">./app-modules/*/tests</directory>
         </testsuite>
