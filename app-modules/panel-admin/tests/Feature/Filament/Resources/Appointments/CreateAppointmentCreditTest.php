@@ -16,7 +16,7 @@ use function Pest\Livewire\livewire;
 beforeEach(function (): void {
     actingAsAdmin();
 
-    // No Bus/Event fake here: the CreditConsumed listener must actually run so we can
+    // No Bus/Event fake here: the credits listener must actually run so we can
     // assert the credit is consumed end-to-end (queue is sync in the test environment).
     $this->createViaAdmin = function (User $user): void {
         livewire(CreateAppointment::class)

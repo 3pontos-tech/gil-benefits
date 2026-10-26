@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Events;
 
-use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Foundation\Events\Dispatchable;
 use TresPontosTech\Appointments\Models\Appointment;
 
-final readonly class AppointmentNoShow implements ShouldDispatchAfterCommit
+final readonly class AppointmentNoShow
 {
     use Dispatchable;
 

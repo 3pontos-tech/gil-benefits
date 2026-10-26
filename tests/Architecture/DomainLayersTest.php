@@ -2,10 +2,6 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Appointments\Actions\BookAppointmentAction;
-use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
-use TresPontosTech\Appointments\Actions\Transitions\ActiveTransition;
-
 $identity = [
     'TresPontosTech\User',
     'TresPontosTech\Company',
@@ -35,13 +31,6 @@ $catalogBaseline = [
     'TresPontosTech\Billing\Stripe',
 ];
 
-$creditsBaseline = [
-    // arq-02 step 2
-    BookAppointmentAction::class,
-    AbstractAppointmentTransition::class,
-    ActiveTransition::class,
-];
-
 foreach ($identity as $module) {
     arch($module . ' does not import catalog or operation modules')
         ->expect($module)
@@ -59,4 +48,4 @@ foreach ($catalog as $module) {
 arch('appointments does not import credits')
     ->expect('TresPontosTech\Appointments')
     ->not->toUse('TresPontosTech\Credits')
-    ->ignoring([...$models, ...$creditsBaseline]);
+    ->ignoring($models);

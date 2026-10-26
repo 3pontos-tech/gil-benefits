@@ -3,9 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Date;
+use TresPontosTech\Appointments\Events\AppointmentCompleted;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
-use TresPontosTech\Credits\Events\AppointmentCreditUsed;
 use TresPontosTech\Credits\Models\UserCredit;
 
 it('stamps the moment the credit was spent', function (): void {
@@ -17,7 +17,7 @@ it('stamps the moment the credit was spent', function (): void {
         'used_at' => null,
     ]);
 
-    event(new AppointmentCreditUsed((string) $appointment->getKey()));
+    event(new AppointmentCompleted($appointment));
 
     $credit->refresh();
 
@@ -29,7 +29,7 @@ it('leaves a credit that was not booked on that appointment alone', function ():
     $appointment = Appointment::factory()->create();
     $bystander = UserCredit::factory()->available()->create(['used_at' => null]);
 
-    event(new AppointmentCreditUsed((string) $appointment->getKey()));
+    event(new AppointmentCompleted($appointment));
 
     expect($bystander->fresh()->status)->toBe(UserCreditStatusEnum::Available)
         ->and($bystander->fresh()->used_at)->toBeNull();
