@@ -21,7 +21,6 @@ use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\Credits\Events\AppointmentCreditReturned;
 use TresPontosTech\Credits\Events\AppointmentCreditUsed;
 use TresPontosTech\Credits\Models\UserCredit;
-use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
 
@@ -84,10 +83,6 @@ abstract class AbstractAppointmentTransition
             ->where('schedule_type', ScheduleTypes::APPOINTMENT)
             ->whereJsonContains('metadata->appointment_id', $this->appointment->id)
             ->delete();
-
-        if (filled($this->appointment->google_event_id)) {
-            dispatch(new DeleteAppointmentCalendarEventJob($this->appointment));
-        }
 
         event(new AppointmentCancelled($this->appointment));
     }
