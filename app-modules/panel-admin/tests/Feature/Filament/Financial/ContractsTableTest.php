@@ -110,6 +110,9 @@ describe('montagem das linhas', function (): void {
 
 describe('ordenação e busca', function (): void {
     it('ordena pela cobrança mais próxima por padrão', function (): void {
+        // O widget calcula a próxima cobrança pelo relógio; sem fixá-lo, entre os dias 26 e 28 a
+        // cobrança do dia 28 vem antes da do dia 25 e a ordem esperada se inverte.
+        $this->travelTo(CarbonImmutable::create(2026, 4, 1, 12, 0, 0));
         listedCompany('Depois', 'active', CarbonImmutable::create(2026, 3, 25));
         listedCompany('Antes', 'active', CarbonImmutable::create(2026, 3, 28));
 
