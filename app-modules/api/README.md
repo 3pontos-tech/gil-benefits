@@ -84,8 +84,6 @@ O corpo aceita `expected_impact` (`returns_credit` | `loses_credit`), o `cancel_
 a pessoa confirmou com o crédito voltando e as 4 h acabaram até o pedido chegar (o app espera os 6 s do "Desfazer"),
 responde 422 em `expected_impact` e não cancela; ter aceitado perder o crédito nunca impede o cancelamento. Sem o
 campo, vale o relógio do momento do pedido, como no painel.
-`DELETE appointments/{id}`, a rota de cancelar publicada antes, continua como alias obsoleto (aceita o mesmo
-`expected_impact` na query) e sai na próxima MAJOR.
 
 Lista completa, com middlewares: `php artisan route:list --path=api/v1 -v`. O contrato que o app consome está em
 `gil-benefits-mobile/docs/api-contract.md`.

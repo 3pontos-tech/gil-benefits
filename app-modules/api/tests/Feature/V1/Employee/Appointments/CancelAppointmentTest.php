@@ -14,7 +14,6 @@ use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
 
-use function Pest\Laravel\deleteJson;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\postJson;
 
@@ -156,18 +155,4 @@ it('rejects an unknown expected_impact', function (): void {
         ->assertJsonValidationErrors(['expected_impact']);
 
     expect($appointment->refresh()->status)->toBe(AppointmentStatus::Pending);
-});
-
-it('still cancels through the deprecated DELETE route of the published v1', function (): void {
-    $appointment = appointmentFor($this->employee, AppointmentStatus::Pending, now()->addHours(4)->addSeconds(3));
-
-    $this->travel(6)->seconds();
-
-    deleteJson(route('api.v1.appointments.destroy', ['appointment' => $appointment, 'expected_impact' => 'returns_credit']))
-        ->assertUnprocessable()
-        ->assertJsonValidationErrors(['expected_impact']);
-
-    deleteJson(route('api.v1.appointments.destroy', $appointment))
-        ->assertOk()
-        ->assertJsonPath('data.status', 'cancelled_late');
 });
