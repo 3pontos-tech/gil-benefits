@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
 use TresPontosTech\User\Concerns\ChecksImportCompletion;
 
 $domain = [
@@ -52,6 +53,18 @@ $filamentUiBaseline = [
     ChecksImportCompletion::class,
     'TresPontosTech\User\Filament',
 ];
+
+$integrationBaseline = [
+    // arq-02
+    TicketDestinationTypeEnum::class,
+];
+
+foreach ($domain as $module) {
+    arch($module . ' does not import integration modules')
+        ->expect($module)
+        ->not->toUse($integration)
+        ->ignoring($integrationBaseline);
+}
 
 foreach ([...$domain, ...$integration] as $module) {
     arch($module . ' does not import presentation modules')
