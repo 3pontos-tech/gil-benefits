@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationMonday\Providers;
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use TresPontosTech\IntegrationMonday\Events\MondayItemColumnChanged;
-use TresPontosTech\IntegrationMonday\Listeners\PushTicketStatusToMonday;
-use TresPontosTech\IntegrationMonday\Listeners\SyncTicketStatusFromMonday;
 use TresPontosTech\IntegrationMonday\MondayClient;
 use TresPontosTech\IntegrationMonday\Senders\MondayTicketSenderAdapter;
 use TresPontosTech\Support\Contracts\TicketChannelSender;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
-use TresPontosTech\Support\Events\SupportTicketStatusChanged;
 use TresPontosTech\Support\TicketSenderManager;
 
 class IntegrationMondayServiceProvider extends ServiceProvider
@@ -26,10 +21,6 @@ class IntegrationMondayServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/integration-monday-routes.php');
-
-        Event::listen(MondayItemColumnChanged::class, SyncTicketStatusFromMonday::class);
-
-        Event::listen(SupportTicketStatusChanged::class, PushTicketStatusToMonday::class);
 
         $this->registerTicketSender();
     }
