@@ -21,6 +21,7 @@ use TresPontosTech\Api\Exceptions\Employee\Auth\EmployeeLoginException;
 use TresPontosTech\Appointments\Exceptions\AppointmentFeedbackException;
 use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
 use TresPontosTech\Appointments\Exceptions\BookingBlockedException;
+use TresPontosTech\Appointments\Exceptions\CancelImpactChangedException;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Consultants\Exceptions\MaterialRemovalException;
 use TresPontosTech\Support\Exceptions\InvalidTransitionException;
@@ -36,6 +37,7 @@ class ApiServiceProvider extends ServiceProvider
         BookingBlockedException::class,
         SlotUnavailableException::class,
         AppointmentStateException::class,
+        CancelImpactChangedException::class,
         AppointmentFeedbackException::class,
         ProfileUpdateException::class,
         EmployeeLoginException::class,
@@ -115,6 +117,7 @@ class ApiServiceProvider extends ServiceProvider
         $handler->renderable(fn (BookingBlockedException $e, Request $request): ?Response => $this->fieldError($request, ['credit' => $e->reasons]));
         $handler->renderable(fn (SlotUnavailableException $e, Request $request): ?Response => $this->fieldError($request, ['appointment_at' => $e->getMessage()]));
         $handler->renderable(fn (AppointmentStateException $e, Request $request): ?Response => $this->fieldError($request, ['appointment' => $e->getMessage()]));
+        $handler->renderable(fn (CancelImpactChangedException $e, Request $request): ?Response => $this->fieldError($request, ['expected_impact' => $e->getMessage()]));
         $handler->renderable(fn (AppointmentFeedbackException $e, Request $request): ?Response => $this->fieldError($request, ['appointment' => $e->getMessage()]));
         $handler->renderable(fn (ProfileUpdateException $e, Request $request): ?Response => $this->fieldError($request, ['phone_number' => $e->getMessage()]));
         $handler->renderable(fn (EmployeeLoginException $e, Request $request): ?Response => $this->fieldError($request, ['email' => $e->getMessage()]));

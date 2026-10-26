@@ -69,7 +69,7 @@ mesmas que o painel usa. O controller valida, chama a action e formata a respost
 | --- | --- |
 | Autenticação | `POST auth/login`, `POST auth/logout` |
 | Perfil | `GET/PATCH me`, `PUT me/password`, `POST/DELETE me/avatar`, `GET me/journey`, `GET/PUT me/anamnese` |
-| Agenda | `GET appointments/slots`, `GET/POST appointments`, `GET/PATCH/DELETE appointments/{id}`, `POST appointments/{id}/feedback` |
+| Agenda | `GET appointments/slots`, `GET/POST appointments`, `GET/PATCH appointments/{id}`, `POST appointments/{id}/cancel`, `POST appointments/{id}/feedback` |
 | Créditos | `GET credits` |
 | Materiais | `GET/POST materials`, `DELETE materials/{id}`, `PATCH materials/{id}/favorite`, `PATCH materials/{id}/viewed` |
 | Notificações | `GET notifications`, `PATCH notifications/{id}/read` |
@@ -78,6 +78,14 @@ mesmas que o painel usa. O controller valida, chama a action e formata a respost
 A agenda oferece horários de hoje + 2 dias até hoje + 60 dias (`BookableSlots`, a mesma janela do painel). Um mês
 fora dela responde `{}` sem consultar a agenda dos consultores, e agendar ou reagendar fora dela dá 422 em
 `appointment_at`.
+
+Cancelar (`POST appointments/{id}/cancel`) não apaga o encontro: ele continua, como `cancelled` ou `cancelled_late`.
+O corpo aceita `expected_impact` (`returns_credit` | `loses_credit`), o `cancel_impact` que o alerta do app mostrou. Se
+a pessoa confirmou com o crédito voltando e as 4 h acabaram até o pedido chegar (o app espera os 6 s do "Desfazer"),
+responde 422 em `expected_impact` e não cancela; ter aceitado perder o crédito nunca impede o cancelamento. Sem o
+campo, vale o relógio do momento do pedido, como no painel.
+`DELETE appointments/{id}`, a rota de cancelar publicada antes, continua como alias obsoleto (aceita o mesmo
+`expected_impact` na query) e sai na próxima MAJOR.
 
 Lista completa, com middlewares: `php artisan route:list --path=api/v1 -v`. O contrato que o app consome está em
 `gil-benefits-mobile/docs/api-contract.md`.
