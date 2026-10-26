@@ -2,17 +2,13 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
 use TresPontosTech\Billing\Core\Filament\CompanyBillingProvider;
 use TresPontosTech\Billing\Core\Filament\UserBillingProvider;
 use TresPontosTech\Billing\Core\Http\Middleware\RedirectCompanyIfNotSubscribed;
 use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
-use TresPontosTech\IntegrationBarte\Actions\HandleBarteWebhook;
 use TresPontosTech\User\Concerns\ChecksImportCompletion;
-use TresPontosTech\Vouchers\Actions\RequestVoucherBatchPdf;
-use TresPontosTech\Vouchers\Jobs\GenerateVoucherBatchPdfJob;
 
 $domain = [
     'TresPontosTech\Appointments',
@@ -63,11 +59,6 @@ $presentationBaseline = [
 ];
 
 $filamentUiBaseline = [
-    // arq-01 step 4
-    AbstractAppointmentTransition::class,
-    HandleBarteWebhook::class,
-    RequestVoucherBatchPdf::class,
-    GenerateVoucherBatchPdfJob::class,
     // arq-01 step 5
     CompanyBillingProvider::class,
     UserBillingProvider::class,

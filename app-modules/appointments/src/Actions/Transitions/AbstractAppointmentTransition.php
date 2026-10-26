@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Actions\Transitions;
 
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -14,6 +13,7 @@ use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Notifications\AppointmentCancelledForConsultantNotification;
 use TresPontosTech\Appointments\Notifications\AppointmentCancelledNotification;
 use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Billing\Core\Support\QuotaCycle;
@@ -144,16 +144,9 @@ abstract class AbstractAppointmentTransition
         $notification->flash();
 
         if (filled($this->appointment->consultant)) {
-            $actorKey = $data->cancellationActor === CancellationActor::Admin ? 'cancelled_by_admin' : 'cancelled_by_user';
-
-            Notification::make()
-                ->title(__('appointments::resources.appointments.notifications.cancelled.title'))
-                ->body(__(
-                    sprintf('appointments::resources.appointments.notifications.%s.body', $actorKey),
-                    ['name' => $this->appointment->user->name]
-                ))
-                ->warning()
-                ->sendToDatabase($this->appointment->consultant->user);
+            $this->appointment->consultant->user->notify(
+                new AppointmentCancelledForConsultantNotification($this->appointment, $data->cancellationActor),
+            );
         }
 
         $mail = $isLate

@@ -15,6 +15,11 @@ enum NotificationKind: string
     case AppointmentCancelledLate = 'appointment_cancelled_late';
     case AppointmentCompleted = 'appointment_completed';
     case CreditsDelivered = 'credits_delivered';
+    case AppointmentCancelledForConsultant = 'appointment_cancelled_for_consultant';
+    case CreditOrderCreated = 'credit_order_created';
+    case VoucherBatchPdfQueued = 'voucher_batch_pdf_queued';
+    case VoucherBatchPdfReady = 'voucher_batch_pdf_ready';
+    case VoucherBatchPdfFailed = 'voucher_batch_pdf_failed';
 
     /**
      * Tipos que o app do colaborador exibe. Um aviso de outro público (admin, consultor),
