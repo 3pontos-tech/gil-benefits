@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use TresPontosTech\Appointments\Actions\Transitions\AbstractAppointmentTransition;
-use TresPontosTech\Appointments\Mail\AppointmentRecordPublishedMail;
 use TresPontosTech\Billing\Core\Filament\CompanyBillingProvider;
 use TresPontosTech\Billing\Core\Filament\UserBillingProvider;
 use TresPontosTech\Billing\Core\Http\Middleware\RedirectCompanyIfNotSubscribed;
@@ -58,8 +57,6 @@ $filamentUi = [
 ];
 
 $presentationBaseline = [
-    // arq-01 step 3
-    AppointmentRecordPublishedMail::class,
     // arq-01 step 5
     BillingManagePage::class,
     UserBillingProvider::class,
