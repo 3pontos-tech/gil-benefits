@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Billing\Core\Filament;
+namespace TresPontosTech\PanelCompany\Filament;
 
 use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
@@ -11,10 +11,10 @@ use Filament\Pages\Dashboard;
 use Illuminate\Http\RedirectResponse;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
-use TresPontosTech\Billing\Core\Http\Middleware\RedirectCompanyIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
-use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Pages\BillingManagePage;
+use TresPontosTech\PanelCompany\Http\Middleware\RedirectCompanyIfNotSubscribed;
 
 class CompanyBillingProvider implements BillingProvider
 {

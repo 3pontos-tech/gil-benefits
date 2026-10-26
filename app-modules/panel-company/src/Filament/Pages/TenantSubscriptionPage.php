@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Billing\Core\Pages;
+namespace TresPontosTech\PanelCompany\Filament\Pages;
 
 use Filament\Facades\Filament;
 use Filament\Pages\Dashboard;

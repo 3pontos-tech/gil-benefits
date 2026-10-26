@@ -2,12 +2,6 @@
 
 declare(strict_types=1);
 
-use TresPontosTech\Billing\Core\Filament\CompanyBillingProvider;
-use TresPontosTech\Billing\Core\Filament\UserBillingProvider;
-use TresPontosTech\Billing\Core\Http\Middleware\RedirectCompanyIfNotSubscribed;
-use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
-use TresPontosTech\Billing\Core\Pages\BillingManagePage;
-use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\User\Concerns\ChecksImportCompletion;
 
 $domain = [
@@ -52,20 +46,7 @@ $filamentUi = [
     'Filament\Widgets',
 ];
 
-$presentationBaseline = [
-    // arq-01 step 5
-    BillingManagePage::class,
-    UserBillingProvider::class,
-];
-
 $filamentUiBaseline = [
-    // arq-01 step 5
-    CompanyBillingProvider::class,
-    UserBillingProvider::class,
-    BillingManagePage::class,
-    TenantSubscriptionPage::class,
-    RedirectCompanyIfNotSubscribed::class,
-    RedirectUserIfNotSubscribed::class,
     // arq-12
     'TresPontosTech\Support\Filament',
     ChecksImportCompletion::class,
@@ -75,8 +56,7 @@ $filamentUiBaseline = [
 foreach ([...$domain, ...$integration] as $module) {
     arch($module . ' does not import presentation modules')
         ->expect($module)
-        ->not->toUse($presentation)
-        ->ignoring($presentationBaseline);
+        ->not->toUse($presentation);
 
     arch($module . ' does not build Filament UI')
         ->expect($module)

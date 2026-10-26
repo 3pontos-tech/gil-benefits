@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Billing\Core\Http\Middleware;
+namespace TresPontosTech\PanelCompany\Http\Middleware;
 
 use Closure;
 use Filament\Facades\Filament;

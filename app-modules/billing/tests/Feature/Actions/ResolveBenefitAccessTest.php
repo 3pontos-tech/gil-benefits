@@ -15,13 +15,13 @@ use TresPontosTech\Billing\Core\Enums\BenefitAccessEnum;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
-use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Models\UserCredit;
+use TresPontosTech\PanelApp\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Vouchers\Database\Factories\VoucherRedemptionFactory;
 
 use function Pest\Laravel\actingAs;

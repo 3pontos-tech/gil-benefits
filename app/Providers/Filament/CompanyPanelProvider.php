@@ -26,14 +26,14 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use TresPontosTech\Billing\Core\Filament\CompanyBillingProvider;
-use TresPontosTech\Billing\Core\Pages\BillingManagePage;
-use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\CompanyBillingProvider;
+use TresPontosTech\PanelCompany\Filament\Pages\BillingManagePage;
 use TresPontosTech\PanelCompany\Filament\Pages\CommandDashboard;
 use TresPontosTech\PanelCompany\Filament\Pages\EditUserProfile;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\RegisterTenant;
+use TresPontosTech\PanelCompany\Filament\Pages\TenantSubscriptionPage;
 
 class CompanyPanelProvider extends PanelProvider
 {

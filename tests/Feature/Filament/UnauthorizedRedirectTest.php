@@ -5,9 +5,9 @@ declare(strict_types=1);
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Log;
-use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Http\Middleware\RedirectIfAnamneseNotCompleted;
+use TresPontosTech\PanelApp\Http\Middleware\RedirectUserIfNotSubscribed;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;

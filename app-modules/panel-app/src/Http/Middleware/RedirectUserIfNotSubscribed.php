@@ -1,6 +1,6 @@
 <?php
 
-namespace TresPontosTech\Billing\Core\Http\Middleware;
+namespace TresPontosTech\PanelApp\Http\Middleware;
 
 use App\Models\Users\User;
 use Closure;
