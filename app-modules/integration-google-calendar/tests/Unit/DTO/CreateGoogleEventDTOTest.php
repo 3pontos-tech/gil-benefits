@@ -24,7 +24,7 @@ it('creates DTO from appointment with correct fields', function (): void {
 
     $dto = CreateGoogleEventDTO::fromAppointment($appointment);
 
-    expect($dto->summary)->toBe('Consulta - João Silva')
+    expect($dto->summary)->toBe('Consulta Flamma - João Silva')
         ->and($dto->attendees)->toBe(['joao@test.com'])
         ->and($dto->appointmentId)->toBe($appointment->id)
         ->and($dto->description)->toContain('Categoria:')
@@ -48,6 +48,7 @@ it('generates correct Google payload structure', function (): void {
     $payload = $dto->toGooglePayload();
 
     expect($payload)->toHaveKeys(['summary', 'description', 'start', 'end', 'attendees', 'conferenceData'])
+        ->and($payload['summary'])->toBe('Consulta Flamma - Test User')
         ->and($payload['start'])->toHaveKeys(['dateTime', 'timeZone'])
         ->and($payload['end'])->toHaveKeys(['dateTime', 'timeZone'])
         ->and($payload['attendees'])->toBe([['email' => 'user@test.com']])

@@ -36,7 +36,7 @@ readonly class CreateGoogleEventDTO
         $durationMinutes = (int) config('google-calendar.default_event_duration', 60);
 
         return new self(
-            summary: sprintf('Consulta - %s', $appointment->user->name),
+            summary: sprintf('Consulta Flamma - %s', $appointment->user->name),
             description: implode("\n\n", $descriptionParts),
             startDateTime: $appointment->appointment_at->toIso8601String(),
             endDateTime: $appointment->appointment_at->copy()->addMinutes($durationMinutes)->toIso8601String(),
