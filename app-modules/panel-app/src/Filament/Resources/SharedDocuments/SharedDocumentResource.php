@@ -64,6 +64,22 @@ class SharedDocumentResource extends Resource
     }
 
     /**
+     * @return Builder<Document>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        $user = auth()->user();
+
+        return parent::getEloquentQuery()->where(fn (Builder $query): Builder => $query
+            ->where(fn (Builder $own): Builder => $own
+                ->where('documentable_type', $user->getMorphClass())
+                ->where('documentable_id', $user->getKey()))
+            ->orWhereHas('shares', fn (Builder $shares): Builder => $shares
+                ->where('employee_id', $user->getKey())
+                ->where('active', true)));
+    }
+
+    /**
      * @return Builder<Model>
      */
     public static function getGlobalSearchEloquentQuery(): Builder

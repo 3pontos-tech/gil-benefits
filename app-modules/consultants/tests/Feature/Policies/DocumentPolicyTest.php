@@ -2,6 +2,7 @@
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Gate;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Permissions\PermissionsEnum;
 use TresPontosTech\Permissions\Roles;
@@ -63,7 +64,7 @@ it('allows user with update permission to update', function (): void {
     $user = User::factory()->create();
     $user->givePermissionTo(PermissionsEnum::Update->buildPermissionFor(Document::class));
 
-    expect(Gate::forUser($user)->allows('update', Document::factory()->withLink()->create()))->toBeTrue()
+    expect(Gate::forUser($user)->allows('update', Document::factory()->forUser($user)->withLink()->create()))->toBeTrue()
         ->and(Gate::forUser($user)->denies('delete', Document::factory()->withLink()->create()))->toBeTrue();
 });
 
@@ -71,7 +72,7 @@ it('allows user with delete permission to delete', function (): void {
     $user = User::factory()->create();
     $user->givePermissionTo(PermissionsEnum::Delete->buildPermissionFor(Document::class));
 
-    expect(Gate::forUser($user)->allows('delete', Document::factory()->withLink()->create()))->toBeTrue()
+    expect(Gate::forUser($user)->allows('delete', Document::factory()->forUser($user)->withLink()->create()))->toBeTrue()
         ->and(Gate::forUser($user)->denies('forceDelete', Document::factory()->withLink()->create()))->toBeTrue();
 });
 
@@ -79,7 +80,7 @@ it('allows user with restore permission to restore', function (): void {
     $user = User::factory()->create();
     $user->givePermissionTo(PermissionsEnum::Restore->buildPermissionFor(Document::class));
 
-    expect(Gate::forUser($user)->allows('restore', Document::factory()->withLink()->create()))->toBeTrue()
+    expect(Gate::forUser($user)->allows('restore', Document::factory()->forUser($user)->withLink()->create()))->toBeTrue()
         ->and(Gate::forUser($user)->denies('update', Document::factory()->withLink()->create()))->toBeTrue();
 });
 
@@ -87,6 +88,64 @@ it('allows user with forceDelete permission to forceDelete', function (): void {
     $user = User::factory()->create();
     $user->givePermissionTo(PermissionsEnum::ForceDelete->buildPermissionFor(Document::class));
 
-    expect(Gate::forUser($user)->allows('forceDelete', Document::factory()->withLink()->create()))->toBeTrue()
+    expect(Gate::forUser($user)->allows('forceDelete', Document::factory()->forUser($user)->withLink()->create()))->toBeTrue()
         ->and(Gate::forUser($user)->denies('restore', Document::factory()->withLink()->create()))->toBeTrue();
+});
+
+describe('ownership', function (): void {
+    it('denies update and delete of a document uploaded by someone else even with the permissions', function (): void {
+        $user = User::factory()->create();
+        $user->givePermissionTo(
+            PermissionsEnum::Update->buildPermissionFor(Document::class),
+            PermissionsEnum::Delete->buildPermissionFor(Document::class),
+            PermissionsEnum::Restore->buildPermissionFor(Document::class),
+            PermissionsEnum::ForceDelete->buildPermissionFor(Document::class),
+        );
+
+        $document = Document::factory()->forUser()->withLink()->create();
+
+        expect(Gate::forUser($user)->denies('update', $document))->toBeTrue()
+            ->and(Gate::forUser($user)->denies('delete', $document))->toBeTrue()
+            ->and(Gate::forUser($user)->denies('restore', $document))->toBeTrue()
+            ->and(Gate::forUser($user)->denies('forceDelete', $document))->toBeTrue();
+    });
+
+    it('denies an employee to update a consultant material shared with them', function (): void {
+        $employee = User::factory()->employee()->create();
+        $document = Document::factory()->forConsultant()->active()->withLink()->create();
+
+        expect(Gate::forUser($employee)->allows('view', $document))->toBeTrue()
+            ->and(Gate::forUser($employee)->denies('update', $document))->toBeTrue()
+            ->and(Gate::forUser($employee)->denies('delete', $document))->toBeTrue();
+    });
+
+    it('allows the consultant to update and delete their own material', function (): void {
+        $consultant = Consultant::factory()->create();
+        $document = Document::factory()->forConsultant($consultant)->withLink()->create();
+
+        expect(Gate::forUser($consultant->user)->allows('update', $document))->toBeTrue()
+            ->and(Gate::forUser($consultant->user)->allows('delete', $document))->toBeTrue();
+    });
+
+    it('denies a consultant to update another consultant material', function (): void {
+        $consultant = Consultant::factory()->create();
+        $document = Document::factory()->forConsultant()->withLink()->create();
+
+        expect(Gate::forUser($consultant->user)->denies('update', $document))->toBeTrue()
+            ->and(Gate::forUser($consultant->user)->denies('delete', $document))->toBeTrue();
+    });
+
+    it('allows an admin with the permissions to update a document they do not own', function (): void {
+        $admin = User::factory()->create();
+        $admin->assignRole(Roles::Admin->value);
+        $admin->givePermissionTo(
+            PermissionsEnum::Update->buildPermissionFor(Document::class),
+            PermissionsEnum::Delete->buildPermissionFor(Document::class),
+        );
+
+        $document = Document::factory()->forConsultant()->withLink()->create();
+
+        expect(Gate::forUser($admin)->allows('update', $document))->toBeTrue()
+            ->and(Gate::forUser($admin)->allows('delete', $document))->toBeTrue();
+    });
 });

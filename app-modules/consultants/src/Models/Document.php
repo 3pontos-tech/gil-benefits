@@ -16,6 +16,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use TresPontosTech\Consultants\Database\Factories\DocumentFactory;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
+use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Policies\DocumentPolicy;
 
 /**
@@ -92,6 +93,17 @@ class Document extends Model implements HasMedia
     {
         return $this->documentable_type === $user->getMorphClass()
             && $this->documentable_id === $user->getKey();
+    }
+
+    public function isOwnedBy(User $user): bool
+    {
+        if ($this->isUploadedBy($user)) {
+            return true;
+        }
+
+        $owner = $this->documentable;
+
+        return $owner instanceof Consultant && $owner->user_id === $user->getKey();
     }
 
     public function hasLink(): bool
