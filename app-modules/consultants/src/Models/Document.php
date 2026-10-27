@@ -100,9 +100,16 @@ class Document extends Model implements HasMedia
             return true;
         }
 
-        $owner = $this->documentable;
+        return $this->documentable_type === (new Consultant)->getMorphClass()
+            && $this->documentable_id === $user->consultant?->getKey();
+    }
 
-        return $owner instanceof Consultant && $owner->user_id === $user->getKey();
+    public function isSharedWith(User $user): bool
+    {
+        return $this->shares()
+            ->where('employee_id', $user->getKey())
+            ->where('active', true)
+            ->exists();
     }
 
     public function hasLink(): bool

@@ -20,7 +20,8 @@ class DocumentPolicy
 
     public function view(User $user, Document $document): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::View->buildPermissionFor(Document::class));
+        return $user->hasPermissionTo(PermissionsEnum::View->buildPermissionFor(Document::class))
+            && ($this->owns($user, $document) || $document->isSharedWith($user));
     }
 
     public function create(User $user): bool
