@@ -20,8 +20,8 @@ class DocumentPolicy
 
     public function view(User $user, Document $document): bool
     {
-
-        return $user->hasPermissionTo(PermissionsEnum::View->buildPermissionFor(Document::class));
+        return $user->hasPermissionTo(PermissionsEnum::View->buildPermissionFor(Document::class))
+            && ($this->owns($user, $document) || $document->isSharedWith($user));
     }
 
     public function create(User $user): bool
@@ -31,21 +31,34 @@ class DocumentPolicy
 
     public function update(User $user, Document $document): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Update->buildPermissionFor(Document::class));
+        return $user->hasPermissionTo(PermissionsEnum::Update->buildPermissionFor(Document::class))
+            && $this->owns($user, $document);
     }
 
     public function delete(User $user, Document $document): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Delete->buildPermissionFor(Document::class));
+        return $user->hasPermissionTo(PermissionsEnum::Delete->buildPermissionFor(Document::class))
+            && $this->owns($user, $document);
     }
 
     public function restore(User $user, Document $document): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::Restore->buildPermissionFor(Document::class));
+        return $user->hasPermissionTo(PermissionsEnum::Restore->buildPermissionFor(Document::class))
+            && $this->owns($user, $document);
     }
 
     public function forceDelete(User $user, Document $document): bool
     {
-        return $user->hasPermissionTo(PermissionsEnum::ForceDelete->buildPermissionFor(Document::class));
+        return $user->hasPermissionTo(PermissionsEnum::ForceDelete->buildPermissionFor(Document::class))
+            && $this->owns($user, $document);
+    }
+
+    private function owns(User $user, Document $document): bool
+    {
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $document->isOwnedBy($user);
     }
 }
