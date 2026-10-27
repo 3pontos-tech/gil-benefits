@@ -20,6 +20,9 @@ use TresPontosTech\PanelAdmin\Filament\Widgets\Financial\ContractsTableWidget;
 beforeEach(function (): void {
     Cache::flush();
     $this->now = CarbonImmutable::create(2026, 8, 27, 12, 0, 0);
+    // O widget calcula a próxima cobrança pelo relógio: sem fixá-lo, os testes de ordem e de
+    // janela de renovação mudavam de resultado conforme o dia em que rodavam.
+    $this->travelTo($this->now);
     $this->filters = FinancialFilters::fromPageFilters(null);
     actingAsFinancial();
 });
@@ -110,11 +113,8 @@ describe('montagem das linhas', function (): void {
 
 describe('ordenação e busca', function (): void {
     it('ordena pela cobrança mais próxima por padrão', function (): void {
-        // O widget calcula a próxima cobrança pelo relógio; sem fixá-lo, entre os dias 26 e 28 a
-        // cobrança do dia 28 vem antes da do dia 25 e a ordem esperada se inverte.
-        $this->travelTo(CarbonImmutable::create(2026, 4, 1, 12, 0, 0));
-        listedCompany('Depois', 'active', CarbonImmutable::create(2026, 3, 25));
-        listedCompany('Antes', 'active', CarbonImmutable::create(2026, 3, 28));
+        listedCompany('Depois', 'active', $this->now->subMonths(5)->addDays(3));
+        listedCompany('Antes', 'active', $this->now->subMonths(5)->addDays(10));
 
         $rows = widgetRows();
 
@@ -155,8 +155,8 @@ describe('filtro vindo do card', function (): void {
     });
 
     it('filtra pela janela de renovação', function (): void {
-        listedCompany('Renova logo', 'active', now()->toImmutable()->subMonths(3)->addDays(3));
-        listedCompany('Renova longe', 'active', now()->toImmutable()->subMonths(3)->addDays(25));
+        listedCompany('Renova logo', 'active', $this->now->subMonths(3)->addDays(3));
+        listedCompany('Renova longe', 'active', $this->now->subMonths(3)->addDays(25));
 
         $rows = widgetRows(renewing: 7);
 
@@ -208,7 +208,7 @@ describe('exportação CSV', function (): void {
             'company_id' => $company->getKey(),
             'seats' => 20,
             'status' => CompanyPlanStatusEnum::Active,
-            'starts_at' => now()->subMonths(2),
+            'starts_at' => $this->now->subMonths(2),
             'ends_at' => null,
         ]);
 
@@ -233,7 +233,7 @@ describe('tela', function (): void {
             'seats' => 20,
             'monthly_value_cents' => null,
             'status' => CompanyPlanStatusEnum::Active,
-            'starts_at' => now()->subMonths(2),
+            'starts_at' => $this->now->subMonths(2),
             'ends_at' => null,
         ]);
 
