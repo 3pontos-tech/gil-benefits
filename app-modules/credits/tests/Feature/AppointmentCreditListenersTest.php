@@ -67,3 +67,10 @@ it('spends the credit on a late cancellation', function (): void {
     expect($credit->refresh()->status)->toBe(UserCreditStatusEnum::Used)
         ->and($credit->used_at)->not->toBeNull();
 });
+
+it('refuses to settle a cancellation whose status has no credit rule', function (): void {
+    $appointment = reservedAppointment(AppointmentStatus::Active);
+
+    expect(fn () => event(new AppointmentCancelled($appointment)))
+        ->toThrow(LogicException::class);
+});

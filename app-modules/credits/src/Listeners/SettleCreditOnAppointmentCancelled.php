@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Credits\Listeners;
 
+use LogicException;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Events\AppointmentCancelled;
 use TresPontosTech\Credits\Actions\MarkAppointmentCreditUsed;
@@ -23,12 +24,10 @@ final readonly class SettleCreditOnAppointmentCancelled
     {
         $appointmentId = (string) $event->appointment->getKey();
 
-        if ($event->appointment->status === AppointmentStatus::Cancelled) {
-            $this->returnCredit->execute($appointmentId);
-
-            return;
-        }
-
-        $this->markUsed->execute($appointmentId);
+        match ($event->appointment->status) {
+            AppointmentStatus::Cancelled => $this->returnCredit->execute($appointmentId),
+            AppointmentStatus::CancelledLate => $this->markUsed->execute($appointmentId),
+            default => throw new LogicException(sprintf('No credit rule for a cancellation with status "%s".', $event->appointment->status->value)),
+        };
     }
 }

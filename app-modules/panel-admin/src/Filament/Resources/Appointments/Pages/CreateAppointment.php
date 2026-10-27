@@ -15,6 +15,8 @@ class CreateAppointment extends CreateRecord
 {
     protected static string $resource = AppointmentResource::class;
 
+    protected ?bool $hasDatabaseTransactions = true;
+
     protected bool $consumesCredit = false;
 
     /**

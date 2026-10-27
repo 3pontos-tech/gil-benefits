@@ -21,10 +21,13 @@ $operation = [
     'TresPontosTech\Support',
 ];
 
-$models = array_map(
-    fn (string $module): string => $module . '\Models',
-    [...$identity, ...$catalog, ...$operation],
-);
+$models = [
+    ...array_map(
+        fn (string $module): string => $module . '\Models',
+        [...$identity, ...$catalog, ...$operation],
+    ),
+    'TresPontosTech\Billing\Core\Models',
+];
 
 $catalogBaseline = [
     // arq-08
