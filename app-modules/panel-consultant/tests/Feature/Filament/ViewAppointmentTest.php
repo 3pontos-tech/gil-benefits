@@ -49,3 +49,12 @@ it('hides another consultant appointment', function (): void {
     expect(fn () => livewire(ViewAppointment::class, ['record' => $appointment->getRouteKey()]))
         ->toThrow(ModelNotFoundException::class);
 });
+
+it('hides unassigned appointments from a consultant whose record was deactivated', function (): void {
+    $appointment = Appointment::factory()->create(['consultant_id' => null]);
+
+    $this->consultant->delete();
+
+    expect(fn () => livewire(ViewAppointment::class, ['record' => $appointment->getRouteKey()]))
+        ->toThrow(ModelNotFoundException::class);
+});

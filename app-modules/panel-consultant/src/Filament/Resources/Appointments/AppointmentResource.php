@@ -71,6 +71,6 @@ class AppointmentResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->where('consultant_id', auth()->user()->consultant()->value('id'));
+            ->whereIn('consultant_id', auth()->user()->consultant()->select('id'));
     }
 }
