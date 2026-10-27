@@ -7,8 +7,10 @@ namespace TresPontosTech\Appointments\Actions;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\DB;
 use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
+use TresPontosTech\Appointments\Enums\CancelImpact;
 use TresPontosTech\Appointments\Enums\CancellationActor;
 use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
+use TresPontosTech\Appointments\Exceptions\CancelImpactChangedException;
 use TresPontosTech\Appointments\Models\Appointment;
 
 final readonly class CancelAppointmentForUserAction
@@ -25,22 +27,40 @@ final readonly class CancelAppointmentForUserAction
      * repetir avisos, e-mails e o job do Calendar. A instância recebida é a atualizada, porque o
      * painel mostra a confirmação a partir dela.
      *
+     * `$expectedImpact` é o destino do crédito que a pessoa confirmou (o app manda o que o alerta
+     * mostrou, o painel o que o modal mostrou). Se ela confirmou com o crédito voltando e o prazo
+     * passou até o pedido chegar, nada é cancelado. Ter aceitado perder o crédito nunca impede o
+     * cancelamento, porque devolver é sempre melhor que o combinado.
+     *
+     * O relógio é lido uma vez, depois da trava: a checagem, a conferência e a transição usam o
+     * mesmo instante, então um encontro na borda das 4 h não passa como `returns_credit` aqui e vira
+     * `cancelled_late` na transição.
+     *
      * @throws AppointmentStateException
+     * @throws CancelImpactChangedException
      */
-    public function handle(Appointment $appointment, User $user): Appointment
+    public function handle(Appointment $appointment, User $user, ?CancelImpact $expectedImpact = null): Appointment
     {
-        return DB::transaction(function () use ($appointment, $user): Appointment {
+        return DB::transaction(function () use ($appointment, $user, $expectedImpact): Appointment {
             Appointment::query()->whereKey($appointment->getKey())->lockForUpdate()->first();
             $appointment->refresh();
 
+            $now = now();
+
             throw_unless(
-                $appointment->user_id === $user->getKey() && $appointment->canBeCancelled(),
+                $appointment->user_id === $user->getKey() && $appointment->canBeCancelled($now),
                 AppointmentStateException::cannotCancel(),
+            );
+
+            throw_if(
+                $expectedImpact === CancelImpact::ReturnsCredit && $appointment->cancelImpact($now) === CancelImpact::LosesCredit,
+                CancelImpactChangedException::class,
             );
 
             $appointment->current_transition->handle(new TransitionData(
                 cancellationActor: CancellationActor::User,
                 cancelledBy: $user,
+                cancelledAt: $now,
             ));
 
             return $appointment;

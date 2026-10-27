@@ -49,7 +49,7 @@ Route::prefix('api/v1')
             Route::post('appointments', [AppointmentController::class, 'store'])->name('appointments.store');
             Route::get('appointments/{appointment}', [AppointmentController::class, 'show'])->whereUuid('appointment')->name('appointments.show');
             Route::patch('appointments/{appointment}', [AppointmentController::class, 'update'])->whereUuid('appointment')->name('appointments.update');
-            Route::delete('appointments/{appointment}', [AppointmentController::class, 'destroy'])->whereUuid('appointment')->name('appointments.destroy');
+            Route::post('appointments/{appointment}/cancel', [AppointmentController::class, 'cancel'])->whereUuid('appointment')->name('appointments.cancel');
             Route::post('appointments/{appointment}/feedback', FeedbackController::class)->whereUuid('appointment')->name('appointments.feedback.store');
 
             Route::get('credits', CreditsController::class)->name('credits.show');

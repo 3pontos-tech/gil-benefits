@@ -12,6 +12,7 @@ return [
     'description' => 'descrição',
     'device_name' => 'nome do dispositivo',
     'email' => 'e-mail',
+    'expected_impact' => 'destino do crédito',
     'favorite' => 'favorito',
     'file' => 'arquivo',
     'month' => 'mês',

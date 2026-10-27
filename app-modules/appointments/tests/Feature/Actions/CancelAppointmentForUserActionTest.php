@@ -3,12 +3,15 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
 use TresPontosTech\Appointments\Actions\CancelAppointmentForUserAction;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Enums\CancelImpact;
 use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
@@ -126,4 +129,25 @@ it('locks the appointment row before checking it', function (): void {
     $update = collect($statements)->search(fn (string $sql): bool => str_starts_with($sql, 'update "appointments"'));
 
     expect($lock)->toBeInt()->and($update)->toBeInt()->and($lock)->toBeLessThan($update);
+});
+
+it('reads the clock once, so the 4 hours cannot run out between the check and the transition', function (): void {
+    $appointment = appointmentFor($this->user, AppointmentStatus::Pending, now()->addHours(6));
+    $credit = creditInUseFor($this->user, $appointment);
+
+    // Each read of the clock jumps one hour: a rule that read it again would see 5 h, 4 h, 3 h…
+    $clock = now()->toImmutable();
+    Date::setTestNow(function () use (&$clock): CarbonImmutable {
+        $read = $clock;
+        $clock = $clock->addHour();
+
+        return $read;
+    });
+
+    resolve(CancelAppointmentForUserAction::class)->handle($appointment, $this->user, CancelImpact::ReturnsCredit);
+
+    $this->travelTo('2026-10-07 10:00:00');
+
+    expect($appointment->refresh()->status)->toBe(AppointmentStatus::Cancelled)
+        ->and($credit->refresh()->status)->toBe(UserCreditStatusEnum::Available);
 });

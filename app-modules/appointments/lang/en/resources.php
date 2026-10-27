@@ -62,6 +62,7 @@ return [
             'calendar_event_failed' => 'Failed to create the Google Calendar event. Try saving again or check the integration.',
             'cannot_reschedule' => 'This appointment can no longer be rescheduled.',
             'cannot_cancel' => 'This appointment can no longer be cancelled.',
+            'cancel_impact_changed' => 'Less than :hours hours to go: cancelling now spends the credit.',
             'feedback_not_the_attendee' => 'Only the person who attended the consultation can rate it.',
             'feedback_requires_completion' => 'Only a completed consultation can be rated.',
             'feedback_already_given' => 'This consultation has already been rated.',

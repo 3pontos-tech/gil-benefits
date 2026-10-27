@@ -173,13 +173,14 @@ class Appointment extends Model
     }
 
     /**
-     * Whether cancelling right now would fall inside the penalty window: the user
-     * loses the credit and the monthly quota. Admin and system cancellations are
-     * never penalised, so they do not consult this.
+     * Whether cancelling right now (or at `$at`) would fall inside the penalty window: the
+     * user loses the credit and the monthly quota. Admin and system cancellations are
+     * never penalised, so they do not consult this. A cancellation passes one `$at` to every
+     * rule it checks, so they all read the same clock.
      */
-    public function isLateCancellation(): bool
+    public function isLateCancellation(?CarbonInterface $at = null): bool
     {
-        return now()->diffInHours($this->appointment_at, absolute: false) < self::CANCELLATION_WINDOW_HOURS;
+        return ($at ?? now())->diffInHours($this->appointment_at, absolute: false) < self::CANCELLATION_WINDOW_HOURS;
     }
 
     /**
@@ -198,23 +199,23 @@ class Appointment extends Model
      * no futuro. É a regra de visibilidade do botão "Cancelar" do painel; dentro das 4 horas ele
      * continua podendo cancelar, só perde o crédito (ver cancelImpact()).
      */
-    public function canBeCancelled(): bool
+    public function canBeCancelled(?CarbonInterface $at = null): bool
     {
         return in_array($this->status, [AppointmentStatus::Pending, AppointmentStatus::Active], strict: true)
-            && $this->appointment_at->isFuture();
+            && $this->appointment_at->greaterThan($at ?? now());
     }
 
     /**
-     * Destino do crédito se o cancelamento acontecer agora; null quando não há o que cancelar.
-     * Mesma régua de AppointmentStatus::resolveCancellationStatus() para o ator User.
+     * Destino do crédito se o cancelamento acontecer agora (ou em `$at`); null quando não há o que
+     * cancelar. Mesma régua de AppointmentStatus::resolveCancellationStatus() para o ator User.
      */
-    public function cancelImpact(): ?CancelImpact
+    public function cancelImpact(?CarbonInterface $at = null): ?CancelImpact
     {
-        if (! $this->canBeCancelled()) {
+        if (! $this->canBeCancelled($at)) {
             return null;
         }
 
-        return $this->isLateCancellation() ? CancelImpact::LosesCredit : CancelImpact::ReturnsCredit;
+        return $this->isLateCancellation($at) ? CancelImpact::LosesCredit : CancelImpact::ReturnsCredit;
     }
 
     protected function casts(): array
