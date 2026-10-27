@@ -28,9 +28,13 @@ final readonly class CancelAppointmentForUserAction
      * painel mostra a confirmação a partir dela.
      *
      * `$expectedImpact` é o destino do crédito que a pessoa confirmou (o app manda o que o alerta
-     * mostrou). Se ela confirmou com o crédito voltando e o prazo passou até o pedido chegar, nada é
-     * cancelado: a conferência usa o mesmo relógio e a mesma linha travada da transição. Ter aceitado
-     * perder o crédito nunca impede o cancelamento, porque devolver é sempre melhor que o combinado.
+     * mostrou, o painel o que o modal mostrou). Se ela confirmou com o crédito voltando e o prazo
+     * passou até o pedido chegar, nada é cancelado. Ter aceitado perder o crédito nunca impede o
+     * cancelamento, porque devolver é sempre melhor que o combinado.
+     *
+     * O relógio é lido uma vez, depois da trava: a checagem, a conferência e a transição usam o
+     * mesmo instante, então um encontro na borda das 4 h não passa como `returns_credit` aqui e vira
+     * `cancelled_late` na transição.
      *
      * @throws AppointmentStateException
      * @throws CancelImpactChangedException
@@ -41,19 +45,22 @@ final readonly class CancelAppointmentForUserAction
             Appointment::query()->whereKey($appointment->getKey())->lockForUpdate()->first();
             $appointment->refresh();
 
+            $now = now();
+
             throw_unless(
-                $appointment->user_id === $user->getKey() && $appointment->canBeCancelled(),
+                $appointment->user_id === $user->getKey() && $appointment->canBeCancelled($now),
                 AppointmentStateException::cannotCancel(),
             );
 
             throw_if(
-                $expectedImpact === CancelImpact::ReturnsCredit && $appointment->isLateCancellation(),
+                $expectedImpact === CancelImpact::ReturnsCredit && $appointment->cancelImpact($now) === CancelImpact::LosesCredit,
                 CancelImpactChangedException::class,
             );
 
             $appointment->current_transition->handle(new TransitionData(
                 cancellationActor: CancellationActor::User,
                 cancelledBy: $user,
+                cancelledAt: $now,
             ));
 
             return $appointment;
