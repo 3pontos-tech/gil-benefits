@@ -7,6 +7,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ViewAppointment;
@@ -61,5 +62,14 @@ class AppointmentResource extends Resource
             'index' => ListAppointments::route('/'),
             'view' => ViewAppointment::route('/{record}'),
         ];
+    }
+
+    /**
+     * @return Builder<Appointment>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('consultant_id', auth()->user()->consultant()->value('id'));
     }
 }

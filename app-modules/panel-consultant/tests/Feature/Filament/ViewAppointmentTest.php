@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\User\Models\UserAnamnese;
@@ -40,4 +41,11 @@ it('shows warning section when client has no anamnese', function (): void {
     livewire(ViewAppointment::class, ['record' => $appointment->getRouteKey()])
         ->assertOk()
         ->assertSee(__('panel-consultant::resources.appointments.infolist.no_anamnese_description'));
+});
+
+it('hides another consultant appointment', function (): void {
+    $appointment = Appointment::factory()->create();
+
+    expect(fn () => livewire(ViewAppointment::class, ['record' => $appointment->getRouteKey()]))
+        ->toThrow(ModelNotFoundException::class);
 });
