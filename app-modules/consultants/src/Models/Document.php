@@ -16,7 +16,6 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use TresPontosTech\Consultants\Database\Factories\DocumentFactory;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
-use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Consultants\Policies\DocumentPolicy;
 
 /**

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
 use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
-use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\assertSoftDeleted;

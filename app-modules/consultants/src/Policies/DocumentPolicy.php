@@ -54,6 +54,10 @@ class DocumentPolicy
 
     private function owns(User $user, Document $document): bool
     {
-        return $user->isAdmin() || $document->isOwnedBy($user);
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $document->isOwnedBy($user);
     }
 }

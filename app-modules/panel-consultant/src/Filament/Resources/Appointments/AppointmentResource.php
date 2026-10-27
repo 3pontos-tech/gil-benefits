@@ -8,6 +8,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListAppointments;
 use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ViewAppointment;
@@ -65,7 +66,7 @@ class AppointmentResource extends Resource
     }
 
     /**
-     * @return Builder<Appointment>
+     * @return Builder<Model>
      */
     public static function getEloquentQuery(): Builder
     {
