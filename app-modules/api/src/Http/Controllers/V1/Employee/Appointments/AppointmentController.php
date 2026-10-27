@@ -86,7 +86,9 @@ class AppointmentController
         $user = $request->user();
 
         $cancelled = $cancel->handle(
-            $this->ownedAppointment($request, $appointment),
+            // Sem as relações: a action relê o encontro com a linha travada e o resource as carrega
+            // uma vez só, já com o estado cancelado.
+            $this->ownedAppointment($request, $appointment, with: []),
             $user,
             $request->enum('expected_impact', CancelImpact::class),
         );
@@ -94,11 +96,14 @@ class AppointmentController
         return new AppointmentResource($cancelled->load(AppointmentResource::EAGER_LOADS));
     }
 
-    private function ownedAppointment(Request $request, string $id): Appointment
+    /**
+     * @param  list<string>  $with
+     */
+    private function ownedAppointment(Request $request, string $id, array $with = AppointmentResource::EAGER_LOADS): Appointment
     {
         /** @var User $user */
         $user = $request->user();
 
-        return $user->appointments()->with(AppointmentResource::EAGER_LOADS)->findOrFail($id);
+        return $user->appointments()->with($with)->findOrFail($id);
     }
 }

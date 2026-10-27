@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\Sanctum;
 use TresPontosTech\Api\Enums\TokenAbility;
@@ -155,4 +156,24 @@ it('rejects an unknown expected_impact', function (): void {
         ->assertJsonValidationErrors(['expected_impact']);
 
     expect($appointment->refresh()->status)->toBe(AppointmentStatus::Pending);
+});
+
+it('treats a null expected_impact as no expectation', function (): void {
+    $appointment = appointmentFor($this->employee, AppointmentStatus::Pending, now()->addHour());
+
+    postJson(route('api.v1.appointments.cancel', $appointment), ['expected_impact' => null])
+        ->assertOk()
+        ->assertJsonPath('data.status', 'cancelled_late');
+});
+
+it('loads the appointment relations once, after cancelling', function (): void {
+    $appointment = appointmentFor($this->employee, AppointmentStatus::Active, now()->addHours(5));
+
+    DB::enableQueryLog();
+    postJson(route('api.v1.appointments.cancel', $appointment))->assertOk();
+    $queries = collect(DB::getQueryLog())->pluck('query');
+    DB::disableQueryLog();
+
+    expect($queries->filter(fn (string $query): bool => str_contains($query, 'from "appointment_feedbacks"')))->toHaveCount(1)
+        ->and($queries->filter(fn (string $query): bool => str_contains($query, 'from "appointment_records"')))->toHaveCount(1);
 });

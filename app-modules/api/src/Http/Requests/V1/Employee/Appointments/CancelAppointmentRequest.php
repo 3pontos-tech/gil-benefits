@@ -16,14 +16,15 @@ class CancelAppointmentRequest extends FormRequest
     }
 
     /**
-     * `expected_impact` é o `cancel_impact` que o alerta do app mostrou e a pessoa confirmou.
+     * `expected_impact` é o `cancel_impact` que o alerta do app mostrou e a pessoa confirmou; `null`
+     * vale o mesmo que não mandar.
      *
      * @return array<string, list<mixed>>
      */
     public function rules(): array
     {
         return [
-            'expected_impact' => ['sometimes', 'string', Rule::enum(CancelImpact::class)],
+            'expected_impact' => ['sometimes', 'nullable', 'string', Rule::enum(CancelImpact::class)],
         ];
     }
 
