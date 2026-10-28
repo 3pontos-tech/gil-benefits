@@ -47,10 +47,6 @@ class WelcomeUserMail extends Mailable implements ShouldQueue
         );
     }
 
-    /**
-     * The token is minted here, when the queued mail is rendered, so its expiry counts from
-     * the moment the message leaves and not from when the account was created.
-     */
     private function setPasswordUrl(): string
     {
         return URL::signedRoute('filament.consultant.auth.password-reset.reset', [

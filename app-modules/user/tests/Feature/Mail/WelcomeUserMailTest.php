@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Password;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Mail\WelcomeUserMail;
 
+use function Pest\Laravel\get;
 use function Pest\Livewire\livewire;
 
 describe('WelcomeUserMail', function (): void {
@@ -73,8 +74,11 @@ describe('WelcomeUserMail', function (): void {
 
         $html = (new WelcomeUserMail($user, mustSetPassword: true))->render();
         preg_match('/token=([0-9a-f]+)/', $html, $matches);
+        preg_match('#href="([^"]*password-reset/reset[^"]*)"#', $html, $setPasswordLink);
 
         expect(Password::tokenExists($user, $matches[1]))->toBeTrue();
+
+        get(html_entity_decode($setPasswordLink[1]))->assertOk();
 
         filament()->setCurrentPanel(FilamentPanel::Consultant->value);
 
