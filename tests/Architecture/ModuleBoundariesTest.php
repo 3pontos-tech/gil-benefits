@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use TresPontosTech\Billing\BillingServiceProvider;
+use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
+use TresPontosTech\Tenant\Models\Traits\HasTenant;
 use TresPontosTech\User\Concerns\ChecksImportCompletion;
 
 $domain = [
@@ -36,10 +39,12 @@ $presentation = [
 $filamentUi = [
     'Filament\Actions',
     'Filament\Billing',
+    'Filament\Facades',
     'Filament\Forms',
     'Filament\Infolists',
     'Filament\Notifications',
     'Filament\Pages',
+    'Filament\Panel',
     'Filament\Resources',
     'Filament\Schemas',
     'Filament\Tables',
@@ -47,6 +52,11 @@ $filamentUi = [
 ];
 
 $filamentUiBaseline = [
+    // arq-04, accepted debt: tenant and panel come from the Filament facade
+    ResolveQuotaAllowance::class,
+    HasTenant::class,
+    // #319, goes away with Cashier
+    BillingServiceProvider::class,
     // arq-12
     'TresPontosTech\Support\Filament',
     ChecksImportCompletion::class,
