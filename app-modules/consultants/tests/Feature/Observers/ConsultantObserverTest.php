@@ -66,7 +66,7 @@ describe('ConsultantObserver', function (): void {
 
         Event::assertDispatched(
             UserRegistered::class,
-            fn (UserRegistered $event): bool => $event->mustSetPassword === true,
+            fn (UserRegistered $event): bool => $event->mustSetPassword,
         );
     });
 
