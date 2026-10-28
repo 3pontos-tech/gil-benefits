@@ -3,6 +3,7 @@
 namespace TresPontosTech\Consultants\Observers;
 
 use App\Models\Users\User;
+use Illuminate\Support\Str;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
@@ -23,12 +24,11 @@ class ConsultantObserver
             'email' => EmailAddress::normalize($consultant->email),
         ], [
             'name' => $consultant->name,
-            'password' => $consultant->email,
+            'password' => Str::password(),
         ]);
 
         $consultant->user()->associate($user)->save();
 
-        $temporaryPassword = $user->wasRecentlyCreated ? $consultant->email : null;
-        event(new UserRegistered($user, Roles::Consultant, $temporaryPassword));
+        event(new UserRegistered($user, Roles::Consultant, mustSetPassword: $user->wasRecentlyCreated));
     }
 }
