@@ -6,13 +6,14 @@ namespace TresPontosTech\PanelAdmin\Listeners;
 
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Contracts\Events\ShouldHandleEventsAfterCommit;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use TresPontosTech\Appointments\Events\AppointmentCompleted;
 use TresPontosTech\PanelAdmin\Actions\GetAdminUsersAction;
 
-class NotifyAdminsOfAppointmentCompletedListener implements ShouldQueue
+class NotifyAdminsOfAppointmentCompletedListener implements ShouldHandleEventsAfterCommit, ShouldQueue
 {
     public function handle(AppointmentCompleted $event): void
     {

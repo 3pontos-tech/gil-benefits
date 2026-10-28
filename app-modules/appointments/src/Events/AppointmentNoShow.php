@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Events;
 
-use Illuminate\Contracts\Events\ShouldDispatchAfterCommit;
 use Illuminate\Foundation\Events\Dispatchable;
 use TresPontosTech\Appointments\Models\Appointment;
 
-final readonly class AppointmentNoShow implements ShouldDispatchAfterCommit
+/**
+ * Dispatched synchronously, inside the no-show transaction, on purpose: the credit
+ * listener marks money as spent and must commit or roll back with the status change. Do
+ * not add ShouldDispatchAfterCommit here; listeners that need the commit declare
+ * ShouldHandleEventsAfterCommit themselves.
+ */
+final readonly class AppointmentNoShow
 {
     use Dispatchable;
 

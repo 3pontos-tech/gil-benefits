@@ -17,10 +17,6 @@ use TresPontosTech\Appointments\Notifications\AppointmentCancelledForConsultantN
 use TresPontosTech\Appointments\Notifications\AppointmentCancelledNotification;
 use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Billing\Core\Support\QuotaCycle;
-use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
-use TresPontosTech\Credits\Events\AppointmentCreditReturned;
-use TresPontosTech\Credits\Events\AppointmentCreditUsed;
-use TresPontosTech\Credits\Models\UserCredit;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
 
@@ -73,10 +69,6 @@ abstract class AbstractAppointmentTransition
 
         if ($this->appointment->status === AppointmentStatus::Cancelled) {
             $this->stampQuotaRefundIfCycleClosed();
-
-            event(new AppointmentCreditReturned((string) $this->appointment->getKey()));
-        } else {
-            event(new AppointmentCreditUsed((string) $this->appointment->getKey()));
         }
 
         Schedule::query()
@@ -90,8 +82,8 @@ abstract class AbstractAppointmentTransition
     /**
      * Carimba a devolução quando o ciclo que pagou esta consulta já fechou.
      *
-     * Precisa rodar antes de `AppointmentCreditReturned`, porque o listener daquele
-     * evento zera `user_credits.appointment_id` — e é esse vínculo que diz se a
+     * Precisa rodar antes de `AppointmentCancelled`, porque o listener do credits
+     * zera `user_credits.appointment_id` — e é esse vínculo que diz se a
      * consulta foi paga com crédito avulso. Depois dele a informação não existe mais
      * em lugar nenhum, já que pagar com cota não escreve linha em tabela alguma.
      *
@@ -104,10 +96,7 @@ abstract class AbstractAppointmentTransition
      */
     private function stampQuotaRefundIfCycleClosed(): void
     {
-        $paidWithCredit = UserCredit::query()
-            ->where('appointment_id', $this->appointment->getKey())
-            ->where('status', UserCreditStatusEnum::InUse)
-            ->exists();
+        $paidWithCredit = $this->appointment->credit()->inUse()->exists();
 
         if ($paidWithCredit || $this->appointment->created_at === null) {
             return;

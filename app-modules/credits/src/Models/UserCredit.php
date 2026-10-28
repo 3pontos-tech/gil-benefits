@@ -173,6 +173,16 @@ class UserCredit extends Model
      * @return Builder<UserCredit>
      */
     #[Scope]
+    protected function inUse(Builder $query): Builder
+    {
+        return $query->where('status', UserCreditStatusEnum::InUse);
+    }
+
+    /**
+     * @param  Builder<UserCredit>  $query
+     * @return Builder<UserCredit>
+     */
+    #[Scope]
     protected function forCompany(Builder $query, Company $company): Builder
     {
         return $query->where('company_id', $company->getKey());

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationMonday\Providers;
 
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use TresPontosTech\IntegrationMonday\Events\MondayItemColumnChanged;
-use TresPontosTech\IntegrationMonday\Listeners\PushTicketStatusToMonday;
-use TresPontosTech\IntegrationMonday\Listeners\SyncTicketStatusFromMonday;
-use TresPontosTech\Support\Events\SupportTicketStatusChanged;
+use TresPontosTech\IntegrationMonday\MondayClient;
+use TresPontosTech\IntegrationMonday\Senders\MondayTicketSenderAdapter;
+use TresPontosTech\Support\Contracts\TicketChannelSender;
+use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
+use TresPontosTech\Support\TicketSenderManager;
 
 class IntegrationMondayServiceProvider extends ServiceProvider
 {
@@ -22,8 +22,21 @@ class IntegrationMondayServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__ . '/../../routes/integration-monday-routes.php');
 
-        Event::listen(MondayItemColumnChanged::class, SyncTicketStatusFromMonday::class);
+        $this->registerTicketSender();
+    }
 
-        Event::listen(SupportTicketStatusChanged::class, PushTicketStatusToMonday::class);
+    /**
+     * Deferred to booted() because TicketSenderManager must already be bound as a
+     * singleton by SupportServiceProvider: Manager::extend() stores the creator on
+     * the instance, so a non-shared binding would drop it on the next resolve().
+     */
+    private function registerTicketSender(): void
+    {
+        $this->app->booted(function (): void {
+            $this->app->make(TicketSenderManager::class)->extend(
+                TicketDestinationTypeEnum::Monday->value,
+                fn (): TicketChannelSender => new MondayTicketSenderAdapter($this->app->make(MondayClient::class)),
+            );
+        });
     }
 }

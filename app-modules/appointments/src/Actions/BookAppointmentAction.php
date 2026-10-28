@@ -9,10 +9,9 @@ use Illuminate\Support\Facades\Mail;
 use Throwable;
 use TresPontosTech\Appointments\DTO\BookAppointmentDTO;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Events\AppointmentReserved;
 use TresPontosTech\Appointments\Mail\AppointmentRequestedAdminMail;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Credits\DTOs\CreditDTO;
-use TresPontosTech\Credits\Events\CreditConsumed;
 
 readonly class BookAppointmentAction
 {
@@ -31,13 +30,7 @@ readonly class BookAppointmentAction
             'company_id' => $payload->companyId ?? $user->employerCompanyId(),
         ]);
 
-        if (! $hasMonthlyQuota) {
-            event(new CreditConsumed(new CreditDTO(
-                holderId: $user->getKey(),
-                companyId: $appointment->company_id,
-                appointmentId: $appointment->getKey(),
-            )));
-        }
+        event(new AppointmentReserved($appointment, paidWithQuota: $hasMonthlyQuota));
 
         $this->notifyAdmins($appointment);
 
