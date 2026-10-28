@@ -7,14 +7,15 @@ namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 use App\Models\Users\User;
 use Filament\Resources\Pages\CreateRecord;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Events\AppointmentReserved;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Credits\DTOs\CreditDTO;
-use TresPontosTech\Credits\Events\CreditConsumed;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 
 class CreateAppointment extends CreateRecord
 {
     protected static string $resource = AppointmentResource::class;
+
+    protected ?bool $hasDatabaseTransactions = true;
 
     protected bool $consumesCredit = false;
 
@@ -48,17 +49,9 @@ class CreateAppointment extends CreateRecord
 
     protected function afterCreate(): void
     {
-        if (! $this->consumesCredit) {
-            return;
-        }
-
         /** @var Appointment $appointment */
         $appointment = $this->record;
 
-        event(new CreditConsumed(new CreditDTO(
-            holderId: $appointment->user_id,
-            companyId: $appointment->company_id,
-            appointmentId: $appointment->getKey(),
-        )));
+        event(new AppointmentReserved($appointment, paidWithQuota: ! $this->consumesCredit));
     }
 }

@@ -7,6 +7,7 @@ namespace TresPontosTech\Appointments\Actions;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Actions\AppointmentHistory\StoreAppointmentHistoryAction;
+use TresPontosTech\Appointments\Contracts\AppointmentCalendar;
 use TresPontosTech\Appointments\DTO\StoreAppointmentHistoryDTO;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
@@ -16,7 +17,6 @@ use TresPontosTech\Appointments\Mail\AppointmentConsultantUnassignedMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\IntegrationGoogleCalendar\AppointmentCalendarSynchronizer;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
 
@@ -31,7 +31,7 @@ final readonly class SyncAppointmentScheduleAction
 {
     public function __construct(
         private AssignConsultantAction $assignConsultant,
-        private AppointmentCalendarSynchronizer $calendar,
+        private AppointmentCalendar $calendar,
         private StoreAppointmentHistoryAction $storeAppointmentHistory,
     ) {}
 

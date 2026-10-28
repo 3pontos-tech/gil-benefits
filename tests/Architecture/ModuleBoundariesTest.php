@@ -53,6 +53,12 @@ $filamentUiBaseline = [
     'TresPontosTech\User\Filament',
 ];
 
+foreach ($domain as $module) {
+    arch($module . ' does not import integration modules')
+        ->expect($module)
+        ->not->toUse($integration);
+}
+
 foreach ([...$domain, ...$integration] as $module) {
     arch($module . ' does not import presentation modules')
         ->expect($module)

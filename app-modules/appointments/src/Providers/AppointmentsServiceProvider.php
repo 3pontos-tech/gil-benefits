@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace TresPontosTech\Appointments\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use TresPontosTech\Appointments\Actions\BuildUserJourneyAction;
+use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Models\AppointmentFeedback;
+use TresPontosTech\Appointments\Models\AppointmentRecord;
 use TresPontosTech\Appointments\Support\AiCircuitBreaker;
 
 class AppointmentsServiceProvider extends ServiceProvider
@@ -19,6 +23,12 @@ class AppointmentsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../../config/appointments.php', 'appointments');
+
+        Relation::morphMap([
+            'appointments' => Appointment::class,
+            'appointment_records' => AppointmentRecord::class,
+            'appointment_feedbacks' => AppointmentFeedback::class,
+        ]);
 
         $this->app->scoped(BuildUserJourneyAction::class);
 

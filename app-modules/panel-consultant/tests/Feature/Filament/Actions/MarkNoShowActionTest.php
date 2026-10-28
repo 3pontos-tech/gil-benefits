@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Events\AppointmentNoShow;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
 use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\Credits\Events\AppointmentCreditUsed;
 use TresPontosTech\PanelConsultant\Filament\Actions\MarkNoShowAction;
 use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListAppointments;
 
@@ -140,7 +140,7 @@ it('rolls back the no-show transition and notifies failure when a listener throw
         ->withStatus(AppointmentStatus::Active)
         ->create(['appointment_at' => now()->subHour()]);
 
-    Event::listen(AppointmentCreditUsed::class, function (): void {
+    Event::listen(AppointmentNoShow::class, function (): void {
         throw new RuntimeException('Forced failure to exercise the transaction rollback.');
     });
 
