@@ -22,7 +22,7 @@
 {{ __('emails.users.welcome.set_password_button') }}
 </x-mail::button>
 
-{{ __('emails.users.welcome.set_password_expires', ['minutes' => config('auth.passwords.users.expire')]) }}
+{{ __('emails.users.welcome.set_password_expires', ['minutes' => $setPasswordMinutes]) }}
 
 @elseif(filled($password))
 {{ __('emails.users.welcome.admin_created') }}

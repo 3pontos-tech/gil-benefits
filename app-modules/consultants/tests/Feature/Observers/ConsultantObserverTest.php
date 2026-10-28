@@ -1,16 +1,11 @@
 <?php
 
-use App\Filament\FilamentPanel;
 use App\Models\Users\User;
-use Filament\Auth\Pages\PasswordReset\ResetPassword;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
-
-use function Pest\Livewire\livewire;
 
 describe('ConsultantObserver', function (): void {
     it('reuses existing user with same email', function (): void {
@@ -64,30 +59,18 @@ describe('ConsultantObserver', function (): void {
         );
     });
 
-    it('hands the new user a working link to set the password on the consultant panel', function (): void {
+    it('asks the new user to set the password', function (): void {
         Event::fake([UserRegistered::class]);
 
-        $consultant = Consultant::factory()->create(['email' => 'nova@example.com']);
-        $user = $consultant->fresh()->user;
-        $user->assignRole(Roles::Consultant->value);
+        Consultant::factory()->create(['email' => 'nova@example.com']);
 
-        $url = Event::dispatched(UserRegistered::class)->first()[0]->setPasswordUrl;
-        parse_str((string) parse_url($url, PHP_URL_QUERY), $query);
-
-        expect($url)->toStartWith(route('filament.consultant.auth.password-reset.reset'))
-            ->and(Password::broker()->tokenExists($user, $query['token']))->toBeTrue();
-
-        filament()->setCurrentPanel(FilamentPanel::Consultant->value);
-
-        livewire(ResetPassword::class, ['email' => $query['email'], 'token' => $query['token']])
-            ->fillForm(['password' => 'nova-senha-123', 'passwordConfirmation' => 'nova-senha-123'])
-            ->call('resetPassword')
-            ->assertHasNoFormErrors();
-
-        expect(Hash::check('nova-senha-123', $user->fresh()->password))->toBeTrue();
+        Event::assertDispatched(
+            UserRegistered::class,
+            fn (UserRegistered $event): bool => $event->mustSetPassword === true,
+        );
     });
 
-    it('does not hand a set-password link to a user that already existed', function (): void {
+    it('does not ask a user that already existed to set the password', function (): void {
         Event::fake([UserRegistered::class]);
         User::factory()->create(['email' => 'existe@example.com']);
 
@@ -95,7 +78,7 @@ describe('ConsultantObserver', function (): void {
 
         Event::assertDispatched(
             UserRegistered::class,
-            fn (UserRegistered $event): bool => $event->setPasswordUrl === null && $event->temporaryPassword === null,
+            fn (UserRegistered $event): bool => $event->mustSetPassword === false && $event->temporaryPassword === null,
         );
     });
 });

@@ -157,7 +157,7 @@ it('sends a welcome email with a set-password link to the consultant', function 
 
     Mail::assertQueued(WelcomeUserMail::class, function (WelcomeUserMail $mail): bool {
         return $mail->password === null
-            && filled($mail->setPasswordUrl)
+            && $mail->mustSetPassword
             && $mail->hasTo('consultant@example.com');
     });
 });
@@ -182,7 +182,7 @@ it('sends a welcome email without credentials when the user already exists', fun
 
     Mail::assertQueued(WelcomeUserMail::class, function (WelcomeUserMail $mail): bool {
         return $mail->password === null
-            && $mail->setPasswordUrl === null
+            && ! $mail->mustSetPassword
             && $mail->hasTo('existing@example.com');
     });
 });
