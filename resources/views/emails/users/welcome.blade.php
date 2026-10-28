@@ -15,7 +15,16 @@
 | {{ __('emails.users.welcome.feature_history') }} |
 </x-mail::table>
 
-@if(filled($password))
+@if(filled($setPasswordUrl))
+{{ __('emails.users.welcome.set_password') }}
+
+<x-mail::button :url="$setPasswordUrl">
+{{ __('emails.users.welcome.set_password_button') }}
+</x-mail::button>
+
+{{ __('emails.users.welcome.set_password_expires', ['minutes' => config('auth.passwords.users.expire')]) }}
+
+@elseif(filled($password))
 {{ __('emails.users.welcome.admin_created') }}
 
 {{ __('emails.users.welcome.email_label', ['email' => $userEmail]) }}
@@ -29,9 +38,11 @@
 
 @endif
 
+@if(blank($setPasswordUrl))
 <x-mail::button :url="$panelUrl">
 {{ __('emails.users.welcome.button') }}
 </x-mail::button>
+@endif
 
 {{ __('emails.users.welcome.help') }}
 

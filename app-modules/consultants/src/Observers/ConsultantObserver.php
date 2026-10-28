@@ -3,6 +3,9 @@
 namespace TresPontosTech\Consultants\Observers;
 
 use App\Models\Users\User;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
@@ -23,12 +26,20 @@ class ConsultantObserver
             'email' => EmailAddress::normalize($consultant->email),
         ], [
             'name' => $consultant->name,
-            'password' => $consultant->email,
+            'password' => Str::password(),
         ]);
 
         $consultant->user()->associate($user)->save();
 
-        $temporaryPassword = $user->wasRecentlyCreated ? $consultant->email : null;
-        event(new UserRegistered($user, Roles::Consultant, $temporaryPassword));
+        $setPasswordUrl = $user->wasRecentlyCreated ? $this->setPasswordUrl($user) : null;
+        event(new UserRegistered($user, Roles::Consultant, setPasswordUrl: $setPasswordUrl));
+    }
+
+    private function setPasswordUrl(User $user): string
+    {
+        return URL::signedRoute('filament.consultant.auth.password-reset.reset', [
+            'email' => $user->getEmailForPasswordReset(),
+            'token' => Password::broker()->createToken($user),
+        ]);
     }
 }

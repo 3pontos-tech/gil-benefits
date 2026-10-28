@@ -18,6 +18,7 @@ class WelcomeUserMail extends Mailable implements ShouldQueue
     public function __construct(
         public readonly User $user,
         public readonly ?string $password = null,
+        public readonly ?string $setPasswordUrl = null,
     ) {
         $this->onQueue('emails')->afterCommit();
     }
@@ -37,6 +38,7 @@ class WelcomeUserMail extends Mailable implements ShouldQueue
                 'userName' => $this->user->name,
                 'userEmail' => $this->user->email,
                 'password' => $this->password,
+                'setPasswordUrl' => $this->setPasswordUrl,
                 'panelUrl' => $this->resolvePanelUrl(),
             ],
         );

@@ -139,7 +139,7 @@ it('should assign an user to the consultant after creating', function (): void {
         ->and($consultant->user->email)->toBe('joe@doe.com');
 
 });
-it('sends a welcome email with the temporary password to the consultant', function (): void {
+it('sends a welcome email with a set-password link to the consultant', function (): void {
     Mail::fake();
 
     livewire(CreateConsultant::class)
@@ -156,12 +156,13 @@ it('sends a welcome email with the temporary password to the consultant', functi
         ->assertHasNoFormErrors();
 
     Mail::assertQueued(WelcomeUserMail::class, function (WelcomeUserMail $mail): bool {
-        return $mail->password === 'consultant@example.com'
+        return $mail->password === null
+            && filled($mail->setPasswordUrl)
             && $mail->hasTo('consultant@example.com');
     });
 });
 
-it('sends a welcome email without a temporary password when the user already exists', function (): void {
+it('sends a welcome email without credentials when the user already exists', function (): void {
     Mail::fake();
 
     User::factory()->create(['email' => 'existing@example.com']);
@@ -181,6 +182,7 @@ it('sends a welcome email without a temporary password when the user already exi
 
     Mail::assertQueued(WelcomeUserMail::class, function (WelcomeUserMail $mail): bool {
         return $mail->password === null
+            && $mail->setPasswordUrl === null
             && $mail->hasTo('existing@example.com');
     });
 });

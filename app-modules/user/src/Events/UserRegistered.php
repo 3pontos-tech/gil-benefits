@@ -16,5 +16,6 @@ final readonly class UserRegistered
         public User $user,
         public Roles $role,
         public ?string $temporaryPassword = null,
+        public ?string $setPasswordUrl = null,
     ) {}
 }

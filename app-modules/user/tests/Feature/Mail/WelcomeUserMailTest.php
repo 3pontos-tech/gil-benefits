@@ -48,6 +48,17 @@ describe('WelcomeUserMail', function (): void {
         $mailable->assertSeeInHtml('joao@empresa.com');
     });
 
+    it('renders the set-password button instead of credentials when a link is given', function (): void {
+        $user = User::factory()->create(['email' => 'joao@empresa.com']);
+
+        $mailable = new WelcomeUserMail($user, null, 'https://example.test/consultant/password-reset/reset?token=abc');
+
+        $mailable->assertSeeInHtml('Definir minha senha');
+        $mailable->assertSeeInHtml('https://example.test/consultant/password-reset/reset?token=abc');
+        $mailable->assertDontSeeInHtml('Senha temporária');
+        $mailable->assertDontSeeInHtml('Acessar plataforma');
+    });
+
     it('is queued to the user email', function (): void {
         Mail::fake();
 
