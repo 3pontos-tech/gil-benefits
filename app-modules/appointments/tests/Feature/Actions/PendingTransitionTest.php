@@ -20,7 +20,6 @@ use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
 
 use function Pest\Laravel\actingAs;
 
@@ -201,26 +200,6 @@ it('fires AppointmentCancelled event on user late cancellation', function (): vo
     ));
 
     Event::assertDispatched(AppointmentCancelled::class, fn ($e) => $e->appointment->is($appointment));
-});
-
-it('dispatches DeleteAppointmentCalendarEventJob when google_event_id is set', function (): void {
-    $appointment = Appointment::factory()
-        ->withStatus(AppointmentStatus::Pending)
-        ->create(['appointment_at' => now()->addHours(5), 'google_event_id' => 'evt-123']);
-
-    (new PendingTransition($appointment))->handle(new TransitionData(cancellationActor: CancellationActor::Admin));
-
-    Bus::assertDispatched(DeleteAppointmentCalendarEventJob::class, fn ($job): bool => $job->appointment->id === $appointment->id);
-});
-
-it('does not dispatch DeleteAppointmentCalendarEventJob when google_event_id is null', function (): void {
-    $appointment = Appointment::factory()
-        ->withStatus(AppointmentStatus::Pending)
-        ->create(['appointment_at' => now()->addHours(5), 'google_event_id' => null]);
-
-    (new PendingTransition($appointment))->handle(new TransitionData(cancellationActor: CancellationActor::Admin));
-
-    Bus::assertNotDispatched(DeleteAppointmentCalendarEventJob::class);
 });
 
 it('throws InvalidTransitionException when called on a terminal status', function (): void {

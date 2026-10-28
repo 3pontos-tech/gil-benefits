@@ -11,7 +11,6 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use TresPontosTech\Appointments\Models\AppointmentRecord;
-use TresPontosTech\PanelApp\Filament\Resources\Appointments\AppointmentResource;
 
 final class AppointmentRecordPublishedMail extends Mailable implements ShouldQueue
 {
@@ -39,10 +38,7 @@ final class AppointmentRecordPublishedMail extends Mailable implements ShouldQue
             markdown: 'appointments::mail.record-published',
             with: [
                 'record' => $this->record,
-                'url' => AppointmentResource::getUrl(
-                    panel: 'app',
-                    tenant: $this->record->appointment->company,
-                ),
+                'url' => route('filament.app.resources.appointments.index', ['tenant' => $this->record->appointment->company]),
             ],
         );
     }

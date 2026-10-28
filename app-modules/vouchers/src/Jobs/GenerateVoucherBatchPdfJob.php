@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\Vouchers\Jobs;
 
 use App\Models\Users\User;
-use Filament\Actions\Action;
-use Filament\Notifications\Notification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,6 +14,8 @@ use Illuminate\Queue\SerializesModels;
 use Throwable;
 use TresPontosTech\Vouchers\Actions\BuildVoucherBatchPdf;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
+use TresPontosTech\Vouchers\Notifications\VoucherBatchPdfFailedNotification;
+use TresPontosTech\Vouchers\Notifications\VoucherBatchPdfReadyNotification;
 
 class GenerateVoucherBatchPdfJob implements ShouldBeUnique, ShouldQueue
 {
@@ -80,18 +80,7 @@ class GenerateVoucherBatchPdfJob implements ShouldBeUnique, ShouldQueue
             return;
         }
 
-        Notification::make()
-            ->success()
-            ->title(__('vouchers::vouchers.pdf.ready_title'))
-            ->body(__('vouchers::vouchers.pdf.ready_body', ['batch' => $batch->name]))
-            ->actions([
-                Action::make('download')
-                    ->label(__('vouchers::vouchers.pdf.download'))
-                    ->url($this->downloadUrl)
-                    ->openUrlInNewTab()
-                    ->markAsRead(),
-            ])
-            ->sendToDatabase($requester);
+        $requester->notify(new VoucherBatchPdfReadyNotification($batch->name, $this->downloadUrl));
     }
 
     public function failed(?Throwable $exception): void
@@ -108,10 +97,6 @@ class GenerateVoucherBatchPdfJob implements ShouldBeUnique, ShouldQueue
             return;
         }
 
-        Notification::make()
-            ->danger()
-            ->title(__('vouchers::vouchers.pdf.failed_title'))
-            ->body(__('vouchers::vouchers.pdf.failed_body'))
-            ->sendToDatabase($requester);
+        $requester->notify(new VoucherBatchPdfFailedNotification);
     }
 }

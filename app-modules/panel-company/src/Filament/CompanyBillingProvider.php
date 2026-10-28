@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TresPontosTech\Billing\Core\Filament;
+namespace TresPontosTech\PanelCompany\Filament;
 
 use Closure;
 use Filament\Billing\Providers\Contracts\BillingProvider;
@@ -11,9 +11,10 @@ use Filament\Pages\Dashboard;
 use Illuminate\Http\RedirectResponse;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
-use TresPontosTech\Billing\Core\Http\Middleware\RedirectCompanyIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Pages\BillingManagePage;
+use TresPontosTech\PanelCompany\Http\Middleware\RedirectCompanyIfNotSubscribed;
 
 class CompanyBillingProvider implements BillingProvider
 {
@@ -33,12 +34,12 @@ class CompanyBillingProvider implements BillingProvider
 
             $driver->ensureCustomerExists($tenant);
 
-            $url = $driver->getBillingPortalUrl(
+            $portal = $driver->billingPortal(
                 billable: $tenant,
                 returnUrl: Dashboard::getUrl(),
             );
 
-            return redirect($url);
+            return redirect($portal->url ?? BillingManagePage::getUrl(tenant: $tenant));
         };
     }
 

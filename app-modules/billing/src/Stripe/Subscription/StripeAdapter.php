@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
+use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -70,14 +71,11 @@ class StripeAdapter implements BillingContract, SupportsCreditPurchase, Supports
         return $session->asStripeCheckoutSession()->url;
     }
 
-    /**
-     * @param  array<string, mixed>  $options
-     */
-    public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string
+    public function billingPortal(Company|User $billable, string $returnUrl): BillingPortal
     {
-        return $billable
+        return BillingPortal::external($billable
             ->redirectToBillingPortal(returnUrl: $returnUrl, options: ['configuration' => config('cashier.portals.company')])
-            ->getTargetUrl();
+            ->getTargetUrl());
     }
 
     public function hasActiveSubscription(Company|User $billable): bool

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
@@ -29,9 +30,9 @@ class CreditlessGateway implements BillingContract
         return false;
     }
 
-    public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string
+    public function billingPortal(Company|User $billable, string $returnUrl): BillingPortal
     {
-        return 'https://billing.test';
+        return BillingPortal::external('https://billing.test');
     }
 
     public function hasActiveSubscription(Company|User $billable): bool

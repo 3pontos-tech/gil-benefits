@@ -6,6 +6,8 @@ namespace TresPontosTech\IntegrationGoogleCalendar\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
+use TresPontosTech\Appointments\Contracts\AppointmentCalendar;
+use TresPontosTech\IntegrationGoogleCalendar\AppointmentCalendarSynchronizer;
 use TresPontosTech\IntegrationGoogleCalendar\Console\Commands\SyncGoogleCalendarsCommand;
 
 class IntegrationGoogleCalendarServiceProvider extends ServiceProvider
@@ -13,6 +15,8 @@ class IntegrationGoogleCalendarServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../../config/google-calendar.php', 'google-calendar');
+
+        $this->app->bind(AppointmentCalendar::class, AppointmentCalendarSynchronizer::class);
     }
 
     public function boot(): void

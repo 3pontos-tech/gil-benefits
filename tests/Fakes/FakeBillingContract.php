@@ -5,6 +5,7 @@ namespace Tests\Fakes;
 use App\Models\Users\User;
 use Closure;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Company\Models\Company;
 
@@ -40,17 +41,15 @@ final class FakeBillingContract implements BillingContract
         return $this->checkoutUrl;
     }
 
-    public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string
+    public function billingPortal(Company|User $billable, string $returnUrl): BillingPortal
     {
-        return $this->billingPortalUrl;
+        return BillingPortal::external($this->billingPortalUrl);
     }
 
     public function hasActiveSubscription(Company|User $billable): bool
     {
         return $this->hasActiveSubscription;
     }
-
-    public function cancelSubscription(Company|User $billable): void {}
 
     public function checkoutOpensInNewTab(): bool
     {

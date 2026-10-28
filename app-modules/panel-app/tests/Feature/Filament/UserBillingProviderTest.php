@@ -1,7 +1,7 @@
 <?php
 
-use TresPontosTech\Billing\Core\Filament\UserBillingProvider;
-use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
+use TresPontosTech\PanelApp\Filament\UserBillingProvider;
+use TresPontosTech\PanelApp\Http\Middleware\RedirectUserIfNotSubscribed;
 
 it('getSubscribedMiddleware returns the RedirectUserIfNotSubscribed class name', function (): void {
     $provider = new UserBillingProvider;

@@ -42,6 +42,14 @@ function creditFor(User $user): UserCredit
     ]);
 }
 
+// Membership at a second company, older than the employer's so employerCompanyId() keeps
+// pointing at the employer: it picks the latest membership, and two attach() calls in the
+// same test can straddle a second boundary.
+function alsoEmployedAt(User $user, Company $company): void
+{
+    $company->employees()->attach($user->getKey(), ['created_at' => Date::now()->subDay()]);
+}
+
 // A user with an active contractual plan that grants quota > 0 and no prior appointments.
 function userWithQuota(int $limit = 2): User
 {
@@ -114,7 +122,7 @@ it('creates the appointment regardless of credit availability', function (): voi
 it('does not spend a credit held at another company', function (): void {
     $user = userWithNoQuota();
     $otherCompany = Company::factory()->create();
-    $otherCompany->employees()->attach($user->getKey());
+    alsoEmployedAt($user, $otherCompany);
 
     $credit = UserCredit::factory()->available()->create([
         'holder_id' => $user->getKey(),
@@ -130,7 +138,7 @@ it('does not spend a credit held at another company', function (): void {
 it('does not let a credit at another company unblock booking', function (): void {
     $user = userWithNoQuota();
     $otherCompany = Company::factory()->create();
-    $otherCompany->employees()->attach($user->getKey());
+    alsoEmployedAt($user, $otherCompany);
 
     UserCredit::factory()->available()->create([
         'holder_id' => $user->getKey(),

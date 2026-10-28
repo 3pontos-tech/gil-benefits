@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Actions\CreateBillingCustomer;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
+use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -14,7 +15,6 @@ use TresPontosTech\Billing\Core\Models\BillingCustomer;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
-use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Actions\StartCreditOrder;
 use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
@@ -22,7 +22,6 @@ use TresPontosTech\IntegrationBarte\DTOs\CreateBuyerDto;
 use TresPontosTech\IntegrationBarte\DTOs\CreatePaymentLinkDto;
 use TresPontosTech\IntegrationBarte\DTOs\PaymentOrderDto;
 use TresPontosTech\IntegrationBarte\DTOs\PaymentSubscriptionDto;
-use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
 
 final readonly class BarteAdapter implements BillingContract, SupportsCreditPurchase, SupportsSubscriptionCancellation
 {
@@ -148,16 +147,9 @@ final readonly class BarteAdapter implements BillingContract, SupportsCreditPurc
 
     }
 
-    /**
-     * @param  array<string, mixed>  $options
-     */
-    public function getBillingPortalUrl(User|Company $billable, string $returnUrl, array $options = []): string
+    public function billingPortal(Company|User $billable, string $returnUrl): BillingPortal
     {
-        if ($billable instanceof Company) {
-            return BillingManagePage::getUrl(tenant: $billable);
-        }
-
-        return UserBillingManagePage::getUrl();
+        return BillingPortal::internal();
     }
 
     public function purchaseCredits(User|Company $billable, Company $company, int $quantity, string $successUrl, string $cancelUrl): string

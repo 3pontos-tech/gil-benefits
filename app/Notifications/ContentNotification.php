@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notifications;
 
+use Filament\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Notifications\Notification;
 
@@ -65,9 +66,21 @@ abstract class ContentNotification extends Notification
     {
         $content = $this->content();
 
-        return FilamentNotification::make()
+        $notification = FilamentNotification::make()
             ->title($content->title)
             ->body($content->body)
             ->status($content->tone->value);
+
+        if ($content->link instanceof NotificationLink) {
+            $notification->actions([
+                Action::make('open')
+                    ->label($content->link->label)
+                    ->url($content->link->url)
+                    ->openUrlInNewTab()
+                    ->markAsRead(),
+            ]);
+        }
+
+        return $notification;
     }
 }
