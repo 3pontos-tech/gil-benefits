@@ -300,6 +300,9 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     /**
      * Effective role of the user WITHIN a company (the pivot is the source of truth).
      * Without an argument, uses the current Filament tenant.
+     *
+     * A deactivated membership has no role: the person was let go by the company,
+     * so none of the role predicates (owner, manager, employee) may hold for them.
      */
     public function tenantRole(?Company $company = null): ?Roles
     {
@@ -314,7 +317,12 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             return Roles::CompanyOwner;
         }
 
-        return $this->companies()->whereKey($company)->first()?->pivot?->role;
+        return $this->companies()
+            ->whereKey($company)
+            ->wherePivot('active', true)
+            ->first()
+            ?->pivot
+            ?->role;
     }
 
     public function isCompanyOwner(?Company $company = null): bool
@@ -341,7 +349,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     }
 
     /**
-     * Owns or manages at least one company (manager role in the pivot).
+     * Owns or manages at least one company (active manager role in the pivot).
      */
     public function managesAnyCompany(): bool
     {
@@ -349,7 +357,10 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             return true;
         }
 
-        return $this->companies()->wherePivot('role', Roles::CompanyManager->value)->exists();
+        return $this->companies()
+            ->wherePivot('active', true)
+            ->wherePivot('role', Roles::CompanyManager->value)
+            ->exists();
     }
 
     /**
