@@ -7,12 +7,16 @@ use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\PanelCompany\Support\PartnerVoucherAccess;
+use TresPontosTech\PanelCompany\Support\PartnerVoucherUrls;
+use TresPontosTech\Vouchers\Models\VoucherBatch;
 use TresPontosTech\Permissions\PermissionsEnum;
 use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
+use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
     $this->owner = User::factory()->companyOwner()->create();
@@ -73,6 +77,26 @@ it('is kept out of the company panel pages by URL', function (string $route): vo
     'credits page' => ['filament.company.pages.credits'],
     'profile' => ['filament.company.tenant.profile'],
 ]);
+
+it('cannot open the members page through a Livewire request', function (): void {
+    actingAs($this->manager);
+    filament()->setTenant($this->company);
+
+    livewire(EditTenantProfile::class)->assertNotFound();
+});
+
+it('cannot download the partner voucher sheet', function (): void {
+    $plan = CompanyPlan::factory()->active()->creditsOnly()->for($this->company)->create();
+    $batch = VoucherBatch::factory()->forPlan($plan)->create();
+
+    actingAs($this->manager);
+
+    get(PartnerVoucherUrls::pdf($batch))->assertForbidden();
+
+    $this->company->employees()->updateExistingPivot($this->manager->getKey(), ['active' => true]);
+
+    get(PartnerVoucherUrls::pdf($batch))->assertNotFound();
+});
 
 it('gets everything back once reactivated', function (): void {
     $this->company->employees()->updateExistingPivot($this->manager->getKey(), ['active' => true]);
