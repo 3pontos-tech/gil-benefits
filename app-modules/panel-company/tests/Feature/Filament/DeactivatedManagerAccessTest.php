@@ -10,9 +10,9 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\PanelCompany\Support\PartnerVoucherAccess;
 use TresPontosTech\PanelCompany\Support\PartnerVoucherUrls;
-use TresPontosTech\Vouchers\Models\VoucherBatch;
 use TresPontosTech\Permissions\PermissionsEnum;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\Vouchers\Models\VoucherBatch;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
