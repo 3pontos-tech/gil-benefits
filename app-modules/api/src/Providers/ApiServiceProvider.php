@@ -18,6 +18,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 use TresPontosTech\Api\Exceptions\Employee\Auth\EmployeeLoginException;
+use TresPontosTech\Api\Exceptions\Employee\Auth\PasswordResetCodeException;
+use TresPontosTech\Api\Exceptions\Employee\Auth\PasswordResetTokenException;
 use TresPontosTech\Appointments\Exceptions\AppointmentFeedbackException;
 use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
 use TresPontosTech\Appointments\Exceptions\BookingBlockedException;
@@ -41,6 +43,8 @@ class ApiServiceProvider extends ServiceProvider
         AppointmentFeedbackException::class,
         ProfileUpdateException::class,
         EmployeeLoginException::class,
+        PasswordResetCodeException::class,
+        PasswordResetTokenException::class,
         InvalidTransitionException::class,
         MaterialRemovalException::class,
     ];
@@ -65,6 +69,11 @@ class ApiServiceProvider extends ServiceProvider
      * O login tem dois tetos. Por e-mail + IP, para uma conta não travar um escritório inteiro
      * atrás do mesmo NAT; e por IP, mais alto, para um IP não testar senhas em e-mails diferentes
      * sem limite (o painel limita por IP).
+     *
+     * O pedido de código segue o mesmo desenho e também impede encher a caixa de entrada de alguém.
+     * Conferir o código e definir a senha dividem um teto por IP; contra quem distribui palpites
+     * por muitos IPs vale o limite de erros por conta. As chaves usam o e-mail normalizado, exista
+     * a conta ou não, para o 429 ser igual para todos.
      */
     private function registerRateLimiters(): void
     {
@@ -81,6 +90,20 @@ class ApiServiceProvider extends ServiceProvider
                     ->by('ip:' . $request->ip()),
             ];
         });
+
+        RateLimiter::for('api-password-forgot', function (Request $request): array {
+            $email = $request->input('email');
+
+            return [
+                Limit::perMinutes(15, (int) config('api.rate_limits.password_forgot_per_15_minutes'))
+                    ->by('email:' . (is_string($email) ? EmailAddress::normalize($email) : '') . '|' . $request->ip()),
+                Limit::perHour((int) config('api.rate_limits.password_forgot_per_hour_per_ip'))
+                    ->by('ip:' . $request->ip()),
+            ];
+        });
+
+        RateLimiter::for('api-password-verify', fn (Request $request): Limit => Limit::perMinute((int) config('api.rate_limits.password_verify_per_minute_per_ip'))
+            ->by('ip:' . $request->ip()));
     }
 
     /**
@@ -121,6 +144,8 @@ class ApiServiceProvider extends ServiceProvider
         $handler->renderable(fn (AppointmentFeedbackException $e, Request $request): ?Response => $this->fieldError($request, ['appointment' => $e->getMessage()]));
         $handler->renderable(fn (ProfileUpdateException $e, Request $request): ?Response => $this->fieldError($request, ['phone_number' => $e->getMessage()]));
         $handler->renderable(fn (EmployeeLoginException $e, Request $request): ?Response => $this->fieldError($request, ['email' => $e->getMessage()]));
+        $handler->renderable(fn (PasswordResetCodeException $e, Request $request): ?Response => $this->fieldError($request, ['code' => $e->getMessage()]));
+        $handler->renderable(fn (PasswordResetTokenException $e, Request $request): ?Response => $this->fieldError($request, ['reset_token' => $e->getMessage()]));
         $handler->renderable(fn (InvalidTransitionException $e, Request $request): ?Response => $this->fieldError($request, ['status' => __('api::validation.ticket_already_closed')]));
         $handler->renderable(fn (MaterialRemovalException $e, Request $request): ?JsonResponse => $this->isEmployeeApi($request)
             ? response()->json(['message' => $e->getMessage()], Response::HTTP_FORBIDDEN)
