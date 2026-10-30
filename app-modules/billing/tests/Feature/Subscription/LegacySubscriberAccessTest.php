@@ -14,12 +14,12 @@ use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
-use TresPontosTech\Billing\Core\Http\Middleware\RedirectCompanyIfNotSubscribed;
-use TresPontosTech\Billing\Core\Http\Middleware\RedirectUserIfNotSubscribed;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelApp\Http\Middleware\RedirectUserIfNotSubscribed;
+use TresPontosTech\PanelCompany\Http\Middleware\RedirectCompanyIfNotSubscribed;
 
 // ─── test doubles ────────────────────────────────────────────────────────────
 

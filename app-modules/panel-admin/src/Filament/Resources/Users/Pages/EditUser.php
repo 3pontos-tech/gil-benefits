@@ -6,7 +6,6 @@ namespace TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages;
 
 use App\Models\Users\User;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 use TresPontosTech\PanelAdmin\Filament\Actions\GrantExtraCreditAction;
@@ -34,7 +33,6 @@ class EditUser extends EditRecord
         return [
             GrantExtraCreditAction::forUser(),
             DeleteAction::make(),
-            ForceDeleteAction::make(),
             RestoreAction::make(),
         ];
     }

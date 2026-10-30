@@ -11,11 +11,11 @@ use TresPontosTech\Appointments\Actions\Transitions\TransitionData;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActionType;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
+use TresPontosTech\Appointments\Events\AppointmentNoShow;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Models\AppointmentHistory;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
-use TresPontosTech\Credits\Events\AppointmentCreditUsed;
 use TresPontosTech\Credits\Models\UserCredit;
 
 use function Pest\Laravel\actingAs;
@@ -99,7 +99,7 @@ it('rolls back the status, credit and history when a failure happens inside the 
     [$appointment, $credit, $consultant] = noShowAppointmentWithCredit();
     actingAs($appointment->user);
 
-    Event::listen(AppointmentCreditUsed::class, function (): void {
+    Event::listen(AppointmentNoShow::class, function (): void {
         throw new RuntimeException('boom');
     });
 

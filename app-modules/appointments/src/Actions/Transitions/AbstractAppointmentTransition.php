@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Actions\Transitions;
 
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -14,14 +13,10 @@ use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Notifications\AppointmentCancelledForConsultantNotification;
 use TresPontosTech\Appointments\Notifications\AppointmentCancelledNotification;
 use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Billing\Core\Support\QuotaCycle;
-use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
-use TresPontosTech\Credits\Events\AppointmentCreditReturned;
-use TresPontosTech\Credits\Events\AppointmentCreditUsed;
-use TresPontosTech\Credits\Models\UserCredit;
-use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
 
@@ -58,9 +53,11 @@ abstract class AbstractAppointmentTransition
 
     protected function cancelProcessStep(TransitionData $data): void
     {
-        throw_if($data->cancellationActor === CancellationActor::User && $this->appointment->appointment_at->isPast(), InvalidTransitionException::class, 'Cannot cancel a past appointment.');
+        $at = $data->cancelledAt ?? now();
 
-        $targetStatus = AppointmentStatus::resolveCancellationStatus($this->appointment, $data->cancellationActor);
+        throw_if($data->cancellationActor === CancellationActor::User && $this->appointment->appointment_at->lessThan($at), InvalidTransitionException::class, 'Cannot cancel a past appointment.');
+
+        $targetStatus = AppointmentStatus::resolveCancellationStatus($this->appointment, $data->cancellationActor, $at);
 
         $this->appointment->update([
             'status' => $targetStatus,
@@ -72,10 +69,6 @@ abstract class AbstractAppointmentTransition
 
         if ($this->appointment->status === AppointmentStatus::Cancelled) {
             $this->stampQuotaRefundIfCycleClosed();
-
-            event(new AppointmentCreditReturned((string) $this->appointment->getKey()));
-        } else {
-            event(new AppointmentCreditUsed((string) $this->appointment->getKey()));
         }
 
         Schedule::query()
@@ -83,18 +76,14 @@ abstract class AbstractAppointmentTransition
             ->whereJsonContains('metadata->appointment_id', $this->appointment->id)
             ->delete();
 
-        if (filled($this->appointment->google_event_id)) {
-            dispatch(new DeleteAppointmentCalendarEventJob($this->appointment));
-        }
-
         event(new AppointmentCancelled($this->appointment));
     }
 
     /**
      * Carimba a devolução quando o ciclo que pagou esta consulta já fechou.
      *
-     * Precisa rodar antes de `AppointmentCreditReturned`, porque o listener daquele
-     * evento zera `user_credits.appointment_id` — e é esse vínculo que diz se a
+     * Precisa rodar antes de `AppointmentCancelled`, porque o listener do credits
+     * zera `user_credits.appointment_id` — e é esse vínculo que diz se a
      * consulta foi paga com crédito avulso. Depois dele a informação não existe mais
      * em lugar nenhum, já que pagar com cota não escreve linha em tabela alguma.
      *
@@ -107,10 +96,7 @@ abstract class AbstractAppointmentTransition
      */
     private function stampQuotaRefundIfCycleClosed(): void
     {
-        $paidWithCredit = UserCredit::query()
-            ->where('appointment_id', $this->appointment->getKey())
-            ->where('status', UserCreditStatusEnum::InUse)
-            ->exists();
+        $paidWithCredit = $this->appointment->credit()->inUse()->exists();
 
         if ($paidWithCredit || $this->appointment->created_at === null) {
             return;
@@ -142,16 +128,9 @@ abstract class AbstractAppointmentTransition
         $notification->flash();
 
         if (filled($this->appointment->consultant)) {
-            $actorKey = $data->cancellationActor === CancellationActor::Admin ? 'cancelled_by_admin' : 'cancelled_by_user';
-
-            Notification::make()
-                ->title(__('appointments::resources.appointments.notifications.cancelled.title'))
-                ->body(__(
-                    sprintf('appointments::resources.appointments.notifications.%s.body', $actorKey),
-                    ['name' => $this->appointment->user->name]
-                ))
-                ->warning()
-                ->sendToDatabase($this->appointment->consultant->user);
+            $this->appointment->consultant->user->notify(
+                new AppointmentCancelledForConsultantNotification($this->appointment, $data->cancellationActor),
+            );
         }
 
         $mail = $isLate

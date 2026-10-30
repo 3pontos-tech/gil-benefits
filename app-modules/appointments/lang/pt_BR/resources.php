@@ -62,6 +62,7 @@ return [
             'calendar_event_failed' => 'Falha ao criar o evento no Google Calendar. Tente salvar novamente ou verifique a integração.',
             'cannot_reschedule' => 'Este agendamento não pode mais ser reagendado.',
             'cannot_cancel' => 'Este agendamento não pode mais ser cancelado.',
+            'cancel_impact_changed' => 'Faltam menos de :hours horas para o encontro: cancelar agora consome o crédito.',
             'feedback_not_the_attendee' => 'Só quem participou da consultoria pode avaliá-la.',
             'feedback_requires_completion' => 'Só é possível avaliar uma consultoria concluída.',
             'feedback_already_given' => 'Esta consultoria já foi avaliada.',

@@ -6,6 +6,7 @@ namespace TresPontosTech\IntegrationGoogleCalendar;
 
 use Illuminate\Support\Facades\Log;
 use Throwable;
+use TresPontosTech\Appointments\Contracts\AppointmentCalendar;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\Actions\DeleteCalendarEventAction;
@@ -22,11 +23,8 @@ use TresPontosTech\IntegrationGoogleCalendar\Support\LogSanitizer;
  * aborting the edit. The underlying actions are resolved lazily so a no-op edit never builds
  * the API client (which validates credentials on construction).
  */
-final class AppointmentCalendarSynchronizer
+final class AppointmentCalendarSynchronizer implements AppointmentCalendar
 {
-    /**
-     * Remove the appointment's event from the given consultant's calendar (no-op if none).
-     */
     public function removeFrom(Appointment $appointment, ?Consultant $consultant): bool
     {
         if (blank($appointment->google_event_id) || ! $consultant instanceof Consultant || blank($consultant->email)) {
@@ -36,9 +34,6 @@ final class AppointmentCalendarSynchronizer
         return $this->attempt(fn () => resolve(DeleteCalendarEventAction::class)->handle($appointment, $consultant->email));
     }
 
-    /**
-     * Create the event on the appointment's current consultant, unless it already has one.
-     */
     public function placeForCurrentConsultant(Appointment $appointment): bool
     {
         if (filled($appointment->google_event_id) || ! $this->hasConsultantEmail($appointment)) {
@@ -48,9 +43,6 @@ final class AppointmentCalendarSynchronizer
         return $this->create($appointment);
     }
 
-    /**
-     * Move the event to the appointment's new time, keeping its Meet link (or create if missing).
-     */
     public function reschedule(Appointment $appointment): bool
     {
         if (! $this->hasConsultantEmail($appointment)) {

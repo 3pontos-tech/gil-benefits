@@ -11,8 +11,8 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
-use TresPontosTech\Billing\Core\Pages\TenantSubscriptionPage;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\PanelCompany\Filament\Pages\TenantSubscriptionPage;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\get;

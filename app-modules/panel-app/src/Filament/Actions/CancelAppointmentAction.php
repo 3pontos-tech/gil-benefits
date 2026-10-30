@@ -3,13 +3,18 @@
 namespace TresPontosTech\PanelApp\Filament\Actions;
 
 use Filament\Actions\Action;
+use Filament\Forms\Components\Hidden;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\Alignment;
 use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use TresPontosTech\Appointments\Actions\CancelAppointmentForUserAction;
+use TresPontosTech\Appointments\Enums\CancelImpact;
 use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
+use TresPontosTech\Appointments\Exceptions\CancelImpactChangedException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelApp\Filament\Contracts\ShowsCancelledConfirmation;
 
@@ -61,9 +66,27 @@ class CancelAppointmentAction extends Action
             ],
         ));
 
-        $this->action(function (Appointment $record): void {
+        // O destino do crédito que o modal mostrou ao abrir vai junto com a confirmação: se o prazo
+        // de 4 h passar com o modal aberto, a action compartilhada recusa em vez de consumir o crédito
+        // prometido. Vem do cliente, mas só pode impedir um cancelamento, nunca devolver um crédito.
+        $this->schema([Hidden::make('expected_impact')]);
+        $this->fillForm(fn (Appointment $record): array => ['expected_impact' => $record->cancelImpact()?->value]);
+
+        $this->action(function (Appointment $record, array $data, Schema $schema): void {
             try {
-                resolve(CancelAppointmentForUserAction::class)->handle($record, auth()->user());
+                resolve(CancelAppointmentForUserAction::class)->handle(
+                    $record,
+                    auth()->user(),
+                    CancelImpact::tryFrom((string) ($data['expected_impact'] ?? '')),
+                );
+            } catch (CancelImpactChangedException $exception) {
+                // O prazo passou com o modal aberto: ele continua aberto, o aviso (calculado a cada
+                // render) passa a dizer que o crédito será perdido e a próxima confirmação leva essa
+                // expectativa.
+                $schema->fill(['expected_impact' => CancelImpact::LosesCredit->value]);
+                Notification::make()->warning()->title($exception->getMessage())->send();
+
+                $this->halt();
             } catch (AppointmentStateException) {
                 return;
             }

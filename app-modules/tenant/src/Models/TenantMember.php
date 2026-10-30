@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Tenant\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
@@ -13,6 +14,7 @@ use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
 
 /**
+ * @property string $id
  * @property string $user_id
  * @property string $company_id
  * @property string|null $department_id
@@ -24,7 +26,17 @@ use TresPontosTech\Permissions\Roles;
  */
 class TenantMember extends Pivot
 {
+    use HasUuids;
+
     public $timestamps = true;
+
+    /**
+     * A membership created without an explicit role is a plain employee: the
+     * database refuses a null role, and employee is the weakest one.
+     */
+    protected $attributes = [
+        'role' => Roles::Employee->value,
+    ];
 
     protected $fillable = [
         'role',

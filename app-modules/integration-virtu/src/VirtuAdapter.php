@@ -7,6 +7,7 @@ namespace TresPontosTech\IntegrationVirtu;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -14,7 +15,6 @@ use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
-use TresPontosTech\Billing\Core\Pages\BillingManagePage;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Credits\DTOs\CreditOrderDTO;
@@ -24,7 +24,6 @@ use TresPontosTech\IntegrationVirtu\DTO\CreatePaymentLinkDTO;
 use TresPontosTech\IntegrationVirtu\Enums\VirtuIntervalEnum;
 use TresPontosTech\IntegrationVirtu\Exceptions\VirtuApiException;
 use TresPontosTech\IntegrationVirtu\Responses\PaymentLinkResponse;
-use TresPontosTech\PanelApp\Filament\Pages\UserBillingManagePage;
 
 /**
  * Virtu implementation of BillingContract.
@@ -138,16 +137,9 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
         return true;
     }
 
-    /**
-     * @param  array<string, mixed>  $options
-     */
-    public function getBillingPortalUrl(Company|User $billable, string $returnUrl, array $options = []): string
+    public function billingPortal(Company|User $billable, string $returnUrl): BillingPortal
     {
-        if ($billable instanceof Company) {
-            return BillingManagePage::getUrl(tenant: $billable);
-        }
-
-        return UserBillingManagePage::getUrl();
+        return BillingPortal::internal();
     }
 
     /**

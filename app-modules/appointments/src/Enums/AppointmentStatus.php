@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\Appointments\Enums;
 
+use Carbon\CarbonInterface;
 use Filament\Support\Colors\Color;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
@@ -83,12 +84,12 @@ enum AppointmentStatus: string implements HasColor, HasIcon, HasLabel
         return [self::Completed, self::Cancelled, self::CancelledLate, self::NoShow];
     }
 
-    public static function resolveCancellationStatus(Appointment $appointment, CancellationActor $actor): self
+    public static function resolveCancellationStatus(Appointment $appointment, CancellationActor $actor, ?CarbonInterface $at = null): self
     {
         if ($actor !== CancellationActor::User) {
             return self::Cancelled;
         }
 
-        return $appointment->isLateCancellation() ? self::CancelledLate : self::Cancelled;
+        return $appointment->isLateCancellation($at) ? self::CancelledLate : self::Cancelled;
     }
 }

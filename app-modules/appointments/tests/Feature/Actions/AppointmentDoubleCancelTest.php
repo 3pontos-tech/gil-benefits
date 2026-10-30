@@ -11,7 +11,6 @@ use TresPontosTech\Appointments\Events\AppointmentCancelled;
 use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\IntegrationGoogleCalendar\Jobs\DeleteAppointmentCalendarEventJob;
 
 use function Pest\Laravel\actingAs;
 
@@ -34,7 +33,6 @@ it('throws InvalidTransitionException when appointment is already cancelled', fu
 
     Mail::assertNothingQueued();
     Event::assertNotDispatched(AppointmentCancelled::class);
-    Bus::assertNotDispatched(DeleteAppointmentCalendarEventJob::class);
 });
 
 it('dispatches side effects only once on double cancel', function (): void {
@@ -50,7 +48,6 @@ it('dispatches side effects only once on double cancel', function (): void {
     expect(fn () => $appointment->refresh()->current_transition->handle($data))
         ->toThrow(InvalidTransitionException::class);
 
-    Bus::assertDispatchedTimes(DeleteAppointmentCalendarEventJob::class, 1);
     Event::assertDispatchedTimes(AppointmentCancelled::class, 1);
     Mail::assertQueued(AppointmentCancelledMail::class, 1);
 });

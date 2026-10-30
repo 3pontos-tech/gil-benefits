@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace TresPontosTech\Vouchers\Actions;
 
 use App\Models\Users\User;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Bus;
 use TresPontosTech\Vouchers\Jobs\GenerateVoucherBatchPdfJob;
 use TresPontosTech\Vouchers\Jobs\GenerateVoucherQrCodesJob;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
+use TresPontosTech\Vouchers\Notifications\VoucherBatchPdfQueuedNotification;
 
 /**
  * Pede a folha de carteirinhas de um lote e avisa quem pediu.
@@ -28,10 +28,6 @@ final readonly class RequestVoucherBatchPdf
             new GenerateVoucherBatchPdfJob($batch->getKey(), $requestedBy->getKey(), $downloadUrl),
         ])->dispatch();
 
-        Notification::make()
-            ->info()
-            ->title(__('vouchers::vouchers.pdf.queued_title'))
-            ->body(__('vouchers::vouchers.pdf.queued_body'))
-            ->send();
+        (new VoucherBatchPdfQueuedNotification)->flash();
     }
 }

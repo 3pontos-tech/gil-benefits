@@ -2,6 +2,7 @@
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
@@ -43,5 +44,41 @@ describe('ConsultantObserver', function (): void {
         expect(User::query()->where('email', 'shared@example.com')->count())->toBe(1)
             ->and($first->fresh()->user_id)->toBe($sharedUser->getKey())
             ->and($second->fresh()->user_id)->toBe($sharedUser->getKey());
+    });
+
+    it('never gives the new user the email as password', function (): void {
+        Event::fake([UserRegistered::class]);
+
+        $consultant = Consultant::factory()->create(['email' => 'nova@example.com']);
+
+        expect(Hash::check('nova@example.com', $consultant->fresh()->user->password))->toBeFalse();
+
+        Event::assertDispatched(
+            UserRegistered::class,
+            fn (UserRegistered $event): bool => $event->temporaryPassword === null,
+        );
+    });
+
+    it('asks the new user to set the password', function (): void {
+        Event::fake([UserRegistered::class]);
+
+        Consultant::factory()->create(['email' => 'nova@example.com']);
+
+        Event::assertDispatched(
+            UserRegistered::class,
+            fn (UserRegistered $event): bool => $event->mustSetPassword,
+        );
+    });
+
+    it('does not ask a user that already existed to set the password', function (): void {
+        Event::fake([UserRegistered::class]);
+        User::factory()->create(['email' => 'existe@example.com']);
+
+        Consultant::factory()->create(['email' => 'existe@example.com']);
+
+        Event::assertDispatched(
+            UserRegistered::class,
+            fn (UserRegistered $event): bool => $event->mustSetPassword === false && $event->temporaryPassword === null,
+        );
     });
 });

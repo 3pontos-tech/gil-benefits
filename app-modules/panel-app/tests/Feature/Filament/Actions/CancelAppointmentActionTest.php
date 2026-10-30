@@ -215,3 +215,46 @@ it('marks the credit as used when cancelled inside the notice period', function 
         ->and($credit->status)->toBe(UserCreditStatusEnum::Used)
         ->and($credit->used_at)->not->toBeNull();
 });
+
+it('reopens warning the credit is lost when the 4 hours run out with the modal open', function (): void {
+    $appointment = Appointment::factory()
+        ->withStatus(AppointmentStatus::Pending)
+        ->create([
+            'user_id' => $this->employee->getKey(),
+            'appointment_at' => now()->addHours(Appointment::CANCELLATION_WINDOW_HOURS)->addMinutes(5),
+        ]);
+
+    $credit = UserCredit::factory()->create([
+        'owner_id' => $this->employee->getKey(),
+        'holder_id' => $this->employee->getKey(),
+        'company_id' => filament()->getTenant()->getKey(),
+        'appointment_id' => $appointment->getKey(),
+        'status' => UserCreditStatusEnum::InUse,
+    ]);
+
+    $component = livewire(LatestAppointmentsWidget::class)
+        ->mountAction('cancelAppointment', arguments: ['appointment' => $appointment->getKey()])
+        ->assertActionDataSet(['expected_impact' => 'returns_credit']);
+
+    // A pessoa deixa o modal aberto e o prazo passa antes de confirmar.
+    $this->travel(10)->minutes();
+
+    $component->callMountedAction()
+        ->assertNotified(__('appointments::resources.appointments.exceptions.cancel_impact_changed', [
+            'hours' => Appointment::CANCELLATION_WINDOW_HOURS,
+        ]))
+        ->assertActionMounted('cancelAppointment')
+        ->assertActionDataSet(['expected_impact' => 'loses_credit'])
+        ->assertMountedActionModalSee(__(
+            'panel-app::resources.appointments.cancel.notice_loses_credit',
+            ['hours' => Appointment::CANCELLATION_WINDOW_HOURS],
+        ));
+
+    expect($appointment->refresh()->status)->toBe(AppointmentStatus::Pending)
+        ->and($credit->refresh()->status)->toBe(UserCreditStatusEnum::InUse);
+
+    // Confirmando de novo, já avisada, a pessoa cancela e perde o crédito.
+    $component->callMountedAction()->assertActionMounted('cancelledConfirmation');
+
+    expect($appointment->refresh()->status)->toBe(AppointmentStatus::CancelledLate);
+});

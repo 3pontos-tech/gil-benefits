@@ -5,10 +5,12 @@ use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
 use TresPontosTech\Appointments\Mail\AppointmentConsultantUnassignedMail;
+use TresPontosTech\Appointments\Mail\AppointmentRecordPublishedMail;
 use TresPontosTech\Appointments\Mail\AppointmentRequestedAdminMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Mail\AppointmentUserCancelledLateMail;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Models\AppointmentRecord;
 use TresPontosTech\Consultants\Models\Consultant;
 
 describe('AppointmentScheduledMail', function (): void {
@@ -282,5 +284,16 @@ describe('AppointmentConsultantUnassignedMail', function (): void {
             AppointmentConsultantUnassignedMail::class,
             fn ($mail): bool => $mail->hasTo('previous@workspace.com')
         );
+    });
+});
+
+describe('AppointmentRecordPublishedMail', function (): void {
+    it('links the published record to the employee appointments page', function (): void {
+        $record = AppointmentRecord::factory()->published()->create();
+
+        expect((new AppointmentRecordPublishedMail($record))->render())
+            ->toContain(route('filament.app.resources.appointments.index', [
+                'tenant' => $record->appointment->company,
+            ]));
     });
 });

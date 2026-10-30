@@ -4,18 +4,9 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Permissions;
 
-use App\Models\Users\Detail;
-use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use TresPontosTech\Appointments\Models\Appointment;
-use TresPontosTech\Appointments\Models\AppointmentFeedback;
-use TresPontosTech\Appointments\Models\AppointmentRecord;
-use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Consultants\Models\Consultant;
-use TresPontosTech\Consultants\Models\Document;
-use TresPontosTech\Consultants\Models\DocumentShare;
 use TresPontosTech\Permissions\Commands\SyncPermissions\SyncPermissionsCommand;
 
 class PermissionsServiceProvider extends ServiceProvider
@@ -24,6 +15,11 @@ class PermissionsServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/permission.php', 'permission');
         $this->commands(SyncPermissionsCommand::class);
+
+        Relation::morphMap([
+            'roles' => Role::class,
+            'permissions' => Permission::class,
+        ]);
     }
 
     public function boot(): void
@@ -32,21 +28,6 @@ class PermissionsServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(__DIR__ . '/../lang', 'permissions');
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'permissions');
 
-        Relation::morphMap([
-            'roles' => Role::class,
-            'permissions' => Permission::class,
-            'users' => User::class,
-            'consultants' => Consultant::class,
-            'appointments' => Appointment::class,
-            'appointment_records' => AppointmentRecord::class,
-            'appointment_feedbacks' => AppointmentFeedback::class,
-            'company' => Company::class,
-            'details' => Detail::class,
-            'documents' => Document::class,
-            'document_share' => DocumentShare::class,
-        ]);
-
         Gate::policy(Role::class, RolePolicy::class);
-
     }
 }

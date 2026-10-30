@@ -26,10 +26,10 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use TresPontosTech\Billing\Core\Filament\UserBillingProvider;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\EditUserProfile;
 use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;
+use TresPontosTech\PanelApp\Filament\UserBillingProvider;
 use TresPontosTech\PanelApp\Http\Middleware\RedirectIfAnamneseNotCompleted;
 
 class AppPanelProvider extends PanelProvider

@@ -6,7 +6,6 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\PanelConsultant\Filament\Actions\CreateAppointmentRecordAction;
 use TresPontosTech\PanelConsultant\Filament\Actions\MarkNoShowAction;
 use TresPontosTech\PanelConsultant\Filament\Actions\ReviewAppointmentRecordAction;
@@ -16,15 +15,8 @@ class AppointmentsTable
 {
     public static function configure(Table $table): Table
     {
-        $consultant = Consultant::query()
-            ->where('consultants.user_id', auth()->user()->getKey())
-            ->firstOrFail();
-
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query
-                ->where('consultant_id', $consultant->getKey())
-                ->with(['user', 'record'])
-            )
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['user', 'record']))
             ->columns(self::columns())
             ->defaultSort('appointment_at', 'desc')
             ->filters([

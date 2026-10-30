@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\IntegrationBarte\Actions;
 
 use App\Models\Users\User;
-use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +19,7 @@ use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Events\OrderCreditPurchased;
 use TresPontosTech\Credits\Models\CreditOrder;
+use TresPontosTech\Credits\Notifications\CreditOrderCreatedNotification;
 use TresPontosTech\IntegrationBarte\DTOs\BarteWebhookDto;
 use TresPontosTech\IntegrationBarte\Enums\BarteWebhookEventEnum;
 
@@ -130,10 +130,6 @@ class HandleBarteWebhook
             return;
         }
 
-        Notification::make()
-            ->title(__('credits::notifications.credit_order_created.title'))
-            ->body(__('credits::notifications.credit_order_created.body', ['quantity' => $quantity]))
-            ->warning()
-            ->sendToDatabase($owner);
+        $owner->notify(new CreditOrderCreatedNotification($quantity));
     }
 }

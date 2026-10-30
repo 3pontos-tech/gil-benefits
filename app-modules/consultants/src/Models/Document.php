@@ -94,6 +94,24 @@ class Document extends Model implements HasMedia
             && $this->documentable_id === $user->getKey();
     }
 
+    public function isOwnedBy(User $user): bool
+    {
+        if ($this->isUploadedBy($user)) {
+            return true;
+        }
+
+        return $this->documentable_type === (new Consultant)->getMorphClass()
+            && $this->documentable_id === $user->consultant?->getKey();
+    }
+
+    public function isSharedWith(User $user): bool
+    {
+        return $this->shares()
+            ->where('employee_id', $user->getKey())
+            ->where('active', true)
+            ->exists();
+    }
+
     public function hasLink(): bool
     {
         return $this->type === DocumentExtensionTypeEnum::Link && filled($this->link);

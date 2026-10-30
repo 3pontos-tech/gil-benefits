@@ -16,8 +16,6 @@ use TresPontosTech\Appointments\Events\AppointmentNoShow;
 use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Mail\AppointmentCompletedMail;
 use TresPontosTech\Appointments\Notifications\AppointmentCompletedNotification;
-use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
-use TresPontosTech\Credits\Events\AppointmentCreditUsed;
 
 final class ActiveTransition extends AbstractAppointmentTransition
 {
@@ -61,7 +59,6 @@ final class ActiveTransition extends AbstractAppointmentTransition
 
         $this->appointment->update(['status' => AppointmentStatus::Completed]);
 
-        event(new AppointmentCreditUsed((string) $this->appointment->getKey()));
         event(new AppointmentCompleted($this->appointment));
     }
 
@@ -71,11 +68,7 @@ final class ActiveTransition extends AbstractAppointmentTransition
 
         $this->appointment->update(['status' => AppointmentStatus::NoShow]);
 
-        event(new AppointmentCreditUsed((string) $this->appointment->getKey()));
-
-        $creditImpact = $this->appointment->credit()
-            ->where('status', UserCreditStatusEnum::Used)
-            ->exists()
+        $creditImpact = $this->appointment->credit()->inUse()->exists()
             ? CreditImpact::Consumed
             : CreditImpact::None;
 

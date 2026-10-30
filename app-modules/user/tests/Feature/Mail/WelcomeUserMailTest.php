@@ -1,8 +1,16 @@
 <?php
 
+use App\Filament\FilamentPanel;
 use App\Models\Users\User;
+use Filament\Auth\Pages\PasswordReset\ResetPassword;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
+use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Mail\WelcomeUserMail;
+
+use function Pest\Laravel\get;
+use function Pest\Livewire\livewire;
 
 describe('WelcomeUserMail', function (): void {
     it('has correct subject', function (): void {
@@ -46,6 +54,40 @@ describe('WelcomeUserMail', function (): void {
         $mailable->assertSeeInHtml('Abc123!@#xyz');
         $mailable->assertSeeInHtml('Senha temporária');
         $mailable->assertSeeInHtml('joao@empresa.com');
+    });
+
+    it('renders the set-password button instead of credentials when the user must set one', function (): void {
+        $user = User::factory()->create(['email' => 'joao@empresa.com']);
+
+        $mailable = new WelcomeUserMail($user, mustSetPassword: true);
+
+        $mailable->assertSeeInHtml('Definir minha senha');
+        $mailable->assertSeeInHtml(route('filament.consultant.auth.password-reset.reset'));
+        $mailable->assertSeeInHtml(config('auth.passwords.users.expire') . ' minutos');
+        $mailable->assertDontSeeInHtml('Senha temporária');
+        $mailable->assertDontSeeInHtml('Acessar plataforma');
+    });
+
+    it('mints a token on render that resets the password on the consultant panel', function (): void {
+        $user = User::factory()->create(['email' => 'joao@empresa.com']);
+        $user->assignRole(Roles::Consultant->value);
+
+        $html = (new WelcomeUserMail($user, mustSetPassword: true))->render();
+        preg_match('/token=([0-9a-f]+)/', $html, $matches);
+        preg_match('#href="([^"]*password-reset/reset[^"]*)"#', $html, $setPasswordLink);
+
+        expect(Password::tokenExists($user, $matches[1]))->toBeTrue();
+
+        get(html_entity_decode($setPasswordLink[1]))->assertOk();
+
+        filament()->setCurrentPanel(FilamentPanel::Consultant->value);
+
+        livewire(ResetPassword::class, ['email' => 'joao@empresa.com', 'token' => $matches[1]])
+            ->fillForm(['password' => 'nova-senha-123', 'passwordConfirmation' => 'nova-senha-123'])
+            ->call('resetPassword')
+            ->assertHasNoFormErrors();
+
+        expect(Hash::check('nova-senha-123', $user->fresh()->password))->toBeTrue();
     });
 
     it('is queued to the user email', function (): void {

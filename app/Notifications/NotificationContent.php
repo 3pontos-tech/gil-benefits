@@ -17,5 +17,6 @@ final readonly class NotificationContent
         public NotificationTone $tone,
         public ?string $appointmentId = null,
         public ?string $documentId = null,
+        public ?NotificationLink $link = null,
     ) {}
 }
