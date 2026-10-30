@@ -83,3 +83,85 @@ it('grants extra credit to an employee from the company employees list', functio
         ->count())->toBe(1)
         ->and(UserCredit::query()->where('holder_id', $employee->getKey())->count())->toBe(4);
 });
+
+it('lands the gift in the employer by default, not in the default bucket', function (): void {
+    $user = defaultCompanyUser();
+    $employer = Company::factory()->create();
+    $employer->employees()->attach($user->getKey());
+
+    livewire(EditUser::class, ['record' => $user->getKey()])
+        ->callAction('grant_extra_credit', data: [
+            'quantity' => 1,
+            'justification' => 'Compensação',
+        ])
+        ->assertHasNoActionErrors();
+
+    expect(CreditGrant::query()->where('target_user_id', $user->getKey())->value('company_id'))->toBe($employer->getKey())
+        ->and(UserCredit::query()->where('holder_id', $user->getKey())->value('company_id'))->toBe($employer->getKey());
+});
+
+it('lands the gift in the chosen company when the user has more than one', function (): void {
+    $user = defaultCompanyUser();
+    $first = Company::factory()->create();
+    $second = Company::factory()->create();
+    $first->employees()->attach($user->getKey());
+    $second->employees()->attach($user->getKey());
+
+    livewire(EditUser::class, ['record' => $user->getKey()])
+        ->callAction('grant_extra_credit', data: [
+            'company_id' => $second->getKey(),
+            'quantity' => 1,
+            'justification' => 'Compensação',
+        ])
+        ->assertHasNoActionErrors();
+
+    expect(CreditGrant::query()->where('target_user_id', $user->getKey())->value('company_id'))->toBe($second->getKey());
+});
+
+it('offers the default bucket only when it is the sole membership', function (): void {
+    $user = defaultCompanyUser();
+
+    livewire(EditUser::class, ['record' => $user->getKey()])
+        ->callAction('grant_extra_credit', data: [
+            'quantity' => 1,
+            'justification' => 'Compensação',
+        ])
+        ->assertHasNoActionErrors();
+
+    expect(CreditGrant::query()->where('target_user_id', $user->getKey())->value('company_id'))->toBe(Company::default()->getKey());
+});
+
+it('rejects a company the user does not belong to', function (): void {
+    $user = defaultCompanyUser();
+    $employer = Company::factory()->create();
+    $employer->employees()->attach($user->getKey());
+    $stranger = Company::factory()->create();
+
+    livewire(EditUser::class, ['record' => $user->getKey()])
+        ->callAction('grant_extra_credit', data: [
+            'company_id' => $stranger->getKey(),
+            'quantity' => 1,
+            'justification' => 'Compensação',
+        ])
+        ->assertHasActionErrors(['company_id']);
+
+    expect(CreditGrant::query()->count())->toBe(0);
+});
+
+it('ignores a deactivated membership when choosing the company', function (): void {
+    $user = defaultCompanyUser();
+    $former = Company::factory()->create();
+    $current = Company::factory()->create();
+    $former->employees()->attach($user->getKey(), ['active' => false]);
+    $current->employees()->attach($user->getKey());
+
+    livewire(EditUser::class, ['record' => $user->getKey()])
+        ->callAction('grant_extra_credit', data: [
+            'company_id' => $former->getKey(),
+            'quantity' => 1,
+            'justification' => 'Compensação',
+        ])
+        ->assertHasActionErrors(['company_id']);
+
+    expect(CreditGrant::query()->count())->toBe(0);
+});
