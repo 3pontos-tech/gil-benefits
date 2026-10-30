@@ -9,6 +9,7 @@ use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\EditCompany;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\EditUser;
+use TresPontosTech\Permissions\Roles;
 
 use function Pest\Livewire\livewire;
 
@@ -105,7 +106,7 @@ it('lands the gift in the chosen company when the user has more than one', funct
     $first = Company::factory()->create();
     $second = Company::factory()->create();
     $first->employees()->attach($user->getKey());
-    $second->employees()->attach($user->getKey());
+    $second->employees()->attach($user->getKey(), ['role' => Roles::CompanyManager->value]);
 
     livewire(EditUser::class, ['record' => $user->getKey()])
         ->callAction('grant_extra_credit', data: [

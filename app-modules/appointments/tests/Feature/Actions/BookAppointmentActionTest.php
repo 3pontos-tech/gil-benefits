@@ -11,6 +11,7 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Mail\AppointmentRequestedAdminMail;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\assertDatabaseHas;
 
@@ -37,7 +38,10 @@ it('attributes the appointment to the company passed by the caller', function ()
     $user = User::factory()->create();
     $bookedUnder = Company::factory()->create();
     $other = Company::factory()->create();
-    $user->companies()->attach([$other->getKey(), $bookedUnder->getKey()]);
+    $user->companies()->attach([
+        $other->getKey() => ['role' => Roles::CompanyManager->value],
+        $bookedUnder->getKey() => ['role' => Roles::Employee->value],
+    ]);
 
     $dto = new BookAppointmentDTO(
         userId: $user->getKey(),

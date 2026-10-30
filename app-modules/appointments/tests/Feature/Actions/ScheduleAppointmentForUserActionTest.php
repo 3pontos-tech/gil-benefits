@@ -148,7 +148,7 @@ it('records the appointment under the company whose balance was checked, the ope
     consultantAvailableOn(Date::parse('2026-10-09'));
     $employer = Company::query()->findOrFail($this->user->employerCompanyId());
     $other = Company::factory()->create();
-    $other->employees()->attach($this->user->getKey(), ['role' => Roles::Employee->value]);
+    $other->employees()->attach($this->user->getKey(), ['role' => Roles::CompanyManager->value]);
     CompanyPlan::factory()->active()->for($other)->create(['monthly_appointments_per_employee' => 2]);
     filament()->setTenant($other);
 

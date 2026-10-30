@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use TresPontosTech\Company\Actions\AttachToDefaultCompany;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\Tenant\Exceptions\EmployedElsewhere;
 
 function employerMembership(User $user, Company $company, bool $active = true, string $since = '2026-01-01 00:00:00'): void
 {
@@ -45,18 +46,31 @@ it('answers the active employer when another one deactivated the person', functi
     expect($this->user->employerCompanyId())->toBe($current->id);
 });
 
-/**
- * Duas empregadoras ativas vêm de uma troca de emprego em que a anterior esqueceu de desativar
- * a pessoa: a mais nova é onde ela trabalha.
- */
-it('answers the newest active employer, whatever the creation order', function (bool $firstIsOlder): void {
+it('refuses a second active employer instead of picking the newest', function (): void {
     $first = Company::factory()->create();
     $second = Company::factory()->create();
-    employerMembership($this->user, $first, since: $firstIsOlder ? '2025-01-01 00:00:00' : '2026-06-01 00:00:00');
-    employerMembership($this->user, $second, since: $firstIsOlder ? '2026-06-01 00:00:00' : '2025-01-01 00:00:00');
+    employerMembership($this->user, $first);
 
-    expect($this->user->employerCompanyId())->toBe($firstIsOlder ? $second->id : $first->id);
-})->with(['first is older' => [true], 'second is older' => [false]]);
+    expect(fn () => employerMembership($this->user, $second))->toThrow(EmployedElsewhere::class);
+
+    expect($this->user->employerCompanyId())->toBe($first->id);
+});
+
+it('answers the employer over a company the person only manages, whatever the dates', function (bool $employerIsOlder): void {
+    $employer = Company::factory()->create();
+    $managed = Company::factory()->create();
+    employerMembership($this->user, $employer, since: $employerIsOlder ? '2025-01-01 00:00:00' : '2026-06-01 00:00:00');
+    $managed->employees()->attach($this->user->getKey(), ['role' => Roles::CompanyManager->value, 'created_at' => $employerIsOlder ? '2026-06-01 00:00:00' : '2025-01-01 00:00:00']);
+
+    expect($this->user->employerCompanyId())->toBe($employer->id);
+})->with(['employer is older' => [true], 'managed is older' => [false]]);
+
+it('answers a managed company over the default one when there is no employer', function (): void {
+    $managed = Company::factory()->create();
+    $managed->employees()->attach($this->user->getKey(), ['role' => Roles::CompanyManager->value]);
+
+    expect($this->user->employerCompanyId())->toBe($managed->id);
+});
 
 it('answers nothing when no membership is active', function (): void {
     DB::table('company_employees')->where('user_id', $this->user->getKey())->update(['active' => false]);
