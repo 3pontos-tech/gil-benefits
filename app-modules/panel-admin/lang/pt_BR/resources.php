@@ -322,7 +322,7 @@ return [
             'grant' => [
                 'label' => 'Atribuir Crédito Extra',
                 'hint_company' => 'O crédito vai para o dono da empresa, que depois distribui aos funcionários.',
-                'hint_user' => 'O presente pertence ao usuário e pode ser usado independente da empresa.',
+                'hint_user' => 'O presente pertence ao usuário e fica na empresa escolhida, onde ele agenda.',
             ],
             'revoke' => [
                 'label' => 'Estornar',

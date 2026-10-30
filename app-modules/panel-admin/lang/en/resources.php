@@ -322,7 +322,7 @@ return [
             'grant' => [
                 'label' => 'Grant Extra Credit',
                 'hint_company' => 'The credit goes to the company owner, who then distributes it to employees.',
-                'hint_user' => 'The gift belongs to the user and can be used regardless of the company.',
+                'hint_user' => 'The gift belongs to the user and lands in the chosen company, where they book.',
             ],
             'revoke' => [
                 'label' => 'Revoke',
