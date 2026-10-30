@@ -97,18 +97,18 @@ return new class extends Migration
             return;
         }
 
-        DB::table('company_employees')
+        $rows = DB::table('company_employees')
             ->whereNull('id')
             ->select(['company_id', 'user_id'])
-            ->orderBy('company_id')
-            ->orderBy('user_id')
-            ->each(function (object $row): void {
-                DB::table('company_employees')
-                    ->where('company_id', $row->company_id)
-                    ->where('user_id', $row->user_id)
-                    ->whereNull('id')
-                    ->update(['id' => (string) Str::uuid7()]);
-            });
+            ->get();
+
+        foreach ($rows as $row) {
+            DB::table('company_employees')
+                ->where('company_id', $row->company_id)
+                ->where('user_id', $row->user_id)
+                ->whereNull('id')
+                ->update(['id' => (string) Str::uuid7()]);
+        }
     }
 
     /**
