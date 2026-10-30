@@ -185,7 +185,8 @@ class Company extends Model implements HasAvatar, HasMedia
     {
         return $this->belongsToMany(User::class, 'company_employees', 'company_id', 'user_id')
             ->withTimestamps()
-            ->withPivot(['role', 'active', 'department_id'])
+            ->withPivot(['id', 'role', 'active', 'department_id'])
+            ->wherePivotNull('deleted_at')
             ->using(TenantMember::class);
     }
 
@@ -203,7 +204,7 @@ class Company extends Model implements HasAvatar, HasMedia
     #[Scope]
     protected function onlyEmployees(): BelongsToMany
     {
-        return $this->employees()->wherePivot('active', true)->whereNot('id', $this->user_id);
+        return $this->employees()->wherePivot('active', true)->whereNot('users.id', $this->user_id);
     }
 
     /**

@@ -7,8 +7,6 @@ use App\Filament\Tables\Columns\RGColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
@@ -50,14 +48,12 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make(),
-                ForceDeleteAction::make(),
                 RestoreAction::make(),
                 AssignRoleAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
             ]);
