@@ -5,6 +5,7 @@ namespace TresPontosTech\Tenant\Models\Traits;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use TresPontosTech\Company\Models\Company;
 
 trait HasTenant
 {
@@ -24,7 +25,7 @@ trait HasTenant
 
     public function getDefaultTenant(Panel $panel): ?Model
     {
-        return $this->getTenants($panel)->first(fn (Model $t): bool => $t->slug !== 'flamma-company')
+        return $this->getTenants($panel)->first(fn (Company $t): bool => ! $t->isDefaultBucket())
             ?? $this->getTenants($panel)->first();
     }
 

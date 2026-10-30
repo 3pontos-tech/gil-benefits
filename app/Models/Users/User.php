@@ -206,7 +206,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
             ->latest('company_employees.created_at')
             ->orderBy('companies.id');
 
-        return $memberships()->where('slug', '!=', Company::DEFAULT_SLUG)->value('companies.id')
+        return $memberships()->withoutDefault()->value('companies.id')
             ?? $memberships()->value('companies.id');
     }
 

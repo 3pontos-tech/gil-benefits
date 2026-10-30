@@ -151,10 +151,7 @@ final class GetEngagementFunnel
         return Subscription::query()
             ->whereMorphedTo('owner', Company::class)
             ->whereIn('subscriptionable_id', $companyIds)
-            ->whereNotIn(
-                'subscriptionable_id',
-                Company::query()->where('slug', Company::DEFAULT_SLUG)->select('id'),
-            )
+            ->when(Company::defaultId(), fn (Builder $query, string $bucketId) => $query->whereNot('subscriptionable_id', $bucketId))
             ->where('stripe_status', self::ACTIVE_SUBSCRIPTION_STATUS)
             ->whereNotNull('quantity')
             ->groupBy('subscriptionable_id')

@@ -102,6 +102,24 @@ class Company extends Model implements HasAvatar, HasMedia
         return self::query()->where('slug', self::DEFAULT_SLUG)->firstOrFail();
     }
 
+    public static function defaultId(): ?string
+    {
+        /** @var string|null $id */
+        $id = self::query()->where('slug', self::DEFAULT_SLUG)->value('id');
+
+        return $id;
+    }
+
+    /**
+     * Se esta é a empresa-balde dos usuários sem empregador (B2C, consultores,
+     * contas criadas pelo admin). O critério fica neste model: aqui em PHP e,
+     * em SQL, em default(), defaultId() e no scope withoutDefault().
+     */
+    public function isDefaultBucket(): bool
+    {
+        return $this->slug === self::DEFAULT_SLUG;
+    }
+
     /**
      * Se esta empresa banca parte da mensalidade dos colaboradores.
      *
@@ -111,7 +129,7 @@ class Company extends Model implements HasAvatar, HasMedia
      */
     public function subsidizesEmployees(): bool
     {
-        return $this->slug !== self::DEFAULT_SLUG;
+        return ! $this->isDefaultBucket();
     }
 
     public function hasActivePlan(): bool
