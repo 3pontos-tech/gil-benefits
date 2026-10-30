@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\Users\User;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Exceptions\EmployedElsewhere;
 
@@ -73,19 +76,41 @@ it('refuses demoting a manager to employee while employed elsewhere', function (
         ->toThrow(EmployedElsewhere::class);
 });
 
-it('ignores a soft-deleted membership and a soft-deleted company', function (): void {
+it('ignores a soft-deleted membership', function (): void {
     $person = defaultCompanyUser();
     $gone = Company::factory()->create();
     $gone->employees()->attach($person->getKey());
     DB::table('company_employees')->where('user_id', $person->getKey())->where('company_id', $gone->getKey())->update(['deleted_at' => now()]);
 
+    Company::factory()->create()->employees()->attach($person->getKey());
+
+    expect(User::query()->findOrFail($person->getKey())->employerCompanyId())->not->toBeNull();
+});
+
+it('still counts an active membership at a soft-deleted company, like the index does', function (): void {
+    $person = defaultCompanyUser();
     $closed = Company::factory()->create();
     $closed->employees()->attach($person->getKey());
     $closed->delete();
 
-    Company::factory()->create()->employees()->attach($person->getKey());
+    expect(fn () => Company::factory()->create()->employees()->attach($person->getKey()))
+        ->toThrow(EmployedElsewhere::class, $closed->name);
+});
 
-    expect(User::query()->findOrFail($person->getKey())->employerCompanyId())->not->toBeNull();
+it('lets an unrelated change through on a legacy conflicting row', function (): void {
+    $other = Company::factory()->create();
+    DB::table('company_employees')->insert([
+        'id' => (string) Str::uuid7(),
+        'company_id' => $other->getKey(),
+        'user_id' => $this->person->getKey(),
+        'role' => Roles::Employee->value,
+        'active' => true,
+    ]);
+
+    $department = Department::factory()->for($other)->create();
+    $other->employees()->updateExistingPivot($this->person->getKey(), ['department_id' => $department->getKey()]);
+
+    expect($other->employees()->whereKey($this->person->getKey())->first()->pivot->department_id)->toBe($department->getKey());
 });
 
 it('never counts the default bucket as an employer', function (): void {

@@ -166,3 +166,26 @@ it('ignores a deactivated membership when choosing the company', function (): vo
 
     expect(CreditGrant::query()->count())->toBe(0);
 });
+
+it('rejects the default bucket when the user has an employer', function (): void {
+    $user = defaultCompanyUser();
+    $employer = Company::factory()->create();
+    $employer->employees()->attach($user->getKey());
+
+    livewire(EditUser::class, ['record' => $user->getKey()])
+        ->callAction('grant_extra_credit', data: [
+            'company_id' => Company::default()->getKey(),
+            'quantity' => 1,
+            'justification' => 'Compensação',
+        ])
+        ->assertHasActionErrors(['company_id']);
+
+    expect(CreditGrant::query()->count())->toBe(0);
+});
+
+it('hides the action for a user without any active membership', function (): void {
+    $user = User::factory()->create();
+
+    livewire(EditUser::class, ['record' => $user->getKey()])
+        ->assertActionHidden('grant_extra_credit');
+});
