@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Company\Models\Company;
 
+/**
+ * @extends Factory<Company>
+ */
 class CompanyFactory extends Factory
 {
     protected $model = Company::class;
