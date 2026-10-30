@@ -126,7 +126,7 @@ describe('single active employer', function (): void {
 
         livewire(EditTenantProfile::class)
             ->callTableAction('toggle-active', $this->employee)
-            ->assertNotified(__('panel-company::resources.pages.edit_tenant.employed_elsewhere_notification', ['company' => $current->name]));
+            ->assertNotified(__('panel-company::resources.pages.edit_tenant.employed_elsewhere_notification'));
 
         expect($this->company->employees()->whereKey($this->employee->getKey())->first()->pivot->active)->toBeFalse();
     });
@@ -141,7 +141,7 @@ describe('single active employer', function (): void {
 
         livewire(EditTenantProfile::class)
             ->callTableAction('toggle-manager', $this->manager)
-            ->assertNotified(__('panel-company::resources.pages.edit_tenant.employed_elsewhere_notification', ['company' => $elsewhere->name]));
+            ->assertNotified(__('panel-company::resources.pages.edit_tenant.employed_elsewhere_notification'));
 
         expect($this->company->employees()->whereKey($this->manager->getKey())->first()->pivot->role)->toBe(Roles::CompanyManager);
     });

@@ -31,10 +31,8 @@ final readonly class ResolveAppAccessAction
 
         $companies = $user->companies()
             ->wherePivot('active', true)
-            ->orderByRaw(
-                'CASE WHEN companies.slug = ? THEN 2 WHEN company_employees.role = ? THEN 0 ELSE 1 END',
-                [Company::DEFAULT_SLUG, Roles::Employee->value],
-            )
+            ->when(Company::defaultId(), fn ($query, string $bucketId) => $query->orderByRaw('CASE WHEN companies.id = ? THEN 1 ELSE 0 END', [$bucketId]))
+            ->orderByRaw('CASE WHEN company_employees.role = ? THEN 0 ELSE 1 END', [Roles::Employee->value])
             ->orderBy('companies.id')
             ->get();
 

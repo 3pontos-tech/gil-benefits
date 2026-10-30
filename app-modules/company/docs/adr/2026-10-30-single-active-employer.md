@@ -45,9 +45,10 @@ company panel already restricts them to A, and the app already shows both. Two
 **D3. The bucket is outside the rule.** Membership in `flamma-company` never conflicts
 with an employer, because the bucket is the continuity tenant, not an employer.
 
-**D3a. A closed company keeps its people until they are deactivated.** A membership at a
-soft-deleted company still counts as the active employer, in the model and in the index
-alike. Deactivating memberships when a company is closed is a separate decision (cascades).
+**D3a. Closing a company releases its people.** Soft-deleting a company soft-deletes its
+live memberships with the company's own timestamp; restoring the company restores exactly
+those rows. A membership that somehow stays live at a soft-deleted company still counts as
+the active employer, in the model and in the index alike, so the two layers never disagree.
 
 **D4. Conflicts are refused, never resolved silently.** Attaching or reactivating an
 employee membership while another is active fails with a domain error that each entry
@@ -65,21 +66,27 @@ fallback.
 Two layers, on purpose:
 
 - **Database**, as a partial unique index on `user_id` where `active`, `deleted_at is null`,
-  `role = 'employee'` and `company_id <> <bucket id>`. The bucket id is a literal resolved by
-  the migration from the slug, because a partial index predicate cannot run a subquery.
-  The migration only creates the index when the bucket row exists; a fresh database
-  (test suite) has no bucket at migration time and cannot create one there, since
-  `companies.user_id` is mandatory. Production has the bucket, so production gets the
-  index.
+  `role = 'employee'` and `company_id <> <bucket id>`. The bucket id is a literal resolved
+  from the slug, because a partial index predicate cannot run a subquery. The index is
+  created by `EnsureSingleEmployerIndex`, called by the migration and by the
+  `company:single-employer-index` command. A fresh database (test suite, a rebuilt
+  staging) has no bucket at migration time and cannot create one there, since
+  `companies.user_id` is mandatory: it gets no index from the migration and must run the
+  command after the seed. Production has the bucket, so production gets the index. The
+  foreign key with `restrict` from phase 1 keeps the bucket from being hard-deleted while
+  it has members, so its id does not change under the index.
 - **Application**, in the `TenantMember` pivot model, checked on create and on
   reactivation. This layer runs in every environment, is what the tests cover, and is
   what produces the user-facing message instead of a constraint violation.
 
 ## Consequences
 
-- Entry points that create memberships handle the domain error: company panel
-  "create and attach", admin role assignment, spreadsheet import, API registration.
-  Company creation attaches the owner, which D2 leaves outside the rule.
+- Entry points that can give an existing person a second employee membership handle
+  the domain error with a message: admin "attach" on the company's employees, admin role
+  assignment, company panel reactivation and manager demotion. The company panel message
+  does not name the other company, which is another tenant. Paths that create a brand-new
+  user (company panel "create and attach", spreadsheet import, API registration) cannot
+  conflict. Company creation attaches the owner, which D2 leaves outside the rule.
 - Tests that modelled a person with two employee memberships are rewritten to the
   owner-plus-employee shape or to the refusal.
 - Nobody in production currently holds two active employee memberships, so the

@@ -168,7 +168,7 @@ return [
             'make_manager' => 'Make Manager',
             'remove_manager' => 'Remove Manager',
             'make_manager_notification' => ':name is now a Company Manager.',
-            'employed_elsewhere_notification' => 'This person is already an active employee at :company. Ask them to deactivate that membership first.',
+            'employed_elsewhere_notification' => 'This person is already an active employee at another company. That membership has to be deactivated first.',
             'remove_manager_notification' => ':name is no longer a Company Manager.',
             'assign_department' => 'Assign Department',
             'assign_department_notification' => 'Department assigned successfully.',

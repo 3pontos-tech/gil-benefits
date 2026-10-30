@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
@@ -50,33 +51,39 @@ class TenantMember extends Pivot
      * The company where this person is already an active employee, when this
      * row would become a second one. Owner and manager rows and the default
      * bucket are not employers. A soft-deleted company still counts, as it
-     * does for the database index: closing a company does not release its
-     * people until their memberships are deactivated.
+     * does for the database index: closing a company soft-deletes its
+     * memberships, and only that releases its people.
      */
     public function otherActiveEmployer(): ?Company
     {
-        if (! $this->countsAsEmployer()) {
+        if ($this->role !== Roles::Employee || ! ($this->active ?? true) || $this->deleted_at !== null) {
             return null;
         }
 
+        return self::activeEmployerElsewhere($this->user_id, $this->company_id);
+    }
+
+    /**
+     * Where the person is an active employee other than at the given company,
+     * or null when there is none or when the given company is the default
+     * bucket. One query, so bulk attaches stay cheap.
+     */
+    public static function activeEmployerElsewhere(string $userId, string $companyId): ?Company
+    {
         return Company::withTrashed()
             ->withoutDefault()
-            ->whereKeyNot($this->company_id)
+            ->whereKeyNot($companyId)
             ->whereIn('id', self::query()
                 ->select('company_id')
-                ->where('user_id', $this->user_id)
+                ->where('user_id', $userId)
                 ->where('role', Roles::Employee->value)
                 ->where('active', true)
                 ->whereNull('deleted_at'))
+            ->whereNotExists(fn ($query) => $query
+                ->from('companies', 'given')
+                ->whereColumn('given.id', DB::raw("'" . $companyId . "'"))
+                ->where('given.slug', Company::DEFAULT_SLUG))
             ->first();
-    }
-
-    private function countsAsEmployer(): bool
-    {
-        return $this->role === Roles::Employee
-            && ($this->active ?? true)
-            && $this->deleted_at === null
-            && $this->company_id !== Company::defaultId();
     }
 
     /**

@@ -142,7 +142,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                             try {
                                 $company->employees()->updateExistingPivot($record, ['role' => Roles::Employee->value]);
                             } catch (EmployedElsewhere $conflict) {
-                                $this->notifyEmployedElsewhere($conflict);
+                                $this->notifyEmployedElsewhere();
 
                                 return;
                             }
@@ -180,7 +180,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                                 'role' => $record->role,
                             ]);
                         } catch (EmployedElsewhere $employedElsewhere) {
-                            $this->notifyEmployedElsewhere($employedElsewhere);
+                            $this->notifyEmployedElsewhere();
                         }
                     }),
                 Action::make('assign-department')
@@ -293,10 +293,10 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
             ]);
     }
 
-    private function notifyEmployedElsewhere(EmployedElsewhere $conflict): void
+    private function notifyEmployedElsewhere(): void
     {
         Notification::make()
-            ->title(__('panel-company::resources.pages.edit_tenant.employed_elsewhere_notification', ['company' => $conflict->employer->name]))
+            ->title(__('panel-company::resources.pages.edit_tenant.employed_elsewhere_notification'))
             ->danger()
             ->send();
     }
