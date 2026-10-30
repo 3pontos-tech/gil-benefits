@@ -45,6 +45,10 @@ company panel already restricts them to A, and the app already shows both. Two
 **D3. The bucket is outside the rule.** Membership in `flamma-company` never conflicts
 with an employer, because the bucket is the continuity tenant, not an employer.
 
+**D3a. A closed company keeps its people until they are deactivated.** A membership at a
+soft-deleted company still counts as the active employer, in the model and in the index
+alike. Deactivating memberships when a company is closed is a separate decision (cascades).
+
 **D4. Conflicts are refused, never resolved silently.** Attaching or reactivating an
 employee membership while another is active fails with a domain error that each entry
 point turns into a message ("already active at another company, deactivate there

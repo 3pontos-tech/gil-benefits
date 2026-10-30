@@ -36,6 +36,10 @@ class TenantMember extends Pivot
     protected static function booted(): void
     {
         static::saving(function (self $member): void {
+            if ($member->exists && ! $member->isDirty(['role', 'active', 'deleted_at', 'company_id', 'user_id'])) {
+                return;
+            }
+
             $employer = $member->otherActiveEmployer();
 
             throw_if($employer instanceof Company, EmployedElsewhere::class, $employer);
@@ -45,7 +49,9 @@ class TenantMember extends Pivot
     /**
      * The company where this person is already an active employee, when this
      * row would become a second one. Owner and manager rows and the default
-     * bucket are not employers.
+     * bucket are not employers. A soft-deleted company still counts, as it
+     * does for the database index: closing a company does not release its
+     * people until their memberships are deactivated.
      */
     public function otherActiveEmployer(): ?Company
     {
@@ -53,7 +59,7 @@ class TenantMember extends Pivot
             return null;
         }
 
-        return Company::query()
+        return Company::withTrashed()
             ->withoutDefault()
             ->whereKeyNot($this->company_id)
             ->whereIn('id', self::query()

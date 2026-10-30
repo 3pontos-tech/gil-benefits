@@ -87,6 +87,7 @@ class GrantExtraCreditAction extends Action
     {
         return static::make()
             ->modalDescription(__('panel-admin::resources.credit_grants.actions.grant.hint_user'))
+            ->visible(fn (User $record): bool => self::grantableCompanies($record)->isNotEmpty())
             ->form(fn (User $record): array => [
                 Select::make('company_id')
                     ->label(__('panel-admin::resources.credit_grants.fields.company'))

@@ -25,7 +25,7 @@ return new class extends Migration
         }
 
         DB::statement(sprintf(
-            "create unique index %s on company_employees (user_id) where active = true and deleted_at is null and role = 'employee' and company_id <> '%s'",
+            "create unique index if not exists %s on company_employees (user_id) where active = true and deleted_at is null and role = 'employee' and company_id <> '%s'",
             self::INDEX,
             $bucketId,
         ));
