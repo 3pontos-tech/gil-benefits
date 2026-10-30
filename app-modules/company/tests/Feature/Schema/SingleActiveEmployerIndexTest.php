@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+use TresPontosTech\Company\Actions\EnsureSingleEmployerIndex;
 use TresPontosTech\Company\Models\Company;
 
 const SINGLE_EMPLOYER_MIGRATION = __DIR__ . '/../../../database/migrations/2026_10_30_000000_add_single_active_employer_index.php';
@@ -11,13 +14,14 @@ const SINGLE_EMPLOYER_MIGRATION = __DIR__ . '/../../../database/migrations/2026_
 function singleEmployerIndexExists(): bool
 {
     return collect(Schema::getIndexes('company_employees'))
-        ->contains(fn (array $index): bool => $index['name'] === 'company_employees_active_employer_unique');
+        ->contains(fn (array $index): bool => $index['name'] === EnsureSingleEmployerIndex::INDEX);
 }
 
 it('creates the index only when the default bucket exists', function (): void {
     $migration = require SINGLE_EMPLOYER_MIGRATION;
 
     $migration->up();
+
     expect(singleEmployerIndexExists())->toBeFalse();
 
     Company::factory()->create(['slug' => Company::DEFAULT_SLUG]);

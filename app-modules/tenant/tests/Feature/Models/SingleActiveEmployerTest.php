@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Models\Users\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use App\Models\Users\User;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
@@ -88,11 +88,11 @@ it('ignores a soft-deleted membership', function (): void {
     expect(User::query()->findOrFail($person->getKey())->employerCompanyId())->toBe($current->getKey());
 });
 
-it('still counts an active membership at a soft-deleted company, like the index does', function (): void {
+it('still counts a membership left live at a soft-deleted company, like the index does', function (): void {
     $person = defaultCompanyUser();
     $closed = Company::factory()->create();
     $closed->employees()->attach($person->getKey());
-    $closed->delete();
+    DB::table('companies')->where('id', $closed->getKey())->update(['deleted_at' => now()]);
 
     expect(fn () => Company::factory()->create()->employees()->attach($person->getKey()))
         ->toThrow(EmployedElsewhere::class, $closed->name);
