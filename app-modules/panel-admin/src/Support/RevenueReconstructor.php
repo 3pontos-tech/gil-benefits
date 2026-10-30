@@ -176,6 +176,6 @@ final class RevenueReconstructor
      */
     private function bucketCompanyIds(): array
     {
-        return [Company::defaultId() ?? ''];
+        return array_filter([Company::defaultId()]);
     }
 }

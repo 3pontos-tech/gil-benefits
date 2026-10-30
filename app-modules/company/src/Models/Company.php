@@ -112,7 +112,8 @@ class Company extends Model implements HasAvatar, HasMedia
 
     /**
      * Se esta é a empresa-balde dos usuários sem empregador (B2C, consultores,
-     * contas criadas pelo admin). Único ponto do código que conhece o critério.
+     * contas criadas pelo admin). O critério fica neste model: aqui em PHP e,
+     * em SQL, em default(), defaultId() e no scope withoutDefault().
      */
     public function isDefaultBucket(): bool
     {
