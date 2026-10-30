@@ -33,9 +33,12 @@ function resetPasswordWith(string $email, string $token, string $password = 'Nov
     ]);
 }
 
-function userWithResetToken(string $token): User
+/**
+ * @param  array<string, mixed>  $attributes
+ */
+function userWithResetToken(string $token, array $attributes = []): User
 {
-    $user = standaloneSubscriber();
+    $user = standaloneSubscriber($attributes);
     PasswordResetCode::factory()->withResetToken($token)->for($user)->create();
 
     return $user;
@@ -76,7 +79,7 @@ it('recovers the account from the code to a sign-in with the new password', func
 it('sets the new password and signs every device and session out', function (): void {
     config()->set('session.driver', 'database');
     $token = Str::random(64);
-    $user = userWithResetToken($token);
+    $user = userWithResetToken($token, ['last_login_at' => now()->subDay()]);
     $user->createToken('Android', ['employee']);
     $user->createToken('iPhone', ['employee']);
     webSessionFor($user, 'own-session');

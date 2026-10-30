@@ -66,7 +66,7 @@ it('answers a repeated request inside the broker wait like the first one', funct
 it('clears the app code, ends the web sessions and mails the notice on a reset through the website', function (): void {
     Mail::fake();
     config()->set('session.driver', 'database');
-    $user = standaloneSubscriber();
+    $user = standaloneSubscriber(['last_login_at' => now()->subDay()]);
     PasswordResetCode::factory()->withCode()->for($user)->create(['failed_attempts' => 7]);
     DB::table('sessions')->insert([
         'id' => 'panel-session',
@@ -86,6 +86,18 @@ it('clears the app code, ends the web sessions and mails the notice on a reset t
         ->and(DB::table('sessions')->where('user_id', $user->id)->exists())->toBeFalse();
 
     Mail::assertQueued(PasswordChangedMail::class, fn (PasswordChangedMail $mail): bool => $mail->hasTo($user->email));
+});
+
+it('does not mail the notice to someone setting the first password', function (): void {
+    Mail::fake();
+    $user = standaloneSubscriber(['last_login_at' => null]);
+
+    livewire(ResetPassword::class, ['email' => $user->email, 'token' => Password::broker()->createToken($user)])
+        ->fillForm(['password' => 'NovaSenha#2026', 'passwordConfirmation' => 'NovaSenha#2026'])
+        ->call('resetPassword')
+        ->assertHasNoFormErrors();
+
+    Mail::assertNotQueued(PasswordChangedMail::class);
 });
 
 it('tells the owner when and how to react in the password-changed mail', function (): void {
