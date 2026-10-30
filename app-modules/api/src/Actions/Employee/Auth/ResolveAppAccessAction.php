@@ -18,10 +18,10 @@ final readonly class ResolveAppAccessAction
     /**
      * A regra inteira de quem usa o app, num lugar só e sem efeito colateral: consultor nunca entra
      * (todo cadastro, consultor inclusive, ganha vínculo com a empresa padrão); de resto, a primeira
-     * empresa com vínculo ativo onde a pessoa tem o benefício pago, pela régua do painel, com a
-     * empregadora antes da padrão e o vínculo mais novo primeiro, como em `User::employerCompanyId()`.
-     * Sem nenhuma, o motivo é o da primeira da ordem. Quem fixa a empresa na requisição é quem chama
-     * (middleware e login).
+     * empresa com vínculo ativo onde a pessoa tem o benefício pago, pela régua do painel, na mesma
+     * ordem de `User::employerCompanyId()`: a empregadora (vínculo de colaborador, único por pessoa),
+     * depois empresas que a pessoa só administra, e a padrão por último. Sem nenhuma, o motivo é o
+     * da primeira da ordem. Quem fixa a empresa na requisição é quem chama (middleware e login).
      */
     public function handle(User $user): AppAccess
     {
@@ -31,8 +31,8 @@ final readonly class ResolveAppAccessAction
 
         $companies = $user->companies()
             ->wherePivot('active', true)
-            ->orderByRaw('CASE WHEN companies.slug = ? THEN 1 ELSE 0 END', [Company::DEFAULT_SLUG])
-            ->latest('company_employees.created_at')
+            ->when(Company::defaultId(), fn ($query, string $bucketId) => $query->orderByRaw('CASE WHEN companies.id = ? THEN 1 ELSE 0 END', [$bucketId]))
+            ->orderByRaw('CASE WHEN company_employees.role = ? THEN 0 ELSE 1 END', [Roles::Employee->value])
             ->orderBy('companies.id')
             ->get();
 
