@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\Tenant\Exceptions\EmployedElsewhere;
 
 /**
  * @property string $id
@@ -28,7 +29,49 @@ class TenantMember extends Pivot
 {
     use HasUuids;
 
+    protected $table = 'company_employees';
+
     public $timestamps = true;
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $member): void {
+            $employer = $member->otherActiveEmployer();
+
+            throw_if($employer instanceof Company, EmployedElsewhere::class, $employer);
+        });
+    }
+
+    /**
+     * The company where this person is already an active employee, when this
+     * row would become a second one. Owner and manager rows and the default
+     * bucket are not employers.
+     */
+    public function otherActiveEmployer(): ?Company
+    {
+        if (! $this->countsAsEmployer()) {
+            return null;
+        }
+
+        return Company::query()
+            ->withoutDefault()
+            ->whereKeyNot($this->company_id)
+            ->whereIn('id', self::query()
+                ->select('company_id')
+                ->where('user_id', $this->user_id)
+                ->where('role', Roles::Employee->value)
+                ->where('active', true)
+                ->whereNull('deleted_at'))
+            ->first();
+    }
+
+    private function countsAsEmployer(): bool
+    {
+        return $this->role === Roles::Employee
+            && ($this->active ?? true)
+            && $this->deleted_at === null
+            && $this->company_id !== Company::defaultId();
+    }
 
     /**
      * A membership created without an explicit role is a plain employee: the
