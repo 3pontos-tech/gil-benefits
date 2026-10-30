@@ -58,7 +58,7 @@ final readonly class ResetPasswordWithCodeAction
                 $this->changeUserPassword->handle($user, $password);
 
                 $row->delete();
-                Password::broker()->deleteToken($user);
+                Password::deleteToken($user);
 
                 event(new PasswordReset($user));
             });
