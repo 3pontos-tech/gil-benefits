@@ -419,6 +419,7 @@ return [
         'assign_role' => 'Atribuir Função',
         'user_already_has_role' => 'Usuário já possui esta função',
         'user_assigned_to_role' => 'Usuário foi atribuído à função %s',
+        'user_employed_elsewhere' => 'Usuário já é colaborador ativo em :company. Desative o vínculo lá primeiro.',
     ],
     'pages' => [
         'financial_consulting' => [

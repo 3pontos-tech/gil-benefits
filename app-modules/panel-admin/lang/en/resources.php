@@ -419,6 +419,7 @@ return [
         'assign_role' => 'Assign Role',
         'user_already_has_role' => 'User already has this role',
         'user_assigned_to_role' => 'User has been assigned to %s role',
+        'user_employed_elsewhere' => 'User is already an active employee at :company. Deactivate that membership first.',
     ],
     'pages' => [
         'financial_consulting' => [

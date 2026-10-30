@@ -26,6 +26,7 @@ use TresPontosTech\PanelCompany\Filament\Actions\CreateAndAttachAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSeatsCounterAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSecretKeyRotationPanelAction;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\Tenant\Exceptions\EmployedElsewhere;
 use TresPontosTech\User\Concerns\ChecksImportCompletion;
 use TresPontosTech\User\Filament\Actions\ImportUsersAction;
 
@@ -138,7 +139,13 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                         $company = filament()->getTenant();
 
                         if ($record->getAttribute('role') === Roles::CompanyManager->value) {
-                            $company->employees()->updateExistingPivot($record, ['role' => Roles::Employee->value]);
+                            try {
+                                $company->employees()->updateExistingPivot($record, ['role' => Roles::Employee->value]);
+                            } catch (EmployedElsewhere $conflict) {
+                                $this->notifyEmployedElsewhere($conflict);
+
+                                return;
+                            }
 
                             Notification::make()
                                 ->title(__('panel-company::resources.pages.edit_tenant.remove_manager_notification', ['name' => $record->name]))
@@ -167,10 +174,14 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                         /** @var Company $company */
                         $company = filament()->getTenant();
 
-                        $company->employees()->updateExistingPivot($record, [
-                            'active' => ! $record->active,
-                            'role' => $record->role,
-                        ]);
+                        try {
+                            $company->employees()->updateExistingPivot($record, [
+                                'active' => ! $record->active,
+                                'role' => $record->role,
+                            ]);
+                        } catch (EmployedElsewhere $employedElsewhere) {
+                            $this->notifyEmployedElsewhere($employedElsewhere);
+                        }
                     }),
                 Action::make('assign-department')
                     ->label(__('panel-company::resources.pages.edit_tenant.assign_department'))
@@ -280,5 +291,13 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                 $this->getFormContentComponent(),
                 EmbeddedTable::make(),
             ]);
+    }
+
+    private function notifyEmployedElsewhere(EmployedElsewhere $conflict): void
+    {
+        Notification::make()
+            ->title(__('panel-company::resources.pages.edit_tenant.employed_elsewhere_notification', ['company' => $conflict->employer->name]))
+            ->danger()
+            ->send();
     }
 }
