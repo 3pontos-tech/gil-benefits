@@ -27,7 +27,7 @@ class SyncSubscriptionToFlammaCompany extends Command
      */
     public function handle(): void
     {
-        $flammaCompany = Company::query()->where('slug', 'flamma-company')->first();
+        $flammaCompany = Company::query()->firstWhere('slug', Company::DEFAULT_SLUG);
 
         if (! $flammaCompany) {
             $this->error('flamma does not exists!');

@@ -62,12 +62,12 @@ final class GetCompanyUsage
 
         $neverUsed = $this->neverUsedByCompany();
 
-        $bucketIds = Company::query()->where('slug', Company::DEFAULT_SLUG)->pluck('id')->all();
+        $bucketId = Company::defaultId();
 
         return $rows
             // O funil de engajamento devolve toda empresa, inclusive a
             // empresa-balde dos avulsos, que não é cliente (D-11).
-            ->reject(fn (EngagementFunnelRow $row): bool => in_array($row->companyId, $bucketIds, strict: true))
+            ->reject(fn (EngagementFunnelRow $row): bool => $row->companyId === $bucketId)
             ->map(fn (EngagementFunnelRow $row): CompanyUsageRow => new CompanyUsageRow(
                 companyId: $row->companyId,
                 companyName: $row->companyName,

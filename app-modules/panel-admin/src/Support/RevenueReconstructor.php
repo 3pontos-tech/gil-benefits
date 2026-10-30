@@ -176,12 +176,6 @@ final class RevenueReconstructor
      */
     private function bucketCompanyIds(): array
     {
-        /** @var array<int, string> $ids */
-        $ids = Company::query()
-            ->where('slug', Company::DEFAULT_SLUG)
-            ->pluck('id')
-            ->all();
-
-        return $ids === [] ? [''] : $ids;
+        return [Company::defaultId() ?? ''];
     }
 }
