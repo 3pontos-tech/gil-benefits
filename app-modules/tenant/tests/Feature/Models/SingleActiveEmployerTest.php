@@ -82,9 +82,10 @@ it('ignores a soft-deleted membership', function (): void {
     $gone->employees()->attach($person->getKey());
     DB::table('company_employees')->where('user_id', $person->getKey())->where('company_id', $gone->getKey())->update(['deleted_at' => now()]);
 
-    Company::factory()->create()->employees()->attach($person->getKey());
+    $current = Company::factory()->create();
+    $current->employees()->attach($person->getKey());
 
-    expect(User::query()->findOrFail($person->getKey())->employerCompanyId())->not->toBeNull();
+    expect(User::query()->findOrFail($person->getKey())->employerCompanyId())->toBe($current->getKey());
 });
 
 it('still counts an active membership at a soft-deleted company, like the index does', function (): void {
