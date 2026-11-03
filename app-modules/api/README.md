@@ -165,4 +165,4 @@ Mudança incompatível em `/api/v1` (remover ou renomear campo, mudar tipo, endu
 
 ## Dívidas conhecidas
 
-- A API da empresa (`/api/v1/company/{tenant}/users`) ainda mora no módulo `tenant` (#293).
+- A API da empresa (`/api/v1/company/{tenant}/users`) foi removida sem uso (#316, encerra a #293). Uma integração de RH futura nasce direto neste módulo, em `V1/Company`, com chave em hash.
