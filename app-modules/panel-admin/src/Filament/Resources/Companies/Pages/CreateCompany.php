@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages;
 
 use Filament\Resources\Pages\CreateRecord;
-use Ramsey\Uuid\Uuid;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\CompanyResource;
 use TresPontosTech\Permissions\Roles;
@@ -26,12 +25,5 @@ class CreateCompany extends CreateRecord
                 'active' => true,
             ],
         ]);
-    }
-
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        $data['integration_access_key'] = Uuid::uuid4();
-
-        return $data;
     }
 }

@@ -3,7 +3,6 @@
 namespace TresPontosTech\Company\Actions;
 
 use App\Models\Users\User;
-use Ramsey\Uuid\Uuid;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 
@@ -18,7 +17,6 @@ final class AttachToDefaultCompany
             [
                 'name' => 'Flamma',
                 'user_id' => User::query()->first()->getKey(),
-                'integration_access_key' => Uuid::uuid4(),
                 'tax_id' => config('company.tax_id'),
             ]
         );
