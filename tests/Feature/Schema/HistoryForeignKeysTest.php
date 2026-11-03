@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Schema;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Models\UserCredit;
 
@@ -30,6 +31,13 @@ it('refuses to hard delete a company or a person with history', function (string
     ['user_credits', 'owner_id'],
     ['user_credits', 'holder_id'],
     ['voucher_batches', 'company_id'],
+    ['user_credits', 'appointment_id'],
+    ['user_credits', 'voucher_redemption_id'],
+    ['voucher_redemptions', 'voucher_code_id'],
+    ['voucher_redemptions', 'user_id'],
+    ['voucher_codes', 'voucher_batch_id'],
+    ['voucher_batches', 'company_plan_id'],
+    ['company_plans', 'plan_id'],
 ]);
 
 it('keeps a person profile when their company is hard deleted', function (): void {
@@ -46,6 +54,13 @@ it('blocks the hard delete of a company that has appointments', function (): voi
     Appointment::factory()->create(['company_id' => $company->getKey()]);
 
     expect(fn () => $company->forceDelete())->toThrow(QueryException::class);
+});
+
+it('blocks the hard delete of a catalogue plan that has contracts', function (): void {
+    Schema::enableForeignKeyConstraints();
+    $contract = CompanyPlan::factory()->create();
+
+    expect(fn () => $contract->plan->forceDelete())->toThrow(QueryException::class);
 });
 
 it('blocks the hard delete of a person who holds credit', function (): void {

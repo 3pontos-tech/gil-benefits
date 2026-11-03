@@ -21,7 +21,8 @@ affects:
 **Status:** accepted · **Date:** 2026-11-03 · **Decided by:** Richard (product/tech)
 
 Closes audit findings tenant-v01, company-v01, dados-14, panel-admin-07, credits-08
-and appointments-v03, and the owner-cascade part of company-07.
+and appointments-v03, the owner-cascade part of company-07, the catalogue-plan cascade
+of dados-05 and the foreign-key part of vouchers-08.
 
 ## Context
 
@@ -33,6 +34,14 @@ column `companies.user_id` cascaded too, so hard-deleting the person who owns a
 company would remove the company and everything under it. `appointments.user_id`
 and `appointments.consultant_id` had no rule at all, so hard-deleting a person or
 a consultant with appointments failed with a database error.
+
+The trail of what paid for what was just as loose. A used credit pointed at its
+appointment and at its voucher redemption with `set null`, so deleting either left
+a credit marked as used with nothing to show what it paid for. Voucher codes
+cascaded from their batch, redemptions from their code and from the person, batches
+from their contract, and contracts from the catalogue plan: hard-deleting a plan in
+the admin would remove every contract built on it and every voucher batch under
+those contracts.
 
 Nothing in the product ever needed a hard delete. The admin offered "delete
 permanently" for users (removed in PR #324), companies and consultants; the
@@ -50,6 +59,14 @@ Foreign keys to `companies` from `appointments`, `company_plans`, `credit_grants
 is `restrict` as well. A hard delete of a company, a person or a consultant with
 any of these rows is refused by the database, from any code path, including the
 console.
+
+**D1a. The trail of what paid for what is kept.** `user_credits.appointment_id` and
+`user_credits.voucher_redemption_id`, `voucher_redemptions.voucher_code_id` and
+`voucher_redemptions.user_id`, `voucher_codes.voucher_batch_id`,
+`voucher_batches.company_plan_id` and `company_plans.plan_id` are `on delete
+restrict`. A used credit always knows which appointment or redemption it paid for; a
+redemption is an accounting record and is never removed under a code, a batch or a
+person; a catalogue plan with contracts cannot be hard-deleted.
 
 **D2. A person's profile outlives their company.** `user_details.company_id` is
 `on delete set null`: the profile belongs to the person, not to the employer.
@@ -73,8 +90,8 @@ exists, nothing is erased.
 
 - The migration only changes constraint rules; no row is touched. A database
   built from scratch gets the same rules.
-- `Company::forceDelete()` and `User::forceDelete()` throw a `QueryException`
-  whenever history exists. Tests that need a hard delete create a record with no
+- `Company::forceDelete()`, `User::forceDelete()`, `Plan::forceDelete()` and
+  `Appointment::forceDelete()` throw a `QueryException` whenever history exists. Tests that need a hard delete create a record with no
   history first.
 - Soft-deleting a company still releases its people (ADR 2026-10-30) and keeps
   every historical row readable through `withTrashed()`.
