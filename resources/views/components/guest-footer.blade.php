@@ -40,12 +40,12 @@
                 <h4 class="text-base font-bold leading-[1.5]">Contato e Endereço</h4>
 
                 <div class="flex flex-col gap-5 text-sm">
-                    <a href="mailto:contato@flammabeneficios.com" class="transition hover:opacity-80">contato@flammabeneficios.com</a>
+                    <a href="mailto:{{ config('services.contact.email') }}" class="transition hover:opacity-80">{{ config('services.contact.email') }}</a>
 
                     <div class="flex items-center gap-2">
                         <img src="{{ asset('img/brasil-flag.webp') }}" alt="Brasil"
                              class="h-4 w-6 shrink-0 rounded-sm object-contain">
-                        <a href="tel:+5511976205711" class="transition hover:opacity-80">+55 11 97620-5711</a>
+                        <a href="tel:{{ preg_replace('/[^\d+]/', '', config('services.contact.phone')) }}" class="transition hover:opacity-80">{{ config('services.contact.phone') }}</a>
                     </div>
                 </div>
             </div>
