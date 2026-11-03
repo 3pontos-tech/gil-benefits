@@ -164,7 +164,6 @@ return [
             'member_department' => 'Departamento',
             'form_name' => 'Nome da Empresa',
             'form_tax_id' => 'CNPJ',
-            'form_integration_access_key' => 'Chave de Acesso de Integração',
             'make_manager' => 'Tornar Gerente',
             'remove_manager' => 'Remover Gerente',
             'make_manager_notification' => ':name agora é Gerente.',
@@ -198,10 +197,6 @@ return [
             'cpf' => 'CPF',
             'rg' => 'RG',
             'phone' => 'Telefone',
-        ],
-        'secret_key_rotation' => [
-            'label' => 'Gerar nova chave',
-            'new_key_generated' => 'Nova chave gerada: ',
         ],
         'seats_counter' => [
             'label' => 'Assentos: %s/%s',

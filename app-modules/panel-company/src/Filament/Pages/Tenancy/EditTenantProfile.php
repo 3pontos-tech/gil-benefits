@@ -24,7 +24,6 @@ use Illuminate\Support\Facades\DB;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Actions\CreateAndAttachAction;
 use TresPontosTech\PanelCompany\Filament\Actions\TenantSeatsCounterAction;
-use TresPontosTech\PanelCompany\Filament\Actions\TenantSecretKeyRotationPanelAction;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Exceptions\EmployedElsewhere;
 use TresPontosTech\User\Concerns\ChecksImportCompletion;
@@ -70,10 +69,6 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->label(__('panel-company::resources.pages.edit_tenant.form_tax_id'))
                     ->mask('99.999.999/9999-99')
                     ->readOnly(),
-                TextInput::make('integration_access_key')
-                    ->label(__('panel-company::resources.pages.edit_tenant.form_integration_access_key'))
-                    ->readOnly()
-                    ->live(),
             ])
             ->columns(3);
     }
@@ -257,7 +252,6 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
     protected function getActions(): array
     {
         return [
-            TenantSecretKeyRotationPanelAction::make(),
             Action::make('company_logo')
                 ->label(__('panel-company::resources.actions.logo.label'))
                 ->icon(Heroicon::OutlinedCamera)
