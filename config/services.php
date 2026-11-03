@@ -57,4 +57,9 @@ return [
         'url' => env('WHATSAPP_URL', 'https://wa.me/5511976205711?text=Flamma'),
     ],
 
+    'contact' => [
+        'email' => env('CONTACT_EMAIL', 'contato@flammabeneficios.com.br'),
+        'phone' => env('CONTACT_PHONE', '+55 11 97620-5711'),
+    ],
+
 ];
