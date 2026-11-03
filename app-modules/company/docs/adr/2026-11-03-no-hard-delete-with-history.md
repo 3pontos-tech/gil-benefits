@@ -76,8 +76,8 @@ appointment feedback and records, document states, anamneses, redemptions.
 Authorship columns (`created_by`, `admin_user_id`, `cancelled_by`) keep
 `set null`.
 
-**D4. The admin offers no "delete permanently".** Companies and consultants join
-users: the admin has soft delete and restore only. The actions were removed
+**D4. The admin offers no "delete permanently".** Companies, consultants and
+catalogue plans join users: the admin has soft delete and restore only. The actions were removed
 rather than guarded, because the only outcome they could still produce is a
 constraint error.
 
