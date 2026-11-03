@@ -3,14 +3,17 @@
 namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers;
 
 use Filament\Actions\AttachAction;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelAdmin\Filament\Actions\GrantExtraCreditAction;
 use TresPontosTech\PanelAdmin\Filament\Resources\Permissions\Actions\AssignRoleAction;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\UserResource;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\Tenant\Models\TenantMember;
 use TresPontosTech\User\Concerns\ChecksImportCompletion;
 use TresPontosTech\User\Filament\Actions\ImportUsersAction;
 
@@ -48,6 +51,20 @@ class EmployeesRelationManager extends RelationManager
             ->headerActions([
                 AttachAction::make()
                     ->recordTitleAttribute('name')
+                    ->before(function (AttachAction $action, array $data): void {
+                        $employer = TenantMember::activeEmployerElsewhere((string) $data['recordId'], (string) $this->getOwnerRecord()->getKey());
+
+                        if (! $employer instanceof Company) {
+                            return;
+                        }
+
+                        Notification::make()
+                            ->danger()
+                            ->body(__('panel-admin::resources.permissions.user_employed_elsewhere', ['company' => $employer->name]))
+                            ->send();
+
+                        $action->halt();
+                    })
                     ->mutateDataUsing(function (array $data): array {
                         $data['role'] = Roles::Employee->value;
 

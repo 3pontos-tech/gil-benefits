@@ -86,3 +86,27 @@ it('assigns a per-tenant role in the pivot when scoped to a company', function (
     expect($pivotRole)->toBe(Roles::CompanyManager)
         ->and($employee->fresh()->hasRole(Roles::CompanyManager))->toBeFalse();
 });
+
+it('refuses the employee role for someone already employed at another company', function (): void {
+    actingAsSuperAdmin();
+
+    $owner = User::factory()->companyOwner()->create();
+    $company = Company::factory()->recycle($owner)->create();
+    $elsewhere = Company::factory()->create();
+
+    $person = User::factory()->create();
+    $elsewhere->employees()->attach($person->getKey(), ['role' => Roles::Employee->value]);
+    $company->employees()->attach($person->getKey(), ['role' => Roles::CompanyManager->value]);
+
+    livewire(EmployeesRelationManager::class, [
+        'ownerRecord' => $company,
+        'pageClass' => EditCompany::class,
+    ])
+        ->callAction(
+            TestAction::make('assign-role-action')->table($person),
+            data: ['role' => Roles::Employee->value],
+        )
+        ->assertNotified();
+
+    expect($company->employees()->whereKey($person->getKey())->first()->pivot->role)->toBe(Roles::CompanyManager);
+});

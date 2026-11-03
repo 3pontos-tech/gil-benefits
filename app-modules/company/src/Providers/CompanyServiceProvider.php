@@ -8,6 +8,7 @@ use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use TresPontosTech\Company\Commands\SingleEmployerIndexCommand;
 use TresPontosTech\Company\Models\Company;
 
 class CompanyServiceProvider extends ServiceProvider
@@ -21,6 +22,7 @@ class CompanyServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->commands(SingleEmployerIndexCommand::class);
         $this->defineGate();
         $this->mergeConfigFrom(__DIR__ . '/../../config/flamma.php', 'company');
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'companies');
