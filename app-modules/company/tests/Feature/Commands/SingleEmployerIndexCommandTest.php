@@ -24,5 +24,6 @@ it('fails without the default company and creates the index once it exists', fun
 
     artisan('company:single-employer-index')->assertSuccessful();
     artisan('company:single-employer-index')->assertSuccessful();
+
     expect(singleEmployerIndexIsThere())->toBeTrue();
 });

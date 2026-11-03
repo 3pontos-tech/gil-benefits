@@ -231,7 +231,7 @@ it('prefers the employer over a company the person only manages, whatever the da
     $employer = employerWithContract();
     $managed = employerWithContract();
     joinCompany($person, $employer, since: $employerIsOlder ? '2025-01-01 00:00:00' : '2026-06-01 00:00:00');
-    joinCompany($person, $managed, role: Roles::CompanyManager, since: $employerIsOlder ? '2026-06-01 00:00:00' : '2025-01-01 00:00:00');
+    joinCompany($person, $managed, since: $employerIsOlder ? '2026-06-01 00:00:00' : '2025-01-01 00:00:00', role: Roles::CompanyManager);
     Sanctum::actingAs($person, [TokenAbility::Employee->value]);
 
     getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $employer->id);
