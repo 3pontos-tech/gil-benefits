@@ -112,3 +112,38 @@ describe('toggle-manager action', function (): void {
     });
 
 });
+
+describe('single active employer', function (): void {
+
+    it('refuses to reactivate an employee who is now active at another company', function (): void {
+        $this->company->employees()->updateExistingPivot($this->employee->getKey(), ['active' => false]);
+        $current = Company::factory()->create();
+        $current->employees()->attach($this->employee->getKey(), ['role' => Roles::Employee->value]);
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        livewire(EditTenantProfile::class)
+            ->callTableAction('toggle-active', $this->employee)
+            ->assertNotified(__('panel-company::resources.pages.edit_tenant.employed_elsewhere_notification'));
+
+        expect($this->company->employees()->whereKey($this->employee->getKey())->first()->pivot->active)->toBeFalse();
+    });
+
+    it('refuses to demote a manager who is an employee at another company', function (): void {
+        $elsewhere = Company::factory()->create();
+        $elsewhere->employees()->attach($this->manager->getKey(), ['role' => Roles::Employee->value]);
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        livewire(EditTenantProfile::class)
+            ->callTableAction('toggle-manager', $this->manager)
+            ->assertNotified(__('panel-company::resources.pages.edit_tenant.employed_elsewhere_notification'));
+
+        expect($this->company->employees()->whereKey($this->manager->getKey())->first()->pivot->role)->toBe(Roles::CompanyManager);
+    });
+
+});

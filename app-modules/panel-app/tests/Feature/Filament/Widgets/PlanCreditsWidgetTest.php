@@ -15,6 +15,7 @@ use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\PanelApp\DTOs\PlanSummary;
 use TresPontosTech\PanelApp\Enums\PlanStatus;
 use TresPontosTech\PanelApp\Filament\Widgets\PlanCreditsWidget;
+use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\travelTo;
 use function Pest\Livewire\livewire;
@@ -311,7 +312,7 @@ it('describes the plan of the selected tenant when the user has two contractual 
         ->name;
 
     $otherCompany = Company::factory()->create();
-    $otherCompany->employees()->attach($employee->getKey());
+    $otherCompany->employees()->attach($employee->getKey(), ['role' => Roles::CompanyManager->value]);
 
     $otherPlan = Plan::factory()->createOne([
         'name' => 'Plano da outra empresa',

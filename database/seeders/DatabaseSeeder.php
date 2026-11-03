@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->generateCompanies();
 
         $admin = User::factory()->admin()->create();
-        Company::all()->each(fn ($company) => $company->employees()->attach($admin));
+        Company::all()->each(fn ($company) => $company->employees()->attach($admin, ['role' => Roles::CompanyManager->value]));
         Company::query()->inRandomOrder()->first()->update(['slug' => 'my-company']);
     }
 

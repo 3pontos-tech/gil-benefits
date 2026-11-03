@@ -18,6 +18,7 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Tenant\Exceptions\EmployedElsewhere;
 use TresPontosTech\Vouchers\Database\Factories\VoucherRedemptionFactory;
 
 use function Pest\Laravel\getJson;
@@ -52,9 +53,9 @@ function employerWithContract(int $perEmployee = 5): Company
     return $company;
 }
 
-function joinCompany(User $user, Company $company, bool $active = true, string $since = '2026-01-01 00:00:00'): void
+function joinCompany(User $user, Company $company, bool $active = true, string $since = '2026-01-01 00:00:00', Roles $role = Roles::Employee): void
 {
-    $company->employees()->attach($user->getKey(), ['role' => Roles::Employee->value, 'active' => $active]);
+    $company->employees()->attach($user->getKey(), ['role' => $role->value, 'active' => $active]);
 
     DB::table('company_employees')
         ->where(['company_id' => $company->getKey(), 'user_id' => $user->getKey()])
@@ -210,31 +211,42 @@ it('prefers the employer over the default company when both grant the benefit', 
     getJson(route('api.v1.credits.show'))->assertOk()->assertJsonPath('data.monthly_quota.limit', 5);
 });
 
-it('picks the newest active membership among employers, the same on every request', function (bool $firstIsOlder): void {
+it('refuses a second active employer instead of guessing between them', function (): void {
     $person = registeredPerson();
     $first = employerWithContract();
     $second = employerWithContract();
-    joinCompany($person, $first, since: $firstIsOlder ? '2025-01-01 00:00:00' : '2026-06-01 00:00:00');
-    joinCompany($person, $second, since: $firstIsOlder ? '2026-06-01 00:00:00' : '2025-01-01 00:00:00');
+    joinCompany($person, $first);
+
+    expect(fn () => joinCompany($person, $second))->toThrow(EmployedElsewhere::class);
+
     Sanctum::actingAs($person, [TokenAbility::Employee->value]);
 
-    $expected = $firstIsOlder ? $second->id : $first->id;
-
     foreach (range(1, 3) as $attempt) {
-        getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $expected);
+        getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $first->id);
     }
-})->with(['first is older' => [true], 'second is older' => [false]]);
+});
 
-it('skips a newer employer without the benefit for an older one that has it', function (): void {
+it('prefers the employer over a company the person only manages, whatever the dates', function (bool $employerIsOlder): void {
+    $person = registeredPerson();
+    $employer = employerWithContract();
+    $managed = employerWithContract();
+    joinCompany($person, $employer, since: $employerIsOlder ? '2025-01-01 00:00:00' : '2026-06-01 00:00:00');
+    joinCompany($person, $managed, role: Roles::CompanyManager, since: $employerIsOlder ? '2026-06-01 00:00:00' : '2025-01-01 00:00:00');
+    Sanctum::actingAs($person, [TokenAbility::Employee->value]);
+
+    getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $employer->id);
+})->with(['employer is older' => [true], 'managed is older' => [false]]);
+
+it('falls back to a managed company with the benefit when the employer has none', function (): void {
     $person = registeredPerson();
     $lapsed = Company::factory()->create();
     CompanyPlan::factory()->expired()->for($lapsed)->create();
-    $current = employerWithContract();
-    joinCompany($person, $lapsed, since: '2026-01-01 00:00:00');
-    joinCompany($person, $current, since: '2024-01-01 00:00:00');
+    $managed = employerWithContract();
+    joinCompany($person, $lapsed);
+    joinCompany($person, $managed, role: Roles::CompanyManager);
     Sanctum::actingAs($person, [TokenAbility::Employee->value]);
 
-    getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $current->id);
+    getJson(route('api.v1.me.show'))->assertOk()->assertJsonPath('data.company.id', $managed->id);
 });
 
 it('cuts the session off when the company contract ends after the login', function (): void {

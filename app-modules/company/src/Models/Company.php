@@ -68,6 +68,32 @@ class Company extends Model implements HasAvatar, HasMedia
     use SoftDeletes;
 
     /**
+     * Closing a company releases its people: every live membership is
+     * soft-deleted with the company's own timestamp, so restoring the company
+     * brings back exactly those rows and leaves earlier removals alone.
+     */
+    protected static function booted(): void
+    {
+        static::deleted(function (self $company): void {
+            if ($company->isForceDeleting()) {
+                return;
+            }
+
+            TenantMember::query()
+                ->where('company_id', $company->getKey())
+                ->whereNull('deleted_at')
+                ->update(['deleted_at' => $company->deleted_at]);
+        });
+
+        static::restoring(function (self $company): void {
+            TenantMember::query()
+                ->where('company_id', $company->getKey())
+                ->where('deleted_at', $company->deleted_at)
+                ->update(['deleted_at' => null]);
+        });
+    }
+
+    /**
      * Slug of the shared company that holds every user without an employer:
      * B2C subscribers, consultants and admin-created users. It is a bucket, not
      * a client — its seats are a synthetic "unlimited" subscription and

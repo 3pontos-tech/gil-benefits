@@ -97,7 +97,7 @@ describe('tenant scoped role: owner of A is an employee of B', function (): void
     beforeEach(function (): void {
         $this->owner = User::factory()->companyOwner()->create();
         $this->ownCompany = Company::factory()->recycle($this->owner)->create();
-        $this->ownCompany->employees()->attach($this->owner->getKey());
+        $this->ownCompany->employees()->attach($this->owner->getKey(), ['role' => Roles::CompanyOwner->value]);
 
         // Another owner's company, where our owner joins as an EMPLOYEE.
         $otherOwner = User::factory()->companyOwner()->create();

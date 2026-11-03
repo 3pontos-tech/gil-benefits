@@ -168,6 +168,7 @@ return [
             'make_manager' => 'Tornar Gerente',
             'remove_manager' => 'Remover Gerente',
             'make_manager_notification' => ':name agora é Gerente.',
+            'employed_elsewhere_notification' => 'Essa pessoa já é colaboradora ativa em outra empresa. O vínculo de lá precisa ser desativado primeiro.',
             'remove_manager_notification' => ':name não é mais Gerente.',
             'assign_department' => 'Atribuir Departamento',
             'assign_department_notification' => 'Departamento atribuído com sucesso.',

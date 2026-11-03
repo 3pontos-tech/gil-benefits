@@ -191,22 +191,19 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
      * The company this person actually belongs to.
      *
      * Every registered user is also attached to the shared default company, so a plain
-     * "first company" would be a coin flip. Skip it and the real employer is what is
-     * left; users who have nothing else fall back to the default company itself.
-     *
-     * Only active memberships count — a company that deactivated the person is no longer
-     * their employer — and the newest one wins when there are several: two active employers
-     * come from a job change where the former company forgot to deactivate the person, and
-     * the newest is where they work now.
+     * "first company" would be a coin flip. The employer is the one active employee
+     * membership outside it (TenantMember refuses a second one); someone who only owns or
+     * manages companies gets the first of those; whoever has nothing else gets the default
+     * company itself.
      */
     public function employerCompanyId(): ?string
     {
         $memberships = fn (): BelongsToMany => $this->companies()
             ->wherePivot('active', true)
-            ->latest('company_employees.created_at')
             ->orderBy('companies.id');
 
-        return $memberships()->withoutDefault()->value('companies.id')
+        return $memberships()->withoutDefault()->wherePivot('role', Roles::Employee->value)->value('companies.id')
+            ?? $memberships()->withoutDefault()->value('companies.id')
             ?? $memberships()->value('companies.id');
     }
 

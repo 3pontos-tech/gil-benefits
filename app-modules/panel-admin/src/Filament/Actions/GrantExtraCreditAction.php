@@ -6,11 +6,13 @@ namespace TresPontosTech\PanelAdmin\Filament\Actions;
 
 use App\Models\Users\User;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Collection;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Actions\GrantExtraCredit;
 use TresPontosTech\Credits\DTOs\GrantCreditDTO;
@@ -30,19 +32,41 @@ class GrantExtraCreditAction extends Action
             ->label(__('panel-admin::resources.credit_grants.actions.grant.label'))
             ->icon(Heroicon::OutlinedGift)
             ->modalHeading(__('panel-admin::resources.credit_grants.actions.grant.label'))
-            ->form([
-                TextInput::make('quantity')
-                    ->label(__('panel-admin::resources.credit_grants.fields.quantity'))
-                    ->numeric()
-                    ->integer()
-                    ->minValue(1)
-                    ->required(),
+            ->form(self::fields());
+    }
 
-                Textarea::make('justification')
-                    ->label(__('panel-admin::resources.credit_grants.fields.justification'))
-                    ->required()
-                    ->maxLength(1000),
-            ]);
+    /**
+     * @return array<int, TextInput|Textarea>
+     */
+    private static function fields(): array
+    {
+        return [
+            TextInput::make('quantity')
+                ->label(__('panel-admin::resources.credit_grants.fields.quantity'))
+                ->numeric()
+                ->integer()
+                ->minValue(1)
+                ->required(),
+
+            Textarea::make('justification')
+                ->label(__('panel-admin::resources.credit_grants.fields.justification'))
+                ->required()
+                ->maxLength(1000),
+        ];
+    }
+
+    /**
+     * Companies a gift to this user can land in: the active memberships, with
+     * the default bucket offered only when it is the person's sole membership.
+     *
+     * @return Collection<int, Company>
+     */
+    private static function grantableCompanies(User $user): Collection
+    {
+        $memberships = $user->companies()->wherePivot('active', true)->orderBy('name')->get();
+        $employers = $memberships->reject(fn (Company $company): bool => $company->isDefaultBucket());
+
+        return $employers->isNotEmpty() ? $employers->values() : $memberships->values();
     }
 
     /**
@@ -63,9 +87,19 @@ class GrantExtraCreditAction extends Action
     {
         return static::make()
             ->modalDescription(__('panel-admin::resources.credit_grants.actions.grant.hint_user'))
+            ->visible(fn (User $record): bool => self::grantableCompanies($record)->isNotEmpty())
+            ->form(fn (User $record): array => [
+                Select::make('company_id')
+                    ->label(__('panel-admin::resources.credit_grants.fields.company'))
+                    ->options(self::grantableCompanies($record)->pluck('name', 'id'))
+                    ->default($record->employerCompanyId())
+                    ->selectablePlaceholder(false)
+                    ->required(),
+
+                ...self::fields(),
+            ])
             ->action(function (array $data, User $record): void {
-                /** @var Company|null $company */
-                $company = $record->companies()->first();
+                $company = self::grantableCompanies($record)->firstWhere('id', $data['company_id']);
 
                 if ($company === null) {
                     Notification::make()

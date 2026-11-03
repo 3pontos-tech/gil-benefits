@@ -11,6 +11,7 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\Credits\Models\UserCredit;
+use TresPontosTech\Permissions\Roles;
 
 function makeBookDto(User $user): BookAppointmentDTO
 {
@@ -47,7 +48,7 @@ function creditFor(User $user): UserCredit
 // same test can straddle a second boundary.
 function alsoEmployedAt(User $user, Company $company): void
 {
-    $company->employees()->attach($user->getKey(), ['created_at' => Date::now()->subDay()]);
+    $company->employees()->attach($user->getKey(), ['role' => Roles::CompanyManager->value, 'created_at' => Date::now()->subDay()]);
 }
 
 // A user with an active contractual plan that grants quota > 0 and no prior appointments.

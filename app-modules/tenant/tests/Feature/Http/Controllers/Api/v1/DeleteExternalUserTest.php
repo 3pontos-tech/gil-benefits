@@ -47,9 +47,10 @@ it('should fail when company does not exists', function (): void {
 
 it('should not allow deleting a user from another tenant using a valid token from a different company', function (): void {
     $otherCompany = Company::factory()->create();
-    $otherCompany->employees()->save($this->user);
+    $someoneElse = User::factory()->create();
+    $otherCompany->employees()->save($someoneElse);
 
-    $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => $otherCompany->slug, 'user' => $this->user->getKey()]), [], [
+    $response = deleteJson(route('api.v1.company.users.delete', ['tenant' => $otherCompany->slug, 'user' => $someoneElse->getKey()]), [], [
         config('tenant.header') => $this->company->integration_access_key,
     ]);
 
