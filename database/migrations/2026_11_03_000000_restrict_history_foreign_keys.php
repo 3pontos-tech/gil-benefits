@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Schema;
  * A person's profile keeps living when the company goes, so it loses the
  * reference rather than the row. The same goes for the trail of what paid
  * for what: a used credit keeps its appointment and its voucher redemption,
+ * and any credit keeps the grant or order that created it,
  * redemptions keep their code, codes their batch, batches their contract,
  * and contracts their catalogue plan. Departments keep cascading, they have
  * no value of their own. See company/docs/adr/2026-11-03-no-hard-delete-with-history.md.
@@ -36,6 +37,8 @@ return new class extends Migration
         ['table' => 'user_details', 'column' => 'company_id', 'references' => 'companies', 'was' => 'cascade', 'becomes' => 'set null'],
         ['table' => 'user_credits', 'column' => 'appointment_id', 'references' => 'appointments', 'was' => 'set null', 'becomes' => 'restrict'],
         ['table' => 'user_credits', 'column' => 'voucher_redemption_id', 'references' => 'voucher_redemptions', 'was' => 'set null', 'becomes' => 'restrict'],
+        ['table' => 'user_credits', 'column' => 'grant_id', 'references' => 'credit_grants', 'was' => 'set null', 'becomes' => 'restrict'],
+        ['table' => 'user_credits', 'column' => 'credit_order_id', 'references' => 'credit_orders', 'was' => 'set null', 'becomes' => 'restrict'],
         ['table' => 'voucher_redemptions', 'column' => 'voucher_code_id', 'references' => 'voucher_codes', 'was' => 'cascade', 'becomes' => 'restrict'],
         ['table' => 'voucher_redemptions', 'column' => 'user_id', 'references' => 'users', 'was' => 'cascade', 'becomes' => 'restrict'],
         ['table' => 'voucher_codes', 'column' => 'voucher_batch_id', 'references' => 'voucher_batches', 'was' => 'cascade', 'becomes' => 'restrict'],
