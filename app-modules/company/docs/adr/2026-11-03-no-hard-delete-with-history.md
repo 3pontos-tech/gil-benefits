@@ -60,24 +60,25 @@ is `restrict` as well. A hard delete of a company, a person or a consultant with
 any of these rows is refused by the database, from any code path, including the
 console.
 
-**D1a. The trail of what paid for what is kept.** `user_credits.appointment_id` and
-`user_credits.voucher_redemption_id`, `voucher_redemptions.voucher_code_id` and
+**D1a. The trail of what paid for what is kept.** `user_credits.appointment_id`,
+`user_credits.voucher_redemption_id`, `user_credits.grant_id` and
+`user_credits.credit_order_id`, `voucher_redemptions.voucher_code_id` and
 `voucher_redemptions.user_id`, `voucher_codes.voucher_batch_id`,
 `voucher_batches.company_plan_id` and `company_plans.plan_id` are `on delete
-restrict`. A used credit always knows which appointment or redemption it paid for; a
-redemption is an accounting record and is never removed under a code, a batch or a
+restrict`. A credit always knows the grant or order that created it and, once used,
+which appointment or redemption it paid for; a redemption is an accounting record and is never removed under a code, a batch or a
 person; a catalogue plan with contracts cannot be hard-deleted.
 
 **D2. A person's profile outlives their company.** `user_details.company_id` is
 `on delete set null`: the profile belongs to the person, not to the employer.
 
 **D3. Dependent rows without value of their own keep cascading.** Departments,
-appointment feedback and records, document states, anamneses, redemptions.
+appointment feedback and records, document states, anamneses.
 Authorship columns (`created_by`, `admin_user_id`, `cancelled_by`) keep
 `set null`.
 
-**D4. The admin offers no "delete permanently".** Companies, consultants and
-catalogue plans join users: the admin has soft delete and restore only. The actions were removed
+**D4. The admin offers no "delete permanently".** Companies, consultants,
+catalogue plans and prices join users: the admin has soft delete and restore only. The actions were removed
 rather than guarded, because the only outcome they could still produce is a
 constraint error.
 
@@ -90,8 +91,11 @@ exists, nothing is erased.
 
 - The migration only changes constraint rules; no row is touched. A database
   built from scratch gets the same rules.
-- `Company::forceDelete()`, `User::forceDelete()`, `Plan::forceDelete()` and
-  `Appointment::forceDelete()` throw a `QueryException` whenever history exists. Tests that need a hard delete create a record with no
+- `Company::forceDelete()`, `User::forceDelete()` and `Plan::forceDelete()` throw
+  a `QueryException` whenever history exists. `Appointment::forceDelete()` throws
+  only when a credit paid for the appointment; one paid by the monthly quota has
+  no credit and can still be hard-deleted, taking its records and feedback along.
+  No code path does that. Tests that need a hard delete create a record with no
   history first.
 - Soft-deleting a company still releases its people (ADR 2026-10-30) and keeps
   every historical row readable through `withTrashed()`.
