@@ -7,6 +7,7 @@ return [
     'avatar' => 'foto',
     'category' => 'categoria',
     'category_type' => 'assunto',
+    'code' => 'código',
     'comment' => 'comentário',
     'current_password' => 'senha atual',
     'description' => 'descrição',
@@ -28,6 +29,7 @@ return [
     'title' => 'título',
     'tried_financial_strategies' => 'estratégias já tentadas',
     'rating' => 'nota',
+    'reset_token' => 'token de redefinição',
     'status' => 'status',
     'subject' => 'assunto',
 ];

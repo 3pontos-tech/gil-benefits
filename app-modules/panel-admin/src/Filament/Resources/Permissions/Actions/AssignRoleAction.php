@@ -11,6 +11,7 @@ use Filament\Schemas\Components\Component;
 use Filament\Support\Icons\Heroicon;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\Tenant\Exceptions\EmployedElsewhere;
 
 class AssignRoleAction extends Action
 {
@@ -96,9 +97,16 @@ class AssignRoleAction extends Action
 
         // Per-tenant assignment: the role lives in the company_employees pivot.
         if ($company instanceof Company) {
-            $company->employees()->syncWithoutDetaching([
-                $record->getKey() => ['role' => $role->value],
-            ]);
+            try {
+                $company->employees()->syncWithoutDetaching([
+                    $record->getKey() => ['role' => $role->value],
+                ]);
+            } catch (EmployedElsewhere $conflict) {
+                return Notification::make()
+                    ->danger()
+                    ->body(__('panel-admin::resources.permissions.user_employed_elsewhere', ['company' => $conflict->employer->name]))
+                    ->send();
+            }
 
             return Notification::make()
                 ->success()

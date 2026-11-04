@@ -67,7 +67,7 @@ final class GetActivationTotals
             // sem este corte a taxa de ativação incluiria admins, consultores e
             // assinantes avulsos — e sairia diluída sem dizer nada sobre o
             // produto vendido às empresas (D-11).
-            ->where('companies.slug', '!=', Company::DEFAULT_SLUG)
+            ->when(Company::defaultId(), fn ($query, string $bucketId) => $query->where('companies.id', '!=', $bucketId))
             ->whereNull('companies.deleted_at')
             ->where('company_employees.active', true)
             ->whereNull('users.deleted_at')

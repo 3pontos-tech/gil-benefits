@@ -12,11 +12,13 @@ use Illuminate\Support\Timebox;
 use TresPontosTech\Api\DTOs\Employee\Auth\EmployeeSession;
 use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Api\Exceptions\Employee\Auth\EmployeeLoginException;
-use TresPontosTech\User\Support\EmailAddress;
 
 final readonly class AuthenticateEmployeeAction
 {
-    public function __construct(private ResolveAppAccessAction $resolveAppAccess) {}
+    public function __construct(
+        private ResolveAppAccessAction $resolveAppAccess,
+        private FindUserByEmailAction $findUserByEmail,
+    ) {}
 
     /**
      * Quem entra é decidido pela ResolveAppAccessAction; o login fixa a empresa liberada como o
@@ -63,7 +65,7 @@ final readonly class AuthenticateEmployeeAction
     private function verifyCredentials(string $email, string $password): User
     {
         return resolve(Timebox::class)->call(function (Timebox $timebox) use ($email, $password): User {
-            $user = $this->findByEmail($email);
+            $user = $this->findUserByEmail->handle($email);
 
             if (! $user instanceof User || ! Hash::check($password, $user->password)) {
                 throw EmployeeLoginException::invalidCredentials();
@@ -73,14 +75,5 @@ final readonly class AuthenticateEmployeeAction
 
             return $user;
         }, (int) config('auth.timebox_duration', 200_000));
-    }
-
-    /**
-     * O e-mail é gravado em minúsculas (#291), então a busca normaliza a entrada e compara
-     * direto, usando o índice único da coluna.
-     */
-    private function findByEmail(string $email): ?User
-    {
-        return User::query()->where('email', EmailAddress::normalize($email))->first();
     }
 }

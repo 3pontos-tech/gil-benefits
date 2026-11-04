@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use TresPontosTech\Api\Models\PasswordResetCode;
 use TresPontosTech\Appointments\Jobs\MarkAppointmentsAsCompleted;
 use TresPontosTech\Vouchers\Jobs\ExpireVoucherCreditsJob;
 
@@ -19,5 +20,9 @@ Schedule::job(new ExpireVoucherCreditsJob)
     ->withoutOverlapping();
 
 Schedule::command('sanctum:prune-expired --hours=24')
+    ->daily()
+    ->withoutOverlapping();
+
+Schedule::command('model:prune', ['--model' => [PasswordResetCode::class]])
     ->daily()
     ->withoutOverlapping();

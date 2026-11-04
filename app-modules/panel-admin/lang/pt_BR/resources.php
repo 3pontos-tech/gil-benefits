@@ -322,7 +322,7 @@ return [
             'grant' => [
                 'label' => 'Atribuir Crédito Extra',
                 'hint_company' => 'O crédito vai para o dono da empresa, que depois distribui aos funcionários.',
-                'hint_user' => 'O presente pertence ao usuário e pode ser usado independente da empresa.',
+                'hint_user' => 'O presente pertence ao usuário e fica na empresa escolhida, onde ele agenda.',
             ],
             'revoke' => [
                 'label' => 'Estornar',
@@ -419,6 +419,7 @@ return [
         'assign_role' => 'Atribuir Função',
         'user_already_has_role' => 'Usuário já possui esta função',
         'user_assigned_to_role' => 'Usuário foi atribuído à função %s',
+        'user_employed_elsewhere' => 'Usuário já é colaborador ativo em :company. Desative o vínculo lá primeiro.',
     ],
     'pages' => [
         'financial_consulting' => [

@@ -29,3 +29,17 @@ it('shows the avatar upload field to SuperAdmin on the edit form', function (): 
     livewire(EditConsultant::class, ['record' => $consultant->getRouteKey()])
         ->assertFormFieldExists('avatar');
 });
+
+it('offers no permanent delete on a trashed consultant', function (): void {
+    $consultant = Consultant::factory()->create();
+    $consultant->delete();
+
+    livewire(EditConsultant::class, ['record' => $consultant->getRouteKey()])
+        ->assertActionDoesNotExist('forceDelete')
+        ->assertActionExists('restore');
+
+    livewire(ListConsultants::class)
+        ->filterTable('trashed', true)
+        ->assertTableBulkActionDoesNotExist('forceDelete')
+        ->assertTableBulkActionExists('restore');
+});

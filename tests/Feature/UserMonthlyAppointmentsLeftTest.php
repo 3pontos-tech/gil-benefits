@@ -10,6 +10,7 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
 
 use function Pest\Laravel\travelTo;
 
@@ -252,7 +253,7 @@ it('keeps individual subscription cycles independent from each other', function 
 function secondEmployerFor(User $employee, string $anchor): Company
 {
     $company = Company::factory()->create();
-    $company->employees()->attach($employee->getKey());
+    $company->employees()->attach($employee->getKey(), ['role' => Roles::CompanyManager->value]);
 
     CompanyPlan::query()->create([
         'company_id' => $company->getKey(),

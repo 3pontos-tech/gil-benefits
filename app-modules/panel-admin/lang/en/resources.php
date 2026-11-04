@@ -322,7 +322,7 @@ return [
             'grant' => [
                 'label' => 'Grant Extra Credit',
                 'hint_company' => 'The credit goes to the company owner, who then distributes it to employees.',
-                'hint_user' => 'The gift belongs to the user and can be used regardless of the company.',
+                'hint_user' => 'The gift belongs to the user and lands in the chosen company, where they book.',
             ],
             'revoke' => [
                 'label' => 'Revoke',
@@ -419,6 +419,7 @@ return [
         'assign_role' => 'Assign Role',
         'user_already_has_role' => 'User already has this role',
         'user_assigned_to_role' => 'User has been assigned to %s role',
+        'user_employed_elsewhere' => 'User is already an active employee at :company. Deactivate that membership first.',
     ],
     'pages' => [
         'financial_consulting' => [

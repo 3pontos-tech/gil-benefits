@@ -17,6 +17,7 @@ use App\Models\Users\User;
 use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Timebox;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 use TresPontosTech\Api\Enums\TokenAbility;
@@ -424,4 +425,39 @@ function standaloneCreditFor(User $user, array $attributes = []): UserCredit
         'company_id' => $user->employerCompanyId(),
         ...$attributes,
     ]);
+}
+
+/**
+ * Troca o Timebox por um que só anota o que faria, sem esperar: os microssegundos de cada espera,
+ * ou "early" quando a chamada devolveu antes do tempo. Prova que um caminho leva o mesmo tempo
+ * mínimo exista a conta ou não.
+ *
+ * @return ArrayObject<int, int|string>
+ */
+function recordTimebox(): ArrayObject
+{
+    $log = new ArrayObject;
+
+    app()->bind(Timebox::class, fn (): Timebox => new class($log) extends Timebox
+    {
+        public function __construct(private readonly ArrayObject $log) {}
+
+        public function call(callable $callback, int $microseconds): mixed
+        {
+            try {
+                return parent::call($callback, $microseconds);
+            } finally {
+                if ($this->earlyReturn) {
+                    $this->log->append('early');
+                }
+            }
+        }
+
+        protected function usleep(int $microseconds): void
+        {
+            $this->log->append($microseconds);
+        }
+    });
+
+    return $log;
 }

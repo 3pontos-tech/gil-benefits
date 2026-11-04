@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Illuminate\Foundation\Http\Middleware\TrimStrings;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
-use Illuminate\Support\Timebox;
 use Illuminate\Testing\TestResponse;
 
 use function Pest\Laravel\patchJson;
@@ -18,37 +17,6 @@ use function Pest\Laravel\withServerVariables;
 beforeEach(function (): void {
     RateLimiter::clear('api-login');
 });
-
-/**
- * @return ArrayObject<int, int|string> o que cada chamada ao Timebox fez: microssegundos de espera, ou "early"
- */
-function recordTimebox(): ArrayObject
-{
-    $log = new ArrayObject;
-
-    app()->bind(Timebox::class, fn (): Timebox => new class($log) extends Timebox
-    {
-        public function __construct(private readonly ArrayObject $log) {}
-
-        public function call(callable $callback, int $microseconds): mixed
-        {
-            try {
-                return parent::call($callback, $microseconds);
-            } finally {
-                if ($this->earlyReturn) {
-                    $this->log->append('early');
-                }
-            }
-        }
-
-        protected function usleep(int $microseconds): void
-        {
-            $this->log->append($microseconds);
-        }
-    });
-
-    return $log;
-}
 
 function attemptLogin(string $email, string $password = 'wrong'): TestResponse
 {

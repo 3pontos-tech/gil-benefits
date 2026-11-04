@@ -121,7 +121,18 @@ it('answers the browser preflight of the app running on the web in development',
 });
 
 /**
- * Toda rota do colaborador, menos o login, com o método e um uuid no lugar de cada parâmetro.
+ * As únicas rotas do colaborador sem token: o login e a recuperação de senha. Uma rota pública nova
+ * precisa entrar aqui de propósito.
+ */
+const PUBLIC_EMPLOYEE_ROUTES = [
+    'api.v1.auth.login',
+    'api.v1.auth.password.forgot',
+    'api.v1.auth.password.verify',
+    'api.v1.auth.password.reset',
+];
+
+/**
+ * Toda rota do colaborador, menos as públicas, com o método e um uuid no lugar de cada parâmetro.
  * Lida das rotas registradas, então uma rota nova entra nos testes de acesso sozinha.
  *
  * @return list<array{0: string, 1: string, 2: string}>
@@ -130,7 +141,7 @@ function protectedEmployeeRoutes(): array
 {
     return collect(Route::getRoutes()->getRoutes())
         ->filter(fn (Illuminate\Routing\Route $route): bool => str_starts_with((string) $route->getName(), 'api.v1.')
-            && $route->getName() !== 'api.v1.auth.login'
+            && ! in_array($route->getName(), PUBLIC_EMPLOYEE_ROUTES, true)
             && ! str_starts_with((string) $route->getName(), 'api.v1.company.'))
         ->map(fn (Illuminate\Routing\Route $route): array => [
             (string) $route->getName(),
@@ -141,7 +152,7 @@ function protectedEmployeeRoutes(): array
         ->all();
 }
 
-it('covers the 27 protected employee routes, 28 with the login', function (): void {
+it('covers the 27 protected employee routes, 31 with the public ones', function (): void {
     expect(protectedEmployeeRoutes())->toHaveCount(27);
 });
 

@@ -68,6 +68,32 @@ class Company extends Model implements HasAvatar, HasMedia
     use SoftDeletes;
 
     /**
+     * Closing a company releases its people: every live membership is
+     * soft-deleted with the company's own timestamp, so restoring the company
+     * brings back exactly those rows and leaves earlier removals alone.
+     */
+    protected static function booted(): void
+    {
+        static::deleted(function (self $company): void {
+            if ($company->isForceDeleting()) {
+                return;
+            }
+
+            TenantMember::query()
+                ->where('company_id', $company->getKey())
+                ->whereNull('deleted_at')
+                ->update(['deleted_at' => $company->deleted_at]);
+        });
+
+        static::restoring(function (self $company): void {
+            TenantMember::query()
+                ->where('company_id', $company->getKey())
+                ->where('deleted_at', $company->deleted_at)
+                ->update(['deleted_at' => null]);
+        });
+    }
+
+    /**
      * Slug of the shared company that holds every user without an employer:
      * B2C subscribers, consultants and admin-created users. It is a bucket, not
      * a client — its seats are a synthetic "unlimited" subscription and
@@ -102,6 +128,24 @@ class Company extends Model implements HasAvatar, HasMedia
         return self::query()->where('slug', self::DEFAULT_SLUG)->firstOrFail();
     }
 
+    public static function defaultId(): ?string
+    {
+        /** @var string|null $id */
+        $id = self::query()->where('slug', self::DEFAULT_SLUG)->value('id');
+
+        return $id;
+    }
+
+    /**
+     * Se esta é a empresa-balde dos usuários sem empregador (B2C, consultores,
+     * contas criadas pelo admin). O critério fica neste model: aqui em PHP e,
+     * em SQL, em default(), defaultId() e no scope withoutDefault().
+     */
+    public function isDefaultBucket(): bool
+    {
+        return $this->slug === self::DEFAULT_SLUG;
+    }
+
     /**
      * Se esta empresa banca parte da mensalidade dos colaboradores.
      *
@@ -111,7 +155,7 @@ class Company extends Model implements HasAvatar, HasMedia
      */
     public function subsidizesEmployees(): bool
     {
-        return $this->slug !== self::DEFAULT_SLUG;
+        return ! $this->isDefaultBucket();
     }
 
     public function hasActivePlan(): bool

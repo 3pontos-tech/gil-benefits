@@ -8,8 +8,11 @@ use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\AppointmentController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\FeedbackController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Appointments\SlotController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\ForgotPasswordController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LoginController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\LogoutController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\ResetPasswordController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\VerifyPasswordCodeController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Credits\CreditsController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Materials\MaterialController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Materials\MaterialStateController;
@@ -31,6 +34,18 @@ Route::prefix('api/v1')
             ->withoutMiddleware('throttle:api-employee')
             ->middleware('throttle:api-login')
             ->name('auth.login');
+
+        Route::withoutMiddleware('throttle:api-employee')->group(function (): void {
+            Route::post('auth/password/forgot', ForgotPasswordController::class)
+                ->middleware('throttle:api-password-forgot')
+                ->name('auth.password.forgot');
+            Route::post('auth/password/verify', VerifyPasswordCodeController::class)
+                ->middleware('throttle:api-password-verify')
+                ->name('auth.password.verify');
+            Route::post('auth/password/reset', ResetPasswordController::class)
+                ->middleware('throttle:api-password-verify')
+                ->name('auth.password.reset');
+        });
 
         Route::middleware(['auth:sanctum', 'ability:' . TokenAbility::Employee->value, EnsureAppAccess::class])->group(function (): void {
             Route::post('auth/logout', LogoutController::class)->name('auth.logout');
