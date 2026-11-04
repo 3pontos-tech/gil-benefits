@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
 use TresPontosTech\PanelApp\Filament\Resources\SharedDocuments\Pages\EditSharedDocument;
@@ -56,16 +55,16 @@ it('forbids the employee to edit a consultant material shared with them', functi
 it('hides a material that is neither theirs nor shared with them', function (): void {
     $document = Document::factory()->forConsultant()->active()->withLink()->create();
 
-    expect(fn () => livewire(EditSharedDocument::class, ['record' => $document->getKey()]))
-        ->toThrow(ModelNotFoundException::class);
+    livewire(EditSharedDocument::class, ['record' => $document->getKey()])
+        ->assertNotFound();
 });
 
 it('hides another employee upload', function (): void {
     $anotherEmployee = User::factory()->employee()->create();
     $document = Document::factory()->forUser($anotherEmployee)->active()->withLink()->create();
 
-    expect(fn () => livewire(EditSharedDocument::class, ['record' => $document->getKey()]))
-        ->toThrow(ModelNotFoundException::class);
+    livewire(EditSharedDocument::class, ['record' => $document->getKey()])
+        ->assertNotFound();
 });
 
 it('hides a material whose share with them was deactivated', function (): void {
@@ -77,6 +76,6 @@ it('hides a material whose share with them was deactivated', function (): void {
         ->notActive()
         ->create();
 
-    expect(fn () => livewire(EditSharedDocument::class, ['record' => $document->getKey()]))
-        ->toThrow(ModelNotFoundException::class);
+    livewire(EditSharedDocument::class, ['record' => $document->getKey()])
+        ->assertNotFound();
 });

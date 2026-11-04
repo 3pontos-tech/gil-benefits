@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\EditDocument;
 
@@ -28,6 +27,6 @@ it('lets the consultant edit their own material', function (): void {
 it('hides another consultant material', function (): void {
     $document = Document::factory()->forConsultant()->active()->withLink()->create();
 
-    expect(fn () => livewire(EditDocument::class, ['record' => $document->getKey()]))
-        ->toThrow(ModelNotFoundException::class);
+    livewire(EditDocument::class, ['record' => $document->getKey()])
+        ->assertNotFound();
 });

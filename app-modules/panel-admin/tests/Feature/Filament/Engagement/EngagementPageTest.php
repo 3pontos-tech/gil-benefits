@@ -84,7 +84,7 @@ it('renders the engagement widgets', function (): void {
 it('flags the companies below the critical completion rate', function (): void {
     seedEngagementCompanies();
 
-    $alertIcon = 'fi-icon fi-size-sm fi-color fi-color-danger';
+    $alertIcon = 'fi-color fi-color-danger fi-icon fi-size-sm';
 
     livewire(EngagementFunnelTableWidget::class, ['pageFilters' => engagementPageFilters()])
         ->assertSeeHtml($alertIcon);
