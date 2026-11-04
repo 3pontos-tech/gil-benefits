@@ -13,7 +13,7 @@ beforeEach(function (): void {
 });
 
 it('offers no permanent delete on a trashed plan', function (): void {
-    $plan = Plan::factory()->create();
+    $plan = Plan::factory()->stripe()->create();
     $plan->delete();
 
     livewire(EditPlan::class, ['record' => $plan->getRouteKey()])
