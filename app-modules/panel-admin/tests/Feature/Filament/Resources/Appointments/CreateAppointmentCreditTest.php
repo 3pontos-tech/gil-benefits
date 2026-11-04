@@ -67,3 +67,28 @@ it('does not consume a credit when the user still has monthly quota', function (
 
     expect($credit->refresh()->status)->toBe(UserCreditStatusEnum::Available);
 });
+
+it('books for a user with no quota, no credit and an open appointment, as the admin is free to', function (): void {
+    $company = Company::factory()->create();
+    $user = User::factory()->employee()->create();
+    $company->employees()->attach($user->getKey());
+
+    ($this->createViaAdmin)($user);
+    ($this->createViaAdmin)($user);
+
+    expect($user->appointments()->count())->toBe(2)
+        ->and(UserCredit::query()->count())->toBe(0);
+});
+
+it('refuses a date in the past', function (): void {
+    $user = User::factory()->employee()->create();
+
+    livewire(CreateAppointment::class)
+        ->fillForm([
+            'user_id' => $user->id,
+            'category_type' => AppointmentCategoryEnum::PersonalFinance->value,
+            'appointment_at' => Date::now()->subDay()->toDateTimeString(),
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['appointment_at']);
+});
