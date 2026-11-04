@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelAdmin\Filament\Resources\Plans\Pages;
 
 use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
 use TresPontosTech\PanelAdmin\Filament\Resources\Plans\PlanResource;
@@ -19,7 +18,6 @@ class EditPlan extends EditRecord
         return [
             DeleteAction::make()
                 ->requiresConfirmation(),
-            ForceDeleteAction::make(),
             RestoreAction::make(),
         ];
     }

@@ -7,8 +7,6 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Support\Icons\Heroicon;
@@ -55,13 +53,11 @@ class CompaniesTable
                     ->url(fn (Company $record): string => route('filament.company.pages.dashboard', ['tenant' => $record->slug]))
                     ->openUrlInNewTab(),
                 EditAction::make(),
-                ForceDeleteAction::make(),
                 RestoreAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
             ]);
