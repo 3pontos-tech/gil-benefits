@@ -33,9 +33,11 @@ class IntegrationMondayServiceProvider extends ServiceProvider
     private function registerTicketSender(): void
     {
         $this->app->booted(function (): void {
+            $container = $this->app;
+
             $this->app->make(TicketSenderManager::class)->extend(
                 TicketDestinationTypeEnum::Monday->value,
-                fn (): TicketChannelSender => new MondayTicketSenderAdapter($this->app->make(MondayClient::class)),
+                fn (): TicketChannelSender => new MondayTicketSenderAdapter($container->make(MondayClient::class)),
             );
         });
     }
