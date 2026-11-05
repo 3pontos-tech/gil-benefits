@@ -34,7 +34,7 @@ class SyncPermissionsCommand extends Command
 
         // Reset cached roles and permissions
         spin(
-            callback: fn () => $permissionRegister->forgetCachedPermissions(),
+            callback: fn (): bool => $permissionRegister->forgetCachedPermissions(),
             message: 'Resetting cached roles and permissions...'
         );
 

@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('webhook_delivery_attempts', function (Blueprint $table) {
+        Schema::create('webhook_delivery_attempts', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->uuid('inbound_webhook_id');
             $table->string('action');

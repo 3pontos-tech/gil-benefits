@@ -10,11 +10,6 @@ use TresPontosTech\Appointments\Support\BookableSlots;
 
 class RescheduleAppointmentRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, list<mixed>>
      */

@@ -227,7 +227,7 @@ class Company extends Model implements HasAvatar, HasMedia
      */
     public function employees(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'company_employees', 'company_id', 'user_id')
+        return $this->belongsToMany(User::class, TenantMember::class, 'company_id', 'user_id')
             ->withTimestamps()
             ->withPivot(['id', 'role', 'active', 'department_id'])
             ->wherePivotNull('deleted_at')

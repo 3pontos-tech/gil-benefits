@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('inbound_webhooks', function (Blueprint $table) {
+        Schema::table('inbound_webhooks', function (Blueprint $table): void {
             $table->string('status')->default('pending')->index()->after('payload');
             $table->timestamp('processed_at')->nullable()->after('status');
             $table->text('error_message')->nullable()->after('processed_at');
@@ -17,7 +17,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('inbound_webhooks', function (Blueprint $table) {
+        Schema::table('inbound_webhooks', function (Blueprint $table): void {
             $table->dropIndex(['status']);
             $table->dropColumn(['status', 'processed_at', 'error_message']);
         });

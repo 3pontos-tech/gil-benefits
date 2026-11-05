@@ -132,7 +132,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                             return false;
                         }
 
-                        return ! ($actingUser->isCompanyManager() && $record->getAttribute('role') === Roles::CompanyManager->value);
+                        return ! $actingUser->isCompanyManager() || $record->getAttribute('role') !== Roles::CompanyManager->value;
                     })
                     ->action(function (User $record): void {
                         /** @var Company $company */

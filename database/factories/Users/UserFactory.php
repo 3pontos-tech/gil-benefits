@@ -39,7 +39,7 @@ class UserFactory extends Factory
         return $this->state([
             'name' => 'Dev Admin',
             'email' => 'admin@5pontos.com',
-        ])->afterCreating(fn (User $user) => $user->assignRole(Roles::Admin));
+        ])->afterCreating(fn (User $user): User => $user->assignRole(Roles::Admin));
     }
 
     public function superAdmin(): static
@@ -47,41 +47,41 @@ class UserFactory extends Factory
         return $this->state([
             'name' => 'Dev Admin',
             'email' => 'admin@5pontos.com',
-        ])->afterCreating(fn (User $user) => $user->assignRole(Roles::SuperAdmin));
+        ])->afterCreating(fn (User $user): User => $user->assignRole(Roles::SuperAdmin));
     }
 
     public function companyOwner(): static
     {
         return $this->afterCreating(
-            fn (User $user) => $user->assignRole(Roles::CompanyOwner)
+            fn (User $user): User => $user->assignRole(Roles::CompanyOwner)
         );
     }
 
     public function companyManager(): static
     {
         return $this->afterCreating(
-            fn (User $user) => $user->assignRole(Roles::CompanyManager)
+            fn (User $user): User => $user->assignRole(Roles::CompanyManager)
         );
     }
 
     public function employee(): static
     {
         return $this->afterCreating(
-            fn (User $user) => $user->assignRole(Roles::Employee)
+            fn (User $user): User => $user->assignRole(Roles::Employee)
         );
     }
 
     public function consultant(): static
     {
         return $this->afterCreating(
-            fn (User $user) => $user->assignRole(Roles::Consultant)
+            fn (User $user): User => $user->assignRole(Roles::Consultant)
         );
     }
 
     public function user(): static
     {
         return $this->afterCreating(
-            fn (User $user) => $user->assignRole(Roles::User)
+            fn (User $user): User => $user->assignRole(Roles::User)
         );
     }
 
@@ -96,7 +96,7 @@ class UserFactory extends Factory
         return $this->state([
             'name' => $this->faker->randomElement($names),
             'email' => $this->faker->userName() . '@5pontos.com',
-        ])->afterCreating(fn (User $user) => $user->assignRole(Roles::Employee));
+        ])->afterCreating(fn (User $user): User => $user->assignRole(Roles::Employee));
     }
 
     /**

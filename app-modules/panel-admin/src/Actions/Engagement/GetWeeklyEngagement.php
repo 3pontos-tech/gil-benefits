@@ -86,45 +86,33 @@ final class GetWeeklyEngagement
     }
 
     /**
-     * Counts booked and held appointments for every week in a single query,
-     * with one conditional aggregate per week — no appointment row is loaded
-     * into memory. The positional column aliases never leave this method.
+     * Counts booked and held appointments per week with one aggregate query
+     * each — no appointment row is loaded into memory.
      *
      * @param  Collection<int, array{start: CarbonImmutable, end: CarbonImmutable}>  $boundaries
      * @return array<int, array{scheduled: int, completed: int}>
      */
     private function countPerWeek(Collection $boundaries, EngagementFilters $filters): array
     {
-        $query = Appointment::query()
-            ->whereBetween('appointment_at', [$filters->start, $filters->end])
-            ->when(
-                $filters->companyIds !== [],
-                fn (Builder $query) => $query->whereIn('company_id', $filters->companyIds),
-            );
-
-        foreach ($boundaries as $index => $week) {
-            $query
-                ->selectRaw(
-                    'SUM(CASE WHEN appointment_at BETWEEN ? AND ? THEN 1 ELSE 0 END) as scheduled_' . $index,
-                    [$week['start'], $week['end']],
-                )
-                ->selectRaw(
-                    'SUM(CASE WHEN appointment_at BETWEEN ? AND ? AND status = ? THEN 1 ELSE 0 END) as completed_' . $index,
-                    [$week['start'], $week['end'], AppointmentStatus::Completed->value],
-                );
-        }
-
-        /** @var array<string, mixed> $row */
-        $row = (array) $query->toBase()->first();
-
         return $boundaries
-            ->keys()
-            ->mapWithKeys(fn (int $index): array => [
-                $index => [
-                    'scheduled' => (int) ($row['scheduled_' . $index] ?? 0),
-                    'completed' => (int) ($row['completed_' . $index] ?? 0),
-                ],
-            ])
+            ->map(function (array $week) use ($filters): array {
+                /** @var object{scheduled: int|string|null, completed: int|string|null}|null $row */
+                $row = Appointment::query()
+                    ->whereBetween('appointment_at', [$week['start'], $week['end']])
+                    ->when(
+                        $filters->companyIds !== [],
+                        fn (Builder $query) => $query->whereIn('company_id', $filters->companyIds),
+                    )
+                    ->selectRaw('COUNT(*) as scheduled')
+                    ->selectRaw('SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) as completed', [AppointmentStatus::Completed->value])
+                    ->toBase()
+                    ->first();
+
+                return [
+                    'scheduled' => (int) ($row->scheduled ?? 0),
+                    'completed' => (int) ($row->completed ?? 0),
+                ];
+            })
             ->all();
     }
 }
