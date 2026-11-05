@@ -262,7 +262,7 @@ describe('appointment guard', function (): void {
 
         livewire(PlanCreditsWidget::class)
             ->assertOk()
-            ->assertSee('aria-disabled', false)
+            ->assertSeeHtml('fi-btn fi-disabled')
             ->assertDontSee("mountAction('scheduleAppointment')", false);
 
         $appointment->update(['status' => AppointmentStatus::Cancelled]);
@@ -272,7 +272,7 @@ describe('appointment guard', function (): void {
         livewire(PlanCreditsWidget::class)
             ->assertOk()
             ->assertSee("mountAction('scheduleAppointment')", false)
-            ->assertDontSee('aria-disabled', false);
+            ->assertDontSeeHtml('fi-btn fi-disabled');
     });
 
     it('blocks booking with subscription and allows after cancellation', function (): void {

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use TresPontosTech\Company\Enums\DepartmentCategory;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
@@ -54,9 +53,8 @@ it('cannot access a department from another tenant', function (): void {
         'company_id' => $otherCompany->getKey(),
     ]);
 
-    $this->expectException(ModelNotFoundException::class);
-
-    livewire(EditDepartment::class, ['record' => $foreignDepartment->getRouteKey()]);
+    livewire(EditDepartment::class, ['record' => $foreignDepartment->getRouteKey()])
+        ->assertNotFound();
 });
 
 it('does not change company_id when editing', function (): void {

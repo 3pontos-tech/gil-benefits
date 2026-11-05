@@ -138,7 +138,7 @@ make stripe-listen  # Forward Stripe webhooks to localhost:8000
 | Layer | Technology |
 |---|---|
 | Language | PHP 8.4 |
-| Framework | Laravel 12 |
+| Framework | Laravel 13 |
 | Admin UI | Filament 5 |
 | Frontend | Vite 6, Tailwind CSS 4, Axios |
 | Billing | Stripe (Laravel Cashier) |

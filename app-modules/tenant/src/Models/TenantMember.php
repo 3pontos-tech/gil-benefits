@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
@@ -81,7 +80,7 @@ class TenantMember extends Pivot
                 ->whereNull('deleted_at'))
             ->whereNotExists(fn ($query) => $query
                 ->from('companies', 'given')
-                ->whereColumn('given.id', DB::raw("'" . $companyId . "'"))
+                ->where('given.id', $companyId)
                 ->where('given.slug', Company::DEFAULT_SLUG))
             ->first();
     }

@@ -484,7 +484,7 @@ Como time, quero garantir que a API e o app falem o mesmo contrato e que qualque
 
 - Teste de contrato por resource (`assertJsonStructure` com as chaves listadas em cada story), agrupado em
   `tests/Feature/Contract/*Test.php` do módulo.
-- CORS para o app no navegador (`http://localhost:8081`): o padrão do Laravel 12 já libera `api/*` para qualquer origem
+- CORS para o app no navegador (`http://localhost:8081`): o padrão do Laravel 13 já libera `api/*` para qualquer origem
   sem credenciais, que é o caso de uma API por token; sem `config/cors.php`, com um teste do preflight no `AccessTest`.
 - README do módulo (`app-modules/api/README.md`): como rodar com o app — `make env-up` ou `php artisan serve --port=8000`;
   no app `EXPO_PUBLIC_API_URL=http://127.0.0.1:8000` com `adb reverse tcp:8000 tcp:8000` (emulador no WSL) ou o IP da máquina no celular.

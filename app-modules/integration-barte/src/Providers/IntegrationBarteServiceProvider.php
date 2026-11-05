@@ -26,9 +26,11 @@ class IntegrationBarteServiceProvider extends ServiceProvider
     private function registerBillingDriver(): void
     {
         $this->app->booted(function (): void {
+            $container = $this->app;
+
             $this->app->make(BillingManager::class)->extend(
                 BillingProviderEnum::Barte->value,
-                fn (): BillingContract => new BarteAdapter($this->app->make(BarteClient::class)),
+                fn (): BillingContract => new BarteAdapter($container->make(BarteClient::class)),
             );
         });
     }

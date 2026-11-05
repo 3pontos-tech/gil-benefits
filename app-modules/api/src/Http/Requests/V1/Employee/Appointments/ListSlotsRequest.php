@@ -8,11 +8,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ListSlotsRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, list<mixed>>
      */
