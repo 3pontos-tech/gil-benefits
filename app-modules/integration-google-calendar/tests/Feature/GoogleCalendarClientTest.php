@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Sleep;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
@@ -33,7 +34,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    @unlink($this->credPath);
+    File::delete($this->credPath);
 });
 
 // --- getAccessToken ---

@@ -13,11 +13,6 @@ use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
  */
 class UpdateTicketRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, list<mixed>>
      */

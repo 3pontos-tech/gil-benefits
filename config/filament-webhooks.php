@@ -15,4 +15,7 @@ return [
 
     'model' => InboundWebhook::class,
     'providers_enum' => InboundWebhookSourceEnum::class,
+    'view_any' => true,
+
+    'retention_days' => null,
 ];

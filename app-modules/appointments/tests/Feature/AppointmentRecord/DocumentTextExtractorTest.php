@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
@@ -15,7 +16,7 @@ beforeEach(function (): void {
 
 afterEach(function (): void {
     foreach (glob(sys_get_temp_dir() . '/extractor-test-*') as $tmp) {
-        @unlink($tmp);
+        File::delete($tmp);
     }
 });
 

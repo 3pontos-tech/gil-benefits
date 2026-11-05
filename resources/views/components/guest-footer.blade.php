@@ -40,12 +40,12 @@
                 <h4 class="text-base font-bold leading-[1.5]">Contato e Endereço</h4>
 
                 <div class="flex flex-col gap-5 text-sm">
-                    <a href="mailto:contato@firece.com.br" class="transition hover:opacity-80">contato@firece.com.br</a>
+                    <a href="mailto:{{ config('services.contact.email') }}" class="transition hover:opacity-80">{{ config('services.contact.email') }}</a>
 
                     <div class="flex items-center gap-2">
                         <img src="{{ asset('img/brasil-flag.webp') }}" alt="Brasil"
                              class="h-4 w-6 shrink-0 rounded-sm object-contain">
-                        <a href="tel:+5511987201303" class="transition hover:opacity-80">(11) 98720-1303</a>
+                        <a href="tel:{{ preg_replace('/[^\d+]/', '', config('services.contact.phone')) }}" class="transition hover:opacity-80">{{ config('services.contact.phone') }}</a>
                     </div>
                 </div>
             </div>

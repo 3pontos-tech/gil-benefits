@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ViewAppointment;
 use TresPontosTech\User\Models\UserAnamnese;
@@ -46,8 +45,8 @@ it('shows warning section when client has no anamnese', function (): void {
 it('hides another consultant appointment', function (): void {
     $appointment = Appointment::factory()->create();
 
-    expect(fn () => livewire(ViewAppointment::class, ['record' => $appointment->getRouteKey()]))
-        ->toThrow(ModelNotFoundException::class);
+    livewire(ViewAppointment::class, ['record' => $appointment->getRouteKey()])
+        ->assertNotFound();
 });
 
 it('hides unassigned appointments from a consultant whose record was deactivated', function (): void {
@@ -55,6 +54,6 @@ it('hides unassigned appointments from a consultant whose record was deactivated
 
     $this->consultant->delete();
 
-    expect(fn () => livewire(ViewAppointment::class, ['record' => $appointment->getRouteKey()]))
-        ->toThrow(ModelNotFoundException::class);
+    livewire(ViewAppointment::class, ['record' => $appointment->getRouteKey()])
+        ->assertNotFound();
 });

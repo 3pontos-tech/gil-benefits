@@ -212,7 +212,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
      */
     public function companies(): BelongsToMany
     {
-        return $this->belongsToMany(Company::class, 'company_employees', 'user_id', 'company_id')
+        return $this->belongsToMany(Company::class, TenantMember::class, 'user_id', 'company_id')
             ->withTimestamps()
             ->withPivot(['id', 'role', 'active', 'department_id'])
             ->wherePivotNull('deleted_at')

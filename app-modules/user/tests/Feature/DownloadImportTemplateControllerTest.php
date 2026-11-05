@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\File;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -18,7 +19,7 @@ it('downloads the import template as a real xlsx file with header and example ro
 
     $rows = SimpleExcelReader::create($filePath)->getRows()->collect();
 
-    unlink($filePath);
+    File::delete($filePath);
 
     expect($rows)->toHaveCount(1)
         ->and($rows->first())->toBe([

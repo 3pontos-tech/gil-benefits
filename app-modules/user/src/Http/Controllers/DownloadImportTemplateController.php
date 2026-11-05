@@ -2,6 +2,7 @@
 
 namespace TresPontosTech\User\Http\Controllers;
 
+use Illuminate\Support\Facades\File;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -11,7 +12,7 @@ class DownloadImportTemplateController
     {
         $tempPath = tempnam(sys_get_temp_dir(), 'template_');
         $xlsxPath = $tempPath . '.xlsx';
-        unlink($tempPath);
+        File::delete($tempPath);
 
         SimpleExcelWriter::create($xlsxPath)
             ->addHeader(['name', 'email', 'phone_number', 'document_id', 'tax_id'])

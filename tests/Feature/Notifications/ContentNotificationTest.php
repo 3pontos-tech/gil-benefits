@@ -37,6 +37,7 @@ it('still shows in the panel bell', function (): void {
     $user->notify(new AppointmentCancelledNotification($appointment, isLate: true));
 
     livewire(DatabaseNotifications::class)
+        ->set('isOpen', true)
         ->assertSee(__('appointments::resources.appointments.notifications.user_cancelled_late.title'));
 });
 

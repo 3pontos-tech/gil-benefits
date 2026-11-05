@@ -24,11 +24,6 @@ class UpdateAnamneseRequest extends FormRequest
         'tried_financial_strategies',
     ];
 
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, list<mixed>>
      */

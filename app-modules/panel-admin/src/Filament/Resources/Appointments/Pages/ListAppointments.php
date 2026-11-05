@@ -27,9 +27,9 @@ class ListAppointments extends ListRecords
         ];
     }
 
-    public function mount(): void
+    public function bootedInteractsWithTable(): void
     {
-        parent::mount();
+        parent::bootedInteractsWithTable();
 
         $persisted = session($this->getTableFiltersSessionKey());
 

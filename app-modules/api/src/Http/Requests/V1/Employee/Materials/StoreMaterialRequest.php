@@ -12,11 +12,6 @@ use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
  */
 class StoreMaterialRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * @return array<string, list<string>>
      */

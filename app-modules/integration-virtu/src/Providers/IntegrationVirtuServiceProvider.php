@@ -42,9 +42,11 @@ class IntegrationVirtuServiceProvider extends ServiceProvider
     private function registerBillingDriver(): void
     {
         $this->app->booted(function (): void {
+            $container = $this->app;
+
             $this->app->make(BillingManager::class)->extend(
                 BillingProviderEnum::Virtu->value,
-                fn (): BillingContract => new VirtuAdapter($this->app->make(VirtuClient::class)),
+                fn (): BillingContract => new VirtuAdapter($container->make(VirtuClient::class)),
             );
         });
     }
