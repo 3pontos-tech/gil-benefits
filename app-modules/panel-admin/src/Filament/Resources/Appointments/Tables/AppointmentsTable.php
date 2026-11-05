@@ -2,8 +2,6 @@
 
 namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
@@ -143,11 +141,6 @@ class AppointmentsTable
                 ViewAction::make(),
                 EditAction::make()
                     ->visible(fn (Appointment $record): bool => $record->isActive()),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
     }
 }
