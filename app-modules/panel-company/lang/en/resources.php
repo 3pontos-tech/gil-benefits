@@ -164,7 +164,6 @@ return [
             'member_department' => 'Department',
             'form_name' => 'Company Name',
             'form_tax_id' => 'Tax ID',
-            'form_integration_access_key' => 'Integration Access Key',
             'make_manager' => 'Make Manager',
             'remove_manager' => 'Remove Manager',
             'make_manager_notification' => ':name is now a Company Manager.',
@@ -198,10 +197,6 @@ return [
             'cpf' => 'CPF',
             'rg' => 'RG',
             'phone' => 'Phone',
-        ],
-        'secret_key_rotation' => [
-            'label' => 'Generate new key',
-            'new_key_generated' => 'New key generated: ',
         ],
         'seats_counter' => [
             'label' => 'Seats: %s/%s',

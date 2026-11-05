@@ -7,7 +7,6 @@ namespace TresPontosTech\Vouchers\Database\Seeders;
 use App\Models\Users\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Ramsey\Uuid\Uuid;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanKindEnum;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -93,7 +92,6 @@ class VoucherPartnerCompanySeeder extends Seeder
                 'name' => 'Incorporadora Alfa',
                 'slug' => self::COMPANY_SLUG,
                 'tax_id' => '17518432000191',
-                'integration_access_key' => (string) Uuid::uuid4(),
                 'user_id' => $owner->getKey(),
             ]));
         }

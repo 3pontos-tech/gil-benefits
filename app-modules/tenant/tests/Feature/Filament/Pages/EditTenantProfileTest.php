@@ -2,11 +2,8 @@
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
-use Filament\Actions\Testing\TestAction;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\PanelCompany\Filament\Actions\TenantSecretKeyRotationPanelAction;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
-use TresPontosTech\Tenant\Actions\TenantSecretKeyRotationAction;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
@@ -27,63 +24,7 @@ it('should render edit tenant profile page', function (): void {
         ->assertOk();
 });
 
-describe('change tenant secret action tests', function (): void {
-    it('should be able to generate a new token through filament action', function (): void {
-        $action = TestAction::make(TenantSecretKeyRotationPanelAction::class);
-        $oldKey = $this->company->integration_access_key;
-        livewire(EditTenantProfile::class)
-            ->assertOk()
-            ->mountAction($action)
-            ->callAction($action)
-            ->assertHasNoFormErrors();
-
-        expect($this->company->refresh()->integration_access_key)->not->toBe($oldKey);
-    });
-
-    it('should render generate key button', function (): void {
-        livewire(EditTenantProfile::class)
-            ->assertSee('Gerar nova chave');
-    });
-
-    it('should be able to generate a new token', function (): void {
-        $oldToken = $this->company->integration_access_key;
-        resolve(TenantSecretKeyRotationAction::class)->generate($this->company);
-
-        $this->company->refresh();
-        expect($this->company->integration_access_key)
-            ->not()->toBe($oldToken)
-            ->and($this->company->integration_access_key)
-            ->not()->toBeNull();
-    });
-
-});
-
 describe('authorization', function (): void {
-
-    it('allows company owner to call the secret key rotation action', function (): void {
-        $companyOwner = User::factory()->companyOwner()->create();
-        $company = Company::factory()->for($companyOwner, 'owner')->create();
-        $company->subscriptions()->create([
-            'type' => 'company',
-            'stripe_id' => 'sub_owner_rotation_test',
-            'stripe_status' => 'active',
-        ]);
-
-        filament()->setCurrentPanel(FilamentPanel::Company->value);
-        filament()->setTenant($company);
-        actingAs($companyOwner);
-
-        $action = TestAction::make(TenantSecretKeyRotationPanelAction::class);
-        $oldKey = $company->integration_access_key;
-
-        livewire(EditTenantProfile::class)
-            ->assertOk()
-            ->mountAction($action)
-            ->callAction($action)
-            ->assertHasNoFormErrors();
-
-        expect($company->refresh()->integration_access_key)->not->toBe($oldKey);
-    });
 
     test('only company owner or admin can see the page', function (): void {
         $invalidUser = User::factory()->employee()->create();

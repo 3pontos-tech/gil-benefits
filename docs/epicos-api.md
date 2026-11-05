@@ -25,6 +25,7 @@ negócio do painel `panel-app` (cota, créditos, janelas de cancelamento e reage
 **Escopo técnico identificado:**
 - Não existe camada de API para colaborador: só a API de empresa (`api/v1/company/{tenant}/users`, header
   `X-Flamma-Access-Key`), sem grupo de middleware `api`, sem `routes/api.php`, sem Sanctum/Passport, sem JsonResource.
+  Essa API de empresa nunca foi integrada por cliente nenhum e foi removida junto com a chave de acesso (#316).
 - Guard único `web` (sessão). `last_login_at` é gravado por listener do evento `Login`.
 - Regras de agendamento espalhadas: `BookAppointmentAction::handle` (retorna void), `AppointmentWizard::isBookableSlot`
   (lead de 2 dias + slot válido, dentro de um schema Filament), `SchedulesAppointments` e `ReschedulesAppointments`
@@ -43,7 +44,7 @@ negócio do painel `panel-app` (cota, créditos, janelas de cancelamento e reage
 
 | # | Decisão | Motivo |
 | --- | --- | --- |
-| A1 | **Módulo único `app-modules/api`** (`TresPontosTech\Api`): toda API HTTP do produto vive nele, organizada por **versão e público**, não por cliente: `src/Http/Controllers/V1/Employee/*` (o app do colaborador, e qualquer outro cliente que fale pelo colaborador), `src/Http/Controllers/V1/Company/*` (a integração da empresa, hoje em `tenant`), e `Requests/`, `Resources/`, `Middleware/` compartilhados. Rotas em `routes/api-routes.php` com um grupo por público; `config/api.php`; `lang/pt_BR`; `tests/Feature/V1/{Employee,Company}`. A API de tenant **continua em `tenant` até ser tocada**; quando for, o controller e o middleware migram para `api/.../Company` sem mudar rota nem header (S11 registra a dívida). | Um público novo é uma pasta e um grupo de rotas, não um módulo; erros, resources, limites e testes de contrato ficam num lugar só. |
+| A1 | **Módulo único `app-modules/api`** (`TresPontosTech\Api`): toda API HTTP do produto vive nele, organizada por **versão e público**, não por cliente: `src/Http/Controllers/V1/Employee/*` (o app do colaborador, e qualquer outro cliente que fale pelo colaborador), `src/Http/Controllers/V1/Company/*` (uma integração de empresa, se voltar a existir), e `Requests/`, `Resources/`, `Middleware/` compartilhados. Rotas em `routes/api-routes.php` com um grupo por público; `config/api.php`; `lang/pt_BR`; `tests/Feature/V1/{Employee,Company}`. A API de tenant **continua em `tenant` até ser tocada**; quando for, o controller e o middleware migram para `api/.../Company` sem mudar rota nem header (S11 registra a dívida). Revisão de 2026-11: a API de tenant foi removida sem uso (#316); uma integração de RH futura nasce direto em `api/.../Company`, com chave em hash. | Um público novo é uma pasta e um grupo de rotas, não um módulo; erros, resources, limites e testes de contrato ficam num lugar só. |
 | A2 | **Laravel Sanctum** (personal access tokens, um por dispositivo, ability `employee`, expiração 90 dias, `sanctum:prune-expired` diário). `User` ganha `HasApiTokens`. **Dependência nova: precisa de aprovação** (regra do AGENTS.md). | É o padrão do ecossistema para app nativo; Passport seria excesso. Sem stateful domains (sem SPA). |
 | A3 | Rotas `Route::prefix('api/v1')->name('api.v1.')` com middleware `[ForceJsonAndLocale, ThrottleRequests:api-employee, SubstituteBindings]`; as protegidas somam `auth:sanctum`, `ability:employee` e `EnsureAppAccess` (benefício pago em alguma empresa ativa, pela régua do painel; ver revisão de 2026-10-11). | Módulos não têm grupo `api`; o `SubstituteBindings` precisa ser explícito. `ForceJsonAndLocale` fixa `Accept: application/json` e `app()->setLocale('pt_BR')` para as mensagens de validação chegarem em português (o app as exibe como vêm). |
 | A4 | **Eloquent API Resources** para todas as respostas (`MeResource`, `JourneyResource`, `AppointmentResource`, `CreditsResource`, `MaterialResource`, `NotificationResource`, `AnamneseResource`, `SupportTicketResource`), sempre embrulhados em `data`; listas com `->paginate()` (o app lê `data` e `meta`, ignora `links`). | Orientação do CLAUDE.md para APIs; a API de tenant não usa porque só devolve 201/204. |
@@ -495,6 +496,7 @@ Como time, quero garantir que a API e o app falem o mesmo contrato e que qualque
 - Anotar em `RELEASING.md` a convenção: mudança incompatível em `/api/v1` é MAJOR; aditiva é MINOR.
 - Registrar a dívida: mover `tenant/src/Http/Controllers/Api/v1/UsersController` e `VerifyTenantTokenMiddleware` para
   `api/.../V1/Company` na próxima mudança da integração da empresa (mesmas rotas e header; os testes vão junto): #293.
+  Dívida encerrada pela remoção da API de empresa (#316).
 
 **Definition of Done:**
 

@@ -162,7 +162,3 @@ Mudança incompatível em `/api/v1` (remover ou renomear campo, mudar tipo, endu
 4. Resource com datas via `ApiDates`.
 5. Rota em `routes/api-routes.php` dentro do grupo autenticado, com `whereUuid` nos ids.
 6. Testes em `V1/Employee/<recurso>` e no `Contract/*`.
-
-## Dívidas conhecidas
-
-- A API da empresa (`/api/v1/company/{tenant}/users`) ainda mora no módulo `tenant` (#293).

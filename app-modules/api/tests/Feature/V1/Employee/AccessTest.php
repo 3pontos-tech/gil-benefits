@@ -141,8 +141,7 @@ function protectedEmployeeRoutes(): array
 {
     return collect(Route::getRoutes()->getRoutes())
         ->filter(fn (Illuminate\Routing\Route $route): bool => str_starts_with((string) $route->getName(), 'api.v1.')
-            && ! in_array($route->getName(), PUBLIC_EMPLOYEE_ROUTES, true)
-            && ! str_starts_with((string) $route->getName(), 'api.v1.company.'))
+            && ! in_array($route->getName(), PUBLIC_EMPLOYEE_ROUTES, true))
         ->map(fn (Illuminate\Routing\Route $route): array => [
             (string) $route->getName(),
             collect($route->methods())->reject(fn (string $method): bool => $method === 'HEAD')->first(),

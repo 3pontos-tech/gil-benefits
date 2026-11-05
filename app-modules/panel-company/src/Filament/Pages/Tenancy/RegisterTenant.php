@@ -8,7 +8,6 @@ use Filament\Pages\Tenancy\RegisterTenant as BaseRegisterTenant;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 use Leandrocfe\FilamentPtbrFormFields\Document;
-use Ramsey\Uuid\Uuid;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Actions\CreateCompanyAction;
 use TresPontosTech\Company\DTOs\CompanyDTO;
@@ -52,7 +51,6 @@ class RegisterTenant extends BaseRegisterTenant
 
     protected function handleRegistration(array $data): Company
     {
-        $data['integration_access_key'] = Uuid::uuid4();
         $data['slug'] = Str::slug($data['name']);
         $data['user_id'] = auth()->user()->getKey();
 
