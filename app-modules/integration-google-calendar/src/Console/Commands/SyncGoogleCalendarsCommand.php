@@ -9,6 +9,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
+use Laravel\Nightwatch\Facades\Nightwatch;
 use Throwable;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\Jobs\SyncConsultantCalendarJob;
@@ -21,8 +22,17 @@ class SyncGoogleCalendarsCommand extends Command
 
     protected $description = 'Sync Google Calendar events as blocked schedules for all consultants';
 
+    /**
+     * Kept out of Nightwatch on purpose: syncing every consultant every 20 minutes is
+     * by far its largest source of events and used to exhaust the monthly quota. The
+     * jobs dispatched here inherit the decision through the hidden Context, and an
+     * exception still reaches Nightwatch because reporting it turns sampling back on
+     * for that execution.
+     */
     public function handle(): void
     {
+        Nightwatch::dontSample();
+
         $startedAt = Date::now();
         $forceFullSync = (bool) $this->option('full');
         $dispatched = 0;
