@@ -4,6 +4,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
+use Laravel\Nightwatch\Facades\Nightwatch;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\IntegrationGoogleCalendar\Exceptions\GoogleCalendarApiException;
 use TresPontosTech\IntegrationGoogleCalendar\GoogleCalendarClient;
@@ -149,6 +150,17 @@ it('logs the consultant and the reason when a sync fails', function (): void {
         ->withArgs(fn (string $message, array $context): bool => $context['consultant_id'] === $failing->id
             && str_contains($context['reason'], 'Rate limit exceeded')
             && filled($context['failed_at']));
+});
+
+it('stays out of Nightwatch and hands that decision to the jobs it dispatches', function (): void {
+    Queue::fake();
+    Consultant::factory()->create();
+    Nightwatch::sample();
+
+    artisan('google-calendar:sync')->assertSuccessful();
+
+    expect(Nightwatch::sampling())->toBeFalse()
+        ->and(context()->getHidden('nightwatch_should_sample'))->toBeFalse();
 });
 
 /**
