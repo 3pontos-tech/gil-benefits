@@ -70,7 +70,7 @@ class EditTenantProfile extends BaseEditTenantProfile implements HasTable
                     ->mask('99.999.999/9999-99')
                     ->readOnly(),
             ])
-            ->columns(3);
+            ->columns(2);
     }
 
     protected function getSaveFormAction(): Action
