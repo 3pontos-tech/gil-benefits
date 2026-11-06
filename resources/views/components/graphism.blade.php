@@ -62,6 +62,34 @@
             ],
         ],
 
+        /*
+         * Home — os dois asteriscos do hero, um em cada canto do vídeo (Group 31836 e
+         * Group 31932). O traço é o mesmo do `asterisk` (61,0935), mas a caixa é menor
+         * (277 e 270 contra 347): redimensionar o `asterisk` afinaria o traço em ~20%.
+         * O de baixo não é quadrado (270 × 265,166), como no nó original.
+         */
+        'hero-asterisk-top' => [
+            'viewBox' => '0 0 277 277',
+            'stroke' => '61.0935',
+            'paths' => [
+                'M138.456 0V277',
+                'M277 138.45H0',
+                'M236.394 40.5366L40.5254 236.405',
+                'M236.463 236.412L40.5949 40.5434',
+            ],
+        ],
+
+        'hero-asterisk-bottom' => [
+            'viewBox' => '0 0 270 265.166',
+            'stroke' => '61.0935',
+            'paths' => [
+                'M134.956 0V265.166',
+                'M270 132.535H0',
+                'M230.42 38.8047L39.501 226.306',
+                'M230.488 226.313L39.5693 38.8115',
+            ],
+        ],
+
         // Colaborador — seta ↘ ao lado do hero (Group 31818).
         'collaborator-arrow' => [
             'viewBox' => '0 0 324 337',
