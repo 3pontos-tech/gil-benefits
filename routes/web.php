@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\RedirectToHeroVideo;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Route;
 use TresPontosTech\Appointments\Mail\AppointmentCancelledMail;
@@ -26,6 +27,11 @@ use TresPontosTech\User\Mail\WelcomeUserMail;
 Route::view('/', 'pages.home')->name('site.home');
 Route::view('/para-empresas', 'pages.companies')->name('site.companies');
 Route::view('/colaborador', 'pages.collaborator')->name('site.collaborator');
+
+Route::get('/midia/hero/{rendition}', RedirectToHeroVideo::class)
+    ->whereIn('rendition', array_keys(config()->array('services.hero_video.renditions')))
+    ->middleware('throttle:60,1')
+    ->name('site.hero-video');
 
 /*
 |--------------------------------------------------------------------------
