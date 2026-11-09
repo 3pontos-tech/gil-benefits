@@ -46,11 +46,13 @@ When asked to create a new module:
    composer require internachi/modular
    ```
 
-2. **Check the modular namespace:**
+2. **Check the modular vendor and namespace:**
 
     - Check for `config/app-modules.php`
-    - If present, get the `modules_vendor` value from that file
-    - If not, assume the vendor name is "modules"
+    - If present, read two separate values: `modules_vendor` is the Composer package vendor
+      (used in `composer.json` `name`, e.g. `3pontos-tech`) and `modules_namespace` is the PHP
+      namespace root (e.g. `TresPontosTech`). They are not interchangeable.
+    - If not, assume both are "modules" / "Modules"
 
 3. **Create the module:**
    ```bash
@@ -92,8 +94,9 @@ Use the `--module` flag with Laravel's make commands:
 
 ### Namespacing
 
-- Default namespace: `{ModuleVendor}\{ModuleName}\`
-- Example: `Modules\Billing\Models\Invoice`
+- Default namespace: `{ModulesNamespace}\{ModuleName}\`, where `{ModulesNamespace}` is
+  `modules_namespace` from `config/app-modules.php`, not the Composer vendor
+- Example: `TresPontosTech\Billing\Models\Invoice` (package name `3pontos-tech/billing`)
 
 ### composer.json Format
 
@@ -103,18 +106,25 @@ Use the `--module` flag with Laravel's make commands:
     "require": {},
     "autoload": {
         "psr-4": {
-            "{ModuleVendor}\\{ModuleName}\\": "src/"
+            "{ModulesNamespace}\\{ModuleName}\\": "src/",
+            "{ModulesNamespace}\\{ModuleName}\\Tests\\": "tests/",
+            "{ModulesNamespace}\\{ModuleName}\\Database\\Factories\\": "database/factories/",
+            "{ModulesNamespace}\\{ModuleName}\\Database\\Seeders\\": "database/seeders/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "{ModuleVendor}\\{ModuleName}\\Providers\\{ModuleName}ServiceProvider"
+                "{ModulesNamespace}\\{ModuleName}\\{ModuleName}ServiceProvider"
             ]
         }
     }
 }
 ```
+
+The four PSR-4 entries are what `make:module` generates. Without the `Tests`, `Database\Factories`
+and `Database\Seeders` mappings, Composer looks for factories and seeders under `src/` and they
+fail with class-not-found.
 
 ### Routes
 
@@ -122,6 +132,10 @@ Use the `--module` flag with Laravel's make commands:
 - By convention, module route names are prefixed with the module name (eg. `billing::dashboards.index`)
 - If necessary, break into separate files as needed (eg. `routes/{module-name}-api.php`)
 - Routes are auto-discovered—no need to register them
+- Module route files are required directly, outside the `web` and `api` groups of
+  `routes/web.php` and `routes/api.php`. Browser routes must apply the `web` middleware group
+  explicitly (session, CSRF) plus any auth middleware; API routes apply their own middleware
+  the same way
 
 ### Migrations
 
@@ -133,7 +147,7 @@ Use the `--module` flag with Laravel's make commands:
 
 - Place in `database/factories/`
 - Auto-loaded for `factory()` calls
-- Namespace: `{ModuleVendor}\{ModuleName}\Database\Factories`
+- Namespace: `{ModulesNamespace}\{ModuleName}\Database\Factories`
 
 ### Tests
 
@@ -144,7 +158,7 @@ Use the `--module` flag with Laravel's make commands:
 ### Cross-Module Dependencies
 
 - Import models/services from other modules directly
-- Example: `use Modules\Billing\Models\Invoice;`
+- Example: `use TresPontosTech\Billing\Models\Invoice;`
 - Keep dependencies minimal and unidirectional when possible
 
 ## Available Commands
