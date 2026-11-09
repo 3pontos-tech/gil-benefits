@@ -6,17 +6,21 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 
 /**
  * An appointment is cancelled, never deleted: cancelling returns the credit, notifies
  * and keeps the history. See appointments/docs/adr/2026-11-05-appointments-are-cancelled-not-deleted.md.
  */
-it('offers no delete action on appointment resources', function (string $namespace): void {
+it('offers no delete or restore action on appointment resources', function (string $namespace): void {
     expect($namespace)->not->toUse([
         DeleteAction::class,
         DeleteBulkAction::class,
         ForceDeleteAction::class,
         ForceDeleteBulkAction::class,
+        RestoreAction::class,
+        RestoreBulkAction::class,
     ]);
 })->with([
     'admin' => 'TresPontosTech\PanelAdmin\Filament\Resources\Appointments',
