@@ -4,59 +4,59 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Queue;
+use TresPontosTech\Company\Actions\TransferCompanyOwnership;
+use TresPontosTech\Company\Events\CompanyOwnershipTransferred;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Jobs\MigrateCompanyCreditsOwnerJob;
+use TresPontosTech\Credits\Listeners\MigrateCreditsOnCompanyOwnershipTransferred;
 use TresPontosTech\Credits\Models\UserCredit;
 
-it('dispatches the migration job when the company owner changes', function (): void {
+it('dispatches the migration job when the ownership transfer event is handled', function (): void {
     Queue::fake();
 
-    $company = Company::factory()->create();
+    $previousOwner = User::factory()->create();
     $newOwner = User::factory()->create();
+    $company = Company::factory()->create(['user_id' => $newOwner->getKey()]);
 
-    $company->update(['user_id' => $newOwner->getKey()]);
+    resolve(MigrateCreditsOnCompanyOwnershipTransferred::class)
+        ->handle(new CompanyOwnershipTransferred($company, $previousOwner, $newOwner));
 
-    Queue::assertPushed(MigrateCompanyCreditsOwnerJob::class);
+    Queue::assertPushed(MigrateCompanyCreditsOwnerJob::class, fn (MigrateCompanyCreditsOwnerJob $job): bool => $job->company->is($company)
+        && $job->previousOwnerId === (string) $previousOwner->getKey());
 });
 
-it('migrates company credits to the new owner when the company owner changes', function (): void {
+it('migrates company credits to the new owner when ownership is transferred', function (): void {
     $oldOwner = User::factory()->create();
     $newOwner = User::factory()->create();
     $employee = User::factory()->create();
     $company = Company::factory()->create(['user_id' => $oldOwner->getKey()]);
 
-    // Pool credit still held by the previous owner.
     $pool = UserCredit::factory()->available()->create([
         'owner_id' => $oldOwner->getKey(),
         'holder_id' => $oldOwner->getKey(),
         'company_id' => $company->getKey(),
     ]);
 
-    // Company credit already distributed to an employee.
     $distributed = UserCredit::factory()->available()->create([
         'owner_id' => $oldOwner->getKey(),
         'holder_id' => $employee->getKey(),
         'company_id' => $company->getKey(),
     ]);
 
-    // Credit the employee bought for themselves — must stay untouched.
     $selfBought = UserCredit::factory()->available()->create([
         'owner_id' => $employee->getKey(),
         'holder_id' => $employee->getKey(),
         'company_id' => $company->getKey(),
     ]);
 
-    $company->update(['user_id' => $newOwner->getKey()]);
+    resolve(TransferCompanyOwnership::class)->handle($company, $newOwner);
 
-    // Pool follows the ownership (owner + holder).
     expect($pool->fresh()->owner_id)->toBe((string) $newOwner->getKey())
         ->and($pool->fresh()->holder_id)->toBe((string) $newOwner->getKey());
 
-    // Distributed credit only changes owner; the employee keeps holding it.
     expect($distributed->fresh()->owner_id)->toBe((string) $newOwner->getKey())
         ->and($distributed->fresh()->holder_id)->toBe((string) $employee->getKey());
 
-    // Employee's own purchase is left alone.
     expect($selfBought->fresh()->owner_id)->toBe((string) $employee->getKey())
         ->and($selfBought->fresh()->holder_id)->toBe((string) $employee->getKey());
 });
