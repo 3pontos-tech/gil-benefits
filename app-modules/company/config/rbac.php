@@ -120,20 +120,6 @@ return [
                 PermissionsEnum::ViewAny,
                 PermissionsEnum::View,
             ],
-            Appointment::class => [
-                PermissionsEnum::ViewAny,
-                PermissionsEnum::View,
-                PermissionsEnum::Create,
-                PermissionsEnum::Update,
-                PermissionsEnum::Delete,
-            ],
-            Consultant::class => [
-                PermissionsEnum::ViewAny,
-                PermissionsEnum::View,
-                PermissionsEnum::Create,
-                PermissionsEnum::Update,
-                PermissionsEnum::Delete,
-            ],
         ],
     ],
 ];

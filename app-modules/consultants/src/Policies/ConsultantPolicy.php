@@ -38,7 +38,17 @@ class ConsultantPolicy
         return $user->hasPermissionTo(PermissionsEnum::Delete->buildPermissionFor(Consultant::class));
     }
 
+    public function deleteAny(User $user): bool
+    {
+        return $user->hasPermissionTo(PermissionsEnum::Delete->buildPermissionFor(Consultant::class));
+    }
+
     public function restore(User $user, Consultant $consultant): bool
+    {
+        return $user->hasPermissionTo(PermissionsEnum::Restore->buildPermissionFor(Consultant::class));
+    }
+
+    public function restoreAny(User $user): bool
     {
         return $user->hasPermissionTo(PermissionsEnum::Restore->buildPermissionFor(Consultant::class));
     }
