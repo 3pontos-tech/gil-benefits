@@ -63,55 +63,56 @@ services:
       timeout: 10s
       start_period: 10s
 
-  flamma-minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
-    container_name: flamma-minio
+  flamma-rustfs:
+    image: rustfs/rustfs:1.0.4
+    container_name: flamma-rustfs
     restart: no
-    hostname: dev
     environment:
-      MINIO_ROOT_USER: '${CLOUDFLARE_R2_ACCESS_KEY_ID:-minioadmin}'
-      MINIO_ROOT_PASSWORD: '${CLOUDFLARE_R2_SECRET_ACCESS_KEY:-minioadmin}'
+      RUSTFS_ACCESS_KEY: '${CLOUDFLARE_R2_ACCESS_KEY_ID:-rustfsadmin}'
+      RUSTFS_SECRET_KEY: '${CLOUDFLARE_R2_SECRET_ACCESS_KEY:-rustfsadmin}'
+      RUSTFS_CONSOLE_ENABLE: 'true'
       TZ: America/Sao_Paulo
     ports:
-      - '${FORWARD_MINIO_PORT:-9000}:9000'
-      - '${FORWARD_MINIO_CONSOLE_PORT:-9001}:9001'
-    command: server /data --console-address ":9001"
+      - '${FORWARD_RUSTFS_PORT:-9000}:9000'
+      - '${FORWARD_RUSTFS_CONSOLE_PORT:-9001}:9001'
     volumes:
-      - flamma-minio:/data
+      - flamma-rustfs:/data
     networks:
       - dev-flamma
     healthcheck:
-      test: ['CMD', 'mc', 'ready', 'local']
+      test: ['CMD', 'curl', '--fail', 'http://localhost:9000/health']
       interval: 10s
       retries: 5
       timeout: 10s
       start_period: 10s
 
-  flamma-minio-bucket:
-    image: bitnamilegacy/minio-client:latest
+  flamma-rustfs-bucket:
+    image: amazon/aws-cli:2.39.5
     restart: no
     depends_on:
-      flamma-minio:
+      flamma-rustfs:
         condition: service_healthy
     environment:
-      MINIO_BUCKET: '${CLOUDFLARE_R2_BUCKET:-flamma-minio}'
-      MINIO_ROOT_USER: '${CLOUDFLARE_R2_ACCESS_KEY_ID:-minioadmin}'
-      MINIO_ROOT_PASSWORD: '${CLOUDFLARE_R2_SECRET_ACCESS_KEY:-minioadmin}'
+      BUCKET: '${CLOUDFLARE_R2_BUCKET:-flamma-rustfs}'
+      AWS_ACCESS_KEY_ID: '${CLOUDFLARE_R2_ACCESS_KEY_ID:-rustfsadmin}'
+      AWS_SECRET_ACCESS_KEY: '${CLOUDFLARE_R2_SECRET_ACCESS_KEY:-rustfsadmin}'
+      AWS_DEFAULT_REGION: us-east-1
+      AWS_ENDPOINT_URL: http://flamma-rustfs:9000
     entrypoint:
       - sh
       - -c
       - |
-        mc alias set flamma http://flamma-minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" &&
-        mc mb --ignore-existing "flamma/$$MINIO_BUCKET" &&
-        mc anonymous set download "flamma/$$MINIO_BUCKET"
+        aws s3api head-bucket --bucket "$$BUCKET" 2>/dev/null || aws s3api create-bucket --bucket "$$BUCKET" &&
+        aws s3api put-bucket-policy --bucket "$$BUCKET" --policy "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::$$BUCKET/*\"]}]}" &&
+        aws s3api put-bucket-cors --bucket "$$BUCKET" --cors-configuration "{\"CORSRules\":[{\"AllowedOrigins\":[\"*\"],\"AllowedMethods\":[\"GET\",\"HEAD\",\"PUT\",\"POST\"],\"AllowedHeaders\":[\"*\"],\"ExposeHeaders\":[\"ETag\"],\"MaxAgeSeconds\":3000}]}"
     networks:
       - dev-flamma
 
 volumes:
   flamma-db:
     name: flamma-db
-  flamma-minio:
-    name: flamma-minio
+  flamma-rustfs:
+    name: flamma-rustfs
 
 networks:
   dev-flamma:
