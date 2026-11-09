@@ -52,3 +52,8 @@ arch('appointments does not import credits')
     ->expect('TresPontosTech\Appointments')
     ->not->toUse('TresPontosTech\Credits')
     ->ignoring($models);
+
+arch('company models only reach credits through its models')
+    ->expect('TresPontosTech\Company\Models')
+    ->not->toUse('TresPontosTech\Credits')
+    ->ignoring('TresPontosTech\Credits\Models');

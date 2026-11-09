@@ -37,18 +37,14 @@ class DatabaseSeeder extends Seeder
         return Company::factory()
             ->count(3)
             ->afterCreating(function (Company $company): void {
-                $roles = [
-                    ['role' => Roles::CompanyOwner->value],
-                    ['role' => Roles::CompanyManager->value],
-                    ['role' => Roles::Employee->value],
-                ];
-                foreach ($roles as $role) {
+                $company->employees()->attach($company->user_id, ['role' => Roles::CompanyOwner->value]);
+
+                foreach ([Roles::CompanyManager, Roles::Employee] as $role) {
                     $company->employees()->attach(
                         User::factory()->hasDetail()->create(),
-                        $role
+                        ['role' => $role->value]
                     );
                 }
-
             })
             ->create();
     }
@@ -66,6 +62,6 @@ class DatabaseSeeder extends Seeder
 
         $company->employees()->attach($employee);
 
-        $ownedCompany->companies()->attach($company);
+        $ownedCompany->companies()->attach($company, ['role' => Roles::CompanyOwner->value]);
     }
 }
