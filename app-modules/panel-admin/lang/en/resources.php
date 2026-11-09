@@ -230,8 +230,13 @@ return [
             'manage' => 'Manage',
             'transfer_ownership' => [
                 'label' => 'Transfer ownership',
-                'description' => 'The new owner becomes the person responsible for the company: credit pool holder, checkout buyer and billing contact. The current owner is not removed: an owner membership becomes a manager membership. To take them out of the company, use the members list afterwards.',
+                'description' => 'The new owner becomes the person responsible for the company: credit pool holder, checkout buyer and billing contact. Nobody is deleted from the company: choose below what happens to the current owner.',
                 'new_owner' => 'New owner',
+                'previous_owner' => 'Current owner',
+                'keep_as_manager' => 'Stays as manager',
+                'keep_as_manager_hint' => 'Keeps company-panel access without managing members.',
+                'revoke_access' => 'Loses access',
+                'revoke_access_hint' => 'The membership is deactivated. It can be reactivated later from the members list.',
                 'success' => 'Ownership transferred.',
             ],
         ],
@@ -239,6 +244,7 @@ return [
             'employees' => [
                 'title' => 'Members',
                 'role' => 'Role',
+                'active' => 'Active',
             ],
             'contractual_plans' => [
                 'title' => 'Contractual Plans',

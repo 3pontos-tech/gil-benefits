@@ -230,8 +230,13 @@ return [
             'manage' => 'Gerenciar',
             'transfer_ownership' => [
                 'label' => 'Transferir responsável',
-                'description' => 'O responsável novo passa a ser o dono da empresa: titular do pool de créditos, comprador no checkout e contato de cobrança. O responsável atual não é removido: se tiver vínculo de dono, ele vira gestor. Para tirá-lo da empresa, use a lista de membros depois.',
+                'description' => 'O responsável novo passa a ser o dono da empresa: titular do pool de créditos, comprador no checkout e contato de cobrança. Ninguém é excluído da empresa: escolha abaixo o que acontece com o responsável atual.',
                 'new_owner' => 'Novo responsável',
+                'previous_owner' => 'Responsável atual',
+                'keep_as_manager' => 'Continua como gestor',
+                'keep_as_manager_hint' => 'Mantém acesso ao painel da empresa, sem administrar membros.',
+                'revoke_access' => 'Perde o acesso',
+                'revoke_access_hint' => 'O vínculo é desativado. Pode ser reativado depois na gestão de membros.',
                 'success' => 'Responsável transferido.',
             ],
         ],
@@ -239,6 +244,7 @@ return [
             'employees' => [
                 'title' => 'Membros',
                 'role' => 'Função',
+                'active' => 'Ativo',
             ],
             'contractual_plans' => [
                 'title' => 'Planos Contratuais',

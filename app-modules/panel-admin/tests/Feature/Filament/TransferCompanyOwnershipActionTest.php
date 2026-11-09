@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use TresPontosTech\Company\Enums\PreviousOwnerOutcome;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\CreateCompany;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\EditCompany;
@@ -49,7 +50,10 @@ it('transfers ownership through the header action', function (): void {
     $newOwner = User::factory()->create();
 
     livewire(EditCompany::class, ['record' => $this->company->getRouteKey()])
-        ->callAction('transfer_ownership', data: ['user_id' => $newOwner->getKey()])
+        ->callAction('transfer_ownership', data: [
+            'user_id' => $newOwner->getKey(),
+            'previous_owner_outcome' => PreviousOwnerOutcome::KeepAsManager->value,
+        ])
         ->assertHasNoActionErrors();
 
     $company = $this->company->fresh();
@@ -59,8 +63,32 @@ it('transfers ownership through the header action', function (): void {
         ->and($this->previousOwner->isCompanyManager($company))->toBeTrue();
 });
 
-it('requires a new owner', function (): void {
+it('revokes the previous owner access through the header action', function (): void {
+    $newOwner = User::factory()->create();
+
     livewire(EditCompany::class, ['record' => $this->company->getRouteKey()])
-        ->callAction('transfer_ownership', data: ['user_id' => null])
-        ->assertHasActionErrors(['user_id' => 'required']);
+        ->callAction('transfer_ownership', data: [
+            'user_id' => $newOwner->getKey(),
+            'previous_owner_outcome' => PreviousOwnerOutcome::RevokeAccess->value,
+        ])
+        ->assertHasNoActionErrors();
+
+    $company = $this->company->fresh();
+
+    expect($company->user_id)->toBe($newOwner->getKey())
+        ->and($this->previousOwner->tenantRole($company))->toBeNull();
+});
+
+it('requires a new owner and a decision about the previous one', function (): void {
+    livewire(EditCompany::class, ['record' => $this->company->getRouteKey()])
+        ->callAction('transfer_ownership', data: ['user_id' => null, 'previous_owner_outcome' => null])
+        ->assertHasActionErrors(['user_id' => 'required', 'previous_owner_outcome' => 'required']);
+});
+
+it('is hidden on the default bucket company', function (): void {
+    defaultCompanyUser();
+    $bucket = Company::default();
+
+    livewire(EditCompany::class, ['record' => $bucket->getRouteKey()])
+        ->assertActionHidden('transfer_ownership');
 });
