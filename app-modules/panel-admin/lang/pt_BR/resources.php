@@ -214,18 +214,26 @@ return [
         'plural_model_label' => 'Empresas',
         'form' => [
             'owner' => 'Proprietário',
+            'owner_hint' => 'Muda pela ação "Transferir responsável", no topo da página.',
             'name' => 'Nome',
             'slug' => 'Slug',
             'tax_id' => 'CNPJ',
         ],
         'table' => [
             'owner' => 'Proprietário',
+            'owner_hint' => 'Muda pela ação "Transferir responsável", no topo da página.',
             'name' => 'Nome',
             'tax_id' => 'CNPJ',
             'plan' => 'Plano',
         ],
         'actions' => [
             'manage' => 'Gerenciar',
+            'transfer_ownership' => [
+                'label' => 'Transferir responsável',
+                'description' => 'O responsável novo passa a ser o dono da empresa: titular do pool de créditos, comprador no checkout e contato de cobrança. O responsável atual não é removido: se tiver vínculo de dono, ele vira gestor. Para tirá-lo da empresa, use a lista de membros depois.',
+                'new_owner' => 'Novo responsável',
+                'success' => 'Responsável transferido.',
+            ],
         ],
         'relation_managers' => [
             'employees' => [

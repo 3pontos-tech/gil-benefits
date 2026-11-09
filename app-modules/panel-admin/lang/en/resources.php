@@ -214,18 +214,26 @@ return [
         'plural_model_label' => 'Companies',
         'form' => [
             'owner' => 'Owner',
+            'owner_hint' => 'Changes through the "Transfer ownership" action at the top of the page.',
             'name' => 'Name',
             'slug' => 'Slug',
             'tax_id' => 'Tax ID',
         ],
         'table' => [
             'owner' => 'Owner',
+            'owner_hint' => 'Changes through the "Transfer ownership" action at the top of the page.',
             'name' => 'Name',
             'tax_id' => 'Tax ID',
             'plan' => 'Plan',
         ],
         'actions' => [
             'manage' => 'Manage',
+            'transfer_ownership' => [
+                'label' => 'Transfer ownership',
+                'description' => 'The new owner becomes the person responsible for the company: credit pool holder, checkout buyer and billing contact. The current owner is not removed: an owner membership becomes a manager membership. To take them out of the company, use the members list afterwards.',
+                'new_owner' => 'New owner',
+                'success' => 'Ownership transferred.',
+            ],
         ],
         'relation_managers' => [
             'employees' => [
