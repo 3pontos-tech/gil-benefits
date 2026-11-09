@@ -31,7 +31,8 @@ Thumbs.db
 _ide_helper_models.php
 .output.txt
 CLAUDE.md
-.claude
+.claude/*
+!.claude/skills/
 .mcp.json
 opencode.json
 AGENTS.md
