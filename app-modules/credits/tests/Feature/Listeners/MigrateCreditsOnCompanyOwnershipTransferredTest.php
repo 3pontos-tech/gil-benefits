@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Queue;
 use TresPontosTech\Company\Actions\TransferCompanyOwnership;
+use TresPontosTech\Company\Enums\PreviousOwnerOutcome;
 use TresPontosTech\Company\Events\CompanyOwnershipTransferred;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Jobs\MigrateCompanyCreditsOwnerJob;
@@ -19,7 +20,7 @@ it('dispatches the migration job when the ownership transfer event is handled', 
     $company = Company::factory()->create(['user_id' => $newOwner->getKey()]);
 
     resolve(MigrateCreditsOnCompanyOwnershipTransferred::class)
-        ->handle(new CompanyOwnershipTransferred($company, $previousOwner, $newOwner));
+        ->handle(new CompanyOwnershipTransferred($company, $previousOwner, $newOwner, PreviousOwnerOutcome::KeepAsManager));
 
     Queue::assertPushed(MigrateCompanyCreditsOwnerJob::class, fn (MigrateCompanyCreditsOwnerJob $job): bool => $job->company->is($company)
         && $job->previousOwnerId === (string) $previousOwner->getKey());
@@ -49,7 +50,7 @@ it('migrates company credits to the new owner when ownership is transferred', fu
         'company_id' => $company->getKey(),
     ]);
 
-    resolve(TransferCompanyOwnership::class)->handle($company, $newOwner);
+    resolve(TransferCompanyOwnership::class)->handle($company, $newOwner, PreviousOwnerOutcome::KeepAsManager);
 
     expect($pool->fresh()->owner_id)->toBe((string) $newOwner->getKey())
         ->and($pool->fresh()->holder_id)->toBe((string) $newOwner->getKey());
@@ -61,8 +62,9 @@ it('migrates company credits to the new owner when ownership is transferred', fu
         ->and($selfBought->fresh()->holder_id)->toBe((string) $employee->getKey());
 });
 
-it('does not touch credits when a non-owner field changes', function (): void {
+it('does not migrate the pool when user_id is written directly, outside the action', function (): void {
     $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
     $company = Company::factory()->create(['user_id' => $owner->getKey()]);
 
     $credit = UserCredit::factory()->available()->create([
@@ -71,7 +73,7 @@ it('does not touch credits when a non-owner field changes', function (): void {
         'company_id' => $company->getKey(),
     ]);
 
-    $company->update(['name' => 'Novo Nome']);
+    $company->update(['user_id' => $otherUser->getKey()]);
 
     expect($credit->fresh()->owner_id)->toBe((string) $owner->getKey());
 });

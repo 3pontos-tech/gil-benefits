@@ -7,6 +7,7 @@ use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Actions\TransferCompanyOwnership;
+use TresPontosTech\Company\Enums\PreviousOwnerOutcome;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\PermissionsEnum;
 use TresPontosTech\Permissions\Roles;
@@ -160,7 +161,7 @@ describe('tenant access after ownership transfer: previous owner is a manager of
         $this->company->employees()->attach($this->previousOwner->getKey(), ['role' => Roles::CompanyOwner->value]);
 
         $this->newOwner = User::factory()->create();
-        resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner);
+        resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
         $this->company->refresh();
 
         $this->laterCompany = Company::factory()->recycle($this->previousOwner)->create();
@@ -187,5 +188,33 @@ describe('tenant access after ownership transfer: previous owner is a manager of
         expect($this->newOwner->isCompanyOwner($this->company))->toBeTrue()
             ->and($this->newOwner->canAccessTenant($this->company))->toBeTrue()
             ->and($this->newOwner->hasTenantPermission($viewAnyUser, $this->company))->toBeTrue();
+    });
+});
+
+describe('tenant access after ownership transfer with access revoked: previous owner cannot reach the company panel', function (): void {
+
+    beforeEach(function (): void {
+        $this->previousOwner = User::factory()->companyOwner()->create();
+        $this->company = Company::factory()->recycle($this->previousOwner)->create();
+        $this->company->employees()->attach($this->previousOwner->getKey(), ['role' => Roles::CompanyOwner->value]);
+
+        $this->newOwner = User::factory()->create();
+        resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::RevokeAccess);
+        $this->company->refresh();
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->previousOwner);
+    });
+
+    it('the previous owner has no role in the company and does not see it as a tenant', function (): void {
+        expect($this->previousOwner->tenantRole($this->company))->toBeNull()
+            ->and($this->previousOwner->canAccessTenant($this->company))->toBeFalse()
+            ->and($this->previousOwner->getTenants(filament()->getCurrentPanel())->contains($this->company))->toBeFalse()
+            ->and($this->previousOwner->managesAnyCompany())->toBeFalse();
+    });
+
+    it('the new owner holds the owner role', function (): void {
+        expect($this->newOwner->isCompanyOwner($this->company))->toBeTrue()
+            ->and($this->newOwner->canAccessTenant($this->company))->toBeTrue();
     });
 });

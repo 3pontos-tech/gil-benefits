@@ -6,29 +6,28 @@ namespace TresPontosTech\Company\Actions;
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\DB;
+use TresPontosTech\Company\Enums\PreviousOwnerOutcome;
 use TresPontosTech\Company\Events\CompanyOwnershipTransferred;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\Tenant\Models\TenantMember;
 
 /**
- * The only way a company changes its responsible person. Keeps the two places
- * that say "owner" coherent: companies.user_id moves to the new owner, the new
- * owner gets an active owner membership (created or upgraded), and the previous
- * owner's membership is downgraded to manager.
+ * The only way a company changes its responsible person, so companies.user_id,
+ * the owner membership and the credit pool never drift apart.
  *
- * Transferring does not remove anyone. The previous owner's owner membership,
- * when there is one, becomes a manager membership: day-to-day access without
- * member administration. Taking them out of the company is a separate
- * decision, made by removing the membership afterwards.
+ * Transferring never deletes anyone. The previous owner's membership either
+ * becomes a manager membership (day-to-day access without member
+ * administration) or is deactivated, which hides the company from them while
+ * keeping the record. Other owner memberships are left alone.
  *
  * See company/docs/adr/2026-11-09-ownership-transfer.md.
  */
 final class TransferCompanyOwnership
 {
-    public function handle(Company $company, User $newOwner): void
+    public function handle(Company $company, User $newOwner, PreviousOwnerOutcome $previousOwnerOutcome): void
     {
-        $previousOwner = DB::transaction(function () use ($company, $newOwner): ?User {
+        $previousOwner = DB::transaction(function () use ($company, $newOwner, $previousOwnerOutcome): ?User {
             /** @var Company $locked */
             $locked = Company::query()->lockForUpdate()->findOrFail($company->getKey());
 
@@ -41,12 +40,18 @@ final class TransferCompanyOwnership
 
             $locked->forceFill(['user_id' => $newOwner->getKey()])->save();
 
-            TenantMember::query()
+            $previousMembership = TenantMember::query()
                 ->where('company_id', $locked->getKey())
                 ->where('user_id', $previousOwner->getKey())
-                ->where('role', Roles::CompanyOwner->value)
-                ->whereNull('deleted_at')
-                ->update(['role' => Roles::CompanyManager->value]);
+                ->whereNull('deleted_at');
+
+            match ($previousOwnerOutcome) {
+                PreviousOwnerOutcome::KeepAsManager => $previousMembership
+                    ->where('role', Roles::CompanyOwner->value)
+                    ->update(['role' => Roles::CompanyManager->value]),
+                PreviousOwnerOutcome::RevokeAccess => $previousMembership
+                    ->update(['active' => false]),
+            };
 
             $membership = TenantMember::query()
                 ->where('company_id', $locked->getKey())
@@ -70,6 +75,8 @@ final class TransferCompanyOwnership
             return;
         }
 
-        event(new CompanyOwnershipTransferred($company->refresh(), $previousOwner, $newOwner));
+        $company->refresh();
+
+        event(new CompanyOwnershipTransferred($company, $previousOwner, $newOwner, $previousOwnerOutcome));
     }
 }

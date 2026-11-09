@@ -6,6 +6,7 @@ namespace TresPontosTech\Company\Events;
 
 use App\Models\Users\User;
 use Illuminate\Foundation\Events\Dispatchable;
+use TresPontosTech\Company\Enums\PreviousOwnerOutcome;
 use TresPontosTech\Company\Models\Company;
 
 /**
@@ -21,5 +22,6 @@ final class CompanyOwnershipTransferred
         public readonly Company $company,
         public readonly User $previousOwner,
         public readonly User $newOwner,
+        public readonly PreviousOwnerOutcome $previousOwnerOutcome,
     ) {}
 }

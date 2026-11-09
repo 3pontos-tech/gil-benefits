@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Event;
 use TresPontosTech\Company\Actions\TransferCompanyOwnership;
+use TresPontosTech\Company\Enums\PreviousOwnerOutcome;
 use TresPontosTech\Company\Events\CompanyOwnershipTransferred;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
@@ -27,7 +28,7 @@ beforeEach(function (): void {
 });
 
 it('moves the responsible to the new owner and gives them an active owner membership', function (): void {
-    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner);
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
 
     expect($this->company->fresh()->user_id)->toBe($this->newOwner->getKey());
 
@@ -39,7 +40,7 @@ it('moves the responsible to the new owner and gives them an active owner member
 });
 
 it('keeps the previous owner in the company as a manager', function (): void {
-    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner);
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
 
     $membership = membershipOf($this->company, $this->previousOwner);
 
@@ -53,7 +54,7 @@ it('keeps the previous owner in the company as a manager', function (): void {
 it('upgrades an existing membership of the new owner instead of duplicating it', function (): void {
     $this->company->employees()->attach($this->newOwner->getKey(), ['role' => Roles::Employee->value, 'active' => false]);
 
-    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner);
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
 
     $memberships = TenantMember::query()
         ->where('company_id', $this->company->getKey())
@@ -70,7 +71,7 @@ it('accepts a new owner who is an active employee elsewhere', function (): void 
     $employer = Company::factory()->create();
     $employer->employees()->attach($this->newOwner->getKey(), ['role' => Roles::Employee->value]);
 
-    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner);
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
 
     expect($this->company->fresh()->user_id)->toBe($this->newOwner->getKey())
         ->and(membershipOf($employer, $this->newOwner)->role)->toBe(Roles::Employee);
@@ -80,7 +81,7 @@ it('leaves other owner memberships untouched', function (): void {
     $otherOwner = User::factory()->create();
     $this->company->employees()->attach($otherOwner->getKey(), ['role' => Roles::CompanyOwner->value]);
 
-    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner);
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
 
     expect(membershipOf($this->company, $otherOwner)->role)->toBe(Roles::CompanyOwner);
 });
@@ -88,17 +89,18 @@ it('leaves other owner memberships untouched', function (): void {
 it('dispatches the transfer event with both parties', function (): void {
     Event::fake([CompanyOwnershipTransferred::class]);
 
-    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner);
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
 
     Event::assertDispatched(CompanyOwnershipTransferred::class, fn (CompanyOwnershipTransferred $event): bool => $event->company->is($this->company)
         && $event->previousOwner->is($this->previousOwner)
-        && $event->newOwner->is($this->newOwner));
+        && $event->newOwner->is($this->newOwner)
+        && $event->previousOwnerOutcome === PreviousOwnerOutcome::KeepAsManager);
 });
 
 it('does nothing when the new owner is already the responsible', function (): void {
     Event::fake([CompanyOwnershipTransferred::class]);
 
-    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->previousOwner);
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->previousOwner, PreviousOwnerOutcome::KeepAsManager);
 
     Event::assertNotDispatched(CompanyOwnershipTransferred::class);
     expect(membershipOf($this->company, $this->previousOwner)->role)->toBe(Roles::CompanyOwner);
@@ -107,7 +109,7 @@ it('does nothing when the new owner is already the responsible', function (): vo
 it('transfers away from a soft-deleted previous owner', function (): void {
     $this->previousOwner->delete();
 
-    resolve(TransferCompanyOwnership::class)->handle($this->company->fresh(), $this->newOwner);
+    resolve(TransferCompanyOwnership::class)->handle($this->company->fresh(), $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
 
     expect($this->company->fresh()->user_id)->toBe($this->newOwner->getKey())
         ->and(membershipOf($this->company, $this->newOwner)->role)->toBe(Roles::CompanyOwner);
@@ -116,8 +118,27 @@ it('transfers away from a soft-deleted previous owner', function (): void {
 it('does not create a membership for a previous owner who had none', function (): void {
     TenantMember::query()->where('user_id', $this->previousOwner->getKey())->delete();
 
-    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner);
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
 
     expect(membershipOf($this->company, $this->previousOwner))->toBeNull()
         ->and($this->company->fresh()->user_id)->toBe($this->newOwner->getKey());
+});
+
+it('deactivates the previous owner membership when access is revoked', function (): void {
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::RevokeAccess);
+
+    $membership = membershipOf($this->company, $this->previousOwner);
+
+    expect($membership)->not->toBeNull()
+        ->and($membership->active)->toBeFalse()
+        ->and($this->previousOwner->tenantRole($this->company->fresh()))->toBeNull()
+        ->and($this->previousOwner->managesAnyCompany())->toBeFalse();
+});
+
+it('keeps a non-owner membership of the previous owner as it is when kept as manager', function (): void {
+    TenantMember::query()->where('user_id', $this->previousOwner->getKey())->update(['role' => Roles::Employee->value]);
+
+    resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
+
+    expect(membershipOf($this->company, $this->previousOwner)->role)->toBe(Roles::Employee);
 });
