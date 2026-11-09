@@ -3,7 +3,6 @@
 namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 
 use Carbon\CarbonInterface;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
@@ -30,8 +29,6 @@ class EditAppointment extends EditRecord
     {
         return [
             ViewAction::make(),
-            DeleteAction::make()
-                ->requiresConfirmation(),
         ];
     }
 
