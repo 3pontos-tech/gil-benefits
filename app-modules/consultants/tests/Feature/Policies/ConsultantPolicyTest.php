@@ -66,3 +66,52 @@ it('allows user with create permission to create', function (): void {
     expect(Gate::forUser($user)->allows('create', Consultant::class))->toBeTrue()
         ->and(Gate::forUser($user)->denies('update', Consultant::factory()->create()))->toBeTrue();
 });
+
+it('denies the baseline user role on every consultant action', function (): void {
+    $user = User::factory()->create();
+    $user->syncRoles([Roles::User->value]);
+
+    $consultant = Consultant::factory()->create();
+
+    expect(Gate::forUser($user)->denies('viewAny', Consultant::class))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('view', $consultant))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('create', Consultant::class))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('update', $consultant))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('delete', $consultant))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('deleteAny', Consultant::class))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('restoreAny', Consultant::class))->toBeTrue();
+});
+
+it('allows Admin to manage and restore consultants, including the bulk actions', function (): void {
+    $user = User::factory()->create();
+    $user->syncRoles([Roles::Admin->value]);
+
+    $consultant = Consultant::factory()->create();
+
+    expect(Gate::forUser($user)->allows('viewAny', Consultant::class))->toBeTrue()
+        ->and(Gate::forUser($user)->allows('create', Consultant::class))->toBeTrue()
+        ->and(Gate::forUser($user)->allows('update', $consultant))->toBeTrue()
+        ->and(Gate::forUser($user)->allows('delete', $consultant))->toBeTrue()
+        ->and(Gate::forUser($user)->allows('deleteAny', Consultant::class))->toBeTrue()
+        ->and(Gate::forUser($user)->allows('restore', $consultant))->toBeTrue()
+        ->and(Gate::forUser($user)->allows('restoreAny', Consultant::class))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('forceDelete', $consultant))->toBeTrue();
+});
+
+it('ties the bulk abilities to the matching single-record permission', function (): void {
+    $user = User::factory()->create();
+    $user->syncRoles([]);
+    $user->syncPermissions([]);
+
+    expect(Gate::forUser($user)->denies('deleteAny', Consultant::class))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('restoreAny', Consultant::class))->toBeTrue();
+
+    $user->givePermissionTo(PermissionsEnum::Delete->buildPermissionFor(Consultant::class));
+
+    expect(Gate::forUser($user)->allows('deleteAny', Consultant::class))->toBeTrue()
+        ->and(Gate::forUser($user)->denies('restoreAny', Consultant::class))->toBeTrue();
+
+    $user->givePermissionTo(PermissionsEnum::Restore->buildPermissionFor(Consultant::class));
+
+    expect(Gate::forUser($user)->allows('restoreAny', Consultant::class))->toBeTrue();
+});
