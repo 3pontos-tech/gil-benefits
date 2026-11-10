@@ -10,7 +10,6 @@ final readonly class CompanyDTO implements JsonSerializable
         public string $name,
         public string $slug,
         public string $taxId,
-        public string $integrationAccessKey,
         public string $userId,
     ) {}
 
@@ -23,7 +22,6 @@ final readonly class CompanyDTO implements JsonSerializable
             name: $data['name'],
             slug: $data['slug'],
             taxId: $data['tax_id'],
-            integrationAccessKey: $data['integration_access_key'],
             userId: $data['user_id'],
         );
     }
@@ -37,7 +35,6 @@ final readonly class CompanyDTO implements JsonSerializable
             'name' => $this->name,
             'slug' => $this->slug,
             'tax_id' => $this->taxId,
-            'integration_access_key' => $this->integrationAccessKey,
             'user_id' => $this->userId,
         ];
     }

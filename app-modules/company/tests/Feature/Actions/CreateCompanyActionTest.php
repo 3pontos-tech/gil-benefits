@@ -15,7 +15,6 @@ it('creates a company, attaches the user, and assigns the CompanyOwner role', fu
         name: 'Test Company',
         slug: 'test-company',
         taxId: '12345678000195',
-        integrationAccessKey: (string) Uuid::uuid4(),
         userId: $user->id,
     );
 
@@ -41,7 +40,6 @@ it('throws an exception when the user does not exist', function (): void {
         name: 'Test Company',
         slug: 'test-company',
         taxId: '12345678000195',
-        integrationAccessKey: (string) Uuid::uuid4(),
         userId: (string) Uuid::uuid4(),
     );
 

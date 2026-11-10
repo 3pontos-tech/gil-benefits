@@ -1,44 +1,70 @@
 <x-layouts.site title="Saúde financeira corporativa" description="A Flamma é uma solução de saúde financeira que ajuda empresas a cuidar do bem-estar dos colaboradores, com orientação especializada para organizar as finanças e planejar o futuro.">
 <div class="fm-page overflow-x-clip">
 
+    {{--
+        Hero — Figma 8298:497 (desktop, 1920) e 8298:1913 (mobile, 320).
+
+        A ordem do HTML é a do mobile (título, mídia, texto, botão), para leitor de tela e
+        foco seguirem o que aparece na tela pequena. Abaixo de xl tudo empilha numa coluna
+        de até 720px: entre 1024 e 1279 a mídia lado a lado deixaria menos de 400px para
+        o título de 48px. A partir de xl, a mídia ocupa 56,44% da largura útil (946 de
+        1676 no Figma) e as linhas 1fr de cima e de baixo absorvem a altura dela, o que
+        centraliza o texto na vertical sem um wrapper só para isso.
+
+        No celular, o Figma põe o vídeo 16:9 em modo "fit" dentro de uma caixa de 288×196:
+        a imagem visível tem 162px e sobram 17px livres em cima e embaixo. A caixa da mídia
+        reproduz isso até sm. No mesmo frame, o texto termina numa linha vazia (16px) e o grupo
+        de cima tem altura fixa (sobram 23px): o botão fica a 71px do texto, daí o mt-[39px]
+        somado ao gap de 32px. O parágrafo usa entrelinha 1
+        no mobile e 1,5 a partir de lg, como os tokens de cada frame.
+
+        No Figma a borda do botão fica por dentro (56px de altura); no <x-button> ela soma
+        2px. O padding de 31/15px compensa só aqui, para o hero bater com o design.
+
+        Camadas: a seção é `isolate`, os blocos ficam em -z-20 e os asteriscos em -z-10.
+        Assim os dois ficam sobre o gradiente e atrás do conteúdo, com os asteriscos na
+        frente dos blocos, como na ordem do Figma. Os asteriscos são posicionados em
+        porcentagem da caixa da mídia para continuarem presos aos cantos dela quando a
+        largura muda.
+    --}}
     <section id="home"
-             class="relative left-1/2 -mx-[50vw] w-screen overflow-hidden scroll-mt-28"
-             style="background: linear-gradient(106deg, #FD0342 15.42%, #FF803C 84.58%)">
+             class="relative isolate left-1/2 -mx-[50vw] w-screen overflow-hidden scroll-mt-28 bg-[linear-gradient(var(--hero-gradient-angle),var(--color-brand-primary)_15.42%,var(--color-brand-secondary)_84.58%)] [--hero-gradient-angle:101deg] xl:[--hero-gradient-angle:136deg]">
 
-        {{-- Faixa inferior de 80px atravessando a largura toda --}}
-        <div class="absolute inset-x-0 bottom-0 hidden h-[80px] bg-white/32 lg:block" aria-hidden="true"></div>
-        {{-- Bloco atrás da foto, 701×494 a partir de x=1220 de 1921 --}}
-        <div class="absolute right-0 top-[34%] hidden h-[60%] w-[36.5%] bg-white/32 lg:block" aria-hidden="true"></div>
-        {{-- Degrau à esquerda da faixa, 219×73 --}}
-        <div class="absolute bottom-[80px] right-[36.5%] hidden h-[73px] w-[11.4%] bg-white/32 lg:block" aria-hidden="true"></div>
+        <div class="absolute inset-x-0 bottom-0 -z-20 hidden items-end xl:flex" aria-hidden="true">
+            <div class="h-[113px] w-[41.96%] bg-white/32"></div>
+            <div class="h-[219px] w-[21.55%] bg-white/32"></div>
+            <div class="h-[541px] flex-1 bg-white/32"></div>
+        </div>
 
-        <div class="relative mx-auto flex max-w-[1800px] flex-col gap-10 px-5 py-16 sm:px-8 lg:h-[822px] lg:flex-row lg:items-center lg:gap-[42px] lg:px-[62px] lg:py-20">
-            <div class="flex flex-col gap-6 lg:w-[891px] lg:gap-8">
-                <h1 class="fm-reveal fm-in text-[32px] font-bold leading-[1.5] text-light lg:text-5xl">
-                    Saúde financeira também é saúde corporativa.
-                </h1>
-                <p class="fm-reveal fm-in text-base font-medium leading-[1.5] text-light lg:text-xl lg:font-normal" data-fm-delay="1">
-                    A Flamma é uma solução de saúde financeira que ajuda empresas a cuidar do bem-estar
-                    dos colaboradores, oferecendo orientação especializada para organizar as finanças,
-                    tomar decisões com mais segurança e planejar o futuro.
-                </p>
-                <x-button
-                    class="fm-reveal fm-in fm-btn w-full! sm:w-fit!"
-                    data-fm-delay="2"
-                    variant="light"
-                    size="xl"
-                    href="#expediente"
-                >
-                    Conheça a Flamma
-                </x-button>
+        <div class="relative mx-auto grid max-w-[784px] gap-8 px-4 py-8 sm:px-8 sm:py-12 xl:h-[822px] xl:max-w-[1800px] xl:grid-cols-[minmax(0,1fr)_56.44%] xl:grid-rows-[1fr_auto_auto_auto_1fr] xl:px-[62px] xl:py-20">
+            <h1 class="fm-reveal fm-in text-center text-[32px] font-bold leading-[1.5] text-light lg:text-5xl xl:col-start-1 xl:row-start-2 xl:text-left">
+                Saúde financeira também é saúde corporativa.
+            </h1>
+
+            <div class="relative flex aspect-[288/196] items-center sm:block sm:aspect-auto xl:col-start-2 xl:row-span-5 xl:row-start-1 xl:self-center">
+                <x-graphism type="hero-asterisk-top" color="light"
+                            class="absolute -left-[9.09%] -top-[18.61%] -z-10 hidden w-[29.28%] xl:block" />
+                <x-graphism type="hero-asterisk-bottom"
+                            class="absolute left-[84.46%] top-[66.92%] -z-10 hidden w-[28.54%] xl:block" />
+
+                <x-site.hero-video class="fm-reveal-scale fm-in fm-zoom" />
             </div>
 
-            <div class="fm-reveal-scale fm-in fm-zoom relative aspect-[674/584] w-full overflow-hidden lg:w-[674px] lg:shrink-0">
-                <img src="{{ asset('img/home/hero.webp') }}"
-                     alt="Equipe reunida em frente ao computador durante uma sessão de consultoria"
-                     class="size-full object-cover"
-                     fetchpriority="high" decoding="async">
-            </div>
+            <p class="fm-reveal fm-in text-base leading-none text-light lg:text-xl lg:leading-[1.5] xl:col-start-1 xl:row-start-3" data-fm-delay="1">
+                A Flamma é uma solução de saúde financeira que ajuda empresas a cuidar do bem-estar
+                dos colaboradores, oferecendo orientação especializada para organizar as finanças,
+                tomar decisões com mais segurança e planejar o futuro.
+            </p>
+
+            <x-button
+                class="fm-reveal fm-in fm-btn mt-[39px] w-full! px-[31px]! py-[15px]! xl:col-start-1 xl:row-start-4 xl:mt-0 xl:w-fit! xl:justify-self-start"
+                data-fm-delay="2"
+                variant="light"
+                size="xl"
+                href="#expediente"
+            >
+                Conheça a Flamma
+            </x-button>
         </div>
     </section>
 

@@ -18,11 +18,6 @@ class UpdateMeRequest extends FormRequest
     /** @var list<string> */
     public const array EDITABLE_FIELDS = ['name', 'email', 'phone_number'];
 
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * O e-mail é gravado em minúsculas (#291): validação e gravação recebem a forma normalizada.
      * Valor que não é texto segue cru para a regra `string` recusar com 422.

@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Laravel\Cashier\Billable;
-use Ramsey\Uuid\Uuid;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -41,7 +40,6 @@ use TresPontosTech\Tenant\Policies\CompanyPolicy;
  * @property string $id
  * @property string $user_id
  * @property string $name
- * @property string $integration_access_key
  * @property string $slug
  * @property string $tax_id
  * @property Carbon|null $deleted_at
@@ -110,7 +108,6 @@ class Company extends Model implements HasAvatar, HasMedia
         'name',
         'slug',
         'tax_id',
-        'integration_access_key',
     ];
 
     public function getRouteKeyName(): string
@@ -227,7 +224,7 @@ class Company extends Model implements HasAvatar, HasMedia
      */
     public function employees(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'company_employees', 'company_id', 'user_id')
+        return $this->belongsToMany(User::class, TenantMember::class, 'company_id', 'user_id')
             ->withTimestamps()
             ->withPivot(['id', 'role', 'active', 'department_id'])
             ->wherePivotNull('deleted_at')
@@ -272,11 +269,6 @@ class Company extends Model implements HasAvatar, HasMedia
     protected function withoutDefault(Builder $query): void
     {
         $query->whereNot('slug', self::DEFAULT_SLUG);
-    }
-
-    public function generateToken(Uuid|string $key): void
-    {
-        $this->update(['integration_access_key' => $key]);
     }
 
     public function registerMediaCollections(): void

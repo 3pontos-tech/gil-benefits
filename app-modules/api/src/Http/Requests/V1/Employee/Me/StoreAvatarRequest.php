@@ -11,11 +11,6 @@ use Illuminate\Foundation\Http\FormRequest;
  */
 class StoreAvatarRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * Até 5 MB e 4096 px de lado: a miniatura de 96 px é gerada na hora do envio, e uma imagem
      * pequena em bytes mas enorme em pixels estouraria a memória ao ser decodificada.

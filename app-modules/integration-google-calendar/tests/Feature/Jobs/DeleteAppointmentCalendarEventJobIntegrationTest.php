@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\Appointments\Enums\AppointmentStatus;
@@ -37,7 +38,7 @@ beforeEach(function (): void {
 });
 
 afterEach(function (): void {
-    @unlink($this->credPath);
+    File::delete($this->credPath);
 });
 
 function appointmentPendingDeletion(): Appointment

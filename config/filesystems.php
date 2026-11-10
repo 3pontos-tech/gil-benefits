@@ -75,6 +75,22 @@ return [
             'throw' => false,
         ],
 
+        /*
+         * Arquivos do site institucional (vídeo do hero), num bucket privado separado do
+         * `r2` do app. A chave é só de leitura: o app apenas assina links temporários.
+         */
+        'site-assets' => [
+            'driver' => 's3',
+            'key' => env('SITE_ASSETS_R2_ACCESS_KEY_ID'),
+            'secret' => env('SITE_ASSETS_R2_SECRET_ACCESS_KEY'),
+            'region' => 'us-east-1',
+            'bucket' => env('SITE_ASSETS_R2_BUCKET'),
+            'visibility' => 'private',
+            'endpoint' => env('SITE_ASSETS_R2_ENDPOINT'),
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+        ],
+
     ],
 
     /*

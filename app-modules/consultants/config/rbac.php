@@ -18,6 +18,7 @@ return [
                 PermissionsEnum::Create,
                 PermissionsEnum::Update,
                 PermissionsEnum::Delete,
+                PermissionsEnum::Restore,
             ],
         ],
         Roles::Consultant->value => [

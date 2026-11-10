@@ -10,11 +10,6 @@ use TresPontosTech\Appointments\Enums\CancelImpact;
 
 class CancelAppointmentRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     /**
      * `expected_impact` é o `cancel_impact` que o alerta do app mostrou e a pessoa confirmou; `null`
      * vale o mesmo que não mandar.

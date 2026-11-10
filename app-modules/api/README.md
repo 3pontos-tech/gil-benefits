@@ -116,8 +116,8 @@ Lista completa, com middlewares: `php artisan route:list --path=api/v1 -v`. O co
 1. Suba o ambiente e o backend:
 
    ```bash
-   make env-up              # Postgres, Redis, Mailpit e MinIO
-   make essentials-seeder   # bucket do MinIO e banco com as contas de teste
+   make env-up              # Postgres, Redis, Mailpit e RustFS
+   make essentials-seeder   # bucket do RustFS e banco com as contas de teste
    composer run dev         # php artisan serve (porta 8000), fila, logs e Vite
    ```
 
@@ -131,7 +131,7 @@ Lista completa, com middlewares: `php artisan route:list --path=api/v1 -v`. O co
    | Emulador Android (WSL2) | `http://127.0.0.1:8000` | Rode `adb reverse tcp:8000 tcp:8000` (e `tcp:9000`, para avatares e materiais) depois de abrir o emulador. |
    | Celular na mesma rede | `http://<IP da máquina>:8000` | Suba com `php artisan serve --host=0.0.0.0 --port=8000`. |
 
-3. Avatares e materiais usam URLs temporárias do disco `r2`, que em desenvolvimento aponta para o MinIO do `make env-up`
+3. Avatares e materiais usam URLs temporárias do disco `r2`, que em desenvolvimento aponta para o RustFS do `make env-up`
    (variáveis `CLOUDFLARE_R2_*`). A URL precisa ser alcançável pelo aparelho: no celular, use o IP da máquina no
    endpoint.
 
@@ -162,7 +162,3 @@ Mudança incompatível em `/api/v1` (remover ou renomear campo, mudar tipo, endu
 4. Resource com datas via `ApiDates`.
 5. Rota em `routes/api-routes.php` dentro do grupo autenticado, com `whereUuid` nos ids.
 6. Testes em `V1/Employee/<recurso>` e no `Contract/*`.
-
-## Dívidas conhecidas
-
-- A API da empresa (`/api/v1/company/{tenant}/users`) ainda mora no módulo `tenant` (#293).

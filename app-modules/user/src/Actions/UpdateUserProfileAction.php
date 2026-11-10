@@ -16,7 +16,7 @@ final readonly class UpdateUserProfileAction
      *
      * Só toca nos campos presentes em `$data`, então um PATCH de um campo não apaga os outros.
      * O telefone exige um `detail` existente, porque a tabela pede o CPF, que só o cadastro
-     * coleta; usuários criados pela API de tenant ainda não têm.
+     * coleta.
      *
      * @param  array{name?: string, email?: string, phone_number?: string|null}  $data
      *

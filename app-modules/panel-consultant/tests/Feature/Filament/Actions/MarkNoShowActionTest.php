@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
+use Filament\Notifications\Livewire\Notifications;
+use Filament\Notifications\Notification;
+use Filament\Notifications\NotificationMailbox;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
@@ -18,6 +21,24 @@ use TresPontosTech\PanelConsultant\Filament\Resources\Appointments\Pages\ListApp
 
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
+
+/**
+ * @return list<string>
+ */
+function sentNotificationStatuses(): array
+{
+    resolve(NotificationMailbox::class)->flush();
+
+    $component = new Notifications;
+    $component->mount();
+    $component->pullNotifications();
+
+    return $component->notifications
+        ->map(fn (Notification $notification): ?string => $notification->getStatus())
+        ->filter()
+        ->values()
+        ->all();
+}
 
 beforeEach(function (): void {
     $this->consultant = actingAsConsultant();
@@ -125,7 +146,7 @@ it('keeps the status when the transition fails', function (): void {
     $actionFunction($staleAppointment);
 
     expect($appointment->refresh()->status)->toBe(AppointmentStatus::Completed);
-    expect(session('filament.notifications')[0]['status'] ?? null)->toBe('danger');
+    expect(sentNotificationStatuses())->toContain('danger');
 });
 
 /**
@@ -149,7 +170,7 @@ it('rolls back the no-show transition and notifies failure when a listener throw
     $actionFunction($appointment);
 
     expect($appointment->refresh()->status)->toBe(AppointmentStatus::Active);
-    expect(session('filament.notifications')[0]['status'] ?? null)->toBe('danger');
+    expect(sentNotificationStatuses())->toContain('danger');
     expect(AppointmentHistory::query()
         ->where('appointment_id', $appointment->getKey())
         ->where('action_type', AppointmentHistoryActionType::NoShowMarked)

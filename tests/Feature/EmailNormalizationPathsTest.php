@@ -180,22 +180,6 @@ it('creates the account of a new uppercase consultant in lowercase', function ()
     expect($consultant->fresh()->user->email)->toBe('maria@consultoria.com');
 });
 
-it('lets the tenant API refuse a differently cased duplicate and store a new email in lowercase', function (): void {
-    $company = Company::factory()->create();
-    User::factory()->create(['email' => 'existente@acme.com']);
-    $headers = [config('tenant.header') => $company->integration_access_key];
-
-    postJson(route('api.v1.company.users.store', ['tenant' => $company->slug]), [
-        'name' => 'Dup', 'email' => 'Existente@Acme.com', 'external_id' => '1',
-    ], $headers)->assertUnprocessable()->assertJsonValidationErrors(['email']);
-
-    postJson(route('api.v1.company.users.store', ['tenant' => $company->slug]), [
-        'name' => 'Novo', 'email' => 'Novo@Acme.com', 'external_id' => '2',
-    ], $headers)->assertCreated();
-
-    assertDatabaseHas(User::class, ['email' => 'novo@acme.com']);
-});
-
 it('lets the app API sign in whatever the capitalization', function (): void {
     $user = standaloneSubscriber(['email' => 'Colaborador@Empresa.com']);
 

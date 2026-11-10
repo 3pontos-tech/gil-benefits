@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Appointments\Support;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\ListItem;
 use PhpOffice\PhpWord\Element\Table;
@@ -64,7 +65,7 @@ readonly class DocumentTextExtractor
             );
         } finally {
             if (file_exists($tempPath)) {
-                @unlink($tempPath);
+                File::delete($tempPath);
             }
         }
     }

@@ -169,7 +169,7 @@ class ApiServiceProvider extends ServiceProvider
 
     private function isEmployeeApi(Request $request): bool
     {
-        return $request->is('api/v1/*') && ! $request->is('api/v1/company/*');
+        return $request->is('api/v1/*');
     }
 
     private function replacesEmployeeError(HttpException $exception, Request $request): bool

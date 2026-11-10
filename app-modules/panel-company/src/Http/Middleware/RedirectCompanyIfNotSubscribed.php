@@ -7,6 +7,7 @@ use Filament\Facades\Filament;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
@@ -40,7 +41,7 @@ readonly class RedirectCompanyIfNotSubscribed
         $hasValidSubscription = collect(BillingProviderEnum::activeCases())
             ->contains(fn (BillingProviderEnum $provider): bool => array_any(
                 $plans,
-                fn ($plan): bool => $this->billingManager->getDriver($provider)->isSubscribed($tenant, $plan->slug)
+                fn (PlanEntity $plan): bool => $this->billingManager->getDriver($provider)->isSubscribed($tenant, $plan->slug)
             ));
 
         if ($hasValidSubscription) {

@@ -57,6 +57,19 @@ return [
         'url' => env('WHATSAPP_URL', 'https://wa.me/5511976205711?text=Flamma'),
     ],
 
+    /*
+     * Vídeo comercial do hero, no disco `site-assets`. Sem o bucket configurado (dev
+     * local, testes) o hero mostra só o poster. Os nomes são versionados e nunca
+     * sobrescritos: vídeo novo sobe com nome novo, e só esta lista muda.
+     */
+    'hero_video' => [
+        'enabled' => filled(env('SITE_ASSETS_R2_BUCKET')),
+        'renditions' => [
+            'hd' => 'hero/flamma-comercial-v2-1080p.mp4',
+            'sd' => 'hero/flamma-comercial-v2-720p.mp4',
+        ],
+    ],
+
     'contact' => [
         'email' => env('CONTACT_EMAIL', 'contato@flammabeneficios.com.br'),
         'phone' => env('CONTACT_PHONE', '+55 11 97620-5711'),

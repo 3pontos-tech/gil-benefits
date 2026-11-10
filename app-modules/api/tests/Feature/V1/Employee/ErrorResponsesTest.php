@@ -134,7 +134,7 @@ describe('domain refusals', function (): void {
 
     it('leaves the same exception alone outside the employee API', function (): void {
         Exceptions::fake();
-        Route::get('_probe-refusal', fn () => throw new SlotUnavailableException);
+        Route::get('_probe-refusal', fn (): never => throw new SlotUnavailableException);
 
         getJson('/_probe-refusal')->assertServerError();
 
