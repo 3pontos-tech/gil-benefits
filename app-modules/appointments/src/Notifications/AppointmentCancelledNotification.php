@@ -43,7 +43,7 @@ final class AppointmentCancelledNotification extends ContentNotification
                 title: __('appointments::resources.appointments.notifications.push.cancelled.title'),
                 body: __('appointments::resources.appointments.notifications.push.cancelled.body', AppointmentMoment::of($this->appointment)->toReplacements()),
                 urgent: true,
-                expiresAt: $this->appointment->appointment_at,
+                expiresAt: AppointmentMoment::endOf($this->appointment),
             ),
         );
     }

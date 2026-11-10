@@ -150,8 +150,8 @@ return [
                     'unconfirmed' => 'Seu encontro de :date, às :time, voltou a aguardar confirmação. Avisaremos quando for confirmado.',
                 ],
                 'reminder' => [
-                    'title' => 'Seu encontro começa em 1 hora',
-                    'body' => 'Hoje, às :time. A sala abre 15 minutos antes, pelo app.',
+                    'title' => 'Seu encontro começa às :time',
+                    'body' => 'A sala abre 15 minutos antes, pelo app.',
                 ],
             ],
         ],

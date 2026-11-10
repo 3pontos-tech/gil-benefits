@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Notifications\ContentNotification;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Notification;
@@ -32,7 +33,8 @@ it('reminds a confirmed appointment that starts within the hour, once, on the ph
 
     Notification::assertSentToTimes($appointment->user, AppointmentReminderNotification::class, 1);
     Notification::assertSentTo($appointment->user, AppointmentReminderNotification::class, fn (AppointmentReminderNotification $notification): bool => $notification->via($appointment->user) === [ContentNotification::PUSH_CHANNEL]
-        && $notification->content()->push?->body === 'Hoje, às 09:50. A sala abre 15 minutos antes, pelo app.');
+        && $notification->content()->push?->title === 'Seu encontro começa às 09:50'
+        && $notification->content()->push->body === 'A sala abre 15 minutos antes, pelo app.');
     expect($appointment->refresh()->reminder_sent_at)->not->toBeNull();
 });
 
@@ -61,7 +63,7 @@ it('counts a confirmation within the hour as the reminder', function (string $st
     'confirmed the day before' => ['2026-09-11 09:40:00', false],
 ]);
 
-it('reminds a moved appointment again at its new time', function (): void {
+it('reminds a moved appointment again at its new time, unless the new time is within the hour', function (string $newTime, bool $reminderPending): void {
     actingAsAdmin();
     $appointment = Appointment::factory()->withStatus(AppointmentStatus::Active)->create([
         'appointment_at' => '2026-09-10 09:40:00',
@@ -70,8 +72,44 @@ it('reminds a moved appointment again at its new time', function (): void {
     $previousConsultantId = $appointment->consultant_id;
     $previousAt = $appointment->appointment_at->copy();
 
-    $appointment->update(['appointment_at' => '2026-09-11 15:00:00', 'consultant_id' => null]);
+    $appointment->update(['appointment_at' => $newTime, 'consultant_id' => null]);
     resolve(SyncAppointmentScheduleAction::class)->handle($appointment, $previousConsultantId, $previousAt, AppointmentHistoryActor::Admin);
 
+    expect($appointment->refresh()->reminder_sent_at === null)->toBe($reminderPending);
+})->with([
+    'moved to tomorrow' => ['2026-09-11 15:00:00', true],
+    'moved into the next hour: the change notice already told the time' => ['2026-09-10 09:30:00', false],
+]);
+
+it('skips an employee who was deleted and still reminds the others', function (): void {
+    $gone = Appointment::factory()->withStatus(AppointmentStatus::Active)->create(['appointment_at' => '2026-09-10 09:40:00']);
+    $other = Appointment::factory()->withStatus(AppointmentStatus::Active)->create(['appointment_at' => '2026-09-10 09:45:00']);
+    $gone->user->delete();
+
+    (new SendAppointmentRemindersJob)->handle();
+
+    Notification::assertSentTo($other->user, AppointmentReminderNotification::class);
+    expect($gone->refresh()->reminder_sent_at)->toBeNull();
+});
+
+it('does not remind an appointment whose time changed while the run was reading it', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Active)->create(['appointment_at' => '2026-09-10 09:40:00']);
+
+    // A equipe muda o horário logo depois de o job ler o encontro e antes de ele reservar o lembrete.
+    $editedOnce = false;
+    Appointment::retrieved(function (Appointment $read) use (&$editedOnce): void {
+        if (! $editedOnce) {
+            $editedOnce = true;
+            Appointment::query()->whereKey($read->getKey())->update(['appointment_at' => '2026-09-11 15:00:00']);
+        }
+    });
+
+    (new SendAppointmentRemindersJob)->handle();
+
+    Notification::assertNotSentTo($appointment->user, AppointmentReminderNotification::class);
     expect($appointment->refresh()->reminder_sent_at)->toBeNull();
+});
+
+it('runs one reminder job at a time', function (): void {
+    expect(new SendAppointmentRemindersJob)->toBeInstanceOf(ShouldBeUnique::class);
 });

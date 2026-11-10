@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Support;
 
+use Carbon\CarbonInterface;
 use TresPontosTech\Appointments\Models\Appointment;
 
 /**
@@ -23,6 +24,15 @@ final readonly class AppointmentMoment
         $at = $appointment->appointment_at->copy()->timezone((string) config('app.timezone'))->settings(['locale' => app()->getLocale()]);
 
         return new self($at->isoFormat('ddd., DD/MM'), $at->format('H:i'));
+    }
+
+    /**
+     * Quando o encontro termina: a mesma duração que a agenda do consultor e a API usam para
+     * manter o link da sala válido. Um aviso de link trocado ou de cancelamento ainda serve até lá.
+     */
+    public static function endOf(Appointment $appointment): CarbonInterface
+    {
+        return $appointment->appointment_at->copy()->addMinutes((int) config('google-calendar.default_event_duration', 60));
     }
 
     /**

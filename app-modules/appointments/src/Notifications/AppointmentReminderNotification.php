@@ -13,7 +13,7 @@ use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Appointments\Support\AppointmentMoment;
 
 /**
- * O lembrete de 1 h antes, que o app e o Figma prometem. Só push: no sino ele viraria uma lista de
+ * O lembrete antes do encontro (até 1 h antes), que o app e o Figma prometem. Só push: no sino ele viraria uma lista de
  * lembretes vencidos, e a tela inicial já mostra a contagem regressiva. Um lembrete que não chega
  * antes do encontro começar é descartado pela Expo.
  */
@@ -31,8 +31,10 @@ final class AppointmentReminderNotification extends ContentNotification
 
     public function content(): NotificationContent
     {
-        $title = __('appointments::resources.appointments.notifications.push.reminder.title');
-        $body = __('appointments::resources.appointments.notifications.push.reminder.body', AppointmentMoment::of($this->appointment)->toReplacements());
+        // O título diz a hora, não "em 1 hora": continua verdadeiro com o job atrasado ou com um
+        // encontro remarcado para dentro da hora.
+        $title = __('appointments::resources.appointments.notifications.push.reminder.title', AppointmentMoment::of($this->appointment)->toReplacements());
+        $body = __('appointments::resources.appointments.notifications.push.reminder.body');
 
         return new NotificationContent(
             kind: NotificationKind::AppointmentReminder,

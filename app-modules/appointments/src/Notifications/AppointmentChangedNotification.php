@@ -44,7 +44,7 @@ final class AppointmentChangedNotification extends ContentNotification
                 title: __('appointments::resources.appointments.notifications.push.changed.title'),
                 body: $body,
                 urgent: true,
-                expiresAt: $this->appointment->appointment_at,
+                expiresAt: AppointmentMoment::endOf($this->appointment),
                 data: ['change' => $this->change->value],
             ),
         );

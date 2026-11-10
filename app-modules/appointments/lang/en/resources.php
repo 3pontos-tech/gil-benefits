@@ -148,8 +148,8 @@ return [
                     'unconfirmed' => 'Your appointment on :date at :time is waiting for confirmation again. We will let you know once it is confirmed.',
                 ],
                 'reminder' => [
-                    'title' => 'Your appointment starts in 1 hour',
-                    'body' => 'Today at :time. The room opens 15 minutes before, in the app.',
+                    'title' => 'Your appointment starts at :time',
+                    'body' => 'The room opens 15 minutes before, in the app.',
                 ],
             ],
         ],

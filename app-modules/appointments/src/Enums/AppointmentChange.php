@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Appointments\Enums;
 
-use Carbon\CarbonInterface;
+use TresPontosTech\Appointments\DTO\AppointmentSnapshot;
 use TresPontosTech\Appointments\Models\Appointment;
 
 /**
@@ -23,22 +23,17 @@ enum AppointmentChange: string
      * Compara o encontro salvo com o que ele era antes. Encontro que não estava confirmado não
      * gera aviso: a pessoa ainda espera a confirmação, e é ela que avisa.
      */
-    public static function between(
-        AppointmentStatus $previousStatus,
-        ?string $previousConsultantId,
-        CarbonInterface $previousAppointmentAt,
-        ?string $previousMeetingUrl,
-        Appointment $appointment,
-    ): ?self {
-        if ($previousStatus !== AppointmentStatus::Active) {
+    public static function between(AppointmentSnapshot $before, Appointment $after): ?self
+    {
+        if ($before->status !== AppointmentStatus::Active) {
             return null;
         }
 
         return match (true) {
-            $appointment->status !== AppointmentStatus::Active => self::Unconfirmed,
-            $appointment->consultant_id !== $previousConsultantId => self::Consultant,
-            ! $appointment->appointment_at->equalTo($previousAppointmentAt) => self::Time,
-            $appointment->meeting_url !== $previousMeetingUrl => self::Link,
+            $after->status !== AppointmentStatus::Active => self::Unconfirmed,
+            $after->consultant_id !== $before->consultantId => self::Consultant,
+            ! $after->appointment_at->equalTo($before->appointmentAt) => self::Time,
+            $after->meeting_url !== $before->meetingUrl => self::Link,
             default => null,
         };
     }

@@ -9,9 +9,9 @@ use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Events\AppointmentBooked;
 use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Exceptions\MissingTransitionDataException;
-use TresPontosTech\Appointments\Jobs\SendAppointmentRemindersJob;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Notifications\AppointmentConfirmedNotification;
+use TresPontosTech\Appointments\Support\AppointmentReminder;
 
 final class PendingTransition extends AbstractAppointmentTransition
 {
@@ -44,13 +44,10 @@ final class PendingTransition extends AbstractAppointmentTransition
             return;
         }
 
-        // Confirmar a menos de 1 h do encontro já conta como lembrete: o aviso de confirmação
-        // acabou de dizer o horário.
-        $startsSoon = $this->appointment->appointment_at->lessThanOrEqualTo(now()->addMinutes(SendAppointmentRemindersJob::MINUTES_BEFORE));
-
+        // O aviso de confirmação acaba de dizer o horário: a menos de 1 h do encontro, ele é o lembrete.
         $this->appointment->forceFill([
             'status' => AppointmentStatus::Active,
-            'reminder_sent_at' => $startsSoon ? now() : null,
+            'reminder_sent_at' => AppointmentReminder::stampAfterTellingTheTime($this->appointment->appointment_at),
         ])->save();
 
         event(new AppointmentBooked($this->appointment));
