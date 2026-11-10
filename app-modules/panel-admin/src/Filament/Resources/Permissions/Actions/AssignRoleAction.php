@@ -40,7 +40,8 @@ class AssignRoleAction extends Action
         parent::setUp();
         $this->label(__('panel-admin::resources.permissions.assign_role'));
         $this->icon(Heroicon::OutlinedShieldCheck);
-        $this->visible(fn (): bool => auth()->user()->hasRole(Roles::SuperAdmin));
+        $this->visible(fn (?User $record): bool => auth()->user()->hasRole(Roles::SuperAdmin)
+            && ! $this->isCompanyResponsible($record));
         $this->schema(fn (): array => $this->roleSchema());
         $this->action($this->roleAction(...));
     }
@@ -48,6 +49,20 @@ class AssignRoleAction extends Action
     public static function getDefaultName(): ?string
     {
         return 'assign-role-action';
+    }
+
+    /**
+     * The responsible's role comes from companies.user_id, which only the
+     * ownership transfer changes. Writing a lesser role to their pivot would
+     * make the two sources disagree without changing their access.
+     */
+    private function isCompanyResponsible(?User $record): bool
+    {
+        $company = $this->resolveCompany();
+
+        return $company instanceof Company
+            && $record instanceof User
+            && $company->user_id === $record->getKey();
     }
 
     /**

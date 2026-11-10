@@ -86,7 +86,7 @@ Disparadas pelo `CompanyCreditPage` (panel-company), todas em fila para não seg
 | Retomar créditos não usados | `RevokeCreditsFromEmployeesJob` |
 | Transferir entre colaboradores | `TransferCreditBetweenEmployees` |
 
-O `CompanyCreditsObserver` observa a `Company`: troca de dono migra os créditos da conta da empresa para o novo dono, também em fila.
+Troca de responsável da empresa é evento do módulo company (`CompanyOwnershipTransferred`, disparado por `TransferCompanyOwnership`). O listener `MigrateCreditsOnCompanyOwnershipTransferred` migra os créditos da conta da empresa para o novo responsável, também em fila.
 
 No admin, `GrantExtraCredit` concede e `RevokeCreditGrant` revoga: apaga (soft delete) só os créditos da concessão que ainda estão `available`. Os já consumidos ficam — agendamento marcado não se desfaz — e o `CreditGrant` permanece como registro permanente da doação.
 

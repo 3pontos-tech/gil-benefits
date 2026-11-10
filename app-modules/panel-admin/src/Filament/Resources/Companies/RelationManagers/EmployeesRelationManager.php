@@ -5,6 +5,7 @@ namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManager
 use Filament\Actions\AttachAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
@@ -47,6 +48,9 @@ class EmployeesRelationManager extends RelationManager
                     ->color(fn ($state): string|array => $state instanceof Roles
                         ? $state->getColor()
                         : (filled($state) ? Roles::from($state)->getColor() : 'gray')),
+                IconColumn::make('pivot.active')
+                    ->label(__('panel-admin::resources.companies.relation_managers.employees.active'))
+                    ->boolean(),
             ])
             ->headerActions([
                 AttachAction::make()

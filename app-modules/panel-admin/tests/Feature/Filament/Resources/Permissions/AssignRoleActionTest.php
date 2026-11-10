@@ -110,3 +110,21 @@ it('refuses the employee role for someone already employed at another company', 
 
     expect($company->employees()->whereKey($person->getKey())->first()->pivot->role)->toBe(Roles::CompanyManager);
 });
+
+it('is hidden for the company responsible in the company context', function (): void {
+    actingAsSuperAdmin();
+
+    $responsible = User::factory()->create();
+    $company = Company::factory()->create(['user_id' => $responsible->getKey()]);
+    $company->employees()->attach($responsible->getKey(), ['role' => Roles::CompanyOwner->value]);
+
+    $employee = User::factory()->create();
+    $company->employees()->attach($employee->getKey(), ['role' => Roles::Employee->value]);
+
+    livewire(EmployeesRelationManager::class, [
+        'ownerRecord' => $company,
+        'pageClass' => EditCompany::class,
+    ])
+        ->assertActionHidden(TestAction::make('assign-role-action')->table($responsible))
+        ->assertActionVisible(TestAction::make('assign-role-action')->table($employee));
+});
