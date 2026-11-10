@@ -11,4 +11,9 @@ return [
         'title' => 'Credits arrived!',
         'body' => ':quantity credit(s) have been added to your account.',
     ],
+    // Sem a quantidade: o push aparece na tela de bloqueio (#349).
+    'credits_expiring' => [
+        'title' => 'Your credit expires soon',
+        'body' => 'Book an appointment by :date to use your credit before it expires.',
+    ],
 ];

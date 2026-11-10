@@ -128,6 +128,32 @@ return [
                 'title' => 'Agendamento Concluído!',
                 'body' => 'Seu agendamento foi concluído. Verifique seu painel para mais detalhes.',
             ],
+            'changed' => [
+                'title' => 'Seu encontro mudou',
+            ],
+            // Texto do celular (#349): aparece na tela de bloqueio, então só o dia e a hora do
+            // encontro da própria pessoa; nunca o consultor, o assunto ou o link da sala.
+            'push' => [
+                'confirmed' => [
+                    'title' => 'Encontro confirmado',
+                    'body' => 'Seu encontro de :date, às :time, está confirmado. Toque para ver os detalhes.',
+                ],
+                'cancelled' => [
+                    'title' => 'Encontro cancelado',
+                    'body' => 'Seu encontro de :date, às :time, foi cancelado pela equipe. Toque para ver os detalhes e marcar outro.',
+                ],
+                'changed' => [
+                    'title' => 'Seu encontro mudou',
+                    'time' => 'Novo horário: :date, às :time. Toque para ver os detalhes.',
+                    'consultant' => 'Seu encontro de :date, às :time, tem um novo consultor e um novo link da sala. Toque para ver.',
+                    'link' => 'O link da sala do seu encontro de :date, às :time, mudou. Entre pela tela do encontro.',
+                    'unconfirmed' => 'Seu encontro de :date, às :time, voltou a aguardar confirmação. Avisaremos quando for confirmado.',
+                ],
+                'reminder' => [
+                    'title' => 'Seu encontro começa em 1 hora',
+                    'body' => 'Hoje, às :time. A sala abre 15 minutos antes, pelo app.',
+                ],
+            ],
         ],
 
         'wizard' => [

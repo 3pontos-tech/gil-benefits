@@ -7,9 +7,12 @@ use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
+use TresPontosTech\Appointments\Enums\AppointmentChange;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
+use TresPontosTech\Appointments\Enums\AppointmentStatus;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Notifications\AppointmentChangedNotification;
 use TresPontosTech\PanelAdmin\Filament\Resources\Appointments\AppointmentResource;
 
 /**
@@ -22,6 +25,10 @@ class EditAppointment extends EditRecord
     protected ?string $previousConsultantId = null;
 
     protected ?CarbonInterface $previousAppointmentAt = null;
+
+    protected ?string $previousMeetingUrl = null;
+
+    protected ?AppointmentStatus $previousStatus = null;
 
     protected ?Appointment $appointment = null;
 
@@ -44,6 +51,8 @@ class EditAppointment extends EditRecord
         $appointment = $this->record;
         $this->previousConsultantId = $appointment->consultant_id;
         $this->previousAppointmentAt = $appointment->appointment_at;
+        $this->previousMeetingUrl = $appointment->meeting_url;
+        $this->previousStatus = $appointment->status;
 
         return $data;
     }
@@ -83,6 +92,32 @@ class EditAppointment extends EditRecord
                 ->send();
         }
 
+        $this->tellTheEmployee($appointment);
+
         $this->redirect(AppointmentResource::getUrl('view', ['record' => $this->record]));
+    }
+
+    /**
+     * Avisa a pessoa quando a equipe mudou um encontro já confirmado (gil-benefits#349). Sai daqui,
+     * e não da sincronização da agenda, porque confirmar e o reagendamento feito pela própria
+     * pessoa também passam por ela.
+     */
+    private function tellTheEmployee(Appointment $appointment): void
+    {
+        if (! $this->previousStatus instanceof AppointmentStatus || ! $this->previousAppointmentAt instanceof CarbonInterface) {
+            return;
+        }
+
+        $change = AppointmentChange::between(
+            $this->previousStatus,
+            $this->previousConsultantId,
+            $this->previousAppointmentAt,
+            $this->previousMeetingUrl,
+            $appointment,
+        );
+
+        if ($change instanceof AppointmentChange) {
+            $appointment->user->notify(new AppointmentChangedNotification($appointment, $change));
+        }
     }
 }

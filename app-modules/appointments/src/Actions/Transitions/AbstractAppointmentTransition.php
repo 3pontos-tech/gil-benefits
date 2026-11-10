@@ -123,7 +123,7 @@ abstract class AbstractAppointmentTransition
 
         $isLate = $this->appointment->status === AppointmentStatus::CancelledLate;
 
-        $notification = new AppointmentCancelledNotification($this->appointment, $isLate);
+        $notification = new AppointmentCancelledNotification($this->appointment, $isLate, $data->cancellationActor);
         $this->appointment->user->notify($notification);
         $notification->flash();
 

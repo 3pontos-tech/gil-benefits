@@ -11,4 +11,9 @@ return [
         'title' => 'Créditos chegaram!',
         'body' => ':quantity crédito(s) foram adicionados à sua conta.',
     ],
+    // Sem a quantidade: o push aparece na tela de bloqueio (#349).
+    'credits_expiring' => [
+        'title' => 'Seu crédito vence em breve',
+        'body' => 'Agende um encontro até :date para usar seu crédito antes do vencimento.',
+    ],
 ];

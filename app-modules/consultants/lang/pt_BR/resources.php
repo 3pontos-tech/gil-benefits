@@ -51,4 +51,13 @@ return [
             'not_uploaded_by_you' => 'Só é possível remover os materiais que você enviou.',
         ],
     ],
+
+    // Aviso e push do material compartilhado (#349): sem o título do material, que pode revelar
+    // a situação financeira da pessoa na tela de bloqueio.
+    'notifications' => [
+        'material_shared' => [
+            'title' => 'Novo material do seu consultor',
+            'body' => 'Seu consultor compartilhou um material com você. Toque para abrir.',
+        ],
+    ],
 ];

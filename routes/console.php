@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 use TresPontosTech\Api\Models\PasswordResetCode;
 use TresPontosTech\Appointments\Jobs\MarkAppointmentsAsCompleted;
+use TresPontosTech\Appointments\Jobs\SendAppointmentRemindersJob;
+use TresPontosTech\Credits\Jobs\WarnExpiringCreditsJob;
 use TresPontosTech\Vouchers\Jobs\ExpireVoucherCreditsJob;
 
 Artisan::command('inspire', function (): void {
@@ -13,6 +15,14 @@ Artisan::command('inspire', function (): void {
 
 Schedule::job(new MarkAppointmentsAsCompleted)
     ->dailyAt('08:00')
+    ->withoutOverlapping();
+
+Schedule::job(new SendAppointmentRemindersJob)
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+Schedule::job(new WarnExpiringCreditsJob)
+    ->dailyAt('10:00')
     ->withoutOverlapping();
 
 Schedule::job(new ExpireVoucherCreditsJob)

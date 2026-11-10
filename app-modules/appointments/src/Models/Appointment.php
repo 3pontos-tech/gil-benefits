@@ -46,6 +46,7 @@ use TresPontosTech\Credits\Models\UserCredit;
  * @property string|null $cancelled_by
  * @property CancellationActor|null $cancellation_actor
  * @property Carbon|null $quota_refunded_at
+ * @property Carbon|null $reminder_sent_at
  * @property-read AbstractAppointmentTransition $current_transition
  */
 #[UseFactory(AppointmentFactory::class)]
@@ -226,6 +227,7 @@ class Appointment extends Model
             'category_type' => AppointmentCategoryEnum::class,
             'cancellation_actor' => CancellationActor::class,
             'quota_refunded_at' => 'datetime',
+            'reminder_sent_at' => 'datetime',
         ];
     }
 

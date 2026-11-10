@@ -82,7 +82,22 @@ final readonly class SyncAppointmentScheduleAction
     {
         if ($timeChanged) {
             $this->recordHistory($appointment, AppointmentHistoryActionType::ReScheduled, $actor);
+            $this->forgetReminder($appointment);
         }
+    }
+
+    /**
+     * O encontro remarcado é lembrado de novo no horário novo. Vai direto no banco para não entrar
+     * nas mudanças do modelo, que o histórico lê; e só depois de o horário novo estar garantido,
+     * porque um consultor ocupado devolve o encontro ao horário antigo, já lembrado.
+     */
+    private function forgetReminder(Appointment $appointment): void
+    {
+        if ($appointment->reminder_sent_at === null) {
+            return;
+        }
+
+        Appointment::query()->whereKey($appointment->getKey())->update(['reminder_sent_at' => null]);
     }
 
     private function recordHistory(Appointment $appointment, AppointmentHistoryActionType $type, AppointmentHistoryActor $actor): void
