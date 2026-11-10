@@ -17,11 +17,11 @@ Schedule::job(new MarkAppointmentsAsCompleted)
     ->dailyAt('08:00')
     ->withoutOverlapping();
 
-Schedule::job(new SendAppointmentRemindersJob)
+Schedule::job(new SendAppointmentRemindersJob, (string) config('api.push.queue'))
     ->everyFiveMinutes()
     ->withoutOverlapping();
 
-Schedule::job(new WarnExpiringCreditsJob)
+Schedule::job(new WarnExpiringCreditsJob, (string) config('api.push.queue'))
     ->hourlyAt(7)
     ->between('09:00', '20:00')
     ->withoutOverlapping();

@@ -101,8 +101,8 @@ de vencer. Os outros avisos ficam no sino e no e-mail.
     `general` para os outros. **Os ids estão congelados**, porque o app cria os canais e a importância de um canal não
     muda depois de criado.
   - O link da sala nunca vai no payload. O teste `Contract/PushPayloadContractTest` fixa o contrato de cada tipo.
-- **Envio.** O `SendPushNotificationJob` vai para a fila `api.push.queue` (`default`, ou `PUSH_QUEUE`) depois do
-  commit.
+- **Envio.** O `SendPushNotificationJob` vai para a fila própria do push, `api.push.queue` (`push`, ou outra definida
+  em `PUSH_QUEUE`), depois do commit. Os jobs agendados que geram push (lembrete e créditos) também vão para ela.
   - Ele confere o acesso ao app na hora do envio (`ResolveAppAccessAction`) e não envia um aviso que passou da
     validade.
   - Manda pela Expo Push API, que entrega pelo FCM e pelo APNs. A entrega é "pelo menos uma vez": conexão, 429 e 5xx
@@ -124,16 +124,23 @@ de vencer. Os outros avisos ficam no sino e no e-mail.
 
 ### Deploy por ambiente
 
-Faça em homologação e depois em produção. O pipeline normal (`migrate --force`) entrega o código; o resto é conferir,
-porque nada novo é obrigatório. O lado do app (contas Expo, Firebase e Apple, `google-services.json`, build) está em
+Faça em homologação e depois em produção. O pipeline normal (`migrate --force`) entrega o código. **O worker precisa
+consumir a fila `push`**: é um passo manual no Forge, então a release que traz o push é MAJOR (`RELEASING.md`). O lado
+do app (contas Expo, Firebase e Apple, `google-services.json`, build) está em
 `gil-benefits-mobile/docs/release-checklist.md`.
 
 1. **Migrations**, que rodam no deploy:
    - `push_tokens` e `push_tickets`;
    - `appointments.reminder_sent_at`;
    - `user_credits.expiry_warned_week_before_at` e `expiry_warned_day_before_at`.
-2. **Worker:** precisa consumir a fila `default` (ou a de `PUSH_QUEUE`, se definida). Depois do deploy, rode
-   `php artisan queue:restart`.
+2. **Worker (passo manual no Forge, antes ou junto do deploy):**
+   - Inclua a fila `push` na frente: `--queue=push,emails,default,users-import`. Assim, sempre que o worker pegar a
+     próxima tarefa, o push passa à frente de e-mails, atas geradas por IA e sincronização de agenda.
+   - Para o push nunca esperar atrás de uma ata (até 3 minutos), crie um segundo processo de worker só com
+     `--queue=push`, ou aumente o número de processos.
+   - Depois do deploy, rode `php artisan queue:restart`.
+   - Sem esse passo, os pushes ficam parados na fila. Os que vencerem enquanto isso são descartados quando o worker
+     voltar.
 3. **Scheduler:** precisa rodar a cada minuto (`schedule:run`), como já precisa hoje. O `php artisan schedule:list`
    deve mostrar:
    - o lembrete, a cada 5 minutos;
