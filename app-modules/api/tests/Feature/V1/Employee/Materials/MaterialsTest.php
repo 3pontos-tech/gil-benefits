@@ -49,6 +49,12 @@ function sharedMaterial(User $employee, array $document = [], array $share = [],
     return $material;
 }
 
+/** A small real PDF, so the stored type and size come from the content. */
+function pdfBytes(): string
+{
+    return "%PDF-1.4\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n";
+}
+
 /**
  * @param  array<string, mixed>  $attributes
  */
@@ -164,6 +170,7 @@ it('answers 404 for a material the employee cannot see', function (string $route
     'favorite' => ['api.v1.materials.favorite', 'PATCH'],
     'viewed' => ['api.v1.materials.viewed', 'PATCH'],
     'delete' => ['api.v1.materials.destroy', 'DELETE'],
+    'download' => ['api.v1.materials.download', 'POST'],
 ]);
 
 it('uploads a material that is already seen by its owner', function (): void {
@@ -186,7 +193,7 @@ it('uploads a material that is already seen by its owner', function (): void {
         ->and($document->active)->toBeTrue()
         ->and($document->type)->toBe(DocumentExtensionTypeEnum::PDF)
         ->and($document->getMedia('documents'))->toHaveCount(1)
-        ->and($response->json('data.file.url'))->toBeString()->not->toBeEmpty();
+        ->and($response->json('data.file'))->not->toHaveKey('url');
 });
 
 it('refuses an upload outside the accepted types or without a title', function (): void {
@@ -214,4 +221,53 @@ it('deletes only the employee own materials', function (): void {
     expect(Document::query()->find($own->id))->toBeNull()
         ->and(Document::withTrashed()->find($own->id))->not->toBeNull()
         ->and(Document::query()->find($shared->id))->not->toBeNull();
+});
+
+it('hands the file through a two-minute link that downloads it with its real name', function (): void {
+    $captured = [];
+    Storage::disk('r2')->buildTemporaryUrlsUsing(function (string $path, DateTimeInterface $expiration, array $options) use (&$captured): string {
+        $captured = ['expiration' => $expiration, ...$options];
+
+        return 'https://r2.test/' . $path . '?signature=x';
+    });
+    $material = sharedMaterial($this->employee, ['title' => 'Relatório de março']);
+    $material->addMedia(UploadedFile::fake()->createWithContent('relatorio-v2.pdf', pdfBytes()))
+        ->toMediaCollection('documents');
+
+    postJson(route('api.v1.materials.download', $material->id))
+        ->assertOk()
+        ->assertJsonPath('data.url', fn (string $url): bool => str_starts_with($url, 'https://r2.test/'))
+        ->assertJsonPath('data.filename', 'Relatório de março.pdf')
+        ->assertJsonPath('data.mime_type', 'application/pdf')
+        ->assertJsonPath('data.size', strlen(pdfBytes()))
+        ->assertJsonPath('data.expires_at', '2026-10-08T10:02:00-03:00');
+
+    expect($captured['expiration']->getTimestamp())->toBe(now()->addSeconds(120)->getTimestamp())
+        ->and($captured['ResponseContentType'])->toBe('application/pdf')
+        ->and($captured['ResponseContentDisposition'])
+        ->toBe("attachment; filename=\"Relatorio de marco.pdf\"; filename*=utf-8''Relat%C3%B3rio%20de%20mar%C3%A7o.pdf");
+});
+
+it('hands the employee own upload too, and answers 404 for a material that is only a link', function (): void {
+    $own = ownMaterial($this->employee, ['title' => 'Extrato: setembro/outubro']);
+    $own->addMedia(UploadedFile::fake()->createWithContent('extrato.pdf', pdfBytes()))->toMediaCollection('documents');
+    $lesson = sharedMaterial($this->employee, ['type' => 'link', 'link' => 'https://example.com/aula']);
+
+    postJson(route('api.v1.materials.download', $own->id))
+        ->assertOk()
+        ->assertJsonPath('data.filename', 'Extrato setembro outubro.pdf');
+    postJson(route('api.v1.materials.download', $lesson->id))->assertNotFound();
+});
+
+it('lists the materials without any link to the stored file', function (): void {
+    $material = sharedMaterial($this->employee);
+    $material->addMedia(UploadedFile::fake()->createWithContent('extrato.pdf', pdfBytes()))->toMediaCollection('documents');
+
+    $response = getJson(route('api.v1.materials.index'))->assertOk();
+
+    expect($response->json('data.0.file'))->toBe([
+        'name' => 'extrato.pdf',
+        'mime_type' => 'application/pdf',
+        'size' => strlen(pdfBytes()),
+    ]);
 });
