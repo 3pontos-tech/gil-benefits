@@ -45,4 +45,22 @@ enum NotificationKind: string
             self::CreditsExpiring,
         ];
     }
+
+    /**
+     * O canal Android do push. O app cria os dois na abertura, e a importância de um canal não
+     * muda depois de criado: os ids estão congelados (gil-benefits-mobile#9). Os avisos de
+     * encontro têm importância alta; os outros, normal, e a pessoa pode silenciá-los à parte.
+     */
+    public function androidChannel(): string
+    {
+        return match ($this) {
+            self::AppointmentConfirmed,
+            self::AppointmentChanged,
+            self::AppointmentCancelled,
+            self::AppointmentCancelledLate,
+            self::AppointmentCompleted,
+            self::AppointmentReminder => 'appointments',
+            default => 'general',
+        };
+    }
 }

@@ -85,7 +85,8 @@ class ApiServiceProvider extends ServiceProvider
             $this->app->make(Schedule::class)
                 ->command('push:check-receipts')
                 ->everyFifteenMinutes()
-                ->withoutOverlapping();
+                ->withoutOverlapping(10)
+                ->runInBackground();
         });
     }
 

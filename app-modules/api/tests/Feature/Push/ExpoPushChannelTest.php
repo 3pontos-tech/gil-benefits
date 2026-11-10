@@ -9,10 +9,18 @@ use App\Notifications\NotificationKind;
 use App\Notifications\NotificationPush;
 use App\Notifications\NotificationTone;
 use Illuminate\Http\Client\Request;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Sleep;
+use TresPontosTech\Api\Actions\Employee\Auth\ResolveAppAccessAction;
+use TresPontosTech\Api\DTOs\Push\ExpoPushMessage;
+use TresPontosTech\Api\Exceptions\PushConfigurationException;
+use TresPontosTech\Api\Jobs\SendPushNotificationJob;
 use TresPontosTech\Api\Models\PushTicket;
 use TresPontosTech\Api\Models\PushToken;
+use TresPontosTech\Api\Support\ExpoPushClient;
 
 /**
  * Um aviso qualquer com texto de push; `$pushOnly` tira a linha do sino, como o lembrete.
@@ -153,4 +161,81 @@ it('drops the push when the moment has passed', function (): void {
     $this->employee->notify(pushNotice(new NotificationPush('Seu encontro começa em 1 hora', 'Hoje.', expiresAt: $startsAt)));
 
     Http::assertSent(fn (Request $request): bool => $request->data()[0]['expiration'] === $startsAt->getTimestamp());
+});
+
+it('tags each push with its Android channel', function (): void {
+    PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    expoAnswers([['status' => 'ok', 'id' => 'ticket-1']]);
+
+    $this->employee->notify(pushNotice(new NotificationPush('Encontro confirmado', 'Corpo')));
+
+    Http::assertSent(fn (Request $request): bool => $request->data()[0]['channelId'] === 'appointments');
+});
+
+it('sends nothing when the notice is cancelled with the change that caused it', function (): void {
+    PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    Http::fake();
+
+    DB::beginTransaction();
+    $this->employee->notify(pushNotice(new NotificationPush('Encontro confirmado', 'Corpo')));
+    DB::rollBack();
+
+    Http::assertNothingSent();
+});
+
+it('sends nothing once the notice is past its moment', function (): void {
+    PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    Http::fake();
+
+    $this->employee->notify(pushNotice(new NotificationPush('Seu encontro começa às 10:00', 'Corpo', expiresAt: now()->subMinute())));
+
+    Http::assertNothingSent();
+});
+
+it('keeps sending to the other phones when one leaves the account mid-send', function (): void {
+    $leaving = PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    Http::fake(function () use ($leaving) {
+        $leaving->delete();
+
+        return Http::response(['data' => [['status' => 'ok', 'id' => 'ticket-1'], ['status' => 'ok', 'id' => 'ticket-2']]]);
+    });
+
+    $this->employee->notify(pushNotice(new NotificationPush('Encontro confirmado', 'Corpo')));
+
+    expect(PushTicket::query()->count())->toBe(1);
+});
+
+it('reports a configuration error instead of only logging it, without the token', function (): void {
+    Exceptions::fake();
+    $phone = PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    expoAnswers([['status' => 'error', 'message' => 'credentials for ' . $phone->token, 'details' => ['error' => 'InvalidCredentials']]]);
+
+    $this->employee->notify(pushNotice(new NotificationPush('Encontro confirmado', 'Corpo')));
+
+    Exceptions::assertReported(fn (PushConfigurationException $exception): bool => str_contains($exception->getMessage(), 'InvalidCredentials')
+        && ! str_contains($exception->getMessage(), $phone->token));
+    expect(PushToken::query()->count())->toBe(1);
+});
+
+it('leaves an outage to the queue to try again later', function (): void {
+    Sleep::fake();
+    PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    Http::fake(['exp.host/*' => Http::response(['errors' => [['code' => 'INTERNAL_SERVER_ERROR']]], 503)]);
+    $job = new SendPushNotificationJob((string) $this->employee->getKey(), new ExpoPushMessage('Encontro confirmado', 'Corpo', ['type' => 'appointment_confirmed'], urgent: true, androidChannel: 'appointments'));
+
+    expect(fn () => $job->handle(resolve(ExpoPushClient::class), resolve(ResolveAppAccessAction::class)))->toThrow(RequestException::class)
+        ->and($job->tries)->toBe(5)
+        ->and($job->backoff())->toBe([30, 120, 600, 600]);
+});
+
+it('gives up at once on a request the Expo refuses as malformed', function (): void {
+    PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    Http::fake(['exp.host/*' => Http::response(['errors' => [['code' => 'VALIDATION_ERROR']]], 400)]);
+    $job = (new SendPushNotificationJob((string) $this->employee->getKey(), new ExpoPushMessage('Encontro confirmado', 'Corpo', ['type' => 'appointment_confirmed'], urgent: true, androidChannel: 'appointments')))
+        ->withFakeQueueInteractions();
+
+    $job->handle(resolve(ExpoPushClient::class), resolve(ResolveAppAccessAction::class));
+
+    $job->assertFailed();
 });

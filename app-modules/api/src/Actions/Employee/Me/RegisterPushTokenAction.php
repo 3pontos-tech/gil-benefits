@@ -25,11 +25,13 @@ final readonly class RegisterPushTokenAction
                 ->where('token', '!=', $token)
                 ->delete();
 
+            // O updated_at marca o último registro: um recibo de "aparelho não existe" mais antigo
+            // que ele não apaga o token (CheckPushReceiptsCommand).
             PushToken::query()->updateOrCreate(['token' => $token], [
                 'user_id' => $user->getKey(),
                 'personal_access_token_id' => $session->getKey(),
                 'platform' => $platform,
-            ]);
+            ])->touch();
         });
     }
 }

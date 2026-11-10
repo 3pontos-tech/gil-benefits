@@ -3,8 +3,9 @@
 declare(strict_types=1);
 
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use TresPontosTech\Api\Exceptions\PushConfigurationException;
 use TresPontosTech\Api\Models\PushTicket;
 use TresPontosTech\Api\Models\PushToken;
 
@@ -24,7 +25,8 @@ function pushTicketFor(PushToken $token, string $id, int $minutesAgo = 20): Push
 }
 
 beforeEach(function (): void {
-    $this->phone = PushToken::factory()->create(['user_id' => standaloneSubscriber()->getKey()]);
+    // O aparelho se registrou antes de qualquer envio dos testes.
+    $this->phone = PushToken::factory()->create(['user_id' => standaloneSubscriber()->getKey(), 'created_at' => now()->subHour(), 'updated_at' => now()->subHour()]);
 });
 
 it('clears the tickets that were delivered', function (): void {
@@ -47,15 +49,28 @@ it('forgets a phone whose receipt says it no longer exists', function (): void {
         ->and(PushTicket::query()->count())->toBe(0);
 });
 
-it('logs a configuration error by its code alone', function (): void {
+it('reports a configuration error by its code alone', function (): void {
+    Exceptions::fake();
     pushTicketFor($this->phone, 'bad-key');
     expoReceipts(['bad-key' => ['status' => 'error', 'message' => 'credentials for ' . $this->phone->token, 'details' => ['error' => 'InvalidCredentials']]]);
-    Log::shouldReceive('error')->once()->with('push.receipt_error', ['error' => 'InvalidCredentials']);
 
     artisan('push:check-receipts')->assertSuccessful();
 
+    Exceptions::assertReported(fn (PushConfigurationException $exception): bool => str_contains($exception->getMessage(), 'InvalidCredentials')
+        && ! str_contains($exception->getMessage(), $this->phone->token));
     expect(PushTicket::query()->count())->toBe(0)
         ->and(PushToken::query()->count())->toBe(1);
+});
+
+it('keeps a phone the app registered again after the push was sent', function (): void {
+    pushTicketFor($this->phone, 'reinstalled', minutesAgo: 20);
+    $this->phone->touch();
+    expoReceipts(['reinstalled' => ['status' => 'error', 'details' => ['error' => 'DeviceNotRegistered']]]);
+
+    artisan('push:check-receipts')->assertSuccessful();
+
+    expect(PushToken::query()->count())->toBe(1)
+        ->and(PushTicket::query()->count())->toBe(0);
 });
 
 it('waits for receipts that are not ready yet', function (): void {

@@ -102,6 +102,7 @@ return [
 
     'push' => [
         'access_token' => env('EXPO_ACCESS_TOKEN'),
+        'queue' => env('PUSH_QUEUE', 'default'),
         'send_url' => 'https://exp.host/--/api/v2/push/send',
         'receipts_url' => 'https://exp.host/--/api/v2/push/getReceipts',
         'messages_per_request' => 100,

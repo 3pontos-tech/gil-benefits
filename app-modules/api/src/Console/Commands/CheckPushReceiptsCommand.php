@@ -7,6 +7,9 @@ namespace TresPontosTech\Api\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
+use TresPontosTech\Api\DTOs\Push\ExpoPushReceipt;
+use TresPontosTech\Api\Enums\ExpoPushError;
+use TresPontosTech\Api\Exceptions\PushConfigurationException;
 use TresPontosTech\Api\Models\PushTicket;
 use TresPontosTech\Api\Models\PushToken;
 use TresPontosTech\Api\Support\ExpoPushClient;
@@ -41,27 +44,28 @@ final class CheckPushReceiptsCommand extends Command
     }
 
     /**
-     * Sem recibo ainda, o ticket espera a próxima rodada. Com recibo, sai; e um erro que não é do
-     * aparelho vai para o log só com o código, porque é configuração (chave FCM, credenciais).
-     *
-     * @param  array<string, mixed>|null  $receipt
+     * Sem recibo ainda, o ticket espera a próxima rodada. Com recibo, sai. Um aparelho que não
+     * existe mais leva o token junto, a não ser que o app o tenha registrado de novo depois do
+     * envio (reinstalar no iPhone devolve o mesmo token). Erro de configuração (chave FCM,
+     * credenciais) é relatado; o resto vai para o log só com o código.
      */
-    private function settle(PushTicket $ticket, ?array $receipt): void
+    private function settle(PushTicket $ticket, ?ExpoPushReceipt $receipt): void
     {
-        if ($receipt === null) {
+        if (! $receipt instanceof ExpoPushReceipt) {
             return;
         }
 
-        $error = data_get($receipt, 'details.error');
+        $error = $receipt->error();
 
-        if ($error === 'DeviceNotRegistered') {
-            PushToken::query()->whereKey($ticket->push_token_id)->delete();
-
-            return;
-        }
-
-        if (($receipt['status'] ?? null) !== 'ok') {
-            Log::error('push.receipt_error', ['error' => $error]);
+        if ($error === ExpoPushError::DeviceNotRegistered) {
+            PushToken::query()
+                ->whereKey($ticket->push_token_id)
+                ->where('updated_at', '<=', $ticket->created_at)
+                ->delete();
+        } elseif ($error?->isConfiguration() === true) {
+            report(PushConfigurationException::from($error, 'receipt'));
+        } elseif (! $receipt->delivered) {
+            Log::warning('push.receipt_error', ['error' => $receipt->errorCode]);
         }
 
         $ticket->delete();
