@@ -79,28 +79,48 @@ Pelo app, com um código de 6 dígitos por e-mail (#323), em três rotas públic
 ## Push notifications
 
 Só vão ao celular os avisos que a pessoa precisa receber na hora, porque saber depois a prejudica (#349): encontro
-confirmado, alterado e cancelado pela equipe, lembrete 1 h antes, material novo do consultor e crédito perto de vencer.
-Os outros avisos ficam no sino e no e-mail.
+confirmado, alterado e cancelado pela equipe, lembrete antes do encontro, material novo do consultor e crédito perto
+de vencer. Os outros avisos ficam no sino e no e-mail.
 
-- **Token do aparelho.** O app registra o token da Expo com `PUT me/push-token` e o apaga com `DELETE me/push-token`;
-  as duas rotas respondem `204` e são idempotentes. O corpo do `PUT` tem `token` (`ExponentPushToken[...]` ou
-  `ExpoPushToken[...]`) e `platform` (`android` ou `ios`). O token fica preso à sessão, o token Bearer: sair, trocar a
-  senha, entrar de novo no mesmo aparelho e o prune o apagam junto, pela FK em cascata. Um token que era de outra
-  conta passa para quem entrou.
+- **Token do aparelho.** O app registra o token da Expo com `PUT me/push-token` e o apaga com `DELETE me/push-token`.
+  - As duas rotas respondem `204` e são idempotentes.
+  - O corpo do `PUT` tem `token` (`ExponentPushToken[...]` ou `ExpoPushToken[...]`) e `platform` (`android` ou `ios`).
+  - O token fica preso à sessão, o token Bearer: sair, trocar a senha, entrar de novo no mesmo aparelho e o prune o
+    apagam junto, pela FK em cascata. Um 403 de acesso também encerra a sessão no servidor (`EnsureAppAccess`).
+  - Um token que era de outra conta passa para quem entrou. Todo `PUT` atualiza o `updated_at`, e é por ele que um
+    recibo antigo de "aparelho não existe" deixa de apagar um token registrado de novo.
 - **Quem vira push.** O aviso é uma `ContentNotification` cujo `NotificationContent` tem `push`, um `NotificationPush`
   com título e texto próprios para a tela de bloqueio, prioridade e validade. A base acrescenta o canal `expo-push`,
   registrado aqui pelo nome, então os módulos de domínio pedem o push sem importar a API.
-- **Payload.** `data` traz `type` (o `NotificationKind`) e, quando houver, `notification_id`, `appointment_id`,
-  `document_id` e `change`. O `notification_id` só vem quando o aviso também está no sino; o lembrete é só push. O
-  `change` (`time`, `consultant`, `link` ou `unconfirmed`) só vem no `appointment_changed`. O link da sala nunca vai
-  no payload.
-- **Envio.** O `SendPushNotificationJob` vai para a fila `default` depois do commit, confere o acesso ao app na hora
-  (`ResolveAppAccessAction`) e manda pela Expo Push API, que entrega pelo FCM e pelo APNs. Um `DeviceNotRegistered`
-  no ticket ou no recibo apaga o token. O `push:check-receipts` confere os recibos a cada 15 minutos.
+- **Payload.** O canal monta um `ExpoPushMessage` (DTO), e só ele conhece o formato da Expo.
+  - `data` traz `type` (o `NotificationKind`) e, quando houver, `notification_id`, `appointment_id`, `document_id` e
+    `change`.
+  - O `notification_id` só vem quando o aviso também está no sino; o lembrete é só push.
+  - O `change` (`time`, `consultant`, `link` ou `unconfirmed`) só vem no `appointment_changed`.
+  - O `channelId` do Android sai de `NotificationKind::androidChannel()`: `appointments` para os avisos de encontro,
+    `general` para os outros. **Os ids estão congelados**, porque o app cria os canais e a importância de um canal não
+    muda depois de criado.
+  - O link da sala nunca vai no payload. O teste `Contract/PushPayloadContractTest` fixa o contrato de cada tipo.
+- **Envio.** O `SendPushNotificationJob` vai para a fila `api.push.queue` (`default`, ou `PUSH_QUEUE`) depois do
+  commit.
+  - Ele confere o acesso ao app na hora do envio (`ResolveAppAccessAction`) e não envia um aviso que passou da
+    validade.
+  - Manda pela Expo Push API, que entrega pelo FCM e pelo APNs. A entrega é "pelo menos uma vez": conexão, 429 e 5xx
+    se repetem no cliente e depois no job (5 tentativas, até uns 20 minutos); um 4xx falha de vez.
+  - A resposta da Expo vira `ExpoPushTicket`. Um `DeviceNotRegistered` apaga o token. Um erro de configuração
+    (`InvalidCredentials`, `MismatchSenderId`, `MessageTooBig`) é relatado como `PushConfigurationException`, e o
+    Nightwatch o captura.
+  - O `push:check-receipts` confere os recibos (`ExpoPushReceipt`) a cada 15 minutos. Nenhum log leva o token.
 - **Configuração.** O `EXPO_ACCESS_TOKEN` é opcional enquanto a segurança reforçada do push estiver desligada no
   projeto da Expo; com ela ligada, todo envio sem o token falha.
-- **Agendamentos.** O `SendAppointmentRemindersJob` roda a cada 5 minutos e marca `appointments.reminder_sent_at`. O
-  `WarnExpiringCreditsJob` roda às 10:00 e avisa 7 dias e 1 dia antes do vencimento.
+- **Agendamentos:**
+  - O `SendAppointmentRemindersJob` roda a cada 5 minutos e reserva cada lembrete com um update condicional em
+    `appointments.reminder_sent_at`. Confirmar ou remarcar para dentro da próxima hora já conta como lembrete
+    (`AppointmentReminder`).
+  - O `WarnExpiringCreditsJob` roda de hora em hora, das 9h às 20h, e avisa uma semana antes e na véspera. As marcas
+    ficam em `user_credits`, então uma rodada perdida é recuperada na seguinte.
+- **Encontro alterado.** A equipe edita um encontro e a tela chama `NotifyAppointmentChangedAction` com o
+  `AppointmentSnapshot` de antes; a regra de qual mudança contar é `AppointmentChange::between()`.
 
 ## Convenções da resposta
 
