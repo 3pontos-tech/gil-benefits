@@ -76,6 +76,32 @@ Pelo app, com um código de 6 dígitos por e-mail (#323), em três rotas públic
 - Um reset, pelo app ou pelo site, dispara o `PasswordReset`. Os listeners revogam os tokens do app, encerram as
   sessões web, apagam o código pendente e enviam o e-mail de senha alterada.
 
+## Push notifications
+
+Só vão ao celular os avisos que a pessoa precisa receber na hora, porque saber depois a prejudica (#349): encontro
+confirmado, alterado e cancelado pela equipe, lembrete 1 h antes, material novo do consultor e crédito perto de vencer.
+Os outros avisos ficam no sino e no e-mail.
+
+- **Token do aparelho.** O app registra o token da Expo com `PUT me/push-token` e o apaga com `DELETE me/push-token`;
+  as duas rotas respondem `204` e são idempotentes. O corpo do `PUT` tem `token` (`ExponentPushToken[...]` ou
+  `ExpoPushToken[...]`) e `platform` (`android` ou `ios`). O token fica preso à sessão, o token Bearer: sair, trocar a
+  senha, entrar de novo no mesmo aparelho e o prune o apagam junto, pela FK em cascata. Um token que era de outra
+  conta passa para quem entrou.
+- **Quem vira push.** O aviso é uma `ContentNotification` cujo `NotificationContent` tem `push`, um `NotificationPush`
+  com título e texto próprios para a tela de bloqueio, prioridade e validade. A base acrescenta o canal `expo-push`,
+  registrado aqui pelo nome, então os módulos de domínio pedem o push sem importar a API.
+- **Payload.** `data` traz `type` (o `NotificationKind`) e, quando houver, `notification_id`, `appointment_id`,
+  `document_id` e `change`. O `notification_id` só vem quando o aviso também está no sino; o lembrete é só push. O
+  `change` (`time`, `consultant`, `link` ou `unconfirmed`) só vem no `appointment_changed`. O link da sala nunca vai
+  no payload.
+- **Envio.** O `SendPushNotificationJob` vai para a fila `default` depois do commit, confere o acesso ao app na hora
+  (`ResolveAppAccessAction`) e manda pela Expo Push API, que entrega pelo FCM e pelo APNs. Um `DeviceNotRegistered`
+  no ticket ou no recibo apaga o token. O `push:check-receipts` confere os recibos a cada 15 minutos.
+- **Configuração.** O `EXPO_ACCESS_TOKEN` é opcional enquanto a segurança reforçada do push estiver desligada no
+  projeto da Expo; com ela ligada, todo envio sem o token falha.
+- **Agendamentos.** O `SendAppointmentRemindersJob` roda a cada 5 minutos e marca `appointments.reminder_sent_at`. O
+  `WarnExpiringCreditsJob` roda às 10:00 e avisa 7 dias e 1 dia antes do vencimento.
+
 ## Convenções da resposta
 
 | Tema | Regra |
@@ -91,7 +117,7 @@ Pelo app, com um código de 6 dígitos por e-mail (#323), em três rotas públic
 | Área | Rotas |
 | --- | --- |
 | Autenticação | `POST auth/login`, `POST auth/logout`, `POST auth/password/forgot`, `POST auth/password/verify`, `POST auth/password/reset` |
-| Perfil | `GET/PATCH me`, `PUT me/password`, `POST/DELETE me/avatar`, `GET me/journey`, `GET/PUT me/anamnese` |
+| Perfil | `GET/PATCH me`, `PUT me/password`, `POST/DELETE me/avatar`, `GET me/journey`, `GET/PUT me/anamnese`, `PUT/DELETE me/push-token` |
 | Agenda | `GET appointments/slots`, `GET/POST appointments`, `GET/PATCH appointments/{id}`, `POST appointments/{id}/cancel`, `POST appointments/{id}/feedback` |
 | Créditos | `GET credits` |
 | Materiais | `GET/POST materials`, `DELETE materials/{id}`, `PATCH materials/{id}/favorite`, `PATCH materials/{id}/viewed` |
