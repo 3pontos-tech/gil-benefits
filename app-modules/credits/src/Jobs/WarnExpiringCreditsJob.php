@@ -6,58 +6,77 @@ namespace TresPontosTech\Credits\Jobs;
 
 use App\Models\Users\User;
 use Carbon\CarbonInterface;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Queue\Queueable;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Date;
 use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
 use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\Credits\Notifications\CreditsExpiringNotification;
 
 /**
- * Avisa quem tem crédito livre perto de vencer, 7 dias e 1 dia antes (gil-benefits#349). Um aviso
- * por pessoa e por antecedência, com a data do primeiro crédito a vencer; rodar duas vezes no
- * mesmo dia não repete o aviso.
+ * Avisa quem tem crédito livre perto de vencer (gil-benefits#349): uma semana antes e na véspera.
+ *
+ * Cada crédito guarda quando foi avisado, então uma rodada perdida é recuperada na seguinte e
+ * nada se repete. O job roda de hora em hora durante o dia, e cada pessoa recebe no máximo um
+ * push por rodada, o mais urgente, com a data do primeiro crédito a vencer.
  */
-class WarnExpiringCreditsJob implements ShouldQueue
+class WarnExpiringCreditsJob implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
-    /** @var list<int> */
-    public const array DAYS_AHEAD = [7, 1];
+    public int $uniqueFor = 600;
 
     public function handle(): void
     {
-        foreach (self::DAYS_AHEAD as $daysAhead) {
-            $this->warnCreditsExpiringOn(today()->addDays($daysAhead), $daysAhead);
-        }
+        $warnedToday = $this->warn(daysAhead: 1, marker: 'expiry_warned_day_before_at', alsoMark: ['expiry_warned_week_before_at']);
+
+        $this->warn(daysAhead: 7, marker: 'expiry_warned_week_before_at', alsoMark: [], alreadyWarned: $warnedToday);
     }
 
-    private function warnCreditsExpiringOn(CarbonInterface $day, int $daysAhead): void
+    /**
+     * Marca os créditos que entraram na janela e avisa quem ainda não foi avisado nesta rodada.
+     * A marca é um update condicional: duas rodadas ao mesmo tempo nunca avisam duas vezes.
+     *
+     * @param  list<string>  $alsoMark  marcas que este aviso também cobre (a véspera cobre a semana)
+     * @param  list<string>  $alreadyWarned  quem já recebeu o aviso mais urgente: só é marcado
+     * @return list<string> quem foi avisado
+     */
+    private function warn(int $daysAhead, string $marker, array $alsoMark, array $alreadyWarned = []): array
     {
-        UserCredit::query()
+        $due = UserCredit::query()
             ->where('status', UserCreditStatusEnum::Available)
-            ->whereBetween('expires_at', [$day->copy()->startOfDay(), $day->copy()->endOfDay()])
-            ->selectRaw('holder_id, min(expires_at) as first_expires_at')
-            ->groupBy('holder_id')
-            ->get()
-            ->each(function (UserCredit $credit) use ($daysAhead): void {
-                $this->warn((string) $credit->holder_id, (string) $credit->getAttribute('first_expires_at'), $daysAhead);
-            });
-    }
+            ->whereNull($marker)
+            ->where('expires_at', '>', now())
+            ->where('expires_at', '<=', today()->addDays($daysAhead)->endOfDay())
+            ->oldest('expires_at')
+            ->get(['id', 'holder_id', 'expires_at'])
+            ->groupBy('holder_id');
 
-    private function warn(string $holderId, string $firstExpiresAt, int $daysAhead): void
-    {
-        $holder = User::query()->find($holderId);
+        $warned = [];
 
-        if (! $holder instanceof User) {
-            return;
+        foreach ($due as $holderId => $credits) {
+            /** @var Collection<int, UserCredit> $credits */
+            $holderId = (string) $holderId;
+            $claimed = UserCredit::query()
+                ->whereKey($credits->modelKeys())
+                ->whereNull($marker)
+                ->update(array_fill_keys([$marker, ...$alsoMark], now()));
+
+            $firstToExpire = $credits->first()?->expires_at;
+
+            if ($claimed === 0 || in_array($holderId, $alreadyWarned, true) || ! $firstToExpire instanceof CarbonInterface) {
+                continue;
+            }
+
+            $holder = User::query()->find($holderId);
+
+            if ($holder instanceof User) {
+                $holder->notify(new CreditsExpiringNotification($firstToExpire));
+                $warned[] = $holderId;
+            }
         }
 
-        if (! Cache::add(sprintf('credits-expiring:%s:%d:%s', $holderId, $daysAhead, today()->toDateString()), true, now()->addDays(2))) {
-            return;
-        }
-
-        $holder->notify(new CreditsExpiringNotification(Date::parse($firstExpiresAt)));
+        return $warned;
     }
 }

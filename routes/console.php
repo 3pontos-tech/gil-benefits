@@ -22,7 +22,8 @@ Schedule::job(new SendAppointmentRemindersJob)
     ->withoutOverlapping();
 
 Schedule::job(new WarnExpiringCreditsJob)
-    ->dailyAt('10:00')
+    ->hourlyAt(7)
+    ->between('09:00', '20:00')
     ->withoutOverlapping();
 
 Schedule::job(new ExpireVoucherCreditsJob)
