@@ -122,6 +122,37 @@ de vencer. Os outros avisos ficam no sino e no e-mail.
 - **Encontro alterado.** A equipe edita um encontro e a tela chama `NotifyAppointmentChangedAction` com o
   `AppointmentSnapshot` de antes; a regra de qual mudança contar é `AppointmentChange::between()`.
 
+### Deploy por ambiente
+
+Faça em homologação e depois em produção. O pipeline normal (`migrate --force`) entrega o código; o resto é conferir,
+porque nada novo é obrigatório. O lado do app (contas Expo, Firebase e Apple, `google-services.json`, build) está em
+`gil-benefits-mobile/docs/release-checklist.md`.
+
+1. **Migrations**, que rodam no deploy:
+   - `push_tokens` e `push_tickets`;
+   - `appointments.reminder_sent_at`;
+   - `user_credits.expiry_warned_week_before_at` e `expiry_warned_day_before_at`.
+2. **Worker:** precisa consumir a fila `default` (ou a de `PUSH_QUEUE`, se definida). Depois do deploy, rode
+   `php artisan queue:restart`.
+3. **Scheduler:** precisa rodar a cada minuto (`schedule:run`), como já precisa hoje. O `php artisan schedule:list`
+   deve mostrar:
+   - o lembrete, a cada 5 minutos;
+   - o `push:check-receipts`, a cada 15 minutos;
+   - o aviso de créditos, de hora em hora, das 9h às 20h.
+4. **`EXPO_ACCESS_TOKEN` (opcional):**
+   - Crie o token na conta Expo dona do projeto daquele ambiente: homologação usa o projeto de teste, e produção, o da
+     empresa.
+   - Defina no `.env` do servidor e rode `php artisan config:cache` e `php artisan queue:restart`.
+   - Só ligue a segurança reforçada do push na Expo depois que todos os servidores tiverem o token. A partir daí, todo
+     envio sem ele falha com `UNAUTHORIZED`.
+5. **Conferência:**
+   - Entre no app daquele ambiente com uma conta, permita as notificações e confirme um encontro dela no admin.
+   - O push chega, e o log mostra um `push.sent` com `accepted` maior que zero.
+6. **Se não chegar:**
+   - Uma `PushConfigurationException` no Nightwatch indica chave FCM ou credencial errada no projeto da Expo.
+   - `push.ticket_error` e `push.receipt_error` no log trazem o código da Expo.
+   - Sem `push.sent`, confira o worker e se a conta tem um token registrado em `push_tokens`.
+
 ## Convenções da resposta
 
 | Tema | Regra |
