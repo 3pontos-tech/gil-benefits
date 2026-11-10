@@ -86,4 +86,25 @@ return [
         'password_forgot_per_hour_per_ip' => 20,
         'password_verify_per_minute_per_ip' => 10,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Push notifications (Expo)
+    |--------------------------------------------------------------------------
+    |
+    | O backend envia pela Expo Push API, que entrega pelo FCM no Android e pelo
+    | APNs no iOS. O `EXPO_ACCESS_TOKEN` é opcional enquanto a "segurança
+    | reforçada" do push estiver desligada no projeto da Expo; com ela ligada,
+    | todo envio sem o token falha com UNAUTHORIZED. A Expo aceita até 100
+    | mensagens por pedido e 1.000 ids por consulta de recibos (#349).
+    |
+    */
+
+    'push' => [
+        'access_token' => env('EXPO_ACCESS_TOKEN'),
+        'send_url' => 'https://exp.host/--/api/v2/push/send',
+        'receipts_url' => 'https://exp.host/--/api/v2/push/getReceipts',
+        'messages_per_request' => 100,
+        'receipts_per_request' => 1000,
+    ],
 ];
