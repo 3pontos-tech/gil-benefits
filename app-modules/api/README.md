@@ -112,8 +112,10 @@ Os materiais são documentos privados da pessoa (a empresa nunca os vê), então
 arquivo no armazenamento. Para abrir, baixar ou compartilhar, o app pede `POST materials/{id}/download`, que só
 responde para quem enxerga o material (os outros recebem 404, como em todas as rotas de material) e devolve
 `{ url, filename, mime_type, size, expires_at }`. O `url` vale `api.materials.download_ttl_seconds` (120 s por
-padrão, `MATERIAL_DOWNLOAD_TTL_SECONDS`) e já baixa com o nome real (`Content-Disposition`); o app baixa na hora e
-compartilha o arquivo, nunca o link. Um material que é só um link (aula) não tem arquivo e também responde 404.
+padrão, `MATERIAL_DOWNLOAD_TTL_SECONDS`; um valor que não seja inteiro positivo cai no padrão) e já baixa com o nome
+real (`Content-Disposition`); o app baixa na hora e compartilha o arquivo, nunca o link. O `filename` é o título com a
+extensão do arquivo, sem repeti-la e sem os caracteres que um sistema de arquivos recusa; sem título, vale o nome
+guardado. Um material que é só um link (aula) não tem arquivo e também responde 404.
 
 Lista completa, com middlewares: `php artisan route:list --path=api/v1 -v`. O contrato que o app consome está em
 `gil-benefits-mobile/docs/api-contract.md`.

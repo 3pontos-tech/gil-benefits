@@ -283,6 +283,18 @@ it('builds a download name the header accepts', function (string $title, string 
     'a title with no ASCII at all, over a file without extension' => ['🔥🔥', 'arquivo', '🔥🔥', "attachment; filename=material; filename*=utf-8''%F0%9F%94%A5%F0%9F%94%A5"],
 ]);
 
+it('falls back to two minutes when the link lifetime is not a positive number', function (string $configured): void {
+    putenv('MATERIAL_DOWNLOAD_TTL_SECONDS=' . $configured);
+
+    try {
+        $config = require base_path('app-modules/api/config/api.php');
+    } finally {
+        putenv('MATERIAL_DOWNLOAD_TTL_SECONDS');
+    }
+
+    expect($config['materials']['download_ttl_seconds'])->toBe(120);
+})->with(['', '2m', '0', '-5']);
+
 it('skips what only the list needs when handing the link', function (): void {
     $material = sharedMaterial($this->employee);
     $material->addMedia(UploadedFile::fake()->createWithContent('extrato.pdf', pdfBytes()))->toMediaCollection('documents');

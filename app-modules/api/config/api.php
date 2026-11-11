@@ -40,14 +40,15 @@ return [
     | Arquivos dos materiais
     |--------------------------------------------------------------------------
     |
-    | O link de um material sai só em `POST materials/{id}/download` e vale poucos segundos:
-    | o app baixa o arquivo na hora e compartilha o arquivo, então um link encaminhado
-    | expira antes de servir a alguém.
+    | O link de um material sai só em `POST materials/{id}/download` e vale poucos minutos
+    | (dois, por padrão): o app baixa o arquivo na hora e compartilha o arquivo, então um link
+    | encaminhado expira antes de servir a alguém. Um valor que não seja um inteiro positivo
+    | ("", "2m", "0") cai no padrão, para nenhum link já sair vencido.
     |
     */
 
     'materials' => [
-        'download_ttl_seconds' => (int) env('MATERIAL_DOWNLOAD_TTL_SECONDS', 120),
+        'download_ttl_seconds' => filter_var(env('MATERIAL_DOWNLOAD_TTL_SECONDS'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'default' => 120]]),
     ],
 
     /*
