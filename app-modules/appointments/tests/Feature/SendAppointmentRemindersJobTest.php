@@ -110,6 +110,15 @@ it('does not remind an appointment whose time changed while the run was reading 
     expect($appointment->refresh()->reminder_sent_at)->toBeNull();
 });
 
+it('leaves the reminder for the next round when it fails', function (): void {
+    $appointment = Appointment::factory()->withStatus(AppointmentStatus::Active)->create(['appointment_at' => '2026-09-10 09:50:00']);
+    Notification::shouldReceive('send')->andThrow(new RuntimeException('push tokens unavailable'));
+
+    expect(fn () => (new SendAppointmentRemindersJob)->handle())->toThrow(RuntimeException::class);
+
+    expect($appointment->refresh()->reminder_sent_at)->toBeNull();
+});
+
 it('runs one reminder job at a time', function (): void {
     expect(new SendAppointmentRemindersJob)->toBeInstanceOf(ShouldBeUnique::class);
 });
