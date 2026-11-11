@@ -43,6 +43,11 @@ mesmas que o painel usa. O controller valida, chama a action e formata a respost
   contratual da empresa, assinatura própria ou voucher. Consultores e contas sem vínculo ativo ficam de fora. O
   `EnsureAppAccess` confere a cada requisição; sem acesso, o login responde 422 em `email` e as demais rotas, 403,
   com o motivo ("O plano da sua empresa está inativo…" ou "Para usar o app, ative um plano pelo site.").
+  - O 403 encerra a sessão no servidor, por qualquer motivo, inclusive os passageiros (o plano renovando antes da
+    confirmação da cobrança, o vínculo alternado no admin). O app mostra o motivo e volta ao login; a pessoa entra de
+    novo quando o acesso voltar, e o app registra o token de push outra vez. Sem isso, como o logout também passa pelo
+    `EnsureAppAccess`, a sessão e o push ficariam no servidor por até `API_TOKEN_TTL_DAYS` dias, e os pushes voltariam
+    a um celular que mostra a tela de login.
 - A empresa da requisição é a primeira com vínculo ativo em que a pessoa tem o benefício, a empregadora antes da
   padrão (`ResolveAppAccessAction`, a regra inteira de acesso num lugar só). Ela vira o tenant da requisição, e cota, crédito, agendamento, perfil e
   chamado leem essa empresa, como a aberta na tela do painel.
