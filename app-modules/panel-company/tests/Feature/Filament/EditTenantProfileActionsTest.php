@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
+use Filament\Actions\Testing\TestAction;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Actions\BuildImportTemplateAction;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
@@ -146,4 +148,20 @@ describe('single active employer', function (): void {
         expect($this->company->employees()->whereKey($this->manager->getKey())->first()->pivot->role)->toBe(Roles::CompanyManager);
     });
 
+});
+
+describe('import-users action', function (): void {
+
+    it('company owner downloads the import template from the import modal', function (): void {
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        livewire(EditTenantProfile::class)
+            ->callAction([
+                TestAction::make('import-users')->table(),
+                TestAction::make('download_template')->schemaComponent('file'),
+            ])
+            ->assertFileDownloaded(BuildImportTemplateAction::FILENAME);
+    });
 });

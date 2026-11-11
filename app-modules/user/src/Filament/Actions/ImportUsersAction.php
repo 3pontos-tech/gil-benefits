@@ -10,7 +10,9 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\User\Actions\BuildImportTemplateAction;
 use TresPontosTech\User\Actions\ParseUsersFromFileAction;
 use TresPontosTech\User\Actions\ValidateUserImportAction;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
@@ -57,8 +59,12 @@ class ImportUsersAction extends Action
                 ->hintAction(
                     Action::make('download_template')
                         ->label(__('user::actions.import_users.file.hint_action'))
-                        ->url(route('users.import-template.download'))
-                        ->openUrlInNewTab()
+                        ->action(fn (): BinaryFileResponse => response()
+                            ->download(
+                                resolve(BuildImportTemplateAction::class)->execute($this->resolveCompany()),
+                                BuildImportTemplateAction::FILENAME,
+                            )
+                            ->deleteFileAfterSend())
                 )
                 ->acceptedFileTypes([
                     'text/csv',

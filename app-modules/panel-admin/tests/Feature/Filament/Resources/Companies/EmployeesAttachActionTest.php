@@ -5,9 +5,11 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\EditCompany;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Actions\BuildImportTemplateAction;
 
 use function Pest\Livewire\livewire;
 
@@ -36,4 +38,15 @@ it('refuses to attach someone already employed elsewhere, with a message instead
         ->assertNotified();
 
     expect($this->company->employees()->whereKey($person->getKey())->exists())->toBeFalse();
+});
+
+it('downloads the import template with the company departments from the import modal', function (): void {
+    Department::factory()->for($this->company)->create(['name' => 'Vendas']);
+
+    livewire(EmployeesRelationManager::class, ['ownerRecord' => $this->company, 'pageClass' => EditCompany::class])
+        ->callAction([
+            TestAction::make('import-users')->table(),
+            TestAction::make('download_template')->schemaComponent('file'),
+        ])
+        ->assertFileDownloaded(BuildImportTemplateAction::FILENAME);
 });
