@@ -16,6 +16,8 @@ use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Actions\BuildImportTemplateAction;
 use TresPontosTech\User\Jobs\ImportUsersJob;
 
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -77,4 +79,17 @@ it('shows a success notification once the import job reports completion', functi
         );
 
     expect(Cache::has(ImportUsersJob::completionCacheKey((string) auth()->id())))->toBeFalse();
+});
+
+it('keeps people who are not admins away from the company import modal', function (): void {
+    $companyOwner = User::factory()->companyOwner()->create();
+    $this->company->employees()->attach($companyOwner->getKey(), ['role' => Roles::CompanyOwner->value]);
+    Department::factory()->for($this->company)->create(['name' => 'Vendas']);
+
+    auth()->logout();
+    actingAs($companyOwner);
+
+    get(route('filament.admin.resources.companies.edit', ['record' => $this->company]))
+        ->assertRedirect()
+        ->assertDontSee('Vendas');
 });

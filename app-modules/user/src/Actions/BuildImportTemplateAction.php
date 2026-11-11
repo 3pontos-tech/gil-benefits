@@ -19,6 +19,8 @@ class BuildImportTemplateAction
 
     public const string DEPARTMENTS_SHEET = 'Departamentos';
 
+    public const string NO_DEPARTMENTS_NOTICE = 'Nenhum departamento cadastrado na empresa.';
+
     public function execute(Company $company): string
     {
         $departments = DepartmentLookup::for($company)->names();
@@ -35,7 +37,7 @@ class BuildImportTemplateAction
         $writer->addNewSheetAndMakeItCurrent(self::DEPARTMENTS_SHEET)
             ->addHeader(['department']);
 
-        foreach ($departments as $department) {
+        foreach ($departments === [] ? [self::NO_DEPARTMENTS_NOTICE] : $departments as $department) {
             $writer->addRow($this->textRow([$department]));
         }
 

@@ -250,3 +250,47 @@ it('treats a cell with only invisible spaces as no department', function (string
     'non-breaking space' => ["\u{00A0}"],
     'zero-width space' => ["\u{200B}"],
 ]);
+
+it('lists a department error together with other row errors', function (): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => 'Financeiro']);
+
+    $rows = collect([
+        makeValidationRow(['department' => 'Logística', '__row_number' => 4]),
+        makeValidationRow(['email' => 'same@example.com', 'department' => 'Financeiro', '__row_number' => 5]),
+        makeValidationRow(['email' => 'same@example.com', 'department' => 'Financeiro', '__row_number' => 6]),
+    ]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect(collect($errors)->map(fn ($error): array => [$error->row, $error->message])->all())->toBe([
+        [0, 'Departamentos cadastrados na empresa: Financeiro.'],
+        [4, "Departamento 'Logística' não encontrado."],
+        [6, 'Email duplicado na planilha.'],
+    ]);
+});
+
+it('still enforces the seat limit when every department exists', function (): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => 'Financeiro']);
+
+    $plan = Plan::factory()->create(['active' => true]);
+    CompanyPlan::query()->create([
+        'company_id' => $company->id,
+        'plan_id' => $plan->id,
+        'status' => CompanyPlanStatusEnum::Active->value,
+        'monthly_appointments_per_employee' => 1,
+        'starts_at' => now()->subDay(),
+        'seats' => 1,
+    ]);
+
+    $rows = collect([
+        makeValidationRow(['department' => 'Financeiro']),
+        makeValidationRow(['department' => 'financeiro']),
+    ]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect($errors)->toHaveCount(1)
+        ->and($errors[0]->message)->toBe('Limite de assentos excedido. Disponíveis: 1, solicitados: 2.');
+});

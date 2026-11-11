@@ -18,6 +18,7 @@ use TresPontosTech\User\Actions\BuildImportTemplateAction;
 use TresPontosTech\User\Jobs\ImportUsersJob;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -156,6 +157,37 @@ describe('single active employer', function (): void {
 });
 
 describe('import-users action', function (): void {
+
+    it('keeps people outside the company management away from the import modal', function (string $persona): void {
+        $otherCompany = Company::factory()->create();
+        $otherManager = User::factory()->companyManager()->create();
+        $otherCompany->employees()->attach($otherManager->getKey(), ['role' => Roles::CompanyManager->value]);
+        Department::factory()->for($this->company)->create(['name' => 'Vendas']);
+
+        $user = match ($persona) {
+            'employee of the company' => $this->employee,
+            'manager of another company' => $otherManager,
+            'owner of another company' => $otherCompany->owner,
+        };
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($user);
+
+        get(route('filament.company.tenant.profile', ['tenant' => $this->company->slug]))
+            ->assertRedirect()
+            ->assertDontSee('Vendas');
+
+        filament()->setTenant($this->company);
+
+        livewire(EditTenantProfile::class)->assertNotFound();
+    })->with(['employee of the company', 'manager of another company', 'owner of another company']);
+
+    it('sends guests to the login page instead of the import modal', function (): void {
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+
+        get(route('filament.company.tenant.profile', ['tenant' => $this->company->slug]))
+            ->assertRedirect(route('filament.company.auth.login'));
+    });
 
     it('company owner downloads the import template with only this company departments', function (): void {
         Department::factory()->for($this->company)->create(['name' => 'Vendas']);

@@ -42,7 +42,7 @@ it('lists the company departments on a second sheet and uses the first one in th
         ]);
 });
 
-it('leaves the example department blank when the company has no departments', function (): void {
+it('leaves the example department blank and says there are no departments when the company has none', function (): void {
     $company = Company::factory()->create();
 
     $path = resolve(BuildImportTemplateAction::class)->execute($company);
@@ -53,7 +53,7 @@ it('leaves the example department blank when the company has no departments', fu
     File::delete($path);
 
     expect($employees[0]['department'])->toBe('')
-        ->and($departments)->toBe([]);
+        ->and($departments)->toBe([['department' => BuildImportTemplateAction::NO_DEPARTMENTS_NOTICE]]);
 });
 
 it('is read back by the importer from the employees sheet only', function (): void {
