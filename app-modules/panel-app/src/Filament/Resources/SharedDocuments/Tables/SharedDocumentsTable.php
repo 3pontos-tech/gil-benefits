@@ -46,7 +46,7 @@ class SharedDocumentsTable
                     ->dateTime('d/m/Y')
                     ->sortable(),
             ])
-            ->recordClasses(fn (Document $record): string => 'fi-apt-doc-' . $record->type->value)
+            ->recordClasses(fn (Document $record): string => 'fi-apt-doc-' . ($record->type->value ?? 'default'))
             ->defaultSort('created_at', 'desc')
             ->recordActions([
                 DownloadDocumentFilamentAction::make()

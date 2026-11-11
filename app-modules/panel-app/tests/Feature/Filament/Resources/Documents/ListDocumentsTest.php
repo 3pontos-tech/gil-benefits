@@ -42,6 +42,21 @@ it('should render only shared documents', function (): void {
         ->assertCanNotSeeTableRecords([$anotherDocument]);
 });
 
+it('lists a shared document whose type could not be told', function (): void {
+    $document = Document::factory()->forConsultant()->active()->withFile()->create();
+    Document::query()->whereKey($document->getKey())->update(['type' => null]);
+    DocumentShare::factory()
+        ->for($document)
+        ->for($this->employee, 'employee')
+        ->for($document->documentable, 'consultant')
+        ->active()
+        ->create();
+
+    livewire(ListSharedDocuments::class)
+        ->assertOk()
+        ->assertCanSeeTableRecords([$document]);
+});
+
 test('user can not see not active document for him, but other users can see', function (): void {
     $document = Document::factory()->forConsultant()->active()->withFile()->create();
 
