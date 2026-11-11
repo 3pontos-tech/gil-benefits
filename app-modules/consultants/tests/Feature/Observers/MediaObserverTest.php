@@ -25,18 +25,36 @@ describe('MediaObserver', function (): void {
         'xlsx' => ['sheet.xlsx',    DocumentExtensionTypeEnum::XLSX],
     ]);
 
-    it('does not update type for uppercase extension', function (): void {
+    it('recognizes an uppercase extension and jpeg', function (string $fileName, DocumentExtensionTypeEnum $expected): void {
         $document = Document::query()->create(['title' => 'test']);
 
         $media = new Media;
         $media->model_type = 'documents';
         $media->collection_name = 'documents';
-        $media->file_name = 'document.PDF';
+        $media->file_name = $fileName;
         $media->model_id = $document->getKey();
 
         (new MediaObserver)->created($media);
 
-        expect($document->fresh()->type)->toBeNull();
+        expect($document->fresh()->type)->toBe($expected);
+    })->with([
+        'PDF' => ['document.PDF', DocumentExtensionTypeEnum::PDF],
+        'jpeg' => ['photo.jpeg', DocumentExtensionTypeEnum::JPG],
+    ]);
+
+    it('trusts the file content over its name', function (): void {
+        $document = Document::query()->create(['title' => 'test']);
+
+        $media = new Media;
+        $media->model_type = 'documents';
+        $media->collection_name = 'documents';
+        $media->file_name = 'extrato';
+        $media->mime_type = 'application/pdf';
+        $media->model_id = $document->getKey();
+
+        (new MediaObserver)->created($media);
+
+        expect($document->fresh()->type)->toBe(DocumentExtensionTypeEnum::PDF);
     });
 
     it('does not change type for an unrecognized extension', function (): void {

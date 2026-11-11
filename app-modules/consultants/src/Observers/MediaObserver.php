@@ -18,7 +18,7 @@ class MediaObserver
             return;
         }
 
-        $type = DocumentExtensionTypeEnum::tryFrom($media->extension)?->value;
+        $type = DocumentExtensionTypeEnum::fromFile($media->mime_type, $media->extension)?->value;
 
         if (! $type) {
             return;

@@ -8,7 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
-use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
+use TresPontosTech\Consultants\Actions\SyncDocumentTypeAction;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\PanelConsultant\Filament\Resources\Documents\DocumentResource;
 
@@ -28,15 +28,11 @@ class EditDocument extends EditRecord
         ];
     }
 
+    /**
+     * O tipo segue o arquivo ou o link que o documento tem (`SyncDocumentTypeAction`).
+     */
     protected function afterSave(): void
     {
-        $documents = $this->record->getMedia('documents')->isNotEmpty();
-        if ($documents) {
-            $this->record->update(['link' => null]);
-        }
-
-        if (! $documents) {
-            $this->record->update(['type' => DocumentExtensionTypeEnum::Link]);
-        }
+        resolve(SyncDocumentTypeAction::class)->handle($this->record);
     }
 }

@@ -45,6 +45,23 @@ enum DocumentExtensionTypeEnum: string implements HasColor, HasIcon, HasLabel
         return $this->name;
     }
 
+    /**
+     * O tipo de um arquivo: pelo mime type, que vem do conteúdo, e pela extensão em minúsculas
+     * como reserva (`jpeg` é JPG, `PDF` é PDF). Null para o que não é um tipo aceito.
+     */
+    public static function fromFile(?string $mimeType, string $extension): ?self
+    {
+        foreach (self::cases() as $case) {
+            if ($case !== self::Link && $case->getMimeType() === $mimeType) {
+                return $case;
+            }
+        }
+
+        $extension = mb_strtolower($extension);
+
+        return self::tryFrom($extension === 'jpeg' ? 'jpg' : $extension);
+    }
+
     public function getMimeType(): string
     {
         return match ($this) {

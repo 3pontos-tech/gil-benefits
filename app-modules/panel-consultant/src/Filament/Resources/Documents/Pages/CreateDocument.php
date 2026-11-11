@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages;
 
 use Filament\Resources\Pages\CreateRecord;
-use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
+use TresPontosTech\Consultants\Actions\SyncDocumentTypeAction;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\PanelConsultant\Filament\Resources\Documents\DocumentResource;
 
@@ -26,16 +26,11 @@ class CreateDocument extends CreateRecord
         return $data;
     }
 
+    /**
+     * O tipo segue o arquivo ou o link que o documento tem (`SyncDocumentTypeAction`).
+     */
     protected function afterCreate(): void
     {
-        $documents = $this->record->getMedia('documents')->isNotEmpty();
-        if ($documents) {
-            $this->record->update(['link' => null]);
-        }
-
-        if (! $documents) {
-            $this->record->update(['type' => DocumentExtensionTypeEnum::Link]);
-        }
-
+        resolve(SyncDocumentTypeAction::class)->handle($this->record);
     }
 }
