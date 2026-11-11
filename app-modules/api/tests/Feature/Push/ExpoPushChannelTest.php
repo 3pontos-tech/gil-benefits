@@ -8,6 +8,7 @@ use App\Notifications\NotificationContent;
 use App\Notifications\NotificationKind;
 use App\Notifications\NotificationPush;
 use App\Notifications\NotificationTone;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\DB;
@@ -245,7 +246,36 @@ it('leaves an outage to the queue to try again later', function (): void {
         ->and($job->backoff())->toBe([30, 120, 600, 600]);
 });
 
+it('reports a refused access token, since every push fails the same way', function (int $status): void {
+    Exceptions::fake();
+    PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    Http::fake(['exp.host/*' => Http::response(['errors' => [['code' => 'UNAUTHORIZED']]], $status)]);
+    $job = (new SendPushNotificationJob((string) $this->employee->getKey(), new ExpoPushMessage('Encontro confirmado', 'Corpo', ['type' => 'appointment_confirmed'], urgent: true, androidChannel: 'appointments')))
+        ->withFakeQueueInteractions();
+
+    $job->handle(resolve(ExpoPushClient::class), resolve(ResolveAppAccessAction::class));
+
+    $job->assertFailed();
+    Exceptions::assertReported(fn (PushConfigurationException $exception): bool => str_contains($exception->getMessage(), 'HTTP ' . $status));
+})->with([401, 403]);
+
+it('reports a ticket it could not keep while the phone still exists', function (): void {
+    Exceptions::fake();
+    $phone = PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    Http::fake(function () use ($phone) {
+        PushTicket::query()->create(['id' => 'ticket-1', 'push_token_id' => $phone->getKey(), 'created_at' => now()]);
+
+        return Http::response(['data' => [['status' => 'ok', 'id' => 'ticket-1']]]);
+    });
+
+    $this->employee->notify(pushNotice(new NotificationPush('Encontro confirmado', 'Corpo')));
+
+    Exceptions::assertReported(UniqueConstraintViolationException::class);
+    expect(PushToken::query()->count())->toBe(1);
+});
+
 it('gives up at once on a request the Expo refuses as malformed', function (): void {
+    Exceptions::fake();
     PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
     Http::fake(['exp.host/*' => Http::response(['errors' => [['code' => 'VALIDATION_ERROR']]], 400)]);
     $job = (new SendPushNotificationJob((string) $this->employee->getKey(), new ExpoPushMessage('Encontro confirmado', 'Corpo', ['type' => 'appointment_confirmed'], urgent: true, androidChannel: 'appointments')))
@@ -254,4 +284,5 @@ it('gives up at once on a request the Expo refuses as malformed', function (): v
     $job->handle(resolve(ExpoPushClient::class), resolve(ResolveAppAccessAction::class));
 
     $job->assertFailed();
+    Exceptions::assertNothingReported();
 });

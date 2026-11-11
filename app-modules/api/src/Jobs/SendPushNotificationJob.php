@@ -9,7 +9,9 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Api\Actions\Employee\Auth\ResolveAppAccessAction;
 use TresPontosTech\Api\DTOs\Push\ExpoPushMessage;
 use TresPontosTech\Api\DTOs\Push\ExpoPushTicket;
@@ -85,8 +87,9 @@ final class SendPushNotificationJob implements ShouldQueue
     }
 
     /**
-     * Um 4xx que não é 429 é pedido malformado: tentar de novo não resolve, e o job falha de vez
-     * (devolve null).
+     * Um 4xx que não é 429 não melhora com outra tentativa, e o job falha de vez (devolve null). O
+     * 401 e o 403 são da configuração, não do pedido (segurança reforçada ligada sem o token de
+     * acesso, ou com ele girado): todo push falha igual, então são relatados.
      *
      * @param  list<string>  $tokens
      * @return list<ExpoPushTicket>|null
@@ -96,7 +99,11 @@ final class SendPushNotificationJob implements ShouldQueue
         try {
             return $client->send($this->message, $tokens);
         } catch (RequestException $requestException) {
-            if ($requestException->response->clientError() && $requestException->response->status() !== 429) {
+            $status = $requestException->response->status();
+
+            if ($requestException->response->clientError() && $status !== 429) {
+                report_if(in_array($status, [Response::HTTP_UNAUTHORIZED, Response::HTTP_FORBIDDEN], true), PushConfigurationException::fromStatus($status));
+
                 $this->fail($requestException);
 
                 return null;
@@ -110,17 +117,12 @@ final class SendPushNotificationJob implements ShouldQueue
      * Ticket aceito vai esperar o recibo. Aparelho que não existe mais sai na hora, a não ser que
      * tenha sido registrado de novo durante o envio (outra conta entrou nele, ou o app abriu de
      * novo), como no recibo. Erro de configuração é relatado; o resto vai para o log só com o
-     * código. Um token apagado durante o envio (a pessoa saiu da conta) não tem ticket a guardar,
-     * e não interrompe os outros aparelhos.
+     * código.
      */
     private function record(PushToken $token, ExpoPushTicket $ticket): bool
     {
         if ($ticket->isAccepted()) {
-            try {
-                PushTicket::query()->create(['id' => $ticket->id, 'push_token_id' => $token->getKey(), 'created_at' => now()]);
-            } catch (QueryException) {
-                Log::debug('push.ticket_skipped', ['reason' => 'token removed during send']);
-            }
+            $this->awaitReceipt($token, $ticket);
 
             return true;
         }
@@ -140,5 +142,26 @@ final class SendPushNotificationJob implements ShouldQueue
         }
 
         return false;
+    }
+
+    /**
+     * Um token apagado durante o envio (a pessoa saiu da conta) não tem ticket a guardar, e não
+     * interrompe os outros aparelhos. Qualquer outra falha é relatada sem relançar: a Expo já
+     * aceitou o push, e repetir o job mandaria de novo para todos os aparelhos. O savepoint deixa
+     * utilizável uma transação de fora, que o Postgres aborta no primeiro erro.
+     */
+    private function awaitReceipt(PushToken $token, ExpoPushTicket $ticket): void
+    {
+        try {
+            DB::transaction(fn (): PushTicket => PushTicket::query()->create(['id' => $ticket->id, 'push_token_id' => $token->getKey(), 'created_at' => now()]));
+        } catch (QueryException $queryException) {
+            if (PushToken::query()->whereKey($token->getKey())->exists()) {
+                report($queryException);
+
+                return;
+            }
+
+            Log::debug('push.ticket_skipped', ['reason' => 'token removed during send']);
+        }
     }
 }
