@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use TresPontosTech\Company\Models\Company;
@@ -12,6 +14,7 @@ use TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages\EditCompany;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\RelationManagers\EmployeesRelationManager;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Actions\BuildImportTemplateAction;
+use TresPontosTech\User\Jobs\ImportUsersJob;
 
 use function Pest\Livewire\livewire;
 
@@ -59,4 +62,19 @@ it('downloads the import template with only this company departments from the im
     File::delete($path);
 
     expect($departments)->toBe([['department' => 'Vendas']]);
+});
+
+it('shows a success notification once the import job reports completion', function (): void {
+    Cache::put(ImportUsersJob::completionCacheKey((string) auth()->id()), '1700');
+
+    livewire(EmployeesRelationManager::class, ['ownerRecord' => $this->company, 'pageClass' => EditCompany::class])
+        ->call('checkImportCompletion')
+        ->assertNotified(
+            Notification::make()
+                ->success()
+                ->title('Importação concluída')
+                ->body('Todos os 1700 usuários foram importados com sucesso.'),
+        );
+
+    expect(Cache::has(ImportUsersJob::completionCacheKey((string) auth()->id())))->toBeFalse();
 });

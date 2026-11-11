@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
@@ -14,6 +15,7 @@ use TresPontosTech\Company\Models\Department;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Actions\BuildImportTemplateAction;
+use TresPontosTech\User\Jobs\ImportUsersJob;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Livewire\livewire;
@@ -178,4 +180,15 @@ describe('import-users action', function (): void {
         expect($departments)->toBe([['department' => 'Vendas']]);
     });
 
+    it('company owner sees a failure notification when the import job fails', function (): void {
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        Cache::put(ImportUsersJob::completionCacheKey((string) $this->owner->getKey()), 'failed');
+
+        livewire(EditTenantProfile::class)
+            ->call('checkImportCompletion')
+            ->assertNotified('Falha na importação');
+    });
 });
