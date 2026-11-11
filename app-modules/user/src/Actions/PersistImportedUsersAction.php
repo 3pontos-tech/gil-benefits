@@ -13,6 +13,7 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\DTOs\ImportUsersResultDTO;
 use TresPontosTech\User\Mail\WelcomeUserMail;
+use TresPontosTech\User\Support\DepartmentLookup;
 use TresPontosTech\User\Support\EmailAddress;
 
 class PersistImportedUsersAction
@@ -26,9 +27,10 @@ class PersistImportedUsersAction
     {
         $imported = 0;
         $now = now();
+        $departments = DepartmentLookup::for($company);
 
         $rows->chunk(self::CHUNK_SIZE)->each(
-            function (Collection $chunk) use ($company, &$imported, $now): void {
+            function (Collection $chunk) use ($company, &$imported, $now, $departments): void {
                 $items = $chunk->values()->map(fn (array $row): array => [
                     'id' => (string) Str::uuid(),
                     'plain_password' => Str::password(12),
@@ -40,7 +42,7 @@ class PersistImportedUsersAction
                 ]));
 
                 DB::transaction(
-                    function () use ($items, $company, &$imported, $now): void {
+                    function () use ($items, $company, &$imported, $now, $departments): void {
                         User::query()->insert($items->map(fn (array $item): array => [
                             'id' => $item['id'],
                             'name' => trim($item['row']['name']),
@@ -60,11 +62,12 @@ class PersistImportedUsersAction
                             'updated_at' => $now,
                         ])->all());
 
-                        $userIds = $items->pluck('id')->all();
-
                         $company->employees()->syncWithoutDetaching(
-                            collect($userIds)->mapWithKeys(fn (string $id): array => [
-                                $id => ['role' => Roles::Employee->value],
+                            $items->mapWithKeys(fn (array $item): array => [
+                                $item['id'] => [
+                                    'role' => Roles::Employee->value,
+                                    'department_id' => $departments->idFor((string) ($item['row']['department'] ?? '')),
+                                ],
                             ])->all()
                         );
 

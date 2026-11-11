@@ -5,6 +5,7 @@ use App\Models\Users\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Actions\PersistImportedUsersAction;
 use TresPontosTech\User\Mail\WelcomeUserMail;
@@ -114,4 +115,26 @@ it('a rollback in one chunk does not affect previously persisted chunks', functi
     // Users from chunk 1 are persisted
     assertDatabaseHas(User::class, ['email' => 'persistuser1000@example.com']);
     assertDatabaseMissing(User::class, ['email' => 'persistuser1101@example.com']);
+});
+
+it('links each imported employee to the department named in the row', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+    $engineering = Department::factory()->for($company)->create(['name' => 'Engenharia']);
+    $finance = Department::factory()->for($company)->create(['name' => 'Financeiro']);
+
+    $rows = makeUserRows(3, startIndex: 2000)->values()->map(fn (array $row, int $index): array => [
+        ...$row,
+        'department' => ['ENGENHARIA', ' financeiro ', ''][$index],
+    ]);
+
+    resolve(PersistImportedUsersAction::class)->execute($rows, $company);
+
+    $departmentByEmail = $company->employees()->get()
+        ->mapWithKeys(fn (User $user): array => [$user->email => $user->pivot->department_id]);
+
+    expect($departmentByEmail->get('persistuser2000@example.com'))->toBe($engineering->id)
+        ->and($departmentByEmail->get('persistuser2001@example.com'))->toBe($finance->id)
+        ->and($departmentByEmail->get('persistuser2002@example.com'))->toBeNull();
 });

@@ -7,7 +7,9 @@ use App\Models\Users\User;
 use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
+use TresPontosTech\User\Support\DepartmentLookup;
 use TresPontosTech\User\Support\EmailAddress;
 
 class ValidateUserImportAction
@@ -60,6 +62,7 @@ class ValidateUserImportAction
         $this->validateDuplicateTaxIds($rows);
         $this->validateExistingTaxIds($rows);
         $this->validateDuplicatePhoneNumbers($rows);
+        $this->validateDepartments($rows, $company);
 
         if (filled($this->errors)) {
             return $this->sortedErrors();
@@ -299,6 +302,63 @@ class ValidateUserImportAction
                     message: sprintf("phone_number '%s' duplicado na planilha.", $phone),
                 );
             });
+    }
+
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     */
+    private function validateDepartments(Collection $rows, Company $company): void
+    {
+        $rowsWithDepartment = $rows->filter(fn (array $row): bool => filled(trim((string) ($row['department'] ?? ''))));
+
+        if ($rowsWithDepartment->isEmpty()) {
+            return;
+        }
+
+        $lookup = DepartmentLookup::for($company);
+        $hasUnknownDepartment = false;
+
+        $rowsWithDepartment->each(function (array $row) use ($lookup, &$hasUnknownDepartment): void {
+            $department = trim((string) $row['department']);
+            $matches = $lookup->find($department);
+
+            if (count($matches) === 1) {
+                return;
+            }
+
+            $hasUnknownDepartment = $hasUnknownDepartment || $matches === [];
+
+            $this->errors[] = new ImportErrorDTO(
+                row: $row['__row_number'],
+                email: EmailAddress::normalize((string) ($row['email'] ?? '')) ?: 'N/A',
+                message: $matches === []
+                    ? sprintf("Departamento '%s' não encontrado.", $department)
+                    : sprintf(
+                        "Departamento '%s' corresponde a mais de um departamento cadastrado: %s.",
+                        $department,
+                        implode(', ', array_map(fn (Department $match): string => $match->name, $matches)),
+                    ),
+            );
+        });
+
+        if ($hasUnknownDepartment) {
+            $this->errors[] = new ImportErrorDTO(
+                row: 0,
+                email: 'N/A',
+                message: $this->registeredDepartmentsMessage($lookup),
+            );
+        }
+    }
+
+    private function registeredDepartmentsMessage(DepartmentLookup $lookup): string
+    {
+        $names = $lookup->names();
+
+        if ($names === []) {
+            return 'A empresa não tem departamentos cadastrados. Deixe a coluna department em branco ou cadastre os departamentos antes de importar.';
+        }
+
+        return 'Departamentos cadastrados na empresa: ' . implode(', ', $names) . '.';
     }
 
     /** @return list<ImportErrorDTO> */

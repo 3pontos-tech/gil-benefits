@@ -28,5 +28,6 @@ it('downloads the import template as a real xlsx file with header and example ro
             'phone_number' => '11987654321',
             'document_id' => '12345678',
             'tax_id' => '12345678901',
+            'department' => 'Financeiro',
         ]);
 });

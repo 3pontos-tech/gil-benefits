@@ -7,7 +7,7 @@ return [
         'label' => 'Importar Funcionários',
         'file' => [
             'label' => 'Planilha (CSV ou XLSX)',
-            'helper_text' => 'Colunas obrigatórias: name (nome do funcionário), email (email do funcionário), tax_id (CPF do funcionário), phone_number (número de celular do funcionário). Opcional: document_id (RG do funcionário).',
+            'helper_text' => 'Colunas obrigatórias: name (nome do funcionário), email (email do funcionário), tax_id (CPF do funcionário), phone_number (número de celular do funcionário). Opcionais: document_id (RG do funcionário), department (nome de um departamento já cadastrado na empresa).',
             'helper_note' => 'Nota: o modelo contém uma linha de exemplo com dados fictícios que deve ser apagada antes de preencher com os dados reais dos funcionários.',
             'hint_action' => 'Baixar Modelo',
         ],

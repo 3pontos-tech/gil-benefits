@@ -15,8 +15,8 @@ class DownloadImportTemplateController
         File::delete($tempPath);
 
         SimpleExcelWriter::create($xlsxPath)
-            ->addHeader(['name', 'email', 'phone_number', 'document_id', 'tax_id'])
-            ->addRow(['João Silva', 'joaosilva@email.com', '11987654321', '12345678', '12345678901'])
+            ->addHeader(['name', 'email', 'phone_number', 'document_id', 'tax_id', 'department'])
+            ->addRow(['João Silva', 'joaosilva@email.com', '11987654321', '12345678', '12345678901', 'Financeiro'])
             ->close();
 
         return response()->download($xlsxPath, 'template-import-users.xlsx')->deleteFileAfterSend(true);
