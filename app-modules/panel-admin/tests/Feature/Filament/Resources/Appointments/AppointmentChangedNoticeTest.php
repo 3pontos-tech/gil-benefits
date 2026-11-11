@@ -57,6 +57,19 @@ it('tells the employee the appointment is waiting for confirmation again when th
     );
 });
 
+it('saves the change of a deleted employee without telling anyone', function (): void {
+    $this->appointment->user->delete();
+
+    livewire(EditAppointment::class, ['record' => $this->appointment->getRouteKey()])
+        ->fillForm(['meeting_url' => 'https://meet.google.com/new-link-abc'])
+        ->call('save')
+        ->assertHasNoFormErrors()
+        ->assertRedirect();
+
+    expect($this->appointment->refresh()->meeting_url)->toBe('https://meet.google.com/new-link-abc');
+    LaravelNotification::assertNothingSent();
+});
+
 it('says nothing when the save changed nothing the employee sees', function (): void {
     livewire(EditAppointment::class, ['record' => $this->appointment->getRouteKey()])
         ->call('save')

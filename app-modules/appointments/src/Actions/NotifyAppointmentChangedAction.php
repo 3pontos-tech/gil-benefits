@@ -14,7 +14,8 @@ use TresPontosTech\Appointments\Notifications\AppointmentChangedNotification;
  * Avisa a pessoa quando a equipe mudou um encontro já confirmado (gil-benefits#349). Toda tela ou
  * rotina da equipe que edita um encontro chama esta ação com o "antes" e o "depois". Fica fora da
  * sincronização da agenda porque confirmar e o reagendamento feito pela própria pessoa também
- * passam por ela, e nenhum dos dois é mudança a avisar.
+ * passam por ela, e nenhum dos dois é mudança a avisar. Funcionário excluído não tem a quem
+ * avisar, e o save do admin segue.
  */
 final readonly class NotifyAppointmentChangedAction
 {
@@ -27,7 +28,7 @@ final readonly class NotifyAppointmentChangedAction
         $change = AppointmentChange::between($before, $after);
 
         if ($change instanceof AppointmentChange) {
-            $after->user->notify(new AppointmentChangedNotification($after, $change));
+            $after->user?->notify(new AppointmentChangedNotification($after, $change));
         }
     }
 }
