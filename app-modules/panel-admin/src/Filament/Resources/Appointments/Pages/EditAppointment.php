@@ -2,11 +2,12 @@
 
 namespace TresPontosTech\PanelAdmin\Filament\Resources\Appointments\Pages;
 
-use Carbon\CarbonInterface;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use TresPontosTech\Appointments\Actions\NotifyAppointmentChangedAction;
 use TresPontosTech\Appointments\Actions\SyncAppointmentScheduleAction;
+use TresPontosTech\Appointments\DTO\AppointmentSnapshot;
 use TresPontosTech\Appointments\Enums\AppointmentHistoryActor;
 use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Models\Appointment;
@@ -19,9 +20,7 @@ class EditAppointment extends EditRecord
 {
     protected static string $resource = AppointmentResource::class;
 
-    protected ?string $previousConsultantId = null;
-
-    protected ?CarbonInterface $previousAppointmentAt = null;
+    protected ?AppointmentSnapshot $before = null;
 
     protected ?Appointment $appointment = null;
 
@@ -33,17 +32,17 @@ class EditAppointment extends EditRecord
     }
 
     /**
+     * Captures the appointment before the record is filled: by the time afterSave() runs,
+     * getOriginal() has already synced to the newly saved values.
+     *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Capture the consultant/time before the record is filled: by the time afterSave()
-        // runs, getOriginal() has already synced to the newly saved values.
         /** @var Appointment $appointment */
         $appointment = $this->record;
-        $this->previousConsultantId = $appointment->consultant_id;
-        $this->previousAppointmentAt = $appointment->appointment_at;
+        $this->before = AppointmentSnapshot::of($appointment);
 
         return $data;
     }
@@ -55,7 +54,7 @@ class EditAppointment extends EditRecord
 
         try {
             $calendarSynced = resolve(SyncAppointmentScheduleAction::class)
-                ->handle($appointment, $this->previousConsultantId, $this->previousAppointmentAt, AppointmentHistoryActor::Admin);
+                ->handle($appointment, $this->before?->consultantId, $this->before?->appointmentAt, AppointmentHistoryActor::Admin);
         } catch (SlotUnavailableException) {
             Notification::make()
                 ->title(__('appointments::resources.appointments.exceptions.consultant_unavailable'))
@@ -81,6 +80,10 @@ class EditAppointment extends EditRecord
                 ->title(__('panel-admin::resources.appointments.actions.calendar_sync_failed'))
                 ->warning()
                 ->send();
+        }
+
+        if ($this->before instanceof AppointmentSnapshot) {
+            resolve(NotifyAppointmentChangedAction::class)->handle($this->before, $appointment, AppointmentHistoryActor::Admin);
         }
 
         $this->redirect(AppointmentResource::getUrl('view', ['record' => $this->record]));

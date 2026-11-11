@@ -26,6 +26,8 @@ return [
     'money_relationship' => 'relação com dinheiro',
     'phone_number' => 'telefone',
     'plans_monthly_expenses' => 'planejamento de gastos',
+    'platform' => 'plataforma',
+    'push_token' => 'token de notificação',
     'title' => 'título',
     'tried_financial_strategies' => 'estratégias já tentadas',
     'rating' => 'nota',

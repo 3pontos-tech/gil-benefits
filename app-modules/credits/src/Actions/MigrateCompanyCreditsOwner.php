@@ -32,7 +32,7 @@ final readonly class MigrateCompanyCreditsOwner
                 ->where('company_id', $company->getKey())
                 ->where('owner_id', $previousOwnerId)
                 ->where('holder_id', $previousOwnerId)
-                ->update(['owner_id' => $newOwnerId, 'holder_id' => $newOwnerId]);
+                ->update(['owner_id' => $newOwnerId, 'holder_id' => $newOwnerId, ...UserCredit::EXPIRY_WARNINGS_CLEARED]);
 
             // Already-distributed company credits only change owner; the employee keeps them.
             UserCredit::query()

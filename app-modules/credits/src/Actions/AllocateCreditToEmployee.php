@@ -25,6 +25,7 @@ class AllocateCreditToEmployee
             ->each(fn (UserCredit $credit) => $credit->update([
                 'holder_id' => $employee->getKey(),
                 'transferred_at' => now(),
+                ...UserCredit::EXPIRY_WARNINGS_CLEARED,
             ]));
     }
 
@@ -56,6 +57,7 @@ class AllocateCreditToEmployee
                 fn (UserCredit $credit) => $credit->update([
                     'holder_id' => $employee->getKey(),
                     'transferred_at' => now(),
+                    ...UserCredit::EXPIRY_WARNINGS_CLEARED,
                 ])
             );
             $offset += $creditsPerEmployee;

@@ -15,6 +15,12 @@ use Illuminate\Notifications\Notification;
  */
 abstract class ContentNotification extends Notification
 {
+    /**
+     * Canal de push, registrado pelo módulo da API. Os módulos pedem o canal pelo nome, sem
+     * depender de quem entrega.
+     */
+    public const string PUSH_CHANNEL = 'expo-push';
+
     abstract public function content(): NotificationContent;
 
     /**
@@ -22,7 +28,30 @@ abstract class ContentNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $this->withPush($notifiable, ['database']);
+    }
+
+    /**
+     * Acrescenta o push quando o aviso tem texto para o celular e esta entrega deve ir até lá.
+     *
+     * @param  list<string>  $channels
+     * @return list<string>
+     */
+    protected function withPush(object $notifiable, array $channels): array
+    {
+        if ($this->content()->push instanceof NotificationPush && $this->shouldPush($notifiable)) {
+            $channels[] = self::PUSH_CHANNEL;
+        }
+
+        return $channels;
+    }
+
+    /**
+     * Um aviso pode recusar o push conforme quem causou o evento: quem fez a ação já sabe dela.
+     */
+    protected function shouldPush(object $notifiable): bool
+    {
+        return true;
     }
 
     /**
