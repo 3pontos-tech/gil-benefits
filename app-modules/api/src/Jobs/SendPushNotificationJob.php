@@ -107,9 +107,11 @@ final class SendPushNotificationJob implements ShouldQueue
     }
 
     /**
-     * Ticket aceito vai esperar o recibo. Aparelho que não existe mais sai na hora. Erro de
-     * configuração é relatado; o resto vai para o log só com o código. Um token apagado durante o
-     * envio (a pessoa saiu da conta) não tem ticket a guardar, e não interrompe os outros aparelhos.
+     * Ticket aceito vai esperar o recibo. Aparelho que não existe mais sai na hora, a não ser que
+     * tenha sido registrado de novo durante o envio (outra conta entrou nele, ou o app abriu de
+     * novo), como no recibo. Erro de configuração é relatado; o resto vai para o log só com o
+     * código. Um token apagado durante o envio (a pessoa saiu da conta) não tem ticket a guardar,
+     * e não interrompe os outros aparelhos.
      */
     private function record(PushToken $token, ExpoPushTicket $ticket): bool
     {
@@ -126,7 +128,11 @@ final class SendPushNotificationJob implements ShouldQueue
         $error = $ticket->error();
 
         if ($error === ExpoPushError::DeviceNotRegistered) {
-            $token->delete();
+            PushToken::query()
+                ->whereKey($token->getKey())
+                ->where('personal_access_token_id', $token->personal_access_token_id)
+                ->where('updated_at', $token->updated_at)
+                ->delete();
         } elseif ($error?->isConfiguration() === true) {
             report(PushConfigurationException::from($error, 'ticket'));
         } else {

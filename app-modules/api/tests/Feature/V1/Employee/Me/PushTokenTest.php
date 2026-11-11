@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Contracts\Auth\Factory;
+use Illuminate\Database\UniqueConstraintViolationException;
 use TresPontosTech\Api\Enums\PushPlatform;
 use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Api\Models\PushToken;
@@ -57,6 +58,15 @@ it('keeps one token per session, dropping the one the app replaced', function ()
     putJson(route('api.v1.me.push-token.update'), ['token' => 'ExponentPushToken[new]', 'platform' => 'android'], $session);
 
     expect(PushToken::query()->pluck('token')->all())->toBe(['ExponentPushToken[new]']);
+});
+
+it('never stores two push tokens for one session', function (): void {
+    $pushToken = PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+
+    expect(fn () => PushToken::factory()->create([
+        'user_id' => $this->employee->getKey(),
+        'personal_access_token_id' => $pushToken->personal_access_token_id,
+    ]))->toThrow(UniqueConstraintViolationException::class);
 });
 
 it('moves a token to whoever signs in on that phone', function (): void {

@@ -73,6 +73,17 @@ it('keeps a phone the app registered again after the push was sent', function ()
         ->and(PushTicket::query()->count())->toBe(0);
 });
 
+it('keeps a phone registered again in the same second the push was sent', function (): void {
+    $this->freezeTime();
+    pushTicketFor($this->phone, 'same-second', minutesAgo: 20);
+    PushToken::query()->whereKey($this->phone->getKey())->update(['updated_at' => now()->subMinutes(20)]);
+    expoReceipts(['same-second' => ['status' => 'error', 'details' => ['error' => 'DeviceNotRegistered']]]);
+
+    artisan('push:check-receipts')->assertSuccessful();
+
+    expect(PushToken::query()->count())->toBe(1);
+});
+
 it('waits for receipts that are not ready yet', function (): void {
     pushTicketFor($this->phone, 'fresh', minutesAgo: 5);
     pushTicketFor($this->phone, 'pending');

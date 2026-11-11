@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Sleep;
 use TresPontosTech\Api\Actions\Employee\Auth\ResolveAppAccessAction;
 use TresPontosTech\Api\DTOs\Push\ExpoPushMessage;
+use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Api\Exceptions\PushConfigurationException;
 use TresPontosTech\Api\Jobs\SendPushNotificationJob;
 use TresPontosTech\Api\Models\PushTicket;
@@ -129,6 +130,21 @@ it('forgets a phone the Expo says no longer exists', function (): void {
 
     expect(PushToken::query()->count())->toBe(0)
         ->and(PushTicket::query()->count())->toBe(0);
+});
+
+it('keeps a phone that signed into another account while the push was on its way', function (): void {
+    $phone = PushToken::factory()->create(['user_id' => $this->employee->getKey()]);
+    $newOwner = standaloneSubscriber();
+    $newSession = $newOwner->createToken('Android', [TokenAbility::Employee->value])->accessToken->getKey();
+    Http::fake(function () use ($phone, $newOwner, $newSession) {
+        PushToken::query()->whereKey($phone->getKey())->update(['user_id' => $newOwner->getKey(), 'personal_access_token_id' => $newSession]);
+
+        return Http::response(['data' => [['status' => 'error', 'details' => ['error' => 'DeviceNotRegistered']]]]);
+    });
+
+    $this->employee->notify(pushNotice(new NotificationPush('Encontro confirmado', 'Corpo')));
+
+    expect(PushToken::query()->sole()->user_id)->toBe($newOwner->getKey());
 });
 
 it('sends the access token when the project requires it', function (): void {

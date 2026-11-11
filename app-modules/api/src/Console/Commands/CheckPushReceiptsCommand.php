@@ -46,7 +46,9 @@ final class CheckPushReceiptsCommand extends Command
     /**
      * Sem recibo ainda, o ticket espera a próxima rodada. Com recibo, sai. Um aparelho que não
      * existe mais leva o token junto, a não ser que o app o tenha registrado de novo depois do
-     * envio (reinstalar no iPhone devolve o mesmo token). Erro de configuração (chave FCM,
+     * envio (reinstalar no iPhone devolve o mesmo token). As colunas guardam só o segundo, então
+     * um registro no mesmo segundo do envio fica: apagar por engano cala o aparelho até o app
+     * abrir de novo, e manter por engano só custa um envio a mais. Erro de configuração (chave FCM,
      * credenciais) é relatado; o resto vai para o log só com o código.
      */
     private function settle(PushTicket $ticket, ?ExpoPushReceipt $receipt): void
@@ -60,7 +62,7 @@ final class CheckPushReceiptsCommand extends Command
         if ($error === ExpoPushError::DeviceNotRegistered) {
             PushToken::query()
                 ->whereKey($ticket->push_token_id)
-                ->where('updated_at', '<=', $ticket->created_at)
+                ->where('updated_at', '<', $ticket->created_at)
                 ->delete();
         } elseif ($error?->isConfiguration() === true) {
             report(PushConfigurationException::from($error, 'receipt'));
