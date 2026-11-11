@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Models\Consultant;
@@ -257,6 +258,40 @@ it('hands the employee own upload too, and answers 404 for a material that is on
         ->assertOk()
         ->assertJsonPath('data.filename', 'Extrato setembro outubro.pdf');
     postJson(route('api.v1.materials.download', $lesson->id))->assertNotFound();
+});
+
+it('builds a download name the header accepts', function (string $title, string $upload, string $filename, string $disposition): void {
+    $captured = [];
+    Storage::disk('r2')->buildTemporaryUrlsUsing(function (string $path, DateTimeInterface $expiration, array $options) use (&$captured): string {
+        $captured = $options;
+
+        return 'https://r2.test/' . $path;
+    });
+    $material = sharedMaterial($this->employee, ['title' => $title]);
+    $material->addMedia(UploadedFile::fake()->createWithContent($upload, pdfBytes()))->toMediaCollection('documents');
+
+    postJson(route('api.v1.materials.download', $material->id))
+        ->assertOk()
+        ->assertJsonPath('data.filename', $filename);
+
+    expect($captured['ResponseContentDisposition'])->toBe($disposition);
+})->with([
+    'a percent sign in the title' => ['Rentabilidade 10% ao ano', 'a.pdf', 'Rentabilidade 10% ao ano.pdf', "attachment; filename=\"Rentabilidade 10 ao ano.pdf\"; filename*=utf-8''Rentabilidade%2010%25%20ao%20ano.pdf"],
+    'a title that cleans to nothing, over a stored name with a percent sign' => ['///', 'rendimento 100%.pdf', 'rendimento-100%.pdf', "attachment; filename=rendimento-100.pdf; filename*=utf-8''rendimento-100%25.pdf"],
+    'a title that already ends with the extension' => ['Contrato.PDF', 'a.pdf', 'Contrato.PDF', 'attachment; filename=Contrato.PDF'],
+    'a title with no ASCII at all' => ['🔥🔥', 'a.pdf', '🔥🔥.pdf', "attachment; filename=material.pdf; filename*=utf-8''%F0%9F%94%A5%F0%9F%94%A5.pdf"],
+    'a title with no ASCII at all, over a file without extension' => ['🔥🔥', 'arquivo', '🔥🔥', "attachment; filename=material; filename*=utf-8''%F0%9F%94%A5%F0%9F%94%A5"],
+]);
+
+it('skips what only the list needs when handing the link', function (): void {
+    $material = sharedMaterial($this->employee);
+    $material->addMedia(UploadedFile::fake()->createWithContent('extrato.pdf', pdfBytes()))->toMediaCollection('documents');
+    DB::enableQueryLog();
+
+    postJson(route('api.v1.materials.download', $material->id))->assertOk();
+
+    $queries = collect(DB::getQueryLog())->map(fn (array $query): string => $query['query']);
+    expect($queries->filter(fn (string $query): bool => str_starts_with($query, 'select * from "document_user_states"') || str_starts_with($query, 'select * from "document_shares"')))->toBeEmpty();
 });
 
 it('lists the materials without any link to the stored file', function (): void {
