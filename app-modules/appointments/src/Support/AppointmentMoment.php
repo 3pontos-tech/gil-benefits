@@ -27,8 +27,8 @@ final readonly class AppointmentMoment
     }
 
     /**
-     * Quando o encontro termina: a mesma duração que a agenda do consultor e a API usam para
-     * manter o link da sala válido. Um aviso de link trocado ou de cancelamento ainda serve até lá.
+     * Quando o encontro termina. É até lá que a API mostra o link da sala e que um aviso de link
+     * trocado ou de cancelamento ainda serve, então os dois leem daqui para não divergirem.
      */
     public static function endOf(Appointment $appointment): CarbonInterface
     {

@@ -7,7 +7,6 @@ namespace TresPontosTech\Api\Http\Controllers\V1\Employee\Me;
 use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Laravel\Sanctum\PersonalAccessToken;
 use TresPontosTech\Api\Actions\Employee\Me\RegisterPushTokenAction;
 use TresPontosTech\Api\Enums\PushPlatform;
 use TresPontosTech\Api\Http\Requests\V1\Employee\Me\UpdatePushTokenRequest;
@@ -15,8 +14,8 @@ use TresPontosTech\Api\Models\PushToken;
 
 /**
  * O endereço de push deste aparelho. O app envia ao entrar, ao abrir e quando a Expo troca o
- * token; e apaga quando a pessoa desliga os avisos. Sair da conta apaga sozinho, junto com o
- * token de acesso.
+ * token; e apaga quando a pessoa desliga os avisos. Ele fica preso à sessão, o token de acesso
+ * desta requisição: sair da conta apaga sozinho, junto com ela.
  */
 class PushTokenController
 {
@@ -32,7 +31,7 @@ class PushTokenController
 
         $this->registerPushToken->handle(
             $user,
-            $this->session($request),
+            $user->currentAccessToken(),
             $request->string('token')->toString(),
             PushPlatform::from($request->string('platform')->toString()),
         );
@@ -45,20 +44,11 @@ class PushTokenController
      */
     public function destroy(Request $request): Response
     {
-        PushToken::query()->where('personal_access_token_id', $this->session($request)->getKey())->delete();
+        /** @var User $user */
+        $user = $request->user();
+
+        PushToken::query()->where('personal_access_token_id', $user->currentAccessToken()->getKey())->delete();
 
         return response()->noContent();
-    }
-
-    /**
-     * A sessão é o token Bearer que o app recebeu no login; o token de push se prende a ela.
-     */
-    private function session(Request $request): PersonalAccessToken
-    {
-        $session = PersonalAccessToken::findToken((string) $request->bearerToken());
-
-        abort_unless($session instanceof PersonalAccessToken, Response::HTTP_FORBIDDEN);
-
-        return $session;
     }
 }

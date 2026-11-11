@@ -8,7 +8,6 @@ use App\Models\Users\User;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
-use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Api\Actions\Employee\Auth\ResolveAppAccessAction;
 
@@ -31,7 +30,7 @@ class EnsureAppAccess
         $access = $this->resolveAppAccess->handle($user);
 
         if (! $access->isGranted()) {
-            $this->endSession($request);
+            $this->endSession($user);
 
             abort(Response::HTTP_FORBIDDEN, $access->message());
         }
@@ -47,8 +46,8 @@ class EnsureAppAccess
      * push sobreviveriam até o prune, e os pushes voltariam ao celular se o acesso voltasse, com a
      * pessoa já fora da conta. O token de push sai junto, pela FK.
      */
-    private function endSession(Request $request): void
+    private function endSession(User $user): void
     {
-        PersonalAccessToken::findToken((string) $request->bearerToken())?->delete();
+        $user->currentAccessToken()->delete();
     }
 }
