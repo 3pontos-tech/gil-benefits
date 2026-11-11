@@ -6,6 +6,10 @@ use App\Models\Users\User;
 use App\Notifications\ContentNotification;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Facades\Notification;
+use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Credits\Actions\AllocateCreditToEmployee;
+use TresPontosTech\Credits\Actions\RevokeCreditsFromEmployees;
+use TresPontosTech\Credits\Actions\TransferCreditBetweenEmployees;
 use TresPontosTech\Credits\Jobs\WarnExpiringCreditsJob;
 use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\Credits\Notifications\CreditsExpiringNotification;
@@ -89,6 +93,56 @@ it('leaves alone credits that are not free or not expiring soon', function (call
     'already expired' => [fn (User $holder): UserCredit => UserCredit::factory()->expired()->create(['holder_id' => $holder->getKey(), 'expires_at' => '2026-11-15 23:59:59'])],
     'without an expiry date' => [fn (User $holder): UserCredit => freeCreditFor($holder, null)],
     'expiring in 10 days' => [fn (User $holder): UserCredit => freeCreditFor($holder, '2026-11-18 23:59:59')],
+]);
+
+it('keeps the credit eligible when the warning fails', function (): void {
+    $credit = freeCreditFor($this->holder, '2026-11-15 23:59:59');
+    Notification::shouldReceive('send')->andThrow(new RuntimeException('notifications table unavailable'));
+
+    expect(fn () => (new WarnExpiringCreditsJob)->handle())->toThrow(RuntimeException::class);
+
+    expect($credit->refresh()->expiry_warned_week_before_at)->toBeNull();
+});
+
+it('warns whoever receives a credit after the previous holder was warned', function (bool $heldByTheOwner, callable $handOver): void {
+    $owner = User::factory()->create();
+    $employee = User::factory()->create();
+    $company = Company::factory()->create(['user_id' => $owner->getKey()]);
+    $credit = UserCredit::factory()->available()->create([
+        'owner_id' => $owner->getKey(),
+        'holder_id' => $heldByTheOwner ? $owner->getKey() : $employee->getKey(),
+        'company_id' => $company->getKey(),
+        'expires_at' => '2026-11-15 23:59:59',
+    ]);
+    (new WarnExpiringCreditsJob)->handle();
+
+    $newHolder = $handOver($credit, $company, $owner, $employee);
+    (new WarnExpiringCreditsJob)->handle();
+
+    expect(expiryBodiesSentTo($newHolder))->toBe(['Agende um encontro até 15/11 para usar seu crédito antes do vencimento.']);
+})->with([
+    'transferred to a colleague' => [false, function (UserCredit $credit): User {
+        $colleague = User::factory()->create();
+        resolve(TransferCreditBetweenEmployees::class)->handle($credit->refresh(), $colleague);
+
+        return $colleague;
+    }],
+    'allocated from the company pool' => [true, function (UserCredit $credit, Company $company, User $owner, User $employee): User {
+        resolve(AllocateCreditToEmployee::class)->handle($company, $employee, 1);
+
+        return $employee;
+    }],
+    'revoked back to the company' => [false, function (UserCredit $credit, Company $company, User $owner): User {
+        resolve(RevokeCreditsFromEmployees::class)->handle($company);
+
+        return $owner;
+    }],
+    'moved to the new company owner' => [true, function (UserCredit $credit, Company $company): User {
+        $newOwner = User::factory()->create();
+        $company->update(['user_id' => $newOwner->getKey()]);
+
+        return $newOwner;
+    }],
 ]);
 
 it('runs one warning job at a time', function (): void {

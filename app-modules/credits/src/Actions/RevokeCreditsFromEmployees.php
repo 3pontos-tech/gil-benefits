@@ -20,6 +20,7 @@ class RevokeCreditsFromEmployees
             ->update([
                 'holder_id' => $company->user_id,
                 'transferred_at' => null,
+                ...UserCredit::EXPIRY_WARNINGS_CLEARED,
             ]);
     }
 }
