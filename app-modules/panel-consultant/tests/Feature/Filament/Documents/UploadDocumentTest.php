@@ -8,6 +8,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\CreateDocument;
+use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\EditDocument;
 
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
@@ -102,4 +103,53 @@ it('keeps the type of the file sent, and a link as a link', function (): void {
 
     expect(Document::query()->where('title', 'Extrato')->sole()->type)->toBe(DocumentExtensionTypeEnum::PDF)
         ->and(Document::query()->where('title', 'Artigo')->sole()->type)->toBe(DocumentExtensionTypeEnum::Link);
+});
+
+/**
+ * O upload some só no navegador quando o consultor escolhe "Link": o arquivo escolhido antes
+ * ainda chega ao servidor, e a escolha do consultor é que vale.
+ */
+it('keeps the link when the consultant switches to link after picking a file', function (): void {
+    Storage::fake('public');
+
+    livewire(CreateDocument::class)
+        ->fillForm([
+            'title' => 'Aula',
+            'active' => true,
+            'documents' => UploadedFile::fake()->createWithContent('extrato.pdf', "%PDF-1.4\n%%EOF\n"),
+            '_document_type' => 'link',
+            'link' => 'https://example.com/aula',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $document = Document::query()->where('title', 'Aula')->sole();
+
+    expect($document)
+        ->type->toBe(DocumentExtensionTypeEnum::Link)
+        ->link->toBe('https://example.com/aula')
+        ->and($document->media()->count())->toBe(0);
+});
+
+it('turns a file into a link when the consultant switches it on edit', function (): void {
+    Storage::fake('public');
+    livewire(CreateDocument::class)
+        ->fillForm([
+            'title' => 'Extrato',
+            'active' => true,
+            'documents' => UploadedFile::fake()->createWithContent('extrato.pdf', "%PDF-1.4\n%%EOF\n"),
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+    $document = Document::query()->where('title', 'Extrato')->sole();
+
+    livewire(EditDocument::class, ['record' => $document->getRouteKey()])
+        ->fillForm(['_document_type' => 'link', 'link' => 'https://example.com/aula'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($document->fresh())
+        ->type->toBe(DocumentExtensionTypeEnum::Link)
+        ->link->toBe('https://example.com/aula')
+        ->and($document->media()->count())->toBe(0);
 });

@@ -29,10 +29,11 @@ class EditDocument extends EditRecord
     }
 
     /**
-     * O tipo segue o arquivo ou o link que o documento tem (`SyncDocumentTypeAction`).
+     * O tipo segue o arquivo ou o link que o documento tem, e a escolha "Link" do consultor
+     * vale mesmo com um arquivo anexado antes (`SyncDocumentTypeAction`).
      */
     protected function afterSave(): void
     {
-        resolve(SyncDocumentTypeAction::class)->handle($this->record);
+        resolve(SyncDocumentTypeAction::class)->handle($this->record, chosenAsLink: data_get($this->data, '_document_type') === 'link');
     }
 }
