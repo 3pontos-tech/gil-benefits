@@ -43,6 +43,7 @@ it('names the most serious change of a save', function (array $after, ?Appointme
     'back to waiting for confirmation, even with a new time' => [['status' => AppointmentStatus::Pending, 'consultant_id' => null, 'appointment_at' => Date::parse('2026-09-13 10:00')], AppointmentChange::Unconfirmed],
     'a new consultant, which brings a new link' => [['consultant_id' => 'c-2', 'meeting_url' => 'https://meet.google.com/bbb'], AppointmentChange::Consultant],
     'a new time with the same consultant' => [['appointment_at' => Date::parse('2026-09-13 10:00')], AppointmentChange::Time],
+    'a new time and a new consultant in the same save' => [['appointment_at' => Date::parse('2026-09-13 10:00'), 'consultant_id' => 'c-2', 'meeting_url' => 'https://meet.google.com/bbb'], AppointmentChange::Time],
     'only the room link' => [['meeting_url' => 'https://meet.google.com/bbb'], AppointmentChange::Link],
     'nothing the employee sees' => [[], null],
 ]);
