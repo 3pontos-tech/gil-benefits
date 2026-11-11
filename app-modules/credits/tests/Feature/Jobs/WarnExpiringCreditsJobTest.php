@@ -50,6 +50,15 @@ it('warns a week before and the day before, on the phone, with the last valid da
     'the day before, expiring at midnight' => ['2026-11-09 00:00:00', '08/11'],
 ]);
 
+it('warns the day before the last valid day of a credit that expires at midnight', function (): void {
+    $credit = freeCreditFor($this->holder, '2026-11-10 00:00:00');
+
+    (new WarnExpiringCreditsJob)->handle();
+
+    expect(expiryBodiesSentTo($this->holder))->toBe(['Agende um encontro até 09/11 para usar seu crédito antes do vencimento.'])
+        ->and($credit->refresh()->expiry_warned_day_before_at)->not->toBeNull();
+});
+
 it('does not repeat a warning, and warns again the day before', function (): void {
     $credit = freeCreditFor($this->holder, '2026-11-15 23:59:59');
 

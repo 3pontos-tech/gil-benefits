@@ -37,6 +37,9 @@ class WarnExpiringCreditsJob implements ShouldBeUnique, ShouldQueue
 
     /**
      * Marca os créditos que entraram na janela e avisa quem ainda não foi avisado nesta rodada.
+     * A janela conta pelo último dia em que o crédito vale, não pelo dia do vencimento: o que vence
+     * à meia-noite do dia X vale até o dia X-1 (como no `lastDay()` do aviso), e a véspera dele é
+     * X-2. Por isso o limite é a meia-noite do dia seguinte à janela, e não o fim do dia.
      *
      * @param  list<string>  $alsoMark  marcas que este aviso também cobre (a véspera cobre a semana)
      * @param  list<string>  $alreadyWarned  quem já recebeu o aviso mais urgente: só é marcado
@@ -48,7 +51,7 @@ class WarnExpiringCreditsJob implements ShouldBeUnique, ShouldQueue
             ->where('status', UserCreditStatusEnum::Available)
             ->whereNull($marker)
             ->where('expires_at', '>', now())
-            ->where('expires_at', '<=', today()->addDays($daysAhead)->endOfDay())
+            ->where('expires_at', '<=', today()->addDays($daysAhead + 1))
             ->oldest('expires_at')
             ->get(['id', 'holder_id', 'expires_at'])
             ->groupBy('holder_id');
