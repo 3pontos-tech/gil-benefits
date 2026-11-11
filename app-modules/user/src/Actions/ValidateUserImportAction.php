@@ -309,7 +309,7 @@ class ValidateUserImportAction
      */
     private function validateDepartments(Collection $rows, Company $company): void
     {
-        $rowsWithDepartment = $rows->filter(fn (array $row): bool => filled(trim((string) ($row['department'] ?? ''))));
+        $rowsWithDepartment = $rows->reject(fn (array $row): bool => DepartmentLookup::isBlank($row['department'] ?? ''));
 
         if ($rowsWithDepartment->isEmpty()) {
             return;

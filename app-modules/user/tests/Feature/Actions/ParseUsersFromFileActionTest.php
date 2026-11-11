@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\File;
 use TresPontosTech\User\Actions\ParseUsersFromFileAction;
 
 function makeParseTestCsv(array $rows, array $headers = ['name', 'email', 'document_id', 'tax_id', 'phone_number']): string
@@ -65,3 +66,21 @@ it('adds __row_number to each row matching the spreadsheet line number', functio
     expect($result[0]['__row_number'])->toBe(2)
         ->and($result[1]['__row_number'])->toBe(3);
 });
+
+it('reads headers regardless of case and surrounding spaces', function (string $header): void {
+    $csv = makeParseTestCsv(
+        [['João Silva', 'joao@example.com', '12345678901', '11999999999', 'Vendas']],
+        ['Name', ' EMAIL ', 'Tax_Id', 'phone_number', $header],
+    );
+
+    $result = resolve(ParseUsersFromFileAction::class)->execute($csv, 'csv');
+
+    File::delete($csv);
+
+    expect($result[0])->toMatchArray([
+        'name' => 'João Silva',
+        'email' => 'joao@example.com',
+        'tax_id' => '12345678901',
+        'department' => 'Vendas',
+    ]);
+})->with(['Department', ' department', 'department ', 'DEPARTMENT']);

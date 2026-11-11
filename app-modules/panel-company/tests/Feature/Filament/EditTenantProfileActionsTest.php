@@ -5,9 +5,12 @@ declare(strict_types=1);
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Support\Facades\File;
+use Spatie\SimpleExcel\SimpleExcelReader;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Actions\BuildImportTemplateAction;
@@ -152,16 +155,27 @@ describe('single active employer', function (): void {
 
 describe('import-users action', function (): void {
 
-    it('company owner downloads the import template from the import modal', function (): void {
+    it('company owner downloads the import template with only this company departments', function (): void {
+        Department::factory()->for($this->company)->create(['name' => 'Vendas']);
+        Department::factory()->create(['name' => 'Outra Empresa']);
+
         filament()->setCurrentPanel(FilamentPanel::Company->value);
         actingAs($this->owner);
         filament()->setTenant($this->company);
 
-        livewire(EditTenantProfile::class)
+        $component = livewire(EditTenantProfile::class)
             ->callAction([
                 TestAction::make('import-users')->table(),
                 TestAction::make('download_template')->schemaComponent('file'),
             ])
             ->assertFileDownloaded(BuildImportTemplateAction::FILENAME);
+
+        $path = tempnam(sys_get_temp_dir(), 'downloaded_') . '.xlsx';
+        file_put_contents($path, base64_decode((string) data_get($component->effects, 'download.content')));
+        $departments = SimpleExcelReader::create($path)->fromSheetName(BuildImportTemplateAction::DEPARTMENTS_SHEET)->getRows()->all();
+        File::delete($path);
+
+        expect($departments)->toBe([['department' => 'Vendas']]);
     });
+
 });

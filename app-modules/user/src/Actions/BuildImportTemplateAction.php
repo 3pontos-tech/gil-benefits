@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace TresPontosTech\User\Actions;
 
 use Illuminate\Support\Facades\File;
+use OpenSpout\Common\Entity\Cell\StringCell;
+use OpenSpout\Common\Entity\Row;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Support\DepartmentLookup;
@@ -28,17 +30,25 @@ class BuildImportTemplateAction
         $writer = SimpleExcelWriter::create($xlsxPath)
             ->nameCurrentSheet(self::EMPLOYEES_SHEET)
             ->addHeader(['name', 'email', 'phone_number', 'document_id', 'tax_id', 'department'])
-            ->addRow(['João Silva', 'joaosilva@email.com', '11987654321', '12345678', '12345678901', $departments[0] ?? '']);
+            ->addRow($this->textRow(['João Silva', 'joaosilva@email.com', '11987654321', '12345678', '12345678901', $departments[0] ?? '']));
 
         $writer->addNewSheetAndMakeItCurrent(self::DEPARTMENTS_SHEET)
             ->addHeader(['department']);
 
         foreach ($departments as $department) {
-            $writer->addRow([$department]);
+            $writer->addRow($this->textRow([$department]));
         }
 
         $writer->close();
 
         return $xlsxPath;
+    }
+
+    /**
+     * @param  list<string>  $values
+     */
+    private function textRow(array $values): Row
+    {
+        return new Row(array_map(fn (string $value): StringCell => new StringCell($value, null), $values));
     }
 }

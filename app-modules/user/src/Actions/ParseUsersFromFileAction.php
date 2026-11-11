@@ -3,6 +3,7 @@
 namespace TresPontosTech\User\Actions;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Spatie\SimpleExcel\SimpleExcelReader;
 
 class ParseUsersFromFileAction
@@ -13,6 +14,7 @@ class ParseUsersFromFileAction
     public function execute(string $filePath, string $fileExtension): Collection
     {
         return SimpleExcelReader::create($filePath, $fileExtension)
+            ->formatHeadersUsing(fn (mixed $header): string => Str::of((string) $header)->trim()->lower()->toString())
             ->getRows()
             ->collect()
             ->map(fn (array $row, int $index): array => [...$row, '__row_number' => $index + 2])

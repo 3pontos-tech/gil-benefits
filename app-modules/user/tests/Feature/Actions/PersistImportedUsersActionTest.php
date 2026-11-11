@@ -138,3 +138,16 @@ it('links each imported employee to the department named in the row', function (
         ->and($departmentByEmail->get('persistuser2001@example.com'))->toBe($finance->id)
         ->and($departmentByEmail->get('persistuser2002@example.com'))->toBeNull();
 });
+
+it('leaves the department empty when the cell has only invisible spaces', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => '🚀']);
+
+    $rows = makeUserRows(1, startIndex: 3000)->map(fn (array $row): array => [...$row, 'department' => "\u{200B}"]);
+
+    resolve(PersistImportedUsersAction::class)->execute($rows, $company);
+
+    expect($company->employees()->first()->pivot->department_id)->toBeNull();
+});

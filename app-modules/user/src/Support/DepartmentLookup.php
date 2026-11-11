@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\User\Support;
 
 use Illuminate\Support\Str;
+use Normalizer;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 
@@ -26,7 +27,11 @@ final readonly class DepartmentLookup
 
         foreach ($company->departments()->orderBy('name')->get(['id', 'company_id', 'name']) as $department) {
             $names[] = $department->name;
-            $byNormalizedName[self::normalize($department->name)][] = $department;
+            $key = self::normalize($department->name);
+
+            if ($key !== '') {
+                $byNormalizedName[$key][] = $department;
+            }
         }
 
         return new self($names, $byNormalizedName);
@@ -34,7 +39,17 @@ final readonly class DepartmentLookup
 
     public static function normalize(string $name): string
     {
-        return Str::of($name)->ascii()->lower()->squish()->toString();
+        $decomposed = Normalizer::normalize($name, Normalizer::FORM_KD);
+
+        return Str::of(preg_replace('/\p{Mn}/u', '', $decomposed === false ? $name : $decomposed) ?? $name)
+            ->lower()
+            ->squish()
+            ->toString();
+    }
+
+    public static function isBlank(mixed $name): bool
+    {
+        return self::normalize((string) $name) === '';
     }
 
     /**
@@ -42,7 +57,9 @@ final readonly class DepartmentLookup
      */
     public function find(string $name): array
     {
-        return $this->byNormalizedName[self::normalize($name)] ?? [];
+        $key = self::normalize($name);
+
+        return $key === '' ? [] : $this->byNormalizedName[$key] ?? [];
     }
 
     public function idFor(string $name): ?string

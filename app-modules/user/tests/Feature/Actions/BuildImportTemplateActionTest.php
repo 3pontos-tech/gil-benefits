@@ -70,3 +70,27 @@ it('is read back by the importer from the employees sheet only', function (): vo
         ->and($rows->first()['email'])->toBe('joaosilva@email.com')
         ->and($rows->first()['department'])->toBe('Vendas');
 });
+
+it('writes department names starting with a formula sign as plain text', function (): void {
+    $company = Company::factory()->create();
+    $formula = '=HYPERLINK("http://example.com","Clique")';
+    Department::factory()->for($company)->create(['name' => $formula]);
+
+    $path = resolve(BuildImportTemplateAction::class)->execute($company);
+
+    $zip = new ZipArchive;
+    $zip->open($path);
+
+    $employeesXml = (string) $zip->getFromName('xl/worksheets/sheet1.xml');
+    $departmentsXml = (string) $zip->getFromName('xl/worksheets/sheet2.xml');
+    $zip->close();
+
+    File::delete($path);
+
+    $asText = '<is><t>' . htmlspecialchars($formula, ENT_QUOTES | ENT_XML1) . '</t></is>';
+
+    expect($employeesXml)->not->toContain('<f>')
+        ->and($employeesXml)->toContain($asText)
+        ->and($departmentsXml)->not->toContain('<f>')
+        ->and($departmentsXml)->toContain($asText);
+});

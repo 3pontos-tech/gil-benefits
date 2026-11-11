@@ -209,3 +209,44 @@ it('does not match departments from another company or deleted departments', fun
         "Departamento 'Jurídico' não encontrado.",
     ]);
 });
+
+it('keeps non-latin and emoji names distinct instead of collapsing them', function (string $existing, string $typed): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => $existing]);
+
+    $rows = collect([makeValidationRow(['department' => $typed, '__row_number' => 5])]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect(collect($errors)->firstWhere('row', 5)?->message)->toBe(sprintf("Departamento '%s' não encontrado.", $typed));
+})->with([
+    'chinese' => ['销售', '市场'],
+    'emoji' => ['🚀', '🎉'],
+    'japanese against emoji' => ['営業', '😀'],
+    'emoji suffix' => ['Vendas 🚀', 'Vendas'],
+]);
+
+it('matches fullwidth and non-latin names written the same way', function (string $existing, string $typed): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => $existing]);
+
+    $rows = collect([makeValidationRow(['department' => $typed])]);
+
+    expect(resolve(ValidateUserImportAction::class)->execute($rows, $company))->toBeEmpty();
+})->with([
+    'fullwidth' => ['Abc', 'Ａｂｃ'],
+    'chinese' => ['销售', '销售'],
+    'emoji' => ['Vendas 🚀', 'vendas 🚀'],
+]);
+
+it('treats a cell with only invisible spaces as no department', function (string $invisible): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => '🚀']);
+
+    $rows = collect([makeValidationRow(['department' => $invisible])]);
+
+    expect(resolve(ValidateUserImportAction::class)->execute($rows, $company))->toBeEmpty();
+})->with([
+    'non-breaking space' => ["\u{00A0}"],
+    'zero-width space' => ["\u{200B}"],
+]);
