@@ -23,6 +23,12 @@ it('should render', function (): void {
         ->assertOk();
 });
 
+it('tells the consultant that what is selected on save is what stays', function (): void {
+    livewire(CreateDocument::class)
+        ->assertSee('Vale o que estiver selecionado ao salvar.')
+        ->assertDontSee('o arquivo terá prioridade');
+});
+
 it('should be able to upload a document', function (): void {
     Storage::fake('public');
     $image = UploadedFile::fake()->image('image.jpg');

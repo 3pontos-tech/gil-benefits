@@ -52,7 +52,7 @@ return [
             'files' => 'File',
             'tab_file' => 'File',
             'tab_link' => 'Link',
-            'type_hint' => 'Upload a file OR set a link. If both are provided, the file takes priority and the link will be discarded.',
+            'type_hint' => 'Upload a file or set a link. Whatever is selected when you save is what stays.',
         ],
     ],
     'share_documents' => [

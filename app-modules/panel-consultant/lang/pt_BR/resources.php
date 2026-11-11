@@ -52,7 +52,7 @@ return [
             'files' => 'Arquivo',
             'tab_file' => 'Arquivo',
             'tab_link' => 'Link',
-            'type_hint' => 'Envie um arquivo OU defina um link. Se ambos forem fornecidos, o arquivo terá prioridade e o link será desconsiderado.',
+            'type_hint' => 'Envie um arquivo ou defina um link. Vale o que estiver selecionado ao salvar.',
         ],
     ],
     'share_documents' => [
