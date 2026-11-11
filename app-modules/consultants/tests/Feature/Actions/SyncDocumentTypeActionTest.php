@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Consultants\Actions\SyncDocumentTypeAction;
 use TresPontosTech\Consultants\Enums\DocumentExtensionTypeEnum;
@@ -84,3 +85,28 @@ it('leaves the type empty, never a link without a link', function (string $case)
         ->type->toBeNull()
         ->link->toBeNull();
 })->with(['unknown file', 'no file and no link']);
+
+/**
+ * O rastro do bug: `type = link`, sem link, com arquivo. Um documento com arquivo e link é a
+ * escolha do consultor e fica como está.
+ */
+it('repairs only the documents the panel saved as links', function (): void {
+    $wrong = consultantDocument(['title' => 'Extrato']);
+    attachDocumentFile($wrong, 'extrato.pdf', minimalPdf());
+    $chosenLink = consultantDocument(['title' => 'Aula', 'link' => 'https://example.com/aula']);
+    attachDocumentFile($chosenLink, 'roteiro.pdf', minimalPdf());
+    $unknown = consultantDocument(['title' => 'Compactado']);
+    attachDocumentFile($unknown, 'pacote.zip', "PK\x03\x04");
+    Document::query()->whereKey([$wrong->getKey(), $chosenLink->getKey(), $unknown->getKey()])->update(['type' => DocumentExtensionTypeEnum::Link]);
+    $updatedAt = DB::table('documents')->where('id', $wrong->getKey())->value('updated_at');
+    $this->travel(1)->hour();
+
+    (require base_path('app-modules/consultants/database/migrations/2026_11_11_120000_sync_document_types_from_their_files.php'))->up();
+
+    expect($wrong->fresh()->type)->toBe(DocumentExtensionTypeEnum::PDF)
+        ->and(DB::table('documents')->where('id', $wrong->getKey())->value('updated_at'))->toBe($updatedAt)
+        ->and($chosenLink->fresh())
+        ->type->toBe(DocumentExtensionTypeEnum::Link)
+        ->link->toBe('https://example.com/aula')
+        ->and($unknown->fresh()->type)->toBeNull();
+});
