@@ -6,7 +6,7 @@ namespace App\Notifications;
 
 /**
  * O que um aviso diz, independente de como é entregue. Cada canal apresenta este conteúdo
- * no seu formato (banco/sino do painel hoje; push no futuro).
+ * no seu formato: o banco (sino do painel e do app) e, quando há `push`, o celular.
  */
 final readonly class NotificationContent
 {
@@ -18,5 +18,6 @@ final readonly class NotificationContent
         public ?string $appointmentId = null,
         public ?string $documentId = null,
         public ?NotificationLink $link = null,
+        public ?NotificationPush $push = null,
     ) {}
 }

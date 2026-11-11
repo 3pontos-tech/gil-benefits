@@ -9,6 +9,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Component;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Mail;
+use TresPontosTech\Consultants\Actions\NotifySharedDocumentAction;
 use TresPontosTech\Consultants\Actions\UpsertDocumentShareAction;
 use TresPontosTech\Consultants\DTOs\DocumentShareDTO;
 use TresPontosTech\Consultants\Mail\DocumentSharedMail;
@@ -93,6 +94,7 @@ class ShareDocumentFilamentAction extends Action
 
         if ($employee) {
             Mail::to($employee->email)->queue(new DocumentSharedMail($record, $employee));
+            resolve(NotifySharedDocumentAction::class)->handle($employee, $record);
         }
 
         Notification::make()->success()->title('Documento compartilhado com sucesso')->send();

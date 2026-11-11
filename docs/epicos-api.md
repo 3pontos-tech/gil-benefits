@@ -391,9 +391,11 @@ Como colaborador, quero ver minhas notificações no app e abrir o encontro ou o
 - Cada aviso ao colaborador é uma notificação do Laravel que estende `App\Notifications\ContentNotification` e devolve um
   `NotificationContent` (tipo em `NotificationKind`, título, texto, tom em `NotificationTone`, `appointment_id`/`document_id`).
   A base converte o conteúdo para cada canal: no banco, o formato do Filament (o sino do painel não muda) mais `kind` e
-  os ids; a coluna `type` guarda o `kind`. Push, no futuro, vira um canal que traduz o mesmo conteúdo.
+  os ids; a coluna `type` guarda o `kind`. O push é um canal a mais desse conteúdo (#349), descrito em
+  `app-modules/api/README.md`, seção "Push notifications".
 - Escopo: os avisos que o colaborador já recebe no painel (encontro confirmado, cancelado, cancelado em cima da hora,
-  realizado e créditos entregues). Ata publicada, material compartilhado e outros avisos que faltam ficaram para a #299.
+  realizado e créditos entregues). Material compartilhado, encontro alterado e crédito perto de vencer entraram com o
+  push (#349); ata publicada e os outros avisos que faltam seguem na #299.
 - `NotificationResource`: `id, type (kind), data { title, body, status, icon, format, appointment_id?, document_id? },
   read_at, created_at`. A lista filtra pelos tipos que o app exibe (`NotificationKind::shownInEmployeeApp()`),
   com `meta.unread`; `read` marca só na primeira vez.

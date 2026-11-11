@@ -43,6 +43,11 @@ mesmas que o painel usa. O controller valida, chama a action e formata a respost
   contratual da empresa, assinatura própria ou voucher. Consultores e contas sem vínculo ativo ficam de fora. O
   `EnsureAppAccess` confere a cada requisição; sem acesso, o login responde 422 em `email` e as demais rotas, 403,
   com o motivo ("O plano da sua empresa está inativo…" ou "Para usar o app, ative um plano pelo site.").
+  - O 403 encerra a sessão no servidor, por qualquer motivo, inclusive os passageiros (o plano renovando antes da
+    confirmação da cobrança, o vínculo alternado no admin). O app mostra o motivo e volta ao login; a pessoa entra de
+    novo quando o acesso voltar, e o app registra o token de push outra vez. Sem isso, como o logout também passa pelo
+    `EnsureAppAccess`, a sessão e o push ficariam no servidor por até `API_TOKEN_TTL_DAYS` dias, e os pushes voltariam
+    a um celular que mostra a tela de login.
 - A empresa da requisição é a primeira com vínculo ativo em que a pessoa tem o benefício, a empregadora antes da
   padrão (`ResolveAppAccessAction`, a regra inteira de acesso num lugar só). Ela vira o tenant da requisição, e cota, crédito, agendamento, perfil e
   chamado leem essa empresa, como a aberta na tela do painel.
@@ -76,6 +81,90 @@ Pelo app, com um código de 6 dígitos por e-mail (#323), em três rotas públic
 - Um reset, pelo app ou pelo site, dispara o `PasswordReset`. Os listeners revogam os tokens do app, encerram as
   sessões web, apagam o código pendente e enviam o e-mail de senha alterada.
 
+## Push notifications
+
+Só vão ao celular os avisos que a pessoa precisa receber na hora, porque saber depois a prejudica (#349): encontro
+confirmado, alterado e cancelado pela equipe, lembrete antes do encontro, material novo do consultor e crédito perto
+de vencer. Os outros avisos ficam no sino e no e-mail.
+
+- **Token do aparelho.** O app registra o token da Expo com `PUT me/push-token` e o apaga com `DELETE me/push-token`.
+  - As duas rotas respondem `204` e são idempotentes.
+  - O corpo do `PUT` tem `token` (`ExponentPushToken[...]` ou `ExpoPushToken[...]`) e `platform` (`android` ou `ios`).
+  - O token fica preso à sessão, o token Bearer: sair, trocar a senha, entrar de novo no mesmo aparelho e o prune o
+    apagam junto, pela FK em cascata. Um 403 de acesso também encerra a sessão no servidor (`EnsureAppAccess`).
+  - Um token que era de outra conta passa para quem entrou. Todo `PUT` atualiza o `updated_at`, e é por ele que um
+    recibo antigo de "aparelho não existe" deixa de apagar um token registrado de novo.
+- **Quem vira push.** O aviso é uma `ContentNotification` cujo `NotificationContent` tem `push`, um `NotificationPush`
+  com título e texto próprios para a tela de bloqueio, prioridade e validade. A base acrescenta o canal `expo-push`,
+  registrado aqui pelo nome, então os módulos de domínio pedem o push sem importar a API.
+- **Payload.** O canal monta um `ExpoPushMessage` (DTO), e só ele conhece o formato da Expo.
+  - `data` traz `type` (o `NotificationKind`) e, quando houver, `notification_id`, `appointment_id`, `document_id` e
+    `change`.
+  - O `notification_id` só vem quando o aviso também está no sino; o lembrete é só push.
+  - O `change` (`time`, `consultant`, `link` ou `unconfirmed`) só vem no `appointment_changed`.
+  - O `channelId` do Android sai de `NotificationKind::androidChannel()`: `appointments` para os avisos de encontro,
+    `general` para os outros. **Os ids estão congelados**, porque o app cria os canais e a importância de um canal não
+    muda depois de criado.
+  - O link da sala nunca vai no payload. O teste `Contract/PushPayloadContractTest` fixa o contrato de cada tipo.
+- **Envio.** O `SendPushNotificationJob` vai para a fila própria do push, `api.push.queue` (`push`, ou outra definida
+  em `PUSH_QUEUE`), depois do commit. Os jobs agendados que geram push (lembrete e créditos) também vão para ela.
+  - Ele confere o acesso ao app na hora do envio (`ResolveAppAccessAction`) e não envia um aviso que passou da
+    validade.
+  - Manda pela Expo Push API, que entrega pelo FCM e pelo APNs. A entrega é "pelo menos uma vez": conexão, 429 e 5xx
+    se repetem no cliente e depois no job (5 tentativas, até uns 20 minutos); um 4xx falha de vez.
+  - A resposta da Expo vira `ExpoPushTicket`. Um `DeviceNotRegistered` apaga o token. Um erro de configuração
+    (`InvalidCredentials`, `MismatchSenderId`, `MessageTooBig`) é relatado como `PushConfigurationException`, e o
+    Nightwatch o captura.
+  - O `push:check-receipts` confere os recibos (`ExpoPushReceipt`) a cada 15 minutos. Nenhum log leva o token.
+- **Configuração.** O `EXPO_ACCESS_TOKEN` é opcional enquanto a segurança reforçada do push estiver desligada no
+  projeto da Expo; com ela ligada, todo envio sem o token falha.
+- **Agendamentos:**
+  - O `SendAppointmentRemindersJob` roda a cada 5 minutos e reserva cada lembrete com um update condicional em
+    `appointments.reminder_sent_at`. Confirmar ou remarcar para dentro da próxima hora já conta como lembrete
+    (`AppointmentReminder`).
+  - O `WarnExpiringCreditsJob` roda de hora em hora, das 9h às 20h, e avisa uma semana antes e na véspera. As marcas
+    ficam em `user_credits`, então uma rodada perdida é recuperada na seguinte.
+- **Encontro alterado.** A equipe edita um encontro e a tela chama `NotifyAppointmentChangedAction` com o
+  `AppointmentSnapshot` de antes; a regra de qual mudança contar é `AppointmentChange::between()`.
+
+### Deploy por ambiente
+
+Faça em homologação e depois em produção. O pipeline normal (`migrate --force`) entrega o código. **O worker precisa
+consumir a fila `push`**: é um passo manual no Forge, então a release que traz o push é MAJOR (`RELEASING.md`). O lado
+do app (contas Expo, Firebase e Apple, `google-services.json`, build) está em
+`gil-benefits-mobile/docs/release-checklist.md`.
+
+1. **Migrations**, que rodam no deploy:
+   - `push_tokens` e `push_tickets`;
+   - `appointments.reminder_sent_at`;
+   - `user_credits.expiry_warned_week_before_at` e `expiry_warned_day_before_at`.
+2. **Worker (passo manual no Forge, antes ou junto do deploy):**
+   - Inclua a fila `push` na frente: `--queue=push,emails,default,users-import`. Assim, sempre que o worker pegar a
+     próxima tarefa, o push passa à frente de e-mails, atas geradas por IA e sincronização de agenda.
+   - Para o push nunca esperar atrás de uma ata (até 3 minutos), crie um segundo processo de worker só com
+     `--queue=push`, ou aumente o número de processos.
+   - Depois do deploy, rode `php artisan queue:restart`.
+   - Sem esse passo, os pushes ficam parados na fila. Os que vencerem enquanto isso são descartados quando o worker
+     voltar.
+3. **Scheduler:** precisa rodar a cada minuto (`schedule:run`), como já precisa hoje. O `php artisan schedule:list`
+   deve mostrar:
+   - o lembrete, a cada 5 minutos;
+   - o `push:check-receipts`, a cada 15 minutos;
+   - o aviso de créditos, de hora em hora, das 9h às 20h.
+4. **`EXPO_ACCESS_TOKEN` (opcional):**
+   - Crie o token na conta Expo dona do projeto daquele ambiente: homologação usa o projeto de teste, e produção, o da
+     empresa.
+   - Defina no `.env` do servidor e rode `php artisan config:cache` e `php artisan queue:restart`.
+   - Só ligue a segurança reforçada do push na Expo depois que todos os servidores tiverem o token. A partir daí, todo
+     envio sem ele falha com `UNAUTHORIZED`.
+5. **Conferência:**
+   - Entre no app daquele ambiente com uma conta, permita as notificações e confirme um encontro dela no admin.
+   - O push chega, e o log mostra um `push.sent` com `accepted` maior que zero.
+6. **Se não chegar:**
+   - Uma `PushConfigurationException` no Nightwatch indica chave FCM ou credencial errada no projeto da Expo.
+   - `push.ticket_error` e `push.receipt_error` no log trazem o código da Expo.
+   - Sem `push.sent`, confira o worker e se a conta tem um token registrado em `push_tokens`.
+
 ## Convenções da resposta
 
 | Tema | Regra |
@@ -91,7 +180,7 @@ Pelo app, com um código de 6 dígitos por e-mail (#323), em três rotas públic
 | Área | Rotas |
 | --- | --- |
 | Autenticação | `POST auth/login`, `POST auth/logout`, `POST auth/password/forgot`, `POST auth/password/verify`, `POST auth/password/reset` |
-| Perfil | `GET/PATCH me`, `PUT me/password`, `POST/DELETE me/avatar`, `GET me/journey`, `GET/PUT me/anamnese` |
+| Perfil | `GET/PATCH me`, `PUT me/password`, `POST/DELETE me/avatar`, `GET me/journey`, `GET/PUT me/anamnese`, `PUT/DELETE me/push-token` |
 | Agenda | `GET appointments/slots`, `GET/POST appointments`, `GET/PATCH appointments/{id}`, `POST appointments/{id}/cancel`, `POST appointments/{id}/feedback` |
 | Créditos | `GET credits` |
 | Materiais | `GET/POST materials`, `DELETE materials/{id}`, `PATCH materials/{id}/favorite`, `PATCH materials/{id}/viewed` |

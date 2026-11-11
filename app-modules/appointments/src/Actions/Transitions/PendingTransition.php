@@ -11,6 +11,7 @@ use TresPontosTech\Appointments\Exceptions\InvalidTransitionException;
 use TresPontosTech\Appointments\Exceptions\MissingTransitionDataException;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Notifications\AppointmentConfirmedNotification;
+use TresPontosTech\Appointments\Support\AppointmentReminder;
 
 final class PendingTransition extends AbstractAppointmentTransition
 {
@@ -35,6 +36,9 @@ final class PendingTransition extends AbstractAppointmentTransition
         throw_if(blank($this->appointment->consultant_id), MissingTransitionDataException::class, 'A consultant must be assigned before confirming the appointment.');
     }
 
+    /**
+     * O aviso de confirmação acaba de dizer o horário: a menos de 1 h do encontro, ele é o lembrete.
+     */
     public function processStep(TransitionData $data): void
     {
         if (filled($data->cancellationActor)) {
@@ -43,7 +47,10 @@ final class PendingTransition extends AbstractAppointmentTransition
             return;
         }
 
-        $this->appointment->update(['status' => AppointmentStatus::Active]);
+        $this->appointment->forceFill([
+            'status' => AppointmentStatus::Active,
+            'reminder_sent_at' => AppointmentReminder::stampAfterTellingTheTime($this->appointment->appointment_at),
+        ])->save();
 
         event(new AppointmentBooked($this->appointment));
     }

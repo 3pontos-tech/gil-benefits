@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use TresPontosTech\Api\Support\ApiDates;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Support\AppointmentMoment;
 
 /**
  * @property Appointment $resource
@@ -42,7 +43,7 @@ class AppointmentResource extends JsonResource
             'appointment_at' => ApiDates::dateTime($appointment->appointment_at),
             'duration_minutes' => $duration,
             'status' => $appointment->status->value,
-            'meeting_url' => $appointment->isActive() && $appointment->appointment_at->copy()->addMinutes($duration)->isFuture()
+            'meeting_url' => $appointment->isActive() && AppointmentMoment::endOf($appointment)->isFuture()
                 ? $appointment->meeting_url
                 : null,
             'consultant' => $consultant === null ? null : [

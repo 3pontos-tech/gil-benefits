@@ -22,6 +22,7 @@ class TransferCreditBetweenEmployees
         $credit->update([
             'holder_id' => $toEmployee->getKey(),
             'transferred_at' => now(),
+            ...UserCredit::EXPIRY_WARNINGS_CLEARED,
         ]);
     }
 }

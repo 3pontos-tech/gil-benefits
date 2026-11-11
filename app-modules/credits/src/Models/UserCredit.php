@@ -31,6 +31,8 @@ use TresPontosTech\Credits\Enums\UserCreditStatusEnum;
  * @property string|null $voucher_redemption_id
  * @property UserCreditStatusEnum $status
  * @property Carbon|null $expires_at
+ * @property Carbon|null $expiry_warned_week_before_at
+ * @property Carbon|null $expiry_warned_day_before_at
  * @property Carbon|null $used_at
  * @property string|null $appointment_id
  * @property Carbon|null $transferred_at
@@ -47,6 +49,18 @@ class UserCredit extends Model
     use HasUuids;
     use SoftDeletes;
 
+    /**
+     * As marcas do aviso de vencimento (WarnExpiringCreditsJob) valem para quem segurava o
+     * crédito quando o aviso saiu. Todo caminho que troca o `holder_id` as limpa, senão quem
+     * recebe o crédito perto do vencimento nunca é avisado.
+     *
+     * @var array<string, null>
+     */
+    public const array EXPIRY_WARNINGS_CLEARED = [
+        'expiry_warned_week_before_at' => null,
+        'expiry_warned_day_before_at' => null,
+    ];
+
     public static function priceFor(int $quantity): int
     {
         return $quantity * (int) config('credits.price_in_cents');
@@ -61,6 +75,8 @@ class UserCredit extends Model
         'voucher_redemption_id',
         'status',
         'expires_at',
+        'expiry_warned_week_before_at',
+        'expiry_warned_day_before_at',
         'used_at',
         'appointment_id',
         'transferred_at',
@@ -71,6 +87,8 @@ class UserCredit extends Model
         return [
             'status' => UserCreditStatusEnum::class,
             'expires_at' => 'datetime',
+            'expiry_warned_week_before_at' => 'datetime',
+            'expiry_warned_day_before_at' => 'datetime',
             'used_at' => 'datetime',
             'transferred_at' => 'datetime',
         ];

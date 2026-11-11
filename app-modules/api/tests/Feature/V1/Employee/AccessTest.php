@@ -151,8 +151,8 @@ function protectedEmployeeRoutes(): array
         ->all();
 }
 
-it('covers the 27 protected employee routes, 31 with the public ones', function (): void {
-    expect(protectedEmployeeRoutes())->toHaveCount(27);
+it('covers the 29 protected employee routes, 33 with the public ones', function (): void {
+    expect(protectedEmployeeRoutes())->toHaveCount(29);
 });
 
 it('answers 401 on every employee route without a token', function (): void {
