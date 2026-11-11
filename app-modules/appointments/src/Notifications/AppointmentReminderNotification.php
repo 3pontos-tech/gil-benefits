@@ -29,10 +29,12 @@ final class AppointmentReminderNotification extends ContentNotification
         return $this->withPush($notifiable, []);
     }
 
+    /**
+     * O título diz a hora, não "em 1 hora": continua verdadeiro com o job atrasado ou com um
+     * encontro remarcado para dentro da hora.
+     */
     public function content(): NotificationContent
     {
-        // O título diz a hora, não "em 1 hora": continua verdadeiro com o job atrasado ou com um
-        // encontro remarcado para dentro da hora.
         $title = __('appointments::resources.appointments.notifications.push.reminder.title', AppointmentMoment::of($this->appointment)->toReplacements());
         $body = __('appointments::resources.appointments.notifications.push.reminder.body');
 

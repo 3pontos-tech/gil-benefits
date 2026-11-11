@@ -92,10 +92,12 @@ it('skips an employee who was deleted and still reminds the others', function ()
     expect($gone->refresh()->reminder_sent_at)->toBeNull();
 });
 
+/**
+ * A equipe muda o horário logo depois de o job ler o encontro e antes de ele reservar o lembrete.
+ */
 it('does not remind an appointment whose time changed while the run was reading it', function (): void {
     $appointment = Appointment::factory()->withStatus(AppointmentStatus::Active)->create(['appointment_at' => '2026-09-10 09:40:00']);
 
-    // A equipe muda o horário logo depois de o job ler o encontro e antes de ele reservar o lembrete.
     $editedOnce = false;
     Appointment::retrieved(function (Appointment $read) use (&$editedOnce): void {
         if (! $editedOnce) {

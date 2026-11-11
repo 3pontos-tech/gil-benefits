@@ -24,8 +24,10 @@ function pushTicketFor(PushToken $token, string $id, int $minutesAgo = 20): Push
     return PushTicket::query()->create(['id' => $id, 'push_token_id' => $token->getKey(), 'created_at' => now()->subMinutes($minutesAgo)]);
 }
 
+/**
+ * O aparelho se registrou antes de qualquer envio dos testes.
+ */
 beforeEach(function (): void {
-    // O aparelho se registrou antes de qualquer envio dos testes.
     $this->phone = PushToken::factory()->create(['user_id' => standaloneSubscriber()->getKey(), 'created_at' => now()->subHour(), 'updated_at' => now()->subHour()]);
 });
 

@@ -48,10 +48,12 @@ function sentPushMessage(User $employee, ContentNotification $notification): arr
     return $messages[0];
 }
 
+/**
+ * Só o material não tem validade: ele serve enquanto estiver na lista.
+ */
 it('sends each push type with its contract', function (Closure $notification, string $type, string $channel, array $dataKeys, bool $urgent): void {
     $message = sentPushMessage($this->employee, $notification());
 
-    // Só o material não tem validade: ele serve enquanto estiver na lista.
     $keys = ['to', 'title', 'body', 'data', 'sound', 'priority', 'channelId', ...($type === 'material_shared' ? [] : ['expiration'])];
 
     expect(array_keys($message))->toEqualCanonicalizing($keys)

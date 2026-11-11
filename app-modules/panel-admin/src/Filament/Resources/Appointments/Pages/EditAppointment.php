@@ -32,13 +32,14 @@ class EditAppointment extends EditRecord
     }
 
     /**
+     * Captures the appointment before the record is filled: by the time afterSave() runs,
+     * getOriginal() has already synced to the newly saved values.
+     *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Capture the appointment before the record is filled: by the time afterSave()
-        // runs, getOriginal() has already synced to the newly saved values.
         /** @var Appointment $appointment */
         $appointment = $this->record;
         $this->before = AppointmentSnapshot::of($appointment);

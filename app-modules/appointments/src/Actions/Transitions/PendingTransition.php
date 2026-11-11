@@ -36,6 +36,9 @@ final class PendingTransition extends AbstractAppointmentTransition
         throw_if(blank($this->appointment->consultant_id), MissingTransitionDataException::class, 'A consultant must be assigned before confirming the appointment.');
     }
 
+    /**
+     * O aviso de confirmação acaba de dizer o horário: a menos de 1 h do encontro, ele é o lembrete.
+     */
     public function processStep(TransitionData $data): void
     {
         if (filled($data->cancellationActor)) {
@@ -44,7 +47,6 @@ final class PendingTransition extends AbstractAppointmentTransition
             return;
         }
 
-        // O aviso de confirmação acaba de dizer o horário: a menos de 1 h do encontro, ele é o lembrete.
         $this->appointment->forceFill([
             'status' => AppointmentStatus::Active,
             'reminder_sent_at' => AppointmentReminder::stampAfterTellingTheTime($this->appointment->appointment_at),
