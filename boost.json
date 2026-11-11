@@ -16,11 +16,13 @@
     ],
     "sail": false,
     "skills": [
+        "infer-conventions",
         "cashier-stripe-development",
         "laravel-best-practices",
+        "testing-best-practices",
         "configure-nightwatch",
-        "pest-testing",
         "tailwindcss-development",
+        "filament-development",
         "modular",
         "medialibrary-development"
     ]
