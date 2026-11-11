@@ -23,8 +23,8 @@ use TresPontosTech\Consultants\Models\DocumentUserState;
 class MaterialResource extends JsonResource
 {
     /**
-     * A URL do arquivo é temporária e sem `attachment`, para o app abrir no visualizador
-     * do aparelho em vez de baixar (A9).
+     * Sem link do arquivo: o app pede um na hora de usar (`POST materials/{id}/download`),
+     * baixa o arquivo e compartilha o arquivo, nunca um link do armazenamento.
      *
      * @return array<string, mixed>
      */
@@ -46,7 +46,6 @@ class MaterialResource extends JsonResource
                 'name' => $media->file_name,
                 'mime_type' => $media->mime_type,
                 'size' => $media->size,
-                'url' => $media->getTemporaryUrl(now()->addMinutes((int) config('api.media_url_ttl_minutes'))),
             ] : null,
             'uploaded_by' => $uploadedByUser ? 'employee' : 'consultant',
             'shared_by' => $uploadedByUser || ! $share instanceof DocumentShare

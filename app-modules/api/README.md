@@ -183,7 +183,7 @@ do app (contas Expo, Firebase e Apple, `google-services.json`, build) está em
 | Perfil | `GET/PATCH me`, `PUT me/password`, `POST/DELETE me/avatar`, `GET me/journey`, `GET/PUT me/anamnese`, `PUT/DELETE me/push-token` |
 | Agenda | `GET appointments/slots`, `GET/POST appointments`, `GET/PATCH appointments/{id}`, `POST appointments/{id}/cancel`, `POST appointments/{id}/feedback` |
 | Créditos | `GET credits` |
-| Materiais | `GET/POST materials`, `DELETE materials/{id}`, `PATCH materials/{id}/favorite`, `PATCH materials/{id}/viewed` |
+| Materiais | `GET/POST materials`, `DELETE materials/{id}`, `PATCH materials/{id}/favorite`, `PATCH materials/{id}/viewed`, `POST materials/{id}/download` |
 | Notificações | `GET notifications`, `PATCH notifications/{id}/read` |
 | Chamados | `GET/POST tickets`, `PATCH tickets/{id}` |
 
@@ -196,6 +196,15 @@ O corpo aceita `expected_impact` (`returns_credit` | `loses_credit`), o `cancel_
 a pessoa confirmou com o crédito voltando e as 4 h acabaram até o pedido chegar (o app espera os 6 s do "Desfazer"),
 responde 422 em `expected_impact` e não cancela; ter aceitado perder o crédito nunca impede o cancelamento. Sem o
 campo, vale o relógio do momento do pedido, como no painel.
+
+Os materiais são documentos privados da pessoa (a empresa nunca os vê), então nenhuma resposta traz o link do
+arquivo no armazenamento. Para abrir, baixar ou compartilhar, o app pede `POST materials/{id}/download`, que só
+responde para quem enxerga o material (os outros recebem 404, como em todas as rotas de material) e devolve
+`{ url, filename, mime_type, size, expires_at }`. O `url` vale `api.materials.download_ttl_seconds` (120 s por
+padrão, `MATERIAL_DOWNLOAD_TTL_SECONDS`; um valor que não seja inteiro positivo cai no padrão) e já baixa com o nome
+real (`Content-Disposition`); o app baixa na hora e compartilha o arquivo, nunca o link. O `filename` é o título com a
+extensão do arquivo, sem repeti-la e sem os caracteres que um sistema de arquivos recusa; sem título, vale o nome
+guardado. Um material que é só um link (aula) não tem arquivo e também responde 404.
 
 Lista completa, com middlewares: `php artisan route:list --path=api/v1 -v`. O contrato que o app consome está em
 `gil-benefits-mobile/docs/api-contract.md`.

@@ -29,11 +29,27 @@ return [
     | URLs temporárias
     |--------------------------------------------------------------------------
     |
-    | Validade, em minutos, das URLs de avatar, logo e arquivos de materiais.
+    | Validade, em minutos, das URLs de avatar e logo.
     |
     */
 
     'media_url_ttl_minutes' => 60,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Arquivos dos materiais
+    |--------------------------------------------------------------------------
+    |
+    | O link de um material sai só em `POST materials/{id}/download` e vale poucos minutos
+    | (dois, por padrão): o app baixa o arquivo na hora e compartilha o arquivo, então um link
+    | encaminhado expira antes de servir a alguém. Um valor que não seja um inteiro positivo
+    | ("", "2m", "0") cai no padrão, para nenhum link já sair vencido.
+    |
+    */
+
+    'materials' => [
+        'download_ttl_seconds' => filter_var(env('MATERIAL_DOWNLOAD_TTL_SECONDS'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'default' => 120]]),
+    ],
 
     /*
     |--------------------------------------------------------------------------
