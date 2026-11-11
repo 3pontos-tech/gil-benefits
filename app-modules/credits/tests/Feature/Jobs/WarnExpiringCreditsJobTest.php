@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Facades\Notification;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Actions\AllocateCreditToEmployee;
+use TresPontosTech\Credits\Actions\MigrateCompanyCreditsOwner;
 use TresPontosTech\Credits\Actions\RevokeCreditsFromEmployees;
 use TresPontosTech\Credits\Actions\TransferCreditBetweenEmployees;
 use TresPontosTech\Credits\Jobs\WarnExpiringCreditsJob;
@@ -137,9 +138,10 @@ it('warns whoever receives a credit after the previous holder was warned', funct
 
         return $owner;
     }],
-    'moved to the new company owner' => [true, function (UserCredit $credit, Company $company): User {
+    'moved to the new company owner' => [true, function (UserCredit $credit, Company $company, User $owner): User {
         $newOwner = User::factory()->create();
-        $company->update(['user_id' => $newOwner->getKey()]);
+        $company->updateQuietly(['user_id' => $newOwner->getKey()]);
+        resolve(MigrateCompanyCreditsOwner::class)->handle($company, (string) $owner->getKey());
 
         return $newOwner;
     }],
