@@ -14,7 +14,8 @@ use TresPontosTech\Consultants\Models\Document;
 /**
  * O consultor compartilhou um material com a pessoa, muitas vezes algo para ela preencher antes
  * do próximo encontro. Fica no sino sempre; vai ao celular só no primeiro de uma leva, para quem
- * recebe cinco materiais seguidos ganhar um push e não cinco.
+ * recebe cinco materiais seguidos ganhar um push e não cinco. O sino tem texto próprio, sem o
+ * "Toque para abrir", porque também aparece no painel web.
  */
 final class MaterialSharedNotification extends ContentNotification
 {
@@ -34,7 +35,7 @@ final class MaterialSharedNotification extends ContentNotification
             body: $body,
             tone: NotificationTone::Info,
             documentId: (string) $this->document->getKey(),
-            push: new NotificationPush(title: $title, body: $body),
+            push: new NotificationPush(title: $title, body: __('consultants::resources.notifications.push.material_shared.body')),
         );
     }
 

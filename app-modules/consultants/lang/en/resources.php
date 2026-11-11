@@ -57,7 +57,12 @@ return [
     'notifications' => [
         'material_shared' => [
             'title' => 'New material from your consultant',
-            'body' => 'Your consultant shared a material with you. Tap to open.',
+            'body' => 'Your consultant shared a material with you.',
+        ],
+        'push' => [
+            'material_shared' => [
+                'body' => 'Your consultant shared a material with you. Tap to open.',
+            ],
         ],
     ],
 ];

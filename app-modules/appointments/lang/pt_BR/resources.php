@@ -130,6 +130,12 @@ return [
             ],
             'changed' => [
                 'title' => 'Seu encontro mudou',
+                'body' => [
+                    'time' => 'Novo horário: :date, às :time.',
+                    'consultant' => 'Seu encontro de :date, às :time, agora é com outro consultor.',
+                    'link' => 'O link da sala do seu encontro de :date, às :time, mudou. Entre pela tela do encontro.',
+                    'unconfirmed' => 'Seu encontro de :date, às :time, voltou a aguardar confirmação. Avisaremos quando for confirmado.',
+                ],
             ],
             // Texto do celular (#349): aparece na tela de bloqueio, então só o dia e a hora do
             // encontro da própria pessoa; nunca o consultor, o assunto ou o link da sala.
@@ -145,7 +151,7 @@ return [
                 'changed' => [
                     'title' => 'Seu encontro mudou',
                     'time' => 'Novo horário: :date, às :time. Toque para ver os detalhes.',
-                    'consultant' => 'Seu encontro de :date, às :time, tem um novo consultor e um novo link da sala. Toque para ver.',
+                    'consultant' => 'Seu encontro de :date, às :time, agora é com outro consultor. Toque para ver os detalhes.',
                     'link' => 'O link da sala do seu encontro de :date, às :time, mudou. Entre pela tela do encontro.',
                     'unconfirmed' => 'Seu encontro de :date, às :time, voltou a aguardar confirmação. Avisaremos quando for confirmado.',
                 ],

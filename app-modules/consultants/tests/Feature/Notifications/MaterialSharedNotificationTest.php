@@ -35,6 +35,7 @@ it('tells the employee about a new material without its title', function (): voi
 
         return $content->kind === NotificationKind::MaterialShared
             && $content->documentId === $document->getKey()
+            && $content->body === 'Seu consultor compartilhou um material com você.'
             && $content->push?->body === 'Seu consultor compartilhou um material com você. Toque para abrir.'
             && ! str_contains($content->body . $content->push->title, 'dívidas');
     });

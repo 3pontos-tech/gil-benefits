@@ -57,7 +57,12 @@ return [
     'notifications' => [
         'material_shared' => [
             'title' => 'Novo material do seu consultor',
-            'body' => 'Seu consultor compartilhou um material com você. Toque para abrir.',
+            'body' => 'Seu consultor compartilhou um material com você.',
+        ],
+        'push' => [
+            'material_shared' => [
+                'body' => 'Seu consultor compartilhou um material com você. Toque para abrir.',
+            ],
         ],
     ],
 ];

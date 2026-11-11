@@ -48,6 +48,15 @@ it('names the most serious change of a save', function (array $after, ?Appointme
     'nothing the employee sees' => [[], null],
 ]);
 
+it('keeps the tap hint on the phone only and never promises a new room link', function (): void {
+    $appointment = Appointment::factory()->make(['status' => AppointmentStatus::Active, 'consultant_id' => 'c-2', 'appointment_at' => Date::parse('2026-09-12 15:00')]);
+
+    $content = (new AppointmentChangedNotification($appointment, AppointmentChange::Consultant))->content();
+
+    expect($content->body)->toBe('Seu encontro de sáb., 12/09, às 15:00, agora é com outro consultor.')
+        ->and($content->push?->body)->toBe('Seu encontro de sáb., 12/09, às 15:00, agora é com outro consultor. Toque para ver os detalhes.');
+});
+
 it('says nothing about an appointment that was not confirmed yet', function (): void {
     $before = new AppointmentSnapshot(AppointmentStatus::Pending, null, Date::parse('2026-09-12 15:00'), null);
     $appointment = Appointment::factory()->make(['status' => AppointmentStatus::Pending, 'consultant_id' => null, 'appointment_at' => Date::parse('2026-09-13 10:00')]);

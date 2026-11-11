@@ -130,6 +130,12 @@ return [
             ],
             'changed' => [
                 'title' => 'Your appointment changed',
+                'body' => [
+                    'time' => 'New time: :date at :time.',
+                    'consultant' => 'Your appointment on :date at :time is now with another consultant.',
+                    'link' => 'The room link of your appointment on :date at :time changed. Join from the appointment screen.',
+                    'unconfirmed' => 'Your appointment on :date at :time is waiting for confirmation again. We will let you know once it is confirmed.',
+                ],
             ],
             'push' => [
                 'confirmed' => [
@@ -143,7 +149,7 @@ return [
                 'changed' => [
                     'title' => 'Your appointment changed',
                     'time' => 'New time: :date at :time. Tap to see the details.',
-                    'consultant' => 'Your appointment on :date at :time has a new consultant and a new room link. Tap to see.',
+                    'consultant' => 'Your appointment on :date at :time is now with another consultant. Tap to see the details.',
                     'link' => 'The room link of your appointment on :date at :time changed. Join from the appointment screen.',
                     'unconfirmed' => 'Your appointment on :date at :time is waiting for confirmation again. We will let you know once it is confirmed.',
                 ],
