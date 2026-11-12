@@ -78,6 +78,8 @@ return [
     'contact' => [
         'email' => env('CONTACT_EMAIL', 'contato@flammabeneficios.com.br'),
         'phone' => env('CONTACT_PHONE', '+55 11 97620-5711'),
+        'legal_name' => env('CONTACT_LEGAL_NAME'),
+        'cnpj' => env('CONTACT_CNPJ'),
     ],
 
 ];

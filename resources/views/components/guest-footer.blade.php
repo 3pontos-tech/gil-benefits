@@ -29,6 +29,7 @@
                     <li><a href="{{ route('site.home') }}#diferenciais" class="transition hover:opacity-80">Diferenciais</a></li>
                     <li><a href="{{ route('site.home') }}#pricing" class="transition hover:opacity-80">Preços</a></li>
                     <li><a href="{{ route('site.home') }}#faq" class="transition hover:opacity-80">FAQ</a></li>
+                    <li><a href="{{ route('site.privacy') }}" class="transition hover:opacity-80">Política de Privacidade</a></li>
                     <li>
                         <a href="{{ \App\Filament\Guest\Pages\HelpCenterPage::getUrl(panel: 'guest') }}"
                            class="transition hover:opacity-80">Abrir Chamado</a>
