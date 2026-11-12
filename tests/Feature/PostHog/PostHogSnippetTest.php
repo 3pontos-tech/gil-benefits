@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\StoreSignupAttribution;
 use App\Models\Users\User;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use TresPontosTech\PanelApp\Filament\Pages\EditUserProfile;
+use TresPontosTech\Permissions\Roles;
 
 beforeEach(function (): void {
     config(['services.posthog.key' => 'phc_test', 'services.posthog.host' => 'https://us.i.posthog.com']);
@@ -35,7 +37,6 @@ it('loads posthog-js tagged as Flamma on the site and the customer panels', func
     'collaborator page' => 'site.collaborator',
     'employee panel' => 'filament.app.auth.login',
     'employee signup' => 'filament.app.auth.register',
-    'company panel' => 'filament.company.auth.login',
 ]);
 
 it('keeps posthog-js out of the internal panels', function (string $route): void {
@@ -45,6 +46,8 @@ it('keeps posthog-js out of the internal panels', function (string $route): void
 })->with([
     'admin' => 'filament.admin.auth.login',
     'consultant' => 'filament.consultant.auth.login',
+    'company' => 'filament.company.auth.login',
+    'password reset request' => 'filament.app.auth.password-reset.request',
 ]);
 
 it('identifies the signed in user by the Flamma id', function (): void {
@@ -73,14 +76,53 @@ it('identifies an anonymous visitor from the Flare invite by the Flare id', func
         ->assertSee('posthog.identify(' . Js::from($flareId)->toHtml() . ')', false);
 });
 
-it('keeps identifying the visitor by the Flare id from the session on the signup page', function (): void {
+it('keeps identifying the visitor by the Flare id from the cookie on the signup page', function (): void {
     $flareId = (string) Str::uuid();
 
-    $this->get(route('site.home', ['flare_id' => $flareId]))->assertOk();
-
-    $this->get(route('filament.app.auth.register'))
+    $this->withCookie(StoreSignupAttribution::COOKIE, json_encode(['flare_id' => $flareId]))
+        ->get(route('filament.app.auth.register'))
         ->assertOk()
         ->assertSee('posthog.identify(' . Js::from($flareId)->toHtml() . ')', false);
+});
+
+it('keeps the Flare id of the cookie when the URL brings an invalid one', function (): void {
+    $flareId = (string) Str::uuid();
+
+    $this->withCookie(StoreSignupAttribution::COOKIE, json_encode(['flare_id' => $flareId]))
+        ->get(route('site.home', ['flare_id' => 'nao-e-uuid']))
+        ->assertOk()
+        ->assertSee('posthog.identify(' . Js::from($flareId)->toHtml() . ')', false);
+});
+
+it('registers the Flamma source after the reset, which clears the super properties', function (): void {
+    $this->get(route('site.home'))
+        ->assertOk()
+        ->assertSeeInOrder(['posthog.reset();', "posthog.register({ source: 'flamma' })"], false);
+});
+
+it('keeps posthog-js away from the internal team on the site', function (): void {
+    $this->actingAs(User::factory()->create()->assignRole(Roles::Consultant))
+        ->get(route('site.home'))
+        ->assertOk()
+        ->assertDontSee('posthog', false);
+});
+
+it('turns off autocapture and session recording inside the employee panel only', function (): void {
+    $this->get(route('filament.app.auth.login'))
+        ->assertOk()
+        ->assertSee('autocapture: false', false)
+        ->assertSee('disable_session_recording: true', false);
+
+    $this->get(route('site.home'))
+        ->assertOk()
+        ->assertDontSee('autocapture: false', false);
+});
+
+it('masks e-mail, tokens, signatures and voucher codes in the URLs before sending', function (): void {
+    $this->get(route('filament.app.auth.register', ['voucher' => 'CODIGO123']))
+        ->assertOk()
+        ->assertSee('before_send: function (event)', false)
+        ->assertSee('(?:email|token|signature|voucher)=', false);
 });
 
 it('resets a browser still identified as someone else before identifying the visitor', function (array $query, string $expectedId): void {

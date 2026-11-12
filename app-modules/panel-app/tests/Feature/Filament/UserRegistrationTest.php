@@ -5,6 +5,8 @@ use App\Http\Middleware\StoreSignupAttribution;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -222,10 +224,10 @@ it('joins the Flare person to the Flamma user before tracking the signup with th
     config(['services.posthog.key' => 'phc_test']);
     Http::fake();
     $flareId = (string) Str::uuid();
-    session([
-        StoreSignupAttribution::FLARE_ID => $flareId,
-        StoreSignupAttribution::UTMS => ['utm_source' => 'flare', 'utm_medium' => 'whatsapp', 'utm_campaign' => 'gancho_pos_relatorio', 'utm_content' => 'variante_a'],
-    ]);
+    Livewire::withCookies(signupAttribution([
+        'flare_id' => $flareId,
+        'utms' => ['utm_source' => 'flare', 'utm_medium' => 'whatsapp', 'utm_campaign' => 'gancho_pos_relatorio', 'utm_content' => 'variante_a'],
+    ]));
 
     livewire(UserRegistration::class)
         ->fillForm(registrationForm())
@@ -247,14 +249,13 @@ it('joins the Flare person to the Flamma user before tracking the signup with th
             '$geoip_disable' => true,
         ]],
     ])
-        ->and(session()->has(StoreSignupAttribution::FLARE_ID))->toBeFalse()
-        ->and(session()->has(StoreSignupAttribution::UTMS))->toBeFalse();
+        ->and(Cookie::queued(StoreSignupAttribution::COOKIE)?->getExpiresTime())->toBeLessThan(Date::now()->getTimestamp());
 });
 
 it('tracks the signup with the UTMs of an ad without a Flare person to join', function (): void {
     config(['services.posthog.key' => 'phc_test']);
     Http::fake();
-    session([StoreSignupAttribution::UTMS => ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento']]);
+    Livewire::withCookies(signupAttribution(['utms' => ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento']]));
 
     livewire(UserRegistration::class)
         ->fillForm(registrationForm())
@@ -266,11 +267,10 @@ it('tracks the signup with the UTMs of an ad without a Flare person to join', fu
         && $request['properties'] === ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento', 'source' => 'flamma', '$geoip_disable' => true]);
 });
 
-it('keeps the attribution in the session when the signup fails inside the transaction', function (): void {
+it('keeps the attribution cookie when the signup fails inside the transaction', function (): void {
     config(['services.posthog.key' => 'phc_test']);
     Http::fake();
-    $flareId = (string) Str::uuid();
-    session([StoreSignupAttribution::FLARE_ID => $flareId, StoreSignupAttribution::UTMS => ['utm_source' => 'flare']]);
+    Livewire::withCookies(signupAttribution(['flare_id' => (string) Str::uuid(), 'utms' => ['utm_source' => 'flare']]));
     filament()->setCurrentPanel(FilamentPanel::User->value);
     Event::listen(UserRegistered::class, function (): never {
         throw new RuntimeException('falha no cadastro');
@@ -281,13 +281,12 @@ it('keeps the attribution in the session when the signup fails inside the transa
 
     Http::assertNothingSent();
     assertDatabaseCount(User::class, 0);
-    expect(session(StoreSignupAttribution::FLARE_ID))->toBe($flareId)
-        ->and(session(StoreSignupAttribution::UTMS))->toBe(['utm_source' => 'flare']);
+    expect(Cookie::hasQueued(StoreSignupAttribution::COOKIE))->toBeFalse();
 });
 
 it('sends nothing to PostHog on signup without a key', function (): void {
     Http::fake();
-    session([StoreSignupAttribution::FLARE_ID => (string) Str::uuid()]);
+    Livewire::withCookies(signupAttribution(['flare_id' => (string) Str::uuid()]));
 
     livewire(UserRegistration::class)
         ->fillForm(registrationForm())
@@ -296,3 +295,12 @@ it('sends nothing to PostHog on signup without a key', function (): void {
 
     Http::assertNothingSent();
 });
+
+/**
+ * @param  array<string, mixed>  $attribution
+ * @return array<string, string>
+ */
+function signupAttribution(array $attribution): array
+{
+    return [StoreSignupAttribution::COOKIE => (string) json_encode($attribution)];
+}

@@ -116,7 +116,7 @@ final class UserRegistration extends RegisterPage
     }
 
     /**
-     * A atribuição só sai da sessão depois do commit: se o cadastro falhar no meio da transação,
+     * A atribuição só é apagada depois do commit: se o cadastro falhar no meio da transação,
      * a nova tentativa ainda leva o flare_id e as UTMs.
      */
     #[Override]
@@ -155,17 +155,18 @@ final class UserRegistration extends RegisterPage
      */
     private function trackSignup(User $user): void
     {
-        $flareId = session()->pull(StoreSignupAttribution::FLARE_ID);
-        /** @var array<string, string> $properties */
-        $properties = session()->pull(StoreSignupAttribution::UTMS, []);
+        $attribution = StoreSignupAttribution::current(request());
+        $properties = $attribution['utms'] ?? [];
+        $flareId = $attribution['flare_id'] ?? null;
         $postHog = resolve(PostHog::class);
 
-        if (is_string($flareId)) {
+        if ($flareId !== null) {
             $postHog->alias(anonymousId: $user->getKey(), userId: $flareId);
             $properties['flare_id'] = $flareId;
         }
 
         $postHog->capture($user->getKey(), 'cadastro_concluido', $properties);
+        StoreSignupAttribution::forget();
     }
 
     /**

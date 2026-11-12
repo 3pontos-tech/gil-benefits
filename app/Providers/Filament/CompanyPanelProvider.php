@@ -116,7 +116,6 @@ class CompanyPanelProvider extends PanelProvider
                     ->icon(Heroicon::UserCircle)
                     ->url(fn (): string => EditUserProfile::getUrl()),
             ])
-            ->renderHook(PanelsRenderHook::HEAD_END, fn (): Factory|View => view('components.posthog'))
             ->renderHook(
                 PanelsRenderHook::BODY_START,
                 fn (): Factory|View => view('filament.shared.import-errors-modal'),
