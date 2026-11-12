@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\File;
 use TresPontosTech\User\Actions\ParseUsersFromFileAction;
+use TresPontosTech\User\Exceptions\DuplicateImportHeadersException;
 
 function makeParseTestCsv(array $rows, array $headers = ['name', 'email', 'document_id', 'tax_id', 'phone_number']): string
 {
@@ -84,3 +85,32 @@ it('reads headers regardless of case and surrounding spaces', function (string $
         'department' => 'Vendas',
     ]);
 })->with(['Department', ' department', 'department ', 'DEPARTMENT']);
+
+it('rejects headers that repeat after trimming and lowercasing', function (): void {
+    $csv = makeParseTestCsv(
+        [['João Silva', 'joao@example.com', 'outro@example.com', '12345678901', '11999999999']],
+        ['name', 'email', ' EMAIL ', 'tax_id', 'phone_number'],
+    );
+
+    try {
+        resolve(ParseUsersFromFileAction::class)->execute($csv, 'csv');
+        $this->fail('Expected DuplicateImportHeadersException.');
+    } catch (DuplicateImportHeadersException $duplicateImportHeadersException) {
+        expect($duplicateImportHeadersException->headers)->toBe(['email']);
+    } finally {
+        File::delete($csv);
+    }
+});
+
+it('accepts several blank headers from empty trailing columns', function (): void {
+    $csv = makeParseTestCsv(
+        [['João Silva', 'joao@example.com', '12345678901', '11999999999', '', '']],
+        ['name', 'email', 'tax_id', 'phone_number', '', ''],
+    );
+
+    $result = resolve(ParseUsersFromFileAction::class)->execute($csv, 'csv');
+
+    File::delete($csv);
+
+    expect($result[0]['email'])->toBe('joao@example.com');
+});

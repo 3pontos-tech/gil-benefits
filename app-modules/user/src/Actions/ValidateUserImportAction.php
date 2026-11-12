@@ -23,7 +23,7 @@ class ValidateUserImportAction
      * @param  Collection<int, array<string, mixed>>  $rows
      * @return list<ImportErrorDTO>
      */
-    public function execute(Collection $rows, Company $company): array
+    public function execute(Collection $rows, Company $company, ?DepartmentLookup $departments = null): array
     {
         $this->errors = [];
 
@@ -62,7 +62,7 @@ class ValidateUserImportAction
         $this->validateDuplicateTaxIds($rows);
         $this->validateExistingTaxIds($rows);
         $this->validateDuplicatePhoneNumbers($rows);
-        $this->validateDepartments($rows, $company);
+        $this->validateDepartments($rows, $departments ?? DepartmentLookup::for($company));
 
         if (filled($this->errors)) {
             return $this->sortedErrors();
@@ -307,7 +307,7 @@ class ValidateUserImportAction
     /**
      * @param  Collection<int, array<string, mixed>>  $rows
      */
-    private function validateDepartments(Collection $rows, Company $company): void
+    private function validateDepartments(Collection $rows, DepartmentLookup $lookup): void
     {
         $rowsWithDepartment = $rows->reject(fn (array $row): bool => DepartmentLookup::isBlank($row['department'] ?? ''));
 
@@ -315,7 +315,6 @@ class ValidateUserImportAction
             return;
         }
 
-        $lookup = DepartmentLookup::for($company);
         $hasUnknownDepartment = false;
 
         $rowsWithDepartment->each(function (array $row) use ($lookup, &$hasUnknownDepartment): void {

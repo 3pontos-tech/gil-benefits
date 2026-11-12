@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TresPontosTech\User\Support;
 
-use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use Normalizer;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
@@ -41,7 +41,7 @@ final readonly class DepartmentLookup
     {
         $decomposed = Normalizer::normalize($name, Normalizer::FORM_KD);
 
-        return Str::of(preg_replace('/\p{Mn}/u', '', $decomposed === false ? $name : $decomposed) ?? $name)
+        return str(preg_replace('/\p{Mn}/u', '', $decomposed === false ? $name : $decomposed) ?? $name)
             ->lower()
             ->squish()
             ->toString();
@@ -67,6 +67,26 @@ final readonly class DepartmentLookup
         $matches = $this->find($name);
 
         return count($matches) === 1 ? $matches[0]->id : null;
+    }
+
+    /**
+     * @param  Collection<int, array<string, mixed>>  $rows
+     * @return Collection<int, array<string, mixed>>
+     */
+    public function withDepartmentIds(Collection $rows): Collection
+    {
+        return $rows->map(fn (array $row): array => $this->withDepartmentId($row));
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     * @return array<string, mixed>
+     */
+    private function withDepartmentId(array $row): array
+    {
+        $row['department_id'] = $this->idFor((string) ($row['department'] ?? ''));
+
+        return $row;
     }
 
     /**

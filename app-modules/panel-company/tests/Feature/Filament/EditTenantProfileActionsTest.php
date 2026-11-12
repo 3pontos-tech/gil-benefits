@@ -5,8 +5,10 @@ declare(strict_types=1);
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Queue;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -210,6 +212,54 @@ describe('import-users action', function (): void {
         File::delete($path);
 
         expect($departments)->toBe([['department' => 'Vendas']]);
+    });
+
+    it('company owner queues the import with the department id resolved at validation', function (): void {
+        Queue::fake();
+        $sales = Department::factory()->for($this->company)->create(['name' => 'Vendas']);
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        $csv = "name,email,phone_number,tax_id,department\nJoão Silva,joao.import@example.com,11999999999,52998224725,VENDAS\n";
+
+        livewire(EditTenantProfile::class)
+            ->callAction(TestAction::make('import-users')->table(), data: [
+                'file' => UploadedFile::fake()->createWithContent('users.csv', $csv),
+            ])
+            ->assertNotDispatched('import-errors')
+            ->assertDispatched('import-started');
+
+        Queue::assertPushed(
+            ImportUsersJob::class,
+            fn (ImportUsersJob $job): bool => $job->rows->first()['department_id'] === $sales->id,
+        );
+    });
+
+    it('company owner sees an error when two columns have the same header', function (): void {
+        Queue::fake();
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        $csv = "name,email,EMAIL,phone_number,tax_id\nJoão Silva,joao.import@example.com,outro@example.com,11999999999,52998224725\n";
+
+        livewire(EditTenantProfile::class)
+            ->callAction(TestAction::make('import-users')->table(), data: [
+                'file' => UploadedFile::fake()->createWithContent('users.csv', $csv),
+            ])
+            ->assertDispatched(
+                'import-errors',
+                errors: [[
+                    'row' => 1,
+                    'email' => 'N/A',
+                    'message' => 'Estrutura inválida. Colunas repetidas: email. Deixe cada coluna uma vez só no cabeçalho.',
+                ]],
+            );
+
+        Queue::assertNothingPushed();
     });
 
     it('company owner sees a failure notification when the import job fails', function (): void {

@@ -5,6 +5,7 @@ use App\Models\Users\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Actions\ImportUsersFromFileAction;
 use TresPontosTech\User\Mail\WelcomeUserMail;
@@ -253,4 +254,38 @@ it('fails entire import when any tax_id is already registered in the system', fu
     expect($result->errors[0]->message)->toContain('já cadastrado');
 
     assertDatabaseMissing(User::class, ['email' => 'novo@empresa.com']);
+});
+
+it('links the imported employee to the department named in the row', function (): void {
+    $company = Company::factory()->create();
+    $sales = Department::factory()->for($company)->create(['name' => 'Vendas']);
+
+    $csv = makeCsvFile(
+        [['Ana Lima', 'ana@empresa.com', '12345678', '123.456.789-00', '11999999999', 'vendas']],
+        ['name', 'email', 'document_id', 'tax_id', 'phone_number', 'department'],
+    );
+
+    resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
+
+    $user = User::query()->where('email', 'ana@empresa.com')->firstOrFail();
+
+    expect($company->employees()->find($user->getKey())->pivot->department_id)->toBe($sales->id);
+});
+
+it('returns a structure error when two columns have the same header', function (): void {
+    $company = Company::factory()->create();
+
+    $csv = makeCsvFile(
+        [['Ana Lima', 'ana@empresa.com', 'outra@empresa.com', '123.456.789-00', '11999999999']],
+        ['name', 'email', 'Email', 'tax_id', 'phone_number'],
+    );
+
+    $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
+
+    expect($result->imported)->toBe(0)
+        ->and($result->errors)->toHaveCount(1)
+        ->and($result->errors[0]->row)->toBe(1)
+        ->and($result->errors[0]->message)->toContain('Colunas repetidas: email');
+
+    assertDatabaseMissing(User::class, ['email' => 'ana@empresa.com']);
 });
