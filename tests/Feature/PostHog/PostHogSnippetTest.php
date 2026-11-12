@@ -54,7 +54,7 @@ it('identifies the signed in user by the Flamma id', function (): void {
         ->get(route('site.home', ['flare_id' => (string) Str::uuid()]))
         ->assertOk()
         ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ')', false)
-        ->assertDontSee("get_property('\$user_state')", false);
+        ->assertDontSee('posthog.reset()', false);
 });
 
 it('identifies the signed in user inside the employee panel', function (): void {
@@ -70,9 +70,28 @@ it('identifies an anonymous visitor from the Flare invite by the Flare id', func
 
     $this->get(route('site.home', ['flare_id' => $flareId]))
         ->assertOk()
-        ->assertSee("if (posthog.get_property('\$user_state') !== 'identified')", false)
         ->assertSee('posthog.identify(' . Js::from($flareId)->toHtml() . ')', false);
 });
+
+it('keeps identifying the visitor by the Flare id from the session on the signup page', function (): void {
+    $flareId = (string) Str::uuid();
+
+    $this->get(route('site.home', ['flare_id' => $flareId]))->assertOk();
+
+    $this->get(route('filament.app.auth.register'))
+        ->assertOk()
+        ->assertSee('posthog.identify(' . Js::from($flareId)->toHtml() . ')', false);
+});
+
+it('resets a browser still identified as someone else before identifying the visitor', function (array $query, string $expectedId): void {
+    $this->get(route('site.home', $query))
+        ->assertOk()
+        ->assertSee("if (posthog.get_property('\$user_state') === 'identified' && posthog.get_distinct_id() !== " . $expectedId . ')', false)
+        ->assertSee('posthog.reset();', false);
+})->with([
+    'from the Flare invite' => [['flare_id' => '6f1c2a4e-1b2c-4d3e-8f9a-0b1c2d3e4f5a'], Js::from('6f1c2a4e-1b2c-4d3e-8f9a-0b1c2d3e4f5a')->toHtml()],
+    'without a Flare id' => [[], 'null'],
+]);
 
 it('does not identify a visitor without a valid Flare id', function (array $query): void {
     $this->get(route('site.home', $query))

@@ -1,12 +1,13 @@
 {{--
     posthog-js do site e dos painéis de cliente, só com chave configurada. Logado, a pessoa é o
-    id do usuário no Flamma. Visitante vindo do convite do Flare (?flare_id=) e ainda anônimo
-    vira a pessoa do Flare, e o cadastro depois junta as duas no servidor.
+    id do usuário no Flamma. Visitante com o flare_id do convite (na URL ou guardado na sessão)
+    vira a pessoa do Flare, e o cadastro depois junta as duas no servidor. Visitante que o
+    navegador ainda guarda como outra pessoa (quem saiu da conta) volta a ser anônimo.
 --}}
 @php
     $posthogKey = config('services.posthog.key');
     $userId = auth()->id();
-    $flareId = request()->query('flare_id');
+    $flareId = request()->query('flare_id') ?: session(\App\Http\Middleware\StoreSignupAttribution::FLARE_ID);
     $flareId = is_string($flareId) && \Illuminate\Support\Str::isUuid($flareId) ? $flareId : null;
 @endphp
 
@@ -21,10 +22,13 @@
                 posthog.register({ source: 'flamma' });
                 @if (filled($userId))
                     posthog.identify(@js((string) $userId));
-                @elseif (filled($flareId))
-                    if (posthog.get_property('$user_state') !== 'identified') {
-                        posthog.identify(@js($flareId));
+                @else
+                    if (posthog.get_property('$user_state') === 'identified' && posthog.get_distinct_id() !== @js($flareId)) {
+                        posthog.reset();
                     }
+                    @if (filled($flareId))
+                        posthog.identify(@js($flareId));
+                    @endif
                 @endif
             },
         });

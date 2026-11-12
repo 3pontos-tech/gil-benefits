@@ -1,9 +1,11 @@
 <?php
 
+use App\Filament\FilamentPanel;
 use App\Http\Middleware\StoreSignupAttribution;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -11,6 +13,7 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Events\UserRegistered;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
 use TresPontosTech\Vouchers\Models\VoucherCode;
 use TresPontosTech\Vouchers\Support\VoucherRedemptionUrl;
@@ -239,6 +242,7 @@ it('joins the Flare person to the Flamma user before tracking the signup with th
             'utm_medium' => 'whatsapp',
             'utm_campaign' => 'gancho_pos_relatorio',
             'utm_content' => 'variante_a',
+            'flare_id' => $flareId,
             'source' => 'flamma',
             '$geoip_disable' => true,
         ]],
@@ -260,6 +264,25 @@ it('tracks the signup with the UTMs of an ad without a Flare person to join', fu
     Http::assertSentCount(1);
     Http::assertSent(fn (Request $request): bool => $request['event'] === 'cadastro_concluido'
         && $request['properties'] === ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento', 'source' => 'flamma', '$geoip_disable' => true]);
+});
+
+it('keeps the attribution in the session when the signup fails inside the transaction', function (): void {
+    config(['services.posthog.key' => 'phc_test']);
+    Http::fake();
+    $flareId = (string) Str::uuid();
+    session([StoreSignupAttribution::FLARE_ID => $flareId, StoreSignupAttribution::UTMS => ['utm_source' => 'flare']]);
+    filament()->setCurrentPanel(FilamentPanel::User->value);
+    Event::listen(UserRegistered::class, function (): never {
+        throw new RuntimeException('falha no cadastro');
+    });
+
+    expect(fn () => livewire(UserRegistration::class)->fillForm(registrationForm())->call('register'))
+        ->toThrow(RuntimeException::class, 'falha no cadastro');
+
+    Http::assertNothingSent();
+    assertDatabaseCount(User::class, 0);
+    expect(session(StoreSignupAttribution::FLARE_ID))->toBe($flareId)
+        ->and(session(StoreSignupAttribution::UTMS))->toBe(['utm_source' => 'flare']);
 });
 
 it('sends nothing to PostHog on signup without a key', function (): void {

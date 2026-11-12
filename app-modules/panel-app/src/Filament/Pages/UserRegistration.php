@@ -10,6 +10,8 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use App\Support\PostHog\PostHog;
 use Closure;
+use Filament\Auth\Http\Responses\Contracts\RegistrationResponse;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -113,6 +115,23 @@ final class UserRegistration extends RegisterPage
         };
     }
 
+    /**
+     * A atribuição só sai da sessão depois do commit: se o cadastro falhar no meio da transação,
+     * a nova tentativa ainda leva o flare_id e as UTMs.
+     */
+    #[Override]
+    public function register(): ?RegistrationResponse
+    {
+        $response = parent::register();
+        $user = Filament::auth()->user();
+
+        if ($response instanceof RegistrationResponse && $user instanceof User) {
+            $this->trackSignup($user);
+        }
+
+        return $response;
+    }
+
     #[Override]
     protected function handleRegistration(array $data): Model
     {
@@ -125,7 +144,6 @@ final class UserRegistration extends RegisterPage
         ]);
 
         $this->redeemVoucher($user, $data['voucher'] ?? null);
-        $this->trackSignup($user);
 
         return $user;
     }
@@ -133,19 +151,21 @@ final class UserRegistration extends RegisterPage
     /**
      * Quem veio do convite do Flare já é uma pessoa identificada no PostHog, que não pode virar
      * alias de outra: por isso o id do Flamma entra como alias da pessoa do Flare, e não o contrário.
+     * O flare_id também vai no evento para auditar uniões feitas por um link repassado.
      */
     private function trackSignup(User $user): void
     {
         $flareId = session()->pull(StoreSignupAttribution::FLARE_ID);
-        /** @var array<string, string> $utms */
-        $utms = session()->pull(StoreSignupAttribution::UTMS, []);
+        /** @var array<string, string> $properties */
+        $properties = session()->pull(StoreSignupAttribution::UTMS, []);
         $postHog = resolve(PostHog::class);
 
         if (is_string($flareId)) {
             $postHog->alias(anonymousId: $user->getKey(), userId: $flareId);
+            $properties['flare_id'] = $flareId;
         }
 
-        $postHog->capture($user->getKey(), 'cadastro_concluido', $utms);
+        $postHog->capture($user->getKey(), 'cadastro_concluido', $properties);
     }
 
     /**
