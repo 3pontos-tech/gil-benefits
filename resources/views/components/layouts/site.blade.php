@@ -35,6 +35,8 @@
     @vite(['resources/css/site.css', 'resources/js/flamma-motion.js'])
 
     @livewireStyles
+
+    <x-posthog />
 </head>
 <body>
     <x-site.header />

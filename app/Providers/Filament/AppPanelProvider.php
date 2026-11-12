@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Shared\Pages\LoginPage;
 use App\Filament\Shared\Pages\RequestPasswordResetPage;
 use App\Http\Middleware\IdentifyDefaultTenantOffTenantRoutes;
+use App\Http\Middleware\StoreSignupAttribution;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -76,6 +77,7 @@ class AppPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->globalSearch(false)
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): ViewContract => view('components.posthog'))
             // Alternador claro/escuro na topbar, entre o sino e o avatar.
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
@@ -123,6 +125,7 @@ class AppPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                StoreSignupAttribution::class,
             ])
             ->searchableTenantMenu(false)
             ->breadcrumbs(false)

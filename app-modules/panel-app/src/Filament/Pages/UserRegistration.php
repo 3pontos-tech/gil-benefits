@@ -5,9 +5,13 @@ namespace TresPontosTech\PanelApp\Filament\Pages;
 use App\Filament\Shared\Fields\DocumentIdInput;
 use App\Filament\Shared\Fields\TaxIdInput;
 use App\Filament\Shared\Pages\RegisterPage;
+use App\Http\Middleware\StoreSignupAttribution;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
+use App\Support\PostHog\PostHog;
 use Closure;
+use Filament\Auth\Http\Responses\Contracts\RegistrationResponse;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -111,6 +115,23 @@ final class UserRegistration extends RegisterPage
         };
     }
 
+    /**
+     * A atribuição só é apagada depois do commit: se o cadastro falhar no meio da transação,
+     * a nova tentativa ainda leva o flare_id e as UTMs.
+     */
+    #[Override]
+    public function register(): ?RegistrationResponse
+    {
+        $response = parent::register();
+        $user = Filament::auth()->user();
+
+        if ($response instanceof RegistrationResponse && $user instanceof User) {
+            $this->trackSignup($user);
+        }
+
+        return $response;
+    }
+
     #[Override]
     protected function handleRegistration(array $data): Model
     {
@@ -125,6 +146,27 @@ final class UserRegistration extends RegisterPage
         $this->redeemVoucher($user, $data['voucher'] ?? null);
 
         return $user;
+    }
+
+    /**
+     * Quem veio do convite do Flare já é uma pessoa identificada no PostHog, que não pode virar
+     * alias de outra: por isso o id do Flamma entra como alias da pessoa do Flare, e não o contrário.
+     * O flare_id também vai no evento para auditar uniões feitas por um link repassado.
+     */
+    private function trackSignup(User $user): void
+    {
+        $attribution = StoreSignupAttribution::current(request());
+        $properties = $attribution['utms'] ?? [];
+        $flareId = $attribution['flare_id'] ?? null;
+        $postHog = resolve(PostHog::class);
+
+        if ($flareId !== null) {
+            $postHog->alias(anonymousId: $user->getKey(), userId: $flareId);
+            $properties['flare_id'] = $flareId;
+        }
+
+        $postHog->capture($user->getKey(), 'cadastro_concluido', $properties);
+        StoreSignupAttribution::forget();
     }
 
     /**
