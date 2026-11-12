@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Http\Middleware\StoreSignupAttribution;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
-use App\Support\PostHog\PostHog;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use TresPontosTech\PanelApp\Filament\Pages\EditUserProfile;
@@ -80,10 +79,13 @@ it('leaves the phone out of the signed in user without a valid one', function (?
 
 it('identifies the signed in user inside the employee panel', function (): void {
     $user = actingAsEmployee();
+    $user->update(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
+    Detail::factory()->for($user)->create(['phone_number' => '+5511900000001']);
+    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste', 'phone' => '+5511900000001'];
 
     $this->get(EditUserProfile::getUrl(panel: 'app'))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ', ' . Js::from(PostHog::personProperties($user))->toHtml() . ')', false);
+        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ', ' . Js::from($properties)->toHtml() . ')', false);
 });
 
 it('identifies an anonymous visitor from the Flare invite by the Flare id only, after registering the source', function (): void {
