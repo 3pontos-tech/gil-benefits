@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Laravel\Sanctum\Sanctum;
 use TresPontosTech\Api\Enums\TokenAbility;
+use TresPontosTech\Api\Models\PushToken;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -284,4 +285,15 @@ it('cuts the session off when the employer deactivates the person', function ():
     getJson(route('api.v1.me.show'), ['Authorization' => 'Bearer ' . $token])
         ->assertForbidden()
         ->assertJsonPath('message', 'Para usar o app, ative um plano pelo site.');
+});
+
+it('ends the app session on the server when access is denied, with its push token', function (): void {
+    $person = registeredPerson();
+    $session = $person->createToken('Android', [TokenAbility::Employee->value]);
+    PushToken::factory()->create(['user_id' => $person->getKey(), 'personal_access_token_id' => $session->accessToken->getKey()]);
+
+    getJson(route('api.v1.me.show'), ['Authorization' => 'Bearer ' . $session->plainTextToken])->assertForbidden();
+
+    expect($person->tokens()->count())->toBe(0)
+        ->and(PushToken::query()->count())->toBe(0);
 });

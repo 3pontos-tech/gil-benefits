@@ -6,6 +6,8 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Company\Actions\TransferCompanyOwnership;
+use TresPontosTech\Company\Enums\PreviousOwnerOutcome;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\PermissionsEnum;
 use TresPontosTech\Permissions\Roles;
@@ -148,5 +150,71 @@ describe('tenant scoped role: owner of A is an employee of B', function (): void
 
         $tenants = $this->owner->getTenants(filament()->getCurrentPanel());
         expect($tenants->contains($this->otherCompany))->toBeTrue();
+    });
+});
+
+describe('tenant access after ownership transfer: previous owner is a manager of the old tenant and owner only of the one registered later', function (): void {
+
+    beforeEach(function (): void {
+        $this->previousOwner = User::factory()->companyOwner()->create();
+        $this->company = Company::factory()->recycle($this->previousOwner)->create();
+        $this->company->employees()->attach($this->previousOwner->getKey(), ['role' => Roles::CompanyOwner->value]);
+
+        $this->newOwner = User::factory()->create();
+        resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::KeepAsManager);
+        $this->company->refresh();
+
+        $this->laterCompany = Company::factory()->recycle($this->previousOwner)->create();
+        $this->laterCompany->employees()->attach($this->previousOwner->getKey(), ['role' => Roles::CompanyOwner->value]);
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->previousOwner);
+    });
+
+    it('the previous owner is no longer the owner of the transferred company', function (): void {
+        expect($this->previousOwner->isCompanyOwner($this->company))->toBeFalse()
+            ->and($this->previousOwner->isCompanyManager($this->company))->toBeTrue();
+    });
+
+    it('the previous owner keeps the owner role only in the company registered later', function (): void {
+        expect($this->previousOwner->tenantRole($this->company))->toBe(Roles::CompanyManager)
+            ->and($this->previousOwner->tenantRole($this->laterCompany))->toBe(Roles::CompanyOwner)
+            ->and($this->previousOwner->getTenants(filament()->getCurrentPanel())->contains($this->company))->toBeTrue();
+    });
+
+    it('the new owner holds the owner role and permissions', function (): void {
+        $viewAnyUser = PermissionsEnum::ViewAny->buildPermissionFor(User::class);
+
+        expect($this->newOwner->isCompanyOwner($this->company))->toBeTrue()
+            ->and($this->newOwner->canAccessTenant($this->company))->toBeTrue()
+            ->and($this->newOwner->hasTenantPermission($viewAnyUser, $this->company))->toBeTrue();
+    });
+});
+
+describe('tenant access after ownership transfer with access revoked: previous owner cannot reach the company panel', function (): void {
+
+    beforeEach(function (): void {
+        $this->previousOwner = User::factory()->companyOwner()->create();
+        $this->company = Company::factory()->recycle($this->previousOwner)->create();
+        $this->company->employees()->attach($this->previousOwner->getKey(), ['role' => Roles::CompanyOwner->value]);
+
+        $this->newOwner = User::factory()->create();
+        resolve(TransferCompanyOwnership::class)->handle($this->company, $this->newOwner, PreviousOwnerOutcome::RevokeAccess);
+        $this->company->refresh();
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->previousOwner);
+    });
+
+    it('the previous owner has no role in the company and does not see it as a tenant', function (): void {
+        expect($this->previousOwner->tenantRole($this->company))->toBeNull()
+            ->and($this->previousOwner->canAccessTenant($this->company))->toBeFalse()
+            ->and($this->previousOwner->getTenants(filament()->getCurrentPanel())->contains($this->company))->toBeFalse()
+            ->and($this->previousOwner->managesAnyCompany())->toBeFalse();
+    });
+
+    it('the new owner holds the owner role', function (): void {
+        expect($this->newOwner->isCompanyOwner($this->company))->toBeTrue()
+            ->and($this->newOwner->canAccessTenant($this->company))->toBeTrue();
     });
 });

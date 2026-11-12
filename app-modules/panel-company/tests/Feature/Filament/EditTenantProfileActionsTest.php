@@ -4,13 +4,23 @@ declare(strict_types=1);
 
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
+use Filament\Actions\Testing\TestAction;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Queue;
+use Spatie\SimpleExcel\SimpleExcelReader;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Actions\BuildImportTemplateAction;
+use TresPontosTech\User\Jobs\ImportUsersJob;
 
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 use function Pest\Livewire\livewire;
 
 beforeEach(function (): void {
@@ -146,4 +156,121 @@ describe('single active employer', function (): void {
         expect($this->company->employees()->whereKey($this->manager->getKey())->first()->pivot->role)->toBe(Roles::CompanyManager);
     });
 
+});
+
+describe('import-users action', function (): void {
+
+    it('keeps people outside the company management away from the import modal', function (string $persona): void {
+        $otherCompany = Company::factory()->create();
+        $otherManager = User::factory()->companyManager()->create();
+        $otherCompany->employees()->attach($otherManager->getKey(), ['role' => Roles::CompanyManager->value]);
+        Department::factory()->for($this->company)->create(['name' => 'Vendas']);
+
+        $user = match ($persona) {
+            'employee of the company' => $this->employee,
+            'manager of another company' => $otherManager,
+            'owner of another company' => $otherCompany->owner,
+        };
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($user);
+
+        get(route('filament.company.tenant.profile', ['tenant' => $this->company->slug]))
+            ->assertRedirect()
+            ->assertDontSee('Vendas');
+
+        filament()->setTenant($this->company);
+
+        livewire(EditTenantProfile::class)->assertNotFound();
+    })->with(['employee of the company', 'manager of another company', 'owner of another company']);
+
+    it('sends guests to the login page instead of the import modal', function (): void {
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+
+        get(route('filament.company.tenant.profile', ['tenant' => $this->company->slug]))
+            ->assertRedirect(route('filament.company.auth.login'));
+    });
+
+    it('company owner downloads the import template with only this company departments', function (): void {
+        Department::factory()->for($this->company)->create(['name' => 'Vendas']);
+        Department::factory()->create(['name' => 'Outra Empresa']);
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        $component = livewire(EditTenantProfile::class)
+            ->callAction([
+                TestAction::make('import-users')->table(),
+                TestAction::make('download_template')->schemaComponent('file'),
+            ])
+            ->assertFileDownloaded(BuildImportTemplateAction::FILENAME);
+
+        $path = tempnam(sys_get_temp_dir(), 'downloaded_') . '.xlsx';
+        file_put_contents($path, base64_decode((string) data_get($component->effects, 'download.content')));
+        $departments = SimpleExcelReader::create($path)->fromSheetName(BuildImportTemplateAction::DEPARTMENTS_SHEET)->getRows()->all();
+        File::delete($path);
+
+        expect($departments)->toBe([['department' => 'Vendas']]);
+    });
+
+    it('company owner queues the import with the department id resolved at validation', function (): void {
+        Queue::fake();
+        $sales = Department::factory()->for($this->company)->create(['name' => 'Vendas']);
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        $csv = "name,email,phone_number,tax_id,department\nJoão Silva,joao.import@example.com,11999999999,52998224725,VENDAS\n";
+
+        livewire(EditTenantProfile::class)
+            ->callAction(TestAction::make('import-users')->table(), data: [
+                'file' => UploadedFile::fake()->createWithContent('users.csv', $csv),
+            ])
+            ->assertNotDispatched('import-errors')
+            ->assertDispatched('import-started');
+
+        Queue::assertPushed(
+            ImportUsersJob::class,
+            fn (ImportUsersJob $job): bool => $job->rows->first()['department_id'] === $sales->id,
+        );
+    });
+
+    it('company owner sees an error when two columns have the same header', function (): void {
+        Queue::fake();
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        $csv = "name,email,EMAIL,phone_number,tax_id\nJoão Silva,joao.import@example.com,outro@example.com,11999999999,52998224725\n";
+
+        livewire(EditTenantProfile::class)
+            ->callAction(TestAction::make('import-users')->table(), data: [
+                'file' => UploadedFile::fake()->createWithContent('users.csv', $csv),
+            ])
+            ->assertDispatched(
+                'import-errors',
+                errors: [[
+                    'row' => 1,
+                    'email' => 'N/A',
+                    'message' => 'Estrutura inválida. Colunas repetidas: email. Deixe cada coluna uma vez só no cabeçalho.',
+                ]],
+            );
+
+        Queue::assertNothingPushed();
+    });
+
+    it('company owner sees a failure notification when the import job fails', function (): void {
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        Cache::put(ImportUsersJob::completionCacheKey((string) $this->owner->getKey()), 'failed');
+
+        livewire(EditTenantProfile::class)
+            ->call('checkImportCompletion')
+            ->assertNotified('Falha na importação');
+    });
 });

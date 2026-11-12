@@ -214,23 +214,37 @@ return [
         'plural_model_label' => 'Companies',
         'form' => [
             'owner' => 'Owner',
+            'owner_hint' => 'Changes through the "Transfer ownership" action at the top of the page.',
             'name' => 'Name',
             'slug' => 'Slug',
             'tax_id' => 'Tax ID',
         ],
         'table' => [
             'owner' => 'Owner',
+            'owner_hint' => 'Changes through the "Transfer ownership" action at the top of the page.',
             'name' => 'Name',
             'tax_id' => 'Tax ID',
             'plan' => 'Plan',
         ],
         'actions' => [
             'manage' => 'Manage',
+            'transfer_ownership' => [
+                'label' => 'Transfer ownership',
+                'description' => 'The new owner becomes the person responsible for the company: credit pool holder, checkout buyer and billing contact. Nobody is deleted from the company: choose below what happens to the current owner.',
+                'new_owner' => 'New owner',
+                'previous_owner' => 'Current owner',
+                'keep_as_manager' => 'Stays as manager',
+                'keep_as_manager_hint' => 'Keeps company-panel access without managing members.',
+                'revoke_access' => 'Loses access',
+                'revoke_access_hint' => 'The membership is deactivated. It can be reactivated later from the members list.',
+                'success' => 'Ownership transferred.',
+            ],
         ],
         'relation_managers' => [
             'employees' => [
                 'title' => 'Members',
                 'role' => 'Role',
+                'active' => 'Active',
             ],
             'contractual_plans' => [
                 'title' => 'Contractual Plans',

@@ -5,10 +5,12 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use TresPontosTech\Appointments\Models\Appointment;
 use TresPontosTech\Consultants\Mail\DocumentSharedMail;
 use TresPontosTech\Consultants\Models\Document;
 use TresPontosTech\Consultants\Models\DocumentShare;
+use TresPontosTech\Consultants\Notifications\MaterialSharedNotification;
 use TresPontosTech\PanelConsultant\Filament\Actions\ShareDocumentFilamentAction;
 use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\EditDocument;
 use TresPontosTech\PanelConsultant\Filament\Resources\Documents\Pages\ListDocuments;
@@ -54,6 +56,24 @@ it('queues a DocumentSharedMail to the employee when sharing via documents table
         fn (DocumentSharedMail $mail): bool => $mail->hasTo($this->employee->email)
             && $mail->document->is($this->document)
             && $mail->employee->is($this->employee)
+    );
+});
+
+it('tells the employee in the app about the shared material', function (): void {
+    Mail::fake();
+    Notification::fake();
+
+    livewire(ListDocuments::class)
+        ->callAction(
+            TestAction::make(ShareDocumentFilamentAction::getDefaultName())->table($this->document),
+            data: ['employee_id' => $this->employee->getKey()],
+        )
+        ->assertHasNoActionErrors();
+
+    Notification::assertSentTo(
+        $this->employee,
+        MaterialSharedNotification::class,
+        fn (MaterialSharedNotification $notification): bool => $notification->content()->documentId === $this->document->getKey(),
     );
 });
 

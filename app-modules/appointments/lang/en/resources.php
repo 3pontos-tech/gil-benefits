@@ -128,6 +128,36 @@ return [
                 'title' => 'Appointment Finished!',
                 'body' => 'Your appointment has been completed. Please check your dashboard for details.',
             ],
+            'changed' => [
+                'title' => 'Your appointment changed',
+                'body' => [
+                    'time' => 'New time: :date at :time.',
+                    'consultant' => 'Your appointment on :date at :time is now with another consultant.',
+                    'link' => 'The room link of your appointment on :date at :time changed. Join from the appointment screen.',
+                    'unconfirmed' => 'Your appointment on :date at :time is waiting for confirmation again. We will let you know once it is confirmed.',
+                ],
+            ],
+            'push' => [
+                'confirmed' => [
+                    'title' => 'Appointment confirmed',
+                    'body' => 'Your appointment on :date at :time is confirmed. Tap to see the details.',
+                ],
+                'cancelled' => [
+                    'title' => 'Appointment cancelled',
+                    'body' => 'Your appointment on :date at :time was cancelled by the team. Tap to see the details and book another.',
+                ],
+                'changed' => [
+                    'title' => 'Your appointment changed',
+                    'time' => 'New time: :date at :time. Tap to see the details.',
+                    'consultant' => 'Your appointment on :date at :time is now with another consultant. Tap to see the details.',
+                    'link' => 'The room link of your appointment on :date at :time changed. Join from the appointment screen.',
+                    'unconfirmed' => 'Your appointment on :date at :time is waiting for confirmation again. We will let you know once it is confirmed.',
+                ],
+                'reminder' => [
+                    'title' => 'Your appointment starts at :time',
+                    'body' => 'The room opens 15 minutes before, in the app.',
+                ],
+            ],
         ],
 
         'wizard' => [

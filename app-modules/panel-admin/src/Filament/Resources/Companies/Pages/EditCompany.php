@@ -5,6 +5,7 @@ namespace TresPontosTech\PanelAdmin\Filament\Resources\Companies\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use TresPontosTech\PanelAdmin\Filament\Actions\GrantExtraCreditAction;
+use TresPontosTech\PanelAdmin\Filament\Actions\TransferCompanyOwnershipAction;
 use TresPontosTech\PanelAdmin\Filament\Resources\Companies\CompanyResource;
 use TresPontosTech\PanelCompany\Filament\Widgets\TenantPlanStatusStats;
 
@@ -29,6 +30,7 @@ class EditCompany extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            TransferCompanyOwnershipAction::make(),
             GrantExtraCreditAction::forCompany(),
             DeleteAction::make()
                 ->requiresConfirmation(),

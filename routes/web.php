@@ -27,6 +27,7 @@ use TresPontosTech\User\Mail\WelcomeUserMail;
 Route::view('/', 'pages.home')->name('site.home');
 Route::view('/para-empresas', 'pages.companies')->name('site.companies');
 Route::view('/colaborador', 'pages.collaborator')->name('site.collaborator');
+Route::view('/privacidade', 'pages.privacy')->name('site.privacy');
 
 Route::get('/midia/hero/{rendition}', RedirectToHeroVideo::class)
     ->whereIn('rendition', array_keys(config()->array('services.hero_video.renditions')))

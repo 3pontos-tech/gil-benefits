@@ -8,6 +8,7 @@ use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Company\Models\Department;
 use TresPontosTech\User\Actions\ValidateUserImportAction;
 
 function makeValidationRow(array $overrides = []): array
@@ -113,4 +114,183 @@ it('returns an error when the seat limit is exceeded', function (): void {
 
     expect($errors)->not->toBeEmpty()
         ->and($errors[0]->message)->toContain('Limite de assentos');
+});
+
+it('accepts a department that matches ignoring case, accents and extra spaces', function (string $department): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => 'Recursos Humanos e Benefícios']);
+
+    $rows = collect([makeValidationRow(['department' => $department])]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect($errors)->toBeEmpty();
+})->with([
+    'exact' => 'Recursos Humanos e Benefícios',
+    'upper case without accents' => 'RECURSOS HUMANOS E BENEFICIOS',
+    'extra spaces' => '  recursos   humanos e benefícios ',
+]);
+
+it('accepts rows without a department', function (): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => 'Engenharia']);
+
+    $rows = collect([
+        makeValidationRow(['department' => '']),
+        makeValidationRow(),
+    ]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect($errors)->toBeEmpty();
+});
+
+it('points each row with an unknown department and lists the company departments once at the top', function (): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => 'Vendas']);
+    Department::factory()->for($company)->create(['name' => 'Vendas Internacionais']);
+
+    $rows = collect([
+        makeValidationRow(['department' => 'Vendas Inter', '__row_number' => 7]),
+        makeValidationRow(['department' => 'Comercial', '__row_number' => 9]),
+    ]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect($errors)->toHaveCount(3)
+        ->and($errors[0]->row)->toBe(0)
+        ->and($errors[0]->message)->toBe('Departamentos cadastrados na empresa: Vendas, Vendas Internacionais.')
+        ->and($errors[1]->row)->toBe(7)
+        ->and($errors[1]->message)->toBe("Departamento 'Vendas Inter' não encontrado.")
+        ->and($errors[2]->row)->toBe(9)
+        ->and($errors[2]->message)->toBe("Departamento 'Comercial' não encontrado.");
+});
+
+it('tells the company has no departments when a row names one', function (): void {
+    $company = Company::factory()->create();
+
+    $rows = collect([makeValidationRow(['department' => 'Financeiro', '__row_number' => 4])]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect($errors)->toHaveCount(2)
+        ->and($errors[0]->message)->toStartWith('A empresa não tem departamentos cadastrados.')
+        ->and($errors[1]->row)->toBe(4)
+        ->and($errors[1]->message)->toBe("Departamento 'Financeiro' não encontrado.");
+});
+
+it('returns an error when the department matches more than one department', function (): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => 'Engenharia']);
+    Department::factory()->for($company)->create(['name' => 'ENGENHARIA']);
+
+    $rows = collect([makeValidationRow(['department' => 'engenharia'])]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect($errors)->toHaveCount(1)
+        ->and($errors[0]->message)->toContain('corresponde a mais de um departamento');
+});
+
+it('does not match departments from another company or deleted departments', function (): void {
+    $company = Company::factory()->create();
+    Department::factory()->create(['name' => 'Financeiro']);
+    Department::factory()->for($company)->create(['name' => 'Jurídico'])->delete();
+
+    $rows = collect([
+        makeValidationRow(['department' => 'Financeiro']),
+        makeValidationRow(['department' => 'Jurídico']),
+    ]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect(collect($errors)->where('row', '>', 0)->pluck('message')->all())->toBe([
+        "Departamento 'Financeiro' não encontrado.",
+        "Departamento 'Jurídico' não encontrado.",
+    ]);
+});
+
+it('keeps non-latin and emoji names distinct instead of collapsing them', function (string $existing, string $typed): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => $existing]);
+
+    $rows = collect([makeValidationRow(['department' => $typed, '__row_number' => 5])]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect(collect($errors)->firstWhere('row', 5)?->message)->toBe(sprintf("Departamento '%s' não encontrado.", $typed));
+})->with([
+    'chinese' => ['销售', '市场'],
+    'emoji' => ['🚀', '🎉'],
+    'japanese against emoji' => ['営業', '😀'],
+    'emoji suffix' => ['Vendas 🚀', 'Vendas'],
+]);
+
+it('matches fullwidth and non-latin names written the same way', function (string $existing, string $typed): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => $existing]);
+
+    $rows = collect([makeValidationRow(['department' => $typed])]);
+
+    expect(resolve(ValidateUserImportAction::class)->execute($rows, $company))->toBeEmpty();
+})->with([
+    'fullwidth' => ['Abc', 'Ａｂｃ'],
+    'chinese' => ['销售', '销售'],
+    'emoji' => ['Vendas 🚀', 'vendas 🚀'],
+]);
+
+it('treats a cell with only invisible spaces as no department', function (string $invisible): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => '🚀']);
+
+    $rows = collect([makeValidationRow(['department' => $invisible])]);
+
+    expect(resolve(ValidateUserImportAction::class)->execute($rows, $company))->toBeEmpty();
+})->with([
+    'non-breaking space' => ["\u{00A0}"],
+    'zero-width space' => ["\u{200B}"],
+]);
+
+it('lists a department error together with other row errors', function (): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => 'Financeiro']);
+
+    $rows = collect([
+        makeValidationRow(['department' => 'Logística', '__row_number' => 4]),
+        makeValidationRow(['email' => 'same@example.com', 'department' => 'Financeiro', '__row_number' => 5]),
+        makeValidationRow(['email' => 'same@example.com', 'department' => 'Financeiro', '__row_number' => 6]),
+    ]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect(collect($errors)->map(fn ($error): array => [$error->row, $error->message])->all())->toBe([
+        [0, 'Departamentos cadastrados na empresa: Financeiro.'],
+        [4, "Departamento 'Logística' não encontrado."],
+        [6, 'Email duplicado na planilha.'],
+    ]);
+});
+
+it('still enforces the seat limit when every department exists', function (): void {
+    $company = Company::factory()->create();
+    Department::factory()->for($company)->create(['name' => 'Financeiro']);
+
+    $plan = Plan::factory()->create(['active' => true]);
+    CompanyPlan::query()->create([
+        'company_id' => $company->id,
+        'plan_id' => $plan->id,
+        'status' => CompanyPlanStatusEnum::Active->value,
+        'monthly_appointments_per_employee' => 1,
+        'starts_at' => now()->subDay(),
+        'seats' => 1,
+    ]);
+
+    $rows = collect([
+        makeValidationRow(['department' => 'Financeiro']),
+        makeValidationRow(['department' => 'financeiro']),
+    ]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect($errors)->toHaveCount(1)
+        ->and($errors[0]->message)->toBe('Limite de assentos excedido. Disponíveis: 1, solicitados: 2.');
 });

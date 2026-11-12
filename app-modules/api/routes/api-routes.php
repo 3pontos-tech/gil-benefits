@@ -15,12 +15,14 @@ use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\ResetPasswordController
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Auth\VerifyPasswordCodeController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Credits\CreditsController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Materials\MaterialController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Materials\MaterialDownloadController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Materials\MaterialStateController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\AnamneseController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\AvatarController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\JourneyController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\MeController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\PasswordController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\PushTokenController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Notifications\NotificationController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Tickets\TicketController;
 use TresPontosTech\Api\Http\Middleware\EnsureAppAccess;
@@ -58,6 +60,8 @@ Route::prefix('api/v1')
             Route::get('me/journey', JourneyController::class)->name('me.journey');
             Route::get('me/anamnese', [AnamneseController::class, 'show'])->name('me.anamnese.show');
             Route::put('me/anamnese', [AnamneseController::class, 'update'])->name('me.anamnese.update');
+            Route::put('me/push-token', [PushTokenController::class, 'update'])->name('me.push-token.update');
+            Route::delete('me/push-token', [PushTokenController::class, 'destroy'])->name('me.push-token.destroy');
 
             Route::get('appointments/slots', SlotController::class)->name('appointments.slots');
             Route::get('appointments', [AppointmentController::class, 'index'])->name('appointments.index');
@@ -74,6 +78,7 @@ Route::prefix('api/v1')
             Route::delete('materials/{document}', [MaterialController::class, 'destroy'])->whereUuid('document')->name('materials.destroy');
             Route::patch('materials/{document}/favorite', [MaterialStateController::class, 'favorite'])->whereUuid('document')->name('materials.favorite');
             Route::patch('materials/{document}/viewed', [MaterialStateController::class, 'viewed'])->whereUuid('document')->name('materials.viewed');
+            Route::post('materials/{document}/download', MaterialDownloadController::class)->whereUuid('document')->name('materials.download');
 
             Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
             Route::patch('notifications/{notification}/read', [NotificationController::class, 'read'])->whereUuid('notification')->name('notifications.read');

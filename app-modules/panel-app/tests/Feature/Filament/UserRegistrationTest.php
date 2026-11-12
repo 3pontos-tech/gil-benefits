@@ -1,12 +1,21 @@
 <?php
 
+use App\Filament\FilamentPanel;
+use App\Http\Middleware\StoreSignupAttribution;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Events\UserRegistered;
 use TresPontosTech\Vouchers\Models\VoucherBatch;
 use TresPontosTech\Vouchers\Models\VoucherCode;
 use TresPontosTech\Vouchers\Support\VoucherRedemptionUrl;
@@ -193,3 +202,105 @@ it('refuses an email that only differs in capitalization from an existing one', 
 
     assertDatabaseCount(User::class, 1);
 });
+
+it('tracks the signup on PostHog by the Flamma id', function (): void {
+    config(['services.posthog.key' => 'phc_test']);
+    Http::fake();
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm())
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $user = User::query()->sole();
+
+    Http::assertSentCount(1);
+    Http::assertSent(fn (Request $request): bool => $request['event'] === 'cadastro_concluido'
+        && $request['distinct_id'] === $user->getKey()
+        && $request['properties'] === ['source' => 'flamma', '$geoip_disable' => true]);
+});
+
+it('joins the Flare person to the Flamma user before tracking the signup with the first touch UTMs', function (): void {
+    config(['services.posthog.key' => 'phc_test']);
+    Http::fake();
+    $flareId = (string) Str::uuid();
+    Livewire::withCookies(signupAttribution([
+        'flare_id' => $flareId,
+        'utms' => ['utm_source' => 'flare', 'utm_medium' => 'whatsapp', 'utm_campaign' => 'gancho_pos_relatorio', 'utm_content' => 'variante_a'],
+    ]));
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm())
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $user = User::query()->sole();
+    $sent = Http::recorded()->map(fn (array $pair): array => [$pair[0]['event'], $pair[0]['distinct_id'], $pair[0]['properties']])->all();
+
+    expect($sent)->toBe([
+        ['$create_alias', $flareId, ['alias' => $user->getKey(), 'source' => 'flamma', '$geoip_disable' => true]],
+        ['cadastro_concluido', $user->getKey(), [
+            'utm_source' => 'flare',
+            'utm_medium' => 'whatsapp',
+            'utm_campaign' => 'gancho_pos_relatorio',
+            'utm_content' => 'variante_a',
+            'flare_id' => $flareId,
+            'source' => 'flamma',
+            '$geoip_disable' => true,
+        ]],
+    ])
+        ->and(Cookie::queued(StoreSignupAttribution::COOKIE)?->getExpiresTime())->toBeLessThan(Date::now()->getTimestamp());
+});
+
+it('tracks the signup with the UTMs of an ad without a Flare person to join', function (): void {
+    config(['services.posthog.key' => 'phc_test']);
+    Http::fake();
+    Livewire::withCookies(signupAttribution(['utms' => ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento']]));
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm())
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    Http::assertSentCount(1);
+    Http::assertSent(fn (Request $request): bool => $request['event'] === 'cadastro_concluido'
+        && $request['properties'] === ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento', 'source' => 'flamma', '$geoip_disable' => true]);
+});
+
+it('keeps the attribution cookie when the signup fails inside the transaction', function (): void {
+    config(['services.posthog.key' => 'phc_test']);
+    Http::fake();
+    Livewire::withCookies(signupAttribution(['flare_id' => (string) Str::uuid(), 'utms' => ['utm_source' => 'flare']]));
+    filament()->setCurrentPanel(FilamentPanel::User->value);
+    Event::listen(UserRegistered::class, function (): never {
+        throw new RuntimeException('falha no cadastro');
+    });
+
+    expect(fn () => livewire(UserRegistration::class)->fillForm(registrationForm())->call('register'))
+        ->toThrow(RuntimeException::class, 'falha no cadastro');
+
+    Http::assertNothingSent();
+    assertDatabaseCount(User::class, 0);
+    expect(Cookie::hasQueued(StoreSignupAttribution::COOKIE))->toBeFalse();
+});
+
+it('sends nothing to PostHog on signup without a key', function (): void {
+    Http::fake();
+    Livewire::withCookies(signupAttribution(['flare_id' => (string) Str::uuid()]));
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm())
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    Http::assertNothingSent();
+});
+
+/**
+ * @param  array<string, mixed>  $attribution
+ * @return array<string, string>
+ */
+function signupAttribution(array $attribution): array
+{
+    return [StoreSignupAttribution::COOKIE => (string) json_encode($attribution)];
+}

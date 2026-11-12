@@ -18,7 +18,12 @@ class CompanyForm
                 Select::make('user_id')
                     ->label(__('panel-admin::resources.companies.form.owner'))
                     ->relationship('owner', 'name')
-                    ->required(),
+                    ->required()
+                    ->disabledOn('edit')
+                    ->dehydrated(fn (string $operation): bool => $operation === 'create')
+                    ->helperText(fn (string $operation): string => $operation === 'edit'
+                        ? __('panel-admin::resources.companies.form.owner_hint')
+                        : ''),
                 TextInput::make('name')
                     ->label(__('panel-admin::resources.companies.form.name'))
                     ->maxLength(255)

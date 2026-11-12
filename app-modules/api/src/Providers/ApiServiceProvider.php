@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Api\Providers;
 
+use App\Notifications\ContentNotification;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Foundation\Exceptions\Handler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\ChannelManager;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\ValidationException;
@@ -17,9 +21,11 @@ use Laravel\Sanctum\Exceptions\MissingAbilityException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
+use TresPontosTech\Api\Console\Commands\CheckPushReceiptsCommand;
 use TresPontosTech\Api\Exceptions\Employee\Auth\EmployeeLoginException;
 use TresPontosTech\Api\Exceptions\Employee\Auth\PasswordResetCodeException;
 use TresPontosTech\Api\Exceptions\Employee\Auth\PasswordResetTokenException;
+use TresPontosTech\Api\Notifications\ExpoPushChannel;
 use TresPontosTech\Appointments\Exceptions\AppointmentFeedbackException;
 use TresPontosTech\Appointments\Exceptions\AppointmentStateException;
 use TresPontosTech\Appointments\Exceptions\BookingBlockedException;
@@ -60,6 +66,28 @@ class ApiServiceProvider extends ServiceProvider
 
         $this->registerRateLimiters();
         $this->registerErrorResponses();
+        $this->registerPush();
+    }
+
+    /**
+     * O canal de push entra pelo nome (`ContentNotification::PUSH_CHANNEL`): os módulos de
+     * domínio pedem o push sem importar a API. Os recibos são conferidos a cada 15 minutos.
+     */
+    private function registerPush(): void
+    {
+        Notification::resolved(function (ChannelManager $channels): void {
+            $channels->extend(ContentNotification::PUSH_CHANNEL, fn (): ExpoPushChannel => new ExpoPushChannel);
+        });
+
+        $this->commands([CheckPushReceiptsCommand::class]);
+
+        $this->app->booted(function (): void {
+            $this->app->make(Schedule::class)
+                ->command('push:check-receipts')
+                ->everyFifteenMinutes()
+                ->withoutOverlapping(10)
+                ->runInBackground();
+        });
     }
 
     /**

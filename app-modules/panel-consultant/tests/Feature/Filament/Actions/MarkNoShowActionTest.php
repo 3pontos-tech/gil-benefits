@@ -83,7 +83,13 @@ it('shows the beneficiary name and appointment date/time in the confirmation mod
     expect($action->isConfirmationRequired())->toBeTrue();
 });
 
+/**
+ * Dia acima de 12 e hora da tarde: num dia como 11/11 às 12h, `L LT` em inglês
+ * ("11/11/2026 12:42 PM") contém o formato brasileiro e o teste não distingue os dois.
+ */
 it('formats the appointment date/time in the confirmation modal according to the active locale', function (): void {
+    $this->travelTo('2026-10-21 16:30:00');
+
     $appointment = Appointment::factory()
         ->recycle($this->consultant)
         ->withStatus(AppointmentStatus::Active)

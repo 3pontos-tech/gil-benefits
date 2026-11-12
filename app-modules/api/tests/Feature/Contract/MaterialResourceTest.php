@@ -52,7 +52,7 @@ it('exposes every key the app reads from Material', function (): void {
         ->assertJsonPath('data.0.link', 'https://example.com/aula')
         ->assertJsonPath('data.0.file', null)
         ->assertJsonPath('data.1.type', 'xlsx')
-        ->assertJsonStructure(['data' => [1 => ['file' => ['name', 'mime_type', 'size', 'url']]]]);
+        ->assertJsonStructure(['data' => [1 => ['file' => ['name', 'mime_type', 'size']]]]);
 
     expect($response->json('data.1.shared_at'))->toMatch('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/');
 });

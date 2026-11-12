@@ -16,6 +16,7 @@ use TresPontosTech\Appointments\Exceptions\SlotUnavailableException;
 use TresPontosTech\Appointments\Mail\AppointmentConsultantUnassignedMail;
 use TresPontosTech\Appointments\Mail\AppointmentScheduledMail;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Appointments\Support\AppointmentReminder;
 use TresPontosTech\Consultants\Models\Consultant;
 use Zap\Enums\ScheduleTypes;
 use Zap\Models\Schedule;
@@ -82,7 +83,21 @@ final readonly class SyncAppointmentScheduleAction
     {
         if ($timeChanged) {
             $this->recordHistory($appointment, AppointmentHistoryActionType::ReScheduled, $actor);
+            $this->resetReminder($appointment);
         }
+    }
+
+    /**
+     * O horário novo volta a ter lembrete, a não ser que comece dentro da próxima hora: aí quem
+     * mudou já disse o horário à pessoa (o aviso de mudança da equipe, ou ela mesma ao remarcar).
+     * Vai direto no banco para não entrar nas mudanças do modelo, que o histórico lê; e só depois
+     * de o horário novo estar garantido, porque um consultor ocupado devolve o encontro ao antigo.
+     */
+    private function resetReminder(Appointment $appointment): void
+    {
+        Appointment::query()->whereKey($appointment->getKey())->update([
+            'reminder_sent_at' => AppointmentReminder::stampAfterTellingTheTime($appointment->appointment_at),
+        ]);
     }
 
     private function recordHistory(Appointment $appointment, AppointmentHistoryActionType $type, AppointmentHistoryActor $actor): void
