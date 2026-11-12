@@ -93,7 +93,7 @@
         <p>
             Você pode pedir a confirmação de que tratamos seus dados, o acesso a eles, a correção, a portabilidade, a
             anonimização, a exclusão e a revogação do consentimento, quando ele for a base do tratamento. Também pode se
-            opor ao uso dos dados de navegação.
+            opor ao uso dos dados de navegação e da identificação da sua conta nas análises.
         </p>
 
         <h2 class="text-xl font-bold">Contato</h2>
