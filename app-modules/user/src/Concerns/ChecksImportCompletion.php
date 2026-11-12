@@ -5,6 +5,7 @@ namespace TresPontosTech\User\Concerns;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\On;
+use TresPontosTech\User\Jobs\ImportUsersJob;
 
 trait ChecksImportCompletion
 {
@@ -20,7 +21,7 @@ trait ChecksImportCompletion
 
     public function checkImportCompletion(): void
     {
-        $result = Cache::pull('import_done_' . auth()->id());
+        $result = Cache::pull(ImportUsersJob::completionCacheKey((string) auth()->id()));
 
         if ($result === null) {
             return;
@@ -41,7 +42,9 @@ trait ChecksImportCompletion
         Notification::make()
             ->success()
             ->title('Importação concluída')
-            ->body($result . ' usuário(s) importado(s) com sucesso.')
+            ->body($result === '1'
+                ? 'O usuário foi importado com sucesso.'
+                : sprintf('Todos os %s usuários foram importados com sucesso.', $result))
             ->send();
     }
 }

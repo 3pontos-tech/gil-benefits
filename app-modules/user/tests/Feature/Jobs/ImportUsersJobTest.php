@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Actions\PersistImportedUsersAction;
@@ -52,4 +53,19 @@ it('logs an error when the failed method is called', function (): void {
     Log::shouldHaveReceived('error')
         ->once()
         ->with('ImportUsersJob falhou', Mockery::subset(['company_id' => $companyId]));
+});
+
+it('stores the imported count for the completion notification of the user who started the import', function (): void {
+    $company = Company::factory()->create();
+
+    (new ImportUsersJob(makeJobRows(2), $company->id, 'importer-id'))
+        ->handle(resolve(PersistImportedUsersAction::class));
+
+    expect(Cache::get(ImportUsersJob::completionCacheKey('importer-id')))->toBe('2');
+});
+
+it('stores a failure marker for the completion notification when the job fails', function (): void {
+    (new ImportUsersJob(collect(), 'company-id', 'importer-id'))->failed(new RuntimeException('boom'));
+
+    expect(Cache::get(ImportUsersJob::completionCacheKey('importer-id')))->toBe('failed');
 });

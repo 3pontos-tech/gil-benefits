@@ -60,11 +60,12 @@ class PersistImportedUsersAction
                             'updated_at' => $now,
                         ])->all());
 
-                        $userIds = $items->pluck('id')->all();
-
                         $company->employees()->syncWithoutDetaching(
-                            collect($userIds)->mapWithKeys(fn (string $id): array => [
-                                $id => ['role' => Roles::Employee->value],
+                            $items->mapWithKeys(fn (array $item): array => [
+                                $item['id'] => [
+                                    'role' => Roles::Employee->value,
+                                    'department_id' => $item['row']['department_id'] ?? null,
+                                ],
                             ])->all()
                         );
 
