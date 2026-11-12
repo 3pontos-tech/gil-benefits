@@ -1,7 +1,11 @@
 <?php
 
+use App\Http\Middleware\StoreSignupAttribution;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
+use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
@@ -192,4 +196,80 @@ it('refuses an email that only differs in capitalization from an existing one', 
         ->assertHasFormErrors(['email' => 'unique']);
 
     assertDatabaseCount(User::class, 1);
+});
+
+it('tracks the signup on PostHog by the Flamma id', function (): void {
+    config(['services.posthog.key' => 'phc_test']);
+    Http::fake();
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm())
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $user = User::query()->sole();
+
+    Http::assertSentCount(1);
+    Http::assertSent(fn (Request $request): bool => $request['event'] === 'cadastro_concluido'
+        && $request['distinct_id'] === $user->getKey()
+        && $request['properties'] === ['source' => 'flamma', '$geoip_disable' => true]);
+});
+
+it('joins the Flare person to the Flamma user before tracking the signup with the first touch UTMs', function (): void {
+    config(['services.posthog.key' => 'phc_test']);
+    Http::fake();
+    $flareId = (string) Str::uuid();
+    session([
+        StoreSignupAttribution::FLARE_ID => $flareId,
+        StoreSignupAttribution::UTMS => ['utm_source' => 'flare', 'utm_medium' => 'whatsapp', 'utm_campaign' => 'gancho_pos_relatorio', 'utm_content' => 'variante_a'],
+    ]);
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm())
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    $user = User::query()->sole();
+    $sent = Http::recorded()->map(fn (array $pair): array => [$pair[0]['event'], $pair[0]['distinct_id'], $pair[0]['properties']])->all();
+
+    expect($sent)->toBe([
+        ['$create_alias', $flareId, ['alias' => $user->getKey(), 'source' => 'flamma', '$geoip_disable' => true]],
+        ['cadastro_concluido', $user->getKey(), [
+            'utm_source' => 'flare',
+            'utm_medium' => 'whatsapp',
+            'utm_campaign' => 'gancho_pos_relatorio',
+            'utm_content' => 'variante_a',
+            'source' => 'flamma',
+            '$geoip_disable' => true,
+        ]],
+    ])
+        ->and(session()->has(StoreSignupAttribution::FLARE_ID))->toBeFalse()
+        ->and(session()->has(StoreSignupAttribution::UTMS))->toBeFalse();
+});
+
+it('tracks the signup with the UTMs of an ad without a Flare person to join', function (): void {
+    config(['services.posthog.key' => 'phc_test']);
+    Http::fake();
+    session([StoreSignupAttribution::UTMS => ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento']]);
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm())
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    Http::assertSentCount(1);
+    Http::assertSent(fn (Request $request): bool => $request['event'] === 'cadastro_concluido'
+        && $request['properties'] === ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento', 'source' => 'flamma', '$geoip_disable' => true]);
+});
+
+it('sends nothing to PostHog on signup without a key', function (): void {
+    Http::fake();
+    session([StoreSignupAttribution::FLARE_ID => (string) Str::uuid()]);
+
+    livewire(UserRegistration::class)
+        ->fillForm(registrationForm())
+        ->call('register')
+        ->assertHasNoFormErrors();
+
+    Http::assertNothingSent();
 });

@@ -5,8 +5,10 @@ namespace TresPontosTech\PanelApp\Filament\Pages;
 use App\Filament\Shared\Fields\DocumentIdInput;
 use App\Filament\Shared\Fields\TaxIdInput;
 use App\Filament\Shared\Pages\RegisterPage;
+use App\Http\Middleware\StoreSignupAttribution;
 use App\Models\Users\Detail;
 use App\Models\Users\User;
+use App\Support\PostHog\PostHog;
 use Closure;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
@@ -123,8 +125,27 @@ final class UserRegistration extends RegisterPage
         ]);
 
         $this->redeemVoucher($user, $data['voucher'] ?? null);
+        $this->trackSignup($user);
 
         return $user;
+    }
+
+    /**
+     * Quem veio do convite do Flare já é uma pessoa identificada no PostHog, que não pode virar
+     * alias de outra: por isso o id do Flamma entra como alias da pessoa do Flare, e não o contrário.
+     */
+    private function trackSignup(User $user): void
+    {
+        $flareId = session()->pull(StoreSignupAttribution::FLARE_ID);
+        /** @var array<string, string> $utms */
+        $utms = session()->pull(StoreSignupAttribution::UTMS, []);
+        $postHog = resolve(PostHog::class);
+
+        if (is_string($flareId)) {
+            $postHog->alias(anonymousId: $user->getKey(), userId: $flareId);
+        }
+
+        $postHog->capture($user->getKey(), 'cadastro_concluido', $utms);
     }
 
     /**

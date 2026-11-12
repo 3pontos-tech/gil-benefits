@@ -70,6 +70,11 @@ return [
         ],
     ],
 
+    'posthog' => [
+        'key' => env('POSTHOG_KEY'),
+        'host' => env('POSTHOG_HOST', 'https://us.i.posthog.com'),
+    ],
+
     'contact' => [
         'email' => env('CONTACT_EMAIL', 'contato@flammabeneficios.com.br'),
         'phone' => env('CONTACT_PHONE', '+55 11 97620-5711'),
