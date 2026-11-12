@@ -31,11 +31,21 @@
                 disable_session_recording: true,
             @endif
             before_send: function (event) {
-                var sensitive = /([?&#](?:email|token|signature|voucher)=)[^&#]*/gi;
+                var sensitive = ['email', 'token', 'signature', 'voucher'];
+                var maskParams = function (url) {
+                    return url.replace(/([?&#])([^=&#]*)=[^&#]*/g, function (param, separator, name) {
+                        var decoded = name;
+                        try {
+                            decoded = decodeURIComponent(name.replace(/\+/g, ' '));
+                        } catch (error) {}
+
+                        return sensitive.indexOf(decoded.toLowerCase()) === -1 ? param : separator + name + '=***';
+                    });
+                };
                 var mask = function (values) {
                     for (var key in values || {}) {
                         if (typeof values[key] === 'string') {
-                            values[key] = values[key].replace(sensitive, '$1***');
+                            values[key] = maskParams(values[key]);
                         }
                     }
                 };

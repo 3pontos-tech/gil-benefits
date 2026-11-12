@@ -122,7 +122,8 @@ it('masks e-mail, tokens, signatures and voucher codes in the URLs before sendin
     $this->get(route('filament.app.auth.register', ['voucher' => 'CODIGO123']))
         ->assertOk()
         ->assertSee('before_send: function (event)', false)
-        ->assertSee('(?:email|token|signature|voucher)=', false);
+        ->assertSee("var sensitive = ['email', 'token', 'signature', 'voucher'];", false)
+        ->assertSee('decodeURIComponent(name', false);
 });
 
 it('resets a browser still identified as someone else before identifying the visitor', function (array $query, string $expectedId): void {
