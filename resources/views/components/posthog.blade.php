@@ -1,13 +1,16 @@
 {{--
     posthog-js do site e do painel do colaborador, só com chave configurada. Fica fora das telas
     de troca de senha e não acompanha a equipe interna. Logado, a pessoa é o id do usuário no
-    Flamma. Visitante com o flare_id do convite (guardado pelo StoreSignupAttribution) vira a
-    pessoa do Flare, e o cadastro depois junta as duas no servidor. Visitante que o navegador
-    ainda guarda como outra pessoa (quem saiu da conta) volta a ser anônimo. No painel só vão
-    pageview e identify: sem autocapture nem gravação de sessão. Parâmetros sensíveis das URLs
-    (e-mail, token, assinatura e voucher) são mascarados antes do envio.
+    Flamma, com nome, e-mail e telefone na ficha. Visitante com o flare_id do convite (guardado
+    pelo StoreSignupAttribution) vira a pessoa do Flare, e o cadastro depois junta as duas no
+    servidor. Visitante que o navegador ainda guarda como outra pessoa (quem saiu da conta) volta
+    a ser anônimo. O source é registrado depois do reset, que apaga as super propriedades, e antes
+    do identify, para o $identify também levar. No painel só vão pageview e identify: sem
+    autocapture nem gravação de sessão. Parâmetros sensíveis das URLs (e-mail, token, assinatura
+    e voucher) são mascarados antes do envio.
 --}}
 @use('App\Http\Middleware\StoreSignupAttribution')
+@use('App\Support\PostHog\PostHog')
 @use('TresPontosTech\Permissions\Roles')
 
 @php
@@ -58,17 +61,17 @@
                 return event;
             },
             loaded: function (posthog) {
-                @if ($user)
-                    posthog.identify(@js((string) $user->getKey()));
-                @else
+                @if (! $user)
                     if (posthog.get_property('$user_state') === 'identified' && posthog.get_distinct_id() !== @js($flareId)) {
                         posthog.reset();
                     }
-                    @if (filled($flareId))
-                        posthog.identify(@js($flareId));
-                    @endif
                 @endif
                 posthog.register({ source: 'flamma' });
+                @if ($user)
+                    posthog.identify(@js((string) $user->getKey()), @js(PostHog::personProperties($user)));
+                @elseif (filled($flareId))
+                    posthog.identify(@js($flareId));
+                @endif
             },
         });
     </script>

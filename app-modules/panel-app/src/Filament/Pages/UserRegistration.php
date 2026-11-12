@@ -151,12 +151,13 @@ final class UserRegistration extends RegisterPage
     /**
      * Quem veio do convite do Flare já é uma pessoa identificada no PostHog, que não pode virar
      * alias de outra: por isso o id do Flamma entra como alias da pessoa do Flare, e não o contrário.
-     * O flare_id também vai no evento para auditar uniões feitas por um link repassado.
+     * O flare_id também vai no evento para auditar uniões feitas por um link repassado, e o `$set`
+     * preenche a ficha da pessoa com nome, e-mail e telefone.
      */
     private function trackSignup(User $user): void
     {
         $attribution = StoreSignupAttribution::current(request());
-        $properties = $attribution['utms'] ?? [];
+        $properties = [...$attribution['utms'] ?? [], '$set' => PostHog::personProperties($user)];
         $flareId = $attribution['flare_id'] ?? null;
         $postHog = resolve(PostHog::class);
 

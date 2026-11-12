@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\StoreSignupAttribution;
+use App\Models\Users\Detail;
 use App\Models\Users\User;
+use App\Support\PostHog\PostHog;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
 use TresPontosTech\PanelApp\Filament\Pages\EditUserProfile;
@@ -50,30 +52,46 @@ it('keeps posthog-js out of the internal panels', function (string $route): void
     'password reset request' => 'filament.app.auth.password-reset.request',
 ]);
 
-it('identifies the signed in user by the Flamma id', function (): void {
-    $user = User::factory()->create();
+it('identifies the signed in user by the Flamma id with name, e-mail and phone, after registering the source', function (): void {
+    $user = User::factory()->create(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
+    Detail::factory()->for($user)->create(['phone_number' => '(11) 90000-0001']);
+    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste', 'phone' => '+5511900000001'];
 
     $this->actingAs($user)
         ->get(route('site.home', ['flare_id' => (string) Str::uuid()]))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ')', false)
+        ->assertSeeInOrder([
+            "posthog.register({ source: 'flamma' })",
+            'posthog.identify(' . Js::from($user->getKey())->toHtml() . ', ' . Js::from($properties)->toHtml() . ')',
+        ], false)
         ->assertDontSee('posthog.reset()', false);
 });
+
+it('leaves the phone out of the signed in user without a valid one', function (?string $phone): void {
+    $user = User::factory()->create(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
+    Detail::factory()->for($user)->create(['phone_number' => $phone]);
+    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste'];
+
+    $this->actingAs($user)
+        ->get(route('site.home'))
+        ->assertOk()
+        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ', ' . Js::from($properties)->toHtml() . ')', false);
+})->with(['no phone' => null, 'invalid phone' => '12345']);
 
 it('identifies the signed in user inside the employee panel', function (): void {
     $user = actingAsEmployee();
 
     $this->get(EditUserProfile::getUrl(panel: 'app'))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ')', false);
+        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ', ' . Js::from(PostHog::personProperties($user))->toHtml() . ')', false);
 });
 
-it('identifies an anonymous visitor from the Flare invite by the Flare id', function (): void {
+it('identifies an anonymous visitor from the Flare invite by the Flare id only, after registering the source', function (): void {
     $flareId = (string) Str::uuid();
 
     $this->get(route('site.home', ['flare_id' => $flareId]))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($flareId)->toHtml() . ')', false);
+        ->assertSeeInOrder(["posthog.register({ source: 'flamma' })", 'posthog.identify(' . Js::from($flareId)->toHtml() . ');'], false);
 });
 
 it('keeps identifying the visitor by the Flare id from the cookie on the signup page', function (): void {
