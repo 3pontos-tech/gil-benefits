@@ -39,8 +39,8 @@
         </ul>
         <p>
             Tratamos esses dados para executar o contrato com você ou com a sua empresa, para cumprir obrigações legais e,
-            no caso dos dados de navegação, com base no nosso legítimo interesse em medir e melhorar o serviço. Não
-            vendemos seus dados.
+            no caso dos dados de navegação e da identificação da conta nas análises, com base no nosso legítimo
+            interesse em medir e melhorar o serviço. Não vendemos seus dados.
         </p>
 
         <h2 class="text-xl font-bold">O que a sua empresa vê</h2>
@@ -56,7 +56,10 @@
             <li>Processadores de pagamento, que cobram assinaturas e créditos.</li>
             <li>Ferramentas de agenda, atendimento e gestão de clientes, que organizam sessões e contatos.</li>
             <li>Provedores de hospedagem, armazenamento de arquivos e envio de e-mail, que mantêm o serviço no ar.</li>
-            <li>PostHog, ferramenta de análise de uso que recebe os dados de navegação descritos acima.</li>
+            <li>
+                PostHog, ferramenta de análise de uso que recebe os dados de navegação descritos acima e, para identificar
+                a sua conta nas análises, o seu nome, e-mail e telefone (quando você informa um).
+            </li>
             <li>Autoridades públicas, quando a lei exigir.</li>
         </ul>
         <p>
@@ -90,7 +93,7 @@
         <p>
             Você pode pedir a confirmação de que tratamos seus dados, o acesso a eles, a correção, a portabilidade, a
             anonimização, a exclusão e a revogação do consentimento, quando ele for a base do tratamento. Também pode se
-            opor ao uso dos dados de navegação.
+            opor ao uso dos dados de navegação e da identificação da sua conta nas análises.
         </p>
 
         <h2 class="text-xl font-bold">Contato</h2>

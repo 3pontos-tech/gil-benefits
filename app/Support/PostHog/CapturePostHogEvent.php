@@ -15,7 +15,7 @@ final class CapturePostHogEvent implements ShouldQueue
     public int $tries = 3;
 
     /**
-     * @param  array<string, string|int|bool>  $properties
+     * @param  array<string, string|int|bool|array<string, string>>  $properties
      */
     public function __construct(
         public readonly string $distinctId,

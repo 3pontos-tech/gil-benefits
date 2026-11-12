@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Support\PostHog;
 
+use App\Models\Users\User;
 use Illuminate\Support\Str;
+use Propaganistas\LaravelPhone\PhoneNumber;
 
 /**
  * Eventos do Flamma enviados ao PostHog, no mesmo projeto do Flare. Nada sai sem
@@ -14,7 +16,7 @@ use Illuminate\Support\Str;
 final class PostHog
 {
     /**
-     * @param  array<string, string|int|bool>  $properties
+     * @param  array<string, string|int|bool|array<string, string>>  $properties
      */
     public function capture(string $distinctId, string $event, array $properties = []): void
     {
@@ -38,5 +40,22 @@ final class PostHog
     public function alias(string $anonymousId, string $userId): void
     {
         $this->capture($userId, '$create_alias', ['alias' => $anonymousId]);
+    }
+
+    /**
+     * Ficha da pessoa no PostHog: nome, e-mail e o telefone em E.164, quando há um válido.
+     *
+     * @return array{email: string, name: string, phone?: string}
+     */
+    public static function personProperties(User $user): array
+    {
+        $properties = ['email' => $user->email, 'name' => $user->name];
+        $phone = new PhoneNumber((string) $user->detail?->phone_number, 'BR');
+
+        if ($phone->isValid()) {
+            $properties['phone'] = $phone->formatE164();
+        }
+
+        return $properties;
     }
 }
