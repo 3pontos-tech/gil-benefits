@@ -47,6 +47,19 @@ return [
         'sent' => 'Sent',
         'failed' => 'Failed',
     ],
+    'notification_channel' => [
+        'whatsapp' => 'WhatsApp',
+    ],
+    'notification_event' => [
+        'created' => 'Creation',
+        'status_changed' => 'Status change',
+    ],
+    'notification_status' => [
+        'pending' => 'Pending',
+        'sent' => 'Sent',
+        'failed' => 'Failed',
+        'skipped' => 'Skipped',
+    ],
     'origin_source' => [
         'chatx' => 'ChatX (WhatsApp)',
     ],
