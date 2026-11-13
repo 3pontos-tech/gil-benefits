@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 use TresPontosTech\Api\Actions\Employee\Auth\AuthenticateEmployeeAction;
 use TresPontosTech\Api\Exceptions\Employee\Auth\EmployeeLoginException;
@@ -37,4 +38,28 @@ it('refuses an account outside the app audience without issuing a token', functi
         ->toThrow(EmployeeLoginException::class, 'Esta conta não tem acesso ao aplicativo.');
 
     expect($user->tokens()->count())->toBe(0);
+});
+
+it('rehashes a password stored with a lower bcrypt cost than configured', function (): void {
+    $user = standaloneSubscriber();
+    $user->forceFill(['password' => bcrypt('password', ['rounds' => 4])])->save();
+
+    config(['hashing.bcrypt.rounds' => 10]);
+    Hash::forgetDrivers();
+
+    resolve(AuthenticateEmployeeAction::class)->handle($user->email, 'password', 'Android');
+
+    $password = $user->refresh()->password;
+
+    expect(password_get_info($password)['options']['cost'])->toBe(10)
+        ->and(Hash::check('password', $password))->toBeTrue();
+});
+
+it('keeps a password already stored with the configured bcrypt cost', function (): void {
+    $user = standaloneSubscriber();
+    $password = $user->password;
+
+    resolve(AuthenticateEmployeeAction::class)->handle($user->email, 'password', 'Android');
+
+    expect($user->refresh()->password)->toBe($password);
 });
