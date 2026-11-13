@@ -72,5 +72,26 @@ return [
             ],
             'empty' => 'No destinations for this ticket.',
         ],
+        'sent_notifications' => [
+            'title' => 'Notifications',
+            'columns' => [
+                'event' => 'Event',
+                'transition' => 'Ticket status',
+                'status' => 'Delivery',
+                'attempts' => 'Attempts',
+                'response_code' => 'HTTP',
+                'error' => 'Error',
+                'message' => 'Message',
+                'sent_at' => 'Sent at',
+                'created_at' => 'Created at',
+            ],
+            'empty' => 'No notifications for this ticket.',
+            'actions' => [
+                'resend' => [
+                    'label' => 'Resend',
+                    'notification' => 'Notification queued again.',
+                ],
+            ],
+        ],
     ],
 ];

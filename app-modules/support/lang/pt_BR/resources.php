@@ -72,5 +72,26 @@ return [
             ],
             'empty' => 'Nenhum destino para este chamado.',
         ],
+        'sent_notifications' => [
+            'title' => 'Notificações',
+            'columns' => [
+                'event' => 'Evento',
+                'transition' => 'Status do chamado',
+                'status' => 'Envio',
+                'attempts' => 'Tentativas',
+                'response_code' => 'HTTP',
+                'error' => 'Erro',
+                'message' => 'Mensagem',
+                'sent_at' => 'Enviado em',
+                'created_at' => 'Criado em',
+            ],
+            'empty' => 'Nenhuma notificação para este chamado.',
+            'actions' => [
+                'resend' => [
+                    'label' => 'Reenviar',
+                    'notification' => 'Notificação reenviada para a fila.',
+                ],
+            ],
+        ],
     ],
 ];
