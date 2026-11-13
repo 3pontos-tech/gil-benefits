@@ -19,6 +19,8 @@ class PersistImportedUsersAction
 {
     private const int CHUNK_SIZE = 100;
 
+    private const int TEMPORARY_PASSWORD_ROUNDS = 4;
+
     /**
      * @param  Collection<int, array<string, mixed>>  $rows
      */
@@ -36,7 +38,7 @@ class PersistImportedUsersAction
                 ]);
 
                 $items = $items->map(fn (array $item): array => array_merge($item, [
-                    'hashed_password' => bcrypt($item['plain_password']),
+                    'hashed_password' => bcrypt($item['plain_password'], ['rounds' => self::TEMPORARY_PASSWORD_ROUNDS]),
                 ]));
 
                 DB::transaction(
