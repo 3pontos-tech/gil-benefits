@@ -155,9 +155,7 @@ it('ignores empty rows and still imports valid ones', function (): void {
     expect($result->errors)->toBeEmpty();
 });
 
-// --- Validation failures abort the entire import ---
-
-it('fails entire import when any row is missing phone_number', function (): void {
+it('imports a row with a blank phone_number', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
@@ -167,11 +165,29 @@ it('fails entire import when any row is missing phone_number', function (): void
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
 
-    expect($result->imported)->toBe(0);
-    expect($result->errors)->not->toBeEmpty();
+    expect($result->imported)->toBe(2);
+    expect($result->errors)->toBeEmpty();
 
-    assertDatabaseMissing(User::class, ['email' => 'valido@empresa.com']);
+    assertDatabaseHas(Detail::class, ['tax_id' => '98765432100', 'phone_number' => null]);
 });
+
+it('imports a file without the phone_number column', function (): void {
+    $company = Company::factory()->create();
+
+    $csv = makeCsvFile(
+        [['Sem Telefone', 'semtelefone@empresa.com', '87654321', '987.654.321-00']],
+        ['name', 'email', 'document_id', 'tax_id'],
+    );
+
+    $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
+
+    expect($result->imported)->toBe(1);
+    expect($result->errors)->toBeEmpty();
+
+    assertDatabaseHas(Detail::class, ['tax_id' => '98765432100', 'phone_number' => null]);
+});
+
+// --- Validation failures abort the entire import ---
 
 it('fails entire import when any row has an invalid email', function (): void {
     $company = Company::factory()->create();
