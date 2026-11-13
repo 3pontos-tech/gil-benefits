@@ -1,24 +1,21 @@
-<x-mail::message>
-# Novo Documento Compartilhado
+@use('App\Support\Mail\MailText')
+<x-email.layout title="Novo documento compartilhado" preheader="Tem um documento novo esperando por você na plataforma." :closing="__('emails.layout.reply')">
+    <x-email.heading :lines="[
+        ['Olá, ' . $employeeName . '!', 'light'],
+        ['Novo documento', 'bold'],
+        ['para você.', 'bold'],
+    ]" />
 
-Olá, **{{ $employeeName }}**!
+    @if ($consultantName)
+        <x-email.text size="lg">{{ MailText::inline('O(a) consultor(a) **' . $consultantName . '** compartilhou um documento com você.') }}</x-email.text>
+    @else
+        <x-email.text size="lg">Um novo documento foi compartilhado com você.</x-email.text>
+    @endif
 
-@if($consultantName)
-O(a) consultor(a) **{{ $consultantName }}** compartilhou um documento com você.
-@else
-Um novo documento foi compartilhado com você.
-@endif
+    <x-email.details>
+        <x-email.detail label="Documento">{{ $documentTitle }}</x-email.detail>
+    </x-email.details>
 
-<x-mail::panel>
-**Documento:** {{ $documentTitle }}
-</x-mail::panel>
-
-Para visualizar o documento, acesse a plataforma.
-
-<x-mail::button :url="$panelUrl">
-Ver documento
-</x-mail::button>
-
-Obrigado,<br>
-{{ config('app.name') }}
-</x-mail::message>
+    <x-email.text :top="12">Para ver o documento, acesse a plataforma.</x-email.text>
+    <x-email.button :url="$panelUrl">Ver documento</x-email.button>
+</x-email.layout>

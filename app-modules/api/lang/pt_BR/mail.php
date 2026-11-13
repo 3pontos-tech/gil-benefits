@@ -6,6 +6,8 @@ return [
     'password_reset_code' => [
         'subject' => 'Seu código para redefinir a senha do :app',
         'title' => 'Redefinir a senha',
+        'heading_1' => 'Seu código',
+        'heading_2' => 'de acesso',
         'intro' => 'Digite este código no app :app. Ele vale por :minutes minutos.',
         'ignore' => 'Se não foi você, ignore este e-mail: a sua senha continua a mesma.',
     ],

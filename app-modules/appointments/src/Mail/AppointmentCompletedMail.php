@@ -31,7 +31,7 @@ class AppointmentCompletedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.appointments.completed',
+            view: 'emails.appointments.completed',
             with: [
                 'userName' => $this->appointment->user->name,
                 'consultantName' => $this->appointment->consultant->name,

@@ -43,7 +43,8 @@ describe('AppointmentScheduledMail', function (): void {
 
         $mailable = new AppointmentScheduledMail($appointment);
 
-        $mailable->assertSeeInHtml('https://meet.example.com/test');
+        $mailable->assertSeeInHtml('href="https://meet.example.com/test"', false);
+        $mailable->assertSeeInHtml('>' . __('emails.appointments.scheduled.meeting_link') . '<', false);
     });
 
     it('omits meeting url section when absent', function (): void {
@@ -52,7 +53,7 @@ describe('AppointmentScheduledMail', function (): void {
 
         $mailable = new AppointmentScheduledMail($appointment);
 
-        $mailable->assertDontSeeInHtml('Link da reunião');
+        $mailable->assertDontSeeInHtml('>' . __('emails.appointments.scheduled.meeting_link') . '<', false);
     });
 
     it('is queued to the consultant email', function (): void {

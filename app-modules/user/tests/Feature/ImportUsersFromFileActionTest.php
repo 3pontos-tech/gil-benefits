@@ -95,7 +95,7 @@ it('sends welcome email with temporary password to each imported user', function
         fn (WelcomeUserMail $mail): bool => $mail->hasTo('maria@empresa.com') && filled($mail->password),
     );
 
-    Mail::assertQueuedCount(2);
+    Mail::assertQueued(WelcomeUserMail::class, 2);
 });
 
 it('each imported user receives a unique temporary password', function (): void {

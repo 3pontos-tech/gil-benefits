@@ -21,5 +21,8 @@ return [
     'consultant_unassigned' => [
         'subject' => 'Uma consulta foi removida da sua agenda',
     ],
+    'onboarding' => [
+        'subject' => 'Como marcar sua primeira sessão no :app',
+    ],
     'no_consultant' => 'consultor não atribuído',
 ];

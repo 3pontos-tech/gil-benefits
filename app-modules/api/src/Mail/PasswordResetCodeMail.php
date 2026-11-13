@@ -39,7 +39,7 @@ final class PasswordResetCodeMail extends Mailable implements ShouldBeEncrypted,
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.auth.password-reset-code',
+            view: 'emails.auth.password-reset-code',
             with: [
                 'minutes' => (int) config('api.password_reset.code_ttl_minutes'),
             ],
