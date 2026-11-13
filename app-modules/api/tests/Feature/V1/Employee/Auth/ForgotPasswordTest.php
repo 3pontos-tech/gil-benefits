@@ -73,7 +73,7 @@ it('mails only the code, without a reset link, and keeps it encrypted on the que
     $mail = new PasswordResetCodeMail('042137');
 
     $html = $mail->render();
-    preg_match_all('/href="([^"]*)"/', $html, $links);
+    preg_match_all('/<a\s[^>]*href="([^"]*)"/', $html, $links);
 
     $mail->assertHasSubject('Seu código para redefinir a senha do Flamma');
 
@@ -82,7 +82,7 @@ it('mails only the code, without a reset link, and keeps it encrypted on the que
         ->and($html)->toContain('042137')
         ->toContain('Digite este código no app Flamma. Ele vale por 15 minutos.')
         ->toContain('Se não foi você, ignore este e-mail: a sua senha continua a mesma.')
-        ->and(array_unique($links[1]))->each->toBe(config('app.url'));
+        ->and($links[1])->toBe([]);
 });
 
 it('answers the same and sends nothing to an account that cannot use the app', function (string $email): void {

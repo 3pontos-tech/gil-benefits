@@ -31,7 +31,7 @@ class AppointmentRequestedAdminMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.appointments.requested-admin',
+            view: 'emails.appointments.requested-admin',
             with: [
                 'userName' => $this->appointment->user->name,
                 'categoryLabel' => $this->appointment->category_type->getLabel(),

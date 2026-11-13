@@ -1,13 +1,10 @@
-<x-mail::message>
-# {{ __('api::mail.password_reset_code.title') }}
+<x-email.layout :title="__('api::mail.password_reset_code.title')" :preheader="__('api::mail.password_reset_code.intro', ['app' => config('app.name'), 'minutes' => $minutes])">
+    <x-email.heading :lines="[
+        [__('api::mail.password_reset_code.heading_1'), 'light'],
+        [__('api::mail.password_reset_code.heading_2'), 'bold'],
+    ]" />
 
-{{ __('api::mail.password_reset_code.intro', ['app' => config('app.name'), 'minutes' => $minutes]) }}
-
-<x-mail::panel>
-<span style="font-size: 28px; font-weight: 700; letter-spacing: 6px;">{{ $code }}</span>
-</x-mail::panel>
-
-{{ __('api::mail.password_reset_code.ignore') }}
-
-{{ config('app.name') }}
-</x-mail::message>
+    <x-email.text size="lg">{{ __('api::mail.password_reset_code.intro', ['app' => config('app.name'), 'minutes' => $minutes]) }}</x-email.text>
+    <x-email.code>{{ $code }}</x-email.code>
+    <x-email.text size="sm" :top="14">{{ __('api::mail.password_reset_code.ignore') }}</x-email.text>
+</x-email.layout>

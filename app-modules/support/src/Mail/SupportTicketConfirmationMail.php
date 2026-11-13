@@ -33,7 +33,7 @@ class SupportTicketConfirmationMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'support::emails.confirmation',
+            view: 'support::emails.confirmation',
             with: [
                 'ticket' => $this->ticket,
                 'channelName' => $this->ticket->category->getDestinationChannel()->getLabel(),

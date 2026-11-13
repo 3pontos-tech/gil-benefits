@@ -33,7 +33,7 @@ class AppointmentConsultantUnassignedMail extends Mailable implements ShouldQueu
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.appointments.consultant-unassigned',
+            view: 'emails.appointments.consultant-unassigned',
             with: [
                 'consultantName' => $this->previousConsultant->name,
                 'userName' => $this->appointment->user->name,

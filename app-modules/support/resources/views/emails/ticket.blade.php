@@ -1,40 +1,39 @@
-<x-mail::message>
-# Novo chamado: {{ $ticket->subject }}
+@use('App\Support\Mail\MailText')
+@php
+    $company = $ticket->company?->name ?? $ticket->visitor_company_name;
+    $technical = array_filter([
+        'URL' => $ticket->url,
+        'Navegador' => $ticket->browser,
+        'Dispositivo' => $ticket->device,
+        'Ambiente' => $ticket->environment,
+    ]);
+@endphp
+<x-email.layout :title="'[' . $ticket->protocol . '] ' . $ticket->subject" :preheader="$ticket->getRequesterName() . ': ' . $ticket->subject">
+    <x-email.heading :lines="[
+        ['Novo chamado', 'bold'],
+        [$ticket->protocol, 'light'],
+    ]" />
 
-**Protocolo:** {{ $ticket->protocol }}
-**Categoria:** {{ $ticket->category->getLabel() }}
-**Área:** {{ $channelName }}
+    <x-email.details>
+        <x-email.detail label="Categoria">{{ $ticket->category->getLabel() }}</x-email.detail>
+        <x-email.detail label="Área">{{ $channelName }}</x-email.detail>
+        <x-email.detail label="Solicitante">{{ $ticket->getRequesterName() ?? '—' }}</x-email.detail>
+        <x-email.detail label="E-mail">{{ $ticket->getRequesterEmail() ?? '—' }}</x-email.detail>
+        @if (filled($company))
+            <x-email.detail label="Empresa">{{ $company }}</x-email.detail>
+        @endif
+    </x-email.details>
 
----
+    <x-email.subheading light="Assunto:" :bold="$ticket->subject" :top="28" />
+    <x-email.text :top="12">{{ MailText::inline($ticket->description) }}</x-email.text>
 
-**Solicitante:** {{ $ticket->getRequesterName() ?? '—' }}
-**E-mail:** {{ $ticket->getRequesterEmail() ?? '—' }}
-@if($ticket->company)
-**Empresa:** {{ $ticket->company->name }}
-@elseif($ticket->visitor_company_name)
-**Empresa:** {{ $ticket->visitor_company_name }}
-@endif
+    @if ($technical !== [])
+        <x-email.infobox bold="Dados" light="técnicos" :top="28">
+            @foreach ($technical as $label => $value)
+                <x-email.note :label="$label . ':'">{{ $value }}</x-email.note>
+            @endforeach
+        </x-email.infobox>
+    @endif
 
----
-
-**Assunto:** {{ $ticket->subject }}
-
-{{ $ticket->description }}
-
----
-
-@if($ticket->url)
-**URL:** {{ $ticket->url }}
-@endif
-@if($ticket->browser)
-**Navegador:** {{ $ticket->browser }}
-@endif
-@if($ticket->device)
-**Dispositivo:** {{ $ticket->device }}
-@endif
-@if($ticket->environment)
-**Ambiente:** {{ $ticket->environment }}
-@endif
-
-*Aberto em {{ $ticket->created_at->format('d/m/Y H:i') }}*
-</x-mail::message>
+    <x-email.text size="sm" :top="16">Aberto em {{ $ticket->created_at->format('d/m/Y H:i') }}</x-email.text>
+</x-email.layout>

@@ -33,7 +33,7 @@ class DocumentSharedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.documents.shared',
+            view: 'emails.documents.shared',
             with: [
                 'employeeName' => $this->employee->name,
                 'documentTitle' => $this->document->title,
