@@ -39,6 +39,8 @@ final readonly class AuthenticateEmployeeAction
             throw EmployeeLoginException::denied($access);
         }
 
+        $this->rehashPasswordIfRequired($user, $password);
+
         Filament::setTenant($access->company, isQuiet: true);
 
         $user->tokens()->where('name', $deviceName)->delete();
@@ -64,7 +66,7 @@ final readonly class AuthenticateEmployeeAction
      */
     private function verifyCredentials(string $email, string $password): User
     {
-        $user = resolve(Timebox::class)->call(function (Timebox $timebox) use ($email, $password): User {
+        return resolve(Timebox::class)->call(function (Timebox $timebox) use ($email, $password): User {
             $user = $this->findUserByEmail->handle($email);
 
             if (! $user instanceof User || ! Hash::check($password, $user->password)) {
@@ -75,10 +77,6 @@ final readonly class AuthenticateEmployeeAction
 
             return $user;
         }, (int) config('auth.timebox_duration', 200_000));
-
-        $this->rehashPasswordIfRequired($user, $password);
-
-        return $user;
     }
 
     private function rehashPasswordIfRequired(User $user, string $password): void
@@ -87,6 +85,6 @@ final readonly class AuthenticateEmployeeAction
             return;
         }
 
-        $user->forceFill(['password' => $password])->save();
+        $user->forceFill(['password' => Hash::make($password)])->save();
     }
 }
