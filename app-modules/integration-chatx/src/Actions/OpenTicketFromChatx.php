@@ -55,7 +55,7 @@ final class OpenTicketFromChatx
                 subject: $dto->subject,
                 description: $dto->description,
                 userId: $user->id,
-                companyId: $user->detail?->company_id,
+                companyId: $user->employerCompanyId(),
                 visitorName: $dto->visitorName,
                 visitorEmail: $dto->visitorEmail,
                 visitorCompanyName: $dto->visitorCompanyName,

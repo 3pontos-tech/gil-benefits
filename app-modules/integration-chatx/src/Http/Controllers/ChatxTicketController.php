@@ -7,43 +7,47 @@ namespace TresPontosTech\IntegrationChatx\Http\Controllers;
 use App\Enums\InboundWebhookSourceEnum;
 use Basement\Webhooks\Actions\StoreInboundWebhook;
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-use TresPontosTech\IntegrationChatx\Actions\OpenTicketFromChatx;
-use TresPontosTech\IntegrationChatx\DTO\ChatxTicketDTO;
-use TresPontosTech\IntegrationChatx\Http\Requests\OpenTicketRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 /**
- * Intake endpoint for tickets opened over WhatsApp through ChatX.
- *
- * Unlike the Monday and Barte webhooks, this one does its work inside the request
- * instead of queueing a job. It has to: the agreed contract answers with the ticket
- * id and protocol so the bot can tell the customer their protocol number in the
- * same conversation, and with a 422 when the requester is unknown. Neither answer
- * exists yet if the work is deferred. The expensive part — routing the ticket to
- * its sector, e-mail and Monday — is still queued, inside CreateSupportTicketAction.
+ * TEMPORARY, for testing only: discovery mode while we learn the real ChatX payload.
+ * Every request is logged and stored in Inbound Webhooks, always answered with 200,
+ * and no ticket is opened. This will be replaced once the contract is settled:
+ * restore ticket creation via OpenTicketFromChatx and the signature check.
  */
 final class ChatxTicketController
 {
-    public function __invoke(OpenTicketRequest $request, OpenTicketFromChatx $openTicket): JsonResponse
+    public function __invoke(Request $request): JsonResponse
     {
-        /** @var array<string, mixed> $payload */
-        $payload = $request->validated();
+        $rawBody = $request->getContent();
+        $body = json_decode($rawBody, true);
+
+        $payload = [
+            'ip' => $request->ip(),
+            'received_at' => now()->toIso8601String(),
+            'method' => $request->method(),
+            'full_url' => $request->fullUrl(),
+            'query' => $request->query(),
+            'cookies' => $request->cookies->all(),
+            'files' => array_keys($request->allFiles()),
+            'input' => $request->all(),
+            'headers' => $request->headers->all(),
+            'body' => is_array($body) ? $body : null,
+            'raw_body' => $rawBody,
+        ];
+
+        Log::info('ChatX webhook received.', $payload);
+
+        $event = $request->header('X-ChatX-Event') ?? (is_array($body) && is_string($body['event'] ?? null) ? $body['event'] : null);
 
         resolve(StoreInboundWebhook::class)->store(
             source: InboundWebhookSourceEnum::Chatx,
-            event: is_string($payload['event'] ?? null) ? $payload['event'] : 'unknown',
-            url: $request->url(),
+            event: $event ?? 'unknown',
+            url: $request->fullUrl(),
             payload: $payload,
         );
 
-        $dto = ChatxTicketDTO::fromArray($payload);
-
-        ['ticket' => $ticket, 'created' => $created] = $openTicket->execute($dto);
-
-        return response()->json([
-            'ticket_id' => $ticket->id,
-            'protocol' => $ticket->protocol,
-            'external_reference' => $dto->externalReference,
-        ], $created ? Response::HTTP_CREATED : Response::HTTP_OK);
+        return response()->json(['ok' => true]);
     }
 }

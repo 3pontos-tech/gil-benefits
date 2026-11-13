@@ -19,12 +19,6 @@ use TresPontosTech\IntegrationChatx\Enums\ChatxEventEnum;
  */
 final class OpenTicketRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        // The middleware already authenticated the caller by IP and signature.
-        return true;
-    }
-
     /**
      * @return array<string, mixed>
      */

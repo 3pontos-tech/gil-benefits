@@ -25,6 +25,11 @@ return [
     // Agreed with ChatX at 10 minutes.
     'timestamp_tolerance' => (int) env('CHATX_TIMESTAMP_TOLERANCE', 600),
 
+    'status_webhook' => [
+        'url' => env('CHATX_STATUS_WEBHOOK_URL'),
+        'token' => env('CHATX_STATUS_WEBHOOK_TOKEN'),
+    ],
+
     /*
      * ChatX sends its own category vocabulary as free text. Anything not listed
      * here falls back to `other` rather than failing the request — a taxonomy
