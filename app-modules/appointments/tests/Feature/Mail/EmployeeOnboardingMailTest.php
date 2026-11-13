@@ -54,7 +54,13 @@ describe('EmployeeOnboardingMail', function (): void {
         $mail->assertSeeInHtml('começam ' . Appointment::BOOKING_LEAD_DAYS . ' dias depois de hoje');
         $mail->assertSeeInHtml('pelo menos ' . Appointment::CANCELLATION_WINDOW_HOURS . ' horas de antecedência. Fora desse prazo');
         $mail->assertSeeInHtml('também com pelo menos ' . Appointment::RESCHEDULE_WINDOW_HOURS . ' horas');
-        $mail->assertSeeInHtml('em até ' . EmployeeOnboardingMail::FIRST_BOOKING_DEADLINE_DAYS . ' dias');
+    });
+
+    it('promises no deadline for the first booking, a rule the system does not enforce', function (): void {
+        $mail = new EmployeeOnboardingMail(User::factory()->create(), hasTemporaryPassword: true);
+
+        $mail->assertDontSeeInHtml('inativado');
+        $mail->assertDontSeeInHtml('prazo para fazer o seu primeiro agendamento');
     });
 
     it('loads every image from the app over an absolute url, never inline', function (): void {

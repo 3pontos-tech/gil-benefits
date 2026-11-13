@@ -13,12 +13,8 @@
     <x-email.text size="lg">{{ __('emails.appointments.onboarding.intro') }}</x-email.text>
     <x-email.text size="lg" :top="14">{{ __('emails.appointments.onboarding.steps_intro') }}</x-email.text>
 
-    <x-email.details :top="24">
-        <x-email.detail :label="__('emails.appointments.onboarding.deadline_label', ['days' => $deadlineDays])">{{ __('emails.appointments.onboarding.deadline') }}</x-email.detail>
-    </x-email.details>
-
     {{-- Etapa 1: o caminho até o login depende de quem criou a senha. --}}
-    <x-email.subheading :badge="__('emails.appointments.onboarding.step', ['number' => 1])" :light="__('emails.appointments.onboarding.step_1_light')" :bold="__('emails.appointments.onboarding.step_1_bold')" :top="28" />
+    <x-email.subheading :badge="__('emails.appointments.onboarding.step', ['number' => 1])" :light="__('emails.appointments.onboarding.step_1_light')" :bold="__('emails.appointments.onboarding.step_1_bold')" />
     @if ($hasTemporaryPassword)
         <x-email.bullet>{{ MailText::inline(__('emails.appointments.onboarding.step_1_find_welcome', ['subject' => $welcomeSubject])) }}</x-email.bullet>
         <x-email.bullet>{{ MailText::inline(__('emails.appointments.onboarding.step_1_open_welcome')) }}</x-email.bullet>
@@ -45,9 +41,7 @@
 
     <x-email.infobox :bold="__('emails.appointments.onboarding.good_to_know_bold')" :light="__('emails.appointments.onboarding.good_to_know_light')" :top="40">
         <x-email.note :label="__('emails.appointments.onboarding.cancellation_label')">{{ __('emails.appointments.onboarding.cancellation', ['hours' => $cancellationHours]) }}</x-email.note>
-        <x-email.note :label="__('emails.appointments.onboarding.reschedule_label')">{{ __('emails.appointments.onboarding.reschedule', ['hours' => $rescheduleHours]) }}</x-email.note>
-        <x-email.note :label="__('emails.appointments.onboarding.deadline_note_label')">{{ __('emails.appointments.onboarding.deadline_note', ['days' => $deadlineDays]) }}</x-email.note>
-    </x-email.infobox>
+        <x-email.note :label="__('emails.appointments.onboarding.reschedule_label')">{{ __('emails.appointments.onboarding.reschedule', ['hours' => $rescheduleHours]) }}</x-email.note>    </x-email.infobox>
 
     <x-email.cta :bold="__('emails.appointments.onboarding.cta_bold')" :light="__('emails.appointments.onboarding.cta_light')" :url="$loginUrl" :label="__('emails.appointments.onboarding.button', ['app' => $app])" />
 </x-email.layout>

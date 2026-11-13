@@ -25,12 +25,6 @@ class EmployeeOnboardingMail extends Mailable implements ShouldQueue
     use SerializesModels;
 
     /**
-     * Prazo para o primeiro agendamento que o e-mail comunica. É uma regra da operação: o sistema
-     * ainda não inativa o cadastro de quem passa desse prazo.
-     */
-    public const int FIRST_BOOKING_DEADLINE_DAYS = 10;
-
-    /**
      * @param  bool  $hasTemporaryPassword  a empresa ou a importação criou a senha, que chegou nas
      *                                      boas-vindas; no auto cadastro a pessoa já escolheu a dela.
      */
@@ -57,7 +51,6 @@ class EmployeeOnboardingMail extends Mailable implements ShouldQueue
                 'hasTemporaryPassword' => $this->hasTemporaryPassword,
                 'welcomeSubject' => __('user::mail.welcome.subject', ['app_name' => config('app.name')]),
                 'loginUrl' => route('filament.app.auth.login'),
-                'deadlineDays' => self::FIRST_BOOKING_DEADLINE_DAYS,
                 'bookingLeadDays' => Appointment::BOOKING_LEAD_DAYS,
                 'cancellationHours' => Appointment::CANCELLATION_WINDOW_HOURS,
                 'rescheduleHours' => Appointment::RESCHEDULE_WINDOW_HOURS,
