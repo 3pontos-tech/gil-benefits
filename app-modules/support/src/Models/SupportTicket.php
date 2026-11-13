@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -93,6 +94,17 @@ class SupportTicket extends Model implements HasMedia
     public function destinations(): HasMany
     {
         return $this->hasMany(TicketDestination::class);
+    }
+
+    /**
+     * The external system this ticket came in from, when it did not start on the
+     * platform. Null for tickets opened in the panel or the public help center.
+     *
+     * @return HasOne<TicketOrigin, $this>
+     */
+    public function origin(): HasOne
+    {
+        return $this->hasOne(TicketOrigin::class);
     }
 
     public function getRequesterEmail(): ?string
