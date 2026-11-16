@@ -119,11 +119,14 @@ class SupportTicketNotification extends Model
 
     public function requeue(): bool
     {
-        if ($this->status !== TicketNotificationStatusEnum::Failed) {
+        if (static::query()->whereKey($this->getKey())->requeueFailed() !== 1) {
             return false;
         }
 
-        return $this->update(['status' => TicketNotificationStatusEnum::Pending]);
+        $this->status = TicketNotificationStatusEnum::Pending;
+        $this->syncOriginalAttribute('status');
+
+        return true;
     }
 
     /**

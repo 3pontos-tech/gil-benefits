@@ -18,6 +18,14 @@ class SupportTicketNotificationBuilder extends Builder
         return $this->where('status', TicketNotificationStatusEnum::Pending);
     }
 
+    /**
+     * One conditional UPDATE, so two resends racing on the same row cannot both win.
+     */
+    public function requeueFailed(): int
+    {
+        return $this->where('status', TicketNotificationStatusEnum::Failed)->update(['status' => TicketNotificationStatusEnum::Pending]);
+    }
+
     public function failPending(): int
     {
         return $this->pending()->update(['status' => TicketNotificationStatusEnum::Failed]);

@@ -125,6 +125,17 @@ describe('queueing', function (): void {
         assertDatabaseCount(SupportTicketNotification::class, 0);
         Queue::assertNotPushed(SendTicketNotificationJob::class);
     });
+
+    it('resends only once when two resends race on the same row', function (): void {
+        Queue::fake([SendTicketNotificationJob::class]);
+        $notification = SupportTicketNotification::factory()->failed()->create();
+        $staleCopy = SupportTicketNotification::query()->find($notification->id);
+
+        resolve(ResendTicketNotificationAction::class)->execute($notification);
+        resolve(ResendTicketNotificationAction::class)->execute($staleCopy);
+
+        Queue::assertPushed(SendTicketNotificationJob::class, 1);
+    });
 });
 
 describe('sending', function (): void {
