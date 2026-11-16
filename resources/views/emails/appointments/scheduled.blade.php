@@ -1,29 +1,24 @@
-<x-mail::message>
-# {{ __('emails.appointments.scheduled.title') }}
+@use('App\Support\Mail\MailText')
+@php($date = $appointmentAt->format('d/m/Y \à\s H:i'))
+<x-email.layout :title="__('appointments::mail.scheduled.subject')" :preheader="__('emails.appointments.scheduled.preheader', ['name' => $userName, 'date' => $date])">
+    <x-email.heading :lines="[
+        [__('emails.appointments.scheduled.heading_1'), 'bold'],
+        [__('emails.appointments.scheduled.heading_2'), 'light'],
+    ]" />
 
-{{ __('emails.appointments.scheduled.greeting', ['name' => $consultantName]) }}
+    <x-email.text size="lg">{{ MailText::inline(__('emails.appointments.scheduled.greeting', ['name' => $consultantName])) }}</x-email.text>
+    <x-email.text size="lg" :top="14">{{ MailText::inline(__('emails.appointments.scheduled.body', ['name' => $userName])) }}</x-email.text>
 
-{{ __('emails.appointments.scheduled.body', ['name' => $userName]) }}
+    <x-email.details>
+        <x-email.detail :label="__('emails.appointments.scheduled.date_time')">{{ $date }} {{ __('emails.layout.timezone') }}</x-email.detail>
+        @if ($notes)
+            <x-email.detail :label="__('emails.appointments.scheduled.employee_notes')">{{ MailText::inline($notes, MailText::ACCENT) }}</x-email.detail>
+        @endif
+        @if ($meetingUrl)
+            <x-email.detail :label="__('emails.appointments.scheduled.meeting_link')" :href="$meetingUrl" highlight>{{ $meetingUrl }}</x-email.detail>
+        @endif
+    </x-email.details>
 
-<x-mail::panel>
-**{{ __('emails.appointments.scheduled.date_time') }}** {{ $appointmentAt->format('d/m/Y \à\s H:i') }}
-
-@if($meetingUrl)
-**{{ __('emails.appointments.scheduled.meeting_link') }}** [{{ __('emails.appointments.scheduled.meeting_link_label') }}]({{ $meetingUrl }})
-@endif
-
-@if($notes)
-**{{ __('emails.appointments.scheduled.employee_notes') }}**
-{{ $notes }}
-@endif
-</x-mail::panel>
-
-{{ __('emails.appointments.scheduled.panel_description') }}
-
-<x-mail::button :url="$panelUrl">
-{{ __('emails.appointments.scheduled.button') }}
-</x-mail::button>
-
-{{ __('emails.appointments.scheduled.thanks') }},<br>
-{{ config('app.name') }}
-</x-mail::message>
+    <x-email.text :top="12">{{ __('emails.appointments.scheduled.panel_description') }}</x-email.text>
+    <x-email.button :url="$panelUrl">{{ __('emails.appointments.scheduled.button') }}</x-email.button>
+</x-email.layout>

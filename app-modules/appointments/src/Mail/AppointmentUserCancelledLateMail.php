@@ -31,7 +31,7 @@ class AppointmentUserCancelledLateMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.appointments.cancelled-late',
+            view: 'emails.appointments.cancelled-late',
             with: [
                 'userName' => $this->appointment->user->name,
                 'consultantName' => $this->appointment->consultant->name ?? __('appointments::mail.no_consultant'),

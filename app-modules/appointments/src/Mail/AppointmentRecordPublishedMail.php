@@ -35,7 +35,7 @@ final class AppointmentRecordPublishedMail extends Mailable implements ShouldQue
         $this->record->loadMissing(['appointment.company', 'appointment.consultant', 'appointment.user']);
 
         return new Content(
-            markdown: 'appointments::mail.record-published',
+            view: 'appointments::mail.record-published',
             with: [
                 'record' => $this->record,
                 'url' => route('filament.app.resources.appointments.index', ['tenant' => $this->record->appointment->company]),

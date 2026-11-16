@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\DTOs\ImportUsersResultDTO;
+use TresPontosTech\User\Events\UserImported;
 use TresPontosTech\User\Mail\WelcomeUserMail;
 use TresPontosTech\User\Support\EmailAddress;
 
@@ -81,6 +82,15 @@ class PersistImportedUsersAction
                             Mail::to($user->email)->queue(new WelcomeUserMail($user, $passwordsByUserId[$user->id]));
                         } catch (\Throwable $throwable) {
                             Log::warning('Failed to queue welcome email', [
+                                'user_id' => $user->id,
+                                'error' => $throwable->getMessage(),
+                            ]);
+                        }
+
+                        try {
+                            event(new UserImported($user));
+                        } catch (\Throwable $throwable) {
+                            Log::warning('Failed to handle imported user', [
                                 'user_id' => $user->id,
                                 'error' => $throwable->getMessage(),
                             ]);
