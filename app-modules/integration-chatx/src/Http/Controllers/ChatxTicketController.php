@@ -8,6 +8,7 @@ use App\Enums\InboundWebhookSourceEnum;
 use Basement\Webhooks\Actions\StoreInboundWebhook;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\IntegrationChatx\Actions\OpenTicketFromChatx;
 use TresPontosTech\IntegrationChatx\DTO\ChatxTicketDTO;
@@ -23,8 +24,9 @@ use TresPontosTech\IntegrationChatx\Http\Requests\OpenTicketRequest;
  * exists yet if the work is deferred. The expensive part — routing the ticket to
  * its sector, e-mail and Monday — is still queued, inside CreateSupportTicketAction.
  *
- * The stored delivery drops the CPF and phone: it is kept only for debugging and
- * should not hold identity documents.
+ * The stored delivery masks the CPF and phone, keeping only their last digits: it is
+ * kept for debugging, where telling two deliveries apart is enough, and should not
+ * hold identity documents.
  */
 final class ChatxTicketController
 {
@@ -37,7 +39,7 @@ final class ChatxTicketController
             source: InboundWebhookSourceEnum::Chatx,
             event: is_string($payload['event'] ?? null) ? $payload['event'] : 'unknown',
             url: $request->url(),
-            payload: Arr::except($payload, ['visitor.document', 'visitor.phone']),
+            payload: $this->masked($payload),
         );
 
         $dto = ChatxTicketDTO::fromArray($payload);
@@ -49,5 +51,22 @@ final class ChatxTicketController
             'protocol' => $ticket->protocol,
             'external_reference' => $dto->externalReference,
         ], $created ? Response::HTTP_CREATED : Response::HTTP_OK);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    private function masked(array $payload): array
+    {
+        foreach (['visitor.document' => 2, 'visitor.phone' => 4] as $key => $visible) {
+            $value = Arr::get($payload, $key);
+
+            if (is_string($value) && $value !== '') {
+                Arr::set($payload, $key, Str::mask($value, '*', 0, max(0, mb_strlen($value) - $visible)));
+            }
+        }
+
+        return $payload;
     }
 }

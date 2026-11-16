@@ -239,13 +239,14 @@ it('logs the payload for the webhook panel', function (): void {
     expect(DB::table('inbound_webhooks')->where('source', 'chatx')->count())->toBe(1);
 });
 
-it('keeps the CPF and phone out of the stored delivery', function (): void {
+it('masks the CPF and phone in the stored delivery', function (): void {
     registeredRequester();
 
     postIntake(intakePayload())->assertCreated();
 
     $stored = json_decode((string) DB::table('inbound_webhooks')->where('source', 'chatx')->value('payload'), true);
 
-    expect($stored['visitor'])->not->toHaveKeys(['document', 'phone'])
+    expect($stored['visitor']['document'])->toBe('*********05')
+        ->and($stored['visitor']['phone'])->toBe('**********9999')
         ->and($stored['visitor']['email'])->toBe('joao.silva@empresa.com');
 });
