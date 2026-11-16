@@ -204,6 +204,23 @@ it('answers a schema error with JSON even when ChatX sends no Accept header', fu
         ->assertJsonValidationErrorFor('ticket.subject');
 });
 
+it('ignores query parameters on a signed body sent without a JSON content type', function (): void {
+    registeredRequester();
+    registeredRequester('victim@example.com', '11144477735');
+
+    $body = json_encode(intakePayload(), JSON_THROW_ON_ERROR);
+    $timestamp = now()->toIso8601ZuluString();
+    $query = http_build_query(intakePayload(['visitor' => ['email' => 'victim@example.com', 'document' => '11144477735']]));
+
+    test()->call('POST', '/webhooks/chatx?' . $query, [], [], [], [
+        'CONTENT_TYPE' => 'text/plain',
+        'HTTP_X_TIMESTAMP' => $timestamp,
+        'HTTP_X_SIGNATURE' => hash_hmac('sha256', $timestamp . $body, INTAKE_SECRET),
+    ], $body)->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+    assertDatabaseCount(SupportTicket::class, 0);
+});
+
 it('rejects an event it does not handle', function (): void {
     registeredRequester();
 

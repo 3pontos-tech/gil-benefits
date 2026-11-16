@@ -224,4 +224,14 @@ describe('send', function (): void {
         'no url' => 'chatx.status_webhook.url',
         'no token' => 'chatx.status_webhook.token',
     ]);
+
+    it('skips without calling ChatX when the webhook URL is not https', function (): void {
+        Http::fake();
+        config()->set('chatx.status_webhook.url', 'http://chatx.test/status');
+
+        $result = chatxChannel()->send(chatxNotification());
+
+        expect($result->status)->toBe(TicketNotificationStatusEnum::Skipped);
+        Http::assertNothingSent();
+    });
 });

@@ -47,6 +47,24 @@ final class OpenTicketRequest extends FormRequest
     }
 
     /**
+     * Only the JSON body is covered by the signature, so only the JSON body is read.
+     * Laravel's default input also merges the query string, and with a non-JSON
+     * Content-Type it reads nothing from the body at all: a replayed signed delivery
+     * could then carry a ticket built entirely from unsigned query parameters.
+     *
+     * @return array<string, mixed>
+     */
+    public function validationData(): array
+    {
+        if (! $this->isJson()) {
+            return [];
+        }
+
+        /** @var array<string, mixed> */
+        return $this->json()->all();
+    }
+
+    /**
      * ChatX sends no `Accept: application/json`, so the default handling would answer
      * a schema error with a 302 redirect instead of the 422 the contract promises.
      */

@@ -136,6 +136,16 @@ describe('queueing', function (): void {
 
         Queue::assertPushed(SendTicketNotificationJob::class, 1);
     });
+
+    it('puts the notification back to failed when it cannot be queued', function (): void {
+        config()->set('queue.default', 'missing-connection');
+        $notification = SupportTicketNotification::factory()->failed()->create();
+
+        expect(fn () => resolve(ResendTicketNotificationAction::class)->execute($notification))
+            ->toThrow(InvalidArgumentException::class);
+
+        expect($notification->refresh()->status)->toBe(TicketNotificationStatusEnum::Failed);
+    });
 });
 
 describe('sending', function (): void {

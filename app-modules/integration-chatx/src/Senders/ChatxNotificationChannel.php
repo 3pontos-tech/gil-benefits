@@ -35,7 +35,7 @@ final readonly class ChatxNotificationChannel implements TicketNotificationChann
     public function send(SupportTicketNotification $notification): TicketNotificationResult
     {
         if (! $this->client->isConfigured()) {
-            return TicketNotificationResult::skipped('CHATX_STATUS_WEBHOOK_URL or CHATX_STATUS_WEBHOOK_TOKEN is not set.');
+            return TicketNotificationResult::skipped('CHATX_STATUS_WEBHOOK_URL (https) or CHATX_STATUS_WEBHOOK_TOKEN is not set.');
         }
 
         try {

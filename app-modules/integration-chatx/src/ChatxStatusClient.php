@@ -10,9 +10,14 @@ use Illuminate\Support\Facades\Http;
 
 final class ChatxStatusClient
 {
+    /**
+     * Only an https URL counts: the bearer token and the customer's contact data go
+     * in this request, and an http URL set by mistake would send them in clear text.
+     */
     public function isConfigured(): bool
     {
-        return filled(config('chatx.status_webhook.url')) && filled(config('chatx.status_webhook.token'));
+        return str_starts_with((string) config('chatx.status_webhook.url'), 'https://')
+            && filled(config('chatx.status_webhook.token'));
     }
 
     /**
