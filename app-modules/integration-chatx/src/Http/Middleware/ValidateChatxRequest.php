@@ -8,6 +8,7 @@ use Carbon\CarbonImmutable;
 use Carbon\Exceptions\InvalidFormatException;
 use Closure;
 use Illuminate\Http\Request;
+use JsonException;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -98,8 +99,32 @@ final class ValidateChatxRequest
      */
     private function isSigned(Request $request, string $timestamp, string $signature, string $secret): bool
     {
-        $expected = hash_hmac('sha256', $timestamp . $request->getContent(), $secret);
+        foreach ([$request->getContent(), $this->unescapedBody($request->getContent())] as $body) {
+            if ($body !== null && hash_equals(hash_hmac('sha256', $timestamp . $body, $secret), $signature)) {
+                return true;
+            }
+        }
 
-        return hash_equals($expected, $signature);
+        return false;
+    }
+
+    /**
+     * Workaround for a ChatX bug: they sign the JSON with unicode and slashes unescaped
+     * (`ã`, `/`) but send it escaped (`ã`, `\/`), so any accented text fails the
+     * raw-body check. Re-encoding that way reproduces the bytes they signed; it still
+     * needs the secret, so it does not weaken the gate. Remove once ChatX signs what
+     * they send.
+     *
+     * Decoded as objects, not arrays, so an empty `{}` stays `{}` instead of `[]`.
+     */
+    private function unescapedBody(string $rawBody): ?string
+    {
+        try {
+            $decoded = json_decode($rawBody, flags: JSON_THROW_ON_ERROR);
+
+            return json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            return null;
+        }
     }
 }

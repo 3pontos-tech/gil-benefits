@@ -18,8 +18,6 @@ use function Pest\Laravel\assertDatabaseCount;
 const INTAKE_SECRET = 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2';
 
 beforeEach(function (): void {
-    $this->markTestSkipped('ChatX webhook is in log-only mode while the contract is under discovery.');
-
     config()->set('chatx.webhook_secret', INTAKE_SECRET);
     config()->set('chatx.allowed_ips', []);
     Mail::fake();
@@ -53,17 +51,17 @@ function intakePayload(array $overrides = []): array
 /**
  * @param  array<string, mixed>  $payload
  */
-function postIntake(array $payload): TestResponse
+function postIntake(array $payload, bool $acceptJson = true): TestResponse
 {
     $body = json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $timestamp = now()->toIso8601ZuluString();
 
-    return test()->call('POST', '/webhooks/chatx', [], [], [], [
+    return test()->call('POST', '/webhooks/chatx', [], [], [], array_filter([
         'CONTENT_TYPE' => 'application/json',
-        'HTTP_ACCEPT' => 'application/json',
+        'HTTP_ACCEPT' => $acceptJson ? 'application/json' : null,
         'HTTP_X_TIMESTAMP' => $timestamp,
         'HTTP_X_SIGNATURE' => hash_hmac('sha256', $timestamp . $body, INTAKE_SECRET),
-    ], $body);
+    ]), $body);
 }
 
 function registeredRequester(string $email = 'joao.silva@empresa.com', string $taxId = '39053344705'): User
@@ -187,6 +185,14 @@ it('rejects a payload missing a required field, naming it', function (): void {
     // Schema errors do name the field — that is what lets ChatX debug. Only the
     // identity failure stays vague.
     postIntake(intakePayload(['ticket' => ['subject' => null]]))
+        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonValidationErrorFor('ticket.subject');
+});
+
+it('answers a schema error with JSON even when ChatX sends no Accept header', function (): void {
+    registeredRequester();
+
+    postIntake(intakePayload(['ticket' => ['subject' => null]]), acceptJson: false)
         ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
         ->assertJsonValidationErrorFor('ticket.subject');
 });
