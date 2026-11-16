@@ -25,6 +25,9 @@ return [
     // Agreed with ChatX at 10 minutes.
     'timestamp_tolerance' => (int) env('CHATX_TIMESTAMP_TOLERANCE', 600),
 
+    // Stored deliveries hold personal data and exist only for debugging.
+    'inbound_webhook_retention_days' => (int) env('CHATX_INBOUND_WEBHOOK_RETENTION_DAYS', 90),
+
     'status_webhook' => [
         'url' => env('CHATX_STATUS_WEBHOOK_URL'),
         'token' => env('CHATX_STATUS_WEBHOOK_TOKEN'),

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace TresPontosTech\IntegrationChatx\Providers;
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
 use TresPontosTech\IntegrationChatx\ChatxStatusClient;
+use TresPontosTech\IntegrationChatx\Console\Commands\PruneChatxInboundWebhooksCommand;
 use TresPontosTech\IntegrationChatx\Senders\ChatxNotificationChannel;
 use TresPontosTech\Support\Contracts\TicketNotificationChannel;
 use TresPontosTech\Support\Enums\TicketNotificationChannelEnum;
@@ -24,6 +26,15 @@ class IntegrationChatxServiceProvider extends ServiceProvider
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'integration-chatx');
 
         $this->registerNotificationChannel();
+
+        $this->commands([PruneChatxInboundWebhooksCommand::class]);
+
+        $this->app->booted(function (): void {
+            $this->app->make(Schedule::class)
+                ->command('chatx:prune-inbound-webhooks')
+                ->daily()
+                ->withoutOverlapping();
+        });
     }
 
     /**

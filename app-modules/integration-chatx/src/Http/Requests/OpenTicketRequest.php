@@ -35,7 +35,7 @@ final class OpenTicketRequest extends FormRequest
             'visitor' => ['required', 'array'],
             'visitor.name' => ['required', 'string', 'max:255'],
             'visitor.email' => ['required', 'string', 'email', 'max:255'],
-            'visitor.document' => ['nullable', 'string', 'max:20'],
+            'visitor.document' => ['required', 'string', 'max:20'],
             'visitor.phone' => ['nullable', 'string', 'max:20'],
             'visitor.company_name' => ['nullable', 'string', 'max:255'],
 

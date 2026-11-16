@@ -37,6 +37,7 @@ function intakePayload(array $overrides = []): array
         'visitor' => [
             'name' => 'João da Silva',
             'email' => 'joao.silva@empresa.com',
+            'document' => '39053344705',
             'phone' => '+5511999999999',
             'company_name' => 'Empresa XYZ Ltda',
         ],
@@ -136,11 +137,17 @@ it('refuses a CPF that belongs to somebody else', function (): void {
     assertDatabaseCount(SupportTicket::class, 0);
 });
 
-it('ignores the CPF check when ChatX does not send one', function (): void {
-    // They have not shipped visitor.document yet, so e-mail alone must still work.
+it('refuses a request without a CPF, since e-mail alone is easy to guess', function (): void {
     registeredRequester();
 
-    postIntake(intakePayload())->assertCreated();
+    $payload = intakePayload();
+    unset($payload['visitor']['document']);
+
+    postIntake($payload)
+        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonValidationErrorFor('visitor.document');
+
+    assertDatabaseCount(SupportTicket::class, 0);
 });
 
 it('returns the ticket that already exists when a reference repeats', function (): void {
@@ -213,4 +220,15 @@ it('logs the payload for the webhook panel', function (): void {
     postIntake(intakePayload())->assertCreated();
 
     expect(DB::table('inbound_webhooks')->where('source', 'chatx')->count())->toBe(1);
+});
+
+it('keeps the CPF and phone out of the stored delivery', function (): void {
+    registeredRequester();
+
+    postIntake(intakePayload())->assertCreated();
+
+    $stored = json_decode((string) DB::table('inbound_webhooks')->where('source', 'chatx')->value('payload'), true);
+
+    expect($stored['visitor'])->not->toHaveKeys(['document', 'phone'])
+        ->and($stored['visitor']['email'])->toBe('joao.silva@empresa.com');
 });
