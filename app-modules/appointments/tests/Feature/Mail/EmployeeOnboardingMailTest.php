@@ -1,8 +1,22 @@
 <?php
 
 use App\Models\Users\User;
+use Illuminate\Support\Facades\Date;
 use TresPontosTech\Appointments\Mail\EmployeeOnboardingMail;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Permissions\Roles;
+
+use function Pest\Laravel\travelTo;
+
+function onboardingEmployeeOf(Company $company): User
+{
+    $user = User::factory()->create();
+    $company->employees()->attach($user->getKey(), ['role' => Roles::Employee->value]);
+
+    return $user;
+}
 
 describe('EmployeeOnboardingMail', function (): void {
     it('goes to the emails queue after the commit', function (): void {
@@ -10,6 +24,35 @@ describe('EmployeeOnboardingMail', function (): void {
 
         expect($mail->queue)->toBe('emails')
             ->and($mail->afterCommit)->toBeTrue();
+    });
+
+    it('waits five minutes, so the welcome email arrives first', function (): void {
+        travelTo('2026-11-16 10:00:00');
+
+        $mail = new EmployeeOnboardingMail(User::factory()->create(), hasTemporaryPassword: true);
+
+        expect($mail->delay)->toEqual(Date::parse('2026-11-16 10:05:00'));
+    });
+
+    it('asks whoever still needs a plan to choose one, without promising access', function (): void {
+        $user = onboardingEmployeeOf(Company::factory()->create(['slug' => Company::DEFAULT_SLUG]));
+
+        $mail = new EmployeeOnboardingMail($user, hasTemporaryPassword: false);
+
+        $mail->assertSeeInHtml('Falta só escolher o seu plano');
+        $mail->assertSeeInHtml('Na primeira entrada, a plataforma mostra os planos. Escolha o seu para liberar o agendamento.');
+        $mail->assertDontSeeInHtml('agora você tem acesso');
+    });
+
+    it('promises access to an employee whose company has a contract', function (): void {
+        $company = Company::factory()->create();
+        CompanyPlan::factory()->active()->create(['company_id' => $company->getKey()]);
+
+        $mail = new EmployeeOnboardingMail(onboardingEmployeeOf($company), hasTemporaryPassword: true);
+
+        $mail->assertSeeInHtml('agora você tem acesso a sessões individuais');
+        $mail->assertDontSeeInHtml('escolher o seu plano');
+        $mail->assertDontSeeInHtml('a plataforma mostra os planos');
     });
 
     it('has the onboarding subject', function (): void {

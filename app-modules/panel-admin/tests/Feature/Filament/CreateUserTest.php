@@ -2,6 +2,7 @@
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
+use TresPontosTech\Appointments\Mail\EmployeeOnboardingMail;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\CreateUser;
 use TresPontosTech\User\Mail\WelcomeUserMail;
 
@@ -36,4 +37,28 @@ it('creates a user and queues the welcome email with the typed password', functi
         fn (WelcomeUserMail $mail): bool => $mail->hasTo('novo@user.com')
             && $mail->password === 'senha-temporaria',
     );
+});
+
+it('also queues the onboarding, which asks for a plan because the new user has none yet', function (): void {
+    Mail::fake();
+
+    livewire(CreateUser::class)
+        ->fillForm([
+            'name' => 'Nova Pessoa',
+            'email' => 'nova@pessoa.com',
+            'password' => 'senha-temporaria',
+            'detail' => [
+                'tax_id' => '976.923.250-57',
+                'document_id' => '12.345.678-9',
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    Mail::assertQueued(
+        EmployeeOnboardingMail::class,
+        fn (EmployeeOnboardingMail $mail): bool => $mail->hasTo('nova@pessoa.com') && $mail->hasTemporaryPassword,
+    );
+    Mail::queued(EmployeeOnboardingMail::class)->sole()
+        ->assertSeeInHtml('Escolha o seu para liberar o agendamento.');
 });

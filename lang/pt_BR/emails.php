@@ -8,7 +8,7 @@ return [
         'signature' => 'Equipe :app',
         'support_signature' => 'Equipe de Atendimento :app',
         'tagline' => 'Saúde financeira também é saúde corporativa.',
-        'reply' => 'Ficou com alguma dúvida? É só responder este e-mail.',
+        'reply' => 'Ficou com alguma dúvida? Fale com a gente em **Suporte**, na plataforma.',
         'timezone' => '(horário de Brasília)',
     ],
     'appointments' => [
@@ -45,7 +45,7 @@ return [
             'body' => 'Sua consulta com **:consultant**, realizada em **:date**, foi concluída com sucesso.',
             'feedback' => 'Esperamos que a sessão tenha sido útil para você. Se quiser deixar um feedback sobre o atendimento, acesse a plataforma.',
             'button' => 'Avaliar consulta',
-            'help' => 'Se tiver alguma dúvida ou quiser agendar uma nova sessão, é só responder este e-mail.',
+            'help' => 'Se tiver alguma dúvida, fale com a gente em **Suporte**, na plataforma. Por lá você também agenda uma nova sessão.',
         ],
         'cancelled' => [
             'preheader' => 'Sua consulta com :consultant de :date foi cancelada.',
@@ -57,7 +57,7 @@ return [
             'reschedule_light' => 'remarcar?',
             'reschedule' => 'Se o cancelamento foi feito por engano ou se você quiser uma nova data, é só agendar uma nova sessão pela plataforma.',
             'button' => 'Agendar nova sessão',
-            'support' => 'Se tiver dúvidas sobre o cancelamento, é só responder este e-mail.',
+            'support' => 'Se tiver dúvidas sobre o cancelamento, fale com a gente em **Suporte**, na plataforma.',
         ],
         'cancelled_late' => [
             'preheader' => 'Sua consulta de :date foi cancelada fora do prazo.',
@@ -72,7 +72,7 @@ return [
             'reschedule_label' => 'Nova sessão:',
             'reschedule' => 'se você ainda tiver créditos, pode agendar uma nova sessão pela plataforma.',
             'button' => 'Acessar a plataforma',
-            'support' => 'Se tiver dúvidas, é só responder este e-mail.',
+            'support' => 'Se tiver dúvidas, fale com a gente em **Suporte**, na plataforma.',
         ],
         'consultant_unassigned' => [
             'preheader' => 'A consulta com :name foi removida da sua agenda.',
@@ -90,6 +90,7 @@ return [
             'heading_2' => 'ao :app,',
             'heading_3' => ':name!',
             'intro' => 'Seu cadastro já está feito, e agora você tem acesso a sessões individuais com consultores financeiros especializados.',
+            'intro_needs_plan' => 'Seu cadastro já está feito. Falta só escolher o seu plano para ter sessões individuais com consultores financeiros especializados.',
             'steps_intro' => 'Veja como marcar sua primeira sessão. São 3 etapas e leva menos de 5 minutos.',
             'step' => 'Etapa :number',
             'step_1_light' => 'Acesse',
@@ -99,6 +100,7 @@ return [
             'step_1_login_temporary' => 'Na tela de login, informe seu e-mail e a senha temporária e clique em **Login**. Recomendamos trocar a senha depois do primeiro acesso.',
             'step_1_open_platform' => 'Clique em **Acessar o :app**, no fim deste e-mail, para abrir a plataforma.',
             'step_1_login_own' => 'Na tela de login, informe o e-mail e a senha que você cadastrou e clique em **Login**.',
+            'step_1_choose_plan' => 'Na primeira entrada, a plataforma mostra os planos. Escolha o seu para liberar o agendamento.',
             'step_1_image' => 'Tela de login do :app',
             'step_2_light' => 'Conte um pouco',
             'step_2_bold' => 'sobre você',

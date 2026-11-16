@@ -12,17 +12,25 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 use TresPontosTech\Appointments\Models\Appointment;
+use TresPontosTech\Billing\Core\Actions\ResolveBenefitAccess;
+use TresPontosTech\Billing\Core\Enums\BenefitAccessEnum;
+use TresPontosTech\Company\Models\Company;
 
 /**
- * O passo a passo até a primeira consultoria, enviado ao colaborador logo depois das boas-vindas
- * (FLM-107). As boas-vindas entregam o acesso; este e-mail conduz o colaborador até o agendamento.
- * Os prazos citados saem das mesmas constantes que o agendamento usa, para o texto não mentir
- * quando a regra mudar.
+ * O passo a passo até a primeira consultoria (FLM-107). As boas-vindas entregam o acesso; este
+ * e-mail conduz o colaborador até o agendamento. Os prazos citados saem das mesmas constantes que
+ * o agendamento usa, para o texto não mentir quando a regra mudar.
  */
 class EmployeeOnboardingMail extends Mailable implements ShouldQueue
 {
     use Queueable;
     use SerializesModels;
+
+    /**
+     * O listener do onboarding roda antes do de boas-vindas, e a etapa 1 manda procurar as
+     * boas-vindas: a espera garante que elas cheguem primeiro, por qualquer porta de entrada.
+     */
+    public const int DELAY_MINUTES = 5;
 
     /**
      * @param  bool  $hasTemporaryPassword  a empresa ou a importação criou a senha, que chegou nas
@@ -32,7 +40,7 @@ class EmployeeOnboardingMail extends Mailable implements ShouldQueue
         public readonly User $user,
         public readonly bool $hasTemporaryPassword,
     ) {
-        $this->onQueue('emails')->afterCommit();
+        $this->onQueue('emails')->afterCommit()->delay(now()->addMinutes(self::DELAY_MINUTES));
     }
 
     public function envelope(): Envelope
@@ -49,6 +57,7 @@ class EmployeeOnboardingMail extends Mailable implements ShouldQueue
             with: [
                 'userName' => $this->user->name,
                 'hasTemporaryPassword' => $this->hasTemporaryPassword,
+                'needsPlan' => $this->needsPlan(),
                 'welcomeSubject' => __('user::mail.welcome.subject', ['app_name' => config('app.name')]),
                 'loginUrl' => route('filament.app.auth.login'),
                 'bookingLeadDays' => Appointment::BOOKING_LEAD_DAYS,
@@ -56,5 +65,19 @@ class EmployeeOnboardingMail extends Mailable implements ShouldQueue
                 'rescheduleHours' => Appointment::RESCHEDULE_WINDOW_HOURS,
             ],
         );
+    }
+
+    /**
+     * Quem ainda precisa de plano cai na vitrine no primeiro acesso, então o texto não promete
+     * acesso e a etapa 1 avisa da escolha. A pergunta é feita no envio, e não na criação: o voucher
+     * do cadastro só é resgatado depois do UserRegistered, e quem assina durante a espera já
+     * recebe o texto de quem tem plano.
+     */
+    private function needsPlan(): bool
+    {
+        $company = Company::query()->find($this->user->employerCompanyId());
+
+        return $company instanceof Company
+            && resolve(ResolveBenefitAccess::class)->for($this->user, $company) === BenefitAccessEnum::PersonalPlanRequired;
     }
 }

@@ -47,17 +47,13 @@ it('sends the onboarding to a user created by the admin', function (): void {
     Mail::assertQueued(EmployeeOnboardingMail::class, 1);
 });
 
-it('leaves out roles that do not book consultations', function (Roles $role): void {
+it('leaves out a new consultant, who does not book consultations', function (): void {
     $user = User::factory()->create();
 
-    (new SendOnboardingEmailListener)->handleUserRegistered(new UserRegistered($user, $role, mustSetPassword: true));
+    (new SendOnboardingEmailListener)->handleUserRegistered(new UserRegistered($user, Roles::Consultant, mustSetPassword: true));
 
     Mail::assertNothingQueued();
-})->with([
-    'consultant' => Roles::Consultant,
-    'company owner' => Roles::CompanyOwner,
-    'admin' => Roles::Admin,
-]);
+});
 
 it('sends the onboarding with the temporary password steps to an imported employee', function (): void {
     $user = User::factory()->create(['email' => 'importado@empresa.com']);

@@ -8,7 +8,7 @@ return [
         'signature' => 'The :app Team',
         'support_signature' => 'The :app Support Team',
         'tagline' => 'Financial health is corporate health too.',
-        'reply' => 'Any questions? Just reply to this email.',
+        'reply' => 'Any questions? Reach us under **Support** on the platform.',
         'timezone' => '(Brasília time)',
     ],
     'appointments' => [
@@ -45,7 +45,7 @@ return [
             'body' => 'Your appointment with **:consultant**, held on **:date**, was successfully completed.',
             'feedback' => "We hope the session was helpful. If you'd like to leave feedback about the service, access the platform.",
             'button' => 'Rate appointment',
-            'help' => 'If you have any questions or want to book a new session, just reply to this email.',
+            'help' => 'If you have any questions, reach us under **Support** on the platform. You can book a new session there too.',
         ],
         'cancelled' => [
             'preheader' => 'Your appointment with :consultant on :date was cancelled.',
@@ -57,7 +57,7 @@ return [
             'reschedule_light' => 'reschedule?',
             'reschedule' => 'If the cancellation was a mistake or you would like a new date, just book a new session on the platform.',
             'button' => 'Book a new session',
-            'support' => 'If you have questions about the cancellation, just reply to this email.',
+            'support' => 'If you have questions about the cancellation, reach us under **Support** on the platform.',
         ],
         'cancelled_late' => [
             'preheader' => 'Your appointment on :date was cancelled after the deadline.',
@@ -72,7 +72,7 @@ return [
             'reschedule_label' => 'New session:',
             'reschedule' => 'if you still have credits, you can book a new session on the platform.',
             'button' => 'Access the platform',
-            'support' => 'If you have any questions, just reply to this email.',
+            'support' => 'If you have any questions, reach us under **Support** on the platform.',
         ],
         'consultant_unassigned' => [
             'preheader' => 'The appointment with :name was removed from your agenda.',
@@ -90,6 +90,7 @@ return [
             'heading_2' => 'to :app,',
             'heading_3' => ':name!',
             'intro' => 'Your registration is done, and you now have access to one-on-one sessions with specialized financial consultants.',
+            'intro_needs_plan' => 'Your registration is done. All that is left is choosing your plan to get one-on-one sessions with specialized financial consultants.',
             'steps_intro' => 'Here is how to book your first session. It takes 3 steps and less than 5 minutes.',
             'step' => 'Step :number',
             'step_1_light' => 'Access',
@@ -99,6 +100,7 @@ return [
             'step_1_login_temporary' => 'On the login screen, enter your email and the temporary password and click **Login**. We recommend changing your password after the first login.',
             'step_1_open_platform' => 'Click **Access :app**, at the end of this email, to open the platform.',
             'step_1_login_own' => 'On the login screen, enter the email and password you registered with and click **Login**.',
+            'step_1_choose_plan' => 'On your first login, the platform shows the plans. Choose yours to unlock booking.',
             'step_1_image' => ':app login screen',
             'step_2_light' => 'Tell us a little',
             'step_2_bold' => 'about yourself',
