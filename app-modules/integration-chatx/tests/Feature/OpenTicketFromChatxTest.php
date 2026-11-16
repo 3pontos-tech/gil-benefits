@@ -18,8 +18,6 @@ use function Pest\Laravel\assertDatabaseCount;
 const INTAKE_SECRET = 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2';
 
 beforeEach(function (): void {
-    $this->markTestSkipped('ChatX webhook is in log-only mode while the contract is under discovery.');
-
     config()->set('chatx.webhook_secret', INTAKE_SECRET);
     config()->set('chatx.allowed_ips', []);
     Mail::fake();
@@ -39,6 +37,7 @@ function intakePayload(array $overrides = []): array
         'visitor' => [
             'name' => 'João da Silva',
             'email' => 'joao.silva@empresa.com',
+            'document' => '39053344705',
             'phone' => '+5511999999999',
             'company_name' => 'Empresa XYZ Ltda',
         ],
@@ -53,17 +52,17 @@ function intakePayload(array $overrides = []): array
 /**
  * @param  array<string, mixed>  $payload
  */
-function postIntake(array $payload): TestResponse
+function postIntake(array $payload, bool $acceptJson = true): TestResponse
 {
     $body = json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $timestamp = now()->toIso8601ZuluString();
 
-    return test()->call('POST', '/webhooks/chatx', [], [], [], [
+    return test()->call('POST', '/webhooks/chatx', [], [], [], array_filter([
         'CONTENT_TYPE' => 'application/json',
-        'HTTP_ACCEPT' => 'application/json',
+        'HTTP_ACCEPT' => $acceptJson ? 'application/json' : null,
         'HTTP_X_TIMESTAMP' => $timestamp,
         'HTTP_X_SIGNATURE' => hash_hmac('sha256', $timestamp . $body, INTAKE_SECRET),
-    ], $body);
+    ]), $body);
 }
 
 function registeredRequester(string $email = 'joao.silva@empresa.com', string $taxId = '39053344705'): User
@@ -138,11 +137,17 @@ it('refuses a CPF that belongs to somebody else', function (): void {
     assertDatabaseCount(SupportTicket::class, 0);
 });
 
-it('ignores the CPF check when ChatX does not send one', function (): void {
-    // They have not shipped visitor.document yet, so e-mail alone must still work.
+it('refuses a request without a CPF, since e-mail alone is easy to guess', function (): void {
     registeredRequester();
 
-    postIntake(intakePayload())->assertCreated();
+    $payload = intakePayload();
+    unset($payload['visitor']['document']);
+
+    postIntake($payload)
+        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonValidationErrorFor('visitor.document');
+
+    assertDatabaseCount(SupportTicket::class, 0);
 });
 
 it('returns the ticket that already exists when a reference repeats', function (): void {
@@ -191,6 +196,31 @@ it('rejects a payload missing a required field, naming it', function (): void {
         ->assertJsonValidationErrorFor('ticket.subject');
 });
 
+it('answers a schema error with JSON even when ChatX sends no Accept header', function (): void {
+    registeredRequester();
+
+    postIntake(intakePayload(['ticket' => ['subject' => null]]), acceptJson: false)
+        ->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY)
+        ->assertJsonValidationErrorFor('ticket.subject');
+});
+
+it('ignores query parameters on a signed body sent without a JSON content type', function (): void {
+    registeredRequester();
+    registeredRequester('victim@example.com', '11144477735');
+
+    $body = json_encode(intakePayload(), JSON_THROW_ON_ERROR);
+    $timestamp = now()->toIso8601ZuluString();
+    $query = http_build_query(intakePayload(['visitor' => ['email' => 'victim@example.com', 'document' => '11144477735']]));
+
+    test()->call('POST', '/webhooks/chatx?' . $query, [], [], [], [
+        'CONTENT_TYPE' => 'text/plain',
+        'HTTP_X_TIMESTAMP' => $timestamp,
+        'HTTP_X_SIGNATURE' => hash_hmac('sha256', $timestamp . $body, INTAKE_SECRET),
+    ], $body)->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
+
+    assertDatabaseCount(SupportTicket::class, 0);
+});
+
 it('rejects an event it does not handle', function (): void {
     registeredRequester();
 
@@ -207,4 +237,16 @@ it('logs the payload for the webhook panel', function (): void {
     postIntake(intakePayload())->assertCreated();
 
     expect(DB::table('inbound_webhooks')->where('source', 'chatx')->count())->toBe(1);
+});
+
+it('masks the CPF and phone in the stored delivery', function (): void {
+    registeredRequester();
+
+    postIntake(intakePayload())->assertCreated();
+
+    $stored = json_decode((string) DB::table('inbound_webhooks')->where('source', 'chatx')->value('payload'), true);
+
+    expect($stored['visitor']['document'])->toBe('*********05')
+        ->and($stored['visitor']['phone'])->toBe('**********9999')
+        ->and($stored['visitor']['email'])->toBe('joao.silva@empresa.com');
 });

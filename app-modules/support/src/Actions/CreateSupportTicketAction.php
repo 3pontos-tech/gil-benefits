@@ -12,6 +12,7 @@ use Throwable;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\DTOs\TicketOriginDTO;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Events\SupportTicketCreated;
 use TresPontosTech\Support\Jobs\DispatchSupportTicketJob;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -39,6 +40,8 @@ class CreateSupportTicketAction
         }
 
         dispatch(new DispatchSupportTicketJob($ticket));
+
+        event(new SupportTicketCreated($ticket));
 
         return $ticket;
     }

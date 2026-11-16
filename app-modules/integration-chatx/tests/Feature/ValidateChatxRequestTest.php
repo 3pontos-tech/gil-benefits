@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 const CHATX_TEST_SECRET = 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2';
 
 beforeEach(function (): void {
-    $this->markTestSkipped('ChatX webhook is in log-only mode while the contract is under discovery.');
-
     config()->set('chatx.webhook_secret', CHATX_TEST_SECRET);
     config()->set('chatx.allowed_ips', []);
     config()->set('chatx.timestamp_tolerance', 600);
@@ -74,6 +72,46 @@ it('rejects a signature made with the wrong secret', function (): void {
     $body = chatxBody();
 
     postChatx($body, $timestamp, signChatx($timestamp, $body, 'not-the-secret'))->assertUnauthorized();
+});
+
+describe('signature over the unescaped body (ChatX bug)', function (): void {
+    it('accepts a body sent escaped but signed with unicode and slashes unescaped', function (): void {
+        $timestamp = now()->toIso8601ZuluString();
+        $payload = json_decode(chatxBody(), true);
+        $payload['ticket']['subject'] = 'Lentidão / Performance - Agendamento';
+
+        $sent = json_encode($payload, JSON_THROW_ON_ERROR);
+        $signed = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+
+        expect($sent)->toContain('\u00e3', '\/');
+
+        expect(postChatx($sent, $timestamp, signChatx($timestamp, $signed))->status())->not->toBe(Response::HTTP_UNAUTHORIZED);
+    });
+
+    it('keeps an empty object as an object when re-encoding', function (): void {
+        $timestamp = now()->toIso8601ZuluString();
+        $sent = '{"event":"ticket.created","subject":"A\u00e7\u00e3o","meta":{}}';
+
+        $signature = signChatx($timestamp, '{"event":"ticket.created","subject":"Ação","meta":{}}');
+
+        expect(postChatx($sent, $timestamp, $signature)->status())->not->toBe(Response::HTTP_UNAUTHORIZED);
+    });
+
+    it('still rejects a body altered after it was signed', function (): void {
+        $timestamp = now()->toIso8601ZuluString();
+        $payload = json_decode(chatxBody(), true);
+        $signature = signChatx($timestamp, json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR));
+
+        $payload['visitor']['email'] = 'atacante@empresa.com';
+
+        postChatx(json_encode($payload, JSON_THROW_ON_ERROR), $timestamp, $signature)->assertUnauthorized();
+    });
+
+    it('rejects a body that is not JSON', function (): void {
+        $timestamp = now()->toIso8601ZuluString();
+
+        postChatx('not json', $timestamp, signChatx($timestamp, 'other'))->assertUnauthorized();
+    });
 });
 
 it('rejects a request with no signature header', function (): void {
