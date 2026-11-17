@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
+use TresPontosTech\Support\DTOs\TicketOriginDTO;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Events\SupportTicketCreated;
 use TresPontosTech\Support\Jobs\DispatchSupportTicketJob;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -39,6 +41,8 @@ class CreateSupportTicketAction
 
         dispatch(new DispatchSupportTicketJob($ticket));
 
+        event(new SupportTicketCreated($ticket));
+
         return $ticket;
     }
 
@@ -48,6 +52,13 @@ class CreateSupportTicketAction
      * protocol; the UNIQUE constraint rejects the loser with 23505 and the retry reopens
      * the transaction, re-reads (now seeing the committed winning row) and takes the next
      * number.
+     *
+     * The origin row is written inside the same transaction so an integration-born
+     * ticket can never exist without the external reference that identifies it. Its
+     * UNIQUE is a last-resort guard: callers look the reference up before creating, so
+     * it only fires when two deliveries race. The loser then burns the retries (the
+     * duplicate cannot become insertable) and throws — which is the signal for the
+     * caller to re-read and answer with the ticket that won.
      */
     private function createWithProtocol(CreateSupportTicketDTO $dto): SupportTicket
     {
@@ -55,22 +66,34 @@ class CreateSupportTicketAction
 
         return retry(
             times: 5,
-            callback: fn (): SupportTicket => DB::transaction(fn (): SupportTicket => SupportTicket::query()->create([
-                'protocol' => $this->protocols->generate(),
-                'user_id' => $userId,
-                'company_id' => $dto->companyId,
-                'visitor_name' => $dto->visitorName,
-                'visitor_email' => $dto->visitorEmail,
-                'visitor_company_name' => $dto->visitorCompanyName,
-                'category' => $dto->category,
-                'subject' => $dto->subject,
-                'description' => $dto->description,
-                'status' => SupportTicketStatusEnum::Pending,
-                'url' => $dto->url,
-                'browser' => $dto->browser,
-                'device' => $dto->device,
-                'environment' => $dto->environment,
-            ])),
+            callback: fn (): SupportTicket => DB::transaction(function () use ($dto, $userId): SupportTicket {
+                $ticket = SupportTicket::query()->create([
+                    'protocol' => $this->protocols->generate(),
+                    'user_id' => $userId,
+                    'company_id' => $dto->companyId,
+                    'visitor_name' => $dto->visitorName,
+                    'visitor_email' => $dto->visitorEmail,
+                    'visitor_company_name' => $dto->visitorCompanyName,
+                    'category' => $dto->category,
+                    'subject' => $dto->subject,
+                    'description' => $dto->description,
+                    'status' => SupportTicketStatusEnum::Pending,
+                    'url' => $dto->url,
+                    'browser' => $dto->browser,
+                    'device' => $dto->device,
+                    'environment' => $dto->environment,
+                ]);
+
+                if ($dto->origin instanceof TicketOriginDTO) {
+                    $ticket->origin()->create([
+                        'source' => $dto->origin->source,
+                        'external_reference' => $dto->origin->externalReference,
+                        'contact_phone' => $dto->origin->contactPhone,
+                    ]);
+                }
+
+                return $ticket;
+            }),
             sleepMilliseconds: 20,
             when: static fn (Throwable $e): bool => $e instanceof QueryException
                 && (int) ($e->errorInfo[0] ?? 0) === 23505,

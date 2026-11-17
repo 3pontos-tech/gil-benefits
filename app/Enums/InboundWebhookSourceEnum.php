@@ -19,6 +19,7 @@ enum InboundWebhookSourceEnum: string implements HasColor, HasIcon, HasLabel, In
     case Barte = 'barte';
     case Monday = 'monday';
     case Virtu = 'virtu';
+    case Chatx = 'chatx';
 
     public function getLabel(): string
     {
@@ -28,6 +29,7 @@ enum InboundWebhookSourceEnum: string implements HasColor, HasIcon, HasLabel, In
             self::Barte => 'Barte',
             self::Monday => 'Monday',
             self::Virtu => 'Virtu',
+            self::Chatx => 'ChatX',
         };
     }
 
@@ -42,6 +44,7 @@ enum InboundWebhookSourceEnum: string implements HasColor, HasIcon, HasLabel, In
             self::Barte => Color::Amber,
             self::Monday => Color::Violet,
             self::Virtu => Color::Emerald,
+            self::Chatx => Color::Green,
         };
     }
 
@@ -53,6 +56,7 @@ enum InboundWebhookSourceEnum: string implements HasColor, HasIcon, HasLabel, In
             self::Barte => Heroicon::CreditCard,
             self::Monday => Heroicon::ClipboardDocumentList,
             self::Virtu => Heroicon::Banknotes,
+            self::Chatx => Heroicon::ChatBubbleLeftRight,
         };
     }
 }
