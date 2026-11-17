@@ -250,3 +250,58 @@ it('masks the CPF and phone in the stored delivery', function (): void {
         ->and($stored['visitor']['phone'])->toBe('**********9999')
         ->and($stored['visitor']['email'])->toBe('joao.silva@empresa.com');
 });
+
+describe('requester phone', function (): void {
+    it('records the number the ticket was opened from on its origin', function (): void {
+        registeredRequester();
+
+        postIntake(intakePayload(['visitor' => ['phone' => '5521988887777']]))->assertCreated();
+
+        expect(TicketOrigin::query()->sole()->contact_phone)->toBe('+5521988887777');
+    });
+
+    it('records the origin without a phone when ChatX sends none', function (): void {
+        registeredRequester();
+
+        postIntake(intakePayload(['visitor' => ['phone' => null]]))->assertCreated();
+
+        expect(TicketOrigin::query()->sole()->contact_phone)->toBeNull();
+    });
+
+    it('saves the WhatsApp number in E.164 when the account has no phone', function (string $sent): void {
+        $user = registeredRequester();
+        $user->detail->update(['phone_number' => null]);
+
+        postIntake(intakePayload(['visitor' => ['phone' => $sent]]))->assertCreated();
+
+        expect($user->detail->refresh()->phone_number)->toBe('+5511999999999');
+    })->with([
+        'with the country code' => '5511999999999',
+        'with plus and country code' => '+5511999999999',
+        'without the country code' => '(11) 99999-9999',
+        'with the 00 international prefix' => '005511999999999',
+    ]);
+
+    it('keeps the phone already on the account', function (): void {
+        $user = registeredRequester();
+        $user->detail->update(['phone_number' => '+5511988887777']);
+
+        postIntake(intakePayload())->assertCreated();
+
+        expect($user->detail->refresh()->phone_number)->toBe('+5511988887777');
+    });
+
+    it('saves no phone when the number is not a Brazilian phone', function (string $sent): void {
+        $user = registeredRequester();
+        $user->detail->update(['phone_number' => null]);
+
+        postIntake(intakePayload(['visitor' => ['phone' => $sent]]))->assertCreated();
+
+        expect($user->detail->refresh()->phone_number)->toBeNull()
+            ->and(TicketOrigin::query()->sole()->contact_phone)->toBeNull();
+    })->with([
+        'too short' => '12345',
+        'foreign, with plus' => '+1 (202) 555-0123',
+        'foreign, with 00' => '0012025550123',
+    ]);
+});

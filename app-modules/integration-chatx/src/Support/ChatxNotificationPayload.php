@@ -37,7 +37,7 @@ final class ChatxNotificationPayload
             'customer' => [
                 'client_id' => $ticket->user_id,
                 'name' => $ticket->getRequesterName(),
-                'phone' => $ticket->user?->detail?->phone_number,
+                'phone' => ChatxPhone::digits($ticket->origin->contact_phone ?? $ticket->user?->detail?->phone_number),
                 'email' => $ticket->getRequesterEmail(),
             ],
             'message' => $notification->message,

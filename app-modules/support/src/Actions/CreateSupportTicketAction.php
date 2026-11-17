@@ -88,6 +88,7 @@ class CreateSupportTicketAction
                     $ticket->origin()->create([
                         'source' => $dto->origin->source,
                         'external_reference' => $dto->origin->externalReference,
+                        'contact_phone' => $dto->origin->contactPhone,
                     ]);
                 }
 
