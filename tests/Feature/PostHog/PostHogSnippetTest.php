@@ -59,7 +59,8 @@ it('identifies the signed in user by the Flamma id with name and e-mail, after r
         ->assertOk()
         ->assertSeeInOrder([
             "posthog.register({ source: 'flamma' })",
-            'posthog.identify(' . Js::from($user->getKey())->toHtml() . ', ' . Js::from($properties)->toHtml() . ')',
+            'var flammaId = ' . Js::from($user->getKey())->toHtml(),
+            'posthog.identify(flammaId, ' . Js::from($properties)->toHtml() . ')',
         ], false)
         ->assertDontSee('posthog.reset()', false);
 });
@@ -72,7 +73,20 @@ it('identifies the signed in user inside the employee panel', function (): void 
 
     $this->get(EditUserProfile::getUrl(panel: 'app'))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ', ' . Js::from($properties)->toHtml() . ')', false);
+        ->assertSee('var flammaId = ' . Js::from($user->getKey())->toHtml(), false)
+        ->assertSee('posthog.identify(flammaId, ' . Js::from($properties)->toHtml() . ')', false);
+});
+
+it('sends the person properties once per browser session, unless the browser is someone else', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->get(route('site.home'))
+        ->assertOk()
+        ->assertSeeInOrder([
+            "personSent = sessionStorage.getItem('flamma_posthog_person') === flammaId;",
+            'if (! personSent || posthog.get_distinct_id() !== flammaId) {',
+            'posthog.identify(flammaId, ',
+            "sessionStorage.setItem('flamma_posthog_person', flammaId);",
+        ], false);
 });
 
 it('identifies an anonymous visitor from the Flare invite by the Flare id only, after registering the source', function (): void {

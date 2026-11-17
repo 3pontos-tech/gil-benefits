@@ -1,7 +1,8 @@
 {{--
     posthog-js do site e do painel do colaborador, só com chave configurada. Fica fora das telas
     de troca de senha e não acompanha a equipe interna. Logado, a pessoa é o id do usuário no
-    Flamma, com nome e e-mail na ficha. Visitante com o flare_id do convite (guardado
+    Flamma, com nome e e-mail na ficha, mandados uma vez por sessão do navegador: o identify com
+    propriedades de quem já está identificado gera um $set a cada página. Visitante com o flare_id do convite (guardado
     pelo StoreSignupAttribution) vira a pessoa do Flare, e o cadastro depois junta as duas no
     servidor. Visitante que o navegador ainda guarda como outra pessoa (quem saiu da conta) volta
     a ser anônimo. O source é registrado depois do reset, que apaga as super propriedades, e antes
@@ -68,7 +69,13 @@
                 @endif
                 posthog.register({ source: 'flamma' });
                 @if ($user)
-                    posthog.identify(@js((string) $user->getKey()), @js(PostHog::personProperties($user)));
+                    var flammaId = @js((string) $user->getKey());
+                    var personSent = false;
+                    try { personSent = sessionStorage.getItem('flamma_posthog_person') === flammaId; } catch (error) {}
+                    if (! personSent || posthog.get_distinct_id() !== flammaId) {
+                        posthog.identify(flammaId, @js(PostHog::personProperties($user)));
+                        try { sessionStorage.setItem('flamma_posthog_person', flammaId); } catch (error) {}
+                    }
                 @elseif (filled($flareId))
                     posthog.identify(@js($flareId));
                 @endif
