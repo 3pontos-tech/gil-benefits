@@ -6,6 +6,7 @@ namespace TresPontosTech\Support\Models;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -22,6 +23,7 @@ use TresPontosTech\Support\Database\Factories\SupportTicketFactory;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Enums\TicketChannelEnum;
+use TresPontosTech\Support\Models\Builders\SupportTicketBuilder;
 
 /**
  * @property string $id
@@ -44,8 +46,11 @@ use TresPontosTech\Support\Enums\TicketChannelEnum;
  * @property Carbon|null $updated_at
  * @property-read TicketOrigin|null $origin
  * @property-read Collection<int, SupportTicketStatusChange> $statusChanges
+ *
+ * @method static SupportTicketBuilder query()
  */
 #[UseFactory(SupportTicketFactory::class)]
+#[UseEloquentBuilder(SupportTicketBuilder::class)]
 #[Table(name: 'support_tickets')]
 class SupportTicket extends Model implements HasMedia
 {
