@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Models\Users\User;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Actions\TransitionSupportTicketStatusAction;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Enums\TicketChannelEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Events\SupportTicketStatusChanged;
 use TresPontosTech\Support\Exceptions\InvalidTransitionException;
 use TresPontosTech\Support\Mail\SupportTicketStatusUpdatedMail;
@@ -60,7 +62,7 @@ it('answers canTransitionTo for valid and invalid edges', function (): void {
 it('transitions a valid edge and persists the new status', function (): void {
     $ticket = ticketWithStatus(SupportTicketStatusEnum::Pending);
 
-    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress, TicketStatusChangeSourceEnum::Admin);
 
     assertDatabaseHas(SupportTicket::class, [
         'id' => $ticket->getKey(),
@@ -72,7 +74,7 @@ it('rejects an invalid transition', function (): void {
     $ticket = ticketWithStatus(SupportTicketStatusEnum::Pending);
 
     expect(fn () => resolve(TransitionSupportTicketStatusAction::class)
-        ->execute($ticket, SupportTicketStatusEnum::Resolved))
+        ->execute($ticket, SupportTicketStatusEnum::Resolved, TicketStatusChangeSourceEnum::Admin))
         ->toThrow(InvalidTransitionException::class);
 
     expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Pending);
@@ -82,7 +84,7 @@ it('rejects an invalid transition', function (): void {
 it('notifies the requester when resolved', function (): void {
     $ticket = ticketWithStatus(SupportTicketStatusEnum::InProgress);
 
-    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::Resolved);
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::Resolved, TicketStatusChangeSourceEnum::Admin);
 
     Mail::assertQueued(
         SupportTicketStatusUpdatedMail::class,
@@ -93,7 +95,7 @@ it('notifies the requester when resolved', function (): void {
 it('notifies the requester when moved to in progress', function (): void {
     $ticket = ticketWithStatus(SupportTicketStatusEnum::Pending);
 
-    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress, TicketStatusChangeSourceEnum::Admin);
 
     Mail::assertQueued(
         SupportTicketStatusUpdatedMail::class,
@@ -104,7 +106,7 @@ it('notifies the requester when moved to in progress', function (): void {
 it('notifies the requester when closed', function (): void {
     $ticket = ticketWithStatus(SupportTicketStatusEnum::Resolved);
 
-    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::Closed);
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::Closed, TicketStatusChangeSourceEnum::Admin);
 
     Mail::assertQueued(SupportTicketStatusUpdatedMail::class);
 });
@@ -112,7 +114,7 @@ it('notifies the requester when closed', function (): void {
 it('reopens a resolved ticket back into progress', function (): void {
     $ticket = ticketWithStatus(SupportTicketStatusEnum::Resolved);
 
-    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress, TicketStatusChangeSourceEnum::Admin);
 
     expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress);
 });
@@ -121,7 +123,7 @@ it('fires SupportTicketStatusChanged with the old and new status', function (): 
     Event::fake([SupportTicketStatusChanged::class]);
     $ticket = ticketWithStatus(SupportTicketStatusEnum::Pending);
 
-    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress, TicketStatusChangeSourceEnum::Admin);
 
     Event::assertDispatched(
         SupportTicketStatusChanged::class,
@@ -129,4 +131,45 @@ it('fires SupportTicketStatusChanged with the old and new status', function (): 
             && $event->from === SupportTicketStatusEnum::Pending
             && $event->to === SupportTicketStatusEnum::InProgress,
     );
+});
+
+it('records the history row even when no listener of the event runs', function (): void {
+    Event::fake([SupportTicketStatusChanged::class]);
+    $ticket = ticketWithStatus(SupportTicketStatusEnum::Pending);
+
+    resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress, TicketStatusChangeSourceEnum::Admin);
+
+    expect($ticket->statusChanges()->sole())
+        ->from_status->toBe(SupportTicketStatusEnum::Pending)
+        ->to_status->toBe(SupportTicketStatusEnum::InProgress);
+});
+
+it('records the transition in the status history with who made it', function (): void {
+    $admin = User::factory()->create();
+    $ticket = ticketWithStatus(SupportTicketStatusEnum::Resolved);
+
+    resolve(TransitionSupportTicketStatusAction::class)->execute(
+        $ticket,
+        SupportTicketStatusEnum::InProgress,
+        TicketStatusChangeSourceEnum::Admin,
+        $admin,
+        'The requester says the problem came back.',
+    );
+
+    expect($ticket->statusChanges()->sole())
+        ->from_status->toBe(SupportTicketStatusEnum::Resolved)
+        ->to_status->toBe(SupportTicketStatusEnum::InProgress)
+        ->source->toBe(TicketStatusChangeSourceEnum::Admin)
+        ->actor_user_id->toBe($admin->id)
+        ->reason->toBe('The requester says the problem came back.');
+});
+
+it('records nothing when the transition is rejected', function (): void {
+    $ticket = ticketWithStatus(SupportTicketStatusEnum::Closed);
+
+    expect(fn () => resolve(TransitionSupportTicketStatusAction::class)
+        ->execute($ticket, SupportTicketStatusEnum::InProgress, TicketStatusChangeSourceEnum::Admin))
+        ->toThrow(InvalidTransitionException::class);
+
+    expect($ticket->statusChanges()->exists())->toBeFalse();
 });

@@ -8,6 +8,7 @@ use TresPontosTech\IntegrationMonday\Listeners\PushTicketStatusToMonday;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Enums\TicketChannelEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Events\SupportTicketStatusChanged;
 use TresPontosTech\Support\Models\SupportTicket;
 
@@ -26,7 +27,7 @@ it('queues a card status push for a ticket status change', function (): void {
         'environment' => 'testing',
     ]);
 
-    $event = new SupportTicketStatusChanged($ticket, SupportTicketStatusEnum::Pending, SupportTicketStatusEnum::InProgress);
+    $event = new SupportTicketStatusChanged($ticket, SupportTicketStatusEnum::Pending, SupportTicketStatusEnum::InProgress, TicketStatusChangeSourceEnum::Admin);
 
     resolve(PushTicketStatusToMonday::class)->handle($event);
 

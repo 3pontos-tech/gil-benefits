@@ -7,6 +7,7 @@ namespace TresPontosTech\Support\Models;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,6 +43,7 @@ use TresPontosTech\Support\Enums\TicketChannelEnum;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read TicketOrigin|null $origin
+ * @property-read Collection<int, SupportTicketStatusChange> $statusChanges
  */
 #[UseFactory(SupportTicketFactory::class)]
 #[Table(name: 'support_tickets')]
@@ -114,6 +116,14 @@ class SupportTicket extends Model implements HasMedia
     public function notifications(): HasMany
     {
         return $this->hasMany(SupportTicketNotification::class);
+    }
+
+    /**
+     * @return HasMany<SupportTicketStatusChange, $this>
+     */
+    public function statusChanges(): HasMany
+    {
+        return $this->hasMany(SupportTicketStatusChange::class);
     }
 
     /**

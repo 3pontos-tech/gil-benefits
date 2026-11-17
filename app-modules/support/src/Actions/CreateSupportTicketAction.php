@@ -12,6 +12,8 @@ use Throwable;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\DTOs\TicketOriginDTO;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Events\SupportTicketCreated;
 use TresPontosTech\Support\Jobs\DispatchSupportTicketJob;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
@@ -53,6 +55,9 @@ class CreateSupportTicketAction
      * the transaction, re-reads (now seeing the committed winning row) and takes the next
      * number.
      *
+     * The opening row of the status history shares the transaction so a ticket never
+     * exists without it.
+     *
      * The origin row is written inside the same transaction so an integration-born
      * ticket can never exist without the external reference that identifies it. Its
      * UNIQUE is a last-resort guard: callers look the reference up before creating, so
@@ -85,6 +90,13 @@ class CreateSupportTicketAction
                     'environment' => $dto->environment,
                 ]);
 
+                $ticket->statusChanges()->create([
+                    'from_status' => null,
+                    'to_status' => SupportTicketStatusEnum::Pending,
+                    'source' => $this->openingSource($dto->channel),
+                    'actor_user_id' => $userId,
+                ]);
+
                 if ($dto->origin instanceof TicketOriginDTO) {
                     $ticket->origin()->create([
                         'source' => $dto->origin->source,
@@ -99,6 +111,17 @@ class CreateSupportTicketAction
             when: static fn (Throwable $e): bool => $e instanceof QueryException
                 && (int) ($e->errorInfo[0] ?? 0) === 23505,
         );
+    }
+
+    /**
+     * ChatX opens on the requester's behalf; on every other channel the requester
+     * opens the ticket themselves.
+     */
+    private function openingSource(TicketChannelEnum $channel): TicketStatusChangeSourceEnum
+    {
+        return $channel === TicketChannelEnum::Chatx
+            ? TicketStatusChangeSourceEnum::Chatx
+            : TicketStatusChangeSourceEnum::Requester;
     }
 
     /**

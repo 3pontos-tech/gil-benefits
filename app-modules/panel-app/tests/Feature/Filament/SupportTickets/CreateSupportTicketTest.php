@@ -5,13 +5,16 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Pages\CreateSupportTicket;
+use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
 use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Enums\TicketChannelEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Mail\SupportTicketMail;
 use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Support\Models\SupportTicketStatusChange;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
@@ -108,4 +111,27 @@ it('only lists tickets owned by the current user', function (): void {
 
     expect($visible)->toHaveCount(1)
         ->and($visible->first())->toBe($mine->getKey());
+});
+
+it('records the requester as the author when they close a ticket', function (): void {
+    $user = actingAsEmployee();
+
+    $ticket = SupportTicket::factory()->create([
+        'user_id' => $user->getKey(),
+        'company_id' => filament()->getTenant()?->getKey(),
+        'status' => SupportTicketStatusEnum::InProgress,
+    ]);
+
+    livewire(ListSupportTickets::class)
+        ->callTableAction('close', $ticket)
+        ->assertNotified();
+
+    assertDatabaseHas(SupportTicketStatusChange::class, [
+        'support_ticket_id' => $ticket->getKey(),
+        'from_status' => SupportTicketStatusEnum::InProgress->value,
+        'to_status' => SupportTicketStatusEnum::Closed->value,
+        'source' => TicketStatusChangeSourceEnum::Requester->value,
+        'actor_user_id' => $user->getKey(),
+        'reason' => null,
+    ]);
 });

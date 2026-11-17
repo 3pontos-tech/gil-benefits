@@ -17,6 +17,7 @@ use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketNotificationChannelEnum;
 use TresPontosTech\Support\Enums\TicketNotificationEventEnum;
 use TresPontosTech\Support\Enums\TicketNotificationStatusEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Exceptions\TicketNotificationFailedException;
 use TresPontosTech\Support\Jobs\SendTicketNotificationJob;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -107,7 +108,7 @@ describe('queueing', function (): void {
 
         $ticket = SupportTicket::factory()->create(['status' => SupportTicketStatusEnum::Pending]);
 
-        resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress);
+        resolve(TransitionSupportTicketStatusAction::class)->execute($ticket, SupportTicketStatusEnum::InProgress, TicketStatusChangeSourceEnum::Admin);
 
         $notification = SupportTicketNotification::query()->sole();
 

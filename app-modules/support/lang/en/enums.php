@@ -71,4 +71,10 @@ return [
         'help_center' => 'Public help center',
         'chatx' => 'ChatX (WhatsApp)',
     ],
+    'status_change_source' => [
+        'admin' => 'Admin',
+        'requester' => 'Requester',
+        'external_destination' => 'External destination',
+        'chatx' => 'ChatX',
+    ],
 ];

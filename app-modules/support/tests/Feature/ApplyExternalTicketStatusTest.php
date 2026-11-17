@@ -10,6 +10,7 @@ use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Events\ExternalTicketStatusChanged;
 use TresPontosTech\Support\Listeners\ApplyExternalTicketStatus;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -55,7 +56,12 @@ it('applies a valid externally-reported transition', function (): void {
 
     resolve(ApplyExternalTicketStatus::class)->handle(reported(SupportTicketStatusEnum::InProgress));
 
-    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress);
+    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress)
+        ->and($ticket->statusChanges()->sole())
+        ->from_status->toBe(SupportTicketStatusEnum::Pending)
+        ->to_status->toBe(SupportTicketStatusEnum::InProgress)
+        ->source->toBe(TicketStatusChangeSourceEnum::ExternalDestination)
+        ->actor_user_id->toBeNull();
 });
 
 it('ignores a transition the state machine forbids', function (): void {
