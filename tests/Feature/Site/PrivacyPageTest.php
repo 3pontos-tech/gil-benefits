@@ -12,10 +12,10 @@ it('publishes the privacy policy with the analytics tool and the transfer abroad
         ->assertSee(config('services.contact.email'));
 });
 
-it('tells that PostHog receives the name, e-mail and phone to identify the account', function (): void {
+it('tells that PostHog receives the name and e-mail to identify the account', function (): void {
     $this->get(route('site.privacy'))
         ->assertOk()
-        ->assertSee('a sua conta nas análises, o seu nome, e-mail e telefone (quando você informa um)');
+        ->assertSee('a sua conta nas análises, o seu nome e e-mail.');
 });
 
 it('lets the person object to the identification of the account in the analyses', function (): void {

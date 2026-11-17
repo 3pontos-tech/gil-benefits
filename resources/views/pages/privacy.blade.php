@@ -58,7 +58,7 @@
             <li>Provedores de hospedagem, armazenamento de arquivos e envio de e-mail, que mantêm o serviço no ar.</li>
             <li>
                 PostHog, ferramenta de análise de uso que recebe os dados de navegação descritos acima e, para identificar
-                a sua conta nas análises, o seu nome, e-mail e telefone (quando você informa um).
+                a sua conta nas análises, o seu nome e e-mail.
             </li>
             <li>Autoridades públicas, quando a lei exigir.</li>
         </ul>

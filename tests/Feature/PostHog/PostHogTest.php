@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Models\Users\Detail;
 use App\Models\Users\User;
 use App\Support\PostHog\CapturePostHogEvent;
 use App\Support\PostHog\PostHog;
@@ -92,20 +91,7 @@ it('sends person properties nested in $set', function (): void {
     ]);
 });
 
-it('builds the person properties with the phone in E.164', function (?string $phone, ?string $expected): void {
-    $user = User::factory()->create(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
-    Detail::factory()->for($user)->create(['phone_number' => $phone]);
-
-    expect(PostHog::personProperties($user))->toBe(array_filter(['email' => 'ana.teste@example.com', 'name' => 'Ana Teste', 'phone' => $expected]));
-})->with([
-    'E.164' => ['+5511900000001', '+5511900000001'],
-    'digits only' => ['11900000001', '+5511900000001'],
-    'masked' => ['(11) 90000-0001', '+5511900000001'],
-    'invalid' => ['12345', null],
-    'empty' => [null, null],
-]);
-
-it('builds the person properties of a user without details', function (): void {
+it('builds the person properties with the name and e-mail', function (): void {
     $user = User::factory()->create(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
 
     expect(PostHog::personProperties($user))->toBe(['email' => 'ana.teste@example.com', 'name' => 'Ana Teste']);

@@ -1,7 +1,7 @@
 {{--
     posthog-js do site e do painel do colaborador, só com chave configurada. Fica fora das telas
     de troca de senha e não acompanha a equipe interna. Logado, a pessoa é o id do usuário no
-    Flamma, com nome, e-mail e telefone na ficha. Visitante com o flare_id do convite (guardado
+    Flamma, com nome e e-mail na ficha. Visitante com o flare_id do convite (guardado
     pelo StoreSignupAttribution) vira a pessoa do Flare, e o cadastro depois junta as duas no
     servidor. Visitante que o navegador ainda guarda como outra pessoa (quem saiu da conta) volta
     a ser anônimo. O source é registrado depois do reset, que apaga as super propriedades, e antes

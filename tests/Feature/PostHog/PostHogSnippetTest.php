@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\StoreSignupAttribution;
-use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Support\Js;
 use Illuminate\Support\Str;
@@ -51,10 +50,9 @@ it('keeps posthog-js out of the internal panels', function (string $route): void
     'password reset request' => 'filament.app.auth.password-reset.request',
 ]);
 
-it('identifies the signed in user by the Flamma id with name, e-mail and phone, after registering the source', function (): void {
+it('identifies the signed in user by the Flamma id with name and e-mail, after registering the source', function (): void {
     $user = User::factory()->create(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
-    Detail::factory()->for($user)->create(['phone_number' => '(11) 90000-0001']);
-    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste', 'phone' => '+5511900000001'];
+    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste'];
 
     $this->actingAs($user)
         ->get(route('site.home', ['flare_id' => (string) Str::uuid()]))
@@ -66,22 +64,11 @@ it('identifies the signed in user by the Flamma id with name, e-mail and phone, 
         ->assertDontSee('posthog.reset()', false);
 });
 
-it('leaves the phone out of the signed in user without a valid one', function (?string $phone): void {
-    $user = User::factory()->create(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
-    Detail::factory()->for($user)->create(['phone_number' => $phone]);
-    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste'];
-
-    $this->actingAs($user)
-        ->get(route('site.home'))
-        ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ', ' . Js::from($properties)->toHtml() . ')', false);
-})->with(['no phone' => null, 'invalid phone' => '12345']);
-
 it('identifies the signed in user inside the employee panel', function (): void {
     $user = actingAsEmployee();
     $user->update(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
-    Detail::factory()->for($user)->create(['phone_number' => '+5511900000001']);
-    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste', 'phone' => '+5511900000001'];
+
+    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste'];
 
     $this->get(EditUserProfile::getUrl(panel: 'app'))
         ->assertOk()

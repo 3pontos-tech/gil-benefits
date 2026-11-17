@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ace5f4de00104737c7a58271744bdb79",
+    "content-hash": "73981cc85b441767987d570d9bc6fcd8",
     "packages": [
         {
             "name": "3pontos-tech/api",
