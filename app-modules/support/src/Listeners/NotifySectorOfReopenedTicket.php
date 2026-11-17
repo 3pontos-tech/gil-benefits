@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Support\Listeners;
 
 use App\Models\Users\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
@@ -33,6 +34,11 @@ final class NotifySectorOfReopenedTicket
             ->values();
 
         if ($recipients->isEmpty()) {
+            Log::warning('Reopened ticket has no sector e-mail to notify.', [
+                'ticket_id' => $event->ticket->id,
+                'category' => $event->ticket->category->value,
+            ]);
+
             return;
         }
 

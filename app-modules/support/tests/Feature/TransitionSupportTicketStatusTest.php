@@ -173,3 +173,65 @@ it('records nothing when the transition is rejected', function (): void {
 
     expect($ticket->statusChanges()->exists())->toBeFalse();
 });
+
+function staleCopy(SupportTicket $ticket, SupportTicketStatusEnum $movedTo): SupportTicket
+{
+    $stale = SupportTicket::query()->findOrFail($ticket->id);
+    $ticket->update(['status' => $movedTo]);
+
+    return $stale;
+}
+
+describe('concurrent changes', function (): void {
+    it('guards on the stored status, not on the stale instance the caller holds', function (): void {
+        $ticket = ticketWithStatus(SupportTicketStatusEnum::Resolved);
+        $stale = staleCopy($ticket, SupportTicketStatusEnum::Closed);
+
+        expect(fn () => resolve(TransitionSupportTicketStatusAction::class)
+            ->execute($stale, SupportTicketStatusEnum::InProgress, TicketStatusChangeSourceEnum::Chatx))
+            ->toThrow(InvalidTransitionException::class);
+
+        expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Closed)
+            ->and($ticket->statusChanges()->exists())->toBeFalse();
+    });
+
+    it('records the stored status as where the ticket came from', function (): void {
+        $ticket = ticketWithStatus(SupportTicketStatusEnum::Resolved);
+        $stale = staleCopy($ticket, SupportTicketStatusEnum::InProgress);
+
+        resolve(TransitionSupportTicketStatusAction::class)
+            ->execute($stale, SupportTicketStatusEnum::Closed, TicketStatusChangeSourceEnum::Admin);
+
+        expect($ticket->statusChanges()->sole()->from_status)->toBe(SupportTicketStatusEnum::InProgress)
+            ->and($stale->status)->toBe(SupportTicketStatusEnum::Closed);
+    });
+
+    it('refuses a move the graph allows when the ticket left the expected status', function (): void {
+        $ticket = ticketWithStatus(SupportTicketStatusEnum::Resolved);
+        $stale = staleCopy($ticket, SupportTicketStatusEnum::InProgress);
+
+        expect(fn () => resolve(TransitionSupportTicketStatusAction::class)->execute(
+            $stale,
+            SupportTicketStatusEnum::Closed,
+            TicketStatusChangeSourceEnum::Chatx,
+            expectedFrom: SupportTicketStatusEnum::Resolved,
+        ))->toThrow(InvalidTransitionException::class);
+
+        expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress)
+            ->and($ticket->statusChanges()->exists())->toBeFalse();
+    });
+});
+
+it('queues the requester e-mail even when a listener of the change fails', function (): void {
+    $ticket = ticketWithStatus(SupportTicketStatusEnum::InProgress);
+
+    Event::listen(SupportTicketStatusChanged::class, function (): never {
+        throw new RuntimeException('listener down');
+    });
+
+    expect(fn () => resolve(TransitionSupportTicketStatusAction::class)
+        ->execute($ticket, SupportTicketStatusEnum::Resolved, TicketStatusChangeSourceEnum::Admin))
+        ->toThrow(RuntimeException::class, 'listener down');
+
+    Mail::assertQueued(SupportTicketStatusUpdatedMail::class, 1);
+});

@@ -85,6 +85,21 @@ it('leaves a ticket that is no longer resolved alone', function (SupportTicketSt
     'close on in progress' => [SupportTicketStatusEnum::InProgress, SupportTicketStatusEnum::Closed],
 ]);
 
+it('leaves the ticket alone when it leaves resolved between the check and the change', function (): void {
+    $ticket = ticketFromOrigin(SupportTicketStatusEnum::Resolved);
+
+    SupportTicket::retrieved(function (SupportTicket $retrieved) use ($ticket): void {
+        if ($retrieved->is($ticket) && $retrieved->status === SupportTicketStatusEnum::Resolved) {
+            SupportTicket::query()->whereKey($ticket->id)->update(['status' => SupportTicketStatusEnum::InProgress]);
+        }
+    });
+
+    resolve(ApplyOriginTicketStatus::class)->handle(originAnswer(SupportTicketStatusEnum::Closed));
+
+    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress)
+        ->and($ticket->statusChanges()->count())->toBe(0);
+});
+
 it('ignores an unknown origin reference', function (): void {
     $ticket = ticketFromOrigin(SupportTicketStatusEnum::Resolved);
 

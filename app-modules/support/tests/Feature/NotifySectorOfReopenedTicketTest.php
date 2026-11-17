@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Actions\TransitionSupportTicketStatusAction;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
@@ -77,4 +78,20 @@ it('shows the protocol, the reason and who reopened it', function (): void {
     expect($html)->toContain('SUP-2026-0101')
         ->toContain('The charge showed up again this month.')
         ->toContain('Support Admin');
+});
+
+it('logs a warning when no sector e-mail is configured for the category', function (): void {
+    config()->set('support.emails.financial');
+    Log::spy();
+    $ticket = resolvedFinancialTicket();
+
+    resolve(TransitionSupportTicketStatusAction::class)->execute(
+        $ticket,
+        SupportTicketStatusEnum::InProgress,
+        TicketStatusChangeSourceEnum::Admin,
+        reason: 'Came back.',
+    );
+
+    Mail::assertNotQueued(SupportTicketReopenedMail::class);
+    Log::shouldHaveReceived('warning')->once()->withArgs(fn (string $message, array $context): bool => $context['ticket_id'] === $ticket->id);
 });

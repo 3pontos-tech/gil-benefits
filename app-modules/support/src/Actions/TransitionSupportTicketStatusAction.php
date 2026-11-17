@@ -25,6 +25,18 @@ use TresPontosTech\Support\Models\SupportTicket;
  * The status and its history row share one transaction, written here rather than
  * by a listener: a listener that failed before the history one ran left the status
  * changed with no row. The event fires after the commit, for the other modules.
+ *
+ * The guard runs on the row locked inside that transaction, not on the instance the
+ * caller passed: two changes arriving together (an agent and a webhook, or a webhook
+ * delivered twice) would both pass a check on the status they read, writing a false
+ * from_status or a move the graph forbids. $expectedFrom is for callers whose
+ * decision only holds in one status (a customer answering a resolved ticket): the
+ * change is refused if the ticket left it in the meantime, even when the graph
+ * would allow the move from where it is now.
+ *
+ * The requester e-mail is queued before the event: a listener that throws would
+ * otherwise drop it, and a retried request finds the status already changed and
+ * never queues it again.
  */
 class TransitionSupportTicketStatusAction
 {
@@ -43,24 +55,44 @@ class TransitionSupportTicketStatusAction
         TicketStatusChangeSourceEnum $source,
         ?User $actor = null,
         ?string $reason = null,
+        ?SupportTicketStatusEnum $expectedFrom = null,
     ): SupportTicket {
-        if (! $ticket->status->canTransitionTo($to)) {
-            throw InvalidTransitionException::between($ticket->status, $to);
-        }
+        $from = DB::transaction(function () use ($ticket, $to, $source, $actor, $reason, $expectedFrom): SupportTicketStatusEnum {
+            $locked = SupportTicket::query()
+                ->withoutGlobalScopes()
+                ->lockForUpdate()
+                ->findOrFail($ticket->getKey());
 
-        $from = $ticket->status;
+            $from = $locked->status;
 
-        DB::transaction(function () use ($ticket, $from, $to, $source, $actor, $reason): void {
-            $ticket->update(['status' => $to]);
+            if ($expectedFrom instanceof SupportTicketStatusEnum && $from !== $expectedFrom) {
+                throw InvalidTransitionException::moved($expectedFrom, $from);
+            }
 
-            $ticket->statusChanges()->create([
+            if (! $from->canTransitionTo($to)) {
+                throw InvalidTransitionException::between($from, $to);
+            }
+
+            $locked->update(['status' => $to]);
+
+            $locked->statusChanges()->create([
                 'from_status' => $from,
                 'to_status' => $to,
                 'source' => $source,
                 'actor_user_id' => $actor?->getKey(),
                 'reason' => $reason,
             ]);
+
+            return $from;
         });
+
+        $ticket->refresh();
+
+        $requesterEmail = $ticket->getRequesterEmail();
+
+        if (in_array($to, self::NOTIFIES, strict: true) && $requesterEmail !== null) {
+            Mail::to($requesterEmail)->queue(new SupportTicketStatusUpdatedMail($ticket));
+        }
 
         event(new SupportTicketStatusChanged(
             ticket: $ticket,
@@ -70,12 +102,6 @@ class TransitionSupportTicketStatusAction
             actorUserId: $actor?->getKey(),
             reason: $reason,
         ));
-
-        $requesterEmail = $ticket->getRequesterEmail();
-
-        if (in_array($to, self::NOTIFIES, strict: true) && $requesterEmail !== null) {
-            Mail::to($requesterEmail)->queue(new SupportTicketStatusUpdatedMail($ticket));
-        }
 
         return $ticket;
     }

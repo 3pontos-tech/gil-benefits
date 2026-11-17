@@ -15,7 +15,9 @@ use TresPontosTech\Support\Models\SupportTicket;
  * Applies the requester's answer to a resolved ticket. Only a ticket still resolved
  * changes: the answer refers to the resolution, so once someone else has moved the
  * ticket (an agent reopened or closed it) the answer is stale and a repeat delivery
- * changes nothing, which keeps the history and the e-mails from doubling.
+ * changes nothing, which keeps the history and the e-mails from doubling. The check
+ * here skips the common case early; the one that holds against a concurrent change
+ * is expectedFrom, checked by the transition on the locked row.
  *
  * The requester is the actor even when their account was deleted since: the answer
  * is still theirs, and the history should say so.
@@ -41,9 +43,10 @@ final class ApplyOriginTicketStatus
                 $event->source->statusChangeSource(),
                 $ticket->user()->withTrashed()->first(),
                 $ticket->status->isReopenedBy($event->status) ? $event->message : null,
+                expectedFrom: SupportTicketStatusEnum::Resolved,
             );
         } catch (InvalidTransitionException) {
-            Log::info('Ignoring forbidden origin-requested ticket transition.', [
+            Log::info('Ignoring origin-requested ticket transition the ticket no longer allows.', [
                 'ticket_id' => $ticket->id,
                 'from' => $ticket->status->value,
                 'to' => $event->status->value,
