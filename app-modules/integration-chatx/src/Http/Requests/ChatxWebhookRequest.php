@@ -12,7 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\IntegrationChatx\Enums\ChatxEventEnum;
 
 /**
- * Shape of the ChatX intake payload.
+ * Shape of the ChatX webhook payload.
+ *
+ * ticket.id and ticket.protocol on an answer are only ChatX's own bookkeeping; the
+ * reference is what finds the ticket, so they are checked loosely and a value we
+ * did not expect does not refuse the customer's answer.
  *
  * Schema problems answer with the offending fields, which is what lets ChatX debug
  * their side. Identity problems do not — an unknown requester gets a flat "invalid
@@ -20,30 +24,32 @@ use TresPontosTech\IntegrationChatx\Enums\ChatxEventEnum;
  * e-mail" would turn this endpoint into a way to enumerate who our customers are.
  * Same 422, deliberately different amount of detail.
  */
-final class OpenTicketRequest extends FormRequest
+final class ChatxWebhookRequest extends FormRequest
 {
     /**
      * @return array<string, mixed>
      */
     public function rules(): array
     {
-        return [
+        $base = [
             'event' => ['required', 'string', Rule::enum(ChatxEventEnum::class)],
             'timestamp' => ['required', 'string', 'date'],
             'external_reference' => ['required', 'string', 'max:255'],
-
-            'visitor' => ['required', 'array'],
-            'visitor.name' => ['required', 'string', 'max:255'],
-            'visitor.email' => ['required', 'string', 'email', 'max:255'],
-            'visitor.document' => ['required', 'string', 'max:20'],
-            'visitor.phone' => ['nullable', 'string', 'max:20'],
-            'visitor.company_name' => ['nullable', 'string', 'max:255'],
-
-            'ticket' => ['required', 'array'],
-            'ticket.category' => ['required', 'string', 'max:100'],
-            'ticket.subject' => ['required', 'string', 'max:255'],
-            'ticket.description' => ['required', 'string'],
         ];
+
+        return match ($this->event()) {
+            ChatxEventEnum::TicketCreated => [...$base, ...$this->openingRules()],
+            ChatxEventEnum::ReopenRequested => [...$base, ...$this->answerRules(), 'message' => ['nullable', 'string', 'max:2000']],
+            ChatxEventEnum::ResolutionConfirmed => [...$base, ...$this->answerRules()],
+            null => $base,
+        };
+    }
+
+    public function event(): ?ChatxEventEnum
+    {
+        $event = $this->validationData()['event'] ?? null;
+
+        return is_string($event) ? ChatxEventEnum::tryFrom($event) : null;
     }
 
     /**
@@ -74,5 +80,37 @@ final class OpenTicketRequest extends FormRequest
             'message' => $validator->errors()->first(),
             'errors' => $validator->errors(),
         ], Response::HTTP_UNPROCESSABLE_ENTITY));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function openingRules(): array
+    {
+        return [
+            'visitor' => ['required', 'array'],
+            'visitor.name' => ['required', 'string', 'max:255'],
+            'visitor.email' => ['required', 'string', 'email', 'max:255'],
+            'visitor.document' => ['required', 'string', 'max:20'],
+            'visitor.phone' => ['nullable', 'string', 'max:20'],
+            'visitor.company_name' => ['nullable', 'string', 'max:255'],
+
+            'ticket' => ['required', 'array'],
+            'ticket.category' => ['required', 'string', 'max:100'],
+            'ticket.subject' => ['required', 'string', 'max:255'],
+            'ticket.description' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function answerRules(): array
+    {
+        return [
+            'ticket' => ['nullable', 'array'],
+            'ticket.id' => ['nullable', 'string', 'max:255'],
+            'ticket.protocol' => ['nullable', 'string', 'max:50'],
+        ];
     }
 }

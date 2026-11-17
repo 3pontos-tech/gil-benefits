@@ -14,7 +14,6 @@ use TresPontosTech\Support\DTOs\TicketOriginDTO;
 use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketOriginSourceEnum;
 use TresPontosTech\Support\Models\SupportTicket;
-use TresPontosTech\Support\Models\TicketOrigin;
 
 /**
  * Opens a support ticket from a ChatX payload, at most once per external reference.
@@ -87,20 +86,6 @@ final class OpenTicketFromChatx
 
     private function findByReference(string $reference): ?SupportTicket
     {
-        $ticketId = TicketOrigin::query()
-            ->where('source', TicketOriginSourceEnum::Chatx)
-            ->where('external_reference', $reference)
-            ->value('support_ticket_id');
-
-        if (! is_string($ticketId)) {
-            return null;
-        }
-
-        // withoutGlobalScopes(): tickets carry Filament's company tenancy scope, and
-        // an API request has no tenant to satisfy it. Scoped, this lookup would find
-        // nothing and the endpoint would open a duplicate on every retry.
-        return SupportTicket::query()
-            ->withoutGlobalScopes()
-            ->find($ticketId);
+        return SupportTicket::query()->fromOrigin(TicketOriginSourceEnum::Chatx, $reference)->first();
     }
 }
