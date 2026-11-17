@@ -217,7 +217,7 @@ it('tracks the signup on PostHog by the Flamma id', function (): void {
     Http::assertSentCount(1);
     Http::assertSent(fn (Request $request): bool => $request['event'] === 'cadastro_concluido'
         && $request['distinct_id'] === $user->getKey()
-        && $request['properties'] === ['source' => 'flamma', '$geoip_disable' => true]);
+        && $request['properties'] === ['$set' => ['email' => 'joe@doe.com', 'name' => 'John'], 'source' => 'flamma', '$geoip_disable' => true]);
 });
 
 it('joins the Flare person to the Flamma user before tracking the signup with the first touch UTMs', function (): void {
@@ -244,6 +244,7 @@ it('joins the Flare person to the Flamma user before tracking the signup with th
             'utm_medium' => 'whatsapp',
             'utm_campaign' => 'gancho_pos_relatorio',
             'utm_content' => 'variante_a',
+            '$set' => ['email' => 'joe@doe.com', 'name' => 'John'],
             'flare_id' => $flareId,
             'source' => 'flamma',
             '$geoip_disable' => true,
@@ -264,7 +265,7 @@ it('tracks the signup with the UTMs of an ad without a Flare person to join', fu
 
     Http::assertSentCount(1);
     Http::assertSent(fn (Request $request): bool => $request['event'] === 'cadastro_concluido'
-        && $request['properties'] === ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento', 'source' => 'flamma', '$geoip_disable' => true]);
+        && $request['properties'] === ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento', '$set' => ['email' => 'joe@doe.com', 'name' => 'John'], 'source' => 'flamma', '$geoip_disable' => true]);
 });
 
 it('keeps the attribution cookie when the signup fails inside the transaction', function (): void {
