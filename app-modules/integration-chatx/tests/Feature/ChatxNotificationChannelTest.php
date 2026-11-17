@@ -175,11 +175,39 @@ describe('send', function (): void {
                 'customer' => [
                     'client_id' => $ticket->user_id,
                     'name' => 'Mariana Souza',
-                    'phone' => '11999999999',
+                    'phone' => '5511999999999',
                     'email' => 'mariana@example.com',
                 ],
                 'message' => 'Olá, Mariana!',
             ]);
+    });
+
+    it('sends the phone as ChatX expects it, whatever shape the account stored', function (?string $stored, ?string $sent): void {
+        Http::fake([CHATX_STATUS_URL => Http::response()]);
+
+        $notification = chatxNotification();
+        $notification->ticket->user->detail->update(['phone_number' => $stored]);
+
+        chatxChannel()->send($notification);
+
+        Http::assertSent(fn (Request $request): bool => $request['customer']['phone'] === $sent);
+    })->with([
+        'E.164 from the profile' => ['+5511999999999', '5511999999999'],
+        'masked' => ['(11) 99999-9999', '5511999999999'],
+        'bare digits from an import' => ['11999999999', '5511999999999'],
+        'not a phone' => ['12345', null],
+        'missing' => [null, null],
+    ]);
+
+    it('sends the number the ticket was opened from, not the one on the account', function (): void {
+        Http::fake([CHATX_STATUS_URL => Http::response()]);
+
+        $notification = chatxNotification();
+        $notification->ticket->origin->update(['contact_phone' => '+5521988887777']);
+
+        chatxChannel()->send($notification);
+
+        Http::assertSent(fn (Request $request): bool => $request['customer']['phone'] === '5521988887777');
     });
 
     it('sends the creation as ticket.created with no previous status', function (): void {
