@@ -63,4 +63,12 @@ return [
     'origin_source' => [
         'chatx' => 'ChatX (WhatsApp)',
     ],
+    'ticket_channel' => [
+        'panel_app' => 'Aplicação (colaborador)',
+        'panel_company' => 'Painel da empresa',
+        'panel_consultant' => 'Painel do consultor',
+        'api' => 'App mobile (API)',
+        'help_center' => 'Central de ajuda pública',
+        'chatx' => 'ChatX (WhatsApp)',
+    ],
 ];

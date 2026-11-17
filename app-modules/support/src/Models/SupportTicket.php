@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Support\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,7 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Support\Database\Factories\SupportTicketFactory;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 
 /**
  * @property string $id
@@ -32,6 +34,7 @@ use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
  * @property string $subject
  * @property string $description
  * @property SupportTicketStatusEnum $status
+ * @property TicketChannelEnum $channel
  * @property string|null $url
  * @property string|null $browser
  * @property string|null $device
@@ -41,9 +44,12 @@ use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
  * @property-read TicketOrigin|null $origin
  */
 #[UseFactory(SupportTicketFactory::class)]
+#[Table(name: 'support_tickets')]
 class SupportTicket extends Model implements HasMedia
 {
+    /** @use HasFactory<SupportTicketFactory> */
     use HasFactory;
+
     use HasUuids;
     use InteractsWithMedia;
 
@@ -58,6 +64,7 @@ class SupportTicket extends Model implements HasMedia
         'subject',
         'description',
         'status',
+        'channel',
         'url',
         'browser',
         'device',
@@ -69,6 +76,7 @@ class SupportTicket extends Model implements HasMedia
         return [
             'category' => SupportTicketCategoryEnum::class,
             'status' => SupportTicketStatusEnum::class,
+            'channel' => TicketChannelEnum::class,
         ];
     }
 

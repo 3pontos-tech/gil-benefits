@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
@@ -24,6 +25,7 @@ beforeEach(function (): void {
 function ticketWithDestination(SupportTicketStatusEnum $status, string $reference = 'monday-1'): SupportTicket
 {
     $ticket = SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0001',
         'category' => SupportTicketCategoryEnum::Bug,
         'subject' => 'subject',

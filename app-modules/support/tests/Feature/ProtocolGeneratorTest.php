@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Date;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Services\ProtocolGenerator;
 
@@ -24,6 +25,7 @@ afterEach(function (): void {
 function makeTicket(string $protocol, ?string $companyId = null): SupportTicket
 {
     return SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => $protocol,
         'company_id' => $companyId,
         'category' => SupportTicketCategoryEnum::Bug,

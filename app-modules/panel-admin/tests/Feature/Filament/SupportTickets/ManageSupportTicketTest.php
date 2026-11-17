@@ -12,6 +12,7 @@ use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\RelationManagers
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
@@ -34,6 +35,7 @@ function makeTicketFor(?User $user = null, SupportTicketStatusEnum $status = Sup
     ++$seq;
 
     return SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => sprintf('SUP-2026-%04d', $seq),
         'user_id' => $user?->getKey(),
         'category' => SupportTicketCategoryEnum::Bug,

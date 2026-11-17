@@ -7,6 +7,7 @@ use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\DTOs\TicketOriginDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketOriginSourceEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Models\TicketOrigin;
@@ -19,6 +20,7 @@ function makeTicketDTO(?TicketOriginDTO $origin = null): CreateSupportTicketDTO
         category: SupportTicketCategoryEnum::FinancialIssue,
         subject: 'Cobrança duplicada',
         description: 'Fui cobrado duas vezes no mesmo mês.',
+        channel: TicketChannelEnum::Chatx,
         visitorName: 'João da Silva',
         visitorEmail: 'joao.silva@empresa.com',
         origin: $origin,

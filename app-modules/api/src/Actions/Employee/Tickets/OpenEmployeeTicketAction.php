@@ -9,6 +9,7 @@ use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 
 final readonly class OpenEmployeeTicketAction
@@ -29,6 +30,7 @@ final readonly class OpenEmployeeTicketAction
             category: $category,
             subject: $subject,
             description: $description,
+            channel: TicketChannelEnum::Api,
             userId: $user->id,
             companyId: $this->resolveQuotaAllowance->companyIdFor($user),
             browser: 'app',

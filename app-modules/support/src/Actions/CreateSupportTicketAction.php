@@ -78,6 +78,7 @@ class CreateSupportTicketAction
                     'subject' => $dto->subject,
                     'description' => $dto->description,
                     'status' => SupportTicketStatusEnum::Pending,
+                    'channel' => $dto->channel,
                     'url' => $dto->url,
                     'browser' => $dto->browser,
                     'device' => $dto->device,

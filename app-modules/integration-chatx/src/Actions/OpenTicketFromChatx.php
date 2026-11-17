@@ -11,6 +11,7 @@ use TresPontosTech\IntegrationChatx\Support\ChatxPhone;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\DTOs\TicketOriginDTO;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketOriginSourceEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Models\TicketOrigin;
@@ -58,6 +59,7 @@ final class OpenTicketFromChatx
                 category: ChatxCategoryMap::toCategory($dto->category),
                 subject: $dto->subject,
                 description: $dto->description,
+                channel: TicketChannelEnum::Chatx,
                 userId: $user->id,
                 companyId: $user->employerCompanyId(),
                 visitorName: $dto->visitorName,

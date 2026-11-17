@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 
 beforeEach(function (): void {
@@ -28,6 +29,7 @@ function dto(string $subject = 'subject'): CreateSupportTicketDTO
         category: SupportTicketCategoryEnum::Bug,
         subject: $subject,
         description: 'description',
+        channel: TicketChannelEnum::PanelApp,
         visitorName: 'Visitor',
         visitorEmail: 'visitor@example.com',
         environment: 'testing',
@@ -53,7 +55,7 @@ it('narrows a multiple FileUpload state into a list of uploads', function (): vo
             UploadedFile::fake()->image('a.png'),
             UploadedFile::fake()->image('b.png'),
         ],
-    ]);
+    ], channel: TicketChannelEnum::PanelApp);
 
     expect($dto->attachments)->toHaveCount(2);
 });
@@ -65,6 +67,7 @@ it('stores every uploaded attachment in the media collection', function (): void
         category: SupportTicketCategoryEnum::Bug,
         subject: 'subject',
         description: 'description',
+        channel: TicketChannelEnum::PanelApp,
         visitorName: 'Visitor',
         visitorEmail: 'visitor@example.com',
         environment: 'testing',
@@ -92,6 +95,7 @@ it('matches the visitor email whatever its capitalization', function (): void {
         category: SupportTicketCategoryEnum::Bug,
         subject: 'subject',
         description: 'description',
+        channel: TicketChannelEnum::PanelApp,
         visitorName: 'Visitor',
         visitorEmail: 'Visitor@Example.com',
         environment: 'testing',
@@ -114,6 +118,7 @@ it('keeps an explicit user id over the visitor email lookup', function (): void 
         category: SupportTicketCategoryEnum::Bug,
         subject: 'subject',
         description: 'description',
+        channel: TicketChannelEnum::PanelApp,
         userId: $explicit->id,
         visitorEmail: 'visitor@example.com',
         environment: 'testing',

@@ -10,6 +10,7 @@ use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Jobs\DispatchSupportTicketJob;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Mail\SupportTicketStatusUpdatedMail;
@@ -92,6 +93,7 @@ it('opens a pending ticket with a protocol and routes it to the support team', f
         'browser' => 'app',
         'device' => 'mobile',
         'url' => null,
+        'channel' => TicketChannelEnum::Api->value,
     ]);
 
     Queue::assertPushed(DispatchSupportTicketJob::class, fn (DispatchSupportTicketJob $job): bool => $job->ticket->id === $response->json('data.id'));

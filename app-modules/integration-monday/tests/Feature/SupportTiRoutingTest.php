@@ -7,6 +7,7 @@ use TresPontosTech\IntegrationMonday\MondayClient;
 use TresPontosTech\IntegrationMonday\Testing\FakeMondayClient;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -26,6 +27,7 @@ it('routes a TI ticket to both e-mail and a Monday card when the board is config
     $this->app->instance(MondayClient::class, $fake = new FakeMondayClient('987654'));
 
     $ticket = SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0001',
         'category' => SupportTicketCategoryEnum::Bug,
         'subject' => 'Subject',

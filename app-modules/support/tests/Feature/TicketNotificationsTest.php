@@ -13,6 +13,7 @@ use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\DTOs\TicketNotificationResult;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketNotificationChannelEnum;
 use TresPontosTech\Support\Enums\TicketNotificationEventEnum;
 use TresPontosTech\Support\Enums\TicketNotificationStatusEnum;
@@ -68,6 +69,7 @@ function openSupportTicket(): SupportTicket
         category: SupportTicketCategoryEnum::Bug,
         subject: 'Subject',
         description: 'Description',
+        channel: TicketChannelEnum::PanelApp,
         userId: User::factory()->create()->id,
         environment: 'testing',
     ));

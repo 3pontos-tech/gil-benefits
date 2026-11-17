@@ -8,6 +8,7 @@ use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\Pages\CreateSuppor
 use TresPontosTech\PanelApp\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Mail\SupportTicketMail;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -36,6 +37,7 @@ it('opens a ticket through the app panel and notifies area + requester', functio
         'user_id' => $user->getKey(),
         'category' => SupportTicketCategoryEnum::FinancialIssue->value,
         'status' => SupportTicketStatusEnum::Pending->value,
+        'channel' => TicketChannelEnum::PanelApp->value,
     ]);
 
     Mail::assertSent(
@@ -78,6 +80,7 @@ it('only lists tickets owned by the current user', function (): void {
     $company = filament()->getTenant();
 
     $mine = SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0001',
         'user_id' => $user->getKey(),
         'company_id' => $company?->getKey(),
@@ -90,6 +93,7 @@ it('only lists tickets owned by the current user', function (): void {
 
     $other = User::factory()->employee()->create();
     SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0002',
         'user_id' => $other->getKey(),
         'company_id' => $company?->getKey(),

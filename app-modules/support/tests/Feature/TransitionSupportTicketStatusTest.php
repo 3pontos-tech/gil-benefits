@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Actions\TransitionSupportTicketStatusAction;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Events\SupportTicketStatusChanged;
 use TresPontosTech\Support\Exceptions\InvalidTransitionException;
 use TresPontosTech\Support\Mail\SupportTicketStatusUpdatedMail;
@@ -21,6 +22,7 @@ beforeEach(function (): void {
 function ticketWithStatus(SupportTicketStatusEnum $status, ?string $email = 'requester@example.com'): SupportTicket
 {
     return SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0001',
         'visitor_name' => 'Requester',
         'visitor_email' => $email,
