@@ -10,6 +10,7 @@ use TresPontosTech\Support\Events\ExternalTicketStatusChanged;
 use TresPontosTech\Support\Events\SupportTicketCreated;
 use TresPontosTech\Support\Events\SupportTicketStatusChanged;
 use TresPontosTech\Support\Listeners\ApplyExternalTicketStatus;
+use TresPontosTech\Support\Listeners\NotifySectorOfReopenedTicket;
 use TresPontosTech\Support\Listeners\QueueTicketNotificationsOnCreation;
 use TresPontosTech\Support\Listeners\QueueTicketNotificationsOnStatusChange;
 
@@ -26,4 +27,5 @@ it('registers each ticket listener exactly once', function (string $event, strin
     'Monday column synced' => [MondayItemColumnChanged::class, SyncTicketStatusFromMonday::class],
     'notifications queued on creation' => [SupportTicketCreated::class, QueueTicketNotificationsOnCreation::class],
     'notifications queued on status change' => [SupportTicketStatusChanged::class, QueueTicketNotificationsOnStatusChange::class],
+    'sector e-mailed on reopen' => [SupportTicketStatusChanged::class, NotifySectorOfReopenedTicket::class],
 ]);
