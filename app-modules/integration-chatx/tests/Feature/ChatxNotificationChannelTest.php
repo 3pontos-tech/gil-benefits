@@ -196,6 +196,7 @@ describe('send', function (): void {
         'masked' => ['(11) 99999-9999', '5511999999999'],
         'bare digits from an import' => ['11999999999', '5511999999999'],
         'not a phone' => ['12345', null],
+        'foreign with its country code' => ['+12025550123', null],
         'missing' => [null, null],
     ]);
 

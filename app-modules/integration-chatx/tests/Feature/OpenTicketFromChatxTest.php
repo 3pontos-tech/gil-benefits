@@ -279,6 +279,7 @@ describe('requester phone', function (): void {
         'with the country code' => '5511999999999',
         'with plus and country code' => '+5511999999999',
         'without the country code' => '(11) 99999-9999',
+        'with the 00 international prefix' => '005511999999999',
     ]);
 
     it('keeps the phone already on the account', function (): void {
@@ -290,12 +291,17 @@ describe('requester phone', function (): void {
         expect($user->detail->refresh()->phone_number)->toBe('+5511988887777');
     });
 
-    it('leaves the phone empty when the number is not a Brazilian phone', function (): void {
+    it('saves no phone when the number is not a Brazilian phone', function (string $sent): void {
         $user = registeredRequester();
         $user->detail->update(['phone_number' => null]);
 
-        postIntake(intakePayload(['visitor' => ['phone' => '12345']]))->assertCreated();
+        postIntake(intakePayload(['visitor' => ['phone' => $sent]]))->assertCreated();
 
-        expect($user->detail->refresh()->phone_number)->toBeNull();
-    });
+        expect($user->detail->refresh()->phone_number)->toBeNull()
+            ->and(TicketOrigin::query()->sole()->contact_phone)->toBeNull();
+    })->with([
+        'too short' => '12345',
+        'foreign, with plus' => '+1 (202) 555-0123',
+        'foreign, with 00' => '0012025550123',
+    ]);
 });

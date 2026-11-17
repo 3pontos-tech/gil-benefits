@@ -15,19 +15,32 @@ namespace TresPontosTech\IntegrationChatx\Support;
  */
 final class ChatxPhone
 {
+    /**
+     * A number written with `+` or `00` already names its country, so only 55 is accepted
+     * then. Without that check `+1 (202) 555-0123` would lose the `+`, look like a
+     * Brazilian number with area code 12 and be saved as `+5512025550123`.
+     */
     public static function digits(?string $phone): ?string
     {
-        $digits = preg_replace('/\D/', '', (string) $phone) ?? '';
+        $phone = trim((string) $phone);
+        $digits = preg_replace('/\D/', '', $phone) ?? '';
+
+        if (str_starts_with($phone, '+') || str_starts_with($phone, '00')) {
+            $digits = str_starts_with($phone, '00') ? substr($digits, 2) : $digits;
+
+            return self::isBrazilianWithCountryCode($digits) ? $digits : null;
+        }
 
         if (in_array(strlen($digits), [10, 11], true)) {
             return '55' . $digits;
         }
 
-        if (in_array(strlen($digits), [12, 13], true) && str_starts_with($digits, '55')) {
-            return $digits;
-        }
+        return self::isBrazilianWithCountryCode($digits) ? $digits : null;
+    }
 
-        return null;
+    private static function isBrazilianWithCountryCode(string $digits): bool
+    {
+        return in_array(strlen($digits), [12, 13], true) && str_starts_with($digits, '55');
     }
 
     /**
