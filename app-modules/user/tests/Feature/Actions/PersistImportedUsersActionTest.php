@@ -4,6 +4,7 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
@@ -65,6 +66,21 @@ it('queues a welcome email for each created user', function (): void {
     resolve(PersistImportedUsersAction::class)->execute($rows, $company);
 
     Mail::assertQueued(WelcomeUserMail::class, 2);
+});
+
+it('hashes the temporary password with a lower bcrypt cost than configured, matching the emailed password', function (): void {
+    Mail::fake();
+    config(['hashing.bcrypt.rounds' => 10]);
+    Hash::forgetDrivers();
+
+    $company = Company::factory()->create();
+
+    resolve(PersistImportedUsersAction::class)->execute(makeUserRows(1), $company);
+
+    $user = User::query()->where('email', 'persistuser1@example.com')->firstOrFail();
+
+    Mail::assertQueued(WelcomeUserMail::class, fn (WelcomeUserMail $mail): bool => Hash::check((string) $mail->password, $user->password));
+    expect(password_get_info($user->password)['options']['cost'])->toBe(4);
 });
 
 it('announces each created user, so the onboarding reaches imported employees too', function (): void {
