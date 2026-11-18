@@ -14,6 +14,7 @@ use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Pages\ListSuppor
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\RelationManagers\DestinationsRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\RelationManagers\NotificationsRelationManager;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\RelationManagers\StatusChangesRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Schemas\SupportTicketInfolist;
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Tables\SupportTicketsTable;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -80,6 +81,7 @@ class SupportTicketResource extends Resource
         return [
             DestinationsRelationManager::class,
             NotificationsRelationManager::class,
+            StatusChangesRelationManager::class,
         ];
     }
 

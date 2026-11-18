@@ -14,6 +14,7 @@ use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\DTOs\TicketOriginDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketNotificationChannelEnum;
 use TresPontosTech\Support\Enums\TicketNotificationEventEnum;
 use TresPontosTech\Support\Enums\TicketNotificationStatusEnum;
@@ -66,6 +67,7 @@ it('queues the creation message when a ticket comes in through ChatX', function 
         category: SupportTicketCategoryEnum::FinancialIssue,
         subject: 'Boleto veio em dobro',
         description: 'Cobrança duplicada.',
+        channel: TicketChannelEnum::Chatx,
         userId: User::factory()->create(['name' => 'Mariana Souza'])->id,
         environment: 'testing',
         origin: new TicketOriginDTO(TicketOriginSourceEnum::Chatx, '3031'),

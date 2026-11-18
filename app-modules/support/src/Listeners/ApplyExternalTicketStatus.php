@@ -6,6 +6,7 @@ namespace TresPontosTech\Support\Listeners;
 
 use Illuminate\Support\Facades\Log;
 use TresPontosTech\Support\Actions\TransitionSupportTicketStatusAction;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Events\ExternalTicketStatusChanged;
 use TresPontosTech\Support\Exceptions\InvalidTransitionException;
 use TresPontosTech\Support\Models\TicketDestination;
@@ -33,7 +34,7 @@ final class ApplyExternalTicketStatus
         }
 
         try {
-            $this->transition->execute($ticket, $event->status);
+            $this->transition->execute($ticket, $event->status, TicketStatusChangeSourceEnum::ExternalDestination);
         } catch (InvalidTransitionException) {
             Log::info('Ignoring forbidden externally-reported ticket transition.', [
                 'ticket_id' => $ticket->id,

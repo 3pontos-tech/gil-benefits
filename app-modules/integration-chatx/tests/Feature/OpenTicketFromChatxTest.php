@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Testing\TestResponse;
 use Symfony\Component\HttpFoundation\Response;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketOriginSourceEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 use TresPontosTech\Support\Models\TicketOrigin;
 
@@ -100,7 +102,9 @@ it('records where the ticket came in from', function (): void {
     $origin = TicketOrigin::query()->sole();
 
     expect($origin->source)->toBe(TicketOriginSourceEnum::Chatx)
-        ->and($origin->external_reference)->toBe('wpp-conv-a1b2c3d4');
+        ->and($origin->external_reference)->toBe('wpp-conv-a1b2c3d4')
+        ->and($origin->ticket->channel)->toBe(TicketChannelEnum::Chatx)
+        ->and($origin->ticket->statusChanges()->sole()->source)->toBe(TicketStatusChangeSourceEnum::Chatx);
 });
 
 it('matches the requester to their account by e-mail', function (): void {

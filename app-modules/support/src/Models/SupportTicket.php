@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace TresPontosTech\Support\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,6 +22,8 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Support\Database\Factories\SupportTicketFactory;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
+use TresPontosTech\Support\Models\Builders\SupportTicketBuilder;
 
 /**
  * @property string $id
@@ -32,6 +37,7 @@ use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
  * @property string $subject
  * @property string $description
  * @property SupportTicketStatusEnum $status
+ * @property TicketChannelEnum $channel
  * @property string|null $url
  * @property string|null $browser
  * @property string|null $device
@@ -39,11 +45,18 @@ use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read TicketOrigin|null $origin
+ * @property-read Collection<int, SupportTicketStatusChange> $statusChanges
+ *
+ * @method static SupportTicketBuilder query()
  */
 #[UseFactory(SupportTicketFactory::class)]
+#[UseEloquentBuilder(SupportTicketBuilder::class)]
+#[Table(name: 'support_tickets')]
 class SupportTicket extends Model implements HasMedia
 {
+    /** @use HasFactory<SupportTicketFactory> */
     use HasFactory;
+
     use HasUuids;
     use InteractsWithMedia;
 
@@ -58,6 +71,7 @@ class SupportTicket extends Model implements HasMedia
         'subject',
         'description',
         'status',
+        'channel',
         'url',
         'browser',
         'device',
@@ -69,6 +83,7 @@ class SupportTicket extends Model implements HasMedia
         return [
             'category' => SupportTicketCategoryEnum::class,
             'status' => SupportTicketStatusEnum::class,
+            'channel' => TicketChannelEnum::class,
         ];
     }
 
@@ -106,6 +121,14 @@ class SupportTicket extends Model implements HasMedia
     public function notifications(): HasMany
     {
         return $this->hasMany(SupportTicketNotification::class);
+    }
+
+    /**
+     * @return HasMany<SupportTicketStatusChange, $this>
+     */
+    public function statusChanges(): HasMany
+    {
+        return $this->hasMany(SupportTicketStatusChange::class);
     }
 
     /**

@@ -25,6 +25,13 @@ enum TicketOriginSourceEnum: string implements HasColor, HasIcon, HasLabel
         return __('support::enums.origin_source.' . $this->value);
     }
 
+    public function statusChangeSource(): TicketStatusChangeSourceEnum
+    {
+        return match ($this) {
+            self::Chatx => TicketStatusChangeSourceEnum::Chatx,
+        };
+    }
+
     public function getIcon(): Heroicon
     {
         return match ($this) {
