@@ -50,30 +50,51 @@ it('keeps posthog-js out of the internal panels', function (string $route): void
     'password reset request' => 'filament.app.auth.password-reset.request',
 ]);
 
-it('identifies the signed in user by the Flamma id', function (): void {
-    $user = User::factory()->create();
+it('identifies the signed in user by the Flamma id with name and e-mail, after registering the source', function (): void {
+    $user = User::factory()->create(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
+    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste'];
 
     $this->actingAs($user)
         ->get(route('site.home', ['flare_id' => (string) Str::uuid()]))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ')', false)
+        ->assertSeeInOrder([
+            "posthog.register({ source: 'flamma' })",
+            'var flammaId = ' . Js::from($user->getKey())->toHtml(),
+            'posthog.identify(flammaId, ' . Js::from($properties)->toHtml() . ')',
+        ], false)
         ->assertDontSee('posthog.reset()', false);
 });
 
 it('identifies the signed in user inside the employee panel', function (): void {
     $user = actingAsEmployee();
+    $user->update(['name' => 'Ana Teste', 'email' => 'ana.teste@example.com']);
+
+    $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste'];
 
     $this->get(EditUserProfile::getUrl(panel: 'app'))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($user->getKey())->toHtml() . ')', false);
+        ->assertSee('var flammaId = ' . Js::from($user->getKey())->toHtml(), false)
+        ->assertSee('posthog.identify(flammaId, ' . Js::from($properties)->toHtml() . ')', false);
 });
 
-it('identifies an anonymous visitor from the Flare invite by the Flare id', function (): void {
+it('sends the person properties once per browser session, unless the browser is someone else', function (): void {
+    $this->actingAs(User::factory()->create())
+        ->get(route('site.home'))
+        ->assertOk()
+        ->assertSeeInOrder([
+            "personSent = sessionStorage.getItem('flamma_posthog_person') === flammaId;",
+            'if (! personSent || posthog.get_distinct_id() !== flammaId) {',
+            'posthog.identify(flammaId, ',
+            "sessionStorage.setItem('flamma_posthog_person', flammaId);",
+        ], false);
+});
+
+it('identifies an anonymous visitor from the Flare invite by the Flare id only, after registering the source', function (): void {
     $flareId = (string) Str::uuid();
 
     $this->get(route('site.home', ['flare_id' => $flareId]))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($flareId)->toHtml() . ')', false);
+        ->assertSeeInOrder(["posthog.register({ source: 'flamma' })", 'posthog.identify(' . Js::from($flareId)->toHtml() . ');'], false);
 });
 
 it('keeps identifying the visitor by the Flare id from the cookie on the signup page', function (): void {

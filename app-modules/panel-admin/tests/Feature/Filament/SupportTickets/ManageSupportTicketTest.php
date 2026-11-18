@@ -4,17 +4,22 @@ declare(strict_types=1);
 
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\Pages\ViewSupportTicket;
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\RelationManagers\DestinationsRelationManager;
+use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\RelationManagers\NotificationsRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
+use TresPontosTech\Support\Enums\TicketNotificationStatusEnum;
+use TresPontosTech\Support\Jobs\SendTicketNotificationJob;
 use TresPontosTech\Support\Mail\SupportTicketStatusUpdatedMail;
 use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Support\Models\SupportTicketNotification;
 use TresPontosTech\Support\Models\TicketDestination;
 
 use function Pest\Livewire\livewire;
@@ -107,4 +112,41 @@ it('can change a ticket status from the view page', function (): void {
         ->assertHasNoActionErrors();
 
     expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::Resolved);
+});
+
+describe('notifications tab', function (): void {
+    it('lists the notifications sent for the ticket', function (): void {
+        $ticket = makeTicketFor();
+        $sent = SupportTicketNotification::factory()->for($ticket, 'ticket')->sent()->create();
+        $failed = SupportTicketNotification::factory()->for($ticket, 'ticket')->failed()->create();
+
+        livewire(NotificationsRelationManager::class, [
+            'ownerRecord' => $ticket,
+            'pageClass' => ViewSupportTicket::class,
+        ])
+            ->assertCanSeeTableRecords([$sent, $failed])
+            ->assertTableActionHidden('resend', $sent)
+            ->assertTableActionVisible('resend', $failed);
+    });
+
+    it('hides the tab when the ticket has no notifications', function (): void {
+        expect(NotificationsRelationManager::canViewForRecord(makeTicketFor(), ViewSupportTicket::class))->toBeFalse();
+    });
+
+    it('requeues a failed notification from the resend action', function (): void {
+        Queue::fake([SendTicketNotificationJob::class]);
+
+        $ticket = makeTicketFor();
+        $failed = SupportTicketNotification::factory()->for($ticket, 'ticket')->failed()->create();
+
+        livewire(NotificationsRelationManager::class, [
+            'ownerRecord' => $ticket,
+            'pageClass' => ViewSupportTicket::class,
+        ])
+            ->callTableAction('resend', $failed)
+            ->assertNotified();
+
+        expect($failed->refresh()->status)->toBe(TicketNotificationStatusEnum::Pending);
+        Queue::assertPushed(SendTicketNotificationJob::class);
+    });
 });

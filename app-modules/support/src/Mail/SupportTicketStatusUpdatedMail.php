@@ -36,7 +36,7 @@ class SupportTicketStatusUpdatedMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'support::emails.status-updated',
+            view: 'support::emails.status-updated',
             with: [
                 'ticket' => $this->ticket,
                 'requesterName' => $this->ticket->getRequesterName(),

@@ -14,7 +14,7 @@ use TresPontosTech\User\Support\EmailAddress;
 
 class ValidateUserImportAction
 {
-    private const array REQUIRED_COLUMNS = ['name', 'email', 'tax_id', 'phone_number'];
+    private const array REQUIRED_COLUMNS = ['name', 'email', 'tax_id'];
 
     /** @var list<ImportErrorDTO> */
     private array $errors = [];
@@ -49,7 +49,7 @@ class ValidateUserImportAction
             $this->validateTaxIdFormat($rowNumber, $email, $taxId);
             $this->validatePhoneNumberFormat($rowNumber, $email, $phoneNumber);
 
-            if (! $this->validateRequiredFields($rowNumber, $email, $name, $taxId, $phoneNumber)) {
+            if (! $this->validateRequiredFields($rowNumber, $email, $name, $taxId)) {
                 return;
             }
 
@@ -146,13 +146,12 @@ class ValidateUserImportAction
         }
     }
 
-    private function validateRequiredFields(int $rowNumber, string $email, string $name, ?string $taxId, ?string $phoneNumber): bool
+    private function validateRequiredFields(int $rowNumber, string $email, string $name, ?string $taxId): bool
     {
         $missingFields = array_keys(array_filter([
             'name' => blank($name),
             'email' => blank($email),
             'tax_id' => blank($taxId),
-            'phone_number' => blank($phoneNumber),
         ]));
 
         if ($missingFields === []) {

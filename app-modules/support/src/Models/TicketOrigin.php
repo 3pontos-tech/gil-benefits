@@ -18,6 +18,7 @@ use TresPontosTech\Support\Enums\TicketOriginSourceEnum;
  * @property string $support_ticket_id
  * @property TicketOriginSourceEnum $source
  * @property string $external_reference
+ * @property string|null $contact_phone
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -31,6 +32,7 @@ class TicketOrigin extends Model
         'support_ticket_id',
         'source',
         'external_reference',
+        'contact_phone',
     ];
 
     protected function casts(): array

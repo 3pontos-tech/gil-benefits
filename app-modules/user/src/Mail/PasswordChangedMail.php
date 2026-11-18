@@ -41,7 +41,7 @@ final class PasswordChangedMail extends Mailable implements ShouldQueue
         $changedAt = $this->changedAt->copy()->setTimezone((string) config('app.timezone'));
 
         return new Content(
-            markdown: 'emails.users.password-changed',
+            view: 'emails.users.password-changed',
             with: [
                 'userName' => $this->user->name,
                 'date' => $changedAt->format('d/m/Y'),

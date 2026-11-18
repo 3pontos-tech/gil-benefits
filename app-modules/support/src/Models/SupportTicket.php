@@ -38,6 +38,7 @@ use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
  * @property string|null $environment
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property-read TicketOrigin|null $origin
  */
 #[UseFactory(SupportTicketFactory::class)]
 class SupportTicket extends Model implements HasMedia
@@ -81,6 +82,9 @@ class SupportTicket extends Model implements HasMedia
             ]);
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -94,6 +98,14 @@ class SupportTicket extends Model implements HasMedia
     public function destinations(): HasMany
     {
         return $this->hasMany(TicketDestination::class);
+    }
+
+    /**
+     * @return HasMany<SupportTicketNotification, $this>
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(SupportTicketNotification::class);
     }
 
     /**
