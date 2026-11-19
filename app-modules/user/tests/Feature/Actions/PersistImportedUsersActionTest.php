@@ -3,11 +3,14 @@
 use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Actions\PersistImportedUsersAction;
+use TresPontosTech\User\Events\UserImported;
 use TresPontosTech\User\Mail\WelcomeUserMail;
 
 use function Pest\Laravel\assertDatabaseCount;
@@ -63,6 +66,34 @@ it('queues a welcome email for each created user', function (): void {
     resolve(PersistImportedUsersAction::class)->execute($rows, $company);
 
     Mail::assertQueued(WelcomeUserMail::class, 2);
+});
+
+it('hashes the temporary password with a lower bcrypt cost than configured, matching the emailed password', function (): void {
+    Mail::fake();
+    config(['hashing.bcrypt.rounds' => 10]);
+    Hash::forgetDrivers();
+
+    $company = Company::factory()->create();
+
+    resolve(PersistImportedUsersAction::class)->execute(makeUserRows(1), $company);
+
+    $user = User::query()->where('email', 'persistuser1@example.com')->firstOrFail();
+
+    Mail::assertQueued(WelcomeUserMail::class, fn (WelcomeUserMail $mail): bool => Hash::check((string) $mail->password, $user->password));
+    expect(password_get_info($user->password)['options']['cost'])->toBe(4);
+});
+
+it('announces each created user, so the onboarding reaches imported employees too', function (): void {
+    Mail::fake();
+    Event::fake([UserImported::class]);
+
+    $company = Company::factory()->create();
+    $rows = makeUserRows(2);
+
+    resolve(PersistImportedUsersAction::class)->execute($rows, $company);
+
+    Event::assertDispatchedTimes(UserImported::class, 2);
+    Event::assertDispatched(UserImported::class, fn (UserImported $event): bool => $event->user->email === $rows->first()['email']);
 });
 
 it('returns an ImportUsersResultDTO with the correct imported count', function (): void {

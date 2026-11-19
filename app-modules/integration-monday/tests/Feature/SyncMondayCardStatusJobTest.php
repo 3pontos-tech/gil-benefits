@@ -7,6 +7,7 @@ use TresPontosTech\IntegrationMonday\MondayClient;
 use TresPontosTech\IntegrationMonday\Testing\FakeMondayClient;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
@@ -25,6 +26,7 @@ beforeEach(function (): void {
 function ticketWithMondayCard(string $itemId = '987654'): SupportTicket
 {
     $ticket = SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0001',
         'category' => SupportTicketCategoryEnum::Bug,
         'subject' => 'Subject',
@@ -60,6 +62,7 @@ it('pushes the status to the ticket Monday card', function (): void {
 
 it('is a no-op when the ticket has no Monday card', function (): void {
     $ticket = SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0002',
         'category' => SupportTicketCategoryEnum::Bug,
         'subject' => 'Subject',

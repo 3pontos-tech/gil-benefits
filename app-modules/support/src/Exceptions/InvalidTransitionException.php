@@ -17,4 +17,13 @@ final class InvalidTransitionException extends RuntimeException
             $to->value,
         ));
     }
+
+    public static function moved(SupportTicketStatusEnum $expected, SupportTicketStatusEnum $actual): self
+    {
+        return new self(sprintf(
+            'The support ticket is no longer "%s"; it is "%s".',
+            $expected->value,
+            $actual->value,
+        ));
+    }
 }

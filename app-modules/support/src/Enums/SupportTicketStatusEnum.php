@@ -39,6 +39,19 @@ enum SupportTicketStatusEnum: string implements HasColor, HasIcon, HasLabel
         };
     }
 
+    /**
+     * Reopening = a resolved ticket going back into progress. One definition for the
+     * admin reason, the sector e-mail and the reopened filter.
+     */
+    public const REOPENED_FROM = self::Resolved;
+
+    public const REOPENED_TO = self::InProgress;
+
+    public function isReopenedBy(self $target): bool
+    {
+        return $this === self::REOPENED_FROM && $target === self::REOPENED_TO;
+    }
+
     public function canTransitionTo(self $target): bool
     {
         return in_array($target, $this->allowedTransitions(), true);

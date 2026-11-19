@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 
 /**
@@ -33,6 +34,7 @@ class SupportTicketFactory extends Factory
             'subject' => $this->faker->sentence(),
             'description' => $this->faker->paragraph(),
             'status' => SupportTicketStatusEnum::Pending,
+            'channel' => TicketChannelEnum::PanelApp,
             'url' => null,
             'browser' => null,
             'device' => null,

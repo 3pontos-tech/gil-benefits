@@ -18,4 +18,17 @@ return [
             'closed' => 'Your ticket has been **closed**.',
         ],
     ],
+    'reopened' => [
+        'subject' => 'Ticket reopened — [:protocol] :subject',
+        'preheader' => 'Ticket :protocol was reopened',
+        'heading' => 'Ticket reopened',
+        'labels' => [
+            'category' => 'Category',
+            'requester' => 'Requester',
+            'reopened_by' => 'Reopened by',
+            'reason' => 'Reopen reason:',
+            'subject' => 'Subject:',
+        ],
+        'opened_at' => 'Opened on :date',
+    ],
 ];

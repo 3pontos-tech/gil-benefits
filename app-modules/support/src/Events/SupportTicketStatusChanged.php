@@ -6,6 +6,7 @@ namespace TresPontosTech\Support\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 
 /**
@@ -23,5 +24,8 @@ final readonly class SupportTicketStatusChanged
         public SupportTicket $ticket,
         public SupportTicketStatusEnum $from,
         public SupportTicketStatusEnum $to,
+        public TicketStatusChangeSourceEnum $source,
+        public ?string $actorUserId = null,
+        public ?string $reason = null,
     ) {}
 }

@@ -1,0 +1,22 @@
+{
+	"name": "3pontos-tech/integration-chatx",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\IntegrationChatx\\": "src/",
+			"TresPontosTech\\IntegrationChatx\\Tests\\": "tests/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\IntegrationChatx\\Providers\\IntegrationChatxServiceProvider"
+			]
+		}
+	}
+}

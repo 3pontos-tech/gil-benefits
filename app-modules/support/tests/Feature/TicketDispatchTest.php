@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Mail\SupportTicketMail;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -17,6 +18,7 @@ beforeEach(function (): void {
 function ticketOfCategory(SupportTicketCategoryEnum $category): SupportTicket
 {
     return SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0001',
         'category' => $category,
         'subject' => 'subject',

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa3540f420a19eb5695e907fd3d4640b",
+    "content-hash": "73981cc85b441767987d570d9bc6fcd8",
     "packages": [
         {
             "name": "3pontos-tech/api",
@@ -227,6 +227,36 @@
                 "proprietary"
             ],
             "description": "Integração com o gateway de pagamento Barte",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/integration-chatx",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/integration-chatx",
+                "reference": "bc9c0d6786d58430838d17ee7e85cda367571804"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\IntegrationChatx\\Providers\\IntegrationChatxServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\IntegrationChatx\\": "src/",
+                    "TresPontosTech\\IntegrationChatx\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
             "transport-options": {
                 "symlink": true,
                 "relative": true

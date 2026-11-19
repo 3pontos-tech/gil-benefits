@@ -10,10 +10,13 @@ use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Jobs\DispatchSupportTicketJob;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Mail\SupportTicketStatusUpdatedMail;
 use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Support\Models\SupportTicketStatusChange;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\getJson;
@@ -92,6 +95,7 @@ it('opens a pending ticket with a protocol and routes it to the support team', f
         'browser' => 'app',
         'device' => 'mobile',
         'url' => null,
+        'channel' => TicketChannelEnum::Api->value,
     ]);
 
     Queue::assertPushed(DispatchSupportTicketJob::class, fn (DispatchSupportTicketJob $job): bool => $job->ticket->id === $response->json('data.id'));
@@ -151,6 +155,13 @@ it('closes the ticket and lets the requester know', function (SupportTicketStatu
 
     expect($ticket->fresh()->status)->toBe(SupportTicketStatusEnum::Closed);
     Mail::assertQueued(SupportTicketStatusUpdatedMail::class, fn (SupportTicketStatusUpdatedMail $mail): bool => $mail->hasTo($employee->email));
+    assertDatabaseHas(SupportTicketStatusChange::class, [
+        'support_ticket_id' => $ticket->id,
+        'from_status' => $from->value,
+        'to_status' => SupportTicketStatusEnum::Closed->value,
+        'source' => TicketStatusChangeSourceEnum::Requester->value,
+        'actor_user_id' => $employee->id,
+    ]);
 })->with([
     SupportTicketStatusEnum::Pending,
     SupportTicketStatusEnum::InProgress,

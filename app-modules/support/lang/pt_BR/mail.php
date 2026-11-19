@@ -18,4 +18,17 @@ return [
             'closed' => 'Seu chamado foi **encerrado**.',
         ],
     ],
+    'reopened' => [
+        'subject' => 'Chamado reaberto — [:protocol] :subject',
+        'preheader' => 'O chamado :protocol foi reaberto',
+        'heading' => 'Chamado reaberto',
+        'labels' => [
+            'category' => 'Categoria',
+            'requester' => 'Solicitante',
+            'reopened_by' => 'Reaberto por',
+            'reason' => 'Motivo da reabertura:',
+            'subject' => 'Assunto:',
+        ],
+        'opened_at' => 'Aberto em :date',
+    ],
 ];

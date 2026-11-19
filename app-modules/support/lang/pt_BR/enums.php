@@ -47,4 +47,34 @@ return [
         'sent' => 'Enviado',
         'failed' => 'Falhou',
     ],
+    'notification_channel' => [
+        'whatsapp' => 'WhatsApp',
+    ],
+    'notification_event' => [
+        'created' => 'Criação',
+        'status_changed' => 'Mudança de status',
+    ],
+    'notification_status' => [
+        'pending' => 'Pendente',
+        'sent' => 'Enviado',
+        'failed' => 'Falhou',
+        'skipped' => 'Não enviado',
+    ],
+    'origin_source' => [
+        'chatx' => 'ChatX (WhatsApp)',
+    ],
+    'ticket_channel' => [
+        'panel_app' => 'Aplicação (colaborador)',
+        'panel_company' => 'Painel da empresa',
+        'panel_consultant' => 'Painel do consultor',
+        'api' => 'App mobile (API)',
+        'help_center' => 'Central de ajuda pública',
+        'chatx' => 'ChatX (WhatsApp)',
+    ],
+    'status_change_source' => [
+        'admin' => 'Admin',
+        'requester' => 'Solicitante',
+        'external_destination' => 'Destino externo',
+        'chatx' => 'ChatX',
+    ],
 ];

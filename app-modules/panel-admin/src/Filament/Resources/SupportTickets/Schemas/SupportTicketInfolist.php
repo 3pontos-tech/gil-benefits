@@ -39,7 +39,7 @@ class SupportTicketInfolist
 
             Section::make(__('support::resources.support_tickets.sections.classification'))
                 ->icon(Heroicon::Tag)
-                ->columns(2)
+                ->columns(3)
                 ->schema([
                     TextEntry::make('category')
                         ->label(__('support::resources.support_tickets.fields.category'))
@@ -53,6 +53,10 @@ class SupportTicketInfolist
                         ->formatStateUsing(fn (SupportTicketStatusEnum $state): string => $state->getLabel())
                         ->icon(fn (SupportTicketStatusEnum $state): Heroicon => $state->getIcon())
                         ->color(fn (SupportTicketStatusEnum $state): array|string => $state->getColor()),
+                    TextEntry::make('channel')
+                        ->label(__('support::resources.support_tickets.fields.channel'))
+                        ->badge()
+                        ->color('gray'),
                 ]),
 
             Section::make(__('support::resources.support_tickets.sections.details'))

@@ -14,6 +14,7 @@ use Filament\Tables\Table;
 use TresPontosTech\Support\Actions\TransitionSupportTicketStatusAction;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 
 class SupportTicketsTable
@@ -72,7 +73,12 @@ class SupportTicketsTable
                     ->requiresConfirmation()
                     ->visible(fn (SupportTicket $record): bool => $record->status->canTransitionTo(SupportTicketStatusEnum::Closed))
                     ->action(function (SupportTicket $record): void {
-                        resolve(TransitionSupportTicketStatusAction::class)->execute($record, SupportTicketStatusEnum::Closed);
+                        resolve(TransitionSupportTicketStatusAction::class)->execute(
+                            $record,
+                            SupportTicketStatusEnum::Closed,
+                            TicketStatusChangeSourceEnum::Requester,
+                            auth()->user(),
+                        );
 
                         Notification::make()
                             ->title(__('support::resources.support_tickets.notifications.closed'))

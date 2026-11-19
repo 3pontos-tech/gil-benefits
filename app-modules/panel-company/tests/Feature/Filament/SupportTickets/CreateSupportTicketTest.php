@@ -5,12 +5,16 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\PanelCompany\Filament\Resources\SupportTickets\Pages\CreateSupportTicket;
+use TresPontosTech\PanelCompany\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
 use TresPontosTech\PanelCompany\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Mail\SupportTicketMail;
 use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Support\Models\SupportTicketStatusChange;
 
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Livewire\livewire;
@@ -36,6 +40,7 @@ it('opens a ticket through the company panel and notifies area + requester', fun
         'user_id' => $user->getKey(),
         'category' => SupportTicketCategoryEnum::FinancialIssue->value,
         'status' => SupportTicketStatusEnum::Pending->value,
+        'channel' => TicketChannelEnum::PanelCompany->value,
     ]);
 
     Mail::assertSent(
@@ -78,6 +83,7 @@ it('only lists tickets owned by the current user', function (): void {
     $company = filament()->getTenant();
 
     $mine = SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0001',
         'user_id' => $user->getKey(),
         'company_id' => $company?->getKey(),
@@ -90,6 +96,7 @@ it('only lists tickets owned by the current user', function (): void {
 
     $other = User::factory()->employee()->create();
     SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0002',
         'user_id' => $other->getKey(),
         'company_id' => $company?->getKey(),
@@ -112,6 +119,7 @@ it('lists the user own tickets regardless of company tenancy', function (): void
     // A ticket opened as a guest and attached to the user by email carries no company_id.
     // The listing is scoped only by user_id, so it must surface outside the current tenant.
     $guestTicket = SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0003',
         'user_id' => $user->getKey(),
         'company_id' => null,
@@ -125,4 +133,27 @@ it('lists the user own tickets regardless of company tenancy', function (): void
     $visible = SupportTicketResource::getEloquentQuery()->pluck('id');
 
     expect($visible)->toContain($guestTicket->getKey());
+});
+
+it('records the requester as the author when they close a ticket', function (): void {
+    $user = actingAsCompanyOwner();
+
+    $ticket = SupportTicket::factory()->create([
+        'user_id' => $user->getKey(),
+        'company_id' => filament()->getTenant()?->getKey(),
+        'status' => SupportTicketStatusEnum::InProgress,
+    ]);
+
+    livewire(ListSupportTickets::class)
+        ->callTableAction('close', $ticket)
+        ->assertNotified();
+
+    assertDatabaseHas(SupportTicketStatusChange::class, [
+        'support_ticket_id' => $ticket->getKey(),
+        'from_status' => SupportTicketStatusEnum::InProgress->value,
+        'to_status' => SupportTicketStatusEnum::Closed->value,
+        'source' => TicketStatusChangeSourceEnum::Requester->value,
+        'actor_user_id' => $user->getKey(),
+        'reason' => null,
+    ]);
 });
