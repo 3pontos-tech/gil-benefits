@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Enums\SupportArea;
 use App\Filament\Shared\Pages\LoginPage;
 use App\Filament\Shared\Pages\RequestPasswordResetPage;
 use App\Http\Middleware\IdentifyDefaultTenantOffTenantRoutes;
@@ -26,6 +27,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\PanelApp\Filament\Pages\EditUserProfile;
@@ -78,6 +80,10 @@ class AppPanelProvider extends PanelProvider
             ->databaseNotificationsPolling('30s')
             ->globalSearch(false)
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): ViewContract => view('components.posthog'))
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => Blade::render('<x-support-whatsapp :area="$area" />', ['area' => SupportArea::EmployeePanel]),
+            )
             // Alternador claro/escuro na topbar, entre o sino e o avatar.
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,

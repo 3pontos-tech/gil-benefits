@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Enums\SupportArea;
 use App\Filament\Shared\Pages\LoginPage;
 use App\Filament\Shared\Pages\RegisterPage;
 use App\Filament\Shared\Pages\RequestPasswordResetPage;
@@ -24,6 +25,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use TresPontosTech\Company\Models\Company;
@@ -116,9 +118,14 @@ class CompanyPanelProvider extends PanelProvider
                     ->icon(Heroicon::UserCircle)
                     ->url(fn (): string => EditUserProfile::getUrl()),
             ])
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.posthog'))
             ->renderHook(
                 PanelsRenderHook::BODY_START,
                 fn (): Factory|View => view('filament.shared.import-errors-modal'),
+            )
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => Blade::render('<x-support-whatsapp :area="$area" />', ['area' => SupportArea::CompanyPanel]),
             )
             ->renderHook(
                 PanelsRenderHook::BODY_START,

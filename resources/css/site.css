@@ -253,3 +253,7 @@
         color: var(--site-nav-text-active);
     }
 }
+
+body:has(> [data-support-whatsapp]) > footer {
+    padding-bottom: calc(var(--spacing) * 28);
+}

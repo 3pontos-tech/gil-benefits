@@ -6,7 +6,7 @@
     $contactEmail = config('services.contact.email');
 @endphp
 
-<x-layouts.site title="Política de Privacidade" description="Como o Flamma coleta, usa, compartilha e protege os seus dados pessoais.">
+<x-layouts.site title="Política de Privacidade" description="Como o Flamma coleta, usa, compartilha e protege os seus dados pessoais." :support-area="\App\Enums\SupportArea::Privacy">
     <article class="mx-auto flex max-w-3xl flex-col gap-6 px-5 pt-32 pb-24 leading-[1.6] sm:px-8 lg:pt-40">
         <h1 class="text-3xl font-bold lg:text-4xl">Política de Privacidade</h1>
 
@@ -24,8 +24,9 @@
             <li>Dados de assinatura, compra de créditos e uso de vouchers.</li>
             <li>Chamados de suporte.</li>
             <li>
-                Dados de navegação no site e na área do colaborador: páginas visitadas, origem da visita (como o anúncio
-                ou o convite que trouxe você), tipo de navegador e dispositivo, e localização aproximada (cidade e país).
+                Dados de navegação no site, na área do colaborador e no painel da empresa: páginas visitadas, origem da
+                visita (como o anúncio ou o convite que trouxe você), cliques no botão de suporte pelo WhatsApp, tipo de
+                navegador e dispositivo, e localização aproximada (cidade e país).
             </li>
         </ul>
 
@@ -74,8 +75,9 @@
             </li>
             <li>
                 Cookies e armazenamento local do PostHog, que medem o uso do site. Não guardamos o endereço IP: ele é
-                usado só para estimar cidade e país e depois descartado. Na área do colaborador, medimos apenas as páginas
-                visitadas, sem registrar cliques nem gravar a tela.
+                usado só para estimar cidade e país e depois descartado. Na área do colaborador e no painel da empresa,
+                medimos apenas as páginas visitadas e os cliques no botão de suporte, sem registrar outros cliques nem
+                gravar a tela.
             </li>
         </ul>
         <p>Você pode apagar ou bloquear cookies nas configurações do seu navegador.</p>

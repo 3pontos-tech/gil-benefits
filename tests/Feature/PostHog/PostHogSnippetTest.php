@@ -37,6 +37,7 @@ it('loads posthog-js tagged as Flamma on the site and the customer panels', func
     'collaborator page' => 'site.collaborator',
     'employee panel' => 'filament.app.auth.login',
     'employee signup' => 'filament.app.auth.register',
+    'company panel' => 'filament.company.auth.login',
 ]);
 
 it('keeps posthog-js out of the internal panels', function (string $route): void {
@@ -46,7 +47,6 @@ it('keeps posthog-js out of the internal panels', function (string $route): void
 })->with([
     'admin' => 'filament.admin.auth.login',
     'consultant' => 'filament.consultant.auth.login',
-    'company' => 'filament.company.auth.login',
     'password reset request' => 'filament.app.auth.password-reset.request',
 ]);
 
@@ -107,12 +107,17 @@ it('keeps posthog-js away from the internal team on the site', function (): void
         ->assertDontSee('posthog', false);
 });
 
-it('turns off autocapture and session recording inside the employee panel only', function (): void {
-    $this->get(route('filament.app.auth.login'))
+it('turns off autocapture and session recording inside the customer panels', function (string $route): void {
+    $this->get(route($route))
         ->assertOk()
         ->assertSee('autocapture: false', false)
         ->assertSee('disable_session_recording: true', false);
+})->with([
+    'employee panel' => 'filament.app.auth.login',
+    'company panel' => 'filament.company.auth.login',
+]);
 
+it('keeps autocapture on the site', function (): void {
     $this->get(route('site.home'))
         ->assertOk()
         ->assertDontSee('autocapture: false', false);
