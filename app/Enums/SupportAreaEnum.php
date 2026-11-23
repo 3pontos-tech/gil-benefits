@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-enum SupportArea: string
+enum SupportAreaEnum: string
 {
     case Home = 'home';
     case Companies = 'empresas';

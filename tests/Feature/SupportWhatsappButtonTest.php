@@ -19,7 +19,7 @@ it('opens the support WhatsApp with the origin of each site page', function (str
         ->assertSee('href="https://wa.me/5511999999999?text=' . rawurlencode('Olá! Gostaria de falar com o suporte. ' . $origin) . '"', false)
         ->assertSee('data-support-whatsapp="' . $area . '"', false)
         ->assertSee('target="_blank"', false)
-        ->assertSee('aria-label="Falar com o Suporte pelo WhatsApp (abre em nova aba)"', false);
+        ->assertSee('aria-label="Falar com o suporte pelo WhatsApp (abre em nova aba)"', false);
 })->with([
     'home' => ['site.home', 'home', 'Estou no site do Flamma, na página inicial.'],
     'companies' => ['site.companies', 'empresas', 'Estou no site do Flamma, na página Para Empresas.'],
@@ -37,6 +37,16 @@ it('shows the button on the auth pages of the customer panels', function (string
     'employee password reset' => ['filament.app.auth.password-reset.request', 'painel_colaborador'],
     'company login' => ['filament.company.auth.login', 'painel_empresa'],
 ]);
+
+it('keeps the password reset token and e-mail out of the WhatsApp referrer', function (): void {
+    $user = User::factory()->create();
+    filament()->setCurrentPanel('app');
+
+    $this->get(filament()->getResetPasswordUrl('reset-token', $user))
+        ->assertOk()
+        ->assertSee('data-support-whatsapp="painel_colaborador"', false)
+        ->assertSee('rel="noopener noreferrer"', false);
+});
 
 it('opens the support WhatsApp with the employee panel origin', function (): void {
     actingAsEmployee();
@@ -62,6 +72,24 @@ it('opens the support WhatsApp with the company panel origin and loads posthog-j
     $response->assertOk()
         ->assertSee('href="https://wa.me/5511999999999?text=' . rawurlencode('Olá! Gostaria de falar com o suporte. Estou no painel da empresa do Flamma.') . '"', false);
     expect(substr_count($response->getContent(), 'posthog.init('))->toBe(1);
+});
+
+it('hides the button and posthog-js from an admin inside the company panel', function (): void {
+    config(['services.posthog.key' => 'phc_test']);
+    $owner = User::factory()->companyOwner()->create();
+    $company = Company::factory()->recycle($owner)->create();
+    $company->employees()->attach($owner->getKey());
+    CompanyPlan::factory()->create([
+        'company_id' => $company->getKey(),
+        'status' => CompanyPlanStatusEnum::Active->value,
+        'starts_at' => now()->subDay(),
+    ]);
+    actingAsAdmin();
+
+    $this->get(route('filament.company.pages.dashboard', ['tenant' => $company->slug]))
+        ->assertOk()
+        ->assertDontSee('data-support-whatsapp', false)
+        ->assertDontSee('posthog.init(', false);
 });
 
 it('captures the click in PostHog with the area of the button', function (): void {
@@ -106,4 +134,9 @@ it('keeps the commercial WhatsApp of the site CTAs apart from the support one', 
         ->assertOk()
         ->assertSee('https://wa.me/5511888888888?text=Flamma', false)
         ->assertSee('https://wa.me/5511999999999?text=', false);
+});
+
+it('accepts the area as its string value', function (): void {
+    $this->blade('<x-support-whatsapp area="privacidade" />')
+        ->assertSee('data-support-whatsapp="privacidade"', false);
 });

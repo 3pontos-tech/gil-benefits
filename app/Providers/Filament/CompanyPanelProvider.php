@@ -2,7 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Enums\SupportArea;
+use App\Enums\SupportAreaEnum;
 use App\Filament\Shared\Pages\LoginPage;
 use App\Filament\Shared\Pages\RegisterPage;
 use App\Filament\Shared\Pages\RequestPasswordResetPage;
@@ -118,14 +118,17 @@ class CompanyPanelProvider extends PanelProvider
                     ->icon(Heroicon::UserCircle)
                     ->url(fn (): string => EditUserProfile::getUrl()),
             ])
-            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.posthog'))
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => filled(config('services.whatsapp.support_phone')) ? view('components.posthog')->render() : '',
+            )
             ->renderHook(
                 PanelsRenderHook::BODY_START,
                 fn (): Factory|View => view('filament.shared.import-errors-modal'),
             )
             ->renderHook(
                 PanelsRenderHook::BODY_END,
-                fn (): string => Blade::render('<x-support-whatsapp :area="$area" />', ['area' => SupportArea::CompanyPanel]),
+                fn (): string => Blade::render('<x-support-whatsapp :area="$area" />', ['area' => SupportAreaEnum::CompanyPanel]),
             )
             ->renderHook(
                 PanelsRenderHook::BODY_START,

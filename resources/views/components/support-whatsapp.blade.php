@@ -1,7 +1,9 @@
+@use('App\Enums\SupportAreaEnum')
+
 @props(['area'])
 
 @php
-    /** @var \App\Enums\SupportArea $area */
+    $area = $area instanceof SupportAreaEnum ? $area : SupportAreaEnum::from($area);
     $supportPhone = preg_replace('/\D/', '', (string) config('services.whatsapp.support_phone'));
     $isInternalTeam = auth()->user()?->isInternalTeam() ?? false;
 @endphp
@@ -11,7 +13,7 @@
         href="https://wa.me/{{ $supportPhone }}?text={{ rawurlencode($area->whatsappMessage()) }}"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Falar com o Suporte pelo WhatsApp (abre em nova aba)"
+        aria-label="Falar com o suporte pelo WhatsApp (abre em nova aba)"
         data-support-whatsapp="{{ $area->value }}"
         @class([
             'fixed bottom-[max(1rem,env(safe-area-inset-bottom))] start-[max(1rem,env(safe-area-inset-left))] z-20',
@@ -29,13 +31,18 @@
 
     @once
         <style>
-            .fi-body:has([data-support-whatsapp]) .fi-sidebar-nav {
+            .fi-body:has([data-support-whatsapp]) .fi-sidebar-nav,
+            .fi-body:has([data-support-whatsapp]) .fi-main-ctn {
                 padding-bottom: calc(var(--spacing) * 20);
             }
         </style>
 
         <script>
             document.addEventListener('click', function (event) {
+                if (! (event.target instanceof Element)) {
+                    return;
+                }
+
                 var link = event.target.closest('[data-support-whatsapp]');
 
                 if (! link || ! window.posthog || typeof window.posthog.capture !== 'function') {

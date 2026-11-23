@@ -37,8 +37,25 @@ it('loads posthog-js tagged as Flamma on the site and the customer panels', func
     'collaborator page' => 'site.collaborator',
     'employee panel' => 'filament.app.auth.login',
     'employee signup' => 'filament.app.auth.register',
-    'company panel' => 'filament.company.auth.login',
 ]);
+
+it('loads posthog-js in the company panel only once the support phone is configured', function (): void {
+    config(['services.whatsapp.support_phone' => '5511999999999']);
+
+    $this->get(route('filament.company.auth.login'))
+        ->assertOk()
+        ->assertSee('posthog.init(' . Js::from('phc_test')->toHtml(), false)
+        ->assertSee('autocapture: false', false)
+        ->assertSee('disable_session_recording: true', false);
+});
+
+it('keeps posthog-js out of the company panel without the support phone', function (?string $phone): void {
+    config(['services.whatsapp.support_phone' => $phone]);
+
+    $this->get(route('filament.company.auth.login'))
+        ->assertOk()
+        ->assertDontSee('posthog', false);
+})->with(['null' => null, 'empty' => '']);
 
 it('keeps posthog-js out of the internal panels', function (string $route): void {
     $this->get(route($route))
@@ -135,7 +152,6 @@ it('turns off autocapture and session recording inside the customer panels', fun
         ->assertSee('disable_session_recording: true', false);
 })->with([
     'employee panel' => 'filament.app.auth.login',
-    'company panel' => 'filament.company.auth.login',
 ]);
 
 it('keeps autocapture on the site', function (): void {

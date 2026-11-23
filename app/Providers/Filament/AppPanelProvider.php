@@ -2,7 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use App\Enums\SupportArea;
+use App\Enums\SupportAreaEnum;
 use App\Filament\Shared\Pages\LoginPage;
 use App\Filament\Shared\Pages\RequestPasswordResetPage;
 use App\Http\Middleware\IdentifyDefaultTenantOffTenantRoutes;
@@ -82,7 +82,7 @@ class AppPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): ViewContract => view('components.posthog'))
             ->renderHook(
                 PanelsRenderHook::BODY_END,
-                fn (): string => Blade::render('<x-support-whatsapp :area="$area" />', ['area' => SupportArea::EmployeePanel]),
+                fn (): string => Blade::render('<x-support-whatsapp :area="$area" />', ['area' => SupportAreaEnum::EmployeePanel]),
             )
             // Alternador claro/escuro na topbar, entre o sino e o avatar.
             ->renderHook(

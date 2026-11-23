@@ -1,4 +1,4 @@
-<x-layouts.site title="Para Empresas" description="Consultoria financeira como benefício corporativo: menos estresse financeiro no time, mais produtividade e retenção." :support-area="\App\Enums\SupportArea::Companies">
+<x-layouts.site title="Para Empresas" description="Consultoria financeira como benefício corporativo: menos estresse financeiro no time, mais produtividade e retenção." :support-area="\App\Enums\SupportAreaEnum::Companies">
     {{--
         overflow-x-clip contém as faixas que sangram de ponta a ponta (`w-screen`) sem gerar
         barra de rolagem horizontal. O espaçamento vertical não é uniforme: o design vai de

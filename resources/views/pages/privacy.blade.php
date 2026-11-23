@@ -6,7 +6,7 @@
     $contactEmail = config('services.contact.email');
 @endphp
 
-<x-layouts.site title="Política de Privacidade" description="Como o Flamma coleta, usa, compartilha e protege os seus dados pessoais." :support-area="\App\Enums\SupportArea::Privacy">
+<x-layouts.site title="Política de Privacidade" description="Como o Flamma coleta, usa, compartilha e protege os seus dados pessoais." :support-area="\App\Enums\SupportAreaEnum::Privacy">
     <article class="mx-auto flex max-w-3xl flex-col gap-6 px-5 pt-32 pb-24 leading-[1.6] sm:px-8 lg:pt-40">
         <h1 class="text-3xl font-bold lg:text-4xl">Política de Privacidade</h1>
 
