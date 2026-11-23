@@ -52,5 +52,9 @@
 
         <env name="MONDAY_BOARD_ID" value=""/>
         <env name="MONDAY_API_TOKEN" value=""/>
+
+        <env name="CHATX_WEBHOOK_SECRET" value=""/>
+        <env name="CHATX_STATUS_WEBHOOK_URL" value=""/>
+        <env name="CHATX_STATUS_WEBHOOK_TOKEN" value=""/>
     </php>
 </phpunit>

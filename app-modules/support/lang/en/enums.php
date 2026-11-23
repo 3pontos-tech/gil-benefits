@@ -47,7 +47,34 @@ return [
         'sent' => 'Sent',
         'failed' => 'Failed',
     ],
+    'notification_channel' => [
+        'whatsapp' => 'WhatsApp',
+    ],
+    'notification_event' => [
+        'created' => 'Creation',
+        'status_changed' => 'Status change',
+    ],
+    'notification_status' => [
+        'pending' => 'Pending',
+        'sent' => 'Sent',
+        'failed' => 'Failed',
+        'skipped' => 'Skipped',
+    ],
     'origin_source' => [
         'chatx' => 'ChatX (WhatsApp)',
+    ],
+    'ticket_channel' => [
+        'panel_app' => 'App (employee)',
+        'panel_company' => 'Company panel',
+        'panel_consultant' => 'Consultant panel',
+        'api' => 'Mobile app (API)',
+        'help_center' => 'Public help center',
+        'chatx' => 'ChatX (WhatsApp)',
+    ],
+    'status_change_source' => [
+        'admin' => 'Admin',
+        'requester' => 'Requester',
+        'external_destination' => 'External destination',
+        'chatx' => 'ChatX',
     ],
 ];

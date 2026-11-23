@@ -18,6 +18,7 @@ return [
 
         'columns' => [
             'protocol' => 'Protocol',
+            'channel' => 'Channel',
             'category' => 'Category',
             'subject' => 'Subject',
             'status' => 'Status',
@@ -28,6 +29,8 @@ return [
 
         'fields' => [
             'protocol' => 'Protocol',
+            'channel' => 'Channel',
+            'reopen_reason' => 'Reopen reason',
             'requester_name' => 'Name',
             'requester_email' => 'Email',
             'visitor_company_name' => 'Company',
@@ -42,6 +45,10 @@ return [
             'environment' => 'Environment',
             'created_at' => 'Opened at',
             'updated_at' => 'Updated at',
+        ],
+
+        'filters' => [
+            'reopened' => 'Reopened only',
         ],
 
         'actions' => [
@@ -71,6 +78,38 @@ return [
                 'created_at' => 'Created at',
             ],
             'empty' => 'No destinations for this ticket.',
+        ],
+        'sent_notifications' => [
+            'title' => 'Notifications',
+            'columns' => [
+                'event' => 'Event',
+                'transition' => 'Ticket status',
+                'status' => 'Delivery',
+                'attempts' => 'Attempts',
+                'response_code' => 'HTTP',
+                'error' => 'Error',
+                'message' => 'Message',
+                'sent_at' => 'Sent at',
+                'created_at' => 'Created at',
+            ],
+            'empty' => 'No notifications for this ticket.',
+            'actions' => [
+                'resend' => [
+                    'label' => 'Resend',
+                    'notification' => 'Notification queued again.',
+                ],
+            ],
+        ],
+        'status_history' => [
+            'title' => 'History',
+            'columns' => [
+                'created_at' => 'When',
+                'transition' => 'Status',
+                'source' => 'Changed by',
+                'actor' => 'Author',
+                'reason' => 'Reason',
+            ],
+            'empty' => 'No status change recorded for this ticket.',
         ],
     ],
 ];

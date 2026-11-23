@@ -18,6 +18,7 @@ return [
 
         'columns' => [
             'protocol' => 'Protocolo',
+            'channel' => 'Canal',
             'category' => 'Categoria',
             'subject' => 'Assunto',
             'status' => 'Status',
@@ -28,6 +29,8 @@ return [
 
         'fields' => [
             'protocol' => 'Protocolo',
+            'channel' => 'Canal',
+            'reopen_reason' => 'Motivo da reabertura',
             'requester_name' => 'Nome',
             'requester_email' => 'E-mail',
             'visitor_company_name' => 'Empresa',
@@ -42,6 +45,10 @@ return [
             'environment' => 'Ambiente',
             'created_at' => 'Aberto em',
             'updated_at' => 'Última atualização',
+        ],
+
+        'filters' => [
+            'reopened' => 'Somente reabertos',
         ],
 
         'actions' => [
@@ -71,6 +78,38 @@ return [
                 'created_at' => 'Criado em',
             ],
             'empty' => 'Nenhum destino para este chamado.',
+        ],
+        'sent_notifications' => [
+            'title' => 'Notificações',
+            'columns' => [
+                'event' => 'Evento',
+                'transition' => 'Status do chamado',
+                'status' => 'Envio',
+                'attempts' => 'Tentativas',
+                'response_code' => 'HTTP',
+                'error' => 'Erro',
+                'message' => 'Mensagem',
+                'sent_at' => 'Enviado em',
+                'created_at' => 'Criado em',
+            ],
+            'empty' => 'Nenhuma notificação para este chamado.',
+            'actions' => [
+                'resend' => [
+                    'label' => 'Reenviar',
+                    'notification' => 'Notificação reenviada para a fila.',
+                ],
+            ],
+        ],
+        'status_history' => [
+            'title' => 'Histórico',
+            'columns' => [
+                'created_at' => 'Quando',
+                'transition' => 'Status',
+                'source' => 'Origem da mudança',
+                'actor' => 'Responsável',
+                'reason' => 'Motivo',
+            ],
+            'empty' => 'Nenhuma mudança de status registrada para este chamado.',
         ],
     ],
 ];

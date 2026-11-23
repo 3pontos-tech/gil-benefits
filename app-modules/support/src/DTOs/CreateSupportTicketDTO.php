@@ -6,6 +6,7 @@ namespace TresPontosTech\Support\DTOs;
 
 use Illuminate\Http\UploadedFile;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use UnexpectedValueException;
 
 final readonly class CreateSupportTicketDTO
@@ -17,6 +18,7 @@ final readonly class CreateSupportTicketDTO
         public SupportTicketCategoryEnum $category,
         public string $subject,
         public string $description,
+        public TicketChannelEnum $channel,
         public ?string $userId = null,
         public ?string $companyId = null,
         public ?string $visitorName = null,
@@ -40,6 +42,7 @@ final readonly class CreateSupportTicketDTO
      */
     public static function fromFormState(
         array $state,
+        TicketChannelEnum $channel,
         ?string $userId = null,
         ?string $companyId = null,
         ?string $url = null,
@@ -54,6 +57,7 @@ final readonly class CreateSupportTicketDTO
                 : SupportTicketCategoryEnum::from(self::requiredString($state['category'] ?? null)),
             subject: self::requiredString($state['subject'] ?? null),
             description: self::requiredString($state['description'] ?? null),
+            channel: $channel,
             userId: $userId,
             companyId: $companyId,
             visitorName: self::optionalString($state['visitor_name'] ?? null),

@@ -15,5 +15,6 @@ final readonly class TicketOriginDTO
     public function __construct(
         public TicketOriginSourceEnum $source,
         public string $externalReference,
+        public ?string $contactPhone = null,
     ) {}
 }

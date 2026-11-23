@@ -7,6 +7,7 @@ use TresPontosTech\IntegrationMonday\Senders\MondayTicketSenderAdapter;
 use TresPontosTech\IntegrationMonday\Testing\FakeMondayClient;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -23,6 +24,7 @@ beforeEach(function (): void {
 function ticketForMonday(): SupportTicket
 {
     return SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0001',
         'category' => SupportTicketCategoryEnum::Bug,
         'subject' => 'Login broken',

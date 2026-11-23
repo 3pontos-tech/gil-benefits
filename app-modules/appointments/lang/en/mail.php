@@ -21,5 +21,8 @@ return [
     'consultant_unassigned' => [
         'subject' => 'An appointment was removed from your agenda',
     ],
+    'onboarding' => [
+        'subject' => 'How to book your first session on :app',
+    ],
     'no_consultant' => 'unassigned consultant',
 ];

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Support\PostHog;
 
+use App\Models\Users\User;
 use Illuminate\Support\Str;
 
 /**
@@ -14,7 +15,7 @@ use Illuminate\Support\Str;
 final class PostHog
 {
     /**
-     * @param  array<string, string|int|bool>  $properties
+     * @param  array<string, string|int|bool|array<string, string>>  $properties
      */
     public function capture(string $distinctId, string $event, array $properties = []): void
     {
@@ -38,5 +39,15 @@ final class PostHog
     public function alias(string $anonymousId, string $userId): void
     {
         $this->capture($userId, '$create_alias', ['alias' => $anonymousId]);
+    }
+
+    /**
+     * Ficha da pessoa no PostHog: nome e e-mail, que o PostHog usa para exibir e buscar pessoas.
+     *
+     * @return array{email: string, name: string}
+     */
+    public static function personProperties(User $user): array
+    {
+        return ['email' => $user->email, 'name' => $user->name];
     }
 }

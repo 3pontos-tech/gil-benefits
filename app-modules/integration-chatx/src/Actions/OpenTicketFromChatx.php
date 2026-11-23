@@ -7,12 +7,13 @@ namespace TresPontosTech\IntegrationChatx\Actions;
 use Illuminate\Database\QueryException;
 use TresPontosTech\IntegrationChatx\DTO\ChatxTicketDTO;
 use TresPontosTech\IntegrationChatx\Support\ChatxCategoryMap;
+use TresPontosTech\IntegrationChatx\Support\ChatxPhone;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\DTOs\TicketOriginDTO;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketOriginSourceEnum;
 use TresPontosTech\Support\Models\SupportTicket;
-use TresPontosTech\Support\Models\TicketOrigin;
 
 /**
  * Opens a support ticket from a ChatX payload, at most once per external reference.
@@ -22,6 +23,7 @@ final class OpenTicketFromChatx
     public function __construct(
         private readonly ResolveChatxRequester $requesters,
         private readonly CreateSupportTicketAction $createTicket,
+        private readonly SaveRequesterPhone $savePhone,
     ) {}
 
     /**
@@ -49,11 +51,14 @@ final class OpenTicketFromChatx
         // ticket, and the exception it throws renders as a 422.
         $user = $this->requesters->execute($dto);
 
+        $this->savePhone->execute($user, $dto->visitorPhone);
+
         try {
             $ticket = $this->createTicket->execute(new CreateSupportTicketDTO(
                 category: ChatxCategoryMap::toCategory($dto->category),
                 subject: $dto->subject,
                 description: $dto->description,
+                channel: TicketChannelEnum::Chatx,
                 userId: $user->id,
                 companyId: $user->employerCompanyId(),
                 visitorName: $dto->visitorName,
@@ -63,6 +68,7 @@ final class OpenTicketFromChatx
                 origin: new TicketOriginDTO(
                     source: TicketOriginSourceEnum::Chatx,
                     externalReference: $dto->externalReference,
+                    contactPhone: ChatxPhone::e164($dto->visitorPhone),
                 ),
             ));
         } catch (QueryException $queryException) {
@@ -80,20 +86,6 @@ final class OpenTicketFromChatx
 
     private function findByReference(string $reference): ?SupportTicket
     {
-        $ticketId = TicketOrigin::query()
-            ->where('source', TicketOriginSourceEnum::Chatx)
-            ->where('external_reference', $reference)
-            ->value('support_ticket_id');
-
-        if (! is_string($ticketId)) {
-            return null;
-        }
-
-        // withoutGlobalScopes(): tickets carry Filament's company tenancy scope, and
-        // an API request has no tenant to satisfy it. Scoped, this lookup would find
-        // nothing and the endpoint would open a duplicate on every retry.
-        return SupportTicket::query()
-            ->withoutGlobalScopes()
-            ->find($ticketId);
+        return SupportTicket::query()->fromOrigin(TicketOriginSourceEnum::Chatx, $reference)->first();
     }
 }

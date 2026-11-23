@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 
 beforeEach(function (): void {
@@ -28,6 +31,7 @@ function dto(string $subject = 'subject'): CreateSupportTicketDTO
         category: SupportTicketCategoryEnum::Bug,
         subject: $subject,
         description: 'description',
+        channel: TicketChannelEnum::PanelApp,
         visitorName: 'Visitor',
         visitorEmail: 'visitor@example.com',
         environment: 'testing',
@@ -53,7 +57,7 @@ it('narrows a multiple FileUpload state into a list of uploads', function (): vo
             UploadedFile::fake()->image('a.png'),
             UploadedFile::fake()->image('b.png'),
         ],
-    ]);
+    ], channel: TicketChannelEnum::PanelApp);
 
     expect($dto->attachments)->toHaveCount(2);
 });
@@ -65,6 +69,7 @@ it('stores every uploaded attachment in the media collection', function (): void
         category: SupportTicketCategoryEnum::Bug,
         subject: 'subject',
         description: 'description',
+        channel: TicketChannelEnum::PanelApp,
         visitorName: 'Visitor',
         visitorEmail: 'visitor@example.com',
         environment: 'testing',
@@ -92,6 +97,7 @@ it('matches the visitor email whatever its capitalization', function (): void {
         category: SupportTicketCategoryEnum::Bug,
         subject: 'subject',
         description: 'description',
+        channel: TicketChannelEnum::PanelApp,
         visitorName: 'Visitor',
         visitorEmail: 'Visitor@Example.com',
         environment: 'testing',
@@ -114,6 +120,7 @@ it('keeps an explicit user id over the visitor email lookup', function (): void 
         category: SupportTicketCategoryEnum::Bug,
         subject: 'subject',
         description: 'description',
+        channel: TicketChannelEnum::PanelApp,
         userId: $explicit->id,
         visitorEmail: 'visitor@example.com',
         environment: 'testing',
@@ -135,4 +142,32 @@ it('does not collide with an existing protocol hidden by the tenant scope (regre
     $next = $action->execute(dto('company'));
 
     expect($next->protocol)->toBe('SUP-2026-0002');
+});
+
+it('starts the status history with the opening row', function (): void {
+    $ticket = resolve(CreateSupportTicketAction::class)->execute(dto());
+
+    expect($ticket->channel)->toBe(TicketChannelEnum::PanelApp)
+        ->and($ticket->statusChanges()->sole())
+        ->from_status->toBeNull()
+        ->to_status->toBe(SupportTicketStatusEnum::Pending)
+        ->source->toBe(TicketStatusChangeSourceEnum::Requester)
+        ->actor_user_id->toBeNull()
+        ->reason->toBeNull();
+});
+
+it('credits the opening row to the requester account when there is one', function (): void {
+    $user = User::factory()->create();
+
+    $ticket = resolve(CreateSupportTicketAction::class)->execute(new CreateSupportTicketDTO(
+        category: SupportTicketCategoryEnum::Bug,
+        subject: 'subject',
+        description: 'description',
+        channel: TicketChannelEnum::PanelCompany,
+        userId: $user->id,
+        environment: 'testing',
+    ));
+
+    expect($ticket->channel)->toBe(TicketChannelEnum::PanelCompany)
+        ->and($ticket->statusChanges()->sole()->actor_user_id)->toBe($user->id);
 });

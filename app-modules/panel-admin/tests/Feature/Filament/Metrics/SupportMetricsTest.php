@@ -9,6 +9,7 @@ use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketsByStatus;
 use TresPontosTech\PanelAdmin\Filament\Widgets\Metrics\SupportTicketStatsWidget;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 
 use function Pest\Livewire\livewire;
@@ -25,6 +26,7 @@ beforeEach(function (): void {
 
     foreach ($statuses as $i => $status) {
         SupportTicket::query()->create([
+            'channel' => TicketChannelEnum::PanelApp,
             'protocol' => sprintf('SUP-2026-%04d', $i + 1),
             'category' => SupportTicketCategoryEnum::cases()[$i],
             'subject' => 'subject',

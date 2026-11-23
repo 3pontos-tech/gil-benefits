@@ -6,9 +6,11 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationChannelEnum;
 use TresPontosTech\Support\Enums\TicketDestinationStatusEnum;
 use TresPontosTech\Support\Enums\TicketDestinationTypeEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Events\ExternalTicketStatusChanged;
 use TresPontosTech\Support\Listeners\ApplyExternalTicketStatus;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -24,6 +26,7 @@ beforeEach(function (): void {
 function ticketWithDestination(SupportTicketStatusEnum $status, string $reference = 'monday-1'): SupportTicket
 {
     $ticket = SupportTicket::query()->create([
+        'channel' => TicketChannelEnum::PanelApp,
         'protocol' => 'SUP-2026-0001',
         'category' => SupportTicketCategoryEnum::Bug,
         'subject' => 'subject',
@@ -53,7 +56,12 @@ it('applies a valid externally-reported transition', function (): void {
 
     resolve(ApplyExternalTicketStatus::class)->handle(reported(SupportTicketStatusEnum::InProgress));
 
-    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress);
+    expect($ticket->refresh()->status)->toBe(SupportTicketStatusEnum::InProgress)
+        ->and($ticket->statusChanges()->sole())
+        ->from_status->toBe(SupportTicketStatusEnum::Pending)
+        ->to_status->toBe(SupportTicketStatusEnum::InProgress)
+        ->source->toBe(TicketStatusChangeSourceEnum::ExternalDestination)
+        ->actor_user_id->toBeNull();
 });
 
 it('ignores a transition the state machine forbids', function (): void {

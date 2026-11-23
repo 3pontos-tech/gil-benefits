@@ -7,6 +7,7 @@ use App\Filament\Guest\Pages\HelpCenterPage;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Mail\SupportTicketConfirmationMail;
 use TresPontosTech\Support\Mail\SupportTicketMail;
 use TresPontosTech\Support\Models\SupportTicket;
@@ -39,6 +40,7 @@ it('lets a visitor open a ticket and notifies area + visitor', function (): void
         'visitor_company_name' => 'ACME',
         'category' => SupportTicketCategoryEnum::FinancialIssue->value,
         'status' => SupportTicketStatusEnum::Pending->value,
+        'channel' => TicketChannelEnum::HelpCenter->value,
     ]);
 
     Mail::assertSent(

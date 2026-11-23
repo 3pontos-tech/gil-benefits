@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Request;
 use TresPontosTech\PanelConsultant\Filament\Resources\SupportTickets\SupportTicketResource;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Models\SupportTicket;
 
 class CreateSupportTicket extends CreateRecord
@@ -26,6 +27,7 @@ class CreateSupportTicket extends CreateRecord
 
         $dto = CreateSupportTicketDTO::fromFormState(
             $data,
+            channel: TicketChannelEnum::PanelConsultant,
             userId: $userId !== null ? (string) $userId : null,
             companyId: filament()->getTenant()?->getKey(),
             url: Request::header('referer'),

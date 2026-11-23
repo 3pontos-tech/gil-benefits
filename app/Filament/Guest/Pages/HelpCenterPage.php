@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Request;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Filament\Schemas\Components\CategoryHint;
 
 /**
@@ -158,6 +159,7 @@ class HelpCenterPage extends Page
 
         $dto = CreateSupportTicketDTO::fromFormState(
             $this->form->getState(),
+            channel: TicketChannelEnum::HelpCenter,
             url: Request::header('referer'),
             userAgent: Request::userAgent(),
             environment: app()->environment(),

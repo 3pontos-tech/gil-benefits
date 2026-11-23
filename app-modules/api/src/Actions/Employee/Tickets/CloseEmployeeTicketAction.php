@@ -8,6 +8,7 @@ use App\Models\Users\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use TresPontosTech\Support\Actions\TransitionSupportTicketStatusAction;
 use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
+use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Exceptions\InvalidTransitionException;
 use TresPontosTech\Support\Models\SupportTicket;
 
@@ -30,6 +31,6 @@ final readonly class CloseEmployeeTicketAction
         /** @var SupportTicket $ticket */
         $ticket = $this->listTickets->handle($user)->findOrFail($ticketId);
 
-        return $this->transition->execute($ticket, SupportTicketStatusEnum::Closed);
+        return $this->transition->execute($ticket, SupportTicketStatusEnum::Closed, TicketStatusChangeSourceEnum::Requester, $user);
     }
 }
