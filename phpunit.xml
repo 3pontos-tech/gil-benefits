@@ -40,6 +40,7 @@
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
         <env name="POSTHOG_KEY" value=""/>
+        <env name="WHATSAPP_SUPPORT_PHONE" value=""/>
 
         <env name="FILESYSTEM_DISK" value="local"/>
         <env name="CLOUDFLARE_R2_DRIVER" value="local"/>
