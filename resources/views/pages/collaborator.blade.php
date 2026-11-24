@@ -1,4 +1,4 @@
-<x-layouts.site title="Para Colaboradores" description="Organize suas finanças, planeje suas conquistas e tome decisões com mais segurança com a Flamma.">
+<x-layouts.site title="Para Colaboradores" description="Organize suas finanças, planeje suas conquistas e tome decisões com mais segurança com a Flamma." :support-area="\App\Enums\SupportAreaEnum::Collaborators">
 {{--
     Página do colaborador — Figma node 8298:3441 ("Pagina colaborador")
     Ordem e copy conforme o Figma. Classes fm-* animadas por flamma-motion.

@@ -1,5 +1,5 @@
 {{--
-    posthog-js do site e do painel do colaborador, só com chave configurada. Fica fora das telas
+    posthog-js do site e dos painéis do colaborador e da empresa, só com chave configurada. Fica fora das telas
     de troca de senha e não acompanha a equipe interna. Logado, a pessoa é o id do usuário no
     Flamma, com nome e e-mail na ficha, mandados uma vez por sessão do navegador: o identify com
     propriedades de quem já está identificado gera um $set a cada página. Visitante com o flare_id do convite (guardado
@@ -12,12 +12,11 @@
 --}}
 @use('App\Http\Middleware\StoreSignupAttribution')
 @use('App\Support\PostHog\PostHog')
-@use('TresPontosTech\Permissions\Roles')
 
 @php
     $posthogKey = config('services.posthog.key');
     $user = auth()->user();
-    $isInternal = $user?->hasAnyRole([Roles::SuperAdmin, Roles::Admin, Roles::Consultant, Roles::Financial, Roles::CustomerSuccess]) ?? false;
+    $isInternal = $user?->isInternalTeam() ?? false;
     $isPasswordReset = request()->routeIs('filament.*.auth.password-reset.*');
     $isPanel = request()->routeIs('filament.*');
     $flareId = StoreSignupAttribution::current(request())['flare_id'] ?? null;

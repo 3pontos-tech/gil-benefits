@@ -1,4 +1,4 @@
-<x-layouts.site title="Saúde financeira corporativa" description="A Flamma é uma solução de saúde financeira que ajuda empresas a cuidar do bem-estar dos colaboradores, com orientação especializada para organizar as finanças e planejar o futuro.">
+<x-layouts.site title="Saúde financeira corporativa" description="A Flamma é uma solução de saúde financeira que ajuda empresas a cuidar do bem-estar dos colaboradores, com orientação especializada para organizar as finanças e planejar o futuro." :support-area="\App\Enums\SupportAreaEnum::Home">
 <div class="fm-page overflow-x-clip">
 
     {{--

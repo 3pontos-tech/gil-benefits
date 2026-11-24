@@ -295,6 +295,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
         return $this->hasRole(Roles::SuperAdmin);
     }
 
+    public function isInternalTeam(): bool
+    {
+        return $this->hasAnyRole([Roles::SuperAdmin, Roles::Admin, Roles::Consultant, Roles::Financial, Roles::CustomerSuccess]);
+    }
+
     /**
      * Effective role of the user WITHIN a company (the pivot is the source of truth).
      * Without an argument, uses the current Filament tenant.
