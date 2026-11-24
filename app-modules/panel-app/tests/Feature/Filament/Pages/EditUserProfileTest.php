@@ -212,3 +212,25 @@ it('still requires the current password to change the password', function (): vo
         ->call('save')
         ->assertHasFormErrors(['currentPassword']);
 });
+
+it('accepts Livewire updates on the profile page, which has no tenant in the URL', function (): void {
+    filament()->setTenant(null);
+
+    $html = get(EditUserProfile::getUrl())->assertSuccessful()->getContent();
+
+    preg_match_all('/wire:snapshot="([^"]+)"/', $html, $matches);
+    $snapshot = collect($matches[1])
+        ->map(fn (string $encoded): string => html_entity_decode($encoded))
+        ->first(fn (string $decoded): bool => json_decode($decoded, true)['memo']['name'] === EditUserProfile::class);
+
+    expect($snapshot)->not->toBeNull();
+
+    filament()->setTenant(null);
+
+    $this->withHeaders(['X-Livewire' => '1'])
+        ->postJson(resolve('livewire')->getUpdateUri(), [
+            '_token' => csrf_token(),
+            'components' => [['snapshot' => $snapshot, 'updates' => [], 'calls' => []]],
+        ])
+        ->assertSuccessful();
+});

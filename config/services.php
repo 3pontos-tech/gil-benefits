@@ -55,6 +55,7 @@ return [
 
     'whatsapp' => [
         'url' => env('WHATSAPP_URL', 'https://wa.me/5511976205711?text=Flamma'),
+        'support_phone' => env('WHATSAPP_SUPPORT_PHONE'),
     ],
 
     /*
