@@ -117,7 +117,7 @@ final class UserRegistration extends RegisterPage
 
     /**
      * A atribuição só é apagada depois do commit: se o cadastro falhar no meio da transação,
-     * a nova tentativa ainda leva o flare_id e as UTMs.
+     * a nova tentativa ainda leva o clau_id e as UTMs.
      */
     #[Override]
     public function register(): ?RegistrationResponse
@@ -149,21 +149,21 @@ final class UserRegistration extends RegisterPage
     }
 
     /**
-     * Quem veio do convite do Flare já é uma pessoa identificada no PostHog, que não pode virar
-     * alias de outra: por isso o id do Flamma entra como alias da pessoa do Flare, e não o contrário.
-     * O flare_id também vai no evento para auditar uniões feitas por um link repassado, e o `$set`
+     * Quem veio do convite da Clau já é uma pessoa identificada no PostHog, que não pode virar
+     * alias de outra: por isso o id do Flamma entra como alias da pessoa da Clau, e não o contrário.
+     * O clau_id também vai no evento para auditar uniões feitas por um link repassado, e o `$set`
      * preenche a ficha da pessoa com nome e e-mail.
      */
     private function trackSignup(User $user): void
     {
         $attribution = StoreSignupAttribution::current(request());
         $properties = [...$attribution['utms'] ?? [], '$set' => PostHog::personProperties($user)];
-        $flareId = $attribution['flare_id'] ?? null;
+        $clauId = $attribution['clau_id'] ?? null;
         $postHog = resolve(PostHog::class);
 
-        if ($flareId !== null) {
-            $postHog->alias(anonymousId: $user->getKey(), userId: $flareId);
-            $properties['flare_id'] = $flareId;
+        if ($clauId !== null) {
+            $postHog->alias(anonymousId: $user->getKey(), userId: $clauId);
+            $properties['clau_id'] = $clauId;
         }
 
         $postHog->capture($user->getKey(), 'cadastro_concluido', $properties);

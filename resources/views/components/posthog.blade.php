@@ -2,8 +2,8 @@
     posthog-js do site e do painel do colaborador, só com chave configurada. Fica fora das telas
     de troca de senha e não acompanha a equipe interna. Logado, a pessoa é o id do usuário no
     Flamma, com nome e e-mail na ficha, mandados uma vez por sessão do navegador: o identify com
-    propriedades de quem já está identificado gera um $set a cada página. Visitante com o flare_id do convite (guardado
-    pelo StoreSignupAttribution) vira a pessoa do Flare, e o cadastro depois junta as duas no
+    propriedades de quem já está identificado gera um $set a cada página. Visitante com o clau_id do convite (guardado
+    pelo StoreSignupAttribution) vira a pessoa da Clau, e o cadastro depois junta as duas no
     servidor. Visitante que o navegador ainda guarda como outra pessoa (quem saiu da conta) volta
     a ser anônimo. O source é registrado depois do reset, que apaga as super propriedades, e antes
     do identify, para o $identify também levar. No painel só vão pageview e identify: sem
@@ -20,7 +20,7 @@
     $isInternal = $user?->hasAnyRole([Roles::SuperAdmin, Roles::Admin, Roles::Consultant, Roles::Financial, Roles::CustomerSuccess]) ?? false;
     $isPasswordReset = request()->routeIs('filament.*.auth.password-reset.*');
     $isPanel = request()->routeIs('filament.*');
-    $flareId = StoreSignupAttribution::current(request())['flare_id'] ?? null;
+    $clauId = StoreSignupAttribution::current(request())['clau_id'] ?? null;
 @endphp
 
 @if (filled($posthogKey) && ! $isInternal && ! $isPasswordReset)
@@ -63,7 +63,7 @@
             },
             loaded: function (posthog) {
                 @if (! $user)
-                    if (posthog.get_property('$user_state') === 'identified' && posthog.get_distinct_id() !== @js($flareId)) {
+                    if (posthog.get_property('$user_state') === 'identified' && posthog.get_distinct_id() !== @js($clauId)) {
                         posthog.reset();
                     }
                 @endif
@@ -76,8 +76,8 @@
                         posthog.identify(flammaId, @js(PostHog::personProperties($user)));
                         try { sessionStorage.setItem('flamma_posthog_person', flammaId); } catch (error) {}
                     }
-                @elseif (filled($flareId))
-                    posthog.identify(@js($flareId));
+                @elseif (filled($clauId))
+                    posthog.identify(@js($clauId));
                 @endif
             },
         });

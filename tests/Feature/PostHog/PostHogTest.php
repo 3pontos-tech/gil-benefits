@@ -19,13 +19,13 @@ beforeEach(function (): void {
 it('sends the event to the PostHog capture endpoint marked as coming from the Flamma', function (): void {
     $this->travelTo(now()->setDateTime(2026, 11, 12, 10, 0));
 
-    resolve(PostHog::class)->capture('user-uuid', 'cadastro_concluido', ['utm_source' => 'flare']);
+    resolve(PostHog::class)->capture('user-uuid', 'cadastro_concluido', ['utm_source' => 'clau']);
 
     Http::assertSent(fn (Request $request): bool => $request->url() === 'https://us.i.posthog.com/i/v0/e/'
         && $request['api_key'] === 'phc_test'
         && $request['event'] === 'cadastro_concluido'
         && $request['distinct_id'] === 'user-uuid'
-        && $request['properties'] === ['utm_source' => 'flare', 'source' => 'flamma', '$geoip_disable' => true]
+        && $request['properties'] === ['utm_source' => 'clau', 'source' => 'flamma', '$geoip_disable' => true]
         && $request['timestamp'] === now()->toIso8601String()
         && Str::isUuid($request['uuid']));
 });

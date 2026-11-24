@@ -55,7 +55,7 @@ it('identifies the signed in user by the Flamma id with name and e-mail, after r
     $properties = ['email' => 'ana.teste@example.com', 'name' => 'Ana Teste'];
 
     $this->actingAs($user)
-        ->get(route('site.home', ['flare_id' => (string) Str::uuid()]))
+        ->get(route('site.home', ['clau_id' => (string) Str::uuid()]))
         ->assertOk()
         ->assertSeeInOrder([
             "posthog.register({ source: 'flamma' })",
@@ -89,30 +89,30 @@ it('sends the person properties once per browser session, unless the browser is 
         ], false);
 });
 
-it('identifies an anonymous visitor from the Flare invite by the Flare id only, after registering the source', function (): void {
-    $flareId = (string) Str::uuid();
+it('identifies an anonymous visitor from the Clau invite by the Clau id only, after registering the source', function (): void {
+    $clauId = (string) Str::uuid();
 
-    $this->get(route('site.home', ['flare_id' => $flareId]))
+    $this->get(route('site.home', ['clau_id' => $clauId]))
         ->assertOk()
-        ->assertSeeInOrder(["posthog.register({ source: 'flamma' })", 'posthog.identify(' . Js::from($flareId)->toHtml() . ');'], false);
+        ->assertSeeInOrder(["posthog.register({ source: 'flamma' })", 'posthog.identify(' . Js::from($clauId)->toHtml() . ');'], false);
 });
 
-it('keeps identifying the visitor by the Flare id from the cookie on the signup page', function (): void {
-    $flareId = (string) Str::uuid();
+it('keeps identifying the visitor by the Clau id from the cookie on the signup page', function (): void {
+    $clauId = (string) Str::uuid();
 
-    $this->withCookie(StoreSignupAttribution::COOKIE, json_encode(['flare_id' => $flareId]))
+    $this->withCookie(StoreSignupAttribution::COOKIE, json_encode(['clau_id' => $clauId]))
         ->get(route('filament.app.auth.register'))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($flareId)->toHtml() . ')', false);
+        ->assertSee('posthog.identify(' . Js::from($clauId)->toHtml() . ')', false);
 });
 
-it('keeps the Flare id of the cookie when the URL brings an invalid one', function (): void {
-    $flareId = (string) Str::uuid();
+it('keeps the Clau id of the cookie when the URL brings an invalid one', function (): void {
+    $clauId = (string) Str::uuid();
 
-    $this->withCookie(StoreSignupAttribution::COOKIE, json_encode(['flare_id' => $flareId]))
-        ->get(route('site.home', ['flare_id' => 'nao-e-uuid']))
+    $this->withCookie(StoreSignupAttribution::COOKIE, json_encode(['clau_id' => $clauId]))
+        ->get(route('site.home', ['clau_id' => 'nao-e-uuid']))
         ->assertOk()
-        ->assertSee('posthog.identify(' . Js::from($flareId)->toHtml() . ')', false);
+        ->assertSee('posthog.identify(' . Js::from($clauId)->toHtml() . ')', false);
 });
 
 it('registers the Flamma source after the reset, which clears the super properties', function (): void {
@@ -153,16 +153,16 @@ it('resets a browser still identified as someone else before identifying the vis
         ->assertSee("if (posthog.get_property('\$user_state') === 'identified' && posthog.get_distinct_id() !== " . $expectedId . ')', false)
         ->assertSee('posthog.reset();', false);
 })->with([
-    'from the Flare invite' => [['flare_id' => '6f1c2a4e-1b2c-4d3e-8f9a-0b1c2d3e4f5a'], Js::from('6f1c2a4e-1b2c-4d3e-8f9a-0b1c2d3e4f5a')->toHtml()],
-    'without a Flare id' => [[], 'null'],
+    'from the Clau invite' => [['clau_id' => '6f1c2a4e-1b2c-4d3e-8f9a-0b1c2d3e4f5a'], Js::from('6f1c2a4e-1b2c-4d3e-8f9a-0b1c2d3e4f5a')->toHtml()],
+    'without a Clau id' => [[], 'null'],
 ]);
 
-it('does not identify a visitor without a valid Flare id', function (array $query): void {
+it('does not identify a visitor without a valid Clau id', function (array $query): void {
     $this->get(route('site.home', $query))
         ->assertOk()
         ->assertSee('posthog.init(', false)
         ->assertDontSee('posthog.identify(', false);
 })->with([
-    'no flare_id' => [[]],
-    'invalid flare_id' => [['flare_id' => '<script>alert(1)</script>']],
+    'no clau_id' => [[]],
+    'invalid clau_id' => [['clau_id' => '<script>alert(1)</script>']],
 ]);
