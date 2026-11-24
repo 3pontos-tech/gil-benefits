@@ -144,11 +144,13 @@ class AppPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                // A página de perfil vive fora do escopo de tenant e renderiza a
-                // navegação do painel, cujos itens apontam para rotas com
-                // {tenant}. Sem isto, montar essas URLs estoura.
-                IdentifyDefaultTenantOffTenantRoutes::class,
             ])
+            // A página de perfil vive fora do escopo de tenant e renderiza a
+            // navegação do painel, cujos itens apontam para rotas com
+            // {tenant}. Sem isto, montar essas URLs estoura.
+            ->authMiddleware([
+                IdentifyDefaultTenantOffTenantRoutes::class,
+            ], isPersistent: true)
             ->bootUsing(function (): void {
                 Table::configureUsing(function (Table $table): void {
                     $table
