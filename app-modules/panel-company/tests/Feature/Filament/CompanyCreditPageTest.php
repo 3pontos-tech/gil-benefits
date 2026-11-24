@@ -91,7 +91,7 @@ describe('transfer action', function (): void {
 describe('distribute_manually action', function (): void {
 
     test('should distribute credits manually ', function (): void {
-        $action = TestAction::make('distribute_manually')->table($this->credits->first());
+        $action = TestAction::make('distribute_manually')->table();
         $receiver = $this->employees->first();
 
         expect($this->companyOwner->credits()->count())->toBe(11);
@@ -110,7 +110,7 @@ describe('distribute_manually action', function (): void {
     });
 
     test('should not distribute more credits than available ', function (): void {
-        $action = TestAction::make('distribute_manually')->table($this->credits->first());
+        $action = TestAction::make('distribute_manually')->table();
         $receiver = $this->employees->first();
 
         expect($this->companyOwner->credits()->count())->toBe(11);
@@ -135,7 +135,7 @@ describe('distribute_manually action', function (): void {
             ->where('company_id', $this->company->getKey())
             ->update(['status' => 'used']);
 
-        $action = TestAction::make('distribute_manually')->table($this->credits->first());
+        $action = TestAction::make('distribute_manually')->table();
 
         livewire(CompanyCreditPage::class)
             ->assertOk()
@@ -158,7 +158,7 @@ describe('revoke_all_credits action', function (): void {
     });
 
     test('revokes all available credits distributed to employees back to owner', function (): void {
-        $action = TestAction::make('revoke_all_credits')->table($this->credits->first());
+        $action = TestAction::make('revoke_all_credits')->table();
 
         expect(UserCredit::query()->where('holder_id', $this->employees->first()->getKey())->count())->toBe(5);
 
@@ -173,7 +173,7 @@ describe('revoke_all_credits action', function (): void {
     });
 
     test('does not revoke credits with status other than available', function (): void {
-        $action = TestAction::make('revoke_all_credits')->table($this->credits->first());
+        $action = TestAction::make('revoke_all_credits')->table();
 
         $usedCredit = UserCredit::factory()->used()->state([
             'owner_id' => $this->companyOwner->getKey(),
@@ -190,7 +190,7 @@ describe('revoke_all_credits action', function (): void {
     });
 
     test('does not revoke credits purchased by the employee themselves', function (): void {
-        $action = TestAction::make('revoke_all_credits')->table($this->credits->first());
+        $action = TestAction::make('revoke_all_credits')->table();
         $employee = $this->employees->first();
 
         $ownCredit = UserCredit::factory()->available()->state([
@@ -211,7 +211,7 @@ describe('revoke_all_credits action', function (): void {
         UserCredit::query()->where('company_id', $this->company->getKey())
             ->update(['holder_id' => $this->companyOwner->getKey()]);
 
-        $action = TestAction::make('revoke_all_credits')->table($this->credits->first());
+        $action = TestAction::make('revoke_all_credits')->table();
 
         livewire(CompanyCreditPage::class)
             ->assertOk()
@@ -219,7 +219,7 @@ describe('revoke_all_credits action', function (): void {
     });
 
     test('is enabled when there are credits distributed to employees', function (): void {
-        $action = TestAction::make('revoke_all_credits')->table($this->credits->first());
+        $action = TestAction::make('revoke_all_credits')->table();
 
         livewire(CompanyCreditPage::class)
             ->assertOk()
@@ -230,7 +230,7 @@ describe('revoke_all_credits action', function (): void {
         UserCredit::query()->where('company_id', $this->company->getKey())
             ->update(['holder_id' => $this->companyOwner->getKey()]);
 
-        $action = TestAction::make('revoke_all_credits')->table($this->credits->first());
+        $action = TestAction::make('revoke_all_credits')->table();
 
         livewire(CompanyCreditPage::class)
             ->assertOk()
@@ -241,7 +241,7 @@ describe('revoke_all_credits action', function (): void {
     });
 
     test('has no tooltip when enabled', function (): void {
-        $action = TestAction::make('revoke_all_credits')->table($this->credits->first());
+        $action = TestAction::make('revoke_all_credits')->table();
 
         livewire(CompanyCreditPage::class)
             ->assertOk()
@@ -272,7 +272,7 @@ describe('table listing', function (): void {
 describe('distribute equally', function (): void {
 
     test('should distribute equally', function (): void {
-        $action = TestAction::make('distribute_equally')->table($this->credits->first());
+        $action = TestAction::make('distribute_equally')->table();
 
         expect($this->companyOwner->credits()->count())->toBe(11);
         livewire(CompanyCreditPage::class)
@@ -289,7 +289,7 @@ describe('distribute equally', function (): void {
         expect($this->companyOwner->credits()->count())->toBe(1);
     });
     test('should not be able to see the action if is fewer credits than employees', function (): void {
-        $action = TestAction::make('distribute_equally')->table($this->credits->first());
+        $action = TestAction::make('distribute_equally')->table();
         $newEmployees = User::factory(2)->employee()->create();
         $this->company->employees()->attach($newEmployees);
 
@@ -299,7 +299,7 @@ describe('distribute equally', function (): void {
     });
 
     test('shows tooltip when disabled due to insufficient credits', function (): void {
-        $action = TestAction::make('distribute_equally')->table($this->credits->first());
+        $action = TestAction::make('distribute_equally')->table();
         $newEmployees = User::factory(2)->employee()->create();
         $this->company->employees()->attach($newEmployees);
 
@@ -312,7 +312,7 @@ describe('distribute equally', function (): void {
     });
 
     test('has no tooltip when enabled', function (): void {
-        $action = TestAction::make('distribute_equally')->table($this->credits->first());
+        $action = TestAction::make('distribute_equally')->table();
 
         livewire(CompanyCreditPage::class)
             ->assertOk()

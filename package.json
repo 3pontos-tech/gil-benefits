@@ -17,6 +17,11 @@
         "tailwindcss": "^4.1.16",
         "vite": "^6.2.4"
     },
+    "overrides": {
+        "@tailwindcss/typography": {
+            "postcss-selector-parser": "^6.1.6"
+        }
+    },
     "lint-staged": {
         "*.php": [
             "vendor/bin/rector process",
