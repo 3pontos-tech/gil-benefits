@@ -66,7 +66,7 @@ final class UserRegistration extends RegisterPage
         $email = $this->lockedToInvite($this->getEmailFormComponent(), fn (DiscountGrant $grant): string => $grant->email);
 
         return parent::form($schema)->components([
-            Callout::make(fn (): string => sprintf('Convite da Clau: %d%% de desconto vitalício', $this->invitedGrant()?->discount->percent_off))
+            Callout::make(fn (): string => 'Convite da Clau: ' . $this->invitedGrant()?->discount->summary())
                 ->description(fn (): string => 'Use o mesmo CPF que você informou à Clau. O desconto vale no plano pessoal assinado até ' . $this->invitedGrant()?->expires_at->format('d/m/Y') . '.')
                 ->info()
                 ->actions([

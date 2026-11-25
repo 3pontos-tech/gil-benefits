@@ -337,7 +337,7 @@ describe('convite da Clau', function (): void {
         session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
 
         livewire(UserRegistration::class)
-            ->assertSee('Convite da Clau')
+            ->assertSee('Convite da Clau: ' . $this->grant->discount->summary())
             ->assertFormSet(['name' => 'Joe Doe', 'email' => 'joe@doe.com', 'tax_id' => null])
             ->assertFormFieldIsReadOnly('name')
             ->assertFormFieldIsReadOnly('email')
