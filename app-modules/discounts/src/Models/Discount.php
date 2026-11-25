@@ -178,5 +178,7 @@ final class Discount extends Model
         throw_if($isCode && $this->claim_window_days === null && $this->ends_at === null, InvalidArgumentException::class, 'Desconto por código precisa de janela de resgate ou data final.');
 
         throw_if(! $isCode && $this->code !== null, InvalidArgumentException::class, 'Somente desconto por código aceita código.');
+
+        throw_if($this->distribution === DiscountDistributionEnum::Grant && $this->claim_window_days === null, InvalidArgumentException::class, 'Desconto concedido precisa de prazo para assinar.');
     }
 }

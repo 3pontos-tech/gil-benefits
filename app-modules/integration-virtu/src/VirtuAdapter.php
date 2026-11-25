@@ -40,12 +40,6 @@ use TresPontosTech\IntegrationVirtu\Responses\PaymentLinkResponse;
  */
 final readonly class VirtuAdapter implements BillingContract, SupportsCheckoutDiscount, SupportsCreditPurchase
 {
-    /**
-     * Floor for any generated charge. Virtu accepts amountCents: 1 without
-     * complaint, so the guard the gateway does not provide lives here.
-     */
-    private const MINIMUM_CHARGE_IN_CENTS = 100;
-
     public function __construct(
         private VirtuClient $client
     ) {}
@@ -188,7 +182,7 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCheckoutDi
         }
 
         throw_if(
-            $amountCents < self::MINIMUM_CHARGE_IN_CENTS,
+            $amountCents < CheckoutDiscount::MINIMUM_CHARGE_IN_CENTS,
             VirtuApiException::class,
             sprintf('Refusing to create a Virtu link for %d cents.', $amountCents),
             0,

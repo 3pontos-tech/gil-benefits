@@ -162,7 +162,8 @@ class DiscountForm
 
                         DateTimePicker::make('ends_at')
                             ->label('Válido até')
-                            ->helperText('Vazio = sem fim. Depois desta data o cupom não é concedido nem usado.'),
+                            ->helperText('Vazio = sem fim. Depois desta data o cupom não é concedido nem usado.')
+                            ->after('starts_at'),
 
                         TextInput::make('claim_window_days')
                             ->label('Prazo para assinar')

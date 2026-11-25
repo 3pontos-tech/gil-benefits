@@ -27,7 +27,7 @@ final readonly class ReserveDiscountGrant
         string $consentTermVersion,
         CarbonInterface $consentAcceptedAt,
     ): DiscountReservationOutcome {
-        if (! $discount->active) {
+        if (! $discount->active || ($discount->starts_at?->isFuture() ?? false) || ($discount->ends_at?->isPast() ?? false)) {
             return DiscountReservationOutcome::ineligible(DiscountIneligibilityReasonEnum::DiscountInactive);
         }
 
@@ -60,7 +60,10 @@ final readonly class ReserveDiscountGrant
                 'phone_number' => $phoneNumber,
                 'consent_term_version' => $consentTermVersion,
                 'consent_accepted_at' => $consentAcceptedAt,
-                'expires_at' => now()->addDays($discount->claim_window_days),
+                'expires_at' => collect([now()->addDays($discount->claim_window_days), $discount->ends_at])
+                    ->filter()
+                    ->sortBy(fn (CarbonInterface $date): int => $date->getTimestamp())
+                    ->first(),
             ]);
         } catch (UniqueConstraintViolationException) {
             $found = $discount->grants()->where('external_ref', $externalRef)->first();

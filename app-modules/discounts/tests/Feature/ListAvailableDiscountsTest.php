@@ -154,6 +154,20 @@ describe('elegibilidade por regra', function (): void {
             },
             true,
         ],
+        'reserva aberta da própria pessoa não esconde o cupom' => [
+            function (User $user): void {
+                $discount = Discount::factory()->automatic()->create(['max_redemptions' => 1, 'max_redemptions_per_customer' => 1]);
+                DiscountRedemption::factory()->for($discount)->forBillable($user)->reserved()->create();
+            },
+            true,
+        ],
+        'reserva aberta de outra pessoa esconde o cupom de limite total' => [
+            function (User $user): void {
+                $discount = Discount::factory()->automatic()->create(['max_redemptions' => 1, 'max_redemptions_per_customer' => 1]);
+                DiscountRedemption::factory()->for($discount)->forBillable(User::factory()->create())->reserved()->create();
+            },
+            false,
+        ],
         'grant vigente do usuário' => [
             fn (User $user) => DiscountGrant::factory()->for(Discount::factory())->claimedBy($user)->create(),
             true,
@@ -187,6 +201,15 @@ describe('elegibilidade por regra', function (): void {
             true,
         ],
     ]);
+});
+
+it('não oferece cupom que deixa a cobrança abaixo do piso do gateway', function (): void {
+    $user = User::factory()->create();
+    Discount::factory()->automatic()->create(['name' => 'Zera a cobrança', 'percent_off' => 100]);
+    Discount::factory()->automatic()->fixedAmount(10000)->create(['name' => 'Valor igual ao plano']);
+    Discount::factory()->automatic()->create(['name' => 'Cobrança válida', 'percent_off' => 30]);
+
+    expect(($this->listar)($user)->pluck('label')->all())->toBe(['Cobrança válida']);
 });
 
 describe('capacidade do gateway', function (): void {

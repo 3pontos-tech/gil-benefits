@@ -10,14 +10,24 @@ use TresPontosTech\Discounts\Enums\DiscountRedemptionStatusEnum;
 use TresPontosTech\Discounts\Models\DiscountRedemption;
 
 /**
- * O gateway só revela a referência do checkout ao criar o link, depois da reserva. Este listener
- * prende a reserva aberta da pessoa nesse plano à assinatura pendente, para o pagamento confirmar a reserva certa.
+ * O gateway só revela a referência do checkout ao criar o link, depois da reserva. Quando o checkout
+ * traz a reserva exata, ela é ligada direto. Sem ela, a reserva aberta mais recente da pessoa nesse
+ * plano é o fallback, que pode errar com dois checkouts concorrentes.
  */
 final class LinkDiscountRedemptionToSubscription
 {
     public function handle(SubscriptionCreated $event): void
     {
         if (! $event->dto->discount instanceof CheckoutDiscount) {
+            return;
+        }
+
+        if ($event->dto->discount->reference !== null) {
+            DiscountRedemption::query()
+                ->whereKey($event->dto->discount->reference)
+                ->whereNull('subscription_external_id')
+                ->update(['subscription_external_id' => $event->dto->subscriptionExternalId]);
+
             return;
         }
 

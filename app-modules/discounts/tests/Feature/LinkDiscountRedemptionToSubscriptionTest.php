@@ -65,3 +65,21 @@ it('não prende reserva de outro plano nem reserva vencida', function (): void {
         ->and($vencida->refresh()->subscription_external_id)->toBeNull()
         ->and($vencida->status)->toBe(DiscountRedemptionStatusEnum::Reserved);
 });
+
+it('liga a reserva indicada pela referência mesmo quando outra reserva é mais recente', function (): void {
+    $indicada = DiscountRedemption::factory()->reserved()->forBillable($this->user)->create([
+        'plan_slug' => 'gold',
+        'subscription_external_id' => null,
+        'created_at' => now()->subMinute(),
+    ]);
+
+    $maisRecente = DiscountRedemption::factory()->reserved()->forBillable($this->user)->create([
+        'plan_slug' => 'gold',
+        'subscription_external_id' => null,
+    ]);
+
+    event(($this->criarEvento)('gold', new CheckoutDiscount(percentOff: 30, reference: $indicada->getKey())));
+
+    expect($indicada->refresh()->subscription_external_id)->toBe('checkout_novo')
+        ->and($maisRecente->refresh()->subscription_external_id)->toBeNull();
+});

@@ -39,6 +39,28 @@ it('cria a reserva com o e-mail normalizado e validade de 180 dias', function ()
         ->and($outcome->grant->expires_at->equalTo(now()->addDays(180)))->toBeTrue();
 });
 
+it('limita a validade da concessão ao fim do cupom quando ele termina antes do prazo', function (): void {
+    Date::setTestNow(Date::parse('2026-11-25 10:00:00'));
+    $discount = Discount::factory()->active()->create(['ends_at' => now()->addDays(20)]);
+
+    $outcome = reservarDescontoClau($discount);
+
+    expect($outcome->grant->expires_at->equalTo(now()->addDays(20)))->toBeTrue();
+});
+
+it('não concede cupom fora da janela absoluta', function (Closure $janela): void {
+    $discount = Discount::factory()->active()->create($janela());
+
+    $outcome = reservarDescontoClau($discount);
+
+    expect($outcome->status)->toBe(DiscountReservationStatusEnum::Ineligible)
+        ->and($outcome->reason)->toBe(DiscountIneligibilityReasonEnum::DiscountInactive)
+        ->and(DiscountGrant::query()->count())->toBe(0);
+})->with([
+    'ainda não começou' => [fn (): array => ['starts_at' => now()->addDay()]],
+    'já terminou' => [fn (): array => ['ends_at' => now()->subDay()]],
+]);
+
 it('devolve a mesma reserva sem duplicar quando o external_ref e o e-mail se repetem', function (): void {
     $discount = Discount::factory()->active()->create();
     $primeira = reservarDescontoClau($discount);

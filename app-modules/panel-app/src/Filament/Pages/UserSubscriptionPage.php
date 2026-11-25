@@ -8,9 +8,12 @@ use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
@@ -20,6 +23,7 @@ use TresPontosTech\Discounts\Actions\ListAvailableDiscounts;
 use TresPontosTech\Discounts\Actions\RedeemDiscountCode;
 use TresPontosTech\Discounts\Actions\ReserveDiscountRedemption;
 use TresPontosTech\Discounts\DTOs\DiscountOffer;
+use TresPontosTech\Discounts\Enums\DiscountRedemptionStatusEnum;
 use TresPontosTech\Discounts\Models\DiscountRedemption;
 
 class UserSubscriptionPage extends Page
@@ -67,8 +71,18 @@ class UserSubscriptionPage extends Page
         /** @var User $user */
         $user = auth()->user();
 
+        $rateLimitKey = 'discount-code:' . $user->getKey();
+
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            $this->addError('discountCode', 'Muitas tentativas. Tente de novo em alguns minutos.');
+
+            return;
+        }
+
+        RateLimiter::hit($rateLimitKey, 600);
+
         try {
-            resolve(RedeemDiscountCode::class)->handle($user, $this->discountCode);
+            $grant = resolve(RedeemDiscountCode::class)->handle($user, $this->discountCode);
         } catch (ValidationException $validationException) {
             $this->addError('discountCode', $validationException->validator->errors()->first('code'));
 
@@ -77,6 +91,16 @@ class UserSubscriptionPage extends Page
 
         $this->discountCode = '';
         $this->preselectBestOffers();
+
+        $isOffered = $this->checkoutPlans()->contains(
+            fn (PlanEntity $plan): bool => $this->offersFor($plan)->contains('key', 'grant:' . $grant->getKey())
+        );
+
+        if (! $isOffered) {
+            Notification::make()->warning()->title('Cupom guardado, mas ele não vale para os planos disponíveis agora')->send();
+
+            return;
+        }
 
         Notification::make()->success()->title('Cupom adicionado à sua carteira')->send();
     }
@@ -91,6 +115,8 @@ class UserSubscriptionPage extends Page
 
         // O servidor refaz a lista e nunca confia no valor ou no percentual vindos da tela: do cliente vem só a key.
         $offer = null;
+        $redemption = null;
+        $discount = null;
 
         if (filled($offerKey)) {
             $offer = $this->offersFor($plan)->first(
@@ -112,6 +138,14 @@ class UserSubscriptionPage extends Page
 
                 return;
             }
+
+            // A referência liga a reserva exata à assinatura que o gateway criar, sem depender de heurística.
+            $discount = new CheckoutDiscount(
+                percentOff: $offer->checkoutDiscount->percentOff,
+                amountOffCents: $offer->checkoutDiscount->amountOffCents,
+                durationCycles: $offer->checkoutDiscount->durationCycles,
+                reference: $redemption->getKey(),
+            );
         }
 
         $this->selectedOffers[$planSlug] = $offerKey ?? '';
@@ -131,11 +165,18 @@ class UserSubscriptionPage extends Page
             successUrl: UserDashboard::getUrl(),
             cancelUrl: UserDashboard::getUrl(),
             metadata: ['model' => (string) Relation::getMorphAlias(User::class)],
-            discount: $offer?->checkoutDiscount,
+            discount: $discount,
         );
 
         $driver = resolve(BillingManager::class)->getDriver($plan->provider);
-        $url = $driver->createCheckout(billable: $user, data: $data);
+
+        try {
+            $url = $driver->createCheckout(billable: $user, data: $data);
+        } catch (Throwable $throwable) {
+            $redemption?->update(['status' => DiscountRedemptionStatusEnum::Released, 'reserved_until' => null]);
+
+            throw $throwable;
+        }
 
         if ($driver->checkoutOpensInNewTab()) {
             $this->dispatch('open-modal', id: 'waiting-for-payment');

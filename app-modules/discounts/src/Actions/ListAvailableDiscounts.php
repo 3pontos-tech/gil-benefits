@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Discounts\Actions;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
@@ -20,6 +21,7 @@ use TresPontosTech\Discounts\DTOs\DiscountOffer;
 use TresPontosTech\Discounts\Enums\DiscountCustomerTypeEnum;
 use TresPontosTech\Discounts\Enums\DiscountDistributionEnum;
 use TresPontosTech\Discounts\Enums\DiscountDurationEnum;
+use TresPontosTech\Discounts\Enums\DiscountRedemptionStatusEnum;
 use TresPontosTech\Discounts\Models\Discount;
 use TresPontosTech\Discounts\Models\DiscountGrant;
 use TresPontosTech\Discounts\Models\DiscountRedemption;
@@ -47,6 +49,7 @@ final readonly class ListAvailableDiscounts
         return $this->candidates($user)
             ->filter(fn (DiscountCandidate $candidate): bool => $this->isEligible($candidate, $user, $plan, $audience, $supportsLimitedDuration))
             ->map(fn (DiscountCandidate $candidate): DiscountOffer => $this->offer($candidate, $price))
+            ->filter(fn (DiscountOffer $offer): bool => $offer->discountedAmountCents >= CheckoutDiscount::MINIMUM_CHARGE_IN_CENTS)
             ->sortByDesc(fn (DiscountOffer $offer): int => $offer->savingPerCycleCents)
             ->sortBy(fn (DiscountOffer $offer): int => $offer->expiresAt?->getTimestamp() ?? PHP_INT_MAX)
             ->sortByDesc(fn (DiscountOffer $offer): int => $offer->score)
@@ -108,7 +111,11 @@ final readonly class ListAvailableDiscounts
     {
         $redemptions = DiscountRedemption::query()
             ->where('discount_id', $discount->getKey())
-            ->counting();
+            ->counting()
+            ->whereNot(fn (Builder $query): Builder => $query
+                ->where('billable_type', $user->getMorphClass())
+                ->where('billable_id', $user->getKey())
+                ->where('status', DiscountRedemptionStatusEnum::Reserved));
 
         $isTotalFull = $discount->max_redemptions !== null
             && (clone $redemptions)->count() >= $discount->max_redemptions;

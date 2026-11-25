@@ -122,6 +122,21 @@ it('starts a new discount with one use per customer', function (): void {
         ->assertFormSet(['max_redemptions_per_customer' => 1]);
 });
 
+it('refuses an end date before the start date', function (): void {
+    livewire(CreateDiscount::class)
+        ->fillForm([
+            'name' => 'Janela invertida',
+            'slug' => 'janela-invertida',
+            'percent_off' => 10,
+            'audience' => PriceAudienceEnum::Standalone->value,
+            'claim_window_days' => 90,
+            'starts_at' => now()->addDay()->format('Y-m-d H:i:s'),
+            'ends_at' => now()->format('Y-m-d H:i:s'),
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['ends_at']);
+});
+
 it('stores a fixed amount in cents and drops the percentage', function (): void {
     livewire(CreateDiscount::class)
         ->fillForm([
