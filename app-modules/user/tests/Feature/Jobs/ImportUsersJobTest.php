@@ -55,13 +55,25 @@ it('logs an error when the failed method is called', function (): void {
         ->with('ImportUsersJob falhou', Mockery::subset(['company_id' => $companyId]));
 });
 
-it('stores the imported count for the completion notification of the user who started the import', function (): void {
+it('stores the result summary for the completion notification of the user who started the import', function (): void {
     $company = Company::factory()->create();
+    $rows = makeJobRows(2)->push([...makeJobRows(1)->first(), '__row_number' => 4]);
 
-    (new ImportUsersJob(makeJobRows(2), $company->id, 'importer-id'))
+    (new ImportUsersJob($rows, $company->id, 'importer-id'))
         ->handle(resolve(PersistImportedUsersAction::class));
 
-    expect(Cache::get(ImportUsersJob::completionCacheKey('importer-id')))->toBe('2');
+    expect(json_decode((string) Cache::get(ImportUsersJob::completionCacheKey('importer-id')), associative: true))->toBe([
+        'imported' => 2,
+        'linked' => 0,
+        'reactivated' => 0,
+        'skipped' => 1,
+        'needs_support' => 0,
+        'rows' => [[
+            'row' => 4,
+            'email' => 'jobuser1@example.com',
+            'message' => 'Ignorado: e-mail ou CPF repetido de uma linha anterior da planilha.',
+        ]],
+    ]);
 });
 
 it('stores a failure marker for the completion notification when the job fails', function (): void {

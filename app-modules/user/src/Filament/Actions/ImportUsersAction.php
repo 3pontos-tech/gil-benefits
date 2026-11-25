@@ -13,9 +13,12 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Actions\BuildImportTemplateAction;
+use TresPontosTech\User\Actions\CheckImportSeatLimitAction;
+use TresPontosTech\User\Actions\ClassifyImportRowsAction;
 use TresPontosTech\User\Actions\ParseUsersFromFileAction;
 use TresPontosTech\User\Actions\ValidateUserImportAction;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
+use TresPontosTech\User\DTOs\ImportUsersResultDTO;
 use TresPontosTech\User\Exceptions\DuplicateImportHeadersException;
 use TresPontosTech\User\Jobs\ImportUsersJob;
 use TresPontosTech\User\Support\DepartmentLookup;
@@ -55,6 +58,8 @@ class ImportUsersAction extends Action
                 ->label(__('user::actions.import_users.file.label'))
                 ->helperText(new HtmlString(
                     __('user::actions.import_users.file.helper_text') .
+                    '<br><br>' .
+                    __('user::actions.import_users.file.helper_rules', ['app' => config('app.name')]) .
                     '<br><br>' .
                     __('user::actions.import_users.file.helper_note')
                 ))
@@ -115,6 +120,31 @@ class ImportUsersAction extends Action
                 return;
             }
 
+            $classified = resolve(ClassifyImportRowsAction::class)->execute($rows, $company);
+            $preview = ImportUsersResultDTO::fromClassifiedRows($classified);
+
+            $seatError = resolve(CheckImportSeatLimitAction::class)->execute($company, $preview->joined());
+
+            if ($seatError instanceof ImportErrorDTO) {
+                $this->showImportErrors([$seatError]);
+
+                return;
+            }
+
+            if ($preview->joined() === 0) {
+                if ($livewire instanceof Component) {
+                    $livewire->dispatch('import-result', rows: ImportUsersResultDTO::reportRows($preview->rowReports));
+                }
+
+                Notification::make()
+                    ->warning()
+                    ->title(__('user::actions.import_users.notifications.none_joining.title'))
+                    ->body(__('user::actions.import_users.notifications.none_joining.body'))
+                    ->send();
+
+                return;
+            }
+
             $userId = auth()->id();
 
             throw_if($userId === null, \RuntimeException::class, 'Cannot import users without an authenticated user.');
@@ -150,14 +180,6 @@ class ImportUsersAction extends Action
             return;
         }
 
-        $livewire->dispatch('import-errors', errors: collect($errors)
-            ->map(fn (ImportErrorDTO $error): array => [
-                'row' => $error->row,
-                'email' => $error->email,
-                'message' => $error->message,
-            ])
-            ->values()
-            ->all()
-        );
+        $livewire->dispatch('import-errors', errors: ImportUsersResultDTO::reportRows($errors));
     }
 }

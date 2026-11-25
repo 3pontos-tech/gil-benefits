@@ -2,10 +2,7 @@
 
 namespace TresPontosTech\User\Actions;
 
-use App\Models\Users\Detail;
-use App\Models\Users\User;
 use Illuminate\Support\Collection;
-use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
@@ -57,24 +54,10 @@ class ValidateUserImportAction
             $this->validateEmail($rowNumber, $email);
         });
 
-        $this->validateDuplicateEmails($rows);
-        $this->validateExistingEmails($rows);
-        $this->validateDuplicateTaxIds($rows);
-        $this->validateExistingTaxIds($rows);
         $this->validateDuplicatePhoneNumbers($rows);
         $this->validateDepartments($rows, $departments ?? DepartmentLookup::for($company));
 
-        if (filled($this->errors)) {
-            return $this->sortedErrors();
-        }
-
-        $seatError = $this->checkSeatLimit($company, $rows->count());
-
-        if ($seatError !== null) {
-            return [new ImportErrorDTO(row: 0, email: 'N/A', message: $seatError)];
-        }
-
-        return [];
+        return $this->sortedErrors();
     }
 
     private function validateDocumentId(int $rowNumber, string $email, ?string $documentId): void
@@ -198,99 +181,16 @@ class ValidateUserImportAction
     }
 
     /**
-     * @param  Collection<int, array<string, mixed>>  $rows
-     */
-    private function validateDuplicateEmails(Collection $rows): void
-    {
-        $emails = $rows->map(fn (array $row): string => EmailAddress::normalize((string) ($row['email'] ?? '')));
-
-        $emails->filter(fn (string $email): bool => filled($email))
-            ->duplicates()
-            ->each(function (string $email, int $index) use ($rows): void {
-                $this->errors[] = new ImportErrorDTO(
-                    row: $rows[$index]['__row_number'],
-                    email: $email,
-                    message: 'Email duplicado na planilha.',
-                );
-            });
-    }
-
-    /**
-     * Conta também usuários excluídos (soft delete): eles continuam ocupando o e-mail no
-     * índice único, e o `insert` da importação quebraria em vez de apontar a linha.
+     * Skips rows already repeated by e-mail or CPF: the same person listed twice usually repeats
+     * the phone too, and that row is ignored instead of blocking the spreadsheet.
      *
-     * @param  Collection<int, array<string, mixed>>  $rows
-     */
-    private function validateExistingEmails(Collection $rows): void
-    {
-        $emails = $rows->map(fn (array $row): string => EmailAddress::normalize((string) ($row['email'] ?? '')));
-
-        $emailToRow = $rows
-            ->filter(fn (array $row): bool => filled(EmailAddress::normalize((string) ($row['email'] ?? ''))))
-            ->keyBy(fn (array $row): string => EmailAddress::normalize((string) $row['email']))
-            ->map(fn (array $row): int => $row['__row_number']);
-
-        User::query()
-            ->withTrashed()
-            ->whereIn('email', $emails->filter()->unique()->all())
-            ->pluck('email')
-            ->each(function (string $email) use ($emailToRow): void {
-                $this->errors[] = new ImportErrorDTO(
-                    row: $emailToRow->get($email, 0),
-                    email: $email,
-                    message: 'Email já cadastrado no sistema.',
-                );
-            });
-    }
-
-    /**
-     * @param  Collection<int, array<string, mixed>>  $rows
-     */
-    private function validateDuplicateTaxIds(Collection $rows): void
-    {
-        $taxIds = $rows->map(fn (array $row): string => trim((string) ($row['tax_id'] ?? '')));
-
-        $taxIds->filter(fn (string $taxId): bool => filled($taxId))
-            ->duplicates()
-            ->each(function (string $taxId, int $index) use ($rows): void {
-                $this->errors[] = new ImportErrorDTO(
-                    row: $rows[$index]['__row_number'],
-                    email: 'N/A',
-                    message: sprintf("tax_id '%s' duplicado na planilha.", $taxId),
-                );
-            });
-    }
-
-    /**
-     * @param  Collection<int, array<string, mixed>>  $rows
-     */
-    private function validateExistingTaxIds(Collection $rows): void
-    {
-        $taxIds = $rows->map(fn (array $row): string => trim((string) ($row['tax_id'] ?? '')));
-
-        $taxIdToRow = $rows
-            ->filter(fn (array $row): bool => filled(trim((string) ($row['tax_id'] ?? ''))))
-            ->keyBy(fn (array $row): string => trim((string) $row['tax_id']))
-            ->map(fn (array $row): int => $row['__row_number']);
-
-        Detail::query()
-            ->whereIn('tax_id', $taxIds->filter()->unique()->all())
-            ->pluck('tax_id')
-            ->each(function (string $taxId) use ($taxIdToRow): void {
-                $this->errors[] = new ImportErrorDTO(
-                    row: $taxIdToRow->get($taxId, 0),
-                    email: 'N/A',
-                    message: sprintf("tax_id '%s' já cadastrado no sistema.", $taxId),
-                );
-            });
-    }
-
-    /**
      * @param  Collection<int, array<string, mixed>>  $rows
      */
     private function validateDuplicatePhoneNumbers(Collection $rows): void
     {
-        $phoneNumbers = $rows->map(fn (array $row): string => trim((string) ($row['phone_number'] ?? '')));
+        $phoneNumbers = $rows
+            ->diffKeys(ClassifyImportRowsAction::sheetDuplicateKeys($rows))
+            ->map(fn (array $row): string => trim((string) ($row['phone_number'] ?? '')));
 
         $phoneNumbers->filter(fn (string $phone): bool => filled($phone))
             ->duplicates()
@@ -365,34 +265,5 @@ class ValidateUserImportAction
         usort($this->errors, fn (ImportErrorDTO $a, ImportErrorDTO $b): int => $a->row <=> $b->row);
 
         return $this->errors;
-    }
-
-    private function checkSeatLimit(Company $company, int $newUsersCount): ?string
-    {
-        $currentActiveCount = $company->employees()->wherePivot('active', true)->count();
-
-        $contractualPlan = $company->activeContractualPlan();
-
-        if ($contractualPlan instanceof CompanyPlan) {
-            $available = $contractualPlan->seats - $currentActiveCount;
-
-            if ($newUsersCount > $available) {
-                return sprintf('Limite de assentos excedido. Disponíveis: %d, solicitados: %d.', $available, $newUsersCount);
-            }
-
-            return null;
-        }
-
-        $activeSubscription = $company->subscriptions()->where('stripe_status', 'active')->first();
-
-        if ($activeSubscription !== null) {
-            $available = $activeSubscription->quantity - $currentActiveCount;
-
-            if ($newUsersCount > $available) {
-                return sprintf('Limite de assentos excedido. Disponíveis: %d, solicitados: %d.', $available, $newUsersCount);
-            }
-        }
-
-        return null;
     }
 }

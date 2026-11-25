@@ -19,8 +19,9 @@ use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Consultants\Models\Consultant;
 use TresPontosTech\PanelAdmin\Filament\Resources\Users\Pages\CreateUser;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
+use TresPontosTech\User\Actions\ClassifyImportRowsAction;
 use TresPontosTech\User\Actions\PersistImportedUsersAction;
-use TresPontosTech\User\Actions\ValidateUserImportAction;
+use TresPontosTech\User\Enums\ImportRowOutcome;
 use TresPontosTech\User\Events\UserRegistered;
 
 use function Pest\Laravel\assertAuthenticatedAs;
@@ -208,31 +209,34 @@ describe('spreadsheet import', function (): void {
         ];
     }
 
-    it('flags a row whose email exists in another case, accents included', function (): void {
-        User::factory()->create(['email' => 'érica@empresa.com']);
+    it('recognizes a row whose email exists in another case, accents included, as the existing account', function (): void {
+        $existing = User::factory()->create(['email' => 'érica@empresa.com']);
 
-        $errors = resolve(ValidateUserImportAction::class)
-            ->execute(collect([importRow(['email' => 'ÉRICA@EMPRESA.COM'])]), Company::factory()->create());
+        $classified = resolve(ClassifyImportRowsAction::class)
+            ->execute(collect([importRow(['email' => 'ÉRICA@EMPRESA.COM'])]), Company::factory()->create())
+            ->first();
 
-        expect(collect($errors)->pluck('message'))->toContain('Email já cadastrado no sistema.');
+        expect($classified->outcome)->toBe(ImportRowOutcome::Link)
+            ->and($classified->userId)->toBe($existing->getKey());
     });
 
-    it('flags a row whose email belongs to a deleted account', function (): void {
+    it('sends to support a row whose email belongs to a deleted account', function (): void {
         User::factory()->create(['email' => 'saiu@empresa.com'])->delete();
 
-        $errors = resolve(ValidateUserImportAction::class)
-            ->execute(collect([importRow(['email' => 'saiu@empresa.com'])]), Company::factory()->create());
+        $classified = resolve(ClassifyImportRowsAction::class)
+            ->execute(collect([importRow(['email' => 'SAIU@empresa.com'])]), Company::factory()->create())
+            ->first();
 
-        expect(collect($errors)->pluck('message'))->toContain('Email já cadastrado no sistema.');
+        expect($classified->outcome)->toBe(ImportRowOutcome::DeletedAccount);
     });
 
-    it('flags two rows that differ only in case as duplicates', function (): void {
-        $errors = resolve(ValidateUserImportAction::class)->execute(collect([
+    it('skips a row whose email differs from an earlier row only in case', function (): void {
+        $outcomes = resolve(ClassifyImportRowsAction::class)->execute(collect([
             importRow(['email' => 'dup@empresa.com', '__row_number' => 2]),
             importRow(['email' => 'DUP@Empresa.com', 'tax_id' => '56259004770', '__row_number' => 3]),
-        ]), Company::factory()->create());
+        ]), Company::factory()->create())->pluck('outcome')->all();
 
-        expect(collect($errors)->pluck('message'))->toContain('Email duplicado na planilha.');
+        expect($outcomes)->toBe([ImportRowOutcome::Create, ImportRowOutcome::DuplicateInSheet]);
     });
 
     it('stores imported emails in the same canonical form as the mutator', function (): void {

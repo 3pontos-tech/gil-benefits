@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Listeners\SendOnboardingEmailListener;
 use TresPontosTech\Appointments\Mail\EmployeeOnboardingMail;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Events\ExistingUserImported;
 use TresPontosTech\User\Events\UserImported;
 use TresPontosTech\User\Events\UserRegistered;
 
@@ -18,6 +19,7 @@ it('listens to every way a new employee comes in', function (): void {
 
     Event::assertListening(UserRegistered::class, [SendOnboardingEmailListener::class, 'handleUserRegistered']);
     Event::assertListening(UserImported::class, [SendOnboardingEmailListener::class, 'handleUserImported']);
+    Event::assertListening(ExistingUserImported::class, [SendOnboardingEmailListener::class, 'handleExistingUserImported']);
 });
 
 it('sends the onboarding to an employee created with a temporary password', function (): void {
@@ -63,5 +65,16 @@ it('sends the onboarding with the temporary password steps to an imported employ
     Mail::assertQueued(
         EmployeeOnboardingMail::class,
         fn (EmployeeOnboardingMail $mail): bool => $mail->hasTo('importado@empresa.com') && $mail->hasTemporaryPassword,
+    );
+});
+
+it('sends the onboarding without the temporary password steps to a person linked or reactivated by the import', function (): void {
+    $user = User::factory()->create(['email' => 'vinculada@empresa.com']);
+
+    (new SendOnboardingEmailListener)->handleExistingUserImported(new ExistingUserImported($user));
+
+    Mail::assertQueued(
+        EmployeeOnboardingMail::class,
+        fn (EmployeeOnboardingMail $mail): bool => $mail->hasTo('vinculada@empresa.com') && ! $mail->hasTemporaryPassword,
     );
 });

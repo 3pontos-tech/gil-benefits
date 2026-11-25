@@ -9,13 +9,17 @@ use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Actions\ClassifyImportRowsAction;
 use TresPontosTech\User\Actions\PersistImportedUsersAction;
+use TresPontosTech\User\DTOs\ClassifiedImportRowDTO;
+use TresPontosTech\User\DTOs\ImportErrorDTO;
+use TresPontosTech\User\Enums\ImportRowOutcome;
+use TresPontosTech\User\Events\ExistingUserImported;
 use TresPontosTech\User\Events\UserImported;
 use TresPontosTech\User\Mail\WelcomeUserMail;
 
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
-use function Pest\Laravel\assertDatabaseMissing;
 
 function makeUserRows(int $count, int $startIndex = 1): Collection
 {
@@ -108,44 +112,25 @@ it('returns an ImportUsersResultDTO with the correct imported count', function (
         ->and($result->hasErrors())->toBeFalse();
 });
 
-it('a rollback in one chunk does not affect previously persisted chunks', function (): void {
+it('links a person registered after the validation instead of failing the chunk', function (): void {
     Mail::fake();
 
     $company = Company::factory()->create();
-
-    // Create a user that will cause a unique constraint violation in chunk 2
-    User::factory()->create(['email' => 'conflict@example.com']);
-
-    // 100 valid rows → chunk 1
-    $rows = makeUserRows(100, startIndex: 1000);
-
-    // 1 conflicting row → triggers rollback in chunk 2
-    $rows->push([
-        'name' => 'Conflict User',
-        'email' => 'conflict@example.com',
+    $rows = makeUserRows(100, startIndex: 1000)->push([
+        'name' => 'Late Signup',
+        'email' => 'late@example.com',
         'tax_id' => '99999999999',
         'phone_number' => '11999999999',
-        'document_id' => 'DOCCONFLICT',
+        'document_id' => 'DOCLATE',
     ]);
+    $lateSignup = User::factory()->create(['email' => 'late@example.com']);
 
-    $threwException = false;
-    try {
-        resolve(PersistImportedUsersAction::class)->execute($rows, $company);
-    } catch (Throwable) {
-        $threwException = true;
-    }
+    $result = resolve(PersistImportedUsersAction::class)->execute($rows, $company);
 
-    expect($threwException)->toBeTrue();
-
-    // 1 pre-existing conflict user + 100 users from chunk 1 (chunk 2 rolled back)
-    assertDatabaseCount(User::class, 1 + 1 + 100);
-
-    // The conflicting email is not duplicated (still only the original user)
-    expect(User::query()->where('email', 'conflict@example.com')->count())->toBe(1);
-
-    // Users from chunk 1 are persisted
-    assertDatabaseHas(User::class, ['email' => 'persistuser1000@example.com']);
-    assertDatabaseMissing(User::class, ['email' => 'persistuser1101@example.com']);
+    expect($result->imported)->toBe(100)
+        ->and($result->linked)->toBe(1);
+    expect(User::query()->where('email', 'late@example.com')->count())->toBe(1);
+    expect($company->employees()->whereKey($lateSignup->getKey())->exists())->toBeTrue();
 });
 
 it('links each imported employee to the department id resolved before the job', function (): void {
@@ -169,4 +154,146 @@ it('links each imported employee to the department id resolved before the job', 
 
     expect($departmentByEmail->get('persistuser2000@example.com'))->toBe($engineering->id)
         ->and($departmentByEmail->get('persistuser2001@example.com'))->toBeNull();
+});
+
+it('links an existing person without a new account, keeping their password and details', function (): void {
+    Mail::fake();
+    Event::fake([UserImported::class, ExistingUserImported::class]);
+
+    $company = Company::factory()->create();
+    $engineering = Department::factory()->for($company)->create();
+    $person = User::factory()->create(['email' => 'existing@example.com', 'name' => 'Original Name']);
+    Detail::factory()->for($person)->create(['tax_id' => '12312312312', 'phone_number' => '11911112222']);
+    $passwordBefore = $person->password;
+
+    $result = resolve(PersistImportedUsersAction::class)->execute(collect([[
+        'name' => 'Spreadsheet Name',
+        'email' => 'existing@example.com',
+        'tax_id' => '12312312312',
+        'phone_number' => '11933334444',
+        'department_id' => $engineering->id,
+        '__row_number' => 2,
+    ]]), $company);
+
+    expect($result->linked)->toBe(1)
+        ->and($result->imported)->toBe(0);
+    expect(User::query()->where('email', 'existing@example.com')->count())->toBe(1);
+    assertDatabaseHas(User::class, ['id' => $person->id, 'name' => 'Original Name', 'password' => $passwordBefore]);
+    assertDatabaseHas(Detail::class, ['user_id' => $person->id, 'phone_number' => '11911112222']);
+    assertDatabaseHas('company_employees', [
+        'company_id' => $company->id,
+        'user_id' => $person->id,
+        'role' => Roles::Employee->value,
+        'active' => true,
+        'department_id' => $engineering->id,
+    ]);
+    Mail::assertNotQueued(WelcomeUserMail::class);
+    Event::assertNotDispatched(UserImported::class);
+    Event::assertDispatched(ExistingUserImported::class, fn (ExistingUserImported $event): bool => $event->user->is($person));
+});
+
+it('reactivates an inactive employee, taking the department of the row', function (): void {
+    Mail::fake();
+    Event::fake([ExistingUserImported::class]);
+
+    $company = Company::factory()->create();
+    $sales = Department::factory()->for($company)->create();
+    $support = Department::factory()->for($company)->create();
+    $former = User::factory()->create(['email' => 'former@example.com']);
+    Detail::factory()->for($former)->create(['tax_id' => '45645645645']);
+    $company->employees()->attach($former->getKey(), ['role' => Roles::Employee->value, 'active' => false, 'department_id' => $sales->id]);
+
+    $result = resolve(PersistImportedUsersAction::class)->execute(collect([[
+        'name' => 'Former',
+        'email' => 'former@example.com',
+        'tax_id' => '45645645645',
+        'department_id' => $support->id,
+        '__row_number' => 2,
+    ]]), $company);
+
+    expect($result->reactivated)->toBe(1)
+        ->and(array_map(fn (ImportErrorDTO $report): array => [$report->row, $report->message], $result->rowReports))
+        ->toBe([[2, 'Funcionário inativo da empresa, reativado.']]);
+    expect($company->employees()->find($former->getKey())->pivot)
+        ->active->toBeTrue()
+        ->department_id->toBe($support->id);
+    Mail::assertNotQueued(WelcomeUserMail::class);
+    Event::assertDispatched(ExistingUserImported::class);
+});
+
+it('keeps the department of a reactivated employee when the row leaves it blank', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+    $sales = Department::factory()->for($company)->create();
+    $former = User::factory()->create(['email' => 'former@example.com']);
+    Detail::factory()->for($former)->create(['tax_id' => '45645645645']);
+    $company->employees()->attach($former->getKey(), ['role' => Roles::Employee->value, 'active' => false, 'department_id' => $sales->id]);
+
+    resolve(PersistImportedUsersAction::class)->execute(collect([[
+        'name' => 'Former',
+        'email' => 'former@example.com',
+        'tax_id' => '45645645645',
+        'department_id' => null,
+        '__row_number' => 2,
+    ]]), $company);
+
+    expect($company->employees()->find($former->getKey())->pivot->department_id)->toBe($sales->id);
+});
+
+it('reports a person hired by another company after the validation and still writes the rest of the chunk', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+    $person = User::factory()->create(['email' => 'hired@example.com']);
+    Detail::factory()->for($person)->create(['tax_id' => '78978978978']);
+    Company::factory()->create()->employees()->attach($person->getKey(), ['role' => Roles::Employee->value]);
+
+    $rows = makeUserRows(1)->push([
+        'name' => 'Hired',
+        'email' => 'hired@example.com',
+        'tax_id' => '78978978978',
+        '__row_number' => 3,
+    ]);
+
+    $result = resolve(PersistImportedUsersAction::class)->execute($rows, $company);
+
+    expect($result->imported)->toBe(1)
+        ->and($result->needsSupport)->toBe(1);
+    expect($company->employees()->whereKey($person->getKey())->exists())->toBeFalse();
+    assertDatabaseHas(User::class, ['email' => 'persistuser1@example.com']);
+});
+
+it('classifies and writes the chunk again when an insert hits a person created in the meantime', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+    $person = User::factory()->create(['email' => 'race@example.com']);
+    Detail::factory()->for($person)->create(['tax_id' => '32132132132']);
+
+    app()->instance(ClassifyImportRowsAction::class, new class extends ClassifyImportRowsAction
+    {
+        private int $calls = 0;
+
+        public function execute(Collection $rows, Company $company): Collection
+        {
+            $classified = parent::execute($rows, $company);
+
+            return ++$this->calls === 2
+                ? $classified->map(fn (ClassifiedImportRowDTO $row): ClassifiedImportRowDTO => new ClassifiedImportRowDTO($row->row, ImportRowOutcome::Create))
+                : $classified;
+        }
+    });
+
+    $result = resolve(PersistImportedUsersAction::class)->execute(collect([[
+        'name' => 'Race',
+        'email' => 'race@example.com',
+        'tax_id' => '32132132132',
+        '__row_number' => 2,
+    ]]), $company);
+
+    expect($result->linked)->toBe(1)
+        ->and($result->imported)->toBe(0);
+    expect(User::query()->where('email', 'race@example.com')->count())->toBe(1);
+    expect($company->employees()->whereKey($person->getKey())->exists())->toBeTrue();
 });

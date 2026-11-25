@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
+use Filament\Notifications\Notification;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -260,6 +261,76 @@ describe('import-users action', function (): void {
             );
 
         Queue::assertNothingPushed();
+    });
+
+    it('company owner sees why no row joins the company and no import is queued', function (): void {
+        Queue::fake();
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        $csv = sprintf("name,email,tax_id\nEmployee,%s,52998224725\n", $this->employee->email);
+
+        livewire(EditTenantProfile::class)
+            ->callAction(TestAction::make('import-users')->table(), data: [
+                'file' => UploadedFile::fake()->createWithContent('users.csv', $csv),
+            ])
+            ->assertNotDispatched('import-started')
+            ->assertDispatched('import-result', rows: [[
+                'row' => 2,
+                'email' => $this->employee->email,
+                'message' => 'Ignorado: já faz parte da empresa.',
+            ]])
+            ->assertNotified(__('user::actions.import_users.notifications.none_joining.title'));
+
+        Queue::assertNothingPushed();
+    });
+
+    it('company owner sees the summary and the row list when the import finishes', function (): void {
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        $rows = [['row' => 3, 'email' => 'repetida@empresa.com', 'message' => 'Ignorado: e-mail ou CPF repetido de uma linha anterior da planilha.']];
+        Cache::put(ImportUsersJob::completionCacheKey((string) $this->owner->getKey()), json_encode([
+            'imported' => 5,
+            'linked' => 2,
+            'reactivated' => 0,
+            'skipped' => 1,
+            'needs_support' => 1,
+            'rows' => $rows,
+        ]));
+
+        livewire(EditTenantProfile::class)
+            ->call('checkImportCompletion')
+            ->assertNotified(
+                Notification::make()
+                    ->success()
+                    ->title('Importação concluída')
+                    ->body('5 importados, 2 vinculados, 1 ignorado, 1 precisa do suporte.'),
+            )
+            ->assertDispatched('import-result', rows: $rows);
+    });
+
+    it('company owner sees the usual message when every row was created', function (): void {
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        Cache::put(ImportUsersJob::completionCacheKey((string) $this->owner->getKey()), json_encode([
+            'imported' => 3, 'linked' => 0, 'reactivated' => 0, 'skipped' => 0, 'needs_support' => 0, 'rows' => [],
+        ]));
+
+        livewire(EditTenantProfile::class)
+            ->call('checkImportCompletion')
+            ->assertNotified(
+                Notification::make()
+                    ->success()
+                    ->title('Importação concluída')
+                    ->body('Todos os 3 usuários foram importados com sucesso.'),
+            )
+            ->assertNotDispatched('import-result');
     });
 
     it('company owner sees a failure notification when the import job fails', function (): void {

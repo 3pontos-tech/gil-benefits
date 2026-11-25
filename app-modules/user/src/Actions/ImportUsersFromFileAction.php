@@ -13,6 +13,8 @@ readonly class ImportUsersFromFileAction
     public function __construct(
         private ParseUsersFromFileAction $parser,
         private ValidateUserImportAction $validator,
+        private ClassifyImportRowsAction $classifier,
+        private CheckImportSeatLimitAction $seatLimit,
         private PersistImportedUsersAction $persister,
     ) {}
 
@@ -35,6 +37,13 @@ readonly class ImportUsersFromFileAction
 
         if ($errors !== []) {
             return new ImportUsersResultDTO(imported: 0, errors: $errors);
+        }
+
+        $preview = ImportUsersResultDTO::fromClassifiedRows($this->classifier->execute($rows, $company));
+        $seatError = $this->seatLimit->execute($company, $preview->joined());
+
+        if ($seatError instanceof ImportErrorDTO) {
+            return new ImportUsersResultDTO(imported: 0, errors: [$seatError]);
         }
 
         return $this->persister->execute($departments->withDepartmentIds($rows), $company);
