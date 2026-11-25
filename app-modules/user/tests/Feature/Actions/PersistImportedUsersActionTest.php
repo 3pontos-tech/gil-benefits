@@ -112,7 +112,7 @@ it('returns an ImportUsersResultDTO with the correct imported count', function (
         ->and($result->hasErrors())->toBeFalse();
 });
 
-it('links a person registered after the validation instead of failing the chunk', function (): void {
+it('links a person who already has an account instead of failing the chunk on the unique email', function (): void {
     Mail::fake();
 
     $company = Company::factory()->create();
@@ -241,7 +241,7 @@ it('keeps the department of a reactivated employee when the row leaves it blank'
     expect($company->employees()->find($former->getKey())->pivot->department_id)->toBe($sales->id);
 });
 
-it('reports a person hired by another company after the validation and still writes the rest of the chunk', function (): void {
+it('reports an employee of another company and still writes the rest of the chunk', function (): void {
     Mail::fake();
 
     $company = Company::factory()->create();
@@ -296,4 +296,22 @@ it('classifies and writes the chunk again when an insert hits a person created i
         ->and($result->imported)->toBe(0);
     expect(User::query()->where('email', 'race@example.com')->count())->toBe(1);
     expect($company->employees()->whereKey($person->getKey())->exists())->toBeTrue();
+});
+
+it('links once a person reached by the email in one row and by the tax_id in another', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+    $person = User::factory()->create(['email' => 'twice@example.com']);
+    Detail::factory()->for($person)->create(['tax_id' => '65465465465']);
+
+    $result = resolve(PersistImportedUsersAction::class)->execute(collect([
+        ['name' => 'Twice', 'email' => 'twice@example.com', 'tax_id' => '11122233344', '__row_number' => 2],
+        ['name' => 'Twice', 'email' => 'other@example.com', 'tax_id' => '65465465465', '__row_number' => 3],
+    ]), $company);
+
+    expect($result)
+        ->linked->toBe(1)
+        ->skipped->toBe(1);
+    expect($company->employees()->whereKey($person->getKey())->count())->toBe(1);
 });

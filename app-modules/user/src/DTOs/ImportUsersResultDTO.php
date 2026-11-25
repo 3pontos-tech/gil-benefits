@@ -10,9 +10,8 @@ use TresPontosTech\User\Enums\ImportRowOutcome;
 final readonly class ImportUsersResultDTO
 {
     /**
-     * @param  int  $imported  people created by the import
-     * @param  list<ImportErrorDTO>  $errors  what blocked the whole spreadsheet
-     * @param  list<ImportErrorDTO>  $rowReports  one line for each row that was not simply created
+     * @param  list<ImportErrorDTO>  $errors
+     * @param  list<ImportErrorDTO>  $rowReports
      */
     public function __construct(
         public int $imported,

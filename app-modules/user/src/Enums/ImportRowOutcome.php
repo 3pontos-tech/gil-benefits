@@ -25,10 +25,6 @@ enum ImportRowOutcome: string
         return in_array($this, [self::DuplicateInSheet, self::AlreadyMember], true);
     }
 
-    /**
-     * The company only sees that support is needed, never where the person works: the other
-     * company is another tenant (ADR company/2026-10-30, D4).
-     */
     public function needsSupport(): bool
     {
         return in_array($this, [self::EmployedElsewhere, self::DeletedAccount, self::ConflictingData], true);

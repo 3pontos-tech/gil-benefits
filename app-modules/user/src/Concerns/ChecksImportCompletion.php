@@ -43,7 +43,7 @@ trait ChecksImportCompletion
 
         Notification::make()
             ->success()
-            ->title('Importação concluída')
+            ->title(__('user::actions.import_users.notifications.completed.title'))
             ->body($this->importSummaryBody($summary))
             ->send();
 
@@ -53,8 +53,6 @@ trait ChecksImportCompletion
     }
 
     /**
-     * A bare number is the count left in the cache by a job that finished before the FLM-110 deploy.
-     *
      * @return array{imported: int, linked: int, reactivated: int, skipped: int, needs_support: int, rows: list<array{row: int, email: string, message: string}>}
      */
     private function importSummary(string $result): array

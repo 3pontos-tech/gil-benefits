@@ -11,8 +11,6 @@ final readonly class ClassifiedImportRowDTO
 {
     /**
      * @param  array<string, mixed>  $row
-     * @param  string|null  $userId  the existing person, for Link and Reactivate
-     * @param  string|null  $membershipId  the inactive membership in this company, for Reactivate
      */
     public function __construct(
         public array $row,

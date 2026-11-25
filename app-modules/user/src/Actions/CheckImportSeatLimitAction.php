@@ -8,12 +8,8 @@ use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
 
-class CheckImportSeatLimitAction
+final readonly class CheckImportSeatLimitAction
 {
-    /**
-     * @param  int  $joiningCount  people created, linked or reactivated by the import; skipped
-     *                             rows and rows that need support take no seat
-     */
     public function execute(Company $company, int $joiningCount): ?ImportErrorDTO
     {
         $available = $this->availableSeats($company);
@@ -25,7 +21,7 @@ class CheckImportSeatLimitAction
         return new ImportErrorDTO(
             row: 0,
             email: 'N/A',
-            message: sprintf('Limite de assentos excedido. Disponíveis: %d, solicitados: %d.', $available, $joiningCount),
+            message: __('user::actions.import_users.errors.seat_limit', ['available' => $available, 'requested' => $joiningCount]),
         );
     }
 

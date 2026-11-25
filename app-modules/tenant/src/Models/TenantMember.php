@@ -86,6 +86,31 @@ class TenantMember extends Pivot
     }
 
     /**
+     * @param  list<string>  $userIds
+     * @return list<string>
+     */
+    public static function employedElsewhere(array $userIds, string $companyId): array
+    {
+        if ($userIds === [] || Company::query()->whereKey($companyId)->where('slug', Company::DEFAULT_SLUG)->exists()) {
+            return [];
+        }
+
+        /** @var list<string> $employed */
+        $employed = self::query()
+            ->whereIn('user_id', $userIds)
+            ->where('company_id', '<>', $companyId)
+            ->where('role', Roles::Employee->value)
+            ->where('active', true)
+            ->whereNull('deleted_at')
+            ->whereIn('company_id', Company::withTrashed()->withoutDefault()->select('id'))
+            ->distinct()
+            ->pluck('user_id')
+            ->all();
+
+        return $employed;
+    }
+
+    /**
      * A membership created without an explicit role is a plain employee: the
      * database refuses a null role, and employee is the weakest one.
      */

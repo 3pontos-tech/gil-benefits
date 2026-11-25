@@ -19,7 +19,9 @@ related:
 
 **Status:** aceita · **Data:** 2026-11-24 · **Decidido por:** Richard (produto/tech)
 
-Implementa o épico FLM-110 (stories FLM-606 a FLM-612).
+Implementa o épico FLM-110 (stories FLM-606 a FLM-612). A parte técnica (onde a classificação
+roda e como a gravação resiste a mudanças no meio do caminho) está em
+[`2026-11-24-import-reclassifies-in-job.md`](2026-11-24-import-reclassifies-in-job.md).
 
 ## Contexto
 
@@ -29,53 +31,68 @@ exemplo, quem se cadastrou sozinho) não podia entrar na empresa pela planilha.
 
 ## Decisões
 
-**D1. Cada linha recebe uma classificação.** Uma linha é de cadastro existente quando o e-mail
-**ou** o CPF já está na base.
+**D1. Cada linha recebe uma classificação** (`ImportRowOutcome`). Uma linha é de cadastro
+existente quando o e-mail **ou** o CPF já está na base. A ordem de avaliação é a da tabela.
 
 | Linha | Resultado |
 | --- | --- |
+| E-mail ou CPF repetido de uma linha anterior da planilha | ignorada; a primeira ocorrência vale |
 | E-mail e CPF fora da base | cria a pessoa, como antes |
-| E-mail ou CPF repetido de uma linha anterior | ignorada; a primeira ocorrência vale |
-| Membro ativo da empresa (qualquer papel) | ignorada |
+| E-mail de uma pessoa e CPF de outra | não importada, aviso de suporte |
+| Mesma pessoa de uma linha anterior, achada pela outra chave | ignorada |
+| Usuário ou `user_details` excluído (soft delete) | não importada, aviso de suporte |
+| Membro ativo da empresa, qualquer papel | ignorada |
+| Dono ou gerente inativo da empresa | ignorada |
 | Funcionário inativo da empresa | reativado |
-| Cadastro ativo sem vínculo de funcionário em outra empresa | vinculado, sem novo cadastro |
-| Funcionário ativo de outra empresa | não importado, aviso de suporte |
-| Usuário ou `user_details` excluído (soft delete) | não importado, aviso de suporte |
-| E-mail de uma pessoa e CPF de outra | não importado, aviso de suporte |
+| Funcionário ativo de outra empresa (fora do balde) | não importada, aviso de suporte |
+| Demais cadastros ativos (só no balde, sem vínculo, dono ou gerente de outra empresa) | vinculado como funcionário |
 
-**D2. Erros de formato, departamento e telefone repetido entre pessoas diferentes continuam
-barrando a planilha inteira.** Telefone repetido numa linha que já é repetida por e-mail ou CPF
-não conta, porque essa linha é ignorada.
+A "mesma pessoa pela outra chave" (o e-mail dela numa linha, o CPF dela em outra) é ignorada
+porque, sem isso, as duas linhas tentariam criar o mesmo vínculo, o índice único derrubaria o lote
+e a pessoa ocuparia dois assentos.
 
-**D3. Vincular e reativar não mexem no cadastro.** Nome, telefone, RG, senha e
-`user_details.company_id` ficam como estão. Vale só o departamento da linha no vínculo; na
-reativação, célula de departamento vazia mantém o departamento anterior.
+**D2. O que continua barrando a planilha inteira:** erros de formato, colunas obrigatórias,
+departamento inexistente ou ambíguo, e telefone repetido entre pessoas diferentes. Telefone
+repetido numa linha já ignorada por e-mail ou CPF não conta: a mesma pessoa listada duas vezes
+costuma repetir o telefone, e essa linha não entra.
 
-**D4. Dono ou gerente de outra empresa é vinculado normalmente**, como manda a D2 do ADR
-`company/2026-10-30-single-active-employer`. A empresa só altera o próprio vínculo com a pessoa.
+**D3. Só funcionário inativo é reativado.** Dono ou gerente inativo é ignorado: reativar pela
+planilha de funcionários devolveria acesso ao painel da empresa sem ninguém pedir. "Removido" pelo
+painel apaga o vínculo de vez (`detach`), então essa pessoa volta como **vinculada**.
 
-**D5. Assentos contam só quem entra:** criados, vinculados e reativados.
+**D4. Vincular e reativar não mexem no cadastro.** Nome, telefone, RG, senha e
+`user_details.company_id` ficam como estão. No vínculo vale o departamento da linha. Na
+reativação, o departamento da linha substitui o anterior, e célula vazia mantém o anterior.
 
-**D6. E-mails.** Quem é criado recebe as boas-vindas com senha temporária e o onboarding, como
-antes. Quem é vinculado ou reativado não recebe senha; o evento `ExistingUserImported` manda o
-onboarding sem o trecho da senha temporária.
+**D5. Dono ou gerente de outra empresa é vinculado normalmente**, como manda a D2 do ADR
+`company/2026-10-30-single-active-employer`: esses papéis não contam como empregador, e a empresa
+que importa só altera o próprio vínculo com a pessoa. Consultor e admin também não têm regra
+especial: o caso é raro e decidimos não tratar.
 
-**D7. A classificação roda na requisição e de novo no job.** Na requisição, ela alimenta a
-prévia e a conta de assentos. No job, cada lote de 100 é classificado de novo dentro da
-transação, então quem se cadastrou ou foi contratado por outra empresa depois do envio é
-vinculado ou recusado, sem gravar cadastro duplicado. Se mesmo assim o lote bater no índice
-único ou em `EmployedElsewhere`, a transação é desfeita e o lote é classificado e gravado mais
-uma vez.
+**D6. O aviso de suporte nunca nomeia a outra empresa.** Ela é outro tenant. O RH vê só que a
+pessoa precisa do suporte e o motivo (outra empresa, cadastro excluído, dados divergentes).
 
-**D8. Resultado para o RH.** A notificação final traz a contagem de cada grupo, e um modal lista
-linha, e-mail e motivo de cada linha que não foi simplesmente criada. Se nenhuma linha entra na
-empresa, o modal aparece já no envio e nada vai para a fila.
+**D7. Assentos contam só quem entra:** criados, vinculados e reativados. Linhas ignoradas e com
+aviso de suporte não consomem assento.
+
+**D8. E-mails.** Quem é criado recebe as boas-vindas com senha temporária e o onboarding, como
+antes. Quem é vinculado ou reativado não recebe senha nova. O evento `ExistingUserImported` existe
+para isso: o `UserImported` leva o onboarding com os passos da senha temporária, e essa pessoa não
+recebeu senha. O listener do onboarding (módulo appointments) manda a versão sem senha.
+
+**D9. Resultado para o RH.** A notificação final traz a contagem de cada grupo ("5 importados,
+2 vinculados, 1 ignorado, 1 precisa do suporte") e um modal lista linha, e-mail e motivo de cada
+linha que não foi simplesmente criada, incluindo vinculados e reativados, para o RH conferir um
+vínculo por e-mail ou CPF digitado errado. Se nenhuma linha entra na empresa, o modal aparece já
+no envio e nada vai para a fila.
 
 ## Consequências
 
-- "Removido" pelo painel da empresa apaga o vínculo de vez (`detach`), então essa pessoa volta
-  como **vinculada**, não como reativada. Reativação vale para o vínculo que ainda existe com
-  `active = false`.
+- A importação passou a poder esbarrar no empregador único; o ADR
+  `company/2026-10-30-single-active-employer` foi atualizado.
 - O texto de ajuda do importe descreve as regras acima.
 - Ficam fora: atualizar dados de quem já existe pela planilha, transferir pessoa de outra
-  empresa e baixar o relatório das linhas em arquivo.
+  empresa, baixar o relatório das linhas em arquivo e e-mail avisando a pessoa do vínculo.
+- Risco aceito: um e-mail ou CPF digitado errado que coincida com outra pessoa a vincula à
+  empresa. A defesa é o aviso de dados divergentes (e-mail e CPF de pessoas diferentes) e a lista
+  por linha do resultado.

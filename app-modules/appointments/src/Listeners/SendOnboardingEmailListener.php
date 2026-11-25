@@ -14,8 +14,7 @@ use TresPontosTech\User\Events\UserRegistered;
 
 /**
  * Manda o onboarding a quem passa pela consultoria, por qualquer porta de entrada: auto cadastro,
- * criação pela empresa, criação pelo admin (UserRegistered) e importação em massa (UserImported, e
- * ExistingUserImported para quem já tinha conta e foi vinculado ou reativado, sem senha nova).
+ * criação pela empresa, criação pelo admin (UserRegistered) e importação em massa (UserImported).
  * Consultores e demais papéis também disparam UserRegistered e ficam de fora.
  */
 final class SendOnboardingEmailListener

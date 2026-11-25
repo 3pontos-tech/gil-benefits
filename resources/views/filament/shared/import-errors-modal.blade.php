@@ -34,7 +34,7 @@
                             class="text-base font-semibold text-gray-900 dark:text-white"
                             x-text="isResult ? @js(__('user::actions.import_users.result_modal.title')) : 'Erros na Importação'"
                         ></h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400" x-text="isResult ? `${errors.length} linha(s)` : `${errors.length} erro(s) encontrado(s)`"></p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400" x-text="isResult ? `${errors.length} ${@js(__('user::actions.import_users.result_modal.rows'))}` : `${errors.length} erro(s) encontrado(s)`"></p>
                     </div>
                 </div>
                 <button

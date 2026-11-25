@@ -14,11 +14,6 @@ use TresPontosTech\User\DTOs\ClassifiedImportRowDTO;
 use TresPontosTech\User\Enums\ImportRowOutcome;
 use TresPontosTech\User\Support\EmailAddress;
 
-/**
- * Runs twice: in the request, to preview and count seats, and again in the job, per chunk, so a
- * person created or hired elsewhere after the upload is linked or refused instead of breaking the
- * unique indexes on users.email and user_details.tax_id.
- */
 class ClassifyImportRowsAction
 {
     /**
@@ -54,7 +49,14 @@ class ClassifyImportRowsAction
             ->get(['id', 'user_id', 'role', 'active'])
             ->keyBy('user_id');
 
-        return $rows->map(function (array $row, int $index) use ($duplicates, $usersByEmail, $detailsByTaxId, $usersById, $membershipsHere, $company): ClassifiedImportRowDTO {
+        $employedElsewhere = array_flip(TenantMember::employedElsewhere(
+            array_values(array_map(strval(...), $usersById->keys()->all())),
+            (string) $company->getKey(),
+        ));
+
+        $seenUserIds = [];
+
+        return $rows->map(function (array $row, int $index) use ($duplicates, $usersByEmail, $detailsByTaxId, $usersById, $membershipsHere, $employedElsewhere, &$seenUserIds): ClassifiedImportRowDTO {
             if (isset($duplicates[$index])) {
                 return new ClassifiedImportRowDTO($row, ImportRowOutcome::DuplicateInSheet);
             }
@@ -73,6 +75,13 @@ class ClassifyImportRowsAction
             }
 
             $userId = (string) ($userByEmail?->getKey() ?? $detailByTaxId?->user_id);
+
+            if (isset($seenUserIds[$userId])) {
+                return new ClassifiedImportRowDTO($row, ImportRowOutcome::DuplicateInSheet, $userId);
+            }
+
+            $seenUserIds[$userId] = true;
+
             /** @var User|null $user */
             $user = $usersById->get($userId);
 
@@ -83,13 +92,11 @@ class ClassifyImportRowsAction
             /** @var TenantMember|null $membership */
             $membership = $membershipsHere->get($userId);
 
-            if ($membership instanceof TenantMember && $membership->active) {
+            if ($membership instanceof TenantMember && ($membership->active || $membership->role !== Roles::Employee)) {
                 return new ClassifiedImportRowDTO($row, ImportRowOutcome::AlreadyMember, $userId);
             }
 
-            $becomesEmployee = ! $membership instanceof TenantMember || $membership->role === Roles::Employee;
-
-            if ($becomesEmployee && TenantMember::activeEmployerElsewhere($userId, (string) $company->getKey()) instanceof Company) {
+            if (isset($employedElsewhere[$userId])) {
                 return new ClassifiedImportRowDTO($row, ImportRowOutcome::EmployedElsewhere, $userId);
             }
 
@@ -100,8 +107,6 @@ class ClassifyImportRowsAction
     }
 
     /**
-     * Rows whose e-mail or CPF already appeared in an earlier row: the first one wins.
-     *
      * @param  Collection<int, array<string, mixed>>  $rows
      * @return array<int, true>
      */

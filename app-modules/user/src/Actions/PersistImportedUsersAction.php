@@ -53,10 +53,6 @@ class PersistImportedUsersAction
     }
 
     /**
-     * Someone can be created, or hired elsewhere, between the classification and the write. The
-     * transaction rolls back and the chunk is classified and written once more with that person
-     * in place.
-     *
      * @param  Collection<int, array<string, mixed>>  $rows
      * @return Collection<int, ClassifiedImportRowDTO>
      */
@@ -160,9 +156,6 @@ class PersistImportedUsersAction
         return $items->pluck('plain_password', 'id');
     }
 
-    /**
-     * The department in the row replaces the old one; a blank cell keeps it.
-     */
     private function reactivate(ClassifiedImportRowDTO $row): void
     {
         $membership = TenantMember::query()->findOrFail($row->membershipId);

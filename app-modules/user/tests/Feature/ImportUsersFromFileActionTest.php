@@ -220,7 +220,14 @@ it('imports a mixed spreadsheet in one go, reporting each row that was not simpl
     Detail::factory()->for($selfSignup)->create(['tax_id' => '22222222222']);
     $elsewhere = User::factory()->create(['email' => 'elsewhere@empresa.com']);
     Detail::factory()->for($elsewhere)->create(['tax_id' => '33333333333']);
-    Company::factory()->create()->employees()->attach($elsewhere->getKey(), ['role' => Roles::Employee->value]);
+    $otherCompany = Company::factory()->create(['name' => 'Outra Empresa Secreta']);
+    $otherCompany->employees()->attach($elsewhere->getKey(), ['role' => Roles::Employee->value]);
+    $inactive = User::factory()->create(['email' => 'inactive@empresa.com']);
+    Detail::factory()->for($inactive)->create(['tax_id' => '66666666666']);
+    $company->employees()->attach($inactive->getKey(), ['role' => Roles::Employee->value, 'active' => false]);
+    User::factory()->create(['email' => 'deleted@empresa.com'])->delete();
+    User::factory()->create(['email' => 'maria@empresa.com']);
+    Detail::factory()->for(User::factory()->create())->create(['tax_id' => '99999999999']);
 
     $csv = makeCsvFile([
         ['Nova', 'nova@empresa.com', '12345678', '444.444.444-44', '11999999999'],
@@ -228,6 +235,9 @@ it('imports a mixed spreadsheet in one go, reporting each row that was not simpl
         ['Membro', 'member@empresa.com', '', '111.111.111-11', ''],
         ['Cadastrada', 'signup@empresa.com', '', '222.222.222-22', ''],
         ['Outra empresa', 'elsewhere@empresa.com', '', '333.333.333-33', ''],
+        ['Inativa', 'inactive@empresa.com', '', '666.666.666-66', ''],
+        ['Excluída', 'deleted@empresa.com', '', '777.777.777-77', ''],
+        ['Divergente', 'maria@empresa.com', '', '999.999.999-99', ''],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -235,18 +245,24 @@ it('imports a mixed spreadsheet in one go, reporting each row that was not simpl
     expect($result)
         ->imported->toBe(1)
         ->linked->toBe(1)
+        ->reactivated->toBe(1)
         ->skipped->toBe(2)
-        ->needsSupport->toBe(1)
+        ->needsSupport->toBe(3)
         ->errors->toBeEmpty();
     expect(array_map(fn (ImportErrorDTO $report): array => [$report->row, $report->email, $report->message], $result->rowReports))->toBe([
-        [3, 'nova@empresa.com', 'Ignorado: e-mail ou CPF repetido de uma linha anterior da planilha.'],
+        [3, 'nova@empresa.com', 'Ignorado: a mesma pessoa (e-mail ou CPF) já aparece numa linha anterior da planilha.'],
         [4, 'member@empresa.com', 'Ignorado: já faz parte da empresa.'],
         [5, 'signup@empresa.com', 'Já tinha cadastro no ' . config('app.name') . ' e foi vinculado à empresa.'],
         [6, 'elsewhere@empresa.com', 'Não importado: a pessoa está vinculada a outra empresa. Contate o suporte.'],
+        [7, 'inactive@empresa.com', 'Funcionário inativo da empresa, reativado.'],
+        [8, 'deleted@empresa.com', 'Não importado: o cadastro desta pessoa foi excluído. Contate o suporte.'],
+        [9, 'maria@empresa.com', 'Não importado: o e-mail e o CPF pertencem a cadastros diferentes. Contate o suporte.'],
     ]);
+    expect(collect($result->rowReports)->pluck('message')->implode(' '))->not->toContain($otherCompany->name);
     expect(User::query()->where('email', 'nova@empresa.com')->count())->toBe(1);
     expect($company->employees()->whereKey($selfSignup->getKey())->exists())->toBeTrue();
     expect($company->employees()->whereKey($elsewhere->getKey())->exists())->toBeFalse();
+    expect($company->employees()->find($inactive->getKey())->pivot->active)->toBeTrue();
 });
 
 it('fails entire import when the people joining exceed the free seats, ignoring skipped rows', function (): void {

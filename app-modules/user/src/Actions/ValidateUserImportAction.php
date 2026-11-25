@@ -181,9 +181,6 @@ class ValidateUserImportAction
     }
 
     /**
-     * Skips rows already repeated by e-mail or CPF: the same person listed twice usually repeats
-     * the phone too, and that row is ignored instead of blocking the spreadsheet.
-     *
      * @param  Collection<int, array<string, mixed>>  $rows
      */
     private function validateDuplicatePhoneNumbers(Collection $rows): void

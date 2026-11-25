@@ -71,7 +71,7 @@ it('stores the result summary for the completion notification of the user who st
         'rows' => [[
             'row' => 4,
             'email' => 'jobuser1@example.com',
-            'message' => 'Ignorado: e-mail ou CPF repetido de uma linha anterior da planilha.',
+            'message' => 'Ignorado: a mesma pessoa (e-mail ou CPF) já aparece numa linha anterior da planilha.',
         ]],
     ]);
 });

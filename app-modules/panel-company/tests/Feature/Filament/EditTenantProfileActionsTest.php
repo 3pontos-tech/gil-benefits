@@ -292,7 +292,7 @@ describe('import-users action', function (): void {
         actingAs($this->owner);
         filament()->setTenant($this->company);
 
-        $rows = [['row' => 3, 'email' => 'repetida@empresa.com', 'message' => 'Ignorado: e-mail ou CPF repetido de uma linha anterior da planilha.']];
+        $rows = [['row' => 3, 'email' => 'repetida@empresa.com', 'message' => 'Ignorado: a mesma pessoa (e-mail ou CPF) já aparece numa linha anterior da planilha.']];
         Cache::put(ImportUsersJob::completionCacheKey((string) $this->owner->getKey()), json_encode([
             'imported' => 5,
             'linked' => 2,
@@ -311,6 +311,26 @@ describe('import-users action', function (): void {
                     ->body('5 importados, 2 vinculados, 1 ignorado, 1 precisa do suporte.'),
             )
             ->assertDispatched('import-result', rows: $rows);
+    });
+
+    it('company owner is told nobody joined when the job turned every row away', function (): void {
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        Cache::put(ImportUsersJob::completionCacheKey((string) $this->owner->getKey()), json_encode([
+            'imported' => 0, 'linked' => 0, 'reactivated' => 0, 'skipped' => 1, 'needs_support' => 1,
+            'rows' => [['row' => 2, 'email' => 'a@empresa.com', 'message' => 'Ignorado: já faz parte da empresa.']],
+        ]));
+
+        livewire(EditTenantProfile::class)
+            ->call('checkImportCompletion')
+            ->assertNotified(
+                Notification::make()
+                    ->success()
+                    ->title('Importação concluída')
+                    ->body('Nenhuma pessoa entrou na empresa: 1 ignorado, 1 precisa do suporte.'),
+            );
     });
 
     it('company owner sees the usual message when every row was created', function (): void {
