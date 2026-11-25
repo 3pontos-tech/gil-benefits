@@ -3,10 +3,12 @@
 namespace TresPontosTech\PanelApp\Filament\Pages;
 
 use App\Models\Users\User;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
@@ -15,7 +17,10 @@ use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Discounts\Actions\ListAvailableDiscounts;
+use TresPontosTech\Discounts\Actions\RedeemDiscountCode;
+use TresPontosTech\Discounts\Actions\ReserveDiscountRedemption;
 use TresPontosTech\Discounts\DTOs\DiscountOffer;
+use TresPontosTech\Discounts\Models\DiscountRedemption;
 
 class UserSubscriptionPage extends Page
 {
@@ -31,39 +36,85 @@ class UserSubscriptionPage extends Page
 
     public string $selectedPlanSlug = '';
 
+    /** @var array<string, string> Cupom escolhido por plano; string vazia significa sem cupom. */
+    public array $selectedOffers = [];
+
+    public string $discountCode = '';
+
     public function mount(): void
     {
-        $plans = resolve(PlanRepository::class)->getCheckoutPlansFor('user');
-        $this->selectedPlanSlug = $plans->first()->slug ?? '';
+        $this->selectedPlanSlug = $this->checkoutPlans()->first()->slug ?? '';
+        $this->preselectBestOffers();
     }
 
     protected function getViewData(): array
     {
-        $audience = $this->audienceForTenant();
-
-        // Um plano sem preço para esta audiência não tem o que cobrar aqui, e
-        // mostrá-lo levaria o checkout a escolher o preço da outra audiência.
-        $plans = resolve(PlanRepository::class)
-            ->getCheckoutPlansFor('user')
-            ->filter(fn (PlanEntity $plan): bool => $plan->prices->contains(
-                fn (PriceEntity $price): bool => $price->audience === $audience
-            ));
+        $plans = $this->checkoutPlans();
 
         return [
             'plans' => $plans,
-            'audience' => $audience,
-            'discounts' => $plans->mapWithKeys(fn (PlanEntity $plan): array => [
-                $plan->slug => $this->bestOfferFor($plan)?->checkoutDiscount->percentOff,
-            ])->filter()->all(),
+            'audience' => $this->audienceForTenant(),
+            'offersByPlan' => $plans->mapWithKeys(fn (PlanEntity $plan): array => [
+                $plan->slug => $this->offersFor($plan),
+            ])->all(),
         ];
     }
 
-    public function checkout(string $planSlug): void
+    public function applyCode(): void
     {
+        $this->validate(['discountCode' => ['required', 'string', 'max:64']]);
+
+        /** @var User $user */
+        $user = auth()->user();
+
+        try {
+            resolve(RedeemDiscountCode::class)->handle($user, $this->discountCode);
+        } catch (ValidationException $validationException) {
+            $this->addError('discountCode', $validationException->validator->errors()->first('code'));
+
+            return;
+        }
+
+        $this->discountCode = '';
+        $this->preselectBestOffers();
+
+        Notification::make()->success()->title('Cupom adicionado à sua carteira')->send();
+    }
+
+    public function checkout(string $planSlug, ?string $offerKey = null): void
+    {
+        /** @var User $user */
         $user = auth()->user();
 
         $plan = resolve(PlanRepository::class)->get($planSlug);
         $this->selectedPlanSlug = $planSlug;
+
+        // O servidor refaz a lista e nunca confia no valor ou no percentual vindos da tela: do cliente vem só a key.
+        $offer = null;
+
+        if (filled($offerKey)) {
+            $offer = $this->offersFor($plan)->first(
+                fn (DiscountOffer $candidate): bool => $candidate->key === $offerKey
+            );
+
+            if (! $offer instanceof DiscountOffer) {
+                $this->preselectBestOffers();
+                Notification::make()->danger()->title('Este cupom não está mais disponível')->send();
+
+                return;
+            }
+
+            $redemption = resolve(ReserveDiscountRedemption::class)->handle($user, $offer, $plan->slug);
+
+            if (! $redemption instanceof DiscountRedemption) {
+                $this->preselectBestOffers();
+                Notification::make()->danger()->title('Este cupom atingiu o limite de usos')->send();
+
+                return;
+            }
+        }
+
+        $this->selectedOffers[$planSlug] = $offerKey ?? '';
 
         $price = $this->resolvePriceForTenant($plan->prices->all());
 
@@ -80,7 +131,7 @@ class UserSubscriptionPage extends Page
             successUrl: UserDashboard::getUrl(),
             cancelUrl: UserDashboard::getUrl(),
             metadata: ['model' => (string) Relation::getMorphAlias(User::class)],
-            discount: $this->bestOfferFor($plan)?->checkoutDiscount,
+            discount: $offer?->checkoutDiscount,
         );
 
         $driver = resolve(BillingManager::class)->getDriver($plan->provider);
@@ -134,20 +185,41 @@ class UserSubscriptionPage extends Page
         );
     }
 
+    /** @return Collection<int, PlanEntity> */
+    private function checkoutPlans(): Collection
+    {
+        $audience = $this->audienceForTenant();
+
+        // Um plano sem preço para esta audiência não tem o que cobrar aqui, e
+        // mostrá-lo levaria o checkout a escolher o preço da outra audiência.
+        return resolve(PlanRepository::class)
+            ->getCheckoutPlansFor('user')
+            ->filter(fn (PlanEntity $plan): bool => $plan->prices->contains(
+                fn (PriceEntity $price): bool => $price->audience === $audience
+            ));
+    }
+
     /** @return Collection<int, DiscountOffer> */
     private function offersFor(PlanEntity $plan): Collection
     {
+        /** @var User $user */
+        $user = auth()->user();
+
         return resolve(ListAvailableDiscounts::class)->handle(
-            auth()->user(),
+            $user,
             $plan,
             $this->audienceForTenant(),
             resolve(BillingManager::class)->getDriver($plan->provider),
         );
     }
 
-    private function bestOfferFor(PlanEntity $plan): ?DiscountOffer
+    private function preselectBestOffers(): void
     {
-        return $this->offersFor($plan)->first();
+        $this->selectedOffers = $this->checkoutPlans()
+            ->mapWithKeys(fn (PlanEntity $plan): array => [
+                $plan->slug => $this->offersFor($plan)->pluck('key')->first() ?? '',
+            ])
+            ->all();
     }
 
     private function audienceForTenant(): PriceAudienceEnum

@@ -15,6 +15,7 @@ use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Discounts\Models\Discount;
 use TresPontosTech\Discounts\Models\DiscountGrant;
+use TresPontosTech\Discounts\Models\DiscountRedemption;
 use TresPontosTech\PanelApp\Filament\Pages\UserSubscriptionPage;
 
 use function Pest\Livewire\livewire;
@@ -143,10 +144,10 @@ describe('desconto do convite da Clau', function (): void {
         livewire(UserSubscriptionPage::class)
             ->assertSee('350')
             ->assertSee('245')
-            ->assertSee('30% vitalício');
+            ->assertSee('30% de desconto');
     });
 
-    it('cobra o checkout com o percentual do desconto', function (): void {
+    it('cobra o checkout com o percentual do desconto escolhido', function (): void {
         $captured = null;
 
         $fake = new FakeDiscountableBillingContract(createCheckoutUsing: function ($billable, CheckoutData $data) use (&$captured): string {
@@ -164,9 +165,14 @@ describe('desconto do convite da Clau', function (): void {
         $this->actingAs($this->employee);
         filament()->setTenant($this->flamma);
 
-        livewire(UserSubscriptionPage::class)->call('checkout', $this->plan->slug);
+        $offerKey = 'grant:' . DiscountGrant::query()->value('id');
+
+        livewire(UserSubscriptionPage::class)
+            ->assertSet('selectedOffers.' . $this->plan->slug, $offerKey)
+            ->call('checkout', $this->plan->slug, $offerKey);
 
         expect($captured?->discount?->percentOff)->toBe(30);
+        expect(DiscountRedemption::query()->where('plan_slug', $this->plan->slug)->where('status', 'reserved')->count())->toBe(1);
     });
 
     it('não oferece desconto quando o driver não suporta desconto no checkout', function (): void {
@@ -188,7 +194,7 @@ describe('desconto do convite da Clau', function (): void {
         filament()->setTenant($this->flamma);
 
         livewire(UserSubscriptionPage::class)
-            ->assertDontSee('30% vitalício')
+            ->assertDontSee('30% de desconto')
             ->call('checkout', $this->plan->slug);
 
         expect($captured?->discount)->toBeNull();
@@ -213,7 +219,7 @@ describe('desconto do convite da Clau', function (): void {
         filament()->setTenant($this->company);
 
         livewire(UserSubscriptionPage::class)
-            ->assertDontSee('30% vitalício')
+            ->assertDontSee('30% de desconto')
             ->call('checkout', $this->plan->slug);
 
         expect($captured?->discount)->toBeNull();
@@ -233,7 +239,7 @@ describe('desconto do convite da Clau', function (): void {
 
         livewire(UserSubscriptionPage::class)
             ->assertSee('350')
-            ->assertDontSee('30% vitalício');
+            ->assertDontSee('30% de desconto');
     });
 
     it('não aplica desconto quando o grant está travado em outro plano', function (): void {
@@ -250,6 +256,161 @@ describe('desconto do convite da Clau', function (): void {
 
         livewire(UserSubscriptionPage::class)
             ->assertSee('350')
-            ->assertDontSee('30% vitalício');
+            ->assertDontSee('30% de desconto');
+    });
+});
+
+describe('seletor de cupons', function (): void {
+    beforeEach(function (): void {
+        $this->gateway = new FakeDiscountableBillingContract;
+        $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock): void {
+            $mock->makePartial();
+            $mock->shouldReceive('getDriver')->andReturn($this->gateway);
+        }));
+
+        filament()->setCurrentPanel(FilamentPanel::User->value);
+        $this->actingAs($this->employee);
+        filament()->setTenant($this->flamma);
+    });
+
+    it('pré-seleciona o cupom mais vantajoso e lista a quantidade disponível', function (): void {
+        $weakGrant = DiscountGrant::factory()
+            ->for(Discount::factory()->active()->state(['name' => 'Cupom Fraco', 'percent_off' => 10]))
+            ->claimedBy($this->employee)
+            ->create();
+
+        $strongGrant = DiscountGrant::factory()
+            ->for(Discount::factory()->active()->state(['name' => 'Cupom Forte', 'percent_off' => 50]))
+            ->claimedBy($this->employee)
+            ->create();
+
+        livewire(UserSubscriptionPage::class)
+            ->assertSee('2 cupons disponíveis')
+            ->assertSee('Sem cupom')
+            ->assertSet('selectedOffers.' . $this->plan->slug, 'grant:' . $strongGrant->getKey())
+            ->assertSee('Cupom Fraco')
+            ->assertSee('10% de desconto em todas as mensalidades');
+    });
+
+    it('não oferece cupom com duração limitada enquanto o gateway não suporta', function (): void {
+        DiscountGrant::factory()
+            ->for(Discount::factory()->active()->repeating(3)->state(['name' => 'Cupom Limitado']))
+            ->claimedBy($this->employee)
+            ->create();
+
+        livewire(UserSubscriptionPage::class)
+            ->assertDontSee('Cupom Limitado')
+            ->assertDontSee('cupom disponível');
+    });
+
+    it('faz checkout sem cupom quando a pessoa escolhe sem cupom', function (): void {
+        $captured = null;
+        $this->gateway = new FakeDiscountableBillingContract(createCheckoutUsing: function ($billable, CheckoutData $data) use (&$captured): string {
+            $captured = $data;
+
+            return 'https://checkout.test';
+        });
+
+        $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock): void {
+            $mock->makePartial();
+            $mock->shouldReceive('getDriver')->andReturn($this->gateway);
+        }));
+
+        DiscountGrant::factory()->for(Discount::factory()->active())->claimedBy($this->employee)->create();
+
+        livewire(UserSubscriptionPage::class)
+            ->call('checkout', $this->plan->slug, '');
+
+        expect($captured?->discount)->toBeNull();
+        expect(DiscountRedemption::query()->count())->toBe(0);
+    });
+
+    it('recusa uma key adulterada sem gerar link nem reserva', function (): void {
+        $called = false;
+        $this->gateway = new FakeDiscountableBillingContract(createCheckoutUsing: function () use (&$called): string {
+            $called = true;
+
+            return 'https://checkout.test';
+        });
+
+        $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock): void {
+            $mock->makePartial();
+            $mock->shouldReceive('getDriver')->andReturn($this->gateway);
+        }));
+
+        DiscountGrant::factory()->for(Discount::factory()->active())->claimedBy($this->employee)->create();
+
+        livewire(UserSubscriptionPage::class)
+            ->call('checkout', $this->plan->slug, 'grant:chave-inventada')
+            ->assertNotified('Este cupom não está mais disponível');
+
+        expect($called)->toBeFalse();
+        expect(DiscountRedemption::query()->count())->toBe(0);
+    });
+
+    it('recusa o cupom que deixou de valer entre a renderização e o checkout', function (): void {
+        $grant = DiscountGrant::factory()
+            ->for(Discount::factory()->active())
+            ->claimedBy($this->employee)
+            ->create();
+
+        $component = livewire(UserSubscriptionPage::class);
+        $offerKey = 'grant:' . $grant->getKey();
+
+        $grant->update(['revoked_at' => now()]);
+
+        $component
+            ->call('checkout', $this->plan->slug, $offerKey)
+            ->assertNotified('Este cupom não está mais disponível');
+
+        expect(DiscountRedemption::query()->count())->toBe(0);
+    });
+
+    it('recusa o cupom quando o limite total já foi atingido', function (): void {
+        $discount = Discount::factory()->active()->state(['max_redemptions' => 1])->create();
+        $grant = DiscountGrant::factory()->for($discount)->claimedBy($this->employee)->create();
+
+        DiscountRedemption::factory()->for($discount)->active()->create();
+
+        livewire(UserSubscriptionPage::class)
+            ->call('checkout', $this->plan->slug, 'grant:' . $grant->getKey())
+            ->assertNotified('Este cupom não está mais disponível');
+
+        expect(DiscountRedemption::query()->where('discount_id', $discount->getKey())->count())->toBe(1);
+    });
+
+    it('aplica um código digitado e pré-seleciona o novo cupom', function (): void {
+        Discount::factory()->code('CLAU30')->active()->state(['name' => 'Cupom por código', 'percent_off' => 25])->create();
+
+        livewire(UserSubscriptionPage::class)
+            ->set('discountCode', 'clau 30')
+            ->call('applyCode')
+            ->assertHasNoErrors()
+            ->assertSet('discountCode', '')
+            ->assertSee('Cupom por código')
+            ->assertSet('selectedOffers.' . $this->plan->slug, 'grant:' . DiscountGrant::query()->where('source', 'code')->value('id'));
+    });
+
+    it('mostra erro para um código inválido', function (): void {
+        livewire(UserSubscriptionPage::class)
+            ->set('discountCode', 'NAOEXISTE')
+            ->call('applyCode')
+            ->assertHasErrors(['discountCode']);
+    });
+
+    it('não duplica o cupom do mesmo código', function (): void {
+        Discount::factory()->code('DUPLICADO')->active()->create();
+
+        $component = livewire(UserSubscriptionPage::class)
+            ->set('discountCode', 'DUPLICADO')
+            ->call('applyCode')
+            ->assertHasNoErrors();
+
+        $component
+            ->set('discountCode', 'DUPLICADO')
+            ->call('applyCode')
+            ->assertHasErrors(['discountCode']);
+
+        expect(DiscountGrant::query()->where('user_id', $this->employee->getKey())->where('source', 'code')->count())->toBe(1);
     });
 });
