@@ -31,15 +31,17 @@ final class DiscountGrantReservedNotification extends Notification implements Sh
 
     public function toMail(object $notifiable): MailMessage
     {
-        $percent = $this->grant->discount->percent_off;
         $firstName = Str::of((string) $this->grant->name)->trim()->before(' ')->toString();
 
         return (new MailMessage)
-            ->subject(sprintf('Seu desconto de %d%% na Flamma está reservado', $percent))
-            ->greeting($firstName !== '' ? "Olá, {$firstName}!" : 'Olá!')
-            ->line(sprintf('Você concluiu o diagnóstico financeiro com a Clau e reservamos para você %d%% de desconto vitalício no plano pessoal da Flamma.', $percent))
-            ->line('Para usar, crie sua conta pelo botão abaixo com este e-mail e o mesmo CPF que você informou à Clau, e assine o plano pessoal até ' . $this->grant->expires_at->format('d/m/Y') . '.')
-            ->action('Ativar minha conta', DiscountInviteUrl::for($this->grant))
-            ->line('Se você não pediu isso, pode ignorar este e-mail: a reserva expira sozinha.');
+            ->subject(__('emails.discounts.grant_reserved.subject', ['percent' => $this->grant->discount->percent_off]))
+            ->view('emails.discounts.grant-reserved', [
+                'percent' => $this->grant->discount->percent_off,
+                'greeting' => $firstName !== ''
+                    ? __('emails.discounts.grant_reserved.greeting', ['name' => $firstName])
+                    : __('emails.discounts.grant_reserved.greeting_generic'),
+                'expiresAt' => $this->grant->expires_at->format('d/m/Y'),
+                'activationUrl' => DiscountInviteUrl::for($this->grant),
+            ]);
     }
 }

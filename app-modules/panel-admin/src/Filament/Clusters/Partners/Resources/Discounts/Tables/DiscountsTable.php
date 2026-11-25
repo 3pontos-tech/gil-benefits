@@ -25,7 +25,8 @@ class DiscountsTable
                     ->searchable(),
 
                 TextColumn::make('slug')
-                    ->label('Identificador'),
+                    ->label('Identificador')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('discount_value')
                     ->label('Desconto')
@@ -35,17 +36,20 @@ class DiscountsTable
 
                 TextColumn::make('distribution')
                     ->label('Distribuição')
-                    ->badge(),
+                    ->badge()
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('duration')
-                    ->label('Duração'),
+                    ->label('Duração')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('used_redemptions_count')
                     ->label('Usos'),
 
                 TextColumn::make('max_redemptions')
                     ->label('Limite')
-                    ->placeholder('Sem limite'),
+                    ->placeholder('Sem limite')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 IconColumn::make('active')
                     ->label('Ativo')
@@ -53,11 +57,13 @@ class DiscountsTable
 
                 TextColumn::make('grants_count')
                     ->label('Concessões')
-                    ->counts('grants'),
+                    ->counts('grants')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('Criado em')
-                    ->dateTime('d/m/Y H:i'),
+                    ->dateTime('d/m/Y H:i')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
                 EditAction::make(),

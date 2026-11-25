@@ -84,7 +84,9 @@ final class UserRegistration extends RegisterPage
                 ->rule(fn (Field $component): Closure => $this->uniqueDetailRule('document_id', $component->getLabel())),
             $this->getPasswordFormComponent(),
             $this->getPasswordConfirmationFormComponent(),
-            $this->getVoucherFormComponent(),
+            $this->getVoucherFormComponent()
+                ->visible(fn (): bool => ! $this->invitedGrant() instanceof DiscountGrant)
+                ->dehydrated(fn (): bool => ! $this->invitedGrant() instanceof DiscountGrant),
             Checkbox::make('accepts_flamma_terms')
                 ->label(new HtmlString('Li e aceito a <a href="' . e(route('site.privacy')) . '" target="_blank" class="underline">Política de Privacidade da Flamma</a>'))
                 ->accepted()
@@ -108,7 +110,9 @@ final class UserRegistration extends RegisterPage
 
                 return $grant instanceof DiscountGrant ? $value($grant) : null;
             })
-            ->readOnly(fn (): bool => $this->invitedGrant() instanceof DiscountGrant);
+            ->readOnly(fn (): bool => $this->invitedGrant() instanceof DiscountGrant)
+            ->disabled(fn (): bool => $this->invitedGrant() instanceof DiscountGrant)
+            ->dehydrated();
     }
 
     private function invitedGrant(): ?DiscountGrant

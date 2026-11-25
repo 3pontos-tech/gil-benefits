@@ -344,6 +344,21 @@ describe('convite da Clau', function (): void {
             ->assertFormFieldIsEnabled('tax_id');
     });
 
+    it('trava nome e e-mail do convite como desabilitados e esconde o campo de voucher', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->assertFormFieldIsDisabled('name')
+            ->assertFormFieldIsDisabled('email')
+            ->assertFormFieldIsHidden('voucher');
+    });
+
+    it('mostra o campo de voucher no cadastro sem convite', function (): void {
+        livewire(UserRegistration::class)
+            ->assertFormFieldIsEnabled('name')
+            ->assertFormFieldIsVisible('voucher');
+    });
+
     it('cria a conta com o nome, o e-mail, o CPF e o telefone do convite', function (): void {
         session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
 

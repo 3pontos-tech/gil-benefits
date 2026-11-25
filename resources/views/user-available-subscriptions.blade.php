@@ -79,7 +79,7 @@
                                     'whatsapp_access' => $price->whatsappEnabled,
                                     'exclusive_materials' => $price->materialsEnabled,
                                 ];
-                                $formatted = $price ? Number::currency(($price->priceInCents ?? 0) / 100, 'BRL') : '';
+                                $formatted = $price ? Number::currency(($price->priceInCents ?? 0) / 100, 'BRL', 'pt_BR') : '';
                                 /** @var Collection<int, DiscountOffer> $offers */
                                 $offers = $offersByPlan[$plan->slug] ?? collect();
                                 /** @var DiscountOffer|null $selectedOffer */
@@ -181,9 +181,9 @@
                                     <span>{{ __('views.subscriptions.subtotal') }}</span>
                                     <div class="flex flex-col items-end">
                                         @if($selectedOffer)
-                                            <span class="text-sm text-gray-500 line-through">{{ Number::currency($price->priceInCents / 100, 'BRL') }}</span>
+                                            <span class="text-sm text-gray-500 line-through">{{ Number::currency($price->priceInCents / 100, 'BRL', 'pt_BR') }}</span>
                                             <span class="flex items-center font-bold text-high text-xl gap-1">
-                                                {{ Number::currency($selectedOffer->discountedAmountCents / 100, 'BRL') }}
+                                                {{ Number::currency($selectedOffer->discountedAmountCents / 100, 'BRL', 'pt_BR') }}
                                                 <span class="text-medium font-medium text-xs">{{ __('views.subscriptions.per_month') }}</span>
                                             </span>
                                             <span class="mt-1 max-w-full break-words rounded-full bg-primary-600/10 text-primary-700 px-2 py-0.5 text-right text-xs font-semibold">{{ $selectedOffer->summary() }}</span>
@@ -201,7 +201,7 @@
 
                     <x-slot name="footer">
                         <div x-on:click="$wire.checkout(selectedPlan, $wire.selectedOffers[selectedPlan] ?? '')">
-                            <x-filament::button icon="fab-stripe" color="primary" size="xl" class="w-full text-base">
+                            <x-filament::button color="primary" size="xl" class="w-full text-base">
                                 {{ __('views.subscriptions.complete_subscription') }}
                             </x-filament::button>
                         </div>

@@ -311,3 +311,14 @@ it('renders the redemptions of a discount', function (): void {
         ->assertOk()
         ->assertCanSeeTableRecords($redemptions);
 });
+
+it('keeps the less important columns of the discount list hidden by default so the actions fit', function (): void {
+    $component = livewire(ListDiscounts::class);
+    $table = $component->instance()->getTable();
+
+    expect($table->getColumn('name')->isToggledHiddenByDefault())->toBeFalse()
+        ->and($table->getColumn('discount_value')->isToggledHiddenByDefault())->toBeFalse()
+        ->and($table->getColumn('active')->isToggledHiddenByDefault())->toBeFalse()
+        ->and($table->getColumn('slug')->isToggledHiddenByDefault())->toBeTrue()
+        ->and($table->getColumn('created_at')->isToggledHiddenByDefault())->toBeTrue();
+});

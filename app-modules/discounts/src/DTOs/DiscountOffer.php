@@ -30,7 +30,7 @@ final readonly class DiscountOffer
     {
         $value = $this->checkoutDiscount->percentOff !== null
             ? $this->checkoutDiscount->percentOff . '% de desconto'
-            : Number::currency($this->checkoutDiscount->amountOffCents / 100, 'BRL') . ' de desconto';
+            : Number::currency($this->checkoutDiscount->amountOffCents / 100, 'BRL', 'pt_BR') . ' de desconto';
 
         return $value . ' ' . $this->durationLabel();
     }

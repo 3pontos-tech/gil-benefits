@@ -21,9 +21,13 @@ it('monta o e-mail de ativação com desconto, saudação, botão e validade', f
     $mail = (new DiscountGrantReservedNotification($grant))->toMail(new stdClass);
 
     expect($mail->subject)->toBe('Seu desconto de 30% na Flamma está reservado')
-        ->and($mail->greeting)->toBe('Olá, Ana!')
-        ->and($mail->actionUrl)->toBe(DiscountInviteUrl::for($grant))
-        ->and(implode(' ', $mail->introLines))->toContain($grant->expires_at->format('d/m/Y'));
+        ->and($mail->view)->toBe('emails.discounts.grant-reserved')
+        ->and($mail->viewData)->toMatchArray([
+            'percent' => 30,
+            'greeting' => 'Olá, Ana!',
+            'expiresAt' => $grant->expires_at->format('d/m/Y'),
+            'activationUrl' => DiscountInviteUrl::for($grant),
+        ]);
 });
 
 it('usa saudação genérica quando não há nome', function (): void {
@@ -31,5 +35,24 @@ it('usa saudação genérica quando não há nome', function (): void {
 
     $mail = (new DiscountGrantReservedNotification($grant))->toMail(new stdClass);
 
-    expect($mail->greeting)->toBe('Olá!');
+    expect($mail->viewData['greeting'])->toBe('Olá!');
+});
+
+it('renderiza o e-mail com o visual da Flamma e textos em português', function (): void {
+    config(['app.name' => 'Flamma']);
+    $grant = DiscountGrant::factory()->for(Discount::factory()->active()->create(['percent_off' => 30]))->create([
+        'name' => 'Ana Souza',
+    ]);
+
+    $mail = (new DiscountGrantReservedNotification($grant))->toMail(new stdClass);
+    $html = view($mail->view, $mail->viewData)->render();
+
+    expect($html)
+        ->toContain('Olá, Ana!')
+        ->toContain('Ativar minha conta')
+        ->toContain('Atenciosamente,')
+        ->toContain('Equipe Flamma')
+        ->toContain(e(DiscountInviteUrl::for($grant)))
+        ->not->toContain('Regards')
+        ->not->toContain('Laravel');
 });
