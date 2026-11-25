@@ -34,9 +34,9 @@ final class DiscountGrantReservedNotification extends Notification implements Sh
         $firstName = Str::of((string) $this->grant->name)->trim()->before(' ')->toString();
 
         return (new MailMessage)
-            ->subject(__('emails.discounts.grant_reserved.subject', ['percent' => $this->grant->discount->percent_off]))
+            ->subject(__('emails.discounts.grant_reserved.subject'))
             ->view('emails.discounts.grant-reserved', [
-                'percent' => $this->grant->discount->percent_off,
+                'summary' => $this->grant->discount->summary(),
                 'greeting' => $firstName !== ''
                     ? __('emails.discounts.grant_reserved.greeting', ['name' => $firstName])
                     : __('emails.discounts.grant_reserved.greeting_generic'),

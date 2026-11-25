@@ -20,10 +20,10 @@ it('monta o e-mail de ativação com desconto, saudação, botão e validade', f
 
     $mail = (new DiscountGrantReservedNotification($grant))->toMail(new stdClass);
 
-    expect($mail->subject)->toBe('Seu desconto de 30% na Flamma está reservado')
+    expect($mail->subject)->toBe('Seu desconto na Flamma está reservado')
         ->and($mail->view)->toBe('emails.discounts.grant-reserved')
         ->and($mail->viewData)->toMatchArray([
-            'percent' => 30,
+            'summary' => '30% de desconto em todas as mensalidades',
             'greeting' => 'Olá, Ana!',
             'expiresAt' => $grant->expires_at->format('d/m/Y'),
             'activationUrl' => DiscountInviteUrl::for($grant),
@@ -55,4 +55,18 @@ it('renderiza o e-mail com o visual da Flamma e textos em português', function 
         ->toContain(e(DiscountInviteUrl::for($grant)))
         ->not->toContain('Regards')
         ->not->toContain('Laravel');
+});
+
+it('descreve um desconto em valor fixo sem cair no texto de percentual', function (): void {
+    config(['app.name' => 'Flamma']);
+    $grant = DiscountGrant::factory()->for(Discount::factory()->active()->fixedAmount()->create(['amount_off_cents' => 1000]))->create([
+        'name' => 'Ana Souza',
+    ]);
+
+    $mail = (new DiscountGrantReservedNotification($grant))->toMail(new stdClass);
+    $html = view($mail->view, $mail->viewData)->render();
+
+    expect(str_replace("\u{a0}", ' ', $mail->viewData['summary']))->toBe('R$ 10,00 de desconto em todas as mensalidades')
+        ->and($html)->toContain('de desconto em todas as mensalidades')
+        ->not->toContain('% de desconto');
 });

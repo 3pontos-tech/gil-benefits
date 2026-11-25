@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
@@ -135,6 +136,23 @@ final class Discount extends Model
     public function countedRedemptions(): HasMany
     {
         return $this->redemptions()->counting();
+    }
+
+    public function summary(): string
+    {
+        $value = $this->value_type === DiscountValueTypeEnum::FixedAmount
+            ? Number::currency(($this->amount_off_cents ?? 0) / 100, 'BRL', 'pt_BR')
+            : $this->percent_off . '%';
+
+        $duration = match ($this->duration) {
+            DiscountDurationEnum::Forever => 'em todas as mensalidades',
+            DiscountDurationEnum::Once => 'só na primeira cobrança',
+            DiscountDurationEnum::Repeating => ($this->duration_cycles ?? 1) === 1
+                ? 'na primeira cobrança'
+                : 'nas ' . $this->duration_cycles . ' primeiras cobranças',
+        };
+
+        return $value . ' de desconto ' . $duration;
     }
 
     public static function normalizeCodeValue(?string $code): ?string
