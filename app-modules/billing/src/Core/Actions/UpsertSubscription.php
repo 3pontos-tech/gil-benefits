@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Billing\Core\Actions;
 
 use Illuminate\Support\Carbon;
+use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
@@ -43,8 +44,9 @@ final class UpsertSubscription
             $subscription->quota_anchor_at = $dto->activatedAt;
         }
 
-        if ($dto->discountPercent !== null) {
-            $subscription->discount_percent = $dto->discountPercent;
+        if ($dto->discount instanceof CheckoutDiscount) {
+            $subscription->discount_percent = $dto->discount->percentOff;
+            $subscription->discount_amount_cents = $dto->discount->amountOffCents;
         }
 
         $subscription->save();

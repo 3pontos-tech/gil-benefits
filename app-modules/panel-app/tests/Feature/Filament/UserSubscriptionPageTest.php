@@ -166,7 +166,7 @@ describe('desconto do convite da Clau', function (): void {
 
         livewire(UserSubscriptionPage::class)->call('checkout', $this->plan->slug);
 
-        expect($captured?->discountPercent)->toBe(30);
+        expect($captured?->discount?->percentOff)->toBe(30);
     });
 
     it('não oferece desconto quando o driver não suporta desconto no checkout', function (): void {
@@ -191,7 +191,7 @@ describe('desconto do convite da Clau', function (): void {
             ->assertDontSee('30% vitalício')
             ->call('checkout', $this->plan->slug);
 
-        expect($captured?->discountPercent)->toBeNull();
+        expect($captured?->discount)->toBeNull();
     });
 
     it('não aplica desconto no tenant subsidiado', function (): void {
@@ -216,7 +216,7 @@ describe('desconto do convite da Clau', function (): void {
             ->assertDontSee('30% vitalício')
             ->call('checkout', $this->plan->slug);
 
-        expect($captured?->discountPercent)->toBeNull();
+        expect($captured?->discount)->toBeNull();
     });
 
     it('não aplica desconto com o grant vencido', function (): void {

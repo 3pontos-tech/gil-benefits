@@ -6,6 +6,7 @@ namespace TresPontosTech\Billing\Core\Support;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\MonthlyValue;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\MonthlyValueSourceEnum;
@@ -59,8 +60,13 @@ final class RevenueResolver
             return null;
         }
 
-        if ($subscription->discount_percent !== null) {
-            return DiscountedAmount::apply((int) $unitAmount, $subscription->discount_percent);
+        if ($subscription->discount_percent !== null || $subscription->discount_amount_cents !== null) {
+            $discount = new CheckoutDiscount(
+                percentOff: $subscription->discount_percent,
+                amountOffCents: $subscription->discount_amount_cents,
+            );
+
+            return $discount->apply((int) $unitAmount);
         }
 
         return (int) $unitAmount;

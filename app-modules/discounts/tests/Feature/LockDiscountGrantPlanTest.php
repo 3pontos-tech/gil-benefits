@@ -48,6 +48,21 @@ it('trava o plano e a data do primeiro resgate no pagamento confirmado', functio
         ->and($this->grant->first_redeemed_at)->not->toBeNull();
 });
 
+it('trava o plano também quando o desconto é em valor fixo', function (): void {
+    $this->user->subscriptions()->create([
+        'stripe_id' => 'chk_fixo',
+        'discount_percent' => null,
+        'discount_amount_cents' => 5000,
+        'stripe_status' => 'pending',
+        'type' => 'gold',
+        'quantity' => 1,
+    ]);
+
+    activateSubscription($this->user, 'chk_fixo');
+
+    expect($this->grant->refresh()->plan_slug)->toBe('gold');
+});
+
 it('não trava o plano quando a assinatura não tem desconto', function (): void {
     $this->user->subscriptions()->create([
         'stripe_id' => 'chk_2',

@@ -23,7 +23,7 @@ final class LockDiscountGrantPlan
             ->where('stripe_id', $event->dto->subscriptionExternalId)
             ->first();
 
-        if ($subscription === null || $subscription->discount_percent === null) {
+        if ($subscription === null || ($subscription->discount_percent === null && $subscription->discount_amount_cents === null)) {
             return;
         }
 

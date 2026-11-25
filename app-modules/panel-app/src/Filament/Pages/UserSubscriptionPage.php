@@ -9,12 +9,15 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\SupportsCheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Discounts\Actions\ResolveApplicableDiscount;
+use TresPontosTech\Discounts\Enums\DiscountDurationEnum;
+use TresPontosTech\Discounts\Models\Discount;
 
 class UserSubscriptionPage extends Page
 {
@@ -79,7 +82,7 @@ class UserSubscriptionPage extends Page
             successUrl: UserDashboard::getUrl(),
             cancelUrl: UserDashboard::getUrl(),
             metadata: ['model' => (string) Relation::getMorphAlias(User::class)],
-            discountPercent: $this->discountPercentFor($plan),
+            discount: $this->checkoutDiscountFor($plan),
         );
 
         $driver = resolve(BillingManager::class)->getDriver($plan->provider);
@@ -135,19 +138,37 @@ class UserSubscriptionPage extends Page
 
     private function discountPercentFor(PlanEntity $plan): ?int
     {
+        return $this->applicableDiscountFor($plan)?->percent_off;
+    }
+
+    private function checkoutDiscountFor(PlanEntity $plan): ?CheckoutDiscount
+    {
+        $discount = $this->applicableDiscountFor($plan);
+
+        if (! $discount instanceof Discount) {
+            return null;
+        }
+
+        return new CheckoutDiscount(
+            percentOff: $discount->percent_off,
+            amountOffCents: $discount->amount_off_cents,
+            durationCycles: $discount->duration === DiscountDurationEnum::Repeating ? $discount->duration_cycles : null,
+        );
+    }
+
+    private function applicableDiscountFor(PlanEntity $plan): ?Discount
+    {
         $driver = resolve(BillingManager::class)->getDriver($plan->provider);
 
         if (! $driver instanceof SupportsCheckoutDiscount) {
             return null;
         }
 
-        $grant = resolve(ResolveApplicableDiscount::class)->handle(
+        return resolve(ResolveApplicableDiscount::class)->handle(
             auth()->user(),
             $plan->slug,
             $this->audienceForTenant(),
-        );
-
-        return $grant?->discount->percent_off;
+        )?->discount;
     }
 
     private function audienceForTenant(): PriceAudienceEnum

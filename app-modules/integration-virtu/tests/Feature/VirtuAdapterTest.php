@@ -6,8 +6,10 @@ use App\Models\Users\User;
 use Illuminate\Support\Facades\Event;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsCheckoutDiscount;
+use TresPontosTech\Billing\Core\Contracts\SupportsLimitedDurationDiscount;
 use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -62,7 +64,7 @@ function virtuCheckoutData(array $overrides = []): CheckoutData
         collectTaxIds: false,
         successUrl: 'https://app.test/ok',
         cancelUrl: 'https://app.test/cancel',
-        discountPercent: $overrides['discountPercent'] ?? null,
+        discount: $overrides['discount'] ?? null,
     );
 }
 
@@ -104,15 +106,28 @@ it('prices metered plans per seat', function (): void {
 });
 
 it('charges the discounted amount when the checkout carries a discount', function (): void {
-    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discountPercent' => 30]));
+    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discount' => new CheckoutDiscount(percentOff: 30)]));
 
     expect($this->client->createdLinks[0]['amountCents'])->toBe(17500);
+});
+
+it('charges the fixed amount off the price when the checkout carries a fixed discount', function (): void {
+    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discount' => new CheckoutDiscount(amountOffCents: 5000)]));
+
+    expect($this->client->createdLinks[0]['amountCents'])->toBe(20000);
+});
+
+it('refuses a discount limited to a number of charges, which Virtu cannot apply', function (): void {
+    expect(fn () => $this->adapter->createCheckout($this->user, virtuCheckoutData([
+        'discount' => new CheckoutDiscount(percentOff: 30, durationCycles: 3),
+    ])))->toThrow(VirtuApiException::class)
+        ->and($this->client->createdLinks)->toBeEmpty();
 });
 
 it('applies the discount to the updated price', function (): void {
     $this->price->update(['unit_amount_decimal' => 4990]);
 
-    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discountPercent' => 30]));
+    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discount' => new CheckoutDiscount(percentOff: 30)]));
 
     expect($this->client->createdLinks[0]['amountCents'])->toBe(3493);
 });
@@ -120,10 +135,10 @@ it('applies the discount to the updated price', function (): void {
 it('hands the discount to the pending subscription', function (): void {
     Event::fake([SubscriptionCreated::class]);
 
-    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discountPercent' => 30]));
+    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discount' => new CheckoutDiscount(percentOff: 30)]));
 
     Event::assertDispatched(SubscriptionCreated::class, function (SubscriptionCreated $event): bool {
-        return $event->dto->discountPercent === 30;
+        return $event->dto->discount?->percentOff === 30;
     });
 });
 
@@ -135,12 +150,16 @@ it('charges the full price and records no discount when none is granted', functi
     expect($this->client->createdLinks[0]['amountCents'])->toBe(25000);
 
     Event::assertDispatched(SubscriptionCreated::class, function (SubscriptionCreated $event): bool {
-        return $event->dto->discountPercent === null;
+        return ! $event->dto->discount instanceof CheckoutDiscount;
     });
 });
 
 it('declares support for checkout discounts', function (): void {
     expect($this->adapter)->toBeInstanceOf(SupportsCheckoutDiscount::class);
+});
+
+it('does not declare support for discounts limited to a number of charges', function (): void {
+    expect($this->adapter)->not->toBeInstanceOf(SupportsLimitedDurationDiscount::class);
 });
 
 it('keeps checkout discounts out of the other gateways', function (): void {

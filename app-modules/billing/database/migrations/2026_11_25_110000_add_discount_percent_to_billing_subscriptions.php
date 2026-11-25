@@ -12,13 +12,14 @@ return new class extends Migration
     {
         Schema::table('billing_subscriptions', function (Blueprint $table): void {
             $table->unsignedTinyInteger('discount_percent')->nullable();
+            $table->unsignedInteger('discount_amount_cents')->nullable();
         });
     }
 
     public function down(): void
     {
         Schema::table('billing_subscriptions', function (Blueprint $table): void {
-            $table->dropColumn('discount_percent');
+            $table->dropColumn(['discount_percent', 'discount_amount_cents']);
         });
     }
 };

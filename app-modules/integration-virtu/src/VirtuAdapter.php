@@ -10,13 +10,13 @@ use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsCheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
-use TresPontosTech\Billing\Core\Support\DiscountedAmount;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Credits\DTOs\CreditOrderDTO;
@@ -109,7 +109,7 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCheckoutDi
             planSlug: $price->plan->slug,
             quantity: $data->quantity,
             endsAt: null,
-            discountPercent: $data->discountPercent,
+            discount: $data->discount,
         )));
 
         return $this->withBuyerIdentity($link->url, $billable);
@@ -175,8 +175,16 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCheckoutDi
             ? (int) round(SeatPricingTierEnum::fromQuantity($data->quantity)->pricePerSeat() * $data->quantity * 100)
             : $price->unit_amount_decimal;
 
-        if ($data->discountPercent !== null) {
-            $amountCents = DiscountedAmount::apply($amountCents, $data->discountPercent);
+        if ($data->discount instanceof CheckoutDiscount) {
+            throw_if(
+                $data->discount->durationCycles !== null,
+                VirtuApiException::class,
+                'Virtu não aplica desconto em número limitado de cobranças.',
+                0,
+                false,
+            );
+
+            $amountCents = $data->discount->apply($amountCents);
         }
 
         throw_if(
