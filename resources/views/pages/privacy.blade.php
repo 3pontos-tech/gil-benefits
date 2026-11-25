@@ -29,6 +29,9 @@
                 navegador e dispositivo, e localização aproximada (cidade e país).
             </li>
         </ul>
+        <p>
+            Se você fez o diagnóstico financeiro com a Clau e autorizou, a Clau nos envia seu nome, seu e-mail e um código gerado a partir do seu CPF, usado só para confirmar que a conta é sua. Usamos esses dados apenas para reservar o seu desconto e enviar o link de ativação por e-mail. Se a conta não for ativada em até 6 meses, a reserva e esses dados são apagados.
+        </p>
 
         <h2 class="text-xl font-bold">Para que usamos</h2>
         <ul class="flex list-disc flex-col gap-2 pl-6">

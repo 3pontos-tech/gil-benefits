@@ -518,4 +518,9 @@ return [
             ],
         ],
     ],
+    'discounts' => [
+        'navigation_label' => 'Descontos',
+        'model_label' => 'Desconto',
+        'plural_model_label' => 'Descontos',
+    ],
 ];
