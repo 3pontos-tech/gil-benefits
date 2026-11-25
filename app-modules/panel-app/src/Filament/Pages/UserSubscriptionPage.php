@@ -7,12 +7,14 @@ use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\Contracts\SupportsCheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Discounts\Actions\ResolveApplicableDiscount;
 
 class UserSubscriptionPage extends Page
 {
@@ -49,6 +51,9 @@ class UserSubscriptionPage extends Page
         return [
             'plans' => $plans,
             'audience' => $audience,
+            'discounts' => $plans->mapWithKeys(fn (PlanEntity $plan): array => [
+                $plan->slug => $this->discountPercentFor($plan),
+            ])->filter()->all(),
         ];
     }
 
@@ -74,6 +79,7 @@ class UserSubscriptionPage extends Page
             successUrl: UserDashboard::getUrl(),
             cancelUrl: UserDashboard::getUrl(),
             metadata: ['model' => (string) Relation::getMorphAlias(User::class)],
+            discountPercent: $this->discountPercentFor($plan),
         );
 
         $driver = resolve(BillingManager::class)->getDriver($plan->provider);
@@ -125,6 +131,23 @@ class UserSubscriptionPage extends Page
         return collect($prices)->firstOrFail(
             fn (PriceEntity $price): bool => $price->audience === $audience
         );
+    }
+
+    private function discountPercentFor(PlanEntity $plan): ?int
+    {
+        $driver = resolve(BillingManager::class)->getDriver($plan->provider);
+
+        if (! $driver instanceof SupportsCheckoutDiscount) {
+            return null;
+        }
+
+        $grant = resolve(ResolveApplicableDiscount::class)->handle(
+            auth()->user(),
+            $plan->slug,
+            $this->audienceForTenant(),
+        );
+
+        return $grant?->discount->percent_off;
     }
 
     private function audienceForTenant(): PriceAudienceEnum

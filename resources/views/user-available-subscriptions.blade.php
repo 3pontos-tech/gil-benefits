@@ -1,7 +1,8 @@
-@php use Filament\Support\Icons\Heroicon;use Illuminate\Support\Collection;use TresPontosTech\Billing\Core\Entities\PlanEntity;use TresPontosTech\Billing\Core\Entities\PriceEntity;use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum; @endphp
+@php use Filament\Support\Icons\Heroicon;use Illuminate\Support\Collection;use TresPontosTech\Billing\Core\Entities\PlanEntity;use TresPontosTech\Billing\Core\Entities\PriceEntity;use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;use TresPontosTech\Billing\Core\Support\DiscountedAmount; @endphp
 @props([
     'plans',
     'audience' => PriceAudienceEnum::Subsidized,
+    'discounts' => [],
 ])
 
 @php
@@ -57,6 +58,8 @@
                                     'exclusive_materials' => $price->materialsEnabled,
                                 ];
                                 $formatted = $price ? Number::currency(($price->priceInCents ?? 0) / 100, 'BRL') : '';
+                                $discount = $discounts[$plan->slug] ?? null;
+                                $discounted = $discount ? DiscountedAmount::apply($price->priceInCents, $discount) : null;
                             @endphp
                             <x-card-gradient>
                                 <x-slot name="title" class="flex flex-row justify-between">
@@ -119,11 +122,20 @@
                                 </x-slot>
                                 <x-slot name="footer" class="flex justify-between">
                                     <span>{{ __('views.subscriptions.subtotal') }}</span>
-                                    <div class="flex">
-                                        <span class="flex items-center font-bold text-high text-xl gap-1">
-                                            {{ $formatted }}
-                                            <span class="text-medium font-medium text-xs">{{ __('views.subscriptions.per_month') }}</span>
-                                        </span>
+                                    <div class="flex flex-col items-end">
+                                        @if($discount)
+                                            <span class="text-sm text-gray-500 line-through">{{ Number::currency($price->priceInCents / 100, 'BRL') }}</span>
+                                            <span class="flex items-center font-bold text-high text-xl gap-1">
+                                                {{ Number::currency($discounted / 100, 'BRL') }}
+                                                <span class="text-medium font-medium text-xs">{{ __('views.subscriptions.per_month') }}</span>
+                                            </span>
+                                            <span class="mt-1 rounded-full bg-primary-600/10 text-primary-700 px-2 py-0.5 text-xs font-semibold">{{ $discount }}% vitalício · convite Clau</span>
+                                        @else
+                                            <span class="flex items-center font-bold text-high text-xl gap-1">
+                                                {{ $formatted }}
+                                                <span class="text-medium font-medium text-xs">{{ __('views.subscriptions.per_month') }}</span>
+                                            </span>
+                                        @endif
                                     </div>
                                 </x-slot>
                             </x-card-gradient>

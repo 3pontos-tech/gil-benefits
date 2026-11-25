@@ -4,6 +4,7 @@ use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Cache;
 use Tests\Fakes\FakeBillingContract;
+use Tests\Fakes\FakeDiscountableBillingContract;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
@@ -12,6 +13,8 @@ use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Discounts\Models\Discount;
+use TresPontosTech\Discounts\Models\DiscountGrant;
 use TresPontosTech\PanelApp\Filament\Pages\UserSubscriptionPage;
 
 use function Pest\Livewire\livewire;
@@ -117,4 +120,136 @@ it('hides a plan that has no price for the tenant audience', function (): void {
     livewire(UserSubscriptionPage::class)
         ->assertSee('Plano Teste')
         ->assertDontSee('Somente Subsidiado');
+});
+
+describe('desconto do convite da Clau', function (): void {
+    beforeEach(function (): void {
+        DiscountGrant::factory()
+            ->for(Discount::factory()->active())
+            ->claimedBy($this->employee)
+            ->create();
+    });
+
+    it('mostra o preço com desconto no tenant flamma', function (): void {
+        $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock): void {
+            $mock->makePartial();
+            $mock->shouldReceive('getDriver')->andReturn(new FakeDiscountableBillingContract);
+        }));
+
+        filament()->setCurrentPanel(FilamentPanel::User->value);
+        $this->actingAs($this->employee);
+        filament()->setTenant($this->flamma);
+
+        livewire(UserSubscriptionPage::class)
+            ->assertSee('350')
+            ->assertSee('245')
+            ->assertSee('30% vitalício');
+    });
+
+    it('cobra o checkout com o percentual do desconto', function (): void {
+        $captured = null;
+
+        $fake = new FakeDiscountableBillingContract(createCheckoutUsing: function ($billable, CheckoutData $data) use (&$captured): string {
+            $captured = $data;
+
+            return 'https://checkout.test';
+        });
+
+        $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake): void {
+            $mock->makePartial();
+            $mock->shouldReceive('getDriver')->andReturn($fake);
+        }));
+
+        filament()->setCurrentPanel(FilamentPanel::User->value);
+        $this->actingAs($this->employee);
+        filament()->setTenant($this->flamma);
+
+        livewire(UserSubscriptionPage::class)->call('checkout', $this->plan->slug);
+
+        expect($captured?->discountPercent)->toBe(30);
+    });
+
+    it('não oferece desconto quando o driver não suporta desconto no checkout', function (): void {
+        $captured = null;
+
+        $fake = new FakeBillingContract(createCheckoutUsing: function ($billable, CheckoutData $data) use (&$captured): string {
+            $captured = $data;
+
+            return 'https://checkout.test';
+        });
+
+        $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake): void {
+            $mock->makePartial();
+            $mock->shouldReceive('getDriver')->andReturn($fake);
+        }));
+
+        filament()->setCurrentPanel(FilamentPanel::User->value);
+        $this->actingAs($this->employee);
+        filament()->setTenant($this->flamma);
+
+        livewire(UserSubscriptionPage::class)
+            ->assertDontSee('30% vitalício')
+            ->call('checkout', $this->plan->slug);
+
+        expect($captured?->discountPercent)->toBeNull();
+    });
+
+    it('não aplica desconto no tenant subsidiado', function (): void {
+        $captured = null;
+
+        $fake = new FakeDiscountableBillingContract(createCheckoutUsing: function ($billable, CheckoutData $data) use (&$captured): string {
+            $captured = $data;
+
+            return 'https://checkout.test';
+        });
+
+        $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake): void {
+            $mock->makePartial();
+            $mock->shouldReceive('getDriver')->andReturn($fake);
+        }));
+
+        filament()->setCurrentPanel(FilamentPanel::User->value);
+        $this->actingAs($this->employee);
+        filament()->setTenant($this->company);
+
+        livewire(UserSubscriptionPage::class)
+            ->assertDontSee('30% vitalício')
+            ->call('checkout', $this->plan->slug);
+
+        expect($captured?->discountPercent)->toBeNull();
+    });
+
+    it('não aplica desconto com o grant vencido', function (): void {
+        DiscountGrant::query()->update(['expires_at' => now()->subDay()]);
+
+        $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock): void {
+            $mock->makePartial();
+            $mock->shouldReceive('getDriver')->andReturn(new FakeDiscountableBillingContract);
+        }));
+
+        filament()->setCurrentPanel(FilamentPanel::User->value);
+        $this->actingAs($this->employee);
+        filament()->setTenant($this->flamma);
+
+        livewire(UserSubscriptionPage::class)
+            ->assertSee('350')
+            ->assertDontSee('30% vitalício');
+    });
+
+    it('não aplica desconto quando o grant está travado em outro plano', function (): void {
+        DiscountGrant::query()->update(['plan_slug' => 'outro-plano']);
+
+        $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock): void {
+            $mock->makePartial();
+            $mock->shouldReceive('getDriver')->andReturn(new FakeDiscountableBillingContract);
+        }));
+
+        filament()->setCurrentPanel(FilamentPanel::User->value);
+        $this->actingAs($this->employee);
+        filament()->setTenant($this->flamma);
+
+        livewire(UserSubscriptionPage::class)
+            ->assertSee('350')
+            ->assertDontSee('30% vitalício');
+    });
 });
