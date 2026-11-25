@@ -78,6 +78,11 @@ class DiscountFactory extends Factory
         ]);
     }
 
+    public function locksPlan(): static
+    {
+        return $this->state(['locks_plan' => true]);
+    }
+
     public function repeating(int $cycles = 3): static
     {
         return $this->state([
