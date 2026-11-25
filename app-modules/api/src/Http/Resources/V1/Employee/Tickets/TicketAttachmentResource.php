@@ -11,7 +11,7 @@ use TresPontosTech\Api\Support\DownloadFilename;
 
 /**
  * Um anexo do chamado com o nome com que foi enviado, sem link: o arquivo sai só em
- * `POST tickets/{id}/attachments/{anexo}/download`, como os materiais.
+ * `POST tickets/{id}/attachments/{attachment}/download`, como os materiais.
  *
  * @mixin Media
  *

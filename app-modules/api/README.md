@@ -185,7 +185,7 @@ do app (contas Expo, Firebase e Apple, `google-services.json`, build) está em
 | Créditos | `GET credits` |
 | Materiais | `GET/POST materials`, `DELETE materials/{id}`, `PATCH materials/{id}/favorite`, `PATCH materials/{id}/viewed`, `POST materials/{id}/download` |
 | Notificações | `GET notifications`, `PATCH notifications/{id}/read` |
-| Chamados | `GET/POST tickets`, `PATCH tickets/{id}`, `POST tickets/{id}/attachments/{anexo}/download` |
+| Chamados | `GET/POST tickets`, `PATCH tickets/{id}`, `POST tickets/{id}/attachments/{attachment}/download` |
 
 A agenda oferece horários de hoje + 2 dias até hoje + 60 dias (`BookableSlots`, a mesma janela do painel). Um mês
 fora dela responde `{}` sem consultar a agenda dos consultores, e agendar ou reagendar fora dela dá 422 em
@@ -208,9 +208,10 @@ guardado. Um material que é só um link (aula) não tem arquivo e também respo
 
 Um chamado aberto pelo app pode levar anexos, como o "Novo chamado" do painel: `POST tickets` em
 `multipart/form-data` com `attachments[]`, até 5 arquivos JPG, PNG ou PDF de até 5 MB cada (um arquivo recusado dá
-422 em `attachments.N`, e nada é aberto). Sem anexo, o corpo segue em JSON. Cada chamado devolve `attachments`, com
+422 em `attachments.N`, e nada é aberto; se o armazenamento falhar depois, o chamado é desfeito e dá para reenviar).
+Sem anexo, o corpo segue em JSON. Cada chamado devolve `attachments`, com
 `{ id, name, mime_type, size }` e sem link; o `name` é o nome com que o arquivo foi enviado. O arquivo sai como os dos
-materiais: `POST tickets/{id}/attachments/{anexo}/download` devolve o mesmo `{ url, filename, mime_type, size,
+materiais: `POST tickets/{id}/attachments/{attachment}/download` devolve o mesmo `{ url, filename, mime_type, size,
 expires_at }`, com o `url` valendo `api.tickets.attachment_download_ttl_seconds` (120 s por padrão,
 `TICKET_ATTACHMENT_DOWNLOAD_TTL_SECONDS`). Chamado de outra pessoa, ou anexo de outro chamado, responde 404.
 

@@ -23,6 +23,7 @@ use TresPontosTech\Support\Models\SupportTicketStatusChange;
 use function Pest\Laravel\assertDatabaseHas;
 use function Pest\Laravel\getJson;
 use function Pest\Laravel\patchJson;
+use function Pest\Laravel\post;
 use function Pest\Laravel\postJson;
 
 beforeEach(function (): void {
@@ -241,11 +242,11 @@ function ticketWithAttachments(User $user, array $files): SupportTicket
     return $ticket->refresh();
 }
 
-it('keeps the photos and the PDF sent with a new ticket as its attachments', function (): void {
+it('keeps the photos and the PDF sent with a new ticket, in the multipart body the app sends', function (): void {
     Storage::fake('r2');
     actingAsApiEmployee();
 
-    $response = postJson(route('api.v1.tickets.store'), [
+    $response = post(route('api.v1.tickets.store'), [
         'category' => 'platform_error',
         'subject' => 'Erro ao enviar extrato',
         'description' => 'Apareceu "Sem conexão" com a internet funcionando.',
@@ -303,6 +304,24 @@ it('refuses attachments the panel would refuse, and opens nothing', function (Cl
     'more than five' => [fn (): array => array_map(fn (int $index): UploadedFile => UploadedFile::fake()->image("foto-{$index}.jpg"), range(1, 6)), 'attachments'],
     'not a list' => [fn (): string => 'foto.jpg', 'attachments'],
 ]);
+
+it('judges an attachment by its content, not by its name or the type the phone declares', function (): void {
+    Storage::fake('r2');
+    $phone = Storage::fake('local');
+    $phone->put('nota.pdf', 'Só texto, sem nada de PDF.');
+    actingAsApiEmployee();
+
+    post(route('api.v1.tickets.store'), [
+        'category' => 'other',
+        'subject' => 'Assunto',
+        'description' => 'Texto do chamado.',
+        'attachments' => [new UploadedFile($phone->path('nota.pdf'), 'nota.pdf', 'application/pdf', null, true)],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['attachments.0']);
+
+    expect(SupportTicket::query()->count())->toBe(0);
+});
 
 it('lists each ticket with its attachments, without links', function (): void {
     Storage::fake('r2');

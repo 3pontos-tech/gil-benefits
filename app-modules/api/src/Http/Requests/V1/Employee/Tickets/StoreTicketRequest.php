@@ -8,22 +8,19 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
+use TresPontosTech\Support\Models\SupportTicket;
 
 /**
- * Mesmos campos do "Novo chamado" do painel, anexos inclusive: fotos JPG ou PNG e PDFs de até
- * 5 MB, como o painel aceita. A descrição e a quantidade de anexos ganham limite porque a API
- * aceita envio direto. Com anexo, o app manda `multipart/form-data`; sem, JSON como antes.
+ * Mesmos campos do "Novo chamado" do painel, anexos inclusive: os tipos que a coleção
+ * `attachments` do chamado aceita e até 5 MB por arquivo, como o painel. A descrição e a
+ * quantidade de anexos ganham limite porque a API aceita envio direto. Com anexo, o app manda
+ * `multipart/form-data`; sem, JSON como antes.
  */
 class StoreTicketRequest extends FormRequest
 {
-    /** Quantos anexos um chamado aberto pelo app leva. */
-    public const int MAX_ATTACHMENTS = 5;
+    private const int MAX_ATTACHMENTS = 5;
 
-    /** O limite de cada anexo, em KB: o do "Anexo" do painel. */
-    public const int MAX_ATTACHMENT_KILOBYTES = 5120;
-
-    /** Os tipos do "Anexo" do painel, que a coleção `attachments` do chamado aceita. */
-    public const array ATTACHMENT_MIME_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+    private const int MAX_ATTACHMENT_KILOBYTES = 5120;
 
     /**
      * @return array<string, list<mixed>>
@@ -37,7 +34,7 @@ class StoreTicketRequest extends FormRequest
             'attachments' => ['sometimes', 'array', 'max:' . self::MAX_ATTACHMENTS],
             'attachments.*' => [
                 'file',
-                'mimetypes:' . implode(',', self::ATTACHMENT_MIME_TYPES),
+                'mimetypes:' . implode(',', SupportTicket::ATTACHMENT_MIME_TYPES),
                 'max:' . self::MAX_ATTACHMENT_KILOBYTES,
             ],
         ];

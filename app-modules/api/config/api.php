@@ -57,7 +57,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | O mesmo cuidado dos materiais: o link de um anexo sai só em
-    | `POST tickets/{id}/attachments/{anexo}/download` e vale poucos minutos (dois, por padrão).
+    | `POST tickets/{id}/attachments/{attachment}/download` e vale poucos minutos (dois, por padrão).
     |
     */
 
