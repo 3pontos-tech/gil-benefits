@@ -24,6 +24,7 @@ use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\MeController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\PasswordController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Me\PushTokenController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Notifications\NotificationController;
+use TresPontosTech\Api\Http\Controllers\V1\Employee\Tickets\TicketAttachmentDownloadController;
 use TresPontosTech\Api\Http\Controllers\V1\Employee\Tickets\TicketController;
 use TresPontosTech\Api\Http\Middleware\EnsureAppAccess;
 use TresPontosTech\Api\Http\Middleware\ForceJsonAndLocale;
@@ -86,5 +87,8 @@ Route::prefix('api/v1')
             Route::get('tickets', [TicketController::class, 'index'])->name('tickets.index');
             Route::post('tickets', [TicketController::class, 'store'])->name('tickets.store');
             Route::patch('tickets/{ticket}', [TicketController::class, 'update'])->whereUuid('ticket')->name('tickets.update');
+            Route::post('tickets/{ticket}/attachments/{attachment}/download', TicketAttachmentDownloadController::class)
+                ->whereUuid(['ticket', 'attachment'])
+                ->name('tickets.attachments.download');
         });
     });

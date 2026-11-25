@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use TresPontosTech\Api\Enums\TokenAbility;
 use TresPontosTech\Company\Models\Company;
@@ -218,3 +220,146 @@ it('keeps every category the panel offers', function (SupportTicketCategoryEnum 
         ->assertCreated()
         ->assertJsonPath('data.category', $category->value);
 })->with(SupportTicketCategoryEnum::cases());
+
+/** A real PDF header, so the media library takes it as `application/pdf`. */
+function ticketPdf(string $name = 'extrato.pdf'): UploadedFile
+{
+    return UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n1 0 obj << >> endobj\ntrailer << >>\n%%EOF\n");
+}
+
+/**
+ * @param  list<UploadedFile>  $files
+ */
+function ticketWithAttachments(User $user, array $files): SupportTicket
+{
+    $ticket = ticketFor($user);
+
+    foreach ($files as $file) {
+        $ticket->addMedia($file)->toMediaCollection('attachments');
+    }
+
+    return $ticket->refresh();
+}
+
+it('keeps the photos and the PDF sent with a new ticket as its attachments', function (): void {
+    Storage::fake('r2');
+    actingAsApiEmployee();
+
+    $response = postJson(route('api.v1.tickets.store'), [
+        'category' => 'platform_error',
+        'subject' => 'Erro ao enviar extrato',
+        'description' => 'Apareceu "Sem conexão" com a internet funcionando.',
+        'attachments' => [
+            UploadedFile::fake()->image('foto-do-erro.jpg', 1080, 1920),
+            UploadedFile::fake()->image('tela.png', 390, 844),
+            ticketPdf('relatório de novembro.pdf'),
+        ],
+    ])
+        ->assertCreated()
+        ->assertJsonCount(3, 'data.attachments')
+        ->assertJsonPath('data.attachments.0.name', 'foto-do-erro.jpg')
+        ->assertJsonPath('data.attachments.0.mime_type', 'image/jpeg')
+        ->assertJsonPath('data.attachments.1.mime_type', 'image/png')
+        ->assertJsonPath('data.attachments.2.name', 'relatório de novembro.pdf')
+        ->assertJsonPath('data.attachments.2.mime_type', 'application/pdf');
+
+    $ticket = SupportTicket::query()->findOrFail($response->json('data.id'));
+
+    expect($ticket->getMedia('attachments'))->toHaveCount(3)
+        ->and($response->json('data.attachments.0.id'))->toBe($ticket->getFirstMedia('attachments')?->uuid);
+    Queue::assertPushed(DispatchSupportTicketJob::class);
+});
+
+it('opens a ticket without attachments as before', function (): void {
+    actingAsApiEmployee();
+
+    postJson(route('api.v1.tickets.store'), [
+        'category' => 'general_question',
+        'subject' => 'Dúvida',
+        'description' => 'Como funciona o plano?',
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.attachments', []);
+});
+
+it('refuses attachments the panel would refuse, and opens nothing', function (Closure $attachments, string $field): void {
+    Storage::fake('r2');
+    actingAsApiEmployee();
+
+    postJson(route('api.v1.tickets.store'), [
+        'category' => 'other',
+        'subject' => 'Assunto',
+        'description' => 'Texto do chamado.',
+        'attachments' => $attachments(),
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors([$field]);
+
+    expect(SupportTicket::query()->count())->toBe(0);
+    Queue::assertNothingPushed();
+})->with([
+    'not a photo or a PDF' => [fn (): array => [UploadedFile::fake()->create('nota.txt', 4, 'text/plain')], 'attachments.0'],
+    'over 5 MB' => [fn (): array => [ticketPdf(), UploadedFile::fake()->create('grande.pdf', 5121, 'application/pdf')], 'attachments.1'],
+    'more than five' => [fn (): array => array_map(fn (int $index): UploadedFile => UploadedFile::fake()->image("foto-{$index}.jpg"), range(1, 6)), 'attachments'],
+    'not a list' => [fn (): string => 'foto.jpg', 'attachments'],
+]);
+
+it('lists each ticket with its attachments, without links', function (): void {
+    Storage::fake('r2');
+    $employee = actingAsApiEmployee();
+    $ticket = ticketWithAttachments($employee, [UploadedFile::fake()->image('foto.jpg'), ticketPdf()]);
+    ticketFor($employee);
+
+    $response = getJson(route('api.v1.tickets.index'))->assertOk();
+
+    expect($response->json('data.1.attachments'))->toBe([
+        [
+            'id' => $ticket->getMedia('attachments')[0]->uuid,
+            'name' => 'foto.jpg',
+            'mime_type' => 'image/jpeg',
+            'size' => $ticket->getMedia('attachments')[0]->size,
+        ],
+        [
+            'id' => $ticket->getMedia('attachments')[1]->uuid,
+            'name' => 'extrato.pdf',
+            'mime_type' => 'application/pdf',
+            'size' => $ticket->getMedia('attachments')[1]->size,
+        ],
+    ])->and($response->json('data.0.attachments'))->toBe([]);
+});
+
+it('hands an attachment through a two-minute link that downloads it with its name', function (): void {
+    Storage::fake('r2');
+    $captured = [];
+    Storage::disk('r2')->buildTemporaryUrlsUsing(function (string $path, DateTimeInterface $expiration, array $options) use (&$captured): string {
+        $captured = ['path' => $path, 'expiration' => $expiration, 'options' => $options];
+
+        return 'https://files.test/' . $path . '?signature=abc';
+    });
+    $employee = actingAsApiEmployee();
+    $ticket = ticketWithAttachments($employee, [ticketPdf('relatório de novembro.pdf')]);
+    $media = $ticket->getFirstMedia('attachments');
+
+    postJson(route('api.v1.tickets.attachments.download', [$ticket->id, $media?->uuid]))
+        ->assertOk()
+        ->assertJsonPath('data.url', 'https://files.test/' . $captured['path'] . '?signature=abc')
+        ->assertJsonPath('data.filename', 'relatório de novembro.pdf')
+        ->assertJsonPath('data.mime_type', 'application/pdf')
+        ->assertJsonPath('data.expires_at', '2026-10-09T10:02:00-03:00');
+
+    expect($captured['expiration']->getTimestamp())->toBe(now()->addMinutes(2)->getTimestamp())
+        ->and($captured['options']['ResponseContentType'])->toBe('application/pdf')
+        ->and($captured['options']['ResponseContentDisposition'])
+        ->toBe("attachment; filename=\"relatorio de novembro.pdf\"; filename*=utf-8''relat%C3%B3rio%20de%20novembro.pdf");
+});
+
+it('hands no attachment of another person, nor of another ticket', function (): void {
+    Storage::fake('r2');
+    $employee = actingAsApiEmployee();
+    $own = ticketWithAttachments($employee, [ticketPdf()]);
+    $foreign = ticketWithAttachments(User::factory()->create(), [ticketPdf()]);
+    $foreignMedia = $foreign->getFirstMedia('attachments');
+
+    postJson(route('api.v1.tickets.attachments.download', [$foreign->id, $foreignMedia?->uuid]))->assertNotFound();
+    postJson(route('api.v1.tickets.attachments.download', [$own->id, $foreignMedia?->uuid]))->assertNotFound();
+});

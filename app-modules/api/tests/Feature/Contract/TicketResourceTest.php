@@ -2,18 +2,26 @@
 
 declare(strict_types=1);
 
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use TresPontosTech\Support\Models\SupportTicket;
 
 use function Pest\Laravel\getJson;
 
 it('exposes every key the app reads from Ticket', function (): void {
     $employee = actingAsApiEmployee();
-    SupportTicket::factory()->create(['user_id' => $employee->id]);
+    Storage::fake('r2');
+    SupportTicket::factory()->create(['user_id' => $employee->id])
+        ->addMedia(UploadedFile::fake()->image('foto.jpg'))
+        ->toMediaCollection('attachments');
 
     $response = getJson(route('api.v1.tickets.index'))
         ->assertOk()
         ->assertJsonStructure([
-            'data' => [['id', 'protocol', 'category', 'subject', 'description', 'status', 'created_at', 'updated_at']],
+            'data' => [[
+                'id', 'protocol', 'category', 'subject', 'description', 'status', 'created_at', 'updated_at',
+                'attachments' => [['id', 'name', 'mime_type', 'size']],
+            ]],
             'meta' => ['current_page', 'last_page', 'per_page', 'total'],
         ]);
 

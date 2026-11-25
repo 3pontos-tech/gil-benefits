@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 return [
     'appointment_at' => 'data e hora',
+    'attachment' => 'anexo',
+    'attachments' => 'anexos',
     'avatar' => 'foto',
     'category' => 'categoria',
     'category_type' => 'assunto',
