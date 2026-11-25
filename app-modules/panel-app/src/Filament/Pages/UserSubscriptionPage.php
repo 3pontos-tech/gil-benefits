@@ -6,18 +6,16 @@ use App\Models\Users\User;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Collection;
 use TresPontosTech\Billing\Core\BillingManager;
-use TresPontosTech\Billing\Core\Contracts\SupportsCheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
-use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
 use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Entities\PriceEntity;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
-use TresPontosTech\Discounts\Actions\ResolveApplicableDiscount;
-use TresPontosTech\Discounts\Enums\DiscountDurationEnum;
-use TresPontosTech\Discounts\Models\Discount;
+use TresPontosTech\Discounts\Actions\ListAvailableDiscounts;
+use TresPontosTech\Discounts\DTOs\DiscountOffer;
 
 class UserSubscriptionPage extends Page
 {
@@ -55,7 +53,7 @@ class UserSubscriptionPage extends Page
             'plans' => $plans,
             'audience' => $audience,
             'discounts' => $plans->mapWithKeys(fn (PlanEntity $plan): array => [
-                $plan->slug => $this->discountPercentFor($plan),
+                $plan->slug => $this->bestOfferFor($plan)?->checkoutDiscount->percentOff,
             ])->filter()->all(),
         ];
     }
@@ -82,7 +80,7 @@ class UserSubscriptionPage extends Page
             successUrl: UserDashboard::getUrl(),
             cancelUrl: UserDashboard::getUrl(),
             metadata: ['model' => (string) Relation::getMorphAlias(User::class)],
-            discount: $this->checkoutDiscountFor($plan),
+            discount: $this->bestOfferFor($plan)?->checkoutDiscount,
         );
 
         $driver = resolve(BillingManager::class)->getDriver($plan->provider);
@@ -136,39 +134,20 @@ class UserSubscriptionPage extends Page
         );
     }
 
-    private function discountPercentFor(PlanEntity $plan): ?int
+    /** @return Collection<int, DiscountOffer> */
+    private function offersFor(PlanEntity $plan): Collection
     {
-        return $this->applicableDiscountFor($plan)?->percent_off;
-    }
-
-    private function checkoutDiscountFor(PlanEntity $plan): ?CheckoutDiscount
-    {
-        $discount = $this->applicableDiscountFor($plan);
-
-        if (! $discount instanceof Discount) {
-            return null;
-        }
-
-        return new CheckoutDiscount(
-            percentOff: $discount->percent_off,
-            amountOffCents: $discount->amount_off_cents,
-            durationCycles: $discount->duration === DiscountDurationEnum::Repeating ? $discount->duration_cycles : null,
+        return resolve(ListAvailableDiscounts::class)->handle(
+            auth()->user(),
+            $plan,
+            $this->audienceForTenant(),
+            resolve(BillingManager::class)->getDriver($plan->provider),
         );
     }
 
-    private function applicableDiscountFor(PlanEntity $plan): ?Discount
+    private function bestOfferFor(PlanEntity $plan): ?DiscountOffer
     {
-        $driver = resolve(BillingManager::class)->getDriver($plan->provider);
-
-        if (! $driver instanceof SupportsCheckoutDiscount) {
-            return null;
-        }
-
-        return resolve(ResolveApplicableDiscount::class)->handle(
-            auth()->user(),
-            $plan->slug,
-            $this->audienceForTenant(),
-        )?->discount;
+        return $this->offersFor($plan)->first();
     }
 
     private function audienceForTenant(): PriceAudienceEnum

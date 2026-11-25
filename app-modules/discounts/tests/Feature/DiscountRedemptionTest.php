@@ -84,7 +84,7 @@ it('vincula a reserva ao cliente de forma polimórfica', function (): void {
     $redemption = DiscountRedemption::factory()->forBillable($user)->create();
 
     expect($redemption->billable->is($user))->toBeTrue()
-        ->and($redemption->billable_type)->toBe(User::class);
+        ->and($redemption->billable_type)->toBe((new User)->getMorphClass());
 });
 
 it('recusa duas reservas para a mesma assinatura externa', function (): void {

@@ -23,7 +23,7 @@ class DiscountRedemptionFactory extends Factory
         return [
             'discount_id' => Discount::factory(),
             'discount_grant_id' => null,
-            'billable_type' => User::class,
+            'billable_type' => (new User)->getMorphClass(),
             'billable_id' => User::factory(),
             'plan_slug' => 'plano-essencial',
             'subscription_external_id' => 'checkout_' . Str::random(20),
@@ -88,7 +88,7 @@ class DiscountRedemptionFactory extends Factory
     public function forBillable(User $user): static
     {
         return $this->state([
-            'billable_type' => User::class,
+            'billable_type' => $user->getMorphClass(),
             'billable_id' => $user->getKey(),
         ]);
     }

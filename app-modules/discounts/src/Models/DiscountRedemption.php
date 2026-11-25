@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Discounts\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -86,6 +88,21 @@ final class DiscountRedemption extends Model
             'confirmed_at' => 'datetime',
             'completed_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Reservas que ainda contam para os limites do cupom: confirmadas e reservas não vencidas.
+     *
+     * @param  Builder<DiscountRedemption>  $query
+     */
+    #[Scope]
+    protected function counting(Builder $query): void
+    {
+        $query->where(fn (Builder $query) => $query
+            ->whereIn('status', [DiscountRedemptionStatusEnum::Active, DiscountRedemptionStatusEnum::Completed])
+            ->orWhere(fn (Builder $query) => $query
+                ->where('status', DiscountRedemptionStatusEnum::Reserved)
+                ->where('reserved_until', '>', now())));
     }
 
     /**
