@@ -76,6 +76,7 @@ it('recusa combinações incoerentes de valor, duração e distribuição', func
     'código sem código' => [['distribution' => DiscountDistributionEnum::Code]],
     'código só com espaços' => [['distribution' => DiscountDistributionEnum::Code, 'code' => '   ']],
     'código em desconto automático' => [['distribution' => DiscountDistributionEnum::Automatic, 'code' => 'CLAU10']],
+    'código sem janela nem data final' => [['distribution' => DiscountDistributionEnum::Code, 'code' => 'CLAU10', 'claim_window_days' => null]],
 ]);
 
 it('rotula os enums de desconto em português', function (): void {

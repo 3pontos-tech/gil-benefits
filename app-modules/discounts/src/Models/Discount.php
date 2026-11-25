@@ -129,15 +129,20 @@ final class Discount extends Model
         return $this->hasMany(DiscountRedemption::class);
     }
 
-    private function normalizeCode(): void
+    public static function normalizeCodeValue(?string $code): ?string
     {
-        if ($this->code === null) {
-            return;
+        if ($code === null) {
+            return null;
         }
 
-        $code = Str::upper((string) preg_replace('/\s+/', '', $this->code));
+        $normalized = Str::upper((string) preg_replace('/\s+/', '', $code));
 
-        $this->code = $code === '' ? null : $code;
+        return $normalized === '' ? null : $normalized;
+    }
+
+    private function normalizeCode(): void
+    {
+        $this->code = self::normalizeCodeValue($this->code);
     }
 
     private function guardCoherentOffer(): void
@@ -161,6 +166,8 @@ final class Discount extends Model
         $isCode = $this->distribution === DiscountDistributionEnum::Code;
 
         throw_if($isCode && $this->code === null, InvalidArgumentException::class, 'Desconto por código precisa de um código.');
+
+        throw_if($isCode && $this->claim_window_days === null && $this->ends_at === null, InvalidArgumentException::class, 'Desconto por código precisa de janela de resgate ou data final.');
 
         throw_if(! $isCode && $this->code !== null, InvalidArgumentException::class, 'Somente desconto por código aceita código.');
     }
