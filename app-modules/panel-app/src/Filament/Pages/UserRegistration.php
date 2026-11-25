@@ -10,15 +10,26 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use App\Support\PostHog\PostHog;
 use Closure;
+use Filament\Actions\Action;
 use Filament\Auth\Http\Responses\Contracts\RegistrationResponse;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Callout;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\HtmlString;
+use Illuminate\Validation\ValidationException;
+use Livewire\Attributes\Locked;
 use Override;
+use TresPontosTech\Discounts\Actions\ClaimDiscountGrant;
+use TresPontosTech\Discounts\Actions\VerifyDiscountGrantTaxId;
+use TresPontosTech\Discounts\Enums\DiscountTaxIdCheckEnum;
+use TresPontosTech\Discounts\Models\DiscountGrant;
+use TresPontosTech\Discounts\Support\DiscountInviteUrl;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
 use TresPontosTech\Vouchers\Actions\RedeemVoucher;
@@ -28,12 +39,48 @@ use TresPontosTech\Vouchers\Support\VoucherRedemptionUrl;
 
 final class UserRegistration extends RegisterPage
 {
+    #[Locked]
+    public ?string $discountGrantId = null;
+
+    private ?DiscountGrant $claimedDiscountGrant = null;
+
+    #[Override]
+    public function mount(): void
+    {
+        $grantId = session(DiscountInviteUrl::SESSION_KEY);
+
+        if (is_string($grantId) && DiscountGrant::query()->pending()->find($grantId) !== null) {
+            $this->discountGrantId = $grantId;
+        } else {
+            session()->forget(DiscountInviteUrl::SESSION_KEY);
+        }
+
+        parent::mount();
+    }
+
     #[Override]
     public function form(Schema $schema): Schema
     {
+        $email = $this->getEmailFormComponent();
+
+        if ($email instanceof TextInput) {
+            $email->default(fn (): ?string => $this->invitedGrant()?->email)
+                ->readOnly(fn (): bool => $this->invitedGrant() instanceof DiscountGrant);
+        }
+
         return parent::form($schema)->components([
+            Callout::make(fn (): string => sprintf('Convite da Clau: %d%% de desconto vitalício', $this->invitedGrant()?->discount->percent_off))
+                ->description(fn (): string => 'Use o mesmo CPF que você informou à Clau. O desconto vale no plano pessoal assinado até ' . $this->invitedGrant()?->expires_at->format('d/m/Y') . '.')
+                ->info()
+                ->actions([
+                    Action::make('leaveDiscountInvite')
+                        ->label('Seguir sem o desconto')
+                        ->link()
+                        ->url(route(DiscountInviteUrl::LEAVE_ROUTE)),
+                ])
+                ->visible(fn (): bool => $this->invitedGrant() instanceof DiscountGrant),
             $this->getNameFormComponent(),
-            $this->getEmailFormComponent(),
+            $email,
             TaxIdInput::make()
                 ->rule(fn (Field $component): Closure => $this->uniqueDetailRule('tax_id', $component->getLabel(), withTrashed: true)),
             DocumentIdInput::make()
@@ -41,7 +88,21 @@ final class UserRegistration extends RegisterPage
             $this->getPasswordFormComponent(),
             $this->getPasswordConfirmationFormComponent(),
             $this->getVoucherFormComponent(),
+            Checkbox::make('accepts_flamma_terms')
+                ->label(new HtmlString('Li e aceito a <a href="' . e(route('site.privacy')) . '" target="_blank" class="underline">Política de Privacidade da Flamma</a>'))
+                ->accepted()
+                ->dehydrated(false)
+                ->visible(fn (): bool => $this->invitedGrant() instanceof DiscountGrant),
         ]);
+    }
+
+    private function invitedGrant(): ?DiscountGrant
+    {
+        if ($this->discountGrantId === null) {
+            return null;
+        }
+
+        return DiscountGrant::query()->pending()->with('discount')->find($this->discountGrantId);
     }
 
     /**
@@ -119,13 +180,36 @@ final class UserRegistration extends RegisterPage
      * A atribuição só é apagada depois do commit: se o cadastro falhar no meio da transação,
      * a nova tentativa ainda leva o clau_id e as UTMs.
      */
+    /**
+     * A conferência do CPF roda antes do cadastro: o Filament valida dentro de uma transação
+     * que desfaria o contador de tentativas.
+     */
     #[Override]
     public function register(): ?RegistrationResponse
     {
+        $grant = $this->invitedGrant();
+        $taxId = preg_replace('/\D+/', '', (string) ($this->data['tax_id'] ?? '')) ?? '';
+
+        if ($grant instanceof DiscountGrant && $taxId !== '') {
+            $check = resolve(VerifyDiscountGrantTaxId::class)->handle($grant, $taxId);
+
+            if ($check === DiscountTaxIdCheckEnum::Mismatch) {
+                throw ValidationException::withMessages(['data.tax_id' => 'Esse CPF não confere com o informado na Clau. Confira os números ou siga sem o desconto.']);
+            }
+
+            if ($check === DiscountTaxIdCheckEnum::Locked) {
+                session()->forget(DiscountInviteUrl::SESSION_KEY);
+                $this->discountGrantId = null;
+
+                throw ValidationException::withMessages(['data.tax_id' => 'Muitas tentativas com um CPF diferente. Você pode seguir com o cadastro sem o desconto ou falar com o suporte.']);
+            }
+        }
+
         $response = parent::register();
         $user = Filament::auth()->user();
 
         if ($response instanceof RegistrationResponse && $user instanceof User) {
+            session()->forget(DiscountInviteUrl::SESSION_KEY);
             $this->trackSignup($user);
         }
 
@@ -143,6 +227,8 @@ final class UserRegistration extends RegisterPage
             'document_id' => $data['document_id'],
         ]);
 
+        $this->claimedDiscountGrant = resolve(ClaimDiscountGrant::class)->handle($user, (string) $data['tax_id']);
+
         $this->redeemVoucher($user, $data['voucher'] ?? null);
 
         return $user;
@@ -158,12 +244,16 @@ final class UserRegistration extends RegisterPage
     {
         $attribution = StoreSignupAttribution::current(request());
         $properties = [...$attribution['utms'] ?? [], '$set' => PostHog::personProperties($user)];
-        $clauId = $attribution['clau_id'] ?? null;
+        $clauId = $attribution['clau_id'] ?? $this->claimedDiscountGrant?->external_ref;
         $postHog = resolve(PostHog::class);
 
         if ($clauId !== null) {
             $postHog->alias(anonymousId: $user->getKey(), userId: $clauId);
             $properties['clau_id'] = $clauId;
+        }
+
+        if ($this->claimedDiscountGrant instanceof DiscountGrant) {
+            $properties['desconto_clau'] = true;
         }
 
         $postHog->capture($user->getKey(), 'cadastro_concluido', $properties);
