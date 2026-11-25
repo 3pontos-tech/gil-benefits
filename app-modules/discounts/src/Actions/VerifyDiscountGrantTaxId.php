@@ -17,7 +17,7 @@ final readonly class VerifyDiscountGrantTaxId
     public function handle(DiscountGrant $grant, string $taxId): DiscountTaxIdCheckEnum
     {
         return DB::transaction(function () use ($grant, $taxId): DiscountTaxIdCheckEnum {
-            $locked = DiscountGrant::query()->lockForUpdate()->find($grant->getKey());
+            $locked = DiscountGrant::query()->whereKey($grant->getKey())->lockForUpdate()->first();
 
             if ($locked === null || ! $locked->isPending()) {
                 return DiscountTaxIdCheckEnum::Locked;

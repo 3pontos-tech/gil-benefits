@@ -73,6 +73,15 @@ it('recusa requisição sem cabeçalhos com 401', function (): void {
     $this->postJson('/api/clau/v1/discount-reservations', reservationPayload())->assertUnauthorized();
 });
 
+it('responde 503 sem criar reserva quando a chave da impressão do CPF não está configurada', function (): void {
+    $payload = reservationPayload();
+    config(['discounts.tax_id_fingerprint_key' => null]);
+
+    postSignedReservation($payload)->assertServiceUnavailable();
+
+    expect(DiscountGrant::query()->count())->toBe(0);
+});
+
 it('responde 503 quando o segredo não está configurado', function (): void {
     config(['clau.signing_secret' => '']);
 

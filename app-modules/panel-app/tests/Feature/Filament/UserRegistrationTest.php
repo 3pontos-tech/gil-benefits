@@ -356,6 +356,19 @@ describe('convite da Clau', function (): void {
         assertDatabaseCount(User::class, 0);
     });
 
+    it('não conta como tentativa um CPF incompleto', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->fillForm(registrationForm(['tax_id' => '529.982.247-2', 'accepts_flamma_terms' => true]))
+            ->call('register')
+            ->assertHasFormErrors(['tax_id']);
+
+        expect($this->grant->fresh())
+            ->failed_tax_id_attempts->toBe(0)
+            ->revoked_at->toBeNull();
+    });
+
     it('revoga o convite depois de cinco tentativas com CPF errado', function (): void {
         session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
 

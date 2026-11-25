@@ -35,6 +35,10 @@ Schedule::command('sanctum:prune-expired --hours=24')
     ->daily()
     ->withoutOverlapping();
 
+Schedule::command('discounts:fingerprint-tax-ids')
+    ->hourly()
+    ->withoutOverlapping();
+
 Schedule::command('model:prune', ['--model' => [PasswordResetCode::class, DiscountGrant::class]])
     ->daily()
     ->withoutOverlapping();

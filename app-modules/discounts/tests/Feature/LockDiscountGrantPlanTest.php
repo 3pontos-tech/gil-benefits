@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Support\Facades\Log;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
 use TresPontosTech\Discounts\Models\Discount;
@@ -78,4 +79,31 @@ it('não troca um plano já travado', function (): void {
     activateSubscription($this->user, 'chk_3');
 
     expect($this->grant->refresh()->plan_slug)->toBe('silver');
+});
+
+it('registra um aviso e não cobra o desconto em outro plano depois de travado', function (): void {
+    Log::spy();
+
+    $this->grant->update(['plan_slug' => 'silver', 'first_redeemed_at' => now()->subMonth()]);
+
+    $subscription = $this->user->subscriptions()->create([
+        'stripe_id' => 'chk_4',
+        'discount_percent' => 30,
+        'stripe_status' => 'pending',
+        'type' => 'gold',
+        'quantity' => 1,
+    ]);
+
+    activateSubscription($this->user, 'chk_4');
+
+    expect($this->grant->refresh()->plan_slug)->toBe('silver');
+
+    Log::shouldHaveReceived('warning')
+        ->once()
+        ->with('Assinatura com desconto em plano diferente do travado', [
+            'subscription_id' => $subscription->getKey(),
+            'grant_id' => $this->grant->getKey(),
+            'locked_plan' => 'silver',
+            'paid_plan' => 'gold',
+        ]);
 });

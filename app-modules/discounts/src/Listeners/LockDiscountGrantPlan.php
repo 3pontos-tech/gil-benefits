@@ -6,6 +6,7 @@ namespace TresPontosTech\Discounts\Listeners;
 
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Log;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Discounts\Models\DiscountGrant;
@@ -29,6 +30,23 @@ final class LockDiscountGrantPlan
         $billableType = Relation::getMorphedModel($subscription->subscriptionable_type) ?? $subscription->subscriptionable_type;
 
         if ($billableType !== User::class) {
+            return;
+        }
+
+        $lockedGrant = DiscountGrant::query()
+            ->where('user_id', $subscription->subscriptionable_id)
+            ->whereNotNull('claimed_at')
+            ->whereNotNull('plan_slug')
+            ->first();
+
+        if ($lockedGrant !== null && $lockedGrant->plan_slug !== $event->dto->planSlug) {
+            Log::warning('Assinatura com desconto em plano diferente do travado', [
+                'subscription_id' => $subscription->getKey(),
+                'grant_id' => $lockedGrant->getKey(),
+                'locked_plan' => $lockedGrant->plan_slug,
+                'paid_plan' => $event->dto->planSlug,
+            ]);
+
             return;
         }
 

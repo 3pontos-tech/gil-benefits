@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Discounts\Database\Factories\DiscountFactory;
 
@@ -20,6 +21,8 @@ use TresPontosTech\Discounts\Database\Factories\DiscountFactory;
  * @property PriceAudienceEnum $audience
  * @property int $claim_window_days
  * @property bool $active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 #[UseFactory(DiscountFactory::class)]
 final class Discount extends Model

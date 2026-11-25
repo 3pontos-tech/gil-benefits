@@ -177,12 +177,9 @@ final class UserRegistration extends RegisterPage
     }
 
     /**
-     * A atribuição só é apagada depois do commit: se o cadastro falhar no meio da transação,
-     * a nova tentativa ainda leva o clau_id e as UTMs.
-     */
-    /**
      * A conferência do CPF roda antes do cadastro: o Filament valida dentro de uma transação
-     * que desfaria o contador de tentativas.
+     * que desfaria o contador de tentativas. A atribuição só é apagada depois do commit: se o
+     * cadastro falhar no meio da transação, a nova tentativa ainda leva o clau_id e as UTMs.
      */
     #[Override]
     public function register(): ?RegistrationResponse
@@ -190,7 +187,7 @@ final class UserRegistration extends RegisterPage
         $grant = $this->invitedGrant();
         $taxId = preg_replace('/\D+/', '', (string) ($this->data['tax_id'] ?? '')) ?? '';
 
-        if ($grant instanceof DiscountGrant && $taxId !== '') {
+        if ($grant instanceof DiscountGrant && strlen($taxId) === 11) {
             $check = resolve(VerifyDiscountGrantTaxId::class)->handle($grant, $taxId);
 
             if ($check === DiscountTaxIdCheckEnum::Mismatch) {
