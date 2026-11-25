@@ -53,6 +53,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Anexos dos chamados
+    |--------------------------------------------------------------------------
+    |
+    | O mesmo cuidado dos materiais: o link de um anexo sai só em
+    | `POST tickets/{id}/attachments/{attachment}/download` e vale poucos minutos (dois, por padrão).
+    |
+    */
+
+    'tickets' => [
+        'attachment_download_ttl_seconds' => filter_var(env('TICKET_ATTACHMENT_DOWNLOAD_TTL_SECONDS'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'default' => 120]]),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Cache dos horários livres
     |--------------------------------------------------------------------------
     */

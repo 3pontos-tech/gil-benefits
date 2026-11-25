@@ -6,6 +6,7 @@ namespace TresPontosTech\Support\Actions;
 
 use App\Models\Users\User;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -31,10 +32,7 @@ class CreateSupportTicketAction
     {
         $ticket = $this->createWithProtocol($dto);
 
-        foreach ($dto->attachments as $attachment) {
-            $ticket->addMedia($attachment)
-                ->toMediaCollection('attachments');
-        }
+        $this->storeAttachments($ticket, $dto->attachments);
 
         $requesterEmail = $ticket->getRequesterEmail();
         if ($requesterEmail !== null) {
@@ -46,6 +44,29 @@ class CreateSupportTicketAction
         event(new SupportTicketCreated($ticket));
 
         return $ticket;
+    }
+
+    /**
+     * The files go to storage outside the ticket's transaction, so an upload never holds the
+     * database. A file that fails (storage down, a name the media library refuses) takes the
+     * ticket and the files already stored with it: left behind, the ticket would stay pending
+     * with no confirmation email and never reach the sector, while the requester, who got an
+     * error, opens it again.
+     *
+     * @param  list<UploadedFile>  $attachments
+     */
+    private function storeAttachments(SupportTicket $ticket, array $attachments): void
+    {
+        try {
+            foreach ($attachments as $attachment) {
+                $ticket->addMedia($attachment)
+                    ->toMediaCollection('attachments');
+            }
+        } catch (Throwable $throwable) {
+            $ticket->delete();
+
+            throw $throwable;
+        }
     }
 
     /**

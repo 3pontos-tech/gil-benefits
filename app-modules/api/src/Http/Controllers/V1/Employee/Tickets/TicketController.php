@@ -42,9 +42,10 @@ class TicketController
             $category,
             $request->string('subject')->toString(),
             $request->string('description')->toString(),
+            $request->attachments(),
         );
 
-        return TicketResource::make($ticket)
+        return TicketResource::make($ticket->load('media'))
             ->response($request)
             ->setStatusCode(Response::HTTP_CREATED);
     }

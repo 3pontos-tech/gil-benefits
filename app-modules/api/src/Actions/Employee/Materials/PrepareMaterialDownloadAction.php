@@ -7,8 +7,8 @@ namespace TresPontosTech\Api\Actions\Employee\Materials;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Symfony\Component\HttpFoundation\HeaderUtils;
 use TresPontosTech\Api\DTOs\Employee\Materials\MaterialDownload;
+use TresPontosTech\Api\Support\DownloadFilename;
 
 final readonly class PrepareMaterialDownloadAction
 {
@@ -33,11 +33,7 @@ final readonly class PrepareMaterialDownloadAction
 
         return new MaterialDownload(
             url: $media->getTemporaryUrl($expiresAt, '', [
-                'ResponseContentDisposition' => HeaderUtils::makeDisposition(
-                    HeaderUtils::DISPOSITION_ATTACHMENT,
-                    $filename,
-                    $this->asciiFallback($filename),
-                ),
+                'ResponseContentDisposition' => DownloadFilename::disposition($filename, 'material'),
                 'ResponseContentType' => $media->mime_type,
             ]),
             filename: $filename,
@@ -53,11 +49,11 @@ final readonly class PrepareMaterialDownloadAction
      */
     private function filename(string $title, Media $media): string
     {
-        $base = str($this->withoutForbiddenCharacters($title))->limit(120, '')->trim()->toString();
+        $base = str(DownloadFilename::clean($title))->limit(120, '')->trim()->toString();
         $extension = pathinfo($media->file_name, PATHINFO_EXTENSION);
 
         if ($base === '') {
-            return $this->withoutForbiddenCharacters($media->file_name);
+            return DownloadFilename::clean($media->file_name);
         }
 
         if ($extension === '' || str($base)->lower()->endsWith('.' . str($extension)->lower())) {
@@ -65,27 +61,5 @@ final readonly class PrepareMaterialDownloadAction
         }
 
         return $base . '.' . $extension;
-    }
-
-    /**
-     * Sem os caracteres que um sistema de arquivos recusa, inclusive as barras, que o
-     * `Content-Disposition` também recusa.
-     */
-    private function withoutForbiddenCharacters(string $name): string
-    {
-        return str($name)->replaceMatches('#[\\\\/:*?"<>|\x00-\x1F\x7F]+#u', ' ')->squish()->toString();
-    }
-
-    /**
-     * O `filename` em ASCII do header, para quem não lê o `filename*` em UTF-8. O Symfony recusa
-     * `%` nele (as barras já saíram do nome). Um nome que fica vazio em ASCII (só emoji, por
-     * exemplo) cairia no UTF-8, que ele também recusa; aí vale um nome genérico com a extensão.
-     */
-    private function asciiFallback(string $filename): string
-    {
-        $base = str(pathinfo($filename, PATHINFO_FILENAME))->ascii()->remove('%')->trim()->toString();
-        $extension = str(pathinfo($filename, PATHINFO_EXTENSION))->ascii()->remove('%')->toString();
-
-        return ($base === '' ? 'material' : $base) . ($extension === '' ? '' : '.' . $extension);
     }
 }

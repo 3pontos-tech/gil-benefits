@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Api\Actions\Employee\Tickets;
 
 use App\Models\Users\User;
+use Illuminate\Http\UploadedFile;
 use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
@@ -21,11 +22,18 @@ final readonly class OpenEmployeeTicketAction
 
     /**
      * Abre o chamado pelo mesmo caminho do painel (protocolo, e-mail de confirmação, encaminhamento
-     * ao setor). A empresa é a do app, como a aberta na tela do painel; a origem fica `app`/`mobile`,
-     * que é o que a equipe vê no admin e no e-mail do chamado.
+     * ao setor, anexos na coleção `attachments`). A empresa é a do app, como a aberta na tela do
+     * painel; a origem fica `app`/`mobile`, que é o que a equipe vê no admin e no e-mail do chamado.
+     *
+     * @param  list<UploadedFile>  $attachments
      */
-    public function handle(User $user, SupportTicketCategoryEnum $category, string $subject, string $description): SupportTicket
-    {
+    public function handle(
+        User $user,
+        SupportTicketCategoryEnum $category,
+        string $subject,
+        string $description,
+        array $attachments = [],
+    ): SupportTicket {
         return $this->createTicket->execute(new CreateSupportTicketDTO(
             category: $category,
             subject: $subject,
@@ -36,6 +44,7 @@ final readonly class OpenEmployeeTicketAction
             browser: 'app',
             device: 'mobile',
             environment: app()->environment(),
+            attachments: $attachments,
         ));
     }
 }

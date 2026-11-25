@@ -60,6 +60,12 @@ class SupportTicket extends Model implements HasMedia
     use HasUuids;
     use InteractsWithMedia;
 
+    /**
+     * The only types the `attachments` collection takes. A form that let another one through
+     * would find out only after the ticket was written, so the API validates against this list.
+     */
+    public const array ATTACHMENT_MIME_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+
     protected $fillable = [
         'protocol',
         'user_id',
@@ -90,11 +96,7 @@ class SupportTicket extends Model implements HasMedia
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('attachments')
-            ->acceptsMimeTypes([
-                'image/jpeg',
-                'image/png',
-                'application/pdf',
-            ]);
+            ->acceptsMimeTypes(self::ATTACHMENT_MIME_TYPES);
     }
 
     /**

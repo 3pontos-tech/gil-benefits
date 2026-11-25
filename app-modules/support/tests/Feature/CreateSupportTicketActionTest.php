@@ -6,7 +6,10 @@ use App\Models\Users\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
+use Spatie\MediaLibrary\MediaCollections\Exceptions\FileNameNotAllowed;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use TresPontosTech\Support\Actions\CreateSupportTicketAction;
 use TresPontosTech\Support\DTOs\CreateSupportTicketDTO;
 use TresPontosTech\Support\Enums\SupportTicketCategoryEnum;
@@ -14,6 +17,7 @@ use TresPontosTech\Support\Enums\SupportTicketStatusEnum;
 use TresPontosTech\Support\Enums\TicketChannelEnum;
 use TresPontosTech\Support\Enums\TicketStatusChangeSourceEnum;
 use TresPontosTech\Support\Models\SupportTicket;
+use TresPontosTech\Support\Models\SupportTicketStatusChange;
 
 beforeEach(function (): void {
     Date::setTestNow('2026-06-11 12:00:00');
@@ -80,6 +84,33 @@ it('stores every uploaded attachment in the media collection', function (): void
     ));
 
     expect($ticket->getMedia('attachments'))->toHaveCount(2);
+});
+
+it('takes the ticket back, with the files already stored, when an attachment cannot be stored', function (): void {
+    Storage::fake('r2');
+    Queue::fake();
+
+    $open = fn (): SupportTicket => resolve(CreateSupportTicketAction::class)->execute(new CreateSupportTicketDTO(
+        category: SupportTicketCategoryEnum::Bug,
+        subject: 'subject',
+        description: 'description',
+        channel: TicketChannelEnum::PanelApp,
+        visitorName: 'Visitor',
+        visitorEmail: 'visitor@example.com',
+        environment: 'testing',
+        attachments: [
+            UploadedFile::fake()->image('first.png'),
+            UploadedFile::fake()->createWithContent('plano.pl.pdf', "%PDF-1.4\n%%EOF\n"),
+        ],
+    ));
+
+    expect($open)->toThrow(FileNameNotAllowed::class)
+        ->and(SupportTicket::query()->withoutGlobalScopes()->count())->toBe(0)
+        ->and(SupportTicketStatusChange::query()->count())->toBe(0)
+        ->and(Media::query()->count())->toBe(0)
+        ->and(Storage::disk('r2')->allFiles())->toBe([]);
+    Mail::assertNothingQueued();
+    Queue::assertNothingPushed();
 });
 
 it('attaches a guest ticket to the registered user whose email matches the visitor email', function (): void {

@@ -28,6 +28,7 @@ class TicketResource extends JsonResource
             'status' => $this->status->value,
             'created_at' => ApiDates::dateTime($this->created_at),
             'updated_at' => ApiDates::dateTime($this->updated_at),
+            'attachments' => TicketAttachmentResource::collection($this->getMedia('attachments')),
         ];
     }
 }

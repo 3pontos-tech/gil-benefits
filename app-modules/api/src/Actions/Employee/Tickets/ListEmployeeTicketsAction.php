@@ -15,6 +15,8 @@ final readonly class ListEmployeeTicketsAction
      * painel, no app e na central de ajuda com o e-mail dela (CreateSupportTicketAction liga esses
      * à conta).
      *
+     * Os anexos vêm junto (`media`), porque cada chamado da lista os mostra.
+     *
      * Sem withoutGlobalScopes(), ao contrário do painel: o escopo de tenancy do Filament só
      * filtra quando há um painel aberto, o que não acontece na API.
      *
@@ -22,6 +24,6 @@ final readonly class ListEmployeeTicketsAction
      */
     public function handle(User $user): Builder
     {
-        return SupportTicket::query()->where('user_id', $user->id)->latest()->orderByDesc('id');
+        return SupportTicket::query()->with('media')->where('user_id', $user->id)->latest()->orderByDesc('id');
     }
 }
