@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/integration-clau",
+	"description": "API assinada pela qual a Clau reserva o desconto da Flamma",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\IntegrationClau\\": "src/",
+			"TresPontosTech\\IntegrationClau\\Tests\\": "tests/",
+			"TresPontosTech\\IntegrationClau\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\IntegrationClau\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\IntegrationClau\\Providers\\IntegrationClauServiceProvider"
+			]
+		}
+	}
+}

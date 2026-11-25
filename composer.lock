@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8724ad565e53e46a623711c1ea75e0f9",
+    "content-hash": "53e4094307820223fa579da8d0247ca3",
     "packages": [
         {
             "name": "3pontos-tech/api",
@@ -289,6 +289,39 @@
             "license": [
                 "proprietary"
             ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/integration-clau",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/integration-clau",
+                "reference": "08299811f39d0bcc1d39d7aa768671ac349c3119"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\IntegrationClau\\Providers\\IntegrationClauServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\IntegrationClau\\": "src/",
+                    "TresPontosTech\\IntegrationClau\\Tests\\": "tests/",
+                    "TresPontosTech\\IntegrationClau\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\IntegrationClau\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "API assinada pela qual a Clau reserva o desconto da Flamma",
             "transport-options": {
                 "symlink": true,
                 "relative": true
