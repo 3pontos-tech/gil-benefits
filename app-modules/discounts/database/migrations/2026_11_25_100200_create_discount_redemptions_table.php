@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignUuid('discount_grant_id')->nullable()->constrained('discount_grants')->restrictOnDelete();
             $table->uuidMorphs('billable');
             $table->string('plan_slug');
-            $table->string('subscription_external_id')->unique();
+            $table->string('subscription_external_id')->nullable()->unique();
             $table->string('status');
             $table->string('value_type');
             $table->unsignedTinyInteger('percent_off')->nullable();

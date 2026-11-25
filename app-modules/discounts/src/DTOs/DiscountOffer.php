@@ -6,6 +6,8 @@ namespace TresPontosTech\Discounts\DTOs;
 
 use Illuminate\Support\Carbon;
 use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
+use TresPontosTech\Discounts\Models\Discount;
+use TresPontosTech\Discounts\Models\DiscountGrant;
 
 final readonly class DiscountOffer
 {
@@ -18,5 +20,7 @@ final readonly class DiscountOffer
         public int $savingPerCycleCents,
         public int $score,
         public ?Carbon $expiresAt,
+        public Discount $discount,
+        public ?DiscountGrant $grant,
     ) {}
 }

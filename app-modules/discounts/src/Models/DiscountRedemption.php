@@ -25,7 +25,7 @@ use TresPontosTech\Discounts\Enums\DiscountValueTypeEnum;
  * @property string $billable_type
  * @property string $billable_id
  * @property string $plan_slug
- * @property string $subscription_external_id
+ * @property string|null $subscription_external_id
  * @property DiscountRedemptionStatusEnum $status
  * @property DiscountValueTypeEnum $value_type
  * @property int|null $percent_off

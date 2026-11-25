@@ -151,6 +151,8 @@ final readonly class ListAvailableDiscounts
             savingPerCycleCents: $savingPerCycleCents,
             score: $savingPerCycleCents * $cycles,
             expiresAt: $this->expiresAt($candidate),
+            discount: $discount,
+            grant: $candidate->grant,
         );
     }
 
