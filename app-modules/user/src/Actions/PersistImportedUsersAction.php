@@ -19,6 +19,7 @@ use TresPontosTech\User\DTOs\ImportUsersResultDTO;
 use TresPontosTech\User\Enums\ImportRowOutcome;
 use TresPontosTech\User\Events\ExistingUserImported;
 use TresPontosTech\User\Events\UserImported;
+use TresPontosTech\User\Exceptions\ImportMembershipChangedException;
 use TresPontosTech\User\Mail\WelcomeUserMail;
 use TresPontosTech\User\Support\EmailAddress;
 
@@ -60,7 +61,7 @@ class PersistImportedUsersAction
     {
         try {
             return $this->writeChunk($rows, $company);
-        } catch (UniqueConstraintViolationException|EmployedElsewhere) {
+        } catch (UniqueConstraintViolationException|EmployedElsewhere|ImportMembershipChangedException) {
             return $this->writeChunk($rows, $company);
         }
     }
@@ -158,7 +159,13 @@ class PersistImportedUsersAction
 
     private function reactivate(ClassifiedImportRowDTO $row): void
     {
-        $membership = TenantMember::query()->findOrFail($row->membershipId);
+        $membership = TenantMember::query()->lockForUpdate()->findOrFail($row->membershipId);
+
+        throw_if(
+            $membership->active || $membership->role !== Roles::Employee,
+            ImportMembershipChangedException::class,
+        );
+
         $membership->active = true;
 
         if (filled($row->row['department_id'] ?? null)) {

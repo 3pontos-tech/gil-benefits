@@ -46,7 +46,9 @@ duplicado.
 
 **D2. Uma nova tentativa por lote.** Se mesmo assim o lote bater no índice único ou em
 `EmployedElsewhere` (alguém mudou entre a classificação e o insert, dentro da mesma transação), a
-transação é desfeita, o lote é classificado de novo e gravado mais uma vez. Uma segunda falha
+transação é desfeita, o lote é classificado de novo e gravado mais uma vez. A reativação lê o
+vínculo com `lockForUpdate` e só reativa se ele ainda for de funcionário inativo; se alguém o
+ativou ou promoveu no meio do caminho, o lote também é refeito, e a linha sai como ignorada. Uma segunda falha
 derruba o job, que avisa o RH como antes. E-mails e eventos saem só depois do commit do lote, então
 o trabalho desfeito não manda nada.
 

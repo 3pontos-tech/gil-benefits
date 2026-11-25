@@ -53,6 +53,18 @@ it('keeps the first row and skips later rows repeating its email or tax_id', fun
     expect($outcomes)->toBe([ImportRowOutcome::Create, ImportRowOutcome::DuplicateInSheet, ImportRowOutcome::DuplicateInSheet]);
 });
 
+it('skips a later row repeating the tax_id of a row that was itself skipped', function (): void {
+    $company = Company::factory()->create();
+
+    $outcomes = classifyImportOutcomes([
+        classifyImportRow('a@empresa.com', '11111111111'),
+        classifyImportRow('a@empresa.com', '22222222222'),
+        classifyImportRow('b@empresa.com', '22222222222'),
+    ], $company);
+
+    expect($outcomes)->toBe([ImportRowOutcome::Create, ImportRowOutcome::DuplicateInSheet, ImportRowOutcome::DuplicateInSheet]);
+});
+
 it('skips a later row that reaches the same registered person through the other key', function (): void {
     $company = Company::factory()->create();
     createImportedPerson('ana@empresa.com', '11111111111');
@@ -153,6 +165,13 @@ it('sends to support a tax_id kept by a deleted detail, which still holds the un
     createImportedPerson('ativa@empresa.com', '88888888888')->detail->delete();
 
     expect(classifyImportOutcomes([classifyImportRow('nova@empresa.com', '88888888888')], $company))->toBe([ImportRowOutcome::DeletedAccount]);
+});
+
+it('sends to support an active account found by email whose detail was deleted', function (): void {
+    $company = Company::factory()->create();
+    createImportedPerson('sem-detalhe@empresa.com', '88888888888')->detail->delete();
+
+    expect(classifyImportOutcomes([classifyImportRow('sem-detalhe@empresa.com', '12312312312')], $company))->toBe([ImportRowOutcome::DeletedAccount]);
 });
 
 it('sends to support an email of one person with the tax_id of another', function (): void {

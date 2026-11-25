@@ -42,6 +42,14 @@ class ClassifyImportRowsAction
             ->get(['id', 'deleted_at'])
             ->keyBy('id');
 
+        $userIds = $usersById->keys()->all();
+
+        $deletedDetailOnly = Detail::onlyTrashed()
+            ->whereIn('user_id', $userIds)
+            ->whereNotIn('user_id', Detail::query()->whereIn('user_id', $userIds)->select('user_id'))
+            ->pluck('user_id')
+            ->flip();
+
         $membershipsHere = TenantMember::query()
             ->where('company_id', $company->getKey())
             ->whereIn('user_id', $usersById->keys()->all())
@@ -56,7 +64,7 @@ class ClassifyImportRowsAction
 
         $seenUserIds = [];
 
-        return $rows->map(function (array $row, int $index) use ($duplicates, $usersByEmail, $detailsByTaxId, $usersById, $membershipsHere, $employedElsewhere, &$seenUserIds): ClassifiedImportRowDTO {
+        return $rows->map(function (array $row, int $index) use ($duplicates, $usersByEmail, $detailsByTaxId, $usersById, $deletedDetailOnly, $membershipsHere, $employedElsewhere, &$seenUserIds): ClassifiedImportRowDTO {
             if (isset($duplicates[$index])) {
                 return new ClassifiedImportRowDTO($row, ImportRowOutcome::DuplicateInSheet);
             }
@@ -85,7 +93,7 @@ class ClassifyImportRowsAction
             /** @var User|null $user */
             $user = $usersById->get($userId);
 
-            if (! $user instanceof User || $user->trashed() || $detailByTaxId?->trashed()) {
+            if (! $user instanceof User || $user->trashed() || $detailByTaxId?->trashed() || $deletedDetailOnly->has($userId)) {
                 return new ClassifiedImportRowDTO($row, ImportRowOutcome::DeletedAccount);
             }
 
@@ -122,8 +130,6 @@ class ClassifyImportRowsAction
 
             if (($email !== '' && isset($seenEmails[$email])) || ($taxId !== '' && isset($seenTaxIds[$taxId]))) {
                 $duplicates[$index] = true;
-
-                continue;
             }
 
             if ($email !== '') {

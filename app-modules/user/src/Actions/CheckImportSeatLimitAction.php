@@ -12,6 +12,10 @@ final readonly class CheckImportSeatLimitAction
 {
     public function execute(Company $company, int $joiningCount): ?ImportErrorDTO
     {
+        if ($joiningCount === 0) {
+            return null;
+        }
+
         $available = $this->availableSeats($company);
 
         if ($available === null || $joiningCount <= $available) {

@@ -315,3 +315,41 @@ it('links once a person reached by the email in one row and by the tax_id in ano
         ->skipped->toBe(1);
     expect($company->employees()->whereKey($person->getKey())->count())->toBe(1);
 });
+
+it('writes the chunk again instead of reactivating a membership that changed after the classification', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+    $manager = User::factory()->create(['email' => 'promoted@example.com']);
+    Detail::factory()->for($manager)->create(['tax_id' => '74174174174']);
+    $company->employees()->attach($manager->getKey(), ['role' => Roles::CompanyManager->value]);
+    $membershipId = $company->employees()->find($manager->getKey())->pivot->id;
+
+    app()->instance(ClassifyImportRowsAction::class, new class($membershipId) extends ClassifyImportRowsAction
+    {
+        private int $calls = 0;
+
+        public function __construct(private readonly string $membershipId) {}
+
+        public function execute(Collection $rows, Company $company): Collection
+        {
+            $classified = parent::execute($rows, $company);
+
+            return ++$this->calls === 2
+                ? $classified->map(fn (ClassifiedImportRowDTO $row): ClassifiedImportRowDTO => new ClassifiedImportRowDTO($row->row, ImportRowOutcome::Reactivate, $row->userId, $this->membershipId))
+                : $classified;
+        }
+    });
+
+    $result = resolve(PersistImportedUsersAction::class)->execute(collect([[
+        'name' => 'Promoted',
+        'email' => 'promoted@example.com',
+        'tax_id' => '74174174174',
+        '__row_number' => 2,
+    ]]), $company);
+
+    expect($result)
+        ->reactivated->toBe(0)
+        ->skipped->toBe(1);
+    expect($company->employees()->find($manager->getKey())->pivot->role)->toBe(Roles::CompanyManager);
+});

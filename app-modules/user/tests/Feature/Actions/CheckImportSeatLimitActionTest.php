@@ -47,3 +47,9 @@ it('does not limit a company without a contractual plan or an active subscriptio
 
     expect(resolve(CheckImportSeatLimitAction::class)->execute($company, 500))->toBeNull();
 });
+
+it('allows an import where nobody joins even when the company is already over its seats', function (): void {
+    $company = companyWithSeats(seats: 1, activeEmployees: 2);
+
+    expect(resolve(CheckImportSeatLimitAction::class)->execute($company, 0))->toBeNull();
+});

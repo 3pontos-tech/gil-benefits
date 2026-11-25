@@ -36,11 +36,11 @@ existente quando o e-mail **ou** o CPF já está na base. A ordem de avaliação
 
 | Linha | Resultado |
 | --- | --- |
-| E-mail ou CPF repetido de uma linha anterior da planilha | ignorada; a primeira ocorrência vale |
+| E-mail ou CPF repetido de uma linha anterior da planilha, mesmo que essa linha também tenha sido ignorada | ignorada; a primeira ocorrência vale |
 | E-mail e CPF fora da base | cria a pessoa, como antes |
 | E-mail de uma pessoa e CPF de outra | não importada, aviso de suporte |
 | Mesma pessoa de uma linha anterior, achada pela outra chave | ignorada |
-| Usuário ou `user_details` excluído (soft delete) | não importada, aviso de suporte |
+| Usuário excluído, `user_details` do CPF excluído, ou conta ativa cujo único `user_details` foi excluído | não importada, aviso de suporte |
 | Membro ativo da empresa, qualquer papel | ignorada |
 | Dono ou gerente inativo da empresa | ignorada |
 | Funcionário inativo da empresa | reativado |
@@ -73,7 +73,8 @@ especial: o caso é raro e decidimos não tratar.
 pessoa precisa do suporte e o motivo (outra empresa, cadastro excluído, dados divergentes).
 
 **D7. Assentos contam só quem entra:** criados, vinculados e reativados. Linhas ignoradas e com
-aviso de suporte não consomem assento.
+aviso de suporte não consomem assento. Uma planilha em que ninguém entra não é barrada por
+assento, mesmo com a empresa já acima do limite: o RH vê o motivo de cada linha.
 
 **D8. E-mails.** Quem é criado recebe as boas-vindas com senha temporária e o onboarding, como
 antes. Quem é vinculado ou reativado não recebe senha nova. O evento `ExistingUserImported` existe
