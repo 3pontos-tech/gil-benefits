@@ -17,6 +17,8 @@ return new class extends Migration
             'percent_off' => 30,
             'audience' => 'standalone',
             'claim_window_days' => 180,
+            'locks_plan' => true,
+            'max_redemptions_per_customer' => null,
             'active' => false,
             'created_at' => now(),
             'updated_at' => now(),
