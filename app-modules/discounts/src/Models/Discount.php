@@ -129,6 +129,14 @@ final class Discount extends Model
         return $this->hasMany(DiscountRedemption::class);
     }
 
+    /**
+     * @return HasMany<DiscountRedemption, $this>
+     */
+    public function countedRedemptions(): HasMany
+    {
+        return $this->redemptions()->counting();
+    }
+
     public static function normalizeCodeValue(?string $code): ?string
     {
         if ($code === null) {

@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace TresPontosTech\Discounts\Enums;
 
+use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum DiscountRedemptionStatusEnum: string implements HasLabel
+enum DiscountRedemptionStatusEnum: string implements HasColor, HasLabel
 {
     case Reserved = 'reserved';
     case Active = 'active';
@@ -22,6 +23,17 @@ enum DiscountRedemptionStatusEnum: string implements HasLabel
             self::Completed => 'Concluído',
             self::Released => 'Liberado',
             self::Canceled => 'Cancelado',
+        };
+    }
+
+    public function getColor(): string
+    {
+        return match ($this) {
+            self::Reserved => 'info',
+            self::Active => 'success',
+            self::Completed => 'gray',
+            self::Released => 'warning',
+            self::Canceled => 'danger',
         };
     }
 }

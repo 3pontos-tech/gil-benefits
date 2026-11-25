@@ -16,6 +16,7 @@ use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Discounts\Pag
 use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Discounts\Pages\EditDiscount;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Discounts\Pages\ListDiscounts;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Discounts\RelationManagers\GrantsRelationManager;
+use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Discounts\RelationManagers\RedemptionsRelationManager;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Discounts\Schemas\DiscountForm;
 use TresPontosTech\PanelAdmin\Filament\Clusters\Partners\Resources\Discounts\Tables\DiscountsTable;
 
@@ -67,6 +68,7 @@ class DiscountResource extends Resource
     {
         return [
             GrantsRelationManager::class,
+            RedemptionsRelationManager::class,
         ];
     }
 
