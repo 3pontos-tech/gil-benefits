@@ -7,6 +7,7 @@ namespace TresPontosTech\IntegrationVirtu;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\Contracts\SupportsCheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
@@ -15,6 +16,7 @@ use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Billing\Core\Support\DiscountedAmount;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Credits\DTOs\CreditOrderDTO;
@@ -36,7 +38,7 @@ use TresPontosTech\IntegrationVirtu\Responses\PaymentLinkResponse;
  * feature: Virtu exposes no cancellation endpoint, so callers check `instanceof`
  * and hide the action rather than offering a button that can only fail.
  */
-final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurchase
+final readonly class VirtuAdapter implements BillingContract, SupportsCheckoutDiscount, SupportsCreditPurchase
 {
     /**
      * Floor for any generated charge. Virtu accepts amountCents: 1 without
@@ -107,6 +109,7 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
             planSlug: $price->plan->slug,
             quantity: $data->quantity,
             endsAt: null,
+            discountPercent: $data->discountPercent,
         )));
 
         return $this->withBuyerIdentity($link->url, $billable);
@@ -171,6 +174,10 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
         $amountCents = $data->isMetered
             ? (int) round(SeatPricingTierEnum::fromQuantity($data->quantity)->pricePerSeat() * $data->quantity * 100)
             : $price->unit_amount_decimal;
+
+        if ($data->discountPercent !== null) {
+            $amountCents = DiscountedAmount::apply($amountCents, $data->discountPercent);
+        }
 
         throw_if(
             $amountCents < self::MINIMUM_CHARGE_IN_CENTS,

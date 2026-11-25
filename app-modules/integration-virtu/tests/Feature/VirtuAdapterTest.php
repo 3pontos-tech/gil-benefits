@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Event;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\Contracts\SupportsCheckoutDiscount;
 use TresPontosTech\Billing\Core\Contracts\SupportsSubscriptionCancellation;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
@@ -12,11 +13,13 @@ use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+use TresPontosTech\Billing\Stripe\Subscription\StripeAdapter;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Credits\Enums\CreditOrderStatusEnum;
 use TresPontosTech\Credits\Events\CreditOrderPlaced;
 use TresPontosTech\Credits\Models\CreditOrder;
+use TresPontosTech\IntegrationBarte\BarteAdapter;
 use TresPontosTech\IntegrationVirtu\Exceptions\VirtuApiException;
 use TresPontosTech\IntegrationVirtu\Testing\FakeVirtuClient;
 use TresPontosTech\IntegrationVirtu\VirtuAdapter;
@@ -59,6 +62,7 @@ function virtuCheckoutData(array $overrides = []): CheckoutData
         collectTaxIds: false,
         successUrl: 'https://app.test/ok',
         cancelUrl: 'https://app.test/cancel',
+        discountPercent: $overrides['discountPercent'] ?? null,
     );
 }
 
@@ -97,6 +101,51 @@ it('prices metered plans per seat', function (): void {
     // 10 seats sit in the up-to-15 tier at R$ 44,90 — and pricePerSeat() is in
     // reais while the API is cents-only.
     expect($this->client->createdLinks[0]['amountCents'])->toBe(44900);
+});
+
+it('charges the discounted amount when the checkout carries a discount', function (): void {
+    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discountPercent' => 30]));
+
+    expect($this->client->createdLinks[0]['amountCents'])->toBe(17500);
+});
+
+it('applies the discount to the updated price', function (): void {
+    $this->price->update(['unit_amount_decimal' => 4990]);
+
+    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discountPercent' => 30]));
+
+    expect($this->client->createdLinks[0]['amountCents'])->toBe(3493);
+});
+
+it('hands the discount to the pending subscription', function (): void {
+    Event::fake([SubscriptionCreated::class]);
+
+    $this->adapter->createCheckout($this->user, virtuCheckoutData(['discountPercent' => 30]));
+
+    Event::assertDispatched(SubscriptionCreated::class, function (SubscriptionCreated $event): bool {
+        return $event->dto->discountPercent === 30;
+    });
+});
+
+it('charges the full price and records no discount when none is granted', function (): void {
+    Event::fake([SubscriptionCreated::class]);
+
+    $this->adapter->createCheckout($this->user, virtuCheckoutData());
+
+    expect($this->client->createdLinks[0]['amountCents'])->toBe(25000);
+
+    Event::assertDispatched(SubscriptionCreated::class, function (SubscriptionCreated $event): bool {
+        return $event->dto->discountPercent === null;
+    });
+});
+
+it('declares support for checkout discounts', function (): void {
+    expect($this->adapter)->toBeInstanceOf(SupportsCheckoutDiscount::class);
+});
+
+it('keeps checkout discounts out of the other gateways', function (): void {
+    expect(is_subclass_of(BarteAdapter::class, SupportsCheckoutDiscount::class))->toBeFalse()
+        ->and(is_subclass_of(StripeAdapter::class, SupportsCheckoutDiscount::class))->toBeFalse();
 });
 
 it('refuses to create a link for an implausible amount', function (): void {

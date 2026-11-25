@@ -20,5 +20,6 @@ final readonly class CheckoutData
         public string $successUrl,
         public string $cancelUrl,
         public array $metadata = [],
+        public ?int $discountPercent = null,
     ) {}
 }

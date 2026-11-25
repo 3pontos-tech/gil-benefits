@@ -55,7 +55,15 @@ final class RevenueResolver
 
         $unitAmount = $subscription->price?->unit_amount_decimal;
 
-        return $unitAmount === null ? null : (int) $unitAmount;
+        if ($unitAmount === null) {
+            return null;
+        }
+
+        if ($subscription->discount_percent !== null) {
+            return DiscountedAmount::apply((int) $unitAmount, $subscription->discount_percent);
+        }
+
+        return (int) $unitAmount;
     }
 
     /**

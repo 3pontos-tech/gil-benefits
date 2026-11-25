@@ -25,6 +25,7 @@ use TresPontosTech\Company\Models\Company;
  * @property string $stripe_status
  * @property string|null $stripe_price
  * @property int|null $quantity
+ * @property int|null $discount_percent
  * @property Carbon|null $trial_ends_at
  * @property Carbon|null $ends_at
  * @property Carbon|null $quota_anchor_at
@@ -113,6 +114,7 @@ class Subscription extends BaseSubscriptionModel
     {
         return [
             'quota_anchor_at' => 'datetime',
+            'discount_percent' => 'integer',
         ];
     }
 

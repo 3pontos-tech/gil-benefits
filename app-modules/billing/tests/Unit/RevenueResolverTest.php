@@ -129,6 +129,24 @@ describe('assinante avulso', function (): void {
             ->and($value->source)->toBe(MonthlyValueSourceEnum::SubscriptionPrice);
     });
 
+    it('desconta o preço quando a assinatura tem desconto', function (): void {
+        $price = Price::factory()->create(['unit_amount_decimal' => 4990]);
+        $user = User::factory()->create();
+        $user->subscriptions()->create([
+            'type' => 'default',
+            'stripe_id' => 'sub_' . fake()->unique()->uuid(),
+            'stripe_status' => 'active',
+            'stripe_price' => $price->provider_price_id,
+            'quantity' => 1,
+            'discount_percent' => 30,
+        ]);
+
+        $value = $this->resolver->monthlyValueForUser($user->fresh());
+
+        expect($value->cents)->toBe(3493)
+            ->and($value->source)->toBe(MonthlyValueSourceEnum::SubscriptionPrice);
+    });
+
     it('devolve desconhecido quando o preço não existe mais', function (): void {
         $user = User::factory()->create();
         $user->subscriptions()->create([

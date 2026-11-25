@@ -21,6 +21,9 @@ final class UpsertSubscription
      *
      * Só quando ainda está nula: uma cobrança recorrente cai na MESMA linha, e reescrever
      * empurraria o ciclo de quem já é assinante.
+     *
+     * O desconto segue a mesma lógica: só é gravado quando o DTO o traz, pois o webhook de
+     * ativação da Virtu não o carrega e não pode apagar o valor com que a pessoa pagou.
      */
     public function handle(SubscriptionDTO $dto): void
     {
@@ -38,6 +41,10 @@ final class UpsertSubscription
 
         if ($dto->activatedAt instanceof Carbon && $subscription->quota_anchor_at === null) {
             $subscription->quota_anchor_at = $dto->activatedAt;
+        }
+
+        if ($dto->discountPercent !== null) {
+            $subscription->discount_percent = $dto->discountPercent;
         }
 
         $subscription->save();
