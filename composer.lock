@@ -208,13 +208,6 @@
                 "reference": "83442100fa490a8c956bfe6dc8caeec6666dbafc"
             },
             "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "TresPontosTech\\Discounts\\Providers\\DiscountsServiceProvider"
-                    ]
-                }
-            },
             "autoload": {
                 "psr-4": {
                     "TresPontosTech\\Discounts\\": "src/",

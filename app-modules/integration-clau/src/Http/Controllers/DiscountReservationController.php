@@ -14,15 +14,12 @@ use TresPontosTech\Discounts\Enums\DiscountReservationStatusEnum;
 use TresPontosTech\Discounts\Models\Discount;
 use TresPontosTech\Discounts\Notifications\DiscountGrantReservedNotification;
 use TresPontosTech\Discounts\Support\DiscountInviteUrl;
-use TresPontosTech\Discounts\Support\TaxIdFingerprint;
 use TresPontosTech\IntegrationClau\Http\Requests\StoreDiscountReservationRequest;
 
 final class DiscountReservationController
 {
     public function __invoke(StoreDiscountReservationRequest $request, ReserveDiscountGrant $reserve): JsonResponse
     {
-        abort_unless(TaxIdFingerprint::isConfigured(), 503);
-
         $data = $request->validated();
 
         $discount = Discount::query()->where('slug', config('clau.discount_slug'))->first();
@@ -37,7 +34,8 @@ final class DiscountReservationController
             externalRef: $data['clau_id'],
             name: $data['name'],
             email: $data['email'],
-            taxIdFingerprint: $data['tax_id_fingerprint'],
+            taxId: $data['tax_id'],
+            phoneNumber: $data['phone'] ?? null,
             consentTermVersion: $data['consent']['term_version'],
             consentAcceptedAt: Date::parse($data['consent']['accepted_at']),
         );

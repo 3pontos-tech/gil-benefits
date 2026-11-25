@@ -16,9 +16,10 @@ return new class extends Migration
             $table->foreignUuid('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('email')->index();
             $table->string('name')->nullable();
+            $table->string('phone_number')->nullable();
             $table->string('source');
             $table->string('external_ref');
-            $table->string('tax_id_fingerprint', 67)->nullable()->index();
+            $table->text('tax_id')->nullable();
             $table->string('consent_term_version')->nullable();
             $table->timestampTz('consent_accepted_at')->nullable();
             $table->unsignedTinyInteger('failed_tax_id_attempts')->default(0);

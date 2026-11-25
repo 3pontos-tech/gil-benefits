@@ -11,11 +11,6 @@ use TresPontosTech\Discounts\Enums\DiscountIneligibilityReasonEnum;
 use TresPontosTech\Discounts\Enums\DiscountReservationStatusEnum;
 use TresPontosTech\Discounts\Models\Discount;
 use TresPontosTech\Discounts\Models\DiscountGrant;
-use TresPontosTech\Discounts\Support\TaxIdFingerprint;
-
-beforeEach(function (): void {
-    config(['discounts.tax_id_fingerprint_key' => 'clau-flamma-test-tax-key']);
-});
 
 function reservarDescontoClau(Discount $discount, string $externalRef = 'clau-1', string $email = 'Ana@Example.com', string $cpf = '52998224725'): DiscountReservationOutcome
 {
@@ -25,7 +20,8 @@ function reservarDescontoClau(Discount $discount, string $externalRef = 'clau-1'
         externalRef: $externalRef,
         name: 'Ana Souza',
         email: $email,
-        taxIdFingerprint: TaxIdFingerprint::make($cpf),
+        taxId: $cpf,
+        phoneNumber: '5511999999999',
         consentTermVersion: '1',
         consentAcceptedAt: now(),
     );
@@ -91,26 +87,42 @@ it('recusa e-mail de usuário apagado', function (): void {
     expect($outcome->reason)->toBe(DiscountIneligibilityReasonEnum::ExistingAccount);
 });
 
-it('recusa CPF já cadastrado em um detalhe de usuário', function (): void {
+it('recusa CPF já cadastrado em um detalhe de usuário, com ou sem máscara', function (string $taxIdCadastrado): void {
     $discount = Discount::factory()->active()->create();
-    Detail::factory()->create(['tax_id' => '52998224725']);
+    Detail::factory()->create(['tax_id' => $taxIdCadastrado]);
+
+    $outcome = reservarDescontoClau($discount);
+
+    expect($outcome->reason)->toBe(DiscountIneligibilityReasonEnum::ExistingAccount);
+})->with(['sem máscara' => ['52998224725'], 'com máscara' => ['529.982.247-25']]);
+
+it('recusa CPF de detalhe apagado', function (): void {
+    $discount = Discount::factory()->active()->create();
+    Detail::factory()->create(['tax_id' => '52998224725'])->delete();
 
     $outcome = reservarDescontoClau($discount);
 
     expect($outcome->reason)->toBe(DiscountIneligibilityReasonEnum::ExistingAccount);
 });
 
-it('recusa outra reserva do mesmo desconto com o mesmo e-mail ou o mesmo CPF', function (string $email, string $cpf): void {
+it('recusa outra reserva do mesmo desconto com o mesmo e-mail', function (): void {
     $discount = Discount::factory()->active()->create();
     reservarDescontoClau($discount);
 
-    $outcome = reservarDescontoClau($discount, externalRef: 'clau-2', email: $email, cpf: $cpf);
+    $outcome = reservarDescontoClau($discount, externalRef: 'clau-2', cpf: '11144477735');
 
     expect($outcome->reason)->toBe(DiscountIneligibilityReasonEnum::AlreadyGranted);
-})->with([
-    'mesmo e-mail' => ['ana@example.com', '11144477735'],
-    'mesmo CPF' => ['bruno@example.com', '52998224725'],
-]);
+});
+
+it('guarda o CPF e o telefone na reserva', function (): void {
+    $discount = Discount::factory()->active()->create();
+
+    $grant = reservarDescontoClau($discount)->grant;
+
+    expect($grant->fresh())
+        ->tax_id->toBe('52998224725')
+        ->phone_number->toBe('5511999999999');
+});
 
 it('recusa a repetição de um grant revogado', function (): void {
     $discount = Discount::factory()->active()->create();

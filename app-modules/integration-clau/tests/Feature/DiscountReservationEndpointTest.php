@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
+use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Notification;
 use TresPontosTech\Discounts\Models\Discount;
 use TresPontosTech\Discounts\Models\DiscountGrant;
 use TresPontosTech\Discounts\Notifications\DiscountGrantReservedNotification;
-use TresPontosTech\Discounts\Support\TaxIdFingerprint;
 
 beforeEach(function (): void {
     config([
         'clau.signing_secret' => 'clau-flamma-test-signing',
-        'discounts.tax_id_fingerprint_key' => 'clau-flamma-test-tax-key',
         'app.url' => 'https://flamma.test',
     ]);
 
@@ -42,7 +41,8 @@ function reservationPayload(array $overrides = []): array
         'clau_id' => '0196f0a2-0000-7000-8000-000000000001',
         'name' => 'Ana Souza',
         'email' => 'ana@example.com',
-        'tax_id_fingerprint' => TaxIdFingerprint::make('52998224725'),
+        'tax_id' => '52998224725',
+        'phone' => '5511999999999',
         'consent' => ['term_version' => '1', 'accepted_at' => now()->toIso8601String()],
     ], $overrides);
 }
@@ -73,15 +73,6 @@ it('recusa requisição sem cabeçalhos com 401', function (): void {
     $this->postJson('/api/clau/v1/discount-reservations', reservationPayload())->assertUnauthorized();
 });
 
-it('responde 503 sem criar reserva quando a chave da impressão do CPF não está configurada', function (): void {
-    $payload = reservationPayload();
-    config(['discounts.tax_id_fingerprint_key' => null]);
-
-    postSignedReservation($payload)->assertServiceUnavailable();
-
-    expect(DiscountGrant::query()->count())->toBe(0);
-});
-
 it('responde 503 quando o segredo não está configurado', function (): void {
     config(['clau.signing_secret' => '']);
 
@@ -105,6 +96,23 @@ it('cria a reserva com 201, o convite e o e-mail de ativação', function (): vo
     );
 });
 
+it('guarda o CPF só com os dígitos e o telefone da reserva', function (): void {
+    postSignedReservation(reservationPayload(['tax_id' => '529.982.247-25']))->assertCreated();
+
+    expect(DiscountGrant::query()->sole())
+        ->tax_id->toBe('52998224725')
+        ->phone_number->toBe('5511999999999');
+});
+
+it('aceita a reserva sem telefone', function (): void {
+    $payload = reservationPayload();
+    unset($payload['phone']);
+
+    postSignedReservation($payload)->assertCreated();
+
+    expect(DiscountGrant::query()->sole()->phone_number)->toBeNull();
+});
+
 it('devolve a mesma reserva sem duplicar nem reenviar o e-mail na repetição', function (): void {
     $primeira = postSignedReservation(reservationPayload())->assertCreated()->json();
 
@@ -123,6 +131,14 @@ it('é inelegível quando já existe conta com o e-mail', function (): void {
         ->assertOk()
         ->assertExactJson(['status' => 'ineligible', 'reason' => 'existing_account']);
 });
+
+it('é inelegível quando já existe cadastro com o mesmo CPF, com ou sem máscara', function (string $taxIdCadastrado): void {
+    Detail::factory()->create(['tax_id' => $taxIdCadastrado]);
+
+    postSignedReservation(reservationPayload())
+        ->assertOk()
+        ->assertExactJson(['status' => 'ineligible', 'reason' => 'existing_account']);
+})->with(['sem máscara' => ['52998224725'], 'com máscara' => ['529.982.247-25']]);
 
 it('responde 409 quando o mesmo clau_id chega com outro e-mail', function (): void {
     postSignedReservation(reservationPayload())->assertCreated();
@@ -148,11 +164,11 @@ it('é inelegível quando o desconto está inativo', function (): void {
         ->assertExactJson(['status' => 'ineligible', 'reason' => 'discount_inactive']);
 });
 
-it('responde 422 quando a impressão do CPF está em formato inválido', function (): void {
-    $response = postSignedReservation(reservationPayload(['tax_id_fingerprint' => 'v1:curta']));
+it('responde 422 quando o CPF é inválido', function (): void {
+    $response = postSignedReservation(reservationPayload(['tax_id' => '12345678900']));
 
     $response->assertUnprocessable()
         ->assertJsonPath('status', 'invalid');
 
-    expect($response->json('errors'))->toHaveKey('tax_id_fingerprint');
+    expect($response->json('errors'))->toHaveKey('tax_id');
 });

@@ -13,12 +13,5 @@
 			"TresPontosTech\\Discounts\\Database\\Seeders\\": "database/seeders/"
 		}
 	},
-	"minimum-stability": "stable",
-	"extra": {
-		"laravel": {
-			"providers": [
-				"TresPontosTech\\Discounts\\Providers\\DiscountsServiceProvider"
-			]
-		}
-	}
+	"minimum-stability": "stable"
 }

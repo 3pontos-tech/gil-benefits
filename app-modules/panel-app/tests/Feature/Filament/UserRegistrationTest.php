@@ -17,7 +17,6 @@ use TresPontosTech\Discounts\Enums\DiscountGrantRevocationReasonEnum;
 use TresPontosTech\Discounts\Models\Discount;
 use TresPontosTech\Discounts\Models\DiscountGrant;
 use TresPontosTech\Discounts\Support\DiscountInviteUrl;
-use TresPontosTech\Discounts\Support\TaxIdFingerprint;
 use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
@@ -115,6 +114,17 @@ function registrationForm(array $overrides = []): array
         'password' => 'password123',
         'passwordConfirmation' => 'password123',
         'tax_id' => '562.590.047-70',
+        ...$overrides,
+    ];
+}
+
+function inviteForm(array $overrides = []): array
+{
+    return [
+        'password' => 'password123',
+        'passwordConfirmation' => 'password123',
+        'tax_id' => '529.982.247-25',
+        'accepts_flamma_terms' => true,
         ...$overrides,
     ];
 }
@@ -313,42 +323,67 @@ function signupAttribution(array $attribution): array
 
 describe('convite da Clau', function (): void {
     beforeEach(function (): void {
-        config(['discounts.tax_id_fingerprint_key' => 'clau-flamma-test-tax-key']);
         $this->grant = DiscountGrant::factory()
             ->for(Discount::factory()->active())
-            ->create(['email' => 'joe@doe.com', 'tax_id_fingerprint' => TaxIdFingerprint::make('52998224725')]);
+            ->create([
+                'email' => 'joe@doe.com',
+                'name' => 'Joe Doe',
+                'tax_id' => '52998224725',
+                'phone_number' => '5511999999999',
+            ]);
     });
 
-    it('mostra o convite e preenche o e-mail do grant', function (): void {
+    it('mostra o convite com nome e e-mail travados e o CPF vazio', function (): void {
         session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
 
         livewire(UserRegistration::class)
             ->assertSee('Convite da Clau')
-            ->assertFormSet(['email' => 'joe@doe.com']);
+            ->assertFormSet(['name' => 'Joe Doe', 'email' => 'joe@doe.com', 'tax_id' => null])
+            ->assertFormFieldIsReadOnly('name')
+            ->assertFormFieldIsReadOnly('email')
+            ->assertFormFieldIsEnabled('tax_id');
     });
 
-    it('resgata o desconto no cadastro com o mesmo CPF', function (): void {
+    it('cria a conta com o nome, o e-mail, o CPF e o telefone do convite', function (): void {
         session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
 
         livewire(UserRegistration::class)
-            ->fillForm(registrationForm(['tax_id' => '529.982.247-25', 'accepts_flamma_terms' => true]))
+            ->fillForm(inviteForm(['tax_id' => '529.982.247-25']))
             ->call('register')
             ->assertHasNoFormErrors();
 
         $user = User::query()->where('email', 'joe@doe.com')->sole();
         $grant = $this->grant->fresh();
 
-        expect($grant->user_id)->toBe($user->getKey())
-            ->and($grant->claimed_at)->not->toBeNull()
-            ->and($grant->tax_id_fingerprint)->toBeNull()
+        expect($user->name)->toBe('Joe Doe')
+            ->and($user->detail)
+            ->tax_id->toBe('52998224725')
+            ->phone_number->toBe('5511999999999')
+            ->and($grant)
+            ->user_id->toBe($user->getKey())
+            ->claimed_at->not->toBeNull()
+            ->tax_id->toBeNull()
+            ->phone_number->toBeNull()
             ->and(session(DiscountInviteUrl::SESSION_KEY))->toBeNull();
+    });
+
+    it('ignora nome e e-mail digitados e usa os do convite', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->fillForm(inviteForm(['name' => 'Outro Nome', 'email' => 'outro@doe.com', 'tax_id' => '529.982.247-25']))
+            ->call('register')
+            ->assertHasNoFormErrors();
+
+        assertDatabaseHas(User::class, ['name' => 'Joe Doe', 'email' => 'joe@doe.com']);
+        assertDatabaseMissing(User::class, ['email' => 'outro@doe.com']);
     });
 
     it('recusa um CPF que não confere com o da Clau', function (): void {
         session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
 
         livewire(UserRegistration::class)
-            ->fillForm(registrationForm(['tax_id' => '562.590.047-70', 'accepts_flamma_terms' => true]))
+            ->fillForm(inviteForm(['tax_id' => '562.590.047-70']))
             ->call('register')
             ->assertHasFormErrors(['tax_id']);
 
@@ -360,7 +395,7 @@ describe('convite da Clau', function (): void {
         session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
 
         livewire(UserRegistration::class)
-            ->fillForm(registrationForm(['tax_id' => '529.982.247-2', 'accepts_flamma_terms' => true]))
+            ->fillForm(inviteForm(['tax_id' => '529.982.247-2']))
             ->call('register')
             ->assertHasFormErrors(['tax_id']);
 
@@ -374,7 +409,7 @@ describe('convite da Clau', function (): void {
 
         for ($attempt = 0; $attempt < 5; ++$attempt) {
             livewire(UserRegistration::class)
-                ->fillForm(registrationForm(['tax_id' => '562.590.047-70', 'accepts_flamma_terms' => true]))
+                ->fillForm(inviteForm(['tax_id' => '562.590.047-70']))
                 ->call('register')
                 ->assertHasFormErrors(['tax_id']);
         }
@@ -389,20 +424,25 @@ describe('convite da Clau', function (): void {
         session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
 
         livewire(UserRegistration::class)
-            ->fillForm(registrationForm(['tax_id' => '529.982.247-25']))
+            ->fillForm(inviteForm(['accepts_flamma_terms' => false]))
             ->call('register')
             ->assertHasFormErrors(['accepts_flamma_terms']);
 
         assertDatabaseCount(User::class, 0);
     });
 
-    it('resgata o desconto em um cadastro normal com o mesmo e-mail e CPF', function (): void {
+    it('resgata o desconto em um cadastro normal com o mesmo e-mail e CPF, levando o telefone', function (): void {
         livewire(UserRegistration::class)
             ->fillForm(registrationForm(['tax_id' => '529.982.247-25']))
             ->call('register')
             ->assertHasNoFormErrors();
 
-        expect($this->grant->fresh()->user_id)->toBe(User::query()->where('email', 'joe@doe.com')->sole()->getKey());
+        $user = User::query()->where('email', 'joe@doe.com')->sole();
+
+        expect($this->grant->fresh()->user_id)->toBe($user->getKey())
+            ->and($user->detail)
+            ->tax_id->toBe('52998224725')
+            ->phone_number->toBe('5511999999999');
     });
 
     it('não resgata em um cadastro normal com outro CPF', function (): void {
@@ -420,7 +460,7 @@ describe('convite da Clau', function (): void {
         session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
 
         livewire(UserRegistration::class)
-            ->fillForm(registrationForm(['tax_id' => '529.982.247-25', 'accepts_flamma_terms' => true]))
+            ->fillForm(inviteForm(['tax_id' => '529.982.247-25']))
             ->call('register')
             ->assertHasNoFormErrors();
 

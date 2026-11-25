@@ -24,9 +24,10 @@ use TresPontosTech\Discounts\Enums\DiscountGrantStatusEnum;
  * @property string|null $user_id
  * @property string $email
  * @property string|null $name
+ * @property string|null $phone_number
  * @property string $source
  * @property string $external_ref
- * @property string|null $tax_id_fingerprint
+ * @property string|null $tax_id
  * @property string|null $consent_term_version
  * @property Carbon|null $consent_accepted_at
  * @property int $failed_tax_id_attempts
@@ -55,9 +56,10 @@ final class DiscountGrant extends Model
         'user_id',
         'email',
         'name',
+        'phone_number',
         'source',
         'external_ref',
-        'tax_id_fingerprint',
+        'tax_id',
         'consent_term_version',
         'consent_accepted_at',
         'failed_tax_id_attempts',
@@ -72,6 +74,7 @@ final class DiscountGrant extends Model
     protected function casts(): array
     {
         return [
+            'tax_id' => 'encrypted',
             'consent_accepted_at' => 'datetime',
             'expires_at' => 'datetime',
             'claimed_at' => 'datetime',

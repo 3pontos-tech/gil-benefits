@@ -20,7 +20,6 @@ use Illuminate\Support\Carbon;
  * @property string|null $integration_id
  * @property string $document_id
  * @property string $tax_id
- * @property string|null $tax_id_fingerprint
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

@@ -7,23 +7,16 @@ use TresPontosTech\Discounts\Actions\VerifyDiscountGrantTaxId;
 use TresPontosTech\Discounts\Enums\DiscountGrantRevocationReasonEnum;
 use TresPontosTech\Discounts\Enums\DiscountTaxIdCheckEnum;
 use TresPontosTech\Discounts\Models\DiscountGrant;
-use TresPontosTech\Discounts\Support\TaxIdFingerprint;
-
-beforeEach(function (): void {
-    config(['discounts.tax_id_fingerprint_key' => 'clau-flamma-test-tax-key']);
-});
 
 function grantPendenteComCpf(): DiscountGrant
 {
-    return DiscountGrant::factory()->create([
-        'tax_id_fingerprint' => TaxIdFingerprint::make('52998224725'),
-    ]);
+    return DiscountGrant::factory()->create(['tax_id' => '52998224725']);
 }
 
 it('confere o CPF certo', function (): void {
     $grant = grantPendenteComCpf();
 
-    $resultado = resolve(VerifyDiscountGrantTaxId::class)->handle($grant, '529.982.247-25');
+    $resultado = resolve(VerifyDiscountGrantTaxId::class)->handle($grant, '52998224725');
 
     expect($resultado)->toBe(DiscountTaxIdCheckEnum::Matches);
 });
@@ -57,9 +50,7 @@ it('bloqueia e revoga o grant na quinta tentativa errada', function (): void {
 
 it('bloqueia a conferência de grant já resgatado', function (): void {
     $user = User::factory()->create();
-    $grant = DiscountGrant::factory()->claimedBy($user)->create([
-        'tax_id_fingerprint' => TaxIdFingerprint::make('52998224725'),
-    ]);
+    $grant = DiscountGrant::factory()->claimedBy($user)->create(['tax_id' => '52998224725']);
 
     $resultado = resolve(VerifyDiscountGrantTaxId::class)->handle($grant, '52998224725');
 

@@ -18,6 +18,7 @@ use Filament\Forms\Components\Field;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Callout;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
@@ -61,12 +62,8 @@ final class UserRegistration extends RegisterPage
     #[Override]
     public function form(Schema $schema): Schema
     {
-        $email = $this->getEmailFormComponent();
-
-        if ($email instanceof TextInput) {
-            $email->default(fn (): ?string => $this->invitedGrant()?->email)
-                ->readOnly(fn (): bool => $this->invitedGrant() instanceof DiscountGrant);
-        }
+        $name = $this->lockedToInvite($this->getNameFormComponent(), fn (DiscountGrant $grant): ?string => $grant->name);
+        $email = $this->lockedToInvite($this->getEmailFormComponent(), fn (DiscountGrant $grant): string => $grant->email);
 
         return parent::form($schema)->components([
             Callout::make(fn (): string => sprintf('Convite da Clau: %d%% de desconto vitalício', $this->invitedGrant()?->discount->percent_off))
@@ -79,7 +76,7 @@ final class UserRegistration extends RegisterPage
                         ->url(route(DiscountInviteUrl::LEAVE_ROUTE)),
                 ])
                 ->visible(fn (): bool => $this->invitedGrant() instanceof DiscountGrant),
-            $this->getNameFormComponent(),
+            $name,
             $email,
             TaxIdInput::make()
                 ->rule(fn (Field $component): Closure => $this->uniqueDetailRule('tax_id', $component->getLabel(), withTrashed: true)),
@@ -94,6 +91,24 @@ final class UserRegistration extends RegisterPage
                 ->dehydrated(false)
                 ->visible(fn (): bool => $this->invitedGrant() instanceof DiscountGrant),
         ]);
+    }
+
+    /**
+     * @param  Closure(DiscountGrant): ?string  $value
+     */
+    private function lockedToInvite(Component $component, Closure $value): Component
+    {
+        if (! $component instanceof TextInput) {
+            return $component;
+        }
+
+        return $component
+            ->default(function () use ($value): ?string {
+                $grant = $this->invitedGrant();
+
+                return $grant instanceof DiscountGrant ? $value($grant) : null;
+            })
+            ->readOnly(fn (): bool => $this->invitedGrant() instanceof DiscountGrant);
     }
 
     private function invitedGrant(): ?DiscountGrant
@@ -214,17 +229,32 @@ final class UserRegistration extends RegisterPage
     }
 
     #[Override]
+    protected function mutateFormDataBeforeRegister(array $data): array
+    {
+        $grant = $this->invitedGrant();
+
+        if ($grant instanceof DiscountGrant) {
+            $data['name'] = $grant->name ?? $data['name'];
+            $data['email'] = $grant->email;
+        }
+
+        return parent::mutateFormDataBeforeRegister($data);
+    }
+
+    #[Override]
     protected function handleRegistration(array $data): Model
     {
         /** @var User $user */
         $user = parent::handleRegistration($data);
         event(new UserRegistered($user, Roles::Employee));
+
+        $this->claimedDiscountGrant = resolve(ClaimDiscountGrant::class)->handle($user, (string) $data['tax_id']);
+
         $user->detail()->create([
             'tax_id' => $data['tax_id'],
             'document_id' => $data['document_id'],
+            'phone_number' => $this->claimedDiscountGrant?->phone_number,
         ]);
-
-        $this->claimedDiscountGrant = resolve(ClaimDiscountGrant::class)->handle($user, (string) $data['tax_id']);
 
         $this->redeemVoucher($user, $data['voucher'] ?? null);
 

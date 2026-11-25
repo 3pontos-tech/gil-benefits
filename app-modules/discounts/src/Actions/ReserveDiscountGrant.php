@@ -22,7 +22,8 @@ final readonly class ReserveDiscountGrant
         string $externalRef,
         ?string $name,
         string $email,
-        string $taxIdFingerprint,
+        string $taxId,
+        ?string $phoneNumber,
         string $consentTermVersion,
         CarbonInterface $consentAcceptedAt,
     ): DiscountReservationOutcome {
@@ -40,16 +41,12 @@ final readonly class ReserveDiscountGrant
 
         if (
             User::query()->withTrashed()->where('email', $email)->exists()
-            || Detail::query()->withTrashed()->where('tax_id_fingerprint', $taxIdFingerprint)->exists()
+            || Detail::query()->withTrashed()->whereIn('tax_id', [$taxId, $this->maskedTaxId($taxId)])->exists()
         ) {
             return DiscountReservationOutcome::ineligible(DiscountIneligibilityReasonEnum::ExistingAccount);
         }
 
-        $alreadyGranted = $discount->grants()
-            ->where(fn ($query) => $query->where('email', $email)->orWhere('tax_id_fingerprint', $taxIdFingerprint))
-            ->exists();
-
-        if ($alreadyGranted) {
+        if ($discount->grants()->where('email', $email)->exists()) {
             return DiscountReservationOutcome::ineligible(DiscountIneligibilityReasonEnum::AlreadyGranted);
         }
 
@@ -59,7 +56,8 @@ final readonly class ReserveDiscountGrant
                 'name' => $name,
                 'source' => $source,
                 'external_ref' => $externalRef,
-                'tax_id_fingerprint' => $taxIdFingerprint,
+                'tax_id' => $taxId,
+                'phone_number' => $phoneNumber,
                 'consent_term_version' => $consentTermVersion,
                 'consent_accepted_at' => $consentAcceptedAt,
                 'expires_at' => now()->addDays($discount->claim_window_days),
@@ -73,6 +71,11 @@ final readonly class ReserveDiscountGrant
         }
 
         return DiscountReservationOutcome::reserved($grant, true);
+    }
+
+    private function maskedTaxId(string $taxId): string
+    {
+        return preg_replace('/^(\d{3})(\d{3})(\d{3})(\d{2})$/', '$1.$2.$3-$4', $taxId) ?? $taxId;
     }
 
     private function outcomeForExisting(DiscountGrant $existing, string $email): DiscountReservationOutcome

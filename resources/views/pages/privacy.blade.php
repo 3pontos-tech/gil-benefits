@@ -30,7 +30,7 @@
             </li>
         </ul>
         <p>
-            Se você fez o diagnóstico financeiro com a Clau e autorizou, a Clau nos envia seu nome, seu e-mail e um código gerado a partir do seu CPF, usado só para confirmar que a conta é sua. Usamos esses dados apenas para reservar o seu desconto e enviar o link de ativação por e-mail. Se a conta não for ativada em até 6 meses, a reserva e esses dados são apagados.
+            Se você fez o diagnóstico financeiro com a Clau e autorizou, a Clau nos envia seu nome, seu e-mail, seu telefone e seu CPF, com a sua autorização. Usamos esses dados apenas para reservar o seu desconto, enviar o link de ativação por e-mail e completar o seu cadastro com o CPF e o telefone já confirmados. Assim que a conta é criada, o CPF e o telefone saem da reserva. Se a conta não for ativada em até 6 meses, a reserva e esses dados são apagados.
         </p>
 
         <h2 class="text-xl font-bold">Para que usamos</h2>

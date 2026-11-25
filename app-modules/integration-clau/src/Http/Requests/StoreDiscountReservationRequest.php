@@ -19,11 +19,19 @@ final class StoreDiscountReservationRequest extends FormRequest
             'clau_id' => ['required', 'uuid'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
-            'tax_id_fingerprint' => ['required', 'string', 'regex:/^v1:[0-9a-f]{64}$/'],
+            'tax_id' => ['required', 'string', 'cpf'],
+            'phone' => ['nullable', 'string', 'max:20'],
             'consent' => ['required', 'array'],
             'consent.term_version' => ['required', 'string', 'max:20'],
             'consent.accepted_at' => ['required', 'date'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'tax_id' => preg_replace('/\D+/', '', (string) $this->input('tax_id')),
+        ]);
     }
 
     protected function failedValidation(Validator $validator): never

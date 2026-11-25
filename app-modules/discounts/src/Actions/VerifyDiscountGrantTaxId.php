@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use TresPontosTech\Discounts\Enums\DiscountGrantRevocationReasonEnum;
 use TresPontosTech\Discounts\Enums\DiscountTaxIdCheckEnum;
 use TresPontosTech\Discounts\Models\DiscountGrant;
-use TresPontosTech\Discounts\Support\TaxIdFingerprint;
 
 final readonly class VerifyDiscountGrantTaxId
 {
@@ -23,7 +22,7 @@ final readonly class VerifyDiscountGrantTaxId
                 return DiscountTaxIdCheckEnum::Locked;
             }
 
-            if (hash_equals((string) $locked->tax_id_fingerprint, TaxIdFingerprint::make($taxId))) {
+            if (hash_equals((string) $locked->tax_id, $taxId)) {
                 return DiscountTaxIdCheckEnum::Matches;
             }
 
