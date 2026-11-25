@@ -329,7 +329,7 @@ describe('convite da Clau', function (): void {
                 'email' => 'joe@doe.com',
                 'name' => 'Joe Doe',
                 'tax_id' => '52998224725',
-                'phone_number' => '5511999999999',
+                'phone_number' => '+5511999999999',
             ]);
     });
 
@@ -358,7 +358,7 @@ describe('convite da Clau', function (): void {
         expect($user->name)->toBe('Joe Doe')
             ->and($user->detail)
             ->tax_id->toBe('52998224725')
-            ->phone_number->toBe('5511999999999')
+            ->phone_number->toBe('+5511999999999')
             ->and($grant)
             ->user_id->toBe($user->getKey())
             ->claimed_at->not->toBeNull()
@@ -416,7 +416,9 @@ describe('convite da Clau', function (): void {
 
         expect($this->grant->fresh())
             ->revoked_at->not->toBeNull()
-            ->revoked_reason->toBe(DiscountGrantRevocationReasonEnum::TooManyAttempts);
+            ->revoked_reason->toBe(DiscountGrantRevocationReasonEnum::TooManyAttempts)
+            ->tax_id->toBeNull()
+            ->phone_number->toBeNull();
         assertDatabaseCount(User::class, 0);
     });
 
@@ -442,7 +444,7 @@ describe('convite da Clau', function (): void {
         expect($this->grant->fresh()->user_id)->toBe($user->getKey())
             ->and($user->detail)
             ->tax_id->toBe('52998224725')
-            ->phone_number->toBe('5511999999999');
+            ->phone_number->toBe('+5511999999999');
     });
 
     it('não resgata em um cadastro normal com outro CPF', function (): void {

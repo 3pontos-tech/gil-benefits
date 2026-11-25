@@ -21,7 +21,7 @@ function reservarDescontoClau(Discount $discount, string $externalRef = 'clau-1'
         name: 'Ana Souza',
         email: $email,
         taxId: $cpf,
-        phoneNumber: '5511999999999',
+        phoneNumber: '+5511999999999',
         consentTermVersion: '1',
         consentAcceptedAt: now(),
     );
@@ -121,7 +121,12 @@ it('guarda o CPF e o telefone na reserva', function (): void {
 
     expect($grant->fresh())
         ->tax_id->toBe('52998224725')
-        ->phone_number->toBe('5511999999999');
+        ->phone_number->toBe('+5511999999999');
+
+    expect($grant->fresh()->getRawOriginal('tax_id'))
+        ->not->toBe('52998224725')
+        ->not->toContain('52998224725')
+        ->and(decrypt($grant->fresh()->getRawOriginal('tax_id'), false))->toBe('52998224725');
 });
 
 it('recusa a repetição de um grant revogado', function (): void {

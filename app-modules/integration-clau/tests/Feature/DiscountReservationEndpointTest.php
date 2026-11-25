@@ -42,7 +42,7 @@ function reservationPayload(array $overrides = []): array
         'name' => 'Ana Souza',
         'email' => 'ana@example.com',
         'tax_id' => '52998224725',
-        'phone' => '5511999999999',
+        'phone' => '+5511999999999',
         'consent' => ['term_version' => '1', 'accepted_at' => now()->toIso8601String()],
     ], $overrides);
 }
@@ -101,7 +101,13 @@ it('guarda o CPF só com os dígitos e o telefone da reserva', function (): void
 
     expect(DiscountGrant::query()->sole())
         ->tax_id->toBe('52998224725')
-        ->phone_number->toBe('5511999999999');
+        ->phone_number->toBe('+5511999999999');
+});
+
+it('normaliza o telefone mascarado para E.164 antes de guardar', function (): void {
+    postSignedReservation(reservationPayload(['phone' => '+55 11 99999-9999']))->assertCreated();
+
+    expect(DiscountGrant::query()->sole()->phone_number)->toBe('+5511999999999');
 });
 
 it('aceita a reserva sem telefone', function (): void {

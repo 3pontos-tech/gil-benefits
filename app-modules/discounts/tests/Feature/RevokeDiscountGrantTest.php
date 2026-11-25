@@ -15,6 +15,16 @@ it('grava a revogação com o motivo', function (): void {
         ->and($grant->fresh()->revoked_reason)->toBe(DiscountGrantRevocationReasonEnum::Manual);
 });
 
+it('apaga o CPF e o telefone ao revogar', function (): void {
+    $grant = DiscountGrant::factory()->create();
+
+    resolve(RevokeDiscountGrant::class)->handle($grant, DiscountGrantRevocationReasonEnum::Manual);
+
+    expect($grant->fresh())
+        ->tax_id->toBeNull()
+        ->phone_number->toBeNull();
+});
+
 it('não sobrescreve uma revogação anterior', function (): void {
     $revogadoEm = now()->subDay()->startOfSecond();
     $grant = DiscountGrant::factory()->create([

@@ -31,6 +31,8 @@ final readonly class VerifyDiscountGrantTaxId
             if ($locked->failed_tax_id_attempts >= self::MAX_ATTEMPTS) {
                 $locked->revoked_at = now();
                 $locked->revoked_reason = DiscountGrantRevocationReasonEnum::TooManyAttempts;
+                $locked->tax_id = null;
+                $locked->phone_number = null;
                 $locked->save();
 
                 return DiscountTaxIdCheckEnum::Locked;

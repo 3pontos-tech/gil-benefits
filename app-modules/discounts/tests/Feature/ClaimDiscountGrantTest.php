@@ -11,7 +11,7 @@ function grantPendenteDaAna(): DiscountGrant
     return DiscountGrant::factory()->create([
         'email' => 'ana@example.com',
         'tax_id' => '52998224725',
-        'phone_number' => '5511999999999',
+        'phone_number' => '+5511999999999',
     ]);
 }
 
@@ -36,7 +36,7 @@ it('zera o CPF e o telefone do grant depois do resgate, mantendo o telefone para
     expect($grant->fresh())
         ->tax_id->toBeNull()
         ->phone_number->toBeNull()
-        ->and($resgatado?->phone_number)->toBe('5511999999999');
+        ->and($resgatado?->phone_number)->toBe('+5511999999999');
 });
 
 it('não resgata com CPF errado e não altera o grant', function (): void {
@@ -50,7 +50,7 @@ it('não resgata com CPF errado e não altera o grant', function (): void {
         ->user_id->toBeNull()
         ->claimed_at->toBeNull()
         ->tax_id->toBe('52998224725')
-        ->phone_number->toBe('5511999999999');
+        ->phone_number->toBe('+5511999999999');
 });
 
 it('não resgata grant vencido ou revogado', function (string $estado): void {

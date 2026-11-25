@@ -31,7 +31,17 @@ final class StoreDiscountReservationRequest extends FormRequest
     {
         $this->merge([
             'tax_id' => preg_replace('/\D+/', '', (string) $this->input('tax_id')),
+            'phone' => $this->normalizedPhone(),
         ]);
+    }
+
+    private function normalizedPhone(): ?string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $this->input('phone'));
+
+        return in_array(strlen($digits), [12, 13], true) && str_starts_with($digits, '55')
+            ? '+' . $digits
+            : null;
     }
 
     protected function failedValidation(Validator $validator): never

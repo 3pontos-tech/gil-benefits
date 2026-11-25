@@ -23,7 +23,7 @@ class DiscountGrantFactory extends Factory
             'user_id' => null,
             'email' => fake()->unique()->safeEmail(),
             'name' => fake()->name(),
-            'phone_number' => '5511999999999',
+            'phone_number' => '+5511999999999',
             'source' => 'clau',
             'external_ref' => (string) Str::uuid(),
             'tax_id' => fake()->cpf(false),

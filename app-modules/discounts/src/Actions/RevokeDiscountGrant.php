@@ -18,6 +18,8 @@ final readonly class RevokeDiscountGrant
         $grant->update([
             'revoked_at' => now(),
             'revoked_reason' => $reason,
+            'tax_id' => null,
+            'phone_number' => null,
         ]);
     }
 }
