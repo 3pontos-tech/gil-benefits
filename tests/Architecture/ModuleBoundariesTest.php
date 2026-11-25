@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Filament\Panel;
 use TresPontosTech\Billing\BillingServiceProvider;
 use TresPontosTech\Billing\Core\Actions\ResolveQuotaAllowance;
 use TresPontosTech\Tenant\Models\Traits\HasTenant;
@@ -13,6 +14,7 @@ $domain = [
     'TresPontosTech\Company',
     'TresPontosTech\Consultants',
     'TresPontosTech\Credits',
+    'TresPontosTech\Discounts',
     'TresPontosTech\Permissions',
     'TresPontosTech\Support',
     'TresPontosTech\Tenant',
@@ -44,7 +46,7 @@ $filamentUi = [
     'Filament\Infolists',
     'Filament\Notifications',
     'Filament\Pages',
-    'Filament\Panel',
+    Panel::class,
     'Filament\Resources',
     'Filament\Schemas',
     'Filament\Tables',
