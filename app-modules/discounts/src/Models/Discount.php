@@ -121,6 +121,14 @@ final class Discount extends Model
         return $this->hasMany(DiscountGrant::class);
     }
 
+    /**
+     * @return HasMany<DiscountRedemption, $this>
+     */
+    public function redemptions(): HasMany
+    {
+        return $this->hasMany(DiscountRedemption::class);
+    }
+
     private function normalizeCode(): void
     {
         if ($this->code === null) {
