@@ -33,7 +33,7 @@ final readonly class ImportUsersResultDTO
         return new self(
             imported: $count(fn (ImportRowOutcome $outcome): bool => $outcome === ImportRowOutcome::Create),
             errors: [],
-            linked: $count(fn (ImportRowOutcome $outcome): bool => $outcome === ImportRowOutcome::Link),
+            linked: $count(fn (ImportRowOutcome $outcome): bool => $outcome->linksExistingAccount()),
             reactivated: $count(fn (ImportRowOutcome $outcome): bool => $outcome === ImportRowOutcome::Reactivate),
             skipped: $count(fn (ImportRowOutcome $outcome): bool => $outcome->isSkipped()),
             needsSupport: $count(fn (ImportRowOutcome $outcome): bool => $outcome->needsSupport()),

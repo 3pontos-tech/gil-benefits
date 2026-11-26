@@ -43,15 +43,28 @@ existente quando o e-mail **ou** o CPF já está na base. A ordem de avaliação
 | Usuário excluído, `user_details` do CPF excluído, ou conta ativa cujo único `user_details` foi excluído | não importada, aviso de suporte |
 | Membro ativo da empresa, qualquer papel | ignorada |
 | Dono ou gerente inativo da empresa | ignorada |
+| Achada só pelo e-mail, com o CPF da conta diferente do CPF da linha | não importada, aviso de suporte |
 | Funcionário inativo da empresa | reativado |
 | Funcionário ativo de outra empresa (fora do balde) | não importada, aviso de suporte |
-| Demais cadastros ativos (só no balde, sem vínculo, dono ou gerente de outra empresa) | vinculado como funcionário |
+| Demais cadastros ativos (só no balde, sem vínculo, dono ou gerente de outra empresa), achados pelo e-mail e pelo CPF | vinculado como funcionário |
+| Os mesmos, achados só pelo CPF (o e-mail da linha é outro) | vinculado, com aviso de que o acesso continua pelo e-mail do cadastro |
 
 A "mesma pessoa pela outra chave" (o e-mail dela numa linha, o CPF dela em outra) é ignorada
 porque, sem isso, as duas linhas tentariam criar o mesmo vínculo, o índice único derrubaria o lote
 e a pessoa ocuparia dois assentos.
 
-**D2. O que continua barrando a planilha inteira:** erros de formato, colunas obrigatórias,
+O CPF identifica a pessoa; o e-mail, não. Por isso as duas chaves sozinhas têm pesos diferentes:
+
+- **Achada só pelo CPF.** É o caso comum de quem se cadastrou sozinho com o e-mail pessoal e aparece
+  na planilha com o corporativo. Vincula, e o relatório diz que o acesso continua pelo e-mail do
+  próprio cadastro, sem mostrar esse e-mail (é dado da pessoa, não do RH). O onboarding vai para o
+  e-mail do cadastro.
+- **Achada só pelo e-mail, com outro CPF.** Ou o CPF da linha está errado, ou o e-mail é de outra
+  pessoa. Vai para o suporte em vez de vincular ou reativar. Membro ativo, dono ou gerente da
+  empresa continua ignorado: a linha não muda nada.
+
+**D2. O que continua barrando a planilha inteira:** erros de formato (inclusive CPF de 11 dígitos
+com dígito verificador errado ou todos os dígitos iguais), colunas obrigatórias,
 departamento inexistente ou ambíguo, e telefone repetido entre pessoas diferentes. Telefone
 repetido numa linha já ignorada por e-mail ou CPF não conta: a mesma pessoa listada duas vezes
 costuma repetir o telefone, e essa linha não entra.
@@ -94,6 +107,7 @@ no envio e nada vai para a fila.
 - O texto de ajuda do importe descreve as regras acima.
 - Ficam fora: atualizar dados de quem já existe pela planilha, transferir pessoa de outra
   empresa, baixar o relatório das linhas em arquivo e e-mail avisando a pessoa do vínculo.
-- Risco aceito: um e-mail ou CPF digitado errado que coincida com outra pessoa a vincula à
-  empresa. A defesa é o aviso de dados divergentes (e-mail e CPF de pessoas diferentes) e a lista
-  por linha do resultado.
+- Risco aceito: um CPF digitado errado, que ainda passe no dígito verificador e coincida com o de
+  outra pessoa, a vincula à empresa. As defesas são o dígito verificador, o aviso próprio do vínculo
+  achado só pelo CPF e a lista por linha do resultado. Um e-mail errado sozinho não vincula ninguém:
+  com CPF diferente, vai para o suporte.

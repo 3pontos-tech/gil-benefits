@@ -7,6 +7,7 @@ use App\Models\Users\User;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\User\Actions\ValidateUserImportAction;
+use TresPontosTech\User\DTOs\ImportErrorDTO;
 
 function makeValidationRow(array $overrides = []): array
 {
@@ -17,7 +18,7 @@ function makeValidationRow(array $overrides = []): array
         'name' => 'User ' . $counter,
         'email' => 'user' . $counter . '@example.com',
         'document_id' => '1234567' . $counter,
-        'tax_id' => str_pad((string) ($counter * 100000000), 11, '0', STR_PAD_LEFT),
+        'tax_id' => fake()->unique()->cpf(false),
         'phone_number' => '1199999' . str_pad((string) $counter, 4, '0', STR_PAD_LEFT),
         '__row_number' => $counter + 1,
     ], $overrides);
@@ -52,6 +53,27 @@ it('returns an error for a tax_id with fewer than 11 digits', function (): void 
         ->and($errors[0]->message)->toContain('tax_id');
 });
 
+it('fails the spreadsheet on a CPF whose check digits do not match', function (string $taxId): void {
+    $company = Company::factory()->create();
+    $rows = collect([makeValidationRow(['tax_id' => $taxId])]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect(array_map(fn (ImportErrorDTO $error): string => $error->message, $errors))->toBe(['O campo tax_id não é um CPF válido.']);
+})->with([
+    'wrong check digit' => ['529.982.247-24'],
+    'repeated digits' => ['11111111111'],
+]);
+
+it('accepts a CPF with valid check digits, formatted or not', function (string $taxId): void {
+    $company = Company::factory()->create();
+
+    expect(resolve(ValidateUserImportAction::class)->execute(collect([makeValidationRow(['tax_id' => $taxId])]), $company))->toBeEmpty();
+})->with([
+    'digits only' => ['52998224725'],
+    'formatted' => ['529.982.247-25'],
+]);
+
 it('returns an error for a phone_number with fewer than 10 digits', function (): void {
     $company = Company::factory()->create();
     $rows = collect([makeValidationRow(['phone_number' => '12345'])]);
@@ -65,12 +87,12 @@ it('returns an error for a phone_number with fewer than 10 digits', function ():
 it('leaves repeated and already registered people to the classification instead of failing the spreadsheet', function (): void {
     $company = Company::factory()->create();
     $existingUser = User::factory()->create(['email' => 'existing@example.com']);
-    Detail::factory()->for($existingUser)->create(['tax_id' => '12345678901']);
+    Detail::factory()->for($existingUser)->create(['tax_id' => '12345678909']);
 
     $rows = collect([
         makeValidationRow(['email' => 'same@example.com']),
         makeValidationRow(['email' => 'same@example.com']),
-        makeValidationRow(['email' => 'existing@example.com', 'tax_id' => '12345678901']),
+        makeValidationRow(['email' => 'existing@example.com', 'tax_id' => '12345678909']),
     ]);
 
     $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);

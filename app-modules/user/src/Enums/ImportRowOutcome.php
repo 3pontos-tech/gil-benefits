@@ -8,16 +8,23 @@ enum ImportRowOutcome: string
 {
     case Create = 'create';
     case Link = 'link';
+    case LinkByTaxId = 'link_by_tax_id';
     case Reactivate = 'reactivate';
     case DuplicateInSheet = 'duplicate_in_sheet';
     case AlreadyMember = 'already_member';
     case EmployedElsewhere = 'employed_elsewhere';
     case DeletedAccount = 'deleted_account';
     case ConflictingData = 'conflicting_data';
+    case TaxIdMismatch = 'tax_id_mismatch';
 
     public function joinsCompany(): bool
     {
-        return in_array($this, [self::Create, self::Link, self::Reactivate], true);
+        return in_array($this, [self::Create, self::Link, self::LinkByTaxId, self::Reactivate], true);
+    }
+
+    public function linksExistingAccount(): bool
+    {
+        return in_array($this, [self::Link, self::LinkByTaxId], true);
     }
 
     public function isSkipped(): bool
@@ -27,7 +34,7 @@ enum ImportRowOutcome: string
 
     public function needsSupport(): bool
     {
-        return in_array($this, [self::EmployedElsewhere, self::DeletedAccount, self::ConflictingData], true);
+        return in_array($this, [self::EmployedElsewhere, self::DeletedAccount, self::ConflictingData, self::TaxIdMismatch], true);
     }
 
     public function message(): string

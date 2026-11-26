@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\Permissions\Roles;
@@ -124,6 +125,7 @@ it('links a person who already has an account instead of failing the chunk on th
         'document_id' => 'DOCLATE',
     ]);
     $lateSignup = User::factory()->create(['email' => 'late@example.com']);
+    Detail::factory()->for($lateSignup)->create(['tax_id' => '99999999999']);
 
     $result = resolve(PersistImportedUsersAction::class)->execute($rows, $company);
 
@@ -298,7 +300,7 @@ it('classifies and writes the chunk again when an insert hits a person created i
     expect($company->employees()->whereKey($person->getKey())->exists())->toBeTrue();
 });
 
-it('links once a person reached by the email in one row and by the tax_id in another', function (): void {
+it('links once a person reached by the tax_id in one row and by the email in another', function (): void {
     Mail::fake();
 
     $company = Company::factory()->create();
@@ -306,8 +308,8 @@ it('links once a person reached by the email in one row and by the tax_id in ano
     Detail::factory()->for($person)->create(['tax_id' => '65465465465']);
 
     $result = resolve(PersistImportedUsersAction::class)->execute(collect([
-        ['name' => 'Twice', 'email' => 'twice@example.com', 'tax_id' => '11122233344', '__row_number' => 2],
-        ['name' => 'Twice', 'email' => 'other@example.com', 'tax_id' => '65465465465', '__row_number' => 3],
+        ['name' => 'Twice', 'email' => 'other@example.com', 'tax_id' => '65465465465', '__row_number' => 2],
+        ['name' => 'Twice', 'email' => 'twice@example.com', 'tax_id' => '11122233344', '__row_number' => 3],
     ]), $company);
 
     expect($result)
@@ -352,4 +354,37 @@ it('writes the chunk again instead of reactivating a membership that changed aft
         ->reactivated->toBe(0)
         ->skipped->toBe(1);
     expect($company->employees()->find($manager->getKey())->pivot->role)->toBe(Roles::CompanyManager);
+});
+
+it('writes the chunk again instead of failing the job when the membership to reactivate was deleted after the classification', function (): void {
+    Mail::fake();
+
+    $company = Company::factory()->create();
+    $former = User::factory()->create(['email' => 'former@example.com']);
+    Detail::factory()->for($former)->create(['tax_id' => '85285285285']);
+    $company->employees()->attach($former->getKey(), ['role' => Roles::Employee->value, 'active' => false]);
+
+    app()->instance(ClassifyImportRowsAction::class, new class extends ClassifyImportRowsAction
+    {
+        private int $calls = 0;
+
+        public function execute(Collection $rows, Company $company): Collection
+        {
+            $classified = parent::execute($rows, $company);
+
+            return ++$this->calls === 2
+                ? $classified->map(fn (ClassifiedImportRowDTO $row): ClassifiedImportRowDTO => new ClassifiedImportRowDTO($row->row, ImportRowOutcome::Reactivate, $row->userId, (string) Str::uuid()))
+                : $classified;
+        }
+    });
+
+    $result = resolve(PersistImportedUsersAction::class)->execute(collect([[
+        'name' => 'Former',
+        'email' => 'former@example.com',
+        'tax_id' => '85285285285',
+        '__row_number' => 2,
+    ]]), $company);
+
+    expect($result->reactivated)->toBe(1);
+    expect($company->employees()->find($former->getKey())->pivot->active)->toBeTrue();
 });

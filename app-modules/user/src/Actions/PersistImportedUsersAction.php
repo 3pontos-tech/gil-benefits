@@ -82,7 +82,7 @@ class PersistImportedUsersAction
             );
 
             $classified
-                ->filter(fn (ClassifiedImportRowDTO $row): bool => $row->outcome === ImportRowOutcome::Link)
+                ->filter(fn (ClassifiedImportRowDTO $row): bool => $row->outcome->linksExistingAccount())
                 ->each(fn (ClassifiedImportRowDTO $row) => $company->employees()->attach($row->userId, [
                     'role' => Roles::Employee->value,
                     'department_id' => $row->row['department_id'] ?? null,
@@ -159,10 +159,10 @@ class PersistImportedUsersAction
 
     private function reactivate(ClassifiedImportRowDTO $row): void
     {
-        $membership = TenantMember::query()->lockForUpdate()->findOrFail($row->membershipId);
+        $membership = TenantMember::query()->lockForUpdate()->find($row->membershipId);
 
         throw_if(
-            $membership->active || $membership->role !== Roles::Employee,
+            ! $membership instanceof TenantMember || $membership->active || $membership->role !== Roles::Employee,
             ImportMembershipChangedException::class,
         );
 
@@ -213,7 +213,7 @@ class PersistImportedUsersAction
     private function announceExisting(Collection $classified): void
     {
         $userIds = $classified
-            ->filter(fn (ClassifiedImportRowDTO $row): bool => in_array($row->outcome, [ImportRowOutcome::Link, ImportRowOutcome::Reactivate], true))
+            ->filter(fn (ClassifiedImportRowDTO $row): bool => $row->outcome->linksExistingAccount() || $row->outcome === ImportRowOutcome::Reactivate)
             ->map(fn (ClassifiedImportRowDTO $row): ?string => $row->userId)
             ->filter();
 

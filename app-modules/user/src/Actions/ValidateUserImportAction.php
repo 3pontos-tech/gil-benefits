@@ -89,9 +89,16 @@ class ValidateUserImportAction
             return;
         }
 
-        $digits = strlen(preg_replace('/\D/', '', $taxId));
+        $onlyDigits = (string) preg_replace('/\D/', '', $taxId);
+        $digits = strlen($onlyDigits);
 
-        if ($digits < 11) {
+        if ($digits === 11 && ! $this->hasValidCpfCheckDigits($onlyDigits)) {
+            $this->errors[] = new ImportErrorDTO(
+                row: $rowNumber,
+                email: $email ?: 'N/A',
+                message: 'O campo tax_id não é um CPF válido.',
+            );
+        } elseif ($digits < 11) {
             $this->errors[] = new ImportErrorDTO(
                 row: $rowNumber,
                 email: $email ?: 'N/A',
@@ -104,6 +111,27 @@ class ValidateUserImportAction
                 message: 'O campo tax_id deve ter no máximo 12 dígitos.',
             );
         }
+    }
+
+    private function hasValidCpfCheckDigits(string $cpf): bool
+    {
+        if (preg_match('/^(\d)\1{10}$/', $cpf) === 1) {
+            return false;
+        }
+
+        foreach ([9, 10] as $position) {
+            $sum = 0;
+
+            for ($index = 0; $index < $position; ++$index) {
+                $sum += (int) $cpf[$index] * ($position + 1 - $index);
+            }
+
+            if ((int) $cpf[$position] !== $sum * 10 % 11 % 10) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function validatePhoneNumberFormat(int $rowNumber, string $email, ?string $phoneNumber): void

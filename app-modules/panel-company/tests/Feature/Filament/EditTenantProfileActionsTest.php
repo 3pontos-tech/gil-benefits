@@ -287,6 +287,53 @@ describe('import-users action', function (): void {
         Queue::assertNothingPushed();
     });
 
+    it('company owner queues a spreadsheet that repeats current members when only the new people fit in the free seats', function (): void {
+        Queue::fake();
+        CompanyPlan::query()->where('company_id', $this->company->getKey())->update(['seats' => 4]);
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        $csv = sprintf(
+            "name,email,tax_id\nEmployee,%s,11144477735\nManager,%s,16899535009\nNova,nova.import@example.com,52998224725\n",
+            $this->employee->email,
+            $this->manager->email,
+        );
+
+        livewire(EditTenantProfile::class)
+            ->callAction(TestAction::make('import-users')->table(), data: [
+                'file' => UploadedFile::fake()->createWithContent('users.csv', $csv),
+            ])
+            ->assertNotDispatched('import-errors')
+            ->assertDispatched('import-started');
+
+        Queue::assertPushed(ImportUsersJob::class, fn (ImportUsersJob $job): bool => $job->rows->count() === 3);
+    });
+
+    it('company owner sees the seat limit when the new people do not fit', function (): void {
+        Queue::fake();
+        CompanyPlan::query()->where('company_id', $this->company->getKey())->update(['seats' => 3]);
+
+        filament()->setCurrentPanel(FilamentPanel::Company->value);
+        actingAs($this->owner);
+        filament()->setTenant($this->company);
+
+        $csv = sprintf("name,email,tax_id\nEmployee,%s,11144477735\nNova,nova.import@example.com,52998224725\n", $this->employee->email);
+
+        livewire(EditTenantProfile::class)
+            ->callAction(TestAction::make('import-users')->table(), data: [
+                'file' => UploadedFile::fake()->createWithContent('users.csv', $csv),
+            ])
+            ->assertDispatched('import-errors', errors: [[
+                'row' => 0,
+                'email' => 'N/A',
+                'message' => 'Limite de assentos excedido. Disponíveis: 0, solicitados: 1.',
+            ]]);
+
+        Queue::assertNothingPushed();
+    });
+
     it('company owner sees the summary and the row list when the import finishes', function (): void {
         filament()->setCurrentPanel(FilamentPanel::Company->value);
         actingAs($this->owner);

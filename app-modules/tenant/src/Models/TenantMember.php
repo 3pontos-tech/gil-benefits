@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Tenant\Models;
 
 use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -70,18 +71,9 @@ class TenantMember extends Pivot
     public static function activeEmployerElsewhere(string $userId, string $companyId): ?Company
     {
         return Company::withTrashed()
-            ->withoutDefault()
-            ->whereKeyNot($companyId)
-            ->whereIn('id', self::query()
-                ->select('company_id')
+            ->whereIn('id', self::activeEmploymentsOutside($companyId)
                 ->where('user_id', $userId)
-                ->where('role', Roles::Employee->value)
-                ->where('active', true)
-                ->whereNull('deleted_at'))
-            ->whereNotExists(fn ($query) => $query
-                ->from('companies', 'given')
-                ->where('given.id', $companyId)
-                ->where('given.slug', Company::DEFAULT_SLUG))
+                ->select('company_id'))
             ->first();
     }
 
@@ -91,23 +83,35 @@ class TenantMember extends Pivot
      */
     public static function employedElsewhere(array $userIds, string $companyId): array
     {
-        if ($userIds === [] || Company::query()->whereKey($companyId)->where('slug', Company::DEFAULT_SLUG)->exists()) {
+        if ($userIds === []) {
             return [];
         }
 
         /** @var list<string> $employed */
-        $employed = self::query()
+        $employed = self::activeEmploymentsOutside($companyId)
             ->whereIn('user_id', $userIds)
-            ->where('company_id', '<>', $companyId)
-            ->where('role', Roles::Employee->value)
-            ->where('active', true)
-            ->whereNull('deleted_at')
-            ->whereIn('company_id', Company::withTrashed()->withoutDefault()->select('id'))
             ->distinct()
             ->pluck('user_id')
             ->all();
 
         return $employed;
+    }
+
+    /**
+     * @return Builder<self>
+     */
+    private static function activeEmploymentsOutside(string $companyId): Builder
+    {
+        return self::query()
+            ->where('company_id', '<>', $companyId)
+            ->where('role', Roles::Employee->value)
+            ->where('active', true)
+            ->whereNull('deleted_at')
+            ->whereIn('company_id', Company::withTrashed()->withoutDefault()->select('id'))
+            ->whereNotExists(fn ($query) => $query
+                ->from('companies', 'given')
+                ->where('given.id', $companyId)
+                ->where('given.slug', Company::DEFAULT_SLUG));
     }
 
     /**

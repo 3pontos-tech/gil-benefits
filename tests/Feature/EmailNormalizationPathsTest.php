@@ -211,6 +211,7 @@ describe('spreadsheet import', function (): void {
 
     it('recognizes a row whose email exists in another case, accents included, as the existing account', function (): void {
         $existing = User::factory()->create(['email' => 'érica@empresa.com']);
+        Detail::factory()->for($existing)->create(['tax_id' => '97692325057']);
 
         $classified = resolve(ClassifyImportRowsAction::class)
             ->execute(collect([importRow(['email' => 'ÉRICA@EMPRESA.COM'])]), Company::factory()->create())

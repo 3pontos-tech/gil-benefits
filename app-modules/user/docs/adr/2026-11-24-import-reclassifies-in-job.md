@@ -34,8 +34,9 @@ janela de risco cresce.
 
 **D1. Uma action só classifica as linhas** (`ClassifyImportRowsAction`), chamada em três lugares:
 
-- na requisição (`ImportUsersAction` e `ImportUsersFromFileAction`), para a prévia e para a conta
-  de assentos;
+- na requisição, para a prévia e para a conta de assentos. Ler, validar, classificar e checar
+  assentos ficam num só lugar (`PrepareUserImportAction`), usado pela tela (`ImportUsersAction`,
+  que enfileira o job) e pelo `ImportUsersFromFileAction` (que grava na hora);
 - no começo do job, sobre a planilha inteira, para tirar os repetidos;
 - em cada lote de 100 linhas que entram na empresa, **dentro da transação**, antes de criar,
   vincular ou reativar.
@@ -48,14 +49,17 @@ duplicado.
 `EmployedElsewhere` (alguém mudou entre a classificação e o insert, dentro da mesma transação), a
 transação é desfeita, o lote é classificado de novo e gravado mais uma vez. A reativação lê o
 vínculo com `lockForUpdate` e só reativa se ele ainda for de funcionário inativo; se alguém o
-ativou ou promoveu no meio do caminho, o lote também é refeito, e a linha sai como ignorada. Uma segunda falha
+ativou, promoveu ou apagou no meio do caminho, o lote também é refeito, e a linha sai
+reclassificada (ignorada, ou vinculada se o vínculo foi apagado). Uma segunda falha
 derruba o job, que avisa o RH como antes. E-mails e eventos saem só depois do commit do lote, então
 o trabalho desfeito não manda nada.
 
 **D3. A checagem de "funcionário de outra empresa" é feita em lote.** `TenantMember::employedElsewhere()`
-aplica a mesma regra de `activeEmployerElsewhere()` (papel funcionário, ativo, vínculo não
-excluído, fora do balde, empresa excluída ainda conta) para uma lista de pessoas numa consulta só,
-porque a classificação roda até três vezes por importação.
+responde para uma lista de pessoas numa consulta só, porque a classificação roda até três vezes por
+importação. Ela e a trava do pivot (`activeEmployerElsewhere()`) partem da mesma consulta base
+(papel funcionário, ativo, vínculo não excluído, fora do balde, empresa excluída ainda conta): se
+divergissem, uma linha liberada pela classificação bateria na trava nas duas tentativas e derrubaria
+o job.
 
 **D4. Assentos só na requisição.** O limite é checado antes de enfileirar, sobre quem entraria
 naquele momento. O job não checa de novo: duas importações quase simultâneas, ou uma linha que

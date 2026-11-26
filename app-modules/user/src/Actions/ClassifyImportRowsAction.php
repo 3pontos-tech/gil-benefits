@@ -104,13 +104,17 @@ class ClassifyImportRowsAction
                 return new ClassifiedImportRowDTO($row, ImportRowOutcome::AlreadyMember, $userId);
             }
 
+            if (! $detailByTaxId instanceof Detail) {
+                return new ClassifiedImportRowDTO($row, ImportRowOutcome::TaxIdMismatch, $userId);
+            }
+
             if (isset($employedElsewhere[$userId])) {
                 return new ClassifiedImportRowDTO($row, ImportRowOutcome::EmployedElsewhere, $userId);
             }
 
             return $membership instanceof TenantMember
                 ? new ClassifiedImportRowDTO($row, ImportRowOutcome::Reactivate, $userId, (string) $membership->getKey())
-                : new ClassifiedImportRowDTO($row, ImportRowOutcome::Link, $userId);
+                : new ClassifiedImportRowDTO($row, $userByEmail instanceof User ? ImportRowOutcome::Link : ImportRowOutcome::LinkByTaxId, $userId);
         });
     }
 

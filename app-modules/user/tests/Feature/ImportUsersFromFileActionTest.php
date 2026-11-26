@@ -38,7 +38,7 @@ it('imports all users and creates details and roles', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['João Silva', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['João Silva', 'joao@empresa.com', '12345678', '123.456.789-09', '11999999999'],
         ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
@@ -50,7 +50,7 @@ it('imports all users and creates details and roles', function (): void {
     assertDatabaseHas(User::class, ['email' => 'joao@empresa.com']);
     assertDatabaseHas(User::class, ['email' => 'maria@empresa.com']);
 
-    assertDatabaseHas(Detail::class, ['document_id' => '12345678', 'tax_id' => '12345678900', 'phone_number' => '11999999999']);
+    assertDatabaseHas(Detail::class, ['document_id' => '12345678', 'tax_id' => '12345678909', 'phone_number' => '11999999999']);
     assertDatabaseHas(Detail::class, ['document_id' => '87654321', 'tax_id' => '98765432100', 'phone_number' => '21988887777']);
 
     $user = User::query()->where('email', 'joao@empresa.com')->first();
@@ -67,7 +67,7 @@ it('imports users without document_id', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['Pedro Souza', 'pedro@empresa.com', '', '111.222.333-44', '11999999999'],
+        ['Pedro Souza', 'pedro@empresa.com', '', '111.222.333-96', '11999999999'],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -82,7 +82,7 @@ it('sends welcome email with temporary password to each imported user', function
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['Joao Silva', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Joao Silva', 'joao@empresa.com', '12345678', '123.456.789-09', '11999999999'],
         ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
@@ -107,7 +107,7 @@ it('each imported user receives a unique temporary password', function (): void 
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['Joao Silva', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Joao Silva', 'joao@empresa.com', '12345678', '123.456.789-09', '11999999999'],
         ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
@@ -147,7 +147,7 @@ it('ignores empty rows and still imports valid ones', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['João Silva', 'joao@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['João Silva', 'joao@empresa.com', '12345678', '123.456.789-09', '11999999999'],
         ['', '', '', '', ''],
         ['Maria Costa', 'maria@empresa.com', '87654321', '987.654.321-00', '21988887777'],
     ]);
@@ -162,7 +162,7 @@ it('imports a row with a blank phone_number', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['Válido', 'valido@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Válido', 'valido@empresa.com', '12345678', '123.456.789-09', '11999999999'],
         ['Sem Telefone', 'semtelefone@empresa.com', '87654321', '987.654.321-00', ''],
     ]);
 
@@ -196,7 +196,7 @@ it('fails entire import when any row has an invalid email', function (): void {
     $company = Company::factory()->create();
 
     $csv = makeCsvFile([
-        ['Válido', 'valido@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Válido', 'valido@empresa.com', '12345678', '123.456.789-09', '11999999999'],
         ['Inválido', 'nao-é-um-email', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
@@ -214,40 +214,45 @@ it('imports a mixed spreadsheet in one go, reporting each row that was not simpl
 
     $company = Company::factory()->create();
     $member = User::factory()->create(['email' => 'member@empresa.com']);
-    Detail::factory()->for($member)->create(['tax_id' => '11111111111']);
+    Detail::factory()->for($member)->create(['tax_id' => '11111111200']);
     $company->employees()->attach($member->getKey(), ['role' => Roles::Employee->value]);
     $selfSignup = User::factory()->create(['email' => 'signup@empresa.com']);
-    Detail::factory()->for($selfSignup)->create(['tax_id' => '22222222222']);
+    Detail::factory()->for($selfSignup)->create(['tax_id' => '22222222303']);
     $elsewhere = User::factory()->create(['email' => 'elsewhere@empresa.com']);
-    Detail::factory()->for($elsewhere)->create(['tax_id' => '33333333333']);
+    Detail::factory()->for($elsewhere)->create(['tax_id' => '33333333414']);
     $otherCompany = Company::factory()->create(['name' => 'Outra Empresa Secreta']);
     $otherCompany->employees()->attach($elsewhere->getKey(), ['role' => Roles::Employee->value]);
     $inactive = User::factory()->create(['email' => 'inactive@empresa.com']);
-    Detail::factory()->for($inactive)->create(['tax_id' => '66666666666']);
+    Detail::factory()->for($inactive)->create(['tax_id' => '66666666747']);
     $company->employees()->attach($inactive->getKey(), ['role' => Roles::Employee->value, 'active' => false]);
     User::factory()->create(['email' => 'deleted@empresa.com'])->delete();
     User::factory()->create(['email' => 'maria@empresa.com']);
-    Detail::factory()->for(User::factory()->create())->create(['tax_id' => '99999999999']);
+    Detail::factory()->for(User::factory()->create())->create(['tax_id' => '99999999050']);
+    $foundByTaxId = User::factory()->create(['email' => 'pessoal@gmail.com']);
+    Detail::factory()->for($foundByTaxId)->create(['tax_id' => '52998224725']);
+    Detail::factory()->for(User::factory()->create(['email' => 'outro-cpf@empresa.com']))->create(['tax_id' => '11144477735']);
 
     $csv = makeCsvFile([
-        ['Nova', 'nova@empresa.com', '12345678', '444.444.444-44', '11999999999'],
-        ['Nova de novo', 'nova@empresa.com', '87654321', '555.555.555-55', '11999999999'],
-        ['Membro', 'member@empresa.com', '', '111.111.111-11', ''],
-        ['Cadastrada', 'signup@empresa.com', '', '222.222.222-22', ''],
-        ['Outra empresa', 'elsewhere@empresa.com', '', '333.333.333-33', ''],
-        ['Inativa', 'inactive@empresa.com', '', '666.666.666-66', ''],
-        ['Excluída', 'deleted@empresa.com', '', '777.777.777-77', ''],
-        ['Divergente', 'maria@empresa.com', '', '999.999.999-99', ''],
+        ['Nova', 'nova@empresa.com', '12345678', '444.444.445-25', '11999999999'],
+        ['Nova de novo', 'nova@empresa.com', '87654321', '555.555.556-36', '11999999999'],
+        ['Membro', 'member@empresa.com', '', '111.111.112-00', ''],
+        ['Cadastrada', 'signup@empresa.com', '', '222.222.223-03', ''],
+        ['Outra empresa', 'elsewhere@empresa.com', '', '333.333.334-14', ''],
+        ['Inativa', 'inactive@empresa.com', '', '666.666.667-47', ''],
+        ['Excluída', 'deleted@empresa.com', '', '777.777.778-58', ''],
+        ['Divergente', 'maria@empresa.com', '', '999.999.990-50', ''],
+        ['Pelo CPF', 'corporativo@empresa.com', '', '529.982.247-25', ''],
+        ['Outro CPF', 'outro-cpf@empresa.com', '', '168.995.350-09', ''],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
 
     expect($result)
         ->imported->toBe(1)
-        ->linked->toBe(1)
+        ->linked->toBe(2)
         ->reactivated->toBe(1)
         ->skipped->toBe(2)
-        ->needsSupport->toBe(3)
+        ->needsSupport->toBe(4)
         ->errors->toBeEmpty();
     expect(array_map(fn (ImportErrorDTO $report): array => [$report->row, $report->email, $report->message], $result->rowReports))->toBe([
         [3, 'nova@empresa.com', 'Ignorado: a mesma pessoa (e-mail ou CPF) já aparece numa linha anterior da planilha.'],
@@ -257,10 +262,14 @@ it('imports a mixed spreadsheet in one go, reporting each row that was not simpl
         [7, 'inactive@empresa.com', 'Funcionário inativo da empresa, reativado.'],
         [8, 'deleted@empresa.com', 'Não importado: o cadastro desta pessoa foi excluído. Contate o suporte.'],
         [9, 'maria@empresa.com', 'Não importado: o e-mail e o CPF pertencem a cadastros diferentes. Contate o suporte.'],
+        [10, 'corporativo@empresa.com', 'Já tinha cadastro no ' . config('app.name') . ' com outro e-mail, achado pelo CPF, e foi vinculado à empresa. O acesso continua pelo e-mail do próprio cadastro.'],
+        [11, 'outro-cpf@empresa.com', 'Não importado: este e-mail já está cadastrado com outro CPF. Se o CPF da planilha estiver certo, contate o suporte.'],
     ]);
     expect(collect($result->rowReports)->pluck('message')->implode(' '))->not->toContain($otherCompany->name);
     expect(User::query()->where('email', 'nova@empresa.com')->count())->toBe(1);
     expect($company->employees()->whereKey($selfSignup->getKey())->exists())->toBeTrue();
+    expect($company->employees()->whereKey($foundByTaxId->getKey())->exists())->toBeTrue();
+    expect(User::query()->where('email', 'corporativo@empresa.com')->exists())->toBeFalse();
     expect($company->employees()->whereKey($elsewhere->getKey())->exists())->toBeFalse();
     expect($company->employees()->find($inactive->getKey())->pivot->active)->toBeTrue();
 });
@@ -274,12 +283,12 @@ it('fails entire import when the people joining exceed the free seats, ignoring 
         'seats' => 1,
     ]);
     $selfSignup = User::factory()->create(['email' => 'signup@empresa.com']);
-    Detail::factory()->for($selfSignup)->create(['tax_id' => '22222222222']);
+    Detail::factory()->for($selfSignup)->create(['tax_id' => '22222222303']);
 
     $csv = makeCsvFile([
-        ['Nova', 'nova@empresa.com', '12345678', '444.444.444-44', '11999999999'],
-        ['Nova de novo', 'nova@empresa.com', '87654321', '555.555.555-55', '21988887777'],
-        ['Cadastrada', 'signup@empresa.com', '', '222.222.222-22', ''],
+        ['Nova', 'nova@empresa.com', '12345678', '444.444.445-25', '11999999999'],
+        ['Nova de novo', 'nova@empresa.com', '87654321', '555.555.556-36', '21988887777'],
+        ['Cadastrada', 'signup@empresa.com', '', '222.222.223-03', ''],
     ]);
 
     $result = resolve(ImportUsersFromFileAction::class)->execute($csv, 'csv', $company);
@@ -295,7 +304,7 @@ it('fails entire import on a format error even when other rows are already regis
     User::factory()->create(['email' => 'existing@empresa.com']);
 
     $csv = makeCsvFile([
-        ['Existing', 'existing@empresa.com', '12345678', '123.456.789-00', '11999999999'],
+        ['Existing', 'existing@empresa.com', '12345678', '123.456.789-09', '11999999999'],
         ['Inválido', 'nao-é-um-email', '87654321', '987.654.321-00', '21988887777'],
     ]);
 
@@ -310,7 +319,7 @@ it('links the imported employee to the department named in the row', function ()
     $sales = Department::factory()->for($company)->create(['name' => 'Vendas']);
 
     $csv = makeCsvFile(
-        [['Ana Lima', 'ana@empresa.com', '12345678', '123.456.789-00', '11999999999', 'vendas']],
+        [['Ana Lima', 'ana@empresa.com', '12345678', '123.456.789-09', '11999999999', 'vendas']],
         ['name', 'email', 'document_id', 'tax_id', 'phone_number', 'department'],
     );
 
@@ -325,7 +334,7 @@ it('returns a structure error when two columns have the same header', function (
     $company = Company::factory()->create();
 
     $csv = makeCsvFile(
-        [['Ana Lima', 'ana@empresa.com', 'outra@empresa.com', '123.456.789-00', '11999999999']],
+        [['Ana Lima', 'ana@empresa.com', 'outra@empresa.com', '123.456.789-09', '11999999999']],
         ['name', 'email', 'Email', 'tax_id', 'phone_number'],
     );
 

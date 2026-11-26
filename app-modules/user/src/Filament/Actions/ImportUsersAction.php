@@ -13,15 +13,10 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Actions\BuildImportTemplateAction;
-use TresPontosTech\User\Actions\CheckImportSeatLimitAction;
-use TresPontosTech\User\Actions\ClassifyImportRowsAction;
-use TresPontosTech\User\Actions\ParseUsersFromFileAction;
-use TresPontosTech\User\Actions\ValidateUserImportAction;
+use TresPontosTech\User\Actions\PrepareUserImportAction;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
 use TresPontosTech\User\DTOs\ImportUsersResultDTO;
-use TresPontosTech\User\Exceptions\DuplicateImportHeadersException;
 use TresPontosTech\User\Jobs\ImportUsersJob;
-use TresPontosTech\User\Support\DepartmentLookup;
 
 class ImportUsersAction extends Action
 {
@@ -90,18 +85,19 @@ class ImportUsersAction extends Action
             $company = $this->resolveCompany();
             $livewire = $this->getLivewire();
 
-            try {
-                $rows = resolve(ParseUsersFromFileAction::class)->execute(
-                    $file->getRealPath(),
-                    $file->getClientOriginalExtension(),
-                );
-            } catch (DuplicateImportHeadersException $duplicateImportHeadersException) {
-                $this->showImportErrors([new ImportErrorDTO(row: 1, email: 'N/A', message: $duplicateImportHeadersException->getMessage())]);
+            $prepared = resolve(PrepareUserImportAction::class)->execute(
+                $file->getRealPath(),
+                $file->getClientOriginalExtension(),
+                $company,
+            );
+
+            if ($prepared->isRejected()) {
+                $this->showImportErrors($prepared->errors);
 
                 return;
             }
 
-            if ($rows->isEmpty()) {
+            if ($prepared->isEmpty()) {
                 Notification::make()
                     ->info()
                     ->title(__('user::actions.import_users.notifications.empty.title'))
@@ -111,29 +107,9 @@ class ImportUsersAction extends Action
                 return;
             }
 
-            $departments = DepartmentLookup::for($company);
-            $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company, $departments);
-
-            if ($errors !== []) {
-                $this->showImportErrors($errors);
-
-                return;
-            }
-
-            $classified = resolve(ClassifyImportRowsAction::class)->execute($rows, $company);
-            $preview = ImportUsersResultDTO::fromClassifiedRows($classified);
-
-            $seatError = resolve(CheckImportSeatLimitAction::class)->execute($company, $preview->joined());
-
-            if ($seatError instanceof ImportErrorDTO) {
-                $this->showImportErrors([$seatError]);
-
-                return;
-            }
-
-            if ($preview->joined() === 0) {
+            if ($prepared->joined() === 0) {
                 if ($livewire instanceof Component) {
-                    $livewire->dispatch('import-result', rows: ImportUsersResultDTO::reportRows($preview->rowReports));
+                    $livewire->dispatch('import-result', rows: ImportUsersResultDTO::reportRows($prepared->preview->rowReports ?? []));
                 }
 
                 Notification::make()
@@ -150,7 +126,7 @@ class ImportUsersAction extends Action
             throw_if($userId === null, \RuntimeException::class, 'Cannot import users without an authenticated user.');
 
             dispatch(new ImportUsersJob(
-                rows: $departments->withDepartmentIds($rows),
+                rows: $prepared->rows,
                 companyId: (string) $company->getKey(),
                 userId: (string) $userId
             ))

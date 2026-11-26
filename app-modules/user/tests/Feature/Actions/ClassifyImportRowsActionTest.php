@@ -70,12 +70,37 @@ it('skips a later row that reaches the same registered person through the other 
     createImportedPerson('ana@empresa.com', '11111111111');
 
     $outcomes = classifyImportOutcomes([
-        classifyImportRow('ana@empresa.com', '22222222222'),
         classifyImportRow('outra@empresa.com', '11111111111'),
+        classifyImportRow('ana@empresa.com', '22222222222'),
     ], $company);
 
-    expect($outcomes)->toBe([ImportRowOutcome::Link, ImportRowOutcome::DuplicateInSheet]);
+    expect($outcomes)->toBe([ImportRowOutcome::LinkByTaxId, ImportRowOutcome::DuplicateInSheet]);
 });
+
+it('links a person found by the tax_id under another email, reporting that access stays with the account email', function (): void {
+    $company = Company::factory()->create();
+    $person = createImportedPerson('pessoal@gmail.com', '55555555555');
+
+    $classified = resolve(ClassifyImportRowsAction::class)->execute(collect([classifyImportRow('corporativo@empresa.com', '55555555555')]), $company)->first();
+
+    expect($classified->outcome)->toBe(ImportRowOutcome::LinkByTaxId)
+        ->and($classified->userId)->toBe($person->getKey())
+        ->and($classified->toReport()->message)->toBe('Já tinha cadastro no ' . config('app.name') . ' com outro e-mail, achado pelo CPF, e foi vinculado à empresa. O acesso continua pelo e-mail do próprio cadastro.');
+});
+
+it('sends to support an email whose account has another tax_id, instead of linking or reactivating it', function (bool $inactiveEmployeeHere): void {
+    $company = Company::factory()->create();
+    $person = createImportedPerson('maria@gmail.com', '11111111111');
+
+    if ($inactiveEmployeeHere) {
+        $company->employees()->attach($person->getKey(), ['role' => Roles::Employee->value, 'active' => false]);
+    }
+
+    expect(classifyImportOutcomes([classifyImportRow('maria@gmail.com', '22222222222')], $company))->toBe([ImportRowOutcome::TaxIdMismatch]);
+})->with([
+    'account without a membership here' => false,
+    'inactive employee of the company' => true,
+]);
 
 it('skips an active member of the company found by email or by tax_id', function (string $email, string $taxId): void {
     $company = Company::factory()->create();
