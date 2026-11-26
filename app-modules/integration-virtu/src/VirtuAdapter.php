@@ -7,8 +7,10 @@ namespace TresPontosTech\IntegrationVirtu;
 use App\Models\Users\User;
 use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
+use TresPontosTech\Billing\Core\Contracts\SupportsCheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\BillingPortal;
 use TresPontosTech\Billing\Core\DTOs\CheckoutData;
+use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
@@ -36,14 +38,8 @@ use TresPontosTech\IntegrationVirtu\Responses\PaymentLinkResponse;
  * feature: Virtu exposes no cancellation endpoint, so callers check `instanceof`
  * and hide the action rather than offering a button that can only fail.
  */
-final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurchase
+final readonly class VirtuAdapter implements BillingContract, SupportsCheckoutDiscount, SupportsCreditPurchase
 {
-    /**
-     * Floor for any generated charge. Virtu accepts amountCents: 1 without
-     * complaint, so the guard the gateway does not provide lives here.
-     */
-    private const MINIMUM_CHARGE_IN_CENTS = 100;
-
     public function __construct(
         private VirtuClient $client
     ) {}
@@ -107,6 +103,7 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
             planSlug: $price->plan->slug,
             quantity: $data->quantity,
             endsAt: null,
+            discount: $data->discount,
         )));
 
         return $this->withBuyerIdentity($link->url, $billable);
@@ -172,8 +169,20 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCreditPurc
             ? (int) round(SeatPricingTierEnum::fromQuantity($data->quantity)->pricePerSeat() * $data->quantity * 100)
             : $price->unit_amount_decimal;
 
+        if ($data->discount instanceof CheckoutDiscount) {
+            throw_if(
+                $data->discount->durationCycles !== null,
+                VirtuApiException::class,
+                'Virtu não aplica desconto em número limitado de cobranças.',
+                0,
+                false,
+            );
+
+            $amountCents = $data->discount->apply($amountCents);
+        }
+
         throw_if(
-            $amountCents < self::MINIMUM_CHARGE_IN_CENTS,
+            $amountCents < CheckoutDiscount::MINIMUM_CHARGE_IN_CENTS,
             VirtuApiException::class,
             sprintf('Refusing to create a Virtu link for %d cents.', $amountCents),
             0,

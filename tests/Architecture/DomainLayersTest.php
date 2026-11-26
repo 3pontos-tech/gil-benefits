@@ -19,6 +19,7 @@ $operation = [
     'TresPontosTech\Credits',
     'TresPontosTech\Vouchers',
     'TresPontosTech\Support',
+    'TresPontosTech\Discounts',
 ];
 
 $models = [

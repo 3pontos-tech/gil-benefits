@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Billing\Core\Actions;
 
 use Illuminate\Support\Carbon;
+use TresPontosTech\Billing\Core\DTOs\CheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\SubscriptionDTO;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
@@ -21,6 +22,9 @@ final class UpsertSubscription
      *
      * Só quando ainda está nula: uma cobrança recorrente cai na MESMA linha, e reescrever
      * empurraria o ciclo de quem já é assinante.
+     *
+     * O desconto segue a mesma lógica: só é gravado quando o DTO o traz, pois o webhook de
+     * ativação da Virtu não o carrega e não pode apagar o valor com que a pessoa pagou.
      */
     public function handle(SubscriptionDTO $dto): void
     {
@@ -38,6 +42,11 @@ final class UpsertSubscription
 
         if ($dto->activatedAt instanceof Carbon && $subscription->quota_anchor_at === null) {
             $subscription->quota_anchor_at = $dto->activatedAt;
+        }
+
+        if ($dto->discount instanceof CheckoutDiscount) {
+            $subscription->discount_percent = $dto->discount->percentOff;
+            $subscription->discount_amount_cents = $dto->discount->amountOffCents;
         }
 
         $subscription->save();

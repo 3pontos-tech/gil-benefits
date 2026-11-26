@@ -7,6 +7,7 @@ use TresPontosTech\Api\Models\PasswordResetCode;
 use TresPontosTech\Appointments\Jobs\MarkAppointmentsAsCompleted;
 use TresPontosTech\Appointments\Jobs\SendAppointmentRemindersJob;
 use TresPontosTech\Credits\Jobs\WarnExpiringCreditsJob;
+use TresPontosTech\Discounts\Models\DiscountGrant;
 use TresPontosTech\Vouchers\Jobs\ExpireVoucherCreditsJob;
 
 Artisan::command('inspire', function (): void {
@@ -34,6 +35,6 @@ Schedule::command('sanctum:prune-expired --hours=24')
     ->daily()
     ->withoutOverlapping();
 
-Schedule::command('model:prune', ['--model' => [PasswordResetCode::class]])
+Schedule::command('model:prune', ['--model' => [PasswordResetCode::class, DiscountGrant::class]])
     ->daily()
     ->withoutOverlapping();

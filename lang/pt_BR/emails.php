@@ -127,6 +127,20 @@ return [
             'button' => 'Acessar o :app',
         ],
     ],
+    'discounts' => [
+        'grant_reserved' => [
+            'subject' => 'Seu desconto na Flamma está reservado',
+            'preheader' => 'Seu desconto no plano pessoal da Flamma está reservado para você: :summary.',
+            'heading_1' => 'Seu desconto',
+            'heading_2' => 'está reservado',
+            'greeting' => 'Olá, :name!',
+            'greeting_generic' => 'Olá!',
+            'intro' => 'Você concluiu o diagnóstico financeiro com a Clau e reservamos para você **:summary** no plano pessoal da Flamma.',
+            'steps' => 'Para usar, crie sua conta pelo botão abaixo com este e-mail e o mesmo CPF que você informou à Clau, e assine o plano pessoal até **:expires**.',
+            'button' => 'Ativar minha conta',
+            'ignore' => 'Se você não pediu isso, pode ignorar este e-mail: a reserva expira sozinha.',
+        ],
+    ],
     'users' => [
         'welcome' => [
             'preheader' => 'Seu acesso ao :app está pronto.',

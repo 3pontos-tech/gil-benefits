@@ -13,6 +13,10 @@ use Illuminate\Support\Str;
 use Livewire\Livewire;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Company\Models\Company;
+use TresPontosTech\Discounts\Enums\DiscountGrantRevocationReasonEnum;
+use TresPontosTech\Discounts\Models\Discount;
+use TresPontosTech\Discounts\Models\DiscountGrant;
+use TresPontosTech\Discounts\Support\DiscountInviteUrl;
 use TresPontosTech\PanelApp\Filament\Pages\UserRegistration;
 use TresPontosTech\Permissions\Roles;
 use TresPontosTech\User\Events\UserRegistered;
@@ -110,6 +114,17 @@ function registrationForm(array $overrides = []): array
         'password' => 'password123',
         'passwordConfirmation' => 'password123',
         'tax_id' => '562.590.047-70',
+        ...$overrides,
+    ];
+}
+
+function inviteForm(array $overrides = []): array
+{
+    return [
+        'password' => 'password123',
+        'passwordConfirmation' => 'password123',
+        'tax_id' => '529.982.247-25',
+        'accepts_flamma_terms' => true,
         ...$overrides,
     ];
 }
@@ -305,3 +320,185 @@ function signupAttribution(array $attribution): array
 {
     return [StoreSignupAttribution::COOKIE => (string) json_encode($attribution)];
 }
+
+describe('convite da Clau', function (): void {
+    beforeEach(function (): void {
+        $this->grant = DiscountGrant::factory()
+            ->for(Discount::factory()->active())
+            ->create([
+                'email' => 'joe@doe.com',
+                'name' => 'Joe Doe',
+                'tax_id' => '52998224725',
+                'phone_number' => '+5511999999999',
+            ]);
+    });
+
+    it('mostra o convite com nome e e-mail travados e o CPF vazio', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->assertSee('Convite da Clau: ' . $this->grant->discount->summary())
+            ->assertFormSet(['name' => 'Joe Doe', 'email' => 'joe@doe.com', 'tax_id' => null])
+            ->assertFormFieldIsReadOnly('name')
+            ->assertFormFieldIsReadOnly('email')
+            ->assertFormFieldIsEnabled('tax_id');
+    });
+
+    it('trava nome e e-mail do convite como desabilitados e esconde o campo de voucher', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->assertFormFieldIsDisabled('name')
+            ->assertFormFieldIsDisabled('email')
+            ->assertFormFieldIsHidden('voucher');
+    });
+
+    it('mostra o campo de voucher no cadastro sem convite', function (): void {
+        livewire(UserRegistration::class)
+            ->assertFormFieldIsEnabled('name')
+            ->assertFormFieldIsVisible('voucher');
+    });
+
+    it('cria a conta com o nome, o e-mail, o CPF e o telefone do convite', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->fillForm(inviteForm(['tax_id' => '529.982.247-25']))
+            ->call('register')
+            ->assertHasNoFormErrors();
+
+        $user = User::query()->where('email', 'joe@doe.com')->sole();
+        $grant = $this->grant->fresh();
+
+        expect($user->name)->toBe('Joe Doe')
+            ->and($user->detail)
+            ->tax_id->toBe('52998224725')
+            ->phone_number->toBe('+5511999999999')
+            ->and($grant)
+            ->user_id->toBe($user->getKey())
+            ->claimed_at->not->toBeNull()
+            ->tax_id->toBeNull()
+            ->phone_number->toBeNull()
+            ->and(session(DiscountInviteUrl::SESSION_KEY))->toBeNull();
+    });
+
+    it('ignora nome e e-mail digitados e usa os do convite', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->fillForm(inviteForm(['name' => 'Outro Nome', 'email' => 'outro@doe.com', 'tax_id' => '529.982.247-25']))
+            ->call('register')
+            ->assertHasNoFormErrors();
+
+        assertDatabaseHas(User::class, ['name' => 'Joe Doe', 'email' => 'joe@doe.com']);
+        assertDatabaseMissing(User::class, ['email' => 'outro@doe.com']);
+    });
+
+    it('recusa um CPF que não confere com o da Clau', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->fillForm(inviteForm(['tax_id' => '562.590.047-70']))
+            ->call('register')
+            ->assertHasFormErrors(['tax_id']);
+
+        expect($this->grant->fresh()->failed_tax_id_attempts)->toBe(1);
+        assertDatabaseCount(User::class, 0);
+    });
+
+    it('não conta como tentativa um CPF incompleto', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->fillForm(inviteForm(['tax_id' => '529.982.247-2']))
+            ->call('register')
+            ->assertHasFormErrors(['tax_id']);
+
+        expect($this->grant->fresh())
+            ->failed_tax_id_attempts->toBe(0)
+            ->revoked_at->toBeNull();
+    });
+
+    it('revoga o convite depois de cinco tentativas com CPF errado', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        for ($attempt = 0; $attempt < 5; ++$attempt) {
+            livewire(UserRegistration::class)
+                ->fillForm(inviteForm(['tax_id' => '562.590.047-70']))
+                ->call('register')
+                ->assertHasFormErrors(['tax_id']);
+        }
+
+        expect($this->grant->fresh())
+            ->revoked_at->not->toBeNull()
+            ->revoked_reason->toBe(DiscountGrantRevocationReasonEnum::TooManyAttempts)
+            ->tax_id->toBeNull()
+            ->phone_number->toBeNull();
+        assertDatabaseCount(User::class, 0);
+    });
+
+    it('exige o aceite da política da Flamma no modo convite', function (): void {
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->fillForm(inviteForm(['accepts_flamma_terms' => false]))
+            ->call('register')
+            ->assertHasFormErrors(['accepts_flamma_terms']);
+
+        assertDatabaseCount(User::class, 0);
+    });
+
+    it('resgata o desconto em um cadastro normal com o mesmo e-mail e CPF, levando o telefone', function (): void {
+        livewire(UserRegistration::class)
+            ->fillForm(registrationForm(['tax_id' => '529.982.247-25']))
+            ->call('register')
+            ->assertHasNoFormErrors();
+
+        $user = User::query()->where('email', 'joe@doe.com')->sole();
+
+        expect($this->grant->fresh()->user_id)->toBe($user->getKey())
+            ->and($user->detail)
+            ->tax_id->toBe('52998224725')
+            ->phone_number->toBe('+5511999999999');
+    });
+
+    it('não resgata em um cadastro normal com outro CPF', function (): void {
+        livewire(UserRegistration::class)
+            ->fillForm(registrationForm(['tax_id' => '562.590.047-70']))
+            ->call('register')
+            ->assertHasNoFormErrors();
+
+        expect($this->grant->fresh()->user_id)->toBeNull();
+    });
+
+    it('envia o alias e o cadastro para o PostHog com o desconto da Clau', function (): void {
+        config(['services.posthog.key' => 'phc_test']);
+        Http::fake();
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->fillForm(inviteForm(['tax_id' => '529.982.247-25']))
+            ->call('register')
+            ->assertHasNoFormErrors();
+
+        $user = User::query()->sole();
+
+        Http::assertSent(fn (Request $request): bool => $request['event'] === '$create_alias'
+            && $request['distinct_id'] === $this->grant->external_ref
+            && $request['properties']['alias'] === $user->getKey());
+        Http::assertSent(fn (Request $request): bool => $request['event'] === 'cadastro_concluido'
+            && $request['distinct_id'] === $user->getKey()
+            && $request['properties']['desconto_clau'] === true
+            && $request['properties']['clau_id'] === $this->grant->external_ref);
+    });
+
+    it('não mostra o convite quando o grant está revogado e limpa a sessão', function (): void {
+        $this->grant->update(['revoked_at' => now()]);
+        session([DiscountInviteUrl::SESSION_KEY => $this->grant->getKey()]);
+
+        livewire(UserRegistration::class)
+            ->assertDontSee('Convite da Clau');
+
+        expect(session(DiscountInviteUrl::SESSION_KEY))->toBeNull();
+    });
+});

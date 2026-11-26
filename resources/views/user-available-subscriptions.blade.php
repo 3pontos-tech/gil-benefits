@@ -1,7 +1,8 @@
-@php use Filament\Support\Icons\Heroicon;use Illuminate\Support\Collection;use TresPontosTech\Billing\Core\Entities\PlanEntity;use TresPontosTech\Billing\Core\Entities\PriceEntity;use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum; @endphp
+@php use Filament\Support\Icons\Heroicon;use Illuminate\Support\Collection;use Illuminate\Support\Number;use TresPontosTech\Billing\Core\Entities\PlanEntity;use TresPontosTech\Billing\Core\Entities\PriceEntity;use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;use TresPontosTech\Discounts\DTOs\DiscountOffer; @endphp
 @props([
     'plans',
     'audience' => PriceAudienceEnum::Subsidized,
+    'offersByPlan' => [],
 ])
 
 @php
@@ -32,7 +33,7 @@
     </div>
 </x-filament::modal>
 
-<div x-data="{ selectedPlan: '{{ $this->selectedPlanSlug }}' }" class=" py-8 px-4 sm:px-6 lg:px-8">
+<div x-data="{ selectedPlan: '{{ $this->selectedPlanSlug }}' }" class="py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl ">
         <div class="text-center mb-8">
             <h1 class="text-4xl font-bold text-balance mb-2">{{ __('views.subscriptions.choose_plan') }}</h1>
@@ -42,10 +43,32 @@
             </p>
         </div>
         <div class="grid lg:grid-cols-3 gap-8 ">
-            <div class="lg:col-span-3 space-y-6 space-x-10">
+            <div class="lg:col-span-3 min-w-0 space-y-6">
                 <x-filament::section
                     :heading="__('views.subscriptions.product_details')"
                     :description="__('views.subscriptions.select_employees')">
+                    <form wire:submit="applyCode" class="mb-6 min-w-0">
+                        <label for="discount-code" class="mb-1 block text-sm font-medium">Tenho um código</label>
+                        <div class="flex flex-col gap-2 sm:flex-row">
+                            <div class="min-w-0 flex-1">
+                                <input
+                                    id="discount-code"
+                                    type="text"
+                                    wire:model="discountCode"
+                                    autocomplete="off"
+                                    placeholder="Digite o código"
+                                    class="w-full min-w-0 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm uppercase dark:border-gray-600 dark:bg-gray-900"
+                                />
+                                @error('discountCode')
+                                    <p class="mt-1 text-sm text-danger-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <x-filament::button type="submit" color="gray" class="sm:w-auto">
+                                Aplicar
+                            </x-filament::button>
+                        </div>
+                    </form>
+
                     <div class="grid sm:grid-cols-1 lg:grid-cols-3 gap-3 mb-10">
                         @foreach($sortedPlans as $plan)
                             @php
@@ -56,7 +79,11 @@
                                     'whatsapp_access' => $price->whatsappEnabled,
                                     'exclusive_materials' => $price->materialsEnabled,
                                 ];
-                                $formatted = $price ? Number::currency(($price->priceInCents ?? 0) / 100, 'BRL') : '';
+                                $formatted = $price ? Number::currency(($price->priceInCents ?? 0) / 100, 'BRL', 'pt_BR') : '';
+                                /** @var Collection<int, DiscountOffer> $offers */
+                                $offers = $offersByPlan[$plan->slug] ?? collect();
+                                /** @var DiscountOffer|null $selectedOffer */
+                                $selectedOffer = $offers->firstWhere('key', $selectedOffers[$plan->slug] ?? '');
                             @endphp
                             <x-card-gradient>
                                 <x-slot name="title" class="flex flex-row justify-between">
@@ -116,14 +143,56 @@
 
                                         </div>
                                     @endforeach
+
+                                    @if($offers->isNotEmpty())
+                                        <fieldset class="mt-4 min-w-0 space-y-2">
+                                            <legend class="mb-2 text-sm font-semibold">
+                                                {{ $offers->count() === 1 ? '1 cupom disponível' : $offers->count() . ' cupons disponíveis' }}
+                                            </legend>
+                                            @foreach($offers as $offer)
+                                                <label class="flex min-w-0 cursor-pointer items-start gap-3 rounded-lg border border-gray-200 p-3 text-sm dark:border-gray-700">
+                                                    <input
+                                                        type="radio"
+                                                        name="offer-{{ $plan->slug }}"
+                                                        value="{{ $offer->key }}"
+                                                        wire:model.live="selectedOffers.{{ $plan->slug }}"
+                                                        class="mt-1 shrink-0"
+                                                    />
+                                                    <span class="min-w-0 break-words">
+                                                        <span class="block font-semibold">{{ $offer->label }}</span>
+                                                        <span class="block text-gray-500">{{ $offer->summary() }}</span>
+                                                    </span>
+                                                </label>
+                                            @endforeach
+                                            <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-200 p-3 text-sm dark:border-gray-700">
+                                                <input
+                                                    type="radio"
+                                                    name="offer-{{ $plan->slug }}"
+                                                    value=""
+                                                    wire:model.live="selectedOffers.{{ $plan->slug }}"
+                                                    class="shrink-0"
+                                                />
+                                                <span>Sem cupom</span>
+                                            </label>
+                                        </fieldset>
+                                    @endif
                                 </x-slot>
                                 <x-slot name="footer" class="flex justify-between">
                                     <span>{{ __('views.subscriptions.subtotal') }}</span>
-                                    <div class="flex">
-                                        <span class="flex items-center font-bold text-high text-xl gap-1">
-                                            {{ $formatted }}
-                                            <span class="text-medium font-medium text-xs">{{ __('views.subscriptions.per_month') }}</span>
-                                        </span>
+                                    <div class="flex flex-col items-end">
+                                        @if($selectedOffer)
+                                            <span class="text-sm text-gray-500 line-through">{{ Number::currency($price->priceInCents / 100, 'BRL', 'pt_BR') }}</span>
+                                            <span class="flex items-center font-bold text-high text-xl gap-1">
+                                                {{ Number::currency($selectedOffer->discountedAmountCents / 100, 'BRL', 'pt_BR') }}
+                                                <span class="text-medium font-medium text-xs">{{ __('views.subscriptions.per_month') }}</span>
+                                            </span>
+                                            <span class="mt-1 max-w-full break-words rounded-full bg-primary-600/10 text-primary-700 px-2 py-0.5 text-right text-xs font-semibold">{{ $selectedOffer->summary() }}</span>
+                                        @else
+                                            <span class="flex items-center font-bold text-high text-xl gap-1">
+                                                {{ $formatted }}
+                                                <span class="text-medium font-medium text-xs">{{ __('views.subscriptions.per_month') }}</span>
+                                            </span>
+                                        @endif
                                     </div>
                                 </x-slot>
                             </x-card-gradient>
@@ -131,8 +200,8 @@
                     </div>
 
                     <x-slot name="footer">
-                        <div x-on:click="$wire.checkout(selectedPlan)">
-                            <x-filament::button icon="fab-stripe" color="primary" size="xl" class="w-full text-base">
+                        <div x-on:click="$wire.checkout(selectedPlan, $wire.selectedOffers[selectedPlan] ?? '')">
+                            <x-filament::button color="primary" size="xl" class="w-full text-base">
                                 {{ __('views.subscriptions.complete_subscription') }}
                             </x-filament::button>
                         </div>

@@ -1,0 +1,17 @@
+{
+	"name": "3pontos-tech/discounts",
+	"description": "",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\Discounts\\": "src/",
+			"TresPontosTech\\Discounts\\Tests\\": "tests/",
+			"TresPontosTech\\Discounts\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\Discounts\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable"
+}

@@ -24,6 +24,7 @@ final readonly class SubscriptionDTO
         public int $quantity,
         public ?Carbon $endsAt,
         public ?Carbon $activatedAt = null,
+        public ?CheckoutDiscount $discount = null,
     ) {}
 
     public static function make(
