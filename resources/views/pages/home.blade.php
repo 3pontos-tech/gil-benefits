@@ -220,21 +220,6 @@
         </div>
     </section>
 
-    <section id="pricing" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-20 lg:px-[62px]">
-        <header class="flex flex-col gap-8 text-center">
-            <h2 class="fm-reveal text-[32px] font-bold leading-[1.5] text-high lg:text-5xl">
-                O plano acompanha o <span class="text-brand-primary">crescimento</span> do seu time
-            </h2>
-            <p class="fm-reveal text-base font-medium leading-[1.5] text-medium lg:text-xl lg:font-normal" data-fm-delay="1">
-                Simule o valor para o seu time abaixo. Ficou com alguma dúvida? É só falar com a gente.
-            </p>
-        </header>
-
-        <div class="fm-reveal mt-10 lg:mt-8">
-            <livewire:pricing-calculator />
-        </div>
-    </section>
-
     <section id="momentos" class="relative mx-auto mt-24 max-w-[1800px] scroll-mt-28 px-5 sm:px-8 lg:mt-[383px] lg:px-[62px]">
         <svg class="pointer-events-none absolute -top-[498px] left-1/2 -z-10 -ml-[50vw] hidden h-[570px] w-screen lg:block"
              viewBox="0 0 1920 570" fill="none" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
