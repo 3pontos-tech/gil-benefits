@@ -8,12 +8,14 @@ use App\Models\Users\User;
 use Illuminate\Support\Facades\Mail;
 use TresPontosTech\Appointments\Mail\EmployeeOnboardingMail;
 use TresPontosTech\Permissions\Roles;
+use TresPontosTech\User\Events\ExistingUserImported;
 use TresPontosTech\User\Events\UserImported;
 use TresPontosTech\User\Events\UserRegistered;
 
 /**
  * Manda o onboarding a quem passa pela consultoria, por qualquer porta de entrada: auto cadastro,
- * criação pela empresa, criação pelo admin (UserRegistered) e importação em massa (UserImported).
+ * criação pela empresa, criação pelo admin (UserRegistered) e importação em massa (UserImported, e
+ * ExistingUserImported para quem já tinha cadastro e foi vinculado ou reativado, sem senha temporária).
  * Consultores e demais papéis também disparam UserRegistered e ficam de fora.
  */
 final class SendOnboardingEmailListener
@@ -35,6 +37,11 @@ final class SendOnboardingEmailListener
     public function handleUserImported(UserImported $event): void
     {
         $this->send($event->user, hasTemporaryPassword: true);
+    }
+
+    public function handleExistingUserImported(ExistingUserImported $event): void
+    {
+        $this->send($event->user, hasTemporaryPassword: false);
     }
 
     private function send(User $user, bool $hasTemporaryPassword): void

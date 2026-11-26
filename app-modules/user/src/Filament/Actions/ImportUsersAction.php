@@ -13,12 +13,10 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Actions\BuildImportTemplateAction;
-use TresPontosTech\User\Actions\ParseUsersFromFileAction;
-use TresPontosTech\User\Actions\ValidateUserImportAction;
+use TresPontosTech\User\Actions\PrepareUserImportAction;
 use TresPontosTech\User\DTOs\ImportErrorDTO;
-use TresPontosTech\User\Exceptions\DuplicateImportHeadersException;
+use TresPontosTech\User\DTOs\ImportUsersResultDTO;
 use TresPontosTech\User\Jobs\ImportUsersJob;
-use TresPontosTech\User\Support\DepartmentLookup;
 
 class ImportUsersAction extends Action
 {
@@ -56,6 +54,8 @@ class ImportUsersAction extends Action
                 ->helperText(new HtmlString(
                     __('user::actions.import_users.file.helper_text') .
                     '<br><br>' .
+                    __('user::actions.import_users.file.helper_rules', ['app' => config('app.name')]) .
+                    '<br><br>' .
                     __('user::actions.import_users.file.helper_note')
                 ))
                 ->hintAction(
@@ -85,18 +85,19 @@ class ImportUsersAction extends Action
             $company = $this->resolveCompany();
             $livewire = $this->getLivewire();
 
-            try {
-                $rows = resolve(ParseUsersFromFileAction::class)->execute(
-                    $file->getRealPath(),
-                    $file->getClientOriginalExtension(),
-                );
-            } catch (DuplicateImportHeadersException $duplicateImportHeadersException) {
-                $this->showImportErrors([new ImportErrorDTO(row: 1, email: 'N/A', message: $duplicateImportHeadersException->getMessage())]);
+            $prepared = resolve(PrepareUserImportAction::class)->execute(
+                $file->getRealPath(),
+                $file->getClientOriginalExtension(),
+                $company,
+            );
+
+            if ($prepared->isRejected()) {
+                $this->showImportErrors($prepared->errors);
 
                 return;
             }
 
-            if ($rows->isEmpty()) {
+            if ($prepared->isEmpty()) {
                 Notification::make()
                     ->info()
                     ->title(__('user::actions.import_users.notifications.empty.title'))
@@ -106,11 +107,16 @@ class ImportUsersAction extends Action
                 return;
             }
 
-            $departments = DepartmentLookup::for($company);
-            $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company, $departments);
+            if ($prepared->joined() === 0) {
+                if ($livewire instanceof Component) {
+                    $livewire->dispatch('import-result', rows: ImportUsersResultDTO::reportRows($prepared->preview->rowReports ?? []));
+                }
 
-            if ($errors !== []) {
-                $this->showImportErrors($errors);
+                Notification::make()
+                    ->warning()
+                    ->title(__('user::actions.import_users.notifications.none_joining.title'))
+                    ->body(__('user::actions.import_users.notifications.none_joining.body'))
+                    ->send();
 
                 return;
             }
@@ -120,7 +126,7 @@ class ImportUsersAction extends Action
             throw_if($userId === null, \RuntimeException::class, 'Cannot import users without an authenticated user.');
 
             dispatch(new ImportUsersJob(
-                rows: $departments->withDepartmentIds($rows),
+                rows: $prepared->rows,
                 companyId: (string) $company->getKey(),
                 userId: (string) $userId
             ))
@@ -150,14 +156,6 @@ class ImportUsersAction extends Action
             return;
         }
 
-        $livewire->dispatch('import-errors', errors: collect($errors)
-            ->map(fn (ImportErrorDTO $error): array => [
-                'row' => $error->row,
-                'email' => $error->email,
-                'message' => $error->message,
-            ])
-            ->values()
-            ->all()
-        );
+        $livewire->dispatch('import-errors', errors: ImportUsersResultDTO::reportRows($errors));
     }
 }

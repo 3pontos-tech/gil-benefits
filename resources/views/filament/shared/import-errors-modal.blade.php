@@ -1,6 +1,7 @@
 <div
-    x-data="{ open: false, errors: [] }"
-    @import-errors.window="open = true; errors = $event.detail.errors"
+    x-data="{ open: false, isResult: false, errors: [] }"
+    @import-errors.window="open = true; isResult = false; errors = $event.detail.errors"
+    @import-result.window="open = true; isResult = true; errors = $event.detail.rows"
     x-cloak
 >
     <div
@@ -29,10 +30,11 @@
                 <div class="flex items-center gap-3">
                     <x-heroicon-o-exclamation-triangle class="w-6 h-6 text-warning-500" />
                     <div>
-                        <h2 class="text-base font-semibold text-gray-900 dark:text-white">
-                            Erros na Importação
-                        </h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400" x-text="`${errors.length} erro(s) encontrado(s)`"></p>
+                        <h2
+                            class="text-base font-semibold text-gray-900 dark:text-white"
+                            x-text="isResult ? @js(__('user::actions.import_users.result_modal.title')) : 'Erros na Importação'"
+                        ></h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400" x-text="isResult ? `${errors.length} ${@js(__('user::actions.import_users.result_modal.rows'))}` : `${errors.length} erro(s) encontrado(s)`"></p>
                     </div>
                 </div>
                 <button

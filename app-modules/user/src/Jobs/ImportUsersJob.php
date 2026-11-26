@@ -37,7 +37,7 @@ class ImportUsersJob implements ShouldQueue
         $company = Company::query()->findOrFail($this->companyId);
         $result = $persister->execute($this->rows, $company);
 
-        Cache::put(self::completionCacheKey($this->userId), (string) $result->imported, now()->addHour());
+        Cache::put(self::completionCacheKey($this->userId), json_encode($result->toSummary(), JSON_THROW_ON_ERROR), now()->addHour());
     }
 
     public function failed(\Throwable $exception): void

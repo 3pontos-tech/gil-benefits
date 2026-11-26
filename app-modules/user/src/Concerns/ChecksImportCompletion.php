@@ -39,12 +39,62 @@ trait ChecksImportCompletion
             return;
         }
 
+        $summary = $this->importSummary((string) $result);
+
         Notification::make()
             ->success()
-            ->title('Importação concluída')
-            ->body($result === '1'
-                ? 'O usuário foi importado com sucesso.'
-                : sprintf('Todos os %s usuários foram importados com sucesso.', $result))
+            ->title(__('user::actions.import_users.notifications.completed.title'))
+            ->body($this->importSummaryBody($summary))
             ->send();
+
+        if ($summary['rows'] !== []) {
+            $this->dispatch('import-result', rows: $summary['rows']);
+        }
+    }
+
+    /**
+     * @return array{imported: int, linked: int, reactivated: int, skipped: int, needs_support: int, rows: list<array{row: int, email: string, message: string}>}
+     */
+    private function importSummary(string $result): array
+    {
+        if (is_numeric($result)) {
+            return ['imported' => (int) $result, 'linked' => 0, 'reactivated' => 0, 'skipped' => 0, 'needs_support' => 0, 'rows' => []];
+        }
+
+        /** @var array{imported: int, linked: int, reactivated: int, skipped: int, needs_support: int, rows: list<array{row: int, email: string, message: string}>} $summary */
+        $summary = json_decode($result, associative: true, flags: JSON_THROW_ON_ERROR);
+
+        return $summary;
+    }
+
+    /**
+     * @param  array{imported: int, linked: int, reactivated: int, skipped: int, needs_support: int, rows: list<array{row: int, email: string, message: string}>}  $summary
+     */
+    private function importSummaryBody(array $summary): string
+    {
+        $imported = $summary['imported'];
+
+        if ($summary['rows'] === []) {
+            return $imported === 1
+                ? 'O usuário foi importado com sucesso.'
+                : sprintf('Todos os %d usuários foram importados com sucesso.', $imported);
+        }
+
+        $parts = collect([
+            'imported' => $imported,
+            'linked' => $summary['linked'],
+            'reactivated' => $summary['reactivated'],
+            'skipped' => $summary['skipped'],
+            'needs_support' => $summary['needs_support'],
+        ])
+            ->filter()
+            ->map(fn (int $count, string $key): string => trans_choice('user::actions.import_users.summary.' . $key, $count, ['count' => $count]))
+            ->implode(', ');
+
+        if ($imported + $summary['linked'] + $summary['reactivated'] === 0) {
+            return __('user::actions.import_users.summary.none_joined', ['parts' => $parts]);
+        }
+
+        return $parts . '.';
     }
 }

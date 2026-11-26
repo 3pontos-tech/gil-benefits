@@ -85,8 +85,12 @@ Two layers, on purpose:
   the domain error with a message: admin "attach" on the company's employees, admin role
   assignment, company panel reactivation and manager demotion. The company panel message
   does not name the other company, which is another tenant. Paths that create a brand-new
-  user (company panel "create and attach", spreadsheet import, API registration) cannot
-  conflict. Company creation attaches the owner, which D2 leaves outside the rule.
+  user (company panel "create and attach", API registration) cannot conflict. Company
+  creation attaches the owner, which D2 leaves outside the rule.
+- Since FLM-110 the spreadsheet import also links people who already have an account and
+  reactivates inactive employees, so it can meet the conflict. It refuses the row with a
+  "contact support" notice that does not name the other company, and imports the other
+  rows (see `user/docs/adr/2026-11-24-import-existing-people.md`).
 - Tests that modelled a person with two employee memberships are rewritten to the
   owner-plus-employee shape or to the refusal.
 - Nobody in production currently holds two active employee memberships, so the

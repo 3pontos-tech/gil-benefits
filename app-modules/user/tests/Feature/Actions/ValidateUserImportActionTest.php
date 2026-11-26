@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 use App\Models\Users\Detail;
 use App\Models\Users\User;
-use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
-use TresPontosTech\Billing\Core\Models\CompanyPlan;
-use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Company\Models\Department;
 use TresPontosTech\User\Actions\ValidateUserImportAction;
+use TresPontosTech\User\DTOs\ImportErrorDTO;
 
 function makeValidationRow(array $overrides = []): array
 {
@@ -20,7 +18,7 @@ function makeValidationRow(array $overrides = []): array
         'name' => 'User ' . $counter,
         'email' => 'user' . $counter . '@example.com',
         'document_id' => '1234567' . $counter,
-        'tax_id' => str_pad((string) ($counter * 100000000), 11, '0', STR_PAD_LEFT),
+        'tax_id' => fake()->unique()->cpf(false),
         'phone_number' => '1199999' . str_pad((string) $counter, 4, '0', STR_PAD_LEFT),
         '__row_number' => $counter + 1,
     ], $overrides);
@@ -55,6 +53,27 @@ it('returns an error for a tax_id with fewer than 11 digits', function (): void 
         ->and($errors[0]->message)->toContain('tax_id');
 });
 
+it('fails the spreadsheet on a CPF whose check digits do not match', function (string $taxId): void {
+    $company = Company::factory()->create();
+    $rows = collect([makeValidationRow(['tax_id' => $taxId])]);
+
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect(array_map(fn (ImportErrorDTO $error): string => $error->message, $errors))->toBe(['O campo tax_id não é um CPF válido.']);
+})->with([
+    'wrong check digit' => ['529.982.247-24'],
+    'repeated digits' => ['11111111111'],
+]);
+
+it('accepts a CPF with valid check digits, formatted or not', function (string $taxId): void {
+    $company = Company::factory()->create();
+
+    expect(resolve(ValidateUserImportAction::class)->execute(collect([makeValidationRow(['tax_id' => $taxId])]), $company))->toBeEmpty();
+})->with([
+    'digits only' => ['52998224725'],
+    'formatted' => ['529.982.247-25'],
+]);
+
 it('returns an error for a phone_number with fewer than 10 digits', function (): void {
     $company = Company::factory()->create();
     $rows = collect([makeValidationRow(['phone_number' => '12345'])]);
@@ -65,55 +84,45 @@ it('returns an error for a phone_number with fewer than 10 digits', function ():
         ->and($errors[0]->message)->toContain('phone_number');
 });
 
-it('returns an error for duplicate emails in the spreadsheet', function (): void {
+it('leaves repeated and already registered people to the classification instead of failing the spreadsheet', function (): void {
     $company = Company::factory()->create();
+    $existingUser = User::factory()->create(['email' => 'existing@example.com']);
+    Detail::factory()->for($existingUser)->create(['tax_id' => '12345678909']);
+
     $rows = collect([
         makeValidationRow(['email' => 'same@example.com']),
         makeValidationRow(['email' => 'same@example.com']),
+        makeValidationRow(['email' => 'existing@example.com', 'tax_id' => '12345678909']),
     ]);
 
     $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
 
-    expect($errors)->not->toBeEmpty()
-        ->and(collect($errors)->first(fn ($e): bool => str_contains($e->message, 'duplicado'))->message)
-        ->toContain('duplicado');
+    expect($errors)->toBeEmpty();
 });
 
-it('returns an error for a tax_id already registered in the system', function (): void {
+it('fails the spreadsheet when two different people share a phone_number', function (): void {
     $company = Company::factory()->create();
-    $existingUser = User::factory()->create();
-    Detail::factory()->for($existingUser)->create(['tax_id' => '12345678901']);
-
-    $rows = collect([makeValidationRow(['tax_id' => '12345678901'])]);
-
-    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
-
-    expect($errors)->not->toBeEmpty()
-        ->and($errors[0]->message)->toContain('já cadastrado');
-});
-
-it('returns an error when the seat limit is exceeded', function (): void {
-    $company = Company::factory()->create();
-
-    $existingEmployee = User::factory()->create();
-    $company->employees()->attach($existingEmployee->getKey(), ['active' => true]);
-
-    $plan = Plan::factory()->create(['active' => true]);
-    CompanyPlan::query()->create([
-        'company_id' => $company->id,
-        'plan_id' => $plan->id,
-        'status' => CompanyPlanStatusEnum::Active->value,
-        'monthly_appointments_per_employee' => 1,
-        'starts_at' => now()->subDay(),
-        'seats' => 1,
+    $rows = collect([
+        makeValidationRow(['phone_number' => '11988887777']),
+        makeValidationRow(['phone_number' => '11988887777', '__row_number' => 9]),
     ]);
 
-    $rows = collect([makeValidationRow()]);
+    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
+
+    expect(collect($errors)->map(fn ($error): array => [$error->row, $error->message])->all())
+        ->toBe([[9, "phone_number '11988887777' duplicado na planilha."]]);
+});
+
+it('ignores the phone_number of a row that repeats an earlier person', function (): void {
+    $company = Company::factory()->create();
+    $rows = collect([
+        makeValidationRow(['email' => 'same@example.com', 'phone_number' => '11988887777']),
+        makeValidationRow(['email' => 'same@example.com', 'phone_number' => '11988887777']),
+    ]);
 
     $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
 
-    expect($errors)->not->toBeEmpty()
-        ->and($errors[0]->message)->toContain('Limite de assentos');
+    expect($errors)->toBeEmpty();
 });
 
 it('accepts a department that matches ignoring case, accents and extra spaces', function (string $department): void {
@@ -257,8 +266,7 @@ it('lists a department error together with other row errors', function (): void 
 
     $rows = collect([
         makeValidationRow(['department' => 'Logística', '__row_number' => 4]),
-        makeValidationRow(['email' => 'same@example.com', 'department' => 'Financeiro', '__row_number' => 5]),
-        makeValidationRow(['email' => 'same@example.com', 'department' => 'Financeiro', '__row_number' => 6]),
+        makeValidationRow(['email' => 'invalid-email', 'department' => 'Financeiro', '__row_number' => 5]),
     ]);
 
     $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
@@ -266,31 +274,6 @@ it('lists a department error together with other row errors', function (): void 
     expect(collect($errors)->map(fn ($error): array => [$error->row, $error->message])->all())->toBe([
         [0, 'Departamentos cadastrados na empresa: Financeiro.'],
         [4, "Departamento 'Logística' não encontrado."],
-        [6, 'Email duplicado na planilha.'],
+        [5, 'Email inválido.'],
     ]);
-});
-
-it('still enforces the seat limit when every department exists', function (): void {
-    $company = Company::factory()->create();
-    Department::factory()->for($company)->create(['name' => 'Financeiro']);
-
-    $plan = Plan::factory()->create(['active' => true]);
-    CompanyPlan::query()->create([
-        'company_id' => $company->id,
-        'plan_id' => $plan->id,
-        'status' => CompanyPlanStatusEnum::Active->value,
-        'monthly_appointments_per_employee' => 1,
-        'starts_at' => now()->subDay(),
-        'seats' => 1,
-    ]);
-
-    $rows = collect([
-        makeValidationRow(['department' => 'Financeiro']),
-        makeValidationRow(['department' => 'financeiro']),
-    ]);
-
-    $errors = resolve(ValidateUserImportAction::class)->execute($rows, $company);
-
-    expect($errors)->toHaveCount(1)
-        ->and($errors[0]->message)->toBe('Limite de assentos excedido. Disponíveis: 1, solicitados: 2.');
 });
