@@ -8,7 +8,7 @@ use App\Models\Users\User;
 use Illuminate\Support\Str;
 
 /**
- * Eventos do Flamma enviados ao PostHog, no mesmo projeto do Flare. Nada sai sem
+ * Eventos do Flamma enviados ao PostHog, no mesmo projeto da Clau. Nada sai sem
  * `services.posthog.key`. O momento e o uuid do evento são fixados aqui, então um job atrasado
  * ou repetido mantém os dois. `$geoip_disable` porque o IP do servidor não é o da pessoa.
  */

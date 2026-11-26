@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cookie;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Guarda num cookie de 30 dias, até o cadastro, de onde a pessoa veio. O `flare_id` do convite
+ * Guarda num cookie de 30 dias, até o cadastro, de onde a pessoa veio. O `clau_id` do convite
  * vale pelo último toque (o convite mais recente ganha); as UTMs valem pelo primeiro toque e não
  * são sobrescritas pelas visitas seguintes.
  */
@@ -28,10 +28,10 @@ class StoreSignupAttribution
         $stored = self::current($request);
         $attribution = $stored;
 
-        $flareId = $request->query('flare_id');
+        $clauId = $request->query('clau_id');
 
-        if (is_string($flareId) && str($flareId)->isUuid()) {
-            $attribution['flare_id'] = $flareId;
+        if (is_string($clauId) && str($clauId)->isUuid()) {
+            $attribution['clau_id'] = $clauId;
         }
 
         $utms = array_filter(
@@ -52,7 +52,7 @@ class StoreSignupAttribution
     }
 
     /**
-     * @return array{flare_id?: string, utms?: array<string, string>}
+     * @return array{clau_id?: string, utms?: array<string, string>}
      */
     public static function current(Request $request): array
     {
@@ -65,8 +65,8 @@ class StoreSignupAttribution
 
         $attribution = [];
 
-        if (is_string($raw['flare_id'] ?? null) && str($raw['flare_id'])->isUuid()) {
-            $attribution['flare_id'] = $raw['flare_id'];
+        if (is_string($raw['clau_id'] ?? null) && str($raw['clau_id'])->isUuid()) {
+            $attribution['clau_id'] = $raw['clau_id'];
         }
 
         $utms = array_filter(

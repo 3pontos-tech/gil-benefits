@@ -220,13 +220,13 @@ it('tracks the signup on PostHog by the Flamma id', function (): void {
         && $request['properties'] === ['$set' => ['email' => 'joe@doe.com', 'name' => 'John'], 'source' => 'flamma', '$geoip_disable' => true]);
 });
 
-it('joins the Flare person to the Flamma user before tracking the signup with the first touch UTMs', function (): void {
+it('joins the Clau person to the Flamma user before tracking the signup with the first touch UTMs', function (): void {
     config(['services.posthog.key' => 'phc_test']);
     Http::fake();
-    $flareId = (string) Str::uuid();
+    $clauId = (string) Str::uuid();
     Livewire::withCookies(signupAttribution([
-        'flare_id' => $flareId,
-        'utms' => ['utm_source' => 'flare', 'utm_medium' => 'whatsapp', 'utm_campaign' => 'gancho_pos_relatorio', 'utm_content' => 'variante_a'],
+        'clau_id' => $clauId,
+        'utms' => ['utm_source' => 'clau', 'utm_medium' => 'whatsapp', 'utm_campaign' => 'gancho_pos_relatorio', 'utm_content' => 'variante_a'],
     ]));
 
     livewire(UserRegistration::class)
@@ -238,14 +238,14 @@ it('joins the Flare person to the Flamma user before tracking the signup with th
     $sent = Http::recorded()->map(fn (array $pair): array => [$pair[0]['event'], $pair[0]['distinct_id'], $pair[0]['properties']])->all();
 
     expect($sent)->toBe([
-        ['$create_alias', $flareId, ['alias' => $user->getKey(), 'source' => 'flamma', '$geoip_disable' => true]],
+        ['$create_alias', $clauId, ['alias' => $user->getKey(), 'source' => 'flamma', '$geoip_disable' => true]],
         ['cadastro_concluido', $user->getKey(), [
-            'utm_source' => 'flare',
+            'utm_source' => 'clau',
             'utm_medium' => 'whatsapp',
             'utm_campaign' => 'gancho_pos_relatorio',
             'utm_content' => 'variante_a',
             '$set' => ['email' => 'joe@doe.com', 'name' => 'John'],
-            'flare_id' => $flareId,
+            'clau_id' => $clauId,
             'source' => 'flamma',
             '$geoip_disable' => true,
         ]],
@@ -253,7 +253,7 @@ it('joins the Flare person to the Flamma user before tracking the signup with th
         ->and(Cookie::queued(StoreSignupAttribution::COOKIE)?->getExpiresTime())->toBeLessThan(Date::now()->getTimestamp());
 });
 
-it('tracks the signup with the UTMs of an ad without a Flare person to join', function (): void {
+it('tracks the signup with the UTMs of an ad without a Clau person to join', function (): void {
     config(['services.posthog.key' => 'phc_test']);
     Http::fake();
     Livewire::withCookies(signupAttribution(['utms' => ['utm_source' => 'instagram', 'utm_campaign' => 'lancamento']]));
@@ -271,7 +271,7 @@ it('tracks the signup with the UTMs of an ad without a Flare person to join', fu
 it('keeps the attribution cookie when the signup fails inside the transaction', function (): void {
     config(['services.posthog.key' => 'phc_test']);
     Http::fake();
-    Livewire::withCookies(signupAttribution(['flare_id' => (string) Str::uuid(), 'utms' => ['utm_source' => 'flare']]));
+    Livewire::withCookies(signupAttribution(['clau_id' => (string) Str::uuid(), 'utms' => ['utm_source' => 'clau']]));
     filament()->setCurrentPanel(FilamentPanel::User->value);
     Event::listen(UserRegistered::class, function (): never {
         throw new RuntimeException('falha no cadastro');
@@ -287,7 +287,7 @@ it('keeps the attribution cookie when the signup fails inside the transaction', 
 
 it('sends nothing to PostHog on signup without a key', function (): void {
     Http::fake();
-    Livewire::withCookies(signupAttribution(['flare_id' => (string) Str::uuid()]));
+    Livewire::withCookies(signupAttribution(['clau_id' => (string) Str::uuid()]));
 
     livewire(UserRegistration::class)
         ->fillForm(registrationForm())
