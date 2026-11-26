@@ -56,5 +56,9 @@
         <env name="CHATX_WEBHOOK_SECRET" value=""/>
         <env name="CHATX_STATUS_WEBHOOK_URL" value=""/>
         <env name="CHATX_STATUS_WEBHOOK_TOKEN" value=""/>
+
+        <env name="CONSULTANT_FORM_CREDIT_URL" value=""/>
+        <env name="CONSULTANT_FORM_INVESTMENT_URL" value=""/>
+        <env name="CONSULTANT_FORM_INSURANCE_URL" value=""/>
     </php>
 </phpunit>
