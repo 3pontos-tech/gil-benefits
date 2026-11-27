@@ -26,7 +26,8 @@ final readonly class CheckoutSessionDTO
 
     /**
      * `pixMandateCents` caps every Pix Automático charge of the subscription; null offers
-     * card only.
+     * card only. Stripe refuses `amount_type` in subscription mode and treats the amount
+     * as the maximum per cycle.
      */
     public static function subscription(
         string $customerId,
@@ -92,7 +93,6 @@ final readonly class CheckoutSessionDTO
                 'pix' => [
                     'mandate_options' => [
                         'amount' => $this->pixMandateCents,
-                        'amount_type' => 'maximum',
                         'payment_schedule' => 'monthly',
                     ],
                 ],

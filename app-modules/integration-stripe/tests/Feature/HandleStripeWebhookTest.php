@@ -92,6 +92,18 @@ it('anchors the quota cycle when the subscription becomes active', function (): 
     expect(Subscription::query()->sole()->quota_anchor_at?->getTimestamp())->toBe(now()->getTimestamp());
 });
 
+it('keeps access until the date the customer portal scheduled the cancellation for', function (): void {
+    $cancelAt = now()->addDays(30)->startOfSecond();
+    stripeSubscription($this->api, 'active', ['cancel_at' => $cancelAt->getTimestamp()]);
+
+    handleStripeEvent('customer.subscription.updated', 'sub_1');
+
+    $row = Subscription::query()->sole();
+    expect($row->stripe_status)->toBe('active')
+        ->and($row->ends_at?->getTimestamp())->toBe($cancelAt->getTimestamp())
+        ->and($row->valid())->toBeTrue();
+});
+
 it('keeps access until the period end after a cancellation at period end', function (): void {
     $periodEnd = now()->addDays(12)->startOfSecond();
     stripeSubscription($this->api, 'active', [

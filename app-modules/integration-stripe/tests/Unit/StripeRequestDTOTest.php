@@ -40,7 +40,6 @@ it('sends a subscription checkout in the shape Stripe expects', function (): voi
             'pix' => [
                 'mandate_options' => [
                     'amount' => 22_450,
-                    'amount_type' => 'maximum',
                     'payment_schedule' => 'monthly',
                 ],
             ],
