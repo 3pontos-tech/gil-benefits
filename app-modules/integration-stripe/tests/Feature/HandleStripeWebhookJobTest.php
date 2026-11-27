@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use Illuminate\Support\Facades\Event;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionActivated;
 use TresPontosTech\IntegrationStripe\DTO\StripeWebhookDTO;
+use TresPontosTech\IntegrationStripe\Events\StripeWebhookFailed;
 use TresPontosTech\IntegrationStripe\Jobs\HandleStripeWebhookJob;
 use TresPontosTech\IntegrationStripe\StripeApi;
 use TresPontosTech\IntegrationStripe\Testing\FakeStripeApi;
@@ -43,4 +44,22 @@ it('releases the event id when the work fails, so the retry runs', function (): 
     dispatch_sync(stripeJob());
 
     Event::assertDispatchedTimes(SubscriptionActivated::class, 1);
+});
+
+it('spreads its retries over minutes instead of seconds', function (): void {
+    $job = stripeJob();
+
+    expect($job->tries)->toBe(count($job->backoff) + 1)
+        ->and(array_sum($job->backoff))->toBeGreaterThanOrEqual(15 * 60);
+});
+
+it('announces the event that failed after the last retry', function (): void {
+    Event::fake([StripeWebhookFailed::class]);
+
+    stripeJob()->failed(new RuntimeException('Stripe down'));
+
+    Event::assertDispatched(
+        StripeWebhookFailed::class,
+        fn (StripeWebhookFailed $event): bool => $event->eventId === 'evt_1' && $event->type === 'customer.subscription.updated',
+    );
 });

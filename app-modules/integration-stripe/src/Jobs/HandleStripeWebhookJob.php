@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 use TresPontosTech\IntegrationStripe\Actions\HandleStripeWebhook;
 use TresPontosTech\IntegrationStripe\DTO\StripeWebhookDTO;
+use TresPontosTech\IntegrationStripe\Events\StripeWebhookFailed;
 
 class HandleStripeWebhookJob implements ShouldQueue
 {
@@ -30,7 +31,15 @@ class HandleStripeWebhookJob implements ShouldQueue
 
     private const int PROCESSED_TTL_HOURS = 24;
 
-    public int $tries = 3;
+    public int $tries = 5;
+
+    /**
+     * Spread over about 20 minutes, so a short Stripe outage or a subscription lock held by
+     * another event does not burn every attempt within seconds.
+     *
+     * @var list<int>
+     */
+    public array $backoff = [10, 60, 300, 900];
 
     public int $timeout = 60;
 
@@ -70,5 +79,7 @@ class HandleStripeWebhookJob implements ShouldQueue
             'type' => $this->dto->type,
             'exception' => $exception->getMessage(),
         ]);
+
+        event(new StripeWebhookFailed($this->dto->eventId, $this->dto->type));
     }
 }
