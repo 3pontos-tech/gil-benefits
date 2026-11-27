@@ -21,7 +21,7 @@ class IntegrationStripeServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../../config/stripe.php', 'stripe');
 
         $this->app->bind(StripeApi::class, fn (): StripeApi => new StripeApi(
-            new StripeClient(['api_key' => (string) config('stripe.secret')]),
+            new StripeClient(['api_key' => $this->secretKey()]),
         ));
     }
 
@@ -48,5 +48,17 @@ class IntegrationStripeServiceProvider extends ServiceProvider
                 fn (): BillingContract => new StripeAdapter($container->make(StripeApi::class)),
             );
         });
+    }
+
+    /**
+     * The SDK refuses an empty key as soon as the client is built, and the driver is built on
+     * every company panel request. A missing key becomes null, which the SDK only refuses
+     * when a call is actually made to Stripe.
+     */
+    private function secretKey(): ?string
+    {
+        $secret = config('stripe.secret');
+
+        return is_string($secret) && $secret !== '' ? $secret : null;
     }
 }

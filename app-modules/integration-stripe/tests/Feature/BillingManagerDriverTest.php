@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Company\Models\Company;
 use TresPontosTech\IntegrationStripe\StripeAdapter;
 
 it('resolves the stripe driver registered by this module', function (): void {
@@ -16,3 +17,15 @@ it('sells new subscriptions through stripe and only honours stripe plans', funct
         ->and(BillingProviderEnum::activeCases())->toBe([BillingProviderEnum::Stripe])
         ->and(resolve(BillingManager::class)->getDriver())->toBeInstanceOf(StripeAdapter::class);
 });
+
+it('still builds the driver when the secret key is missing, so the panels keep working', function (?string $secret): void {
+    config(['stripe.secret' => $secret]);
+
+    $driver = resolve(BillingManager::class)->getDriver(BillingProviderEnum::Stripe);
+    $driver->ensureCustomerExists(Company::factory()->create());
+
+    expect($driver)->toBeInstanceOf(StripeAdapter::class);
+})->with([
+    'not set' => [null],
+    'empty' => [''],
+]);
