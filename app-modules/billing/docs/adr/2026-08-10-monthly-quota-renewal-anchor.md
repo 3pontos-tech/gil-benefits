@@ -14,7 +14,7 @@ affects:
 
 # ADR: Monthly appointment quota renews on a contract anchor date
 
-**Status:** accepted · **Date:** 2026-08-10 · **Revised:** 2026-08-16 during implementation · **Decided by:** Richard (product/tech)
+**Status:** accepted · **Date:** 2026-08-10 · **Revised:** 2026-08-16 during implementation; 2026-11-27 (quota of a delinquent subscription) · **Decided by:** Richard (product/tech)
 
 This record closes every decision needed to build the change. It states *what* was
 decided and *why*, and carries an implementation map (schema, files, order, tests) so
@@ -254,6 +254,12 @@ with different vocabularies — `pending|active|defaulter|inactive` against
 to both. It is also the value `User::activeSubscription()` already uses to decide who has
 quota, so the two reads stay in agreement. Nothing guarantees this beyond the coincidence,
 which is why it is written down.
+
+> **Revised 2026-11-27, by billing `2026-11-27-delinquency-keeps-access-until-cancellation`.**
+> `User::activeSubscription()` now reads `SubscriptionBuilder::current()`, which also takes
+> `defaulter`: a delinquent person keeps the quota along with access. The anchor filter
+> stays `active`, so the two reads no longer agree, on purpose: the anchor is when the
+> subscription started to pay, and a `defaulter` row already passed through `active`.
 
 **Rejected — use `created_at` directly.** The precision argument for the dedicated column
 is weak and was correctly challenged: the gap between "subscription created" and

@@ -36,10 +36,22 @@ in the past says otherwise. Access ends when the gateway cancels the subscriptio
 How long the retry window lasts is configured in the gateway (on Stripe: retries ending in
 "cancel the subscription"), not in our code.
 
+**The monthly quota follows access.** `User::activeSubscription()`, which decides who has
+quota, reads `SubscriptionBuilder::current()`: `active` or `defaulter`, with no paid period
+already over. A person keeps booking during the retry window, as they keep entering the
+panel. Cutting the quota while keeping access would leave the panel open with nothing to
+use in it.
+
+The quota anchor does not move. `SubscriptionQuotaAnchorObserver` still anchors only on
+`active`: the anchor is the moment the subscription started to pay, and a `defaulter` row
+already passed through `active` and kept its anchor. This amends billing
+`2026-08-10-monthly-quota-renewal-anchor`, which said the two reads use the same status.
+
 ## Consequences
 
 * A failed renewal no longer cuts access at once; the person has the retry window to fix
   the payment, with the gateway's dunning e-mails.
+* The monthly quota keeps renewing during the retry window, on the same anchor.
 * The admin still sees the company as delinquent: `CompanyStatusResolver` maps
   `defaulter` to "inadimplente" regardless of access.
 * `defaulter` rows count in `SubscriptionBuilder::grantingAccess()` and in revenue-style
