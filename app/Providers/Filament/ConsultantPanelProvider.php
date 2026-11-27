@@ -18,6 +18,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Str;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use TresPontosTech\PanelConsultant\Filament\Pages\ConsultantDashboard;
 use TresPontosTech\PanelConsultant\Filament\Pages\EditConsultantProfile;
@@ -49,6 +50,9 @@ class ConsultantPanelProvider extends PanelProvider
                     ->sort(5)
                     ->icon(Heroicon::UserCircle)
                     ->url(fn (): string => EditConsultantProfile::getUrl()),
+                $this->productFormItem('credit', Heroicon::Banknotes, sort: 100),
+                $this->productFormItem('investment', Heroicon::ChartBar, sort: 101),
+                $this->productFormItem('insurance', Heroicon::ShieldCheck, sort: 102),
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -64,5 +68,30 @@ class ConsultantPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    private function productFormItem(string $form, Heroicon $icon, int $sort): NavigationItem
+    {
+        return NavigationItem::make(fn (): string => __("panel-consultant::navigation.product_forms.{$form}"))
+            ->group(fn (): string => __('panel-consultant::navigation.groups.products'))
+            ->icon($icon)
+            ->url(fn (): ?string => $this->productFormUrl($form))
+            ->openUrlInNewTab()
+            ->visible(fn (): bool => $this->productFormUrl($form) !== null)
+            ->sort($sort);
+    }
+
+    private function productFormUrl(string $form): ?string
+    {
+        $configuredUrl = config("panel-consultant.product_forms.{$form}");
+
+        if (! is_string($configuredUrl)) {
+            return null;
+        }
+
+        $url = trim($configuredUrl);
+        $isWebUrl = Str::isUrl($url, ['http', 'https']);
+
+        return $isWebUrl ? $url : null;
     }
 }

@@ -10,7 +10,10 @@ use TresPontosTech\Consultants\Observers\MediaObserver;
 
 class PanelConsultantServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        $this->mergeConfigFrom(__DIR__ . '/../../config/panel-consultant.php', 'panel-consultant');
+    }
 
     public function boot(): void
     {
