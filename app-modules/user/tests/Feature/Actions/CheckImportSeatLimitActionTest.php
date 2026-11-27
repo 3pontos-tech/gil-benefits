@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Enums\CompanyPlanStatusEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\User\Actions\CheckImportSeatLimitAction;
 
@@ -52,4 +53,13 @@ it('allows an import where nobody joins even when the company is already over it
     $company = companyWithSeats(seats: 1, activeEmployees: 2);
 
     expect(resolve(CheckImportSeatLimitAction::class)->execute($company, 0))->toBeNull();
+});
+
+it('keeps the subscription seat limit while the company is a defaulter', function (): void {
+    $company = Company::factory()->create();
+    Subscription::factory()->forCompany($company)->defaulter()->create(['quantity' => 2]);
+
+    $error = resolve(CheckImportSeatLimitAction::class)->execute($company, 3);
+
+    expect($error?->message)->toBe('Limite de assentos excedido. Disponíveis: 2, solicitados: 3.');
 });

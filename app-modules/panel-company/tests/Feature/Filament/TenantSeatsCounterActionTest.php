@@ -2,6 +2,7 @@
 
 use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 
 use function Pest\Livewire\livewire;
@@ -28,6 +29,14 @@ it('shows seat count using contractual plan seats when a contractual plan is act
 it('counts only active employees in the seat display', function (): void {
     $inactiveEmployee = User::factory()->employee()->create();
     $this->company->employees()->attach($inactiveEmployee->getKey(), ['active' => false]);
+
+    livewire(EditTenantProfile::class)
+        ->assertOk()
+        ->assertSee('Assentos: 0/10');
+});
+
+it('keeps showing the subscription seats while the company is a defaulter', function (): void {
+    $this->company->subscriptions()->update(['stripe_status' => Subscription::STATUS_DEFAULTER]);
 
     livewire(EditTenantProfile::class)
         ->assertOk()

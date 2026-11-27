@@ -39,7 +39,7 @@ class TenantSeatsCounterAction extends Action
         }
 
         /** @var Subscription $activeSubscription */
-        $activeSubscription = $tenant->subscriptions()->where('stripe_status', '=', 'active')->first();
+        $activeSubscription = $tenant->subscriptions()->current()->first();
 
         return sprintf(__('panel-company::resources.actions.seats_counter.label'), $employeesCount, $activeSubscription->quantity);
     }

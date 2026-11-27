@@ -127,7 +127,7 @@ class CreateAndAttachAction extends CreateAction
         }
 
         /** @var Subscription $activeSubscription */
-        $activeSubscription = $tenant->subscriptions()->where('stripe_status', '=', 'active')->first();
+        $activeSubscription = $tenant->subscriptions()->current()->first();
 
         return $activeSubscription->quantity <= $employeesCount;
     }
