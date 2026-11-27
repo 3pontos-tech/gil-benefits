@@ -56,6 +56,36 @@ it('reports a subscription without access as neither active nor valid', function
         ->and($subscription->valid())->toBeFalse();
 })->with(['pending', 'inactive', 'defaulter']);
 
+it('decides access from the status, the end date and the trial end date', function (string $status, ?string $endsAt, ?string $trialEndsAt, bool $grantsAccess): void {
+    $this->freezeTime();
+    $company = Company::factory()->create();
+    $subscription = subscriptionWithStatus($company, $status, [
+        'ends_at' => $endsAt === null ? null : now()->modify($endsAt),
+        'trial_ends_at' => $trialEndsAt === null ? null : now()->modify($trialEndsAt),
+    ]);
+
+    $isValid = $subscription->valid();
+
+    expect($isValid)->toBe($grantsAccess);
+})->with([
+    'active, no end date' => ['active', null, null, true],
+    'active, cancelled with the paid period still running' => ['active', '+10 days', null, true],
+    'active, paid period already over' => ['active', '-1 day', null, false],
+    'trialing, trial running' => ['trialing', null, '+10 days', true],
+    'trialing, trial already over' => ['trialing', null, '-1 day', true],
+    'past_due, gateway still retrying' => ['past_due', null, null, false],
+    'unpaid, gateway gave up retrying' => ['unpaid', null, null, false],
+    'incomplete, first payment not confirmed' => ['incomplete', null, null, false],
+    'incomplete_expired, first payment never confirmed' => ['incomplete_expired', null, null, false],
+    'canceled, paid period still running' => ['canceled', '+10 days', null, true],
+    'canceled, paid period already over' => ['canceled', '-1 day', null, false],
+    'canceled without an end date' => ['canceled', null, null, true],
+    'pending checkout' => ['pending', null, null, false],
+    'inactive' => ['inactive', null, null, false],
+    'defaulter' => ['defaulter', null, null, false],
+    'defaulter with the paid period still running' => ['defaulter', '+10 days', null, false],
+]);
+
 it('excludes subscriptions without access from the grantingAccess scope', function (): void {
     $company = Company::factory()->create();
 
