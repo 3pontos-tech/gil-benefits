@@ -52,6 +52,16 @@ it('all() leaves out a retired provider plan that reuses an active slug', functi
     expect($plans->pluck('productId')->all())->toBe([$stripePlan->provider_product_id]);
 });
 
+it('offers only the active price after a price change', function (): void {
+    $plan = Plan::factory()->active()->stripe()->create();
+    Price::factory()->for($plan, 'plan')->inactive()->create(['provider_price_id' => 'price_old']);
+    Price::factory()->for($plan, 'plan')->create(['provider_price_id' => 'price_new']);
+
+    $plans = collect((new EloquentPlanRepository)->all());
+
+    expect($plans->sole()->prices->pluck('priceId')->all())->toBe(['price_new']);
+});
+
 it('getActiveTenantPlan() returns only stripe plan', function (): void {
     $stripePlan = Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::Company])->create();
     Price::factory()->for($stripePlan, 'plan')->create();
