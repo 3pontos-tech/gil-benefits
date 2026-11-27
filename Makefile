@@ -60,12 +60,13 @@ essentials-seeder: ## Run the essentials seeder
 	@echo "Running Essentials Seeder..."
 	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Essentials Seeder completed."
-	@echo "Seeding Virtu"
-	@php artisan virtu:plan:create flamma-gold-virtu "Flamma Gold" 15000 --type=user --audience=subsidized
-	@php artisan virtu:plan:create flamma-gold-virtu "Flamma Gold" 25000 --type=user --audience=standalone
-	@php artisan virtu:plan:create flamma-platinum-virtu "Flamma Platinum" 18900 --type=user --audience=subsidized
-	@php artisan virtu:plan:create flamma-platinum-virtu "Flamma Platinum" 30000 --type=user --audience=standalone
-	@php artisan virtu:plan:create flamma-black-virtu "Flamma Black" 25000 --type=user --audience=subsidized
+	@echo "Seeding Stripe plans (needs STRIPE_SECRET with a test key)"
+	@php artisan stripe:plan:create flamma-company "Flamma Empresas" 4490 --type=company --audience=subsidized
+	@php artisan stripe:plan:create flamma-gold "Flamma Gold" 15000 --type=user --audience=subsidized
+	@php artisan stripe:plan:create flamma-gold "Flamma Gold" 25000 --type=user --audience=standalone
+	@php artisan stripe:plan:create flamma-platinum "Flamma Platinum" 18900 --type=user --audience=subsidized
+	@php artisan stripe:plan:create flamma-platinum "Flamma Platinum" 30000 --type=user --audience=standalone
+	@php artisan stripe:plan:create flamma-black "Flamma Black" 25000 --type=user --audience=subsidized
 	@php artisan app:sync-subscription-to-flamma-company
 
 .PHONY: stripe-listen

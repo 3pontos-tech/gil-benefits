@@ -24,25 +24,3 @@ it('leaves the existing barte driver untouched', function (): void {
     expect(resolve(BillingManager::class)->getDriver(BillingProviderEnum::Barte))
         ->toBeInstanceOf(BarteAdapter::class);
 });
-
-it('sells new subscriptions through virtu', function (): void {
-    // TenantSubscriptionPage lê checkoutCases()[0], então a posição importa
-    // tanto quanto a presença.
-    expect(BillingProviderEnum::checkoutCases()[0])->toBe(BillingProviderEnum::Virtu);
-});
-
-it('still honours subscriptions sold through the previous gateways', function (): void {
-    // Barte saiu do checkout mas não do reconhecimento: quem já assinou por ela
-    // continua com acesso.
-    expect(BillingProviderEnum::activeCases())
-        ->toContain(BillingProviderEnum::Barte)
-        ->toContain(BillingProviderEnum::Stripe)
-        ->toContain(BillingProviderEnum::Virtu);
-});
-
-it('defaults to the gateway that sells today', function (): void {
-    $manager = resolve(BillingManager::class);
-
-    expect($manager->getDefaultDriver())->toBe(BillingProviderEnum::checkoutCases()[0]->value)
-        ->and($manager->getDriver())->toBeInstanceOf(VirtuAdapter::class);
-});

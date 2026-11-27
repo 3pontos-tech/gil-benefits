@@ -40,20 +40,16 @@ it('getPlansFor() returns only barte plans', function (): void {
     expect($plans->first()->productId)->toBe($bartePlan->provider_product_id);
 })->skip();
 
-it('all() preserves plans with the same slug across active providers', function (): void {
+it('all() leaves out a retired provider plan that reuses an active slug', function (): void {
     $stripePlan = Plan::factory()->active()->stripe()->state(['slug' => 'pro'])->create();
     Price::factory()->for($stripePlan, 'plan')->create();
 
     $bartePlan = Plan::factory()->active()->barte()->state(['slug' => 'pro'])->create();
     Price::factory()->for($bartePlan, 'plan')->create();
 
-    $repository = new EloquentPlanRepository;
-    $plans = collect($repository->all());
+    $plans = collect((new EloquentPlanRepository)->all());
 
-    expect($plans)->toHaveCount(2);
-    expect($plans->pluck('productId'))
-        ->toContain($stripePlan->provider_product_id)
-        ->toContain($bartePlan->provider_product_id);
+    expect($plans->pluck('productId')->all())->toBe([$stripePlan->provider_product_id]);
 });
 
 it('getActiveTenantPlan() returns only stripe plan', function (): void {

@@ -141,7 +141,7 @@ make stripe-listen  # Forward Stripe webhooks to localhost:8000
 | Framework | Laravel 13 |
 | Admin UI | Filament 5 |
 | Frontend | Vite 6, Tailwind CSS 4, Axios |
-| Billing | Gateway por módulo de integração (`integration-*`) |
+| Billing | Stripe, pelo módulo `integration-stripe` |
 | Media | Spatie Laravel MediaLibrary |
 | Mail | Resend |
 | Queue / Cache / Session | Database driver (default) |

@@ -75,7 +75,7 @@ describe('company access during gateway migration', function (): void {
         filament()->setTenant($this->company);
     });
 
-    it('lets a company through when it has an active Stripe subscription (legacy)', function (): void {
+    it('lets a company through when it has an active Stripe subscription', function (): void {
         legacyActiveSubscription($this->company, $this->stripePlan->slug);
 
         $middleware = makeCompanyMiddleware();
@@ -85,14 +85,14 @@ describe('company access during gateway migration', function (): void {
         expect($response->getContent())->toBe('ok');
     });
 
-    it('lets a company through when it has an active Barte subscription (current gateway)', function (): void {
+    it('no longer lets a company through on a plan of a retired gateway', function (): void {
         legacyActiveSubscription($this->company, $this->bartePlan->slug);
 
         $middleware = makeCompanyMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
-        expect($response->getContent())->toBe('ok');
+        expect($response->isRedirect())->toBeTrue();
     });
 
     it('redirects a company that has no subscription on any provider', function (): void {
@@ -182,7 +182,7 @@ describe('user access during gateway migration', function (): void {
         filament()->setTenant($this->company);
     });
 
-    it('lets a user through when both the company and the user are on a legacy Stripe plan', function (): void {
+    it('lets a user through when both the company and the user are on a Stripe plan', function (): void {
         legacyActiveSubscription($this->company, 'company');
         legacyActiveSubscription($this->employee, $this->stripePlan->slug);
 
@@ -193,7 +193,7 @@ describe('user access during gateway migration', function (): void {
         expect($response->getContent())->toBe('ok');
     });
 
-    it('lets a user through when both the company and the user are on a Barte plan', function (): void {
+    it('no longer lets a user through on a personal plan of a retired gateway', function (): void {
         legacyActiveSubscription($this->company, 'company');
         legacyActiveSubscription($this->employee, $this->bartePlan->slug);
 
@@ -201,7 +201,7 @@ describe('user access during gateway migration', function (): void {
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
-        expect($response->getContent())->toBe('ok');
+        expect($response->isRedirect())->toBeTrue();
     });
 
     it('redirects to the plan-inactive page when the company has no active subscription on any provider', function (): void {

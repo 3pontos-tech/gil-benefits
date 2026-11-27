@@ -2,7 +2,7 @@
 
 ## Motivação
 
-O sistema foi refatorado para remover a dependência direta do Stripe do código de negócio, permitindo que múltiplos provedores de pagamento sejam utilizados de forma intercambiável. O gateway que vende hoje é a **Virtu**.
+O sistema foi refatorado para remover a dependência direta do Stripe do código de negócio, permitindo que múltiplos provedores de pagamento sejam utilizados de forma intercambiável. O gateway que vende hoje é o **Stripe**.
 
 Cada gateway mora no seu próprio módulo — `integration-virtu`, `integration-barte` — e registra o driver no `BillingManager`. O billing define o contrato e o núcleo agnóstico; ele não implementa gateway.
 
@@ -105,8 +105,8 @@ enum BillingProviderEnum: string
 #### Migração entre gateways
 
 Hoje:
-- `activeCases()` contém `[Stripe, Barte, Virtu]`: os planos desses providers entram na verificação de acesso.
-- `checkoutCases()` contém apenas `[Virtu]`, o gateway que vende novas assinaturas.
+- `activeCases()` contém `[Stripe]`: só os planos dele entram na verificação de acesso.
+- `checkoutCases()` contém `[Stripe]`, o gateway que vende novas assinaturas.
 
 Quando os planos de um gateway legado expirarem, basta removê-lo de `activeCases()`. Para trocar o gateway de venda, basta atualizar `checkoutCases()` — nenhum outro arquivo precisa ser alterado. `TenantSubscriptionPage` lê `checkoutCases()[0]`, então a posição importa tanto quanto a presença; o docblock do enum explica por que hoje há um só elemento.
 
@@ -116,9 +116,9 @@ Quando os planos de um gateway legado expirarem, basta removê-lo de `activeCase
 
 | Adapter | Módulo | Provedor |
 |---|---|---|
-| `VirtuAdapter` | `integration-virtu` | Virtu/Pagaa (via `VirtuClient`) — vende hoje |
-| `BarteAdapter` | `integration-barte` | Barte (via `BarteClient`) — legado com acesso |
-| `StripeAdapter` | `integration-stripe` | Stripe (via `StripeApi`, sobre o `stripe/stripe-php`) |
+| `VirtuAdapter` | `integration-virtu` | Virtu/Pagaa (via `VirtuClient`) — não vende mais |
+| `BarteAdapter` | `integration-barte` | Barte (via `BarteClient`) — não vende mais |
+| `StripeAdapter` | `integration-stripe` | Stripe (via `StripeApi`, sobre o `stripe/stripe-php`) — vende hoje |
 
 Todos implementam `BillingContract` e encapsulam o cliente do respectivo gateway. O `StripeAdapter` implementa também todas as capacidades opcionais (cancelamento, compra de crédito, desconto e desconto com duração).
 

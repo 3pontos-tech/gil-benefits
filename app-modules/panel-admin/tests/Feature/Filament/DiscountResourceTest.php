@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use Filament\Actions\Testing\TestAction;
+use Tests\Fakes\FakeBillingContract;
+use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
@@ -241,9 +243,20 @@ it('requires the number of charges for a repeating duration', function (): void 
 });
 
 it('warns when the gateway does not support the chosen duration', function (): void {
+    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock): void {
+        $mock->makePartial();
+        $mock->shouldReceive('getDriver')->andReturn(new FakeBillingContract);
+    }));
+
     livewire(CreateDiscount::class)
         ->fillForm(['duration' => DiscountDurationEnum::Once->value])
         ->assertSee('Duração não suportada pelo gateway de pagamento');
+});
+
+it('does not warn when the gateway charges a limited duration', function (): void {
+    livewire(CreateDiscount::class)
+        ->fillForm(['duration' => DiscountDurationEnum::Once->value])
+        ->assertDontSee('Duração não suportada pelo gateway de pagamento');
 });
 
 it('does not warn for a forever duration', function (): void {
