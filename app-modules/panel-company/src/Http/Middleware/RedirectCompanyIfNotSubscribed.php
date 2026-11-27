@@ -38,11 +38,10 @@ readonly class RedirectCompanyIfNotSubscribed
         collect(BillingProviderEnum::checkoutCases())
             ->each(fn (BillingProviderEnum $provider) => $this->billingManager->getDriver($provider)->ensureCustomerExists($tenant));
 
-        $hasValidSubscription = collect(BillingProviderEnum::activeCases())
-            ->contains(fn (BillingProviderEnum $provider): bool => array_any(
-                $plans,
-                fn (PlanEntity $plan): bool => $this->billingManager->getDriver($provider)->isSubscribed($tenant, $plan->slug)
-            ));
+        $hasValidSubscription = array_any(
+            $plans,
+            fn (PlanEntity $plan): bool => $tenant->subscriptions->grantsAccessTo($plan->slug),
+        );
 
         if ($hasValidSubscription) {
             return $next($request);

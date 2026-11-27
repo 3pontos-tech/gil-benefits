@@ -4,6 +4,7 @@ use App\Models\Users\Detail;
 use App\Models\Users\User;
 use Filament\Actions\Testing\TestAction;
 use Illuminate\Support\Facades\Mail;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\PanelCompany\Filament\Pages\Tenancy\EditTenantProfile;
 use TresPontosTech\User\Mail\WelcomeUserMail;
 
@@ -173,5 +174,30 @@ describe('validation tests', function (): void {
                     ]]
             )
             ->assertHasFormErrors(['detail.document_id' => __('panel-company::validation.unique_at_company')]);
+    });
+});
+
+describe('seat capacity while the company is a defaulter', function (): void {
+    beforeEach(function (): void {
+        actingAsCompanyOwner();
+        $this->company = filament()->getTenant();
+        $this->company->employees()->attach(User::factory()->employee()->create()->getKey(), ['active' => true]);
+        $this->activeEmployees = $this->company->employees()->wherePivot('active', true)->count();
+    });
+
+    it('allows inviting while seats are free', function (): void {
+        $this->company->subscriptions()->update(['stripe_status' => Subscription::STATUS_DEFAULTER, 'quantity' => $this->activeEmployees + 1]);
+
+        livewire(EditTenantProfile::class)
+            ->assertOk()
+            ->assertActionEnabled(TestAction::make('Invite Member')->table());
+    });
+
+    it('blocks inviting once every seat is taken', function (): void {
+        $this->company->subscriptions()->update(['stripe_status' => Subscription::STATUS_DEFAULTER, 'quantity' => $this->activeEmployees]);
+
+        livewire(EditTenantProfile::class)
+            ->assertOk()
+            ->assertActionDisabled(TestAction::make('Invite Member')->table());
     });
 });

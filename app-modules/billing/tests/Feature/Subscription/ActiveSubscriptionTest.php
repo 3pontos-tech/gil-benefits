@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Models\Users\User;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
+
+it('takes as the current subscription only one that pays for the person right now', function (string $status, ?string $endsAt, bool $isCurrent): void {
+    $this->freezeTime();
+    $user = User::factory()->create();
+    $user->subscriptions()->create([
+        'type' => 'gold',
+        'stripe_id' => 'sub_1',
+        'stripe_status' => $status,
+        'quantity' => 1,
+        'ends_at' => $endsAt === null ? null : now()->modify($endsAt),
+    ]);
+
+    $current = $user->activeSubscription()->exists();
+
+    expect($current)->toBe($isCurrent);
+})->with([
+    'active' => ['active', null, true],
+    'active, cancelled with the paid period still running' => ['active', '+10 days', true],
+    'active, paid period already over' => ['active', '-1 day', false],
+    'defaulter, gateway still retrying' => ['defaulter', null, true],
+    'defaulter, paid period already over' => ['defaulter', '-1 day', false],
+    'pending checkout' => ['pending', null, false],
+    'inactive' => ['inactive', null, false],
+]);
+
+it('does not take a subscription sold through a retired gateway, even after its catalog was deleted', function (string $provider, bool $isCurrent): void {
+    $plan = Plan::factory()->create(['provider' => $provider]);
+    $price = Price::factory()->for($plan, 'plan')->create();
+    $plan->delete();
+    $user = User::factory()->create();
+    $user->subscriptions()->create([
+        'type' => 'gold',
+        'stripe_id' => 'sub_1',
+        'stripe_status' => 'active',
+        'stripe_price' => $price->provider_price_id,
+        'quantity' => 1,
+    ]);
+
+    expect($user->activeSubscription()->exists())->toBe($isCurrent);
+})->with([
+    'barte' => [BillingProviderEnum::Barte->value, false],
+    'virtu' => [BillingProviderEnum::Virtu->value, false],
+    'stripe' => [BillingProviderEnum::Stripe->value, true],
+]);
+
+it('takes the newest subscription when more than one still pays', function (): void {
+    $user = User::factory()->create();
+    Subscription::factory()->for($user, 'owner')->defaulter()->create(['created_at' => now()->subYear()]);
+    $newest = Subscription::factory()->for($user, 'owner')->active()->create();
+
+    expect($user->activeSubscription()->first()?->is($newest))->toBeTrue()
+        ->and(User::query()->with('activeSubscription')->find($user->id)->activeSubscription?->is($newest))->toBeTrue();
+});

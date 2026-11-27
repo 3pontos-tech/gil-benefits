@@ -18,8 +18,8 @@ it('getCheckoutPlansFor() returns only plans from checkoutCases providers', func
         ->create();
     Price::factory()->for($checkoutPlan, 'plan')->create();
 
-    // Stripe and Contractual plans must be invisible on the checkout page
-    Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create();
+    // Plans of a retired gateway and contractual plans must be invisible on the checkout page
+    Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create();
     Plan::factory()->active()->contractual()->state(['type' => BillableTypeEnum::User])->create();
 
     $plans = (new EloquentPlanRepository)->getCheckoutPlansFor('user');
@@ -28,8 +28,8 @@ it('getCheckoutPlansFor() returns only plans from checkoutCases providers', func
         ->and($plans->first()->productId)->toBe($checkoutPlan->provider_product_id);
 });
 
-it('getCheckoutPlansFor() does not expose legacy stripe plans to new subscribers', function (): void {
-    Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create();
+it('getCheckoutPlansFor() does not expose plans of a retired gateway to new subscribers', function (): void {
+    Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create();
 
     $plans = (new EloquentPlanRepository)->getCheckoutPlansFor('user');
 
@@ -54,22 +54,21 @@ it('getCheckoutPlansFor() respects checkoutCases() — only providers listed the
     expect($plans)->toHaveCount($providers->count());
 });
 
-it('getPlansFor() still returns plans from all active providers for subscription verification', function (): void {
-    // getPlansFor() is used by the middleware to CHECK existing subscriptions,
-    // so it must include ALL activeCases() providers — including legacy Stripe.
-    $stripePlan = Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create();
-    Price::factory()->for($stripePlan, 'plan')->create();
+it('getPlansFor() returns the plans of every activeCases provider and nothing else', function (): void {
+    // getPlansFor() is used by the middleware to CHECK existing subscriptions.
+    $activePlanIds = collect(BillingProviderEnum::activeCases())->map(function (BillingProviderEnum $provider): string {
+        $plan = Plan::factory()->active()->forProvider($provider)->state(['type' => BillableTypeEnum::User])->create();
+        Price::factory()->for($plan, 'plan')->create();
 
-    $bartePlan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create();
-    Price::factory()->for($bartePlan, 'plan')->create();
+        return $plan->provider_product_id;
+    });
 
+    $retiredPlan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create();
+    Price::factory()->for($retiredPlan, 'plan')->create();
     Plan::factory()->active()->contractual()->state(['type' => BillableTypeEnum::User])->create();
 
     $plans = (new EloquentPlanRepository)->getPlansFor('user');
 
-    $productIds = $plans->map(fn ($p) => $p->productId);
-
-    expect($plans)->toHaveCount(2)
-        ->and($productIds)->toContain($stripePlan->provider_product_id)
-        ->and($productIds)->toContain($bartePlan->provider_product_id);
+    expect($plans->map(fn ($plan) => $plan->productId)->sort()->values()->all())
+        ->toBe($activePlanIds->sort()->values()->all());
 });

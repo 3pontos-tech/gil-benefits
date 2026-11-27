@@ -1,0 +1,24 @@
+{
+	"name": "3pontos-tech/integration-stripe",
+	"description": "Integração com o gateway de pagamento Stripe",
+	"type": "library",
+	"version": "1.0",
+	"license": "proprietary",
+	"require": {},
+	"autoload": {
+		"psr-4": {
+			"TresPontosTech\\IntegrationStripe\\": "src/",
+			"TresPontosTech\\IntegrationStripe\\Tests\\": "tests/",
+			"TresPontosTech\\IntegrationStripe\\Database\\Factories\\": "database/factories/",
+			"TresPontosTech\\IntegrationStripe\\Database\\Seeders\\": "database/seeders/"
+		}
+	},
+	"minimum-stability": "stable",
+	"extra": {
+		"laravel": {
+			"providers": [
+				"TresPontosTech\\IntegrationStripe\\Providers\\IntegrationStripeServiceProvider"
+			]
+		}
+	}
+}

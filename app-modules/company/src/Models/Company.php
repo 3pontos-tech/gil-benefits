@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Laravel\Cashier\Billable;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -53,8 +52,6 @@ use TresPontosTech\Tenant\Policies\CompanyPolicy;
 #[UsePolicy(CompanyPolicy::class)]
 class Company extends Model implements HasAvatar, HasMedia
 {
-    use Billable;
-
     /** @use HasFactory<CompanyFactory> */
     use HasFactory;
 

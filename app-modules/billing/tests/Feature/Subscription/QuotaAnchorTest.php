@@ -46,7 +46,7 @@ it('anchors on the first activation through the barte path', function (): void {
         ->toBe('2026-04-22 15:30:00');
 });
 
-it('anchors a subscription written through the billable relation, as cashier does for stripe', function (): void {
+it('anchors a subscription written through the billable relation', function (): void {
     travelTo('2026-05-07 11:00');
     $user = User::factory()->create();
 

@@ -28,7 +28,7 @@ beforeEach(function (): void {
     $this->company->employees()->attach($user);
     filament()->setTenant($this->company);
 
-    $fake = new FakeBillingContract(isSubscribed: false);
+    $fake = new FakeBillingContract;
 
     $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake): void {
         $mock->makePartial();
@@ -65,12 +65,13 @@ it('should access dashboard when company has an active billing subscription', fu
         'provider_price_id' => 'price_test_company',
     ]);
 
-    $fake = new FakeBillingContract(isSubscribed: true);
-
-    $this->instance(BillingManager::class, Mockery::mock(new BillingManager(app()), function ($mock) use ($fake): void {
-        $mock->makePartial();
-        $mock->shouldReceive('getDriver')->andReturn($fake);
-    }));
+    $this->company->subscriptions()->create([
+        'type' => 'plano-empresa-teste',
+        'stripe_id' => 'sub_test_company',
+        'stripe_status' => 'active',
+        'stripe_price' => 'price_test_company',
+        'quantity' => 1,
+    ]);
 
     get(route('filament.company.pages.dashboard', ['tenant' => $this->company->slug]))
         ->assertOk();
@@ -90,7 +91,6 @@ it('should create a subscription when checkout is called', function (): void {
     ]);
 
     $fake = new FakeBillingContract(
-        isSubscribed: false,
         createCheckoutUsing: function (Company $billable, CheckoutData $data): string {
             $billable->subscriptions()->create([
                 'type' => 'company',

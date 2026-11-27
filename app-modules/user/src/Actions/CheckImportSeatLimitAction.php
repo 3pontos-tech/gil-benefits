@@ -39,7 +39,7 @@ final readonly class CheckImportSeatLimitAction
             return $contractualPlan->seats - $currentActiveCount;
         }
 
-        $activeSubscription = $company->subscriptions()->where('stripe_status', 'active')->first();
+        $activeSubscription = $company->subscriptions()->current()->first();
 
         if ($activeSubscription === null) {
             return null;

@@ -44,6 +44,11 @@ class SubscriptionFactory extends Factory
         return $this->state(['stripe_status' => 'past_due']);
     }
 
+    public function defaulter(): self
+    {
+        return $this->state(['stripe_status' => Subscription::STATUS_DEFAULTER]);
+    }
+
     public function canceled(): self
     {
         return $this->state(['stripe_status' => 'canceled']);

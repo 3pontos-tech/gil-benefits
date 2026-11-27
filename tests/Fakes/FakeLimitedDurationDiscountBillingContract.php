@@ -16,11 +16,6 @@ final class FakeLimitedDurationDiscountBillingContract implements BillingContrac
 {
     public function ensureCustomerExists(Company|User $billable): void {}
 
-    public function isSubscribed(Company|User $billable, string $planSlug): bool
-    {
-        return false;
-    }
-
     public function createCheckout(Company|User $billable, CheckoutData $data): string
     {
         return 'https://checkout.test';
@@ -34,10 +29,5 @@ final class FakeLimitedDurationDiscountBillingContract implements BillingContrac
     public function billingPortal(Company|User $billable, string $returnUrl): BillingPortal
     {
         return BillingPortal::external('https://billing.test');
-    }
-
-    public function hasActiveSubscription(Company|User $billable): bool
-    {
-        return false;
     }
 }

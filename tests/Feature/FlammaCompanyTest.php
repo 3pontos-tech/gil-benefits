@@ -38,11 +38,6 @@ it('should redirect to available subscriptions if company is not flamma company'
     {
         public function ensureCustomerExists($tenant): void {}
 
-        public function isSubscribed($tenant, string $planSlug): bool
-        {
-            return true;
-        }
-
         public function getSubscriptionId($tenant): string
         {
             return 'fake_id_123';
@@ -66,11 +61,6 @@ it('should redirect to available subscriptions if company is not flamma company'
         public function billingPortal(User|Company $billable, string $returnUrl): BillingPortal
         {
             return BillingPortal::external('billingPortal');
-        }
-
-        public function hasActiveSubscription(User|Company $billable): bool
-        {
-            return true;
         }
 
         public function cancelSubscription(User|Company $billable): void {}
@@ -105,11 +95,6 @@ it('should render EditTenantProfile correctly if company has active plans', func
     {
         public function ensureCustomerExists($tenant): void {}
 
-        public function isSubscribed($tenant, string $planSlug): bool
-        {
-            return true;
-        }
-
         public function getSubscriptionId($tenant): string
         {
             return 'fake_id_123';
@@ -133,11 +118,6 @@ it('should render EditTenantProfile correctly if company has active plans', func
         public function billingPortal(User|Company $billable, string $returnUrl): BillingPortal
         {
             return BillingPortal::external('billingPortal');
-        }
-
-        public function hasActiveSubscription(User|Company $billable): bool
-        {
-            return true;
         }
 
         public function cancelSubscription(User|Company $billable): void {}

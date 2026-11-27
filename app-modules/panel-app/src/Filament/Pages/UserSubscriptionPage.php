@@ -197,13 +197,7 @@ class UserSubscriptionPage extends Page
         /** @var User $user */
         $user = auth()->user();
 
-        $plan = resolve(PlanRepository::class)->get($this->selectedPlanSlug);
-
-        $active = resolve(BillingManager::class)
-            ->getDriver($plan->provider)
-            ->hasActiveSubscription($user);
-
-        if ($active) {
+        if ($user->subscriptions->grantsAnyAccess()) {
             $this->dispatch('close-modal', id: 'waiting-for-payment');
             $this->redirect(UserDashboard::getUrl());
         }

@@ -28,9 +28,10 @@ final class UpsertSubscription
      */
     public function handle(SubscriptionDTO $dto): void
     {
-        $subscription = Subscription::query()->firstOrNew(['stripe_id' => $dto->subscriptionExternalId]);
+        $subscription = $this->find($dto) ?? new Subscription;
 
         $subscription->fill([
+            'stripe_id' => $dto->subscriptionExternalId,
             'subscriptionable_type' => $dto->billableType,
             'subscriptionable_id' => $dto->billableId,
             'type' => $dto->planSlug,
@@ -50,5 +51,16 @@ final class UpsertSubscription
         }
 
         $subscription->save();
+    }
+
+    private function find(SubscriptionDTO $dto): ?Subscription
+    {
+        $subscription = Subscription::query()->where('stripe_id', $dto->subscriptionExternalId)->first();
+
+        if ($subscription instanceof Subscription || $dto->checkoutReference === null) {
+            return $subscription;
+        }
+
+        return Subscription::query()->where('stripe_id', $dto->checkoutReference)->first();
     }
 }

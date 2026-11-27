@@ -19,10 +19,10 @@ use TresPontosTech\PanelAdmin\DTOs\Financial\PaymentStatusRow;
  * Pagamentos do mês por situação (STORY-236).
  *
  * A story pedia cinco status: aprovado, pendente, recusado, expirado e
- * estornado. Três não existem na origem — a Virtu não emite evento de cobrança
- * recusada (uma renovação que falha não gera cobrança nenhuma, só muda o status
- * da assinatura), não há conceito de expiração, e estorno chega mas ainda não é
- * tratado. A tela entrega os três que existem e diz isso ao usuário (D-04).
+ * estornado. Três não existem na origem — não gravamos cobrança recusada (uma
+ * renovação que falha chega só como mudança de status da assinatura), não há
+ * conceito de expiração, e estorno não é tratado. A tela entrega os três que
+ * existem e diz isso ao usuário (D-04).
  */
 final class GetPaymentTotals
 {

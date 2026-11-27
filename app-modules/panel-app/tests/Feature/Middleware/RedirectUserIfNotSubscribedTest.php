@@ -5,7 +5,6 @@ use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
-use Laravel\Cashier\Cashier;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
@@ -39,10 +38,6 @@ beforeEach(function (): void {
     $this->middleware = resolve(RedirectUserIfNotSubscribed::class);
     $this->request = Request::create('/app/test');
     $this->next = fn (Request $req): Response => new Response('ok');
-});
-
-afterEach(function (): void {
-    Cashier::useCustomerModel(User::class);
 });
 
 it('allows access when company has an active contractual plan', function (): void {

@@ -35,7 +35,7 @@ class BillingManagePage extends Page
         $this->subscription = Subscription::query()
             ->where('subscriptionable_type', $company->getMorphClass())
             ->where('subscriptionable_id', $company->getKey())
-            ->where('stripe_status', 'active')
+            ->current()
             ->with('plan')
             ->latest()
             ->first();

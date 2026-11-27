@@ -21,7 +21,7 @@ class EloquentPlanRepository implements PlanRepository
             ->whereIn('provider', BillingProviderEnum::activeCases())
             ->get()
             // Chave composta provider:slug — slug não é único entre providers (constraint unique(['provider','slug'])),
-            // então keyar só por slug colapsaria planos homônimos de Stripe/Barte (ambos em activeCases()).
+            // então keyar só por slug colapsaria planos homônimos se houver mais de um provider em activeCases().
             ->mapWithKeys(fn (Plan $plan): array => [sprintf('%s:%s', $plan->provider->value, $plan->slug) => PlanEntity::fromEloquent($plan)])
             ->all();
     }

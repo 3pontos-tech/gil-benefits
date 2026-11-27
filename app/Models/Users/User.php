@@ -31,7 +31,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
-use Laravel\Cashier\Billable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
@@ -81,7 +80,6 @@ use TresPontosTech\User\Support\EmailAddress;
 #[ObservedBy(UserObserver::class)]
 class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaultTenant, HasMedia, HasTenants
 {
-    use Billable;
     use HasApiTokens;
 
     /** @use HasFactory<UserFactory> */
@@ -606,7 +604,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     public function activeSubscription(): MorphOne
     {
         return $this->morphOne(Subscription::class, 'subscriptionable')
-            ->where('stripe_status', 'active');
+            ->current()
+            ->latest();
     }
 
     /**

@@ -23,7 +23,7 @@ class PriceFactory extends Factory
             'tiers_mode' => $this->faker->word(),
             'type' => $this->faker->word(),
             'unit_amount_decimal' => $this->faker->randomNumber(),
-            'active' => $this->faker->boolean(),
+            'active' => true,
             'provider_price_id' => $this->faker->word(),
             'audience' => PriceAudienceEnum::Subsidized,
             'metadata' => $this->faker->words(),
@@ -31,6 +31,11 @@ class PriceFactory extends Factory
             'updated_at' => Date::now(),
             'billing_plan_id' => Plan::factory(),
         ];
+    }
+
+    public function inactive(): self
+    {
+        return $this->state(['active' => false]);
     }
 
     /** Preço de quem não tem empregador subsidiando: valor cheio. */

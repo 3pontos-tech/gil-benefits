@@ -22,8 +22,8 @@ final class CompanyStatusResolver
     /**
      * `stripe_status` → status financeiro.
      *
-     * A coluna guarda tanto os status do Cashier/Stripe quanto os que os handlers
-     * de Virtu e Barte escrevem (`pending`, `defaulter`, `inactive`), então o mapa
+     * A coluna guarda tanto os status do Stripe quanto os que os handlers
+     * dos gateways escrevem (`pending`, `defaulter`, `inactive`), então o mapa
      * cobre os dois vocabulários. Status desconhecido cai em `Cancelled` pelo
      * caminho conservador: melhor não contar como receita viva do que inflar a
      * base de clientes com um estado que ninguém mapeou.
@@ -94,7 +94,7 @@ final class CompanyStatusResolver
 
     /**
      * Trial vence o status persistido enquanto `trial_ends_at` está no futuro:
-     * o Cashier deixa `stripe_status` em `active` durante o teste, e o card
+     * um gateway pode deixar `stripe_status` em `active` durante o teste, e o card
      * "Em Trial" da STORY-233 ficaria sempre zerado se olhássemos só a coluna.
      */
     private function statusFromSubscription(Subscription $subscription, CarbonImmutable $now): CompanyFinancialStatusEnum
@@ -119,10 +119,10 @@ final class CompanyStatusResolver
      * próxima ocorrência futura.
      *
      * O ciclo é sempre mensal porque é o único que o produto vende — o
-     * `VirtuAdapter` fixa `VirtuIntervalEnum::Monthly` ao criar o link, o
-     * `SyncBartePlans` só importa planos `MONTHLY`, e `billing_plans` sequer tem
-     * coluna de intervalo. Se um ciclo diferente passar a existir, este método é
-     * o ponto que precisa mudar — hoje ele não teria como descobrir sozinho.
+     * `StripeAdapter` e o `stripe:plan:create` fixam `interval: month`, e
+     * `billing_plans` sequer tem coluna de intervalo. Se um ciclo diferente passar
+     * a existir, este método é o ponto que precisa mudar — hoje ele não teria como
+     * descobrir sozinho.
      *
      * `addMonthsNoOverflow` cuida da virada de mês curto: âncora no dia 31
      * cai no dia 30 em novembro, e não no dia 1º de dezembro.

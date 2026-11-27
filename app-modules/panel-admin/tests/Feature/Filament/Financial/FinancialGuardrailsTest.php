@@ -29,9 +29,8 @@ arch('o cockpit financeiro não conhece gateway')
         RevenueReconstructor::class,
     ])
     ->not->toUse([
-        'TresPontosTech\IntegrationVirtu',
-        'TresPontosTech\IntegrationBarte',
-        'TresPontosTech\Billing\Stripe',
+        'TresPontosTech\IntegrationStripe',
+        'Stripe',
     ]);
 
 it('não expõe nenhum campo de previsão de receita na tela', function (): void {

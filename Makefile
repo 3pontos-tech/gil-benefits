@@ -60,34 +60,18 @@ essentials-seeder: ## Run the essentials seeder
 	@echo "Running Essentials Seeder..."
 	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
 	@echo "Essentials Seeder completed."
-	@echo "Seeding Virtu"
-	@php artisan virtu:plan:create flamma-gold-virtu "Flamma Gold" 15000 --type=user --audience=subsidized
-	@php artisan virtu:plan:create flamma-gold-virtu "Flamma Gold" 25000 --type=user --audience=standalone
-	@php artisan virtu:plan:create flamma-platinum-virtu "Flamma Platinum" 18900 --type=user --audience=subsidized
-	@php artisan virtu:plan:create flamma-platinum-virtu "Flamma Platinum" 30000 --type=user --audience=standalone
-	@php artisan virtu:plan:create flamma-black-virtu "Flamma Black" 25000 --type=user --audience=subsidized
+	@echo "Seeding Stripe plans (needs STRIPE_SECRET with a test key)"
+	@php artisan stripe:plan:create flamma-company "Flamma Empresas" 4490 --type=company --audience=subsidized
+	@php artisan stripe:plan:create flamma-gold "Flamma Gold" 15000 --type=user --audience=subsidized
+	@php artisan stripe:plan:create flamma-gold "Flamma Gold" 25000 --type=user --audience=standalone
+	@php artisan stripe:plan:create flamma-platinum "Flamma Platinum" 18900 --type=user --audience=subsidized
+	@php artisan stripe:plan:create flamma-platinum "Flamma Platinum" 30000 --type=user --audience=standalone
+	@php artisan stripe:plan:create flamma-black "Flamma Black" 25000 --type=user --audience=subsidized
 	@php artisan app:sync-subscription-to-flamma-company
 
 .PHONY: stripe-listen
-stripe-listen: ## Run Stripe Webhook
-	stripe listen --forward-to localhost:8000/stripe/webhook
-
-.PHONY: stripe-fresh
-stripe-fresh: ## Run migrations and seed the database
-	@echo "Running migrations and seeding the database..."
-	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
-	@echo "Migrations and seeding completed."
-	@echo "Seeding Stripe"
-	@php artisan billing:sync-stripe
-
-
-.PHONY: barte-fresh
-barte-fresh: ## Run migrations and seed the database
-	@echo "Running migrations and seeding the database..."
-	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
-	@echo "Migrations and seeding completed."
-	@echo "Seeding Barte"
-	@php artisan barte:play
+stripe-listen: ## Forward Stripe webhooks to the local app
+	stripe listen --forward-to localhost:8000/webhooks/stripe --events $$(php artisan stripe:webhook:create --list)
 
 .PHONY: env-up
 env-up: ## Start the development environment

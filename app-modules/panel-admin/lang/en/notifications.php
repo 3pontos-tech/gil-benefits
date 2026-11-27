@@ -19,5 +19,9 @@ return [
         'title' => 'Appointment completed',
         'body' => ":name's appointment was completed.",
     ],
+    'stripe_webhook_failed' => [
+        'title' => 'Stripe webhook failed',
+        'body' => 'Stripe event :type (:event_id) was not processed after every retry, and Stripe will not send it again. Re-run the job with queue:retry.',
+    ],
     'unknown_user' => 'Unknown user',
 ];

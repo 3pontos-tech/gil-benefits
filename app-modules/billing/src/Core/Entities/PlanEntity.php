@@ -36,6 +36,10 @@ final readonly class PlanEntity
         throw_if($this->trialDays !== false && $this->trialDays < 0, InvalidArgumentException::class, message: 'Trial days must be greater than 0.');
     }
 
+    /**
+     * Only active prices are sold: a price change retires the old row and keeps it for the
+     * subscriptions that still point at it, so the checkout must not pick it.
+     */
     public static function fromEloquent(Plan $plan): self
     {
         throw_if(
@@ -48,7 +52,7 @@ final readonly class PlanEntity
             name: $plan->name,
             slug: $plan->slug,
             productId: $plan->provider_product_id,
-            prices: $plan->prices->map(fn (Price $price): PriceEntity => PriceEntity::fromEloquent($price->toArray())),
+            prices: $plan->prices->where('active', true)->values()->map(fn (Price $price): PriceEntity => PriceEntity::fromEloquent($price->toArray())),
             trialDays: $plan->trial_days,
             hasGenericTrial: $plan->has_generic_trial,
             allowPromotionCodes: $plan->allow_promotion_codes,
@@ -76,7 +80,7 @@ final readonly class PlanEntity
             allowPromotionCodes: false,
             collectTaxIds: false,
             isMeteredPrice: false,
-            provider: BillingProviderEnum::Barte
+            provider: BillingProviderEnum::checkoutCases()[0]
         );
     }
 }

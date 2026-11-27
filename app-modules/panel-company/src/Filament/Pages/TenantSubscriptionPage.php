@@ -97,11 +97,7 @@ class TenantSubscriptionPage extends Page
         /** @var Company $tenant */
         $tenant = Filament::getTenant();
 
-        $active = resolve(BillingManager::class)
-            ->getDriver($this->checkoutProvider())
-            ->hasActiveSubscription($tenant);
-
-        if ($active) {
+        if ($tenant->subscriptions->grantsAnyAccess()) {
             $this->dispatch('close-modal', id: 'waiting-for-payment');
             $this->redirect(Dashboard::getUrl());
         }

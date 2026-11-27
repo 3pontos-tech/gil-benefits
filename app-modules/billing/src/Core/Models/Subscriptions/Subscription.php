@@ -2,22 +2,26 @@
 
 namespace TresPontosTech\Billing\Core\Models\Subscriptions;
 
-use App\Models\Users\User;
+use Illuminate\Database\Eloquent\Attributes\CollectedBy;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
-use Laravel\Cashier\Subscription as BaseSubscriptionModel;
+use TresPontosTech\Billing\Core\Models\Builders\SubscriptionBuilder;
+use TresPontosTech\Billing\Core\Models\Collections\SubscriptionCollection;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Observers\SubscriptionQuotaAnchorObserver;
 use TresPontosTech\Billing\Database\Factories\SubscriptionFactory;
-use TresPontosTech\Company\Models\Company;
 
 /**
+ * @property int $id
  * @property string $subscriptionable_type
  * @property string $subscriptionable_id
  * @property string $type
@@ -34,8 +38,15 @@ use TresPontosTech\Company\Models\Company;
  * @property Carbon|null $updated_at
  */
 #[ObservedBy(SubscriptionQuotaAnchorObserver::class)]
-class Subscription extends BaseSubscriptionModel
+#[UseFactory(SubscriptionFactory::class)]
+#[UseEloquentBuilder(SubscriptionBuilder::class)]
+#[CollectedBy(SubscriptionCollection::class)]
+#[Table(name: 'billing_subscriptions')]
+class Subscription extends Model
 {
+    /** @use HasFactory<SubscriptionFactory> */
+    use HasFactory;
+
     /**
      * Status em que a assinatura passa a valer, nos três provedores: é o que Barte e
      * Virtu mandam no webhook de ativação e o que o Stripe usa fora de trial e
@@ -45,7 +56,13 @@ class Subscription extends BaseSubscriptionModel
      */
     public const string STATUS_ACTIVE = 'active';
 
-    public const array STATUSES_WITHOUT_ACCESS = ['pending', 'inactive', 'defaulter'];
+    /**
+     * Delinquent but still retried by the gateway. Keeps access until the gateway gives up
+     * and cancels; see ADR `2026-11-27-delinquency-keeps-access-until-cancellation`.
+     */
+    public const string STATUS_DEFAULTER = 'defaulter';
+
+    public const array STATUSES_WITHOUT_ACCESS = ['pending', 'inactive'];
 
     /**
      * Status em que a assinatura nunca chegou a valer, nos três provedores.
@@ -57,32 +74,54 @@ class Subscription extends BaseSubscriptionModel
      */
     public const array STATUSES_NEVER_ACTIVATED = ['pending', 'incomplete', 'incomplete_expired'];
 
-    protected $table = 'billing_subscriptions';
+    protected $fillable = [
+        'subscriptionable_type',
+        'subscriptionable_id',
+        'type',
+        'stripe_id',
+        'stripe_status',
+        'stripe_price',
+        'quantity',
+        'discount_percent',
+        'discount_amount_cents',
+        'trial_ends_at',
+        'ends_at',
+        'quota_anchor_at',
+    ];
 
     public function active(): bool
     {
-        return ! $this->deniesAccessByStatus() && parent::active();
-    }
-
-    public function valid(): bool
-    {
-        return ! $this->deniesAccessByStatus() && parent::valid();
+        return in_array($this->stripe_status, [self::STATUS_ACTIVE, self::STATUS_DEFAULTER], true)
+            && ! $this->ended();
     }
 
     /**
-     * @param  Builder<$this>  $query
-     * @return Builder<$this>
+     * Any other status grants access only while a date says so: a trial still running,
+     * or a paid period still running after a cancellation or a failed renewal. A
+     * `canceled` row without an end date or a `trialing` row past its trial is refused.
      */
-    protected function scopeGrantingAccess(Builder $query): Builder
+    public function valid(): bool
     {
-        return $query->whereNotIn('stripe_status', self::STATUSES_WITHOUT_ACCESS);
+        if ($this->deniesAccessByStatus()) {
+            return false;
+        }
+
+        return $this->active() || $this->onTrial() || $this->onGracePeriod();
     }
 
-    public static function grantsAccess(Company|User $billable, string $type): bool
+    public function onTrial(): bool
     {
-        return $billable->subscriptions
-            ->where('type', $type)
-            ->contains(fn (self $subscription): bool => $subscription->valid());
+        return $this->trial_ends_at?->isFuture() ?? false;
+    }
+
+    public function onGracePeriod(): bool
+    {
+        return $this->ends_at?->isFuture() ?? false;
+    }
+
+    public function ended(): bool
+    {
+        return $this->ends_at !== null && ! $this->onGracePeriod();
     }
 
     private function deniesAccessByStatus(): bool
@@ -91,29 +130,14 @@ class Subscription extends BaseSubscriptionModel
     }
 
     /**
-     * Declarado como método, e não pelo atributo `#[UseFactory]`, porque o Cashier
-     * sobrescreve `newFactory()` no model pai para devolver a factory dele.
-     *
-     * O `#[UseFactory]` só é lido dentro da implementação padrão de `newFactory()`, que
-     * nunca chega a rodar aqui — então o atributo era ignorado em silêncio e
-     * `Subscription::factory()` construía o model do Cashier, com tabela `subscriptions`
-     * e chave de dono `company_id`.
-     *
-     * @return SubscriptionFactory
-     */
-    protected static function newFactory()
-    {
-        return SubscriptionFactory::new();
-    }
-
-    /**
-     * Mesclado com o `$casts` do Cashier, que já cobre `ends_at` e `trial_ends_at`.
-     *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
+            'quantity' => 'integer',
+            'trial_ends_at' => 'datetime',
+            'ends_at' => 'datetime',
             'quota_anchor_at' => 'datetime',
             'discount_percent' => 'integer',
             'discount_amount_cents' => 'integer',
