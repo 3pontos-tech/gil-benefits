@@ -27,6 +27,7 @@ $integration = [
     'TresPontosTech\IntegrationGoogleCalendar',
     'TresPontosTech\IntegrationHighlevel',
     'TresPontosTech\IntegrationMonday',
+    'TresPontosTech\IntegrationStripe',
     'TresPontosTech\IntegrationVirtu',
 ];
 

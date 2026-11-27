@@ -118,8 +118,9 @@ Quando os planos de um gateway legado expirarem, basta removê-lo de `activeCase
 |---|---|---|
 | `VirtuAdapter` | `integration-virtu` | Virtu/Pagaa (via `VirtuClient`) — vende hoje |
 | `BarteAdapter` | `integration-barte` | Barte (via `BarteClient`) — legado com acesso |
+| `StripeAdapter` | `integration-stripe` | Stripe (via `StripeApi`, sobre o `stripe/stripe-php`) |
 
-Todos implementam `BillingContract` e encapsulam o cliente HTTP do respectivo gateway.
+Todos implementam `BillingContract` e encapsulam o cliente do respectivo gateway. O `StripeAdapter` implementa também todas as capacidades opcionais (cancelamento, compra de crédito, desconto e desconto com duração).
 
 Um adapter que não sabe fazer tudo declara a capacidade em interface separada em vez de lançar exceção: `SupportsSubscriptionCancellation` (billing) e `SupportsCreditPurchase` (módulo `credits`).
 
@@ -197,10 +198,26 @@ Os webhooks dos provedores são convertidos em eventos agnósticos antes de qual
 |---|---|
 | `SubscriptionCreated` | `pending` |
 | `SubscriptionActivated` | `active` |
-| `SubscriptionDefaulted` | `defaulter` |
+| `SubscriptionDefaulted` | `defaulter` (mantém o acesso) |
 | `SubscriptionCancelled` | `inactive` |
 
-O listener `SyncSubscriptionOnStatusChange` escuta todos eles e chama `UpsertSubscription` para persistir — sem conhecer o provedor de origem.
+O listener `SyncSubscriptionOnStatusChange` escuta todos eles e chama `UpsertSubscription` para persistir — sem conhecer o provedor de origem. Quando o gateway só conhece o id definitivo depois do pagamento, o DTO traz `checkoutReference` e o upsert move a linha criada no checkout para o id novo, em vez de inserir outra.
+
+### Fluxo de Webhook Stripe
+
+Tudo abaixo mora em `integration-stripe`. O evento é só aviso: o handler lê a assinatura ou a sessão de checkout de novo na API antes de traduzir.
+
+```
+POST /webhooks/stripe
+    → ValidateStripeWebhookSignature (middleware, Stripe-Signature)
+    → StripeWebhookController::handle() (guarda o payload bruto)
+    → HandleStripeWebhookJob (fila, 3 tentativas, um processamento por event id)
+    → HandleStripeWebhook::handle()
+    → StripeApi::retrieveSubscription() | retrieveCheckoutSession()
+    → event(SubscriptionActivated | SubscriptionDefaulted | SubscriptionCancelled | ...)
+    → SyncSubscriptionOnStatusChange
+    → UpsertSubscription::handle()
+```
 
 ### Fluxo de Webhook Barte
 
@@ -226,7 +243,7 @@ POST /webhooks/barte
 
 Quem tem acesso é decidido uma vez só, no núcleo, a partir das nossas linhas — nunca do gateway:
 
-- `Subscription::valid()` responde por uma linha: `active` sem período encerrado, ou trial ainda correndo, ou período pago ainda correndo (`ends_at` no futuro). Os status de `STATUSES_WITHOUT_ACCESS` nunca dão acesso.
+- `Subscription::valid()` responde por uma linha: `active` ou `defaulter` sem período encerrado, ou trial ainda correndo, ou período pago ainda correndo (`ends_at` no futuro). Os status de `STATUSES_WITHOUT_ACCESS` (`pending`, `inactive`) nunca dão acesso. O `defaulter` mantém o acesso enquanto o gateway tenta cobrar (ADR `2026-11-27-delinquency-keeps-access-until-cancellation`).
 - `SubscriptionCollection::grantsAccessTo($slug)` e `grantsAnyAccess()` respondem pelo dono, sobre `$billable->subscriptions`.
 - `SubscriptionBuilder::grantingAccess()` filtra só pelo status, em SQL. É mais frouxo que `valid()` porque não lê as datas.
 
@@ -280,7 +297,7 @@ Registra:
 
 E o `BillingManager` como singleton, pelo motivo descrito na seção do Manager.
 
-Não carrega rotas nem registra comando de gateway: cada módulo de integração cuida dos seus — `SyncBartePlans` (`barte:play`) em `integration-barte`, `CreateVirtuPlanCommand` em `integration-virtu`.
+Não carrega rotas nem registra comando de gateway: cada módulo de integração cuida dos seus — `CreateStripePlanCommand` (`stripe:plan:create`) em `integration-stripe`, `SyncBartePlans` (`barte:play`) em `integration-barte`, `CreateVirtuPlanCommand` em `integration-virtu`.
 
 ---
 
@@ -323,7 +340,7 @@ Não carrega rotas nem registra comando de gateway: cada módulo de integração
 | Módulo | Responsabilidade |
 |---|---|
 | `billing` | Contrato, manager, planos, preços, assinaturas, customers, middlewares de acesso |
-| `integration-virtu`, `integration-barte` | Um gateway cada: adapter, cliente HTTP, webhook, comandos |
+| `integration-stripe`, `integration-virtu`, `integration-barte` | Um gateway cada: adapter, cliente, webhook, comandos |
 | `credits` | Crédito de consultoria: emissão, alocação, consumo, compra avulsa |
 
 A regra: **o billing não conhece gateway nem crédito**. Os módulos de integração dependem do billing e do credits — é o lugar certo para essa dependência, porque só eles precisam traduzir um webhook de gateway em pedido de crédito. Um teste de arquitetura garante que nenhum módulo de domínio use `Laravel\Cashier` nem o SDK `Stripe`.

@@ -40,6 +40,7 @@
         "3pontos-tech/integration-google-calendar": "*",
         "3pontos-tech/integration-highlevel": "*",
         "3pontos-tech/integration-monday": "*",
+        "3pontos-tech/integration-stripe": "*",
         "3pontos-tech/integration-virtu": "*",
         "3pontos-tech/panel-admin": "*",
         "3pontos-tech/panel-app": "*",
@@ -74,6 +75,7 @@
         "spatie/laravel-permission": "^8.0",
         "spatie/simple-excel": "^3.9",
         "stechstudio/filament-impersonate": "^5.3",
+        "stripe/stripe-php": "^23.0",
         "ysfkaya/filament-phone-input": "^4.0"
     },
     "require-dev": {

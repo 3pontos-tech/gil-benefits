@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d205ca129499525cc8adb70f4b09795d",
+    "content-hash": "00099a20bad994de6b6cd1fd2535c230",
     "packages": [
         {
             "name": "3pontos-tech/api",
@@ -409,6 +409,39 @@
             "license": [
                 "proprietary"
             ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "3pontos-tech/integration-stripe",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "app-modules/integration-stripe",
+                "reference": "e26fdaf898606b7d9c764c74856827d7cd914dfb"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "TresPontosTech\\IntegrationStripe\\Providers\\IntegrationStripeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "TresPontosTech\\IntegrationStripe\\": "src/",
+                    "TresPontosTech\\IntegrationStripe\\Tests\\": "tests/",
+                    "TresPontosTech\\IntegrationStripe\\Database\\Factories\\": "database/factories/",
+                    "TresPontosTech\\IntegrationStripe\\Database\\Seeders\\": "database/seeders/"
+                }
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Integração com o gateway de pagamento Stripe",
             "transport-options": {
                 "symlink": true,
                 "relative": true
@@ -10175,6 +10208,68 @@
                 "source": "https://github.com/stechstudio/filament-impersonate/tree/v5.7.0"
             },
             "time": "2026-11-04T01:29:17+00:00"
+        },
+        {
+            "name": "stripe/stripe-php",
+            "version": "v23.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stripe/stripe-php.git",
+                "reference": "f29b7a44597531c304360c3d42959aaf52e33618"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stripe/stripe-php/zipball/f29b7a44597531c304360c3d42959aaf52e33618",
+                "reference": "f29b7a44597531c304360c3d42959aaf52e33618",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=7.4.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "3.94.0",
+                "phpstan/phpstan": "^1.2",
+                "phpunit/phpunit": "^8.0 || ^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "lib/version_check.php"
+                ],
+                "psr-4": {
+                    "Stripe\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stripe and contributors",
+                    "homepage": "https://github.com/stripe/stripe-php/contributors"
+                }
+            ],
+            "description": "Stripe PHP Library",
+            "homepage": "https://stripe.com/",
+            "keywords": [
+                "api",
+                "payment processing",
+                "stripe"
+            ],
+            "support": {
+                "issues": "https://github.com/stripe/stripe-php/issues",
+                "source": "https://github.com/stripe/stripe-php/tree/v23.0.0"
+            },
+            "time": "2026-11-11T19:52:56+00:00"
         },
         {
             "name": "symfony/clock",

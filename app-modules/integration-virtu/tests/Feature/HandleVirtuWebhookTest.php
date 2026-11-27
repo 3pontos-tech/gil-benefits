@@ -327,7 +327,7 @@ it('marks the subscription as defaulter when a renewal stops being paid', functi
     });
 });
 
-it('takes access away from a delinquent subscription', function (): void {
+it('keeps access for a delinquent subscription while it is retried', function (): void {
     pendingVirtuSubscription($this->user, ['stripe_status' => 'active']);
 
     resolve(HandleVirtuWebhook::class)->handle(virtuDelinquencyDto());
@@ -338,7 +338,7 @@ it('takes access away from a delinquent subscription', function (): void {
         'stripe_status' => 'defaulter',
     ]);
 
-    expect($this->user->subscriptions()->get()->grantsAnyAccess())->toBeFalse();
+    expect($this->user->subscriptions()->get()->grantsAnyAccess())->toBeTrue();
 });
 
 it('reactivates the same row when the customer pays again', function (): void {
@@ -411,8 +411,6 @@ it('gives access back when a delinquent subscription is paid again', function ()
 
 it('restores the benefit of a subscription that recovered', function (): void {
     pendingVirtuSubscription($this->user, ['stripe_status' => 'defaulter']);
-
-    expect($this->user->subscriptions()->get()->grantsAnyAccess())->toBeFalse();
 
     resolve(HandleVirtuWebhook::class)->handle(virtuRecoveryDto());
 

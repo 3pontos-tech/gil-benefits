@@ -56,7 +56,13 @@ class Subscription extends Model
      */
     public const string STATUS_ACTIVE = 'active';
 
-    public const array STATUSES_WITHOUT_ACCESS = ['pending', 'inactive', 'defaulter'];
+    /**
+     * Delinquent but still retried by the gateway. Keeps access until the gateway gives up
+     * and cancels; see ADR `2026-11-27-delinquency-keeps-access-until-cancellation`.
+     */
+    public const string STATUS_DEFAULTER = 'defaulter';
+
+    public const array STATUSES_WITHOUT_ACCESS = ['pending', 'inactive'];
 
     /**
      * Status em que a assinatura nunca chegou a valer, nos três provedores.
@@ -85,7 +91,8 @@ class Subscription extends Model
 
     public function active(): bool
     {
-        return $this->stripe_status === self::STATUS_ACTIVE && ! $this->ended();
+        return in_array($this->stripe_status, [self::STATUS_ACTIVE, self::STATUS_DEFAULTER], true)
+            && ! $this->ended();
     }
 
     /**

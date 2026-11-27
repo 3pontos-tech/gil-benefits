@@ -25,13 +25,13 @@ it('does not grant access to a checkout that was never paid', function (): void 
     expect($company->subscriptions->grantsAccessTo('platinum-company'))->toBeFalse();
 });
 
-it('does not grant access to a cancelled or delinquent subscription', function (string $status): void {
+it('does not grant access to a cancelled subscription', function (string $status): void {
     $company = Company::factory()->create();
 
     subscriptionWithStatus($company, $status);
 
     expect($company->subscriptions->grantsAccessTo('platinum-company'))->toBeFalse();
-})->with(['inactive', 'defaulter']);
+})->with(['inactive']);
 
 it('still grants access to an active subscription', function (): void {
     $company = Company::factory()->create();
@@ -54,7 +54,7 @@ it('reports a subscription without access as neither active nor valid', function
 
     expect($subscription->active())->toBeFalse()
         ->and($subscription->valid())->toBeFalse();
-})->with(['pending', 'inactive', 'defaulter']);
+})->with(['pending', 'inactive']);
 
 it('decides access from the status, the end date and the trial end date', function (string $status, ?string $endsAt, ?string $trialEndsAt, bool $grantsAccess): void {
     $this->freezeTime();
@@ -83,8 +83,9 @@ it('decides access from the status, the end date and the trial end date', functi
     'canceled without an end date' => ['canceled', null, null, false],
     'pending checkout' => ['pending', null, null, false],
     'inactive' => ['inactive', null, null, false],
-    'defaulter' => ['defaulter', null, null, false],
-    'defaulter with the paid period still running' => ['defaulter', '+10 days', null, false],
+    'defaulter, gateway still retrying' => ['defaulter', null, null, true],
+    'defaulter with the paid period still running' => ['defaulter', '+10 days', null, true],
+    'defaulter, paid period already over' => ['defaulter', '-1 day', null, false],
 ]);
 
 it('excludes subscriptions without access from the grantingAccess scope', function (): void {

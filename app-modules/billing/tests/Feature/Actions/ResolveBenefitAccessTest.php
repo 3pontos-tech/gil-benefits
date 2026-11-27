@@ -145,6 +145,7 @@ describe('employer company', function (): void {
     })->with([
         'active' => ['active', []],
         'trialing, trial running' => ['trialing', ['trial_ends_at' => now()->addWeek()]],
+        'defaulter, gateway still retrying' => ['defaulter', []],
     ]);
 
     it('does not count a personal subscription that lost access', function (string $employeeStatus, array $attributes): void {
@@ -157,7 +158,6 @@ describe('employer company', function (): void {
         'past due' => ['past_due', []],
         'unpaid' => ['unpaid', []],
         'incomplete expired' => ['incomplete_expired', []],
-        'defaulter' => ['defaulter', []],
         'inactive' => ['inactive', []],
         'pending' => ['pending', []],
     ]);

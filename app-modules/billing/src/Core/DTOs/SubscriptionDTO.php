@@ -8,6 +8,10 @@ use Illuminate\Support\Carbon;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
 
 /**
+ * `checkoutReference` is the id the row was written with at checkout, for a gateway that
+ * only learns the definitive subscription id after payment: the upsert moves that row to
+ * `subscriptionExternalId` instead of inserting a second one.
+ *
  * `activatedAt` é o instante que o PROVEDOR carimbou no evento, não o instante em que este
  * worker o processou. Só existe para virar âncora do ciclo de cota, e só quem tem esse dado
  * no payload preenche — os demais caem no `now()` do observer.
@@ -25,6 +29,7 @@ final readonly class SubscriptionDTO
         public ?Carbon $endsAt,
         public ?Carbon $activatedAt = null,
         public ?CheckoutDiscount $discount = null,
+        public ?string $checkoutReference = null,
     ) {}
 
     public static function make(
