@@ -604,7 +604,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar, HasDefaul
     public function activeSubscription(): MorphOne
     {
         return $this->morphOne(Subscription::class, 'subscriptionable')
-            ->current();
+            ->current()
+            ->latest();
     }
 
     /**

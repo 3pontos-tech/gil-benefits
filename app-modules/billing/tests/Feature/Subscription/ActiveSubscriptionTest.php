@@ -6,6 +6,7 @@ use App\Models\Users\User;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
+use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
 it('takes as the current subscription only one that pays for the person right now', function (string $status, ?string $endsAt, bool $isCurrent): void {
     $this->freezeTime();
@@ -50,3 +51,12 @@ it('does not take a subscription sold through a retired gateway, even after its 
     'virtu' => [BillingProviderEnum::Virtu->value, false],
     'stripe' => [BillingProviderEnum::Stripe->value, true],
 ]);
+
+it('takes the newest subscription when more than one still pays', function (): void {
+    $user = User::factory()->create();
+    Subscription::factory()->for($user, 'owner')->defaulter()->create(['created_at' => now()->subYear()]);
+    $newest = Subscription::factory()->for($user, 'owner')->active()->create();
+
+    expect($user->activeSubscription()->first()?->is($newest))->toBeTrue()
+        ->and(User::query()->with('activeSubscription')->find($user->id)->activeSubscription?->is($newest))->toBeTrue();
+});
