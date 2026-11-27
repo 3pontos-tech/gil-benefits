@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\IntegrationStripe\Actions;
 
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Log;
 use Stripe\Checkout\Session;
@@ -30,6 +31,11 @@ use TresPontosTech\IntegrationStripe\StripeApi;
  */
 final readonly class HandleStripeWebhook
 {
+    /** Outlives a slow API read, so the lock is not lost while the status is being written. */
+    private const int LOCK_SECONDS = 60;
+
+    private const int LOCK_WAIT_SECONDS = 15;
+
     public function __construct(
         private StripeApi $api,
     ) {}
@@ -87,7 +93,20 @@ final readonly class HandleStripeWebhook
         event(new OrderCreditPurchased(creditOrderId: $order->getKey()));
     }
 
+    /**
+     * Reading again from the API only helps if the last write comes from the last read. Two
+     * events of the same subscription run at once in two workers (the checkout completion
+     * and the first update arrive together), so without the lock one that read `incomplete`
+     * can write `pending` over the `active` the other one just wrote. A lock not acquired in
+     * time throws, and the job retry reads the status again.
+     */
     private function syncSubscription(string $subscriptionId, int $occurredAt): void
+    {
+        Cache::lock('stripe:subscription:' . $subscriptionId, self::LOCK_SECONDS)
+            ->block(self::LOCK_WAIT_SECONDS, fn () => $this->readAndSyncSubscription($subscriptionId, $occurredAt));
+    }
+
+    private function readAndSyncSubscription(string $subscriptionId, int $occurredAt): void
     {
         $stripeSubscription = $this->api->retrieveSubscription($subscriptionId);
         $reference = $stripeSubscription->metadata[CheckoutSessionDTO::REFERENCE_KEY] ?? null;

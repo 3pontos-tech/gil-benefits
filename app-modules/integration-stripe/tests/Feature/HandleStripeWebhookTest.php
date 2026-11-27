@@ -3,7 +3,10 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use Illuminate\Contracts\Cache\LockTimeoutException;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Sleep;
+use Stripe\Subscription as StripeSubscription;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
@@ -161,4 +164,41 @@ it('waits for a Pix credit purchase that is not paid yet', function (): void {
     handleStripeEvent('checkout.session.completed', 'cs_credit');
 
     Event::assertNotDispatched(OrderCreditPurchased::class);
+});
+
+it('does not let a stale read put an active subscription back to pending', function (): void {
+    Sleep::fake(syncWithCarbon: true);
+    stripeSubscription($this->api, 'incomplete');
+    $fake = $this->api;
+
+    $this->app->instance(StripeApi::class, new class($fake) extends StripeApi
+    {
+        public ?Throwable $concurrentEvent = null;
+
+        public function __construct(private readonly FakeStripeApi $fake) {}
+
+        public function retrieveSubscription(string $id): StripeSubscription
+        {
+            $snapshot = $this->fake->retrieveSubscription($id);
+
+            if ($snapshot->status === 'incomplete') {
+                $this->fake->subscriptions[$id]['status'] = 'active';
+
+                try {
+                    handleStripeEvent('customer.subscription.updated', $id);
+                } catch (Throwable $throwable) {
+                    $this->concurrentEvent = $throwable;
+                }
+            }
+
+            return $snapshot;
+        }
+    });
+
+    handleStripeEvent('customer.subscription.created', 'sub_1');
+    $concurrentEvent = resolve(StripeApi::class)->concurrentEvent;
+    handleStripeEvent('customer.subscription.updated', 'sub_1');
+
+    expect($concurrentEvent)->toBeInstanceOf(LockTimeoutException::class)
+        ->and(Subscription::query()->sole()->stripe_status)->toBe('active');
 });
