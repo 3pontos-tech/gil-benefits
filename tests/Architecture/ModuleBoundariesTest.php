@@ -22,13 +22,11 @@ $domain = [
 ];
 
 $integration = [
-    'TresPontosTech\IntegrationBarte',
     'TresPontosTech\IntegrationClau',
     'TresPontosTech\IntegrationGoogleCalendar',
     'TresPontosTech\IntegrationHighlevel',
     'TresPontosTech\IntegrationMonday',
     'TresPontosTech\IntegrationStripe',
-    'TresPontosTech\IntegrationVirtu',
 ];
 
 $presentation = [

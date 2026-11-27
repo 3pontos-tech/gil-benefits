@@ -4,7 +4,7 @@
 
 O sistema foi refatorado para remover a dependência direta do Stripe do código de negócio, permitindo que múltiplos provedores de pagamento sejam utilizados de forma intercambiável. O gateway que vende hoje é o **Stripe**.
 
-Cada gateway mora no seu próprio módulo — `integration-virtu`, `integration-barte` — e registra o driver no `BillingManager`. O billing define o contrato e o núcleo agnóstico; ele não implementa gateway.
+Cada gateway mora no seu próprio módulo — hoje só o `integration-stripe` — e registra o driver no `BillingManager`. O billing define o contrato e o núcleo agnóstico; ele não implementa gateway.
 
 O Laravel Cashier não faz parte do domínio: nenhum model herda dele e `User`/`Company` não usam o trait `Billable`. Ver o ADR `2026-11-27-gateway-only-through-integration-modules`.
 
@@ -52,8 +52,8 @@ Não existe um `create<Gateway>Driver()` por gateway: cada módulo de integraç�
 ```php
 $this->app->booted(function (): void {
     $this->app->make(BillingManager::class)->extend(
-        BillingProviderEnum::Barte->value,
-        fn (): BillingContract => new BarteAdapter($this->app->make(BarteClient::class)),
+        BillingProviderEnum::Stripe->value,
+        fn (): BillingContract => new StripeAdapter($this->app->make(StripeApi::class)),
     );
 });
 ```
@@ -72,25 +72,18 @@ O enum expõe dois métodos estáticos que controlam o comportamento do sistema.
 enum BillingProviderEnum: string
 {
     case Stripe       = 'stripe';
-    case Barte        = 'barte';
     case Contractual  = 'contractual';
+    case Barte        = 'barte';   // histórico: o módulo saiu, as linhas ficaram
+    case Virtu        = 'virtu';   // histórico: o módulo saiu, as linhas ficaram
 
-    /**
-     * Providers whose existing subscriptions are considered valid for access.
-     * Includes legacy providers while their plans have not yet expired.
-     */
     public static function activeCases(): array
     {
-        return [self::Stripe, self::Barte];
+        return [self::Stripe];
     }
 
-    /**
-     * Providers available for NEW subscriptions.
-     * Change this when migrating to a new gateway — no other changes needed.
-     */
     public static function checkoutCases(): array
     {
-        return [self::Barte];
+        return [self::Stripe];
     }
 }
 ```
@@ -114,10 +107,10 @@ Quando os planos de um gateway legado expirarem, basta removê-lo de `activeCase
 
 ### Adapters — Implementações por Provedor
 
+A Virtu e a Barte venderam antes e tiveram os módulos removidos. As linhas que elas gravaram continuam no banco, com `provider` `virtu`/`barte`, como histórico (ADR `2026-11-27-retired-gateways-keep-their-data`).
+
 | Adapter | Módulo | Provedor |
 |---|---|---|
-| `VirtuAdapter` | `integration-virtu` | Virtu/Pagaa (via `VirtuClient`) — não vende mais |
-| `BarteAdapter` | `integration-barte` | Barte (via `BarteClient`) — não vende mais |
 | `StripeAdapter` | `integration-stripe` | Stripe (via `StripeApi`, sobre o `stripe/stripe-php`) — vende hoje |
 
 Todos implementam `BillingContract` e encapsulam o cliente do respectivo gateway. O `StripeAdapter` implementa também todas as capacidades opcionais (cancelamento, compra de crédito, desconto e desconto com duração).
@@ -137,7 +130,7 @@ billing_customers
 ├── billable_type         (morph: User ou Company)
 ├── billable_id
 ├── provider              (BillingProviderEnum)
-└── provider_customer_id  (ex: cus_xxx no Stripe, UUID no Barte)
+└── provider_customer_id  (ex: cus_xxx no Stripe)
 ```
 
 **Por que existe:** Antes, o `stripe_id` ficava diretamente em `users` e `companies`. Com o desacoplamento, cada billable pode ter customer IDs em múltiplos provedores, e esse mapeamento fica centralizado nesta tabela.
@@ -219,22 +212,6 @@ POST /webhooks/stripe
     → UpsertSubscription::handle()
 ```
 
-### Fluxo de Webhook Barte
-
-Tudo abaixo mora em `integration-barte`, não aqui.
-
-```
-POST /webhooks/barte
-    → ValidateBarteWebhookSecret (middleware)
-    → BarteWebhookController::handle()
-    → HandleBarteWebhookJob (fila, 3 tentativas)
-    → HandleBarteWebhook::handle()
-    → payload → BarteWebhookDto → SubscriptionDTO
-    → event(SubscriptionActivated | SubscriptionCreated | ...)
-    → SyncSubscriptionOnStatusChange
-    → UpsertSubscription::handle()
-```
-
 ---
 
 ## Regra de acesso
@@ -297,7 +274,7 @@ Registra:
 
 E o `BillingManager` como singleton, pelo motivo descrito na seção do Manager.
 
-Não carrega rotas nem registra comando de gateway: cada módulo de integração cuida dos seus — `CreateStripePlanCommand` (`stripe:plan:create`) em `integration-stripe`, `SyncBartePlans` (`barte:play`) em `integration-barte`, `CreateVirtuPlanCommand` em `integration-virtu`.
+Não carrega rotas nem registra comando de gateway: cada módulo de integração cuida dos seus — `CreateStripePlanCommand` (`stripe:plan:create`) em `integration-stripe`.
 
 ---
 
@@ -340,7 +317,7 @@ Não carrega rotas nem registra comando de gateway: cada módulo de integração
 | Módulo | Responsabilidade |
 |---|---|
 | `billing` | Contrato, manager, planos, preços, assinaturas, customers, middlewares de acesso |
-| `integration-stripe`, `integration-virtu`, `integration-barte` | Um gateway cada: adapter, cliente, webhook, comandos |
+| `integration-stripe` | O gateway: adapter, cliente, webhook, comando de catálogo |
 | `credits` | Crédito de consultoria: emissão, alocação, consumo, compra avulsa |
 
 A regra: **o billing não conhece gateway nem crédito**. Os módulos de integração dependem do billing e do credits — é o lugar certo para essa dependência, porque só eles precisam traduzir um webhook de gateway em pedido de crédito. Um teste de arquitetura garante que nenhum módulo de domínio use `Laravel\Cashier` nem o SDK `Stripe`.

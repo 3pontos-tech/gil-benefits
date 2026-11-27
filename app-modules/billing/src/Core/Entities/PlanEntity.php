@@ -76,7 +76,7 @@ final readonly class PlanEntity
             allowPromotionCodes: false,
             collectTaxIds: false,
             isMeteredPrice: false,
-            provider: BillingProviderEnum::Barte
+            provider: BillingProviderEnum::checkoutCases()[0]
         );
     }
 }

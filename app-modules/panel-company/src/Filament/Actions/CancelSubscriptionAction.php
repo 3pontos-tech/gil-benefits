@@ -48,8 +48,9 @@ class CancelSubscriptionAction extends Action
 
     /**
      * Resolves the driver that owns this subscription, or null when there is no
-     * subscription to cancel. Shared by the visibility check and the action so
-     * the two can never disagree about which gateway is in play.
+     * subscription to cancel or its gateway was retired. Shared by the visibility
+     * check and the action so the two can never disagree about which gateway is
+     * in play.
      */
     private function driverFor(mixed $subscription, mixed $billable): ?BillingContract
     {
@@ -59,8 +60,11 @@ class CancelSubscriptionAction extends Action
 
         $provider = $subscription->price?->plan->provider
             ?? $subscription->plan->provider
-            ?? BillingCustomer::getActiveProvider($billable)
-            ?? BillingProviderEnum::Barte;
+            ?? BillingCustomer::getActiveProvider($billable);
+
+        if (! in_array($provider, BillingProviderEnum::activeCases(), true)) {
+            return null;
+        }
 
         return resolve(BillingManager::class)->getDriver($provider);
     }

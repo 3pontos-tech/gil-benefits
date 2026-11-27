@@ -18,10 +18,9 @@ use TresPontosTech\Company\Models\Company;
 /**
  * Ponto único de valoração do cockpit financeiro (FLM-41, decisão D-01).
  *
- * A regra não é inventada aqui: é a mesma que `VirtuAdapter::resolveAmountInCents`
- * e `BarteAdapter` aplicam ao criar o checkout — assinatura de empresa é metered
- * e vale a faixa de assento vezes a quantidade; assinatura de pessoa vale o preço
- * cadastrado. Espelhar em vez de recalcular é o que garante que o painel mostre
+ * A regra não é inventada aqui: é a mesma que o `StripeAdapter` aplica ao criar o
+ * checkout — assinatura de empresa é metered e vale a faixa de assento vezes a
+ * quantidade; assinatura de pessoa vale o preço cadastrado. Espelhar em vez de recalcular é o que garante que o painel mostre
  * o mesmo número que o cliente pagou.
  *
  * Nenhuma coluna de dinheiro foi criada para isso: o épico não duplica a verdade

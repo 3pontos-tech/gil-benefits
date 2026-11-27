@@ -54,14 +54,21 @@ class BillingCustomer extends Model
             ->value('provider_customer_id');
     }
 
+    /**
+     * Only providers in `activeCases()` are returned: a retired gateway has no driver any
+     * more, and resolving one would break the billing portal and the cancel action.
+     */
     public static function getActiveProvider(Model $billable): ?BillingProviderEnum
     {
+        $activeProviders = array_map(fn (BillingProviderEnum $provider): string => $provider->value, BillingProviderEnum::activeCases());
+
         $provider = Subscription::query()
             ->where('subscriptionable_type', $billable->getMorphClass())
             ->where('subscriptionable_id', $billable->getKey())
             ->where('stripe_status', 'active')
             ->join('billing_plan_prices', 'billing_subscriptions.stripe_price', '=', 'billing_plan_prices.provider_price_id')
             ->join('billing_plans', 'billing_plan_prices.billing_plan_id', '=', 'billing_plans.id')
+            ->whereIn('billing_plans.provider', $activeProviders)
             ->latest('billing_subscriptions.created_at')
             ->value('billing_plans.provider');
 
@@ -69,14 +76,12 @@ class BillingCustomer extends Model
             return BillingProviderEnum::from($provider);
         }
 
-        $fallbackProvider = static::query()
+        return static::query()
             ->where('billable_type', $billable->getMorphClass())
             ->where('billable_id', $billable->getKey())
+            ->whereIn('provider', $activeProviders)
             ->latest()
-            ->value('provider');
-
-        return $fallbackProvider !== null
-            ? BillingProviderEnum::from($fallbackProvider)
-            : null;
+            ->first()
+            ?->provider;
     }
 }

@@ -147,9 +147,9 @@ final class GetBillingAlerts
     /**
      * Empresas inadimplentes.
      *
-     * Substitui o alerta de "duas cobranças recusadas consecutivas" da story: a
-     * Virtu não emite cobrança recusada, então a falha de renovação chega como
-     * mudança de status da assinatura.
+     * Substitui o alerta de "duas cobranças recusadas consecutivas" da story: não
+     * gravamos cobrança recusada, então a falha de renovação chega como mudança de
+     * status da assinatura.
      *
      * @param  Collection<int, ContractRow>  $companies
      */

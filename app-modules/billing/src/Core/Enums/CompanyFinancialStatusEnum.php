@@ -13,7 +13,7 @@ use Filament\Support\Contracts\HasLabel;
  * Status de uma empresa na visão do financeiro (FLM-41, STORY-233).
  *
  * Unifica duas fontes que hoje vivem separadas: `stripe_status` da assinatura
- * (escrito pelos handlers de Virtu e Barte) e `company_plans.status` do contrato.
+ * (escrito pelos handlers dos gateways) e `company_plans.status` do contrato.
  * Nenhuma tela consegue responder "quantas empresas estão inadimplentes?" sem
  * essa unificação, porque a resposta depende de qual das duas a empresa usa.
  */

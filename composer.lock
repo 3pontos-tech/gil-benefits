@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "00099a20bad994de6b6cd1fd2535c230",
+    "content-hash": "8eff0ddfcd1b499085b80b15ab2a1e28",
     "packages": [
         {
             "name": "3pontos-tech/api",
@@ -225,39 +225,6 @@
             }
         },
         {
-            "name": "3pontos-tech/integration-barte",
-            "version": "1.0",
-            "dist": {
-                "type": "path",
-                "url": "app-modules/integration-barte",
-                "reference": "c5997c4c531eccff2f39435ce0487d19ff734d77"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "TresPontosTech\\IntegrationBarte\\Providers\\IntegrationBarteServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "TresPontosTech\\IntegrationBarte\\": "src/",
-                    "TresPontosTech\\IntegrationBarte\\Tests\\": "tests/",
-                    "TresPontosTech\\IntegrationBarte\\Database\\Factories\\": "database/factories/",
-                    "TresPontosTech\\IntegrationBarte\\Database\\Seeders\\": "database/seeders/"
-                }
-            },
-            "license": [
-                "proprietary"
-            ],
-            "description": "Integração com o gateway de pagamento Barte",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
             "name": "3pontos-tech/integration-chatx",
             "version": "1.0",
             "dist": {
@@ -442,39 +409,6 @@
                 "proprietary"
             ],
             "description": "Integração com o gateway de pagamento Stripe",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
-            "name": "3pontos-tech/integration-virtu",
-            "version": "1.0",
-            "dist": {
-                "type": "path",
-                "url": "app-modules/integration-virtu",
-                "reference": "2a987b33bd331d669ee1be92847bebc3a5bf08df"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "TresPontosTech\\IntegrationVirtu\\Providers\\IntegrationVirtuServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "TresPontosTech\\IntegrationVirtu\\": "src/",
-                    "TresPontosTech\\IntegrationVirtu\\Tests\\": "tests/",
-                    "TresPontosTech\\IntegrationVirtu\\Database\\Factories\\": "database/factories/",
-                    "TresPontosTech\\IntegrationVirtu\\Database\\Seeders\\": "database/seeders/"
-                }
-            },
-            "license": [
-                "proprietary"
-            ],
-            "description": "Integração com o gateway de pagamento Pagaa/Virtu",
             "transport-options": {
                 "symlink": true,
                 "relative": true
