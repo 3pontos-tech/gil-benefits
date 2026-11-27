@@ -1,9 +1,5 @@
 <?php
 
-// These tests ensure users/companies with active subscriptions from legacy providers
-// (e.g. Stripe) are never blocked after migrating to a new gateway (e.g. Barte).
-// Both gateways must be accepted as valid during the transition period.
-
 use App\Filament\FilamentPanel;
 use App\Models\Users\User;
 use Illuminate\Http\Request;
@@ -95,6 +91,20 @@ describe('company access during gateway migration', function (): void {
         expect($response->isRedirect())->toBeTrue();
     });
 
+    it('no longer lets a company through on a retired gateway price, even under an active plan slug', function (): void {
+        $this->company->subscriptions()->create([
+            'type' => $this->stripePlan->slug,
+            'stripe_id' => 'sub_retired',
+            'stripe_status' => 'active',
+            'stripe_price' => $this->bartePlan->prices()->value('provider_price_id'),
+            'quantity' => 1,
+        ]);
+
+        $response = makeCompanyMiddleware()->handle(fakeRequest(), passThrough());
+
+        expect($response->isRedirect())->toBeTrue();
+    });
+
     it('redirects a company that has no subscription on any provider', function (): void {
         $middleware = makeCompanyMiddleware();
 
@@ -113,7 +123,7 @@ describe('flamma-company subscription isolation', function (): void {
         $this->flamma = Company::factory()->recycle($owner)->create(['slug' => 'flamma-company']);
         $this->flamma->employees()->attach($this->employee->getKey());
 
-        $plan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create();
+        $plan = Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create();
 
         $this->standardPrice = Price::factory()->for($plan, 'plan')->create([
             'provider_price_id' => $plan->provider_product_id,
@@ -202,6 +212,21 @@ describe('user access during gateway migration', function (): void {
         $response = $middleware->handle(fakeRequest(), passThrough());
 
         expect($response->isRedirect())->toBeTrue();
+    });
+
+    it('treats a company paying through a retired gateway as having no plan', function (): void {
+        $this->company->subscriptions()->create([
+            'type' => 'company',
+            'stripe_id' => 'sub_retired',
+            'stripe_status' => 'defaulter',
+            'stripe_price' => $this->bartePlan->prices()->value('provider_price_id'),
+            'quantity' => 1,
+        ]);
+        legacyActiveSubscription($this->employee, $this->stripePlan->slug);
+
+        $response = makeUserMiddleware()->handle(fakeRequest(), passThrough());
+
+        expect($response->headers->get('Location'))->toContain('company-plan-inactive');
     });
 
     it('redirects to the plan-inactive page when the company has no active subscription on any provider', function (): void {

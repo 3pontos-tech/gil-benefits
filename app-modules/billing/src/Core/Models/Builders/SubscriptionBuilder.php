@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace TresPontosTech\Billing\Core\Models\Builders;
 
 use Illuminate\Database\Eloquent\Builder;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
 /**
@@ -30,6 +33,33 @@ class SubscriptionBuilder extends Builder
     {
         return $this
             ->whereIn('stripe_status', [Subscription::STATUS_ACTIVE, Subscription::STATUS_DEFAULTER])
-            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()));
+            ->where(fn (Builder $query) => $query->whereNull('ends_at')->orWhere('ends_at', '>', now()))
+            ->notSoldByRetiredGateway();
+    }
+
+    /**
+     * A row without a price (the default bucket's synthetic subscription) is not a sale and
+     * stays in.
+     */
+    public function notSoldByRetiredGateway(): self
+    {
+        return $this->where(fn (Builder $query) => $query
+            ->whereNull('stripe_price')
+            ->orWhereNotIn('stripe_price', self::retiredGatewayPriceIds()));
+    }
+
+    /**
+     * Soft-deleted plans and prices count too: the retired gateways' catalog was deleted,
+     * their subscriptions were not.
+     *
+     * @return Builder<Price>
+     */
+    public static function retiredGatewayPriceIds(): Builder
+    {
+        return Price::withTrashed()
+            ->whereIn('billing_plan_id', Plan::withTrashed()
+                ->whereIn('provider', BillingProviderEnum::retiredCases())
+                ->select('id'))
+            ->select('provider_price_id');
     }
 }

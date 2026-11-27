@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Models\Users\User;
+use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
+use TresPontosTech\Billing\Core\Models\Plan;
+use TresPontosTech\Billing\Core\Models\Price;
 
 it('takes as the current subscription only one that pays for the person right now', function (string $status, ?string $endsAt, bool $isCurrent): void {
     $this->freezeTime();
@@ -26,4 +29,24 @@ it('takes as the current subscription only one that pays for the person right no
     'defaulter, paid period already over' => ['defaulter', '-1 day', false],
     'pending checkout' => ['pending', null, false],
     'inactive' => ['inactive', null, false],
+]);
+
+it('does not take a subscription sold through a retired gateway, even after its catalog was deleted', function (string $provider, bool $isCurrent): void {
+    $plan = Plan::factory()->create(['provider' => $provider]);
+    $price = Price::factory()->for($plan, 'plan')->create();
+    $plan->delete();
+    $user = User::factory()->create();
+    $user->subscriptions()->create([
+        'type' => 'gold',
+        'stripe_id' => 'sub_1',
+        'stripe_status' => 'active',
+        'stripe_price' => $price->provider_price_id,
+        'quantity' => 1,
+    ]);
+
+    expect($user->activeSubscription()->exists())->toBe($isCurrent);
+})->with([
+    'barte' => [BillingProviderEnum::Barte->value, false],
+    'virtu' => [BillingProviderEnum::Virtu->value, false],
+    'stripe' => [BillingProviderEnum::Stripe->value, true],
 ]);

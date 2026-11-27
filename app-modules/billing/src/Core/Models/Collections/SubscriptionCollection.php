@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TresPontosTech\Billing\Core\Models\Collections;
 
 use Illuminate\Database\Eloquent\Collection;
+use TresPontosTech\Billing\Core\Models\Builders\SubscriptionBuilder;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 
 /**
@@ -15,13 +16,45 @@ use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
  */
 class SubscriptionCollection extends Collection
 {
+    /** @var list<string>|null */
+    private ?array $retiredGatewayPriceIds = null;
+
     public function grantsAccessTo(string $type): bool
     {
-        return $this->contains(fn (Subscription $subscription): bool => $subscription->type === $type && $subscription->valid());
+        return $this->contains(fn (Subscription $subscription): bool => $subscription->type === $type && $this->grants($subscription));
     }
 
     public function grantsAnyAccess(): bool
     {
-        return $this->contains(fn (Subscription $subscription): bool => $subscription->valid());
+        return $this->contains(fn (Subscription $subscription): bool => $this->grants($subscription));
+    }
+
+    private function grants(Subscription $subscription): bool
+    {
+        return $subscription->valid()
+            && ! in_array($subscription->stripe_price, $this->retiredGatewayPriceIds(), true);
+    }
+
+    /**
+     * Read once per collection: the middlewares ask once per plan.
+     *
+     * @return list<string>
+     */
+    private function retiredGatewayPriceIds(): array
+    {
+        if ($this->retiredGatewayPriceIds !== null) {
+            return $this->retiredGatewayPriceIds;
+        }
+
+        $prices = $this->pluck('stripe_price')->filter()->unique()->values();
+
+        $retiredPriceIds = $prices->isEmpty()
+            ? []
+            : SubscriptionBuilder::retiredGatewayPriceIds()
+                ->whereIn('provider_price_id', $prices)
+                ->pluck('provider_price_id')
+                ->all();
+
+        return $this->retiredGatewayPriceIds = array_values(array_filter($retiredPriceIds, is_string(...)));
     }
 }

@@ -48,6 +48,18 @@ enum BillingProviderEnum: string implements HasColor, HasIcon, HasLabel
     }
 
     /**
+     * Gateways whose code was removed: their rows stay as history and never grant access
+     * again, since no webhook will ever close them. See ADR billing
+     * `2026-11-27-retired-gateways-keep-their-data`.
+     *
+     * @return list<self>
+     */
+    public static function retiredCases(): array
+    {
+        return [self::Barte, self::Virtu];
+    }
+
+    /**
      * Providers available for NEW subscriptions.
      *
      * TenantSubscriptionPage picks `checkoutCases()[0]`, so a second entry would never be

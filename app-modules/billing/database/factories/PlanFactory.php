@@ -28,7 +28,7 @@ class PlanFactory extends Factory
                 'Acompanhamento financeiro contínuo, com materiais exclusivos e suporte para o seu dia a dia.',
                 'Orientação personalizada de investimentos, planejamento de aposentadoria e saúde financeira.',
             ]),
-            'provider' => $this->faker->randomElement(BillingProviderEnum::cases()),
+            'provider' => BillingProviderEnum::Stripe,
             'provider_product_id' => $this->faker->word(),
             'trial_days' => $this->faker->randomNumber(),
             'has_generic_trial' => $this->faker->boolean(),
