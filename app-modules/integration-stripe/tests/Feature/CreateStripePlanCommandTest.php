@@ -56,6 +56,20 @@ it('creates a new price and retires the old row when the amount changes', functi
         ->and(Price::query()->where('active', false)->sole()->unit_amount_decimal)->toBe(17_990);
 });
 
+it('brings back a soft-deleted plan with the same slug as a new plan', function (): void {
+    $legacy = Plan::factory()->stripe()->create(['slug' => 'gold', 'provider_product_id' => 'prod_legacy']);
+    Price::factory()->for($legacy, 'plan')->create(['provider_price_id' => 'price_legacy']);
+    $legacy->delete();
+
+    artisan('stripe:plan:create', ['slug' => 'gold', 'name' => 'Flamma Gold', 'amount' => 17_990])->assertSuccessful();
+
+    $plan = Plan::query()->sole();
+    expect($plan->getKey())->toBe($legacy->getKey())
+        ->and($plan->provider_product_id)->toBe('prod_fake1')
+        ->and(Price::query()->where('active', true)->sole()->provider_price_id)->toBe('price_fake2')
+        ->and(Price::query()->where('provider_price_id', 'price_legacy')->sole()->active)->toBeFalse();
+});
+
 it('creates a company plan without touching Stripe, since seats are priced inline', function (): void {
     artisan('stripe:plan:create', [
         'slug' => 'empresa',

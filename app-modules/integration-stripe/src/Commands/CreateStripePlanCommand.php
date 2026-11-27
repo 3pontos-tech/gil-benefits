@@ -21,6 +21,10 @@ use TresPontosTech\IntegrationStripe\StripeApi;
  *
  * Preço no Stripe é imutável. Um valor novo cria outro preço e desativa a linha antiga,
  * que continua existindo para as assinaturas que já apontam para ela.
+ *
+ * A soft-deleted plan with the same slug (left by Cashier) is brought back as a new plan:
+ * the unique (provider, slug) index still counts it, and its old product and prices are
+ * not ours to sell anymore, so they are retired instead of reused.
  */
 class CreateStripePlanCommand extends Command
 {
@@ -48,7 +52,14 @@ class CreateStripePlanCommand extends Command
             return self::FAILURE;
         }
 
-        $plan = Plan::query()->firstOrNew(['provider' => BillingProviderEnum::Stripe, 'slug' => $slug]);
+        $plan = Plan::query()->withTrashed()->firstOrNew(['provider' => BillingProviderEnum::Stripe, 'slug' => $slug]);
+
+        if ($plan->trashed()) {
+            $plan->prices()->update(['active' => false]);
+            $plan->provider_product_id = null;
+            $plan->deleted_at = null;
+        }
+
         $plan->fill([
             'name' => $name,
             'description' => $name,
