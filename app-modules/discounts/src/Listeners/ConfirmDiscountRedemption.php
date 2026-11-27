@@ -15,6 +15,10 @@ use TresPontosTech\Discounts\Models\DiscountRedemption;
  * A reserva só vira ativa no pagamento confirmado, não no clique do checkout, porque um link
  * abandonado não pode consumir o cupom nem prender a pessoa ao plano errado. Uma reserva
  * vencida ou liberada que for paga continua valendo, pois o desconto já foi cobrado.
+ *
+ * A reserva é ligada à referência do checkout. Um gateway que só revela o id definitivo da
+ * assinatura depois do pagamento (Stripe) manda essa referência em `checkoutReference`, e a
+ * reserva passa a apontar para o id definitivo.
  */
 final class ConfirmDiscountRedemption
 {
@@ -22,7 +26,7 @@ final class ConfirmDiscountRedemption
     {
         $redemption = DiscountRedemption::query()
             ->with(['discount', 'grant'])
-            ->where('subscription_external_id', $event->dto->subscriptionExternalId)
+            ->whereIn('subscription_external_id', array_filter([$event->dto->subscriptionExternalId, $event->dto->checkoutReference]))
             ->whereIn('status', [DiscountRedemptionStatusEnum::Reserved, DiscountRedemptionStatusEnum::Released])
             ->first();
 
@@ -33,6 +37,7 @@ final class ConfirmDiscountRedemption
         $redemption->update([
             'status' => DiscountRedemptionStatusEnum::Active,
             'confirmed_at' => now(),
+            'subscription_external_id' => $event->dto->subscriptionExternalId,
         ]);
 
         $this->warnWhenOverTotalLimit($redemption->discount);

@@ -31,7 +31,7 @@ beforeEach(function (): void {
         ]);
 });
 
-function activateSubscription(User $user, string $externalId, string $planSlug = 'gold'): void
+function activateSubscription(User $user, string $externalId, string $planSlug = 'gold', ?string $checkoutReference = null): void
 {
     event(new SubscriptionActivated(new SubscriptionDTO(
         billableType: $user->getMorphClass(),
@@ -42,8 +42,19 @@ function activateSubscription(User $user, string $externalId, string $planSlug =
         planSlug: $planSlug,
         quantity: 1,
         endsAt: null,
+        checkoutReference: $checkoutReference,
     )));
 }
+
+it('confirma a reserva ligada ao checkout quando o gateway ativa com o id definitivo', function (): void {
+    $redemption = ($this->reservar)('checkout_ref_1');
+
+    activateSubscription($this->user, 'sub_1', checkoutReference: 'checkout_ref_1');
+
+    $redemption->refresh();
+    expect($redemption->status)->toBe(DiscountRedemptionStatusEnum::Active)
+        ->and($redemption->subscription_external_id)->toBe('sub_1');
+});
 
 it('confirma a reserva e trava o plano e a data do primeiro resgate no pagamento', function (): void {
     $redemption = ($this->reservar)('chk_1');
