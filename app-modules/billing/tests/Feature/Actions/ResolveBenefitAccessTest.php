@@ -7,7 +7,6 @@ use App\Models\Users\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Http;
-use Tests\Fakes\FakeBillingContract;
 use TresPontosTech\Billing\Core\Actions\ResolveBenefitAccess;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
@@ -18,7 +17,6 @@ use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\CompanyPlan;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
-use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Models\UserCredit;
 use TresPontosTech\PanelApp\Http\Middleware\RedirectUserIfNotSubscribed;
@@ -129,6 +127,7 @@ describe('employer company', function (): void {
         'past due' => ['past_due'],
         'canceled' => ['canceled'],
         'unpaid' => ['unpaid'],
+        'incomplete' => ['incomplete'],
     ]);
 
     it('asks for a personal plan when the company pays but the employee has none', function (string $companyStatus): void {
@@ -136,14 +135,17 @@ describe('employer company', function (): void {
         employeePlan();
 
         expect(benefitAccess($this->employee, $this->company))->toBe(BenefitAccessEnum::PersonalPlanRequired);
-    })->with(['active', 'incomplete']);
+    })->with(['active']);
 
-    it('grants by the personal plan when the company pays', function (string $employeeStatus): void {
+    it('grants by the personal plan when the company pays', function (string $employeeStatus, array $attributes): void {
         companySubscription($this->company, 'active');
-        employeePlanSubscription($this->employee, $employeeStatus);
+        employeePlanSubscription($this->employee, $employeeStatus, attributes: $attributes);
 
         expect(benefitAccess($this->employee, $this->company))->toBe(BenefitAccessEnum::PersonalPlan);
-    })->with(['active', 'trialing']);
+    })->with([
+        'active' => ['active', []],
+        'trialing, trial running' => ['trialing', ['trial_ends_at' => now()->addWeek()]],
+    ]);
 
     it('does not count a personal subscription that lost access', function (string $employeeStatus, array $attributes): void {
         companySubscription($this->company, 'active');
@@ -167,14 +169,15 @@ describe('employer company', function (): void {
         expect(benefitAccess($this->employee, $this->company))->toBe(BenefitAccessEnum::PersonalPlan);
     });
 
-    it('looks across providers: company on one, employee on another', function (): void {
+    it('reads access from our own rows without asking any gateway', function (): void {
         $manager = Mockery::mock(BillingManager::class);
-        $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Stripe)->andReturn(new FakeBillingContract);
-        $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Barte)->andReturn(new FakeBillingContract(hasActiveSubscription: true));
-        $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Virtu)->andReturn(new FakeBillingContract(isSubscribed: true));
-        employeePlan();
+        $manager->shouldNotReceive('getDriver');
 
-        $access = new ResolveBenefitAccess(resolve(PlanRepository::class), $manager)->for($this->employee, $this->company);
+        app()->instance(BillingManager::class, $manager);
+        companySubscription($this->company, 'active');
+        employeePlanSubscription($this->employee, 'active');
+
+        $access = benefitAccess($this->employee, $this->company);
 
         expect($access)->toBe(BenefitAccessEnum::PersonalPlan);
     });
@@ -289,7 +292,7 @@ describe('panel parity', function (): void {
         $tenant = $arrange($this->employee, $this->company);
 
         $driver = Mockery::mock(BillingContract::class);
-        $driver->shouldReceive('isSubscribed', 'hasActiveSubscription', 'hasActivePlan')->andReturnFalse();
+        $driver->shouldReceive('hasActivePlan')->andReturnFalse();
         $driver->shouldReceive('ensureCustomerExists')->times($createsCustomer ? count(BillingProviderEnum::checkoutCases()) : 0);
         $manager = Mockery::mock(BillingManager::class);
         $manager->shouldReceive('getDriver')->andReturn($driver);

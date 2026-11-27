@@ -30,11 +30,6 @@ $models = [
     'TresPontosTech\Billing\Core\Models',
 ];
 
-$catalogBaseline = [
-    // arq-08
-    'TresPontosTech\Billing\Stripe',
-];
-
 foreach ($identity as $module) {
     arch($module . ' does not import catalog or operation modules')
         ->expect($module)
@@ -46,7 +41,7 @@ foreach ($catalog as $module) {
     arch($module . ' does not import operation modules')
         ->expect($module)
         ->not->toUse($operation)
-        ->ignoring([...$models, ...$catalogBaseline]);
+        ->ignoring($models);
 }
 
 arch('appointments does not import credits')

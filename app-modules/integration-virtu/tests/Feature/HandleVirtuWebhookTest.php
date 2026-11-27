@@ -16,7 +16,6 @@ use TresPontosTech\Credits\Events\OrderCreditPurchased;
 use TresPontosTech\Credits\Models\CreditOrder;
 use TresPontosTech\IntegrationVirtu\Actions\HandleVirtuWebhook;
 use TresPontosTech\IntegrationVirtu\DTO\VirtuWebhookDTO;
-use TresPontosTech\IntegrationVirtu\VirtuAdapter;
 
 use function Pest\Laravel\assertDatabaseCount;
 use function Pest\Laravel\assertDatabaseHas;
@@ -339,8 +338,7 @@ it('takes access away from a delinquent subscription', function (): void {
         'stripe_status' => 'defaulter',
     ]);
 
-    // The adapter only ever counts 'active', so the benefit is gone.
-    expect(resolve(VirtuAdapter::class)->hasActiveSubscription($this->user))->toBeFalse();
+    expect($this->user->subscriptions()->get()->grantsAnyAccess())->toBeFalse();
 });
 
 it('reactivates the same row when the customer pays again', function (): void {
@@ -414,7 +412,7 @@ it('gives access back when a delinquent subscription is paid again', function ()
 it('restores the benefit of a subscription that recovered', function (): void {
     pendingVirtuSubscription($this->user, ['stripe_status' => 'defaulter']);
 
-    expect(resolve(VirtuAdapter::class)->hasActiveSubscription($this->user))->toBeFalse();
+    expect($this->user->subscriptions()->get()->grantsAnyAccess())->toBeFalse();
 
     resolve(HandleVirtuWebhook::class)->handle(virtuRecoveryDto());
 
@@ -424,7 +422,7 @@ it('restores the benefit of a subscription that recovered', function (): void {
         'stripe_status' => 'active',
     ]);
 
-    expect(resolve(VirtuAdapter::class)->hasActiveSubscription($this->user))->toBeTrue();
+    expect($this->user->subscriptions()->get()->grantsAnyAccess())->toBeTrue();
 });
 
 /**
@@ -454,7 +452,7 @@ it('keeps access off when the expiry routine closes a cancelled subscription', f
         'stripe_status' => 'inactive',
     ]);
 
-    expect(resolve(VirtuAdapter::class)->hasActiveSubscription($this->user))->toBeFalse();
+    expect($this->user->subscriptions()->get()->grantsAnyAccess())->toBeFalse();
 });
 
 it('reads each subscription lifecycle status as its own transition', function (): void {

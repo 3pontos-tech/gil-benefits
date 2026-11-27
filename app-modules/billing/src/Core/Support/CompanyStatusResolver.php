@@ -22,7 +22,7 @@ final class CompanyStatusResolver
     /**
      * `stripe_status` → status financeiro.
      *
-     * A coluna guarda tanto os status do Cashier/Stripe quanto os que os handlers
+     * A coluna guarda tanto os status do Stripe quanto os que os handlers
      * de Virtu e Barte escrevem (`pending`, `defaulter`, `inactive`), então o mapa
      * cobre os dois vocabulários. Status desconhecido cai em `Cancelled` pelo
      * caminho conservador: melhor não contar como receita viva do que inflar a
@@ -94,7 +94,7 @@ final class CompanyStatusResolver
 
     /**
      * Trial vence o status persistido enquanto `trial_ends_at` está no futuro:
-     * o Cashier deixa `stripe_status` em `active` durante o teste, e o card
+     * um gateway pode deixar `stripe_status` em `active` durante o teste, e o card
      * "Em Trial" da STORY-233 ficaria sempre zerado se olhássemos só a coluna.
      */
     private function statusFromSubscription(Subscription $subscription, CarbonImmutable $now): CompanyFinancialStatusEnum

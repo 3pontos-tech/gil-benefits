@@ -12,7 +12,6 @@ use Tests\Fakes\FakeBillingContract;
 use TresPontosTech\Billing\Core\Actions\ResolveBenefitAccess;
 use TresPontosTech\Billing\Core\BillingManager;
 use TresPontosTech\Billing\Core\Enums\BillableTypeEnum;
-use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
@@ -23,43 +22,30 @@ use TresPontosTech\PanelCompany\Http\Middleware\RedirectCompanyIfNotSubscribed;
 
 // ─── test doubles ────────────────────────────────────────────────────────────
 
-/**
- * Builds the company middleware with fake Stripe and Barte drivers.
- * Pass isSubscribed: true to simulate an active subscription on that provider.
- */
-function makeCompanyMiddleware(
-    FakeBillingContract $stripe,
-    FakeBillingContract $barte,
-): RedirectCompanyIfNotSubscribed {
+function makeCompanyMiddleware(): RedirectCompanyIfNotSubscribed
+{
     $manager = Mockery::mock(BillingManager::class);
-    $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Stripe)->andReturn($stripe);
-    $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Barte)->andReturn($barte);
-    // Os middlewares varrem activeCases() inteiro. O catch-all vem por último —
-    // o Mockery casa na ordem de declaração — para que um provider novo entre
-    // como "sem assinatura" em vez de derrubar o teste.
     $manager->shouldReceive('getDriver')->andReturn(new FakeBillingContract);
 
     return new RedirectCompanyIfNotSubscribed($manager);
 }
 
-/**
- * Builds the user middleware with fake Stripe and Barte drivers.
- * hasActiveSubscription controls the company-level check;
- * isSubscribed controls the employee-level plan check.
- */
-function makeUserMiddleware(
-    FakeBillingContract $stripe,
-    FakeBillingContract $barte,
-): RedirectUserIfNotSubscribed {
+function makeUserMiddleware(): RedirectUserIfNotSubscribed
+{
     $manager = Mockery::mock(BillingManager::class);
-    $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Stripe)->andReturn($stripe);
-    $manager->shouldReceive('getDriver')->with(BillingProviderEnum::Barte)->andReturn($barte);
-    // Os middlewares varrem activeCases() inteiro. O catch-all vem por último —
-    // o Mockery casa na ordem de declaração — para que um provider novo entre
-    // como "sem assinatura" em vez de derrubar o teste.
     $manager->shouldReceive('getDriver')->andReturn(new FakeBillingContract);
 
-    return new RedirectUserIfNotSubscribed(new ResolveBenefitAccess(resolve(PlanRepository::class), $manager), $manager);
+    return new RedirectUserIfNotSubscribed(new ResolveBenefitAccess(resolve(PlanRepository::class)), $manager);
+}
+
+function legacyActiveSubscription(Company|User $owner, string $type): void
+{
+    $owner->subscriptions()->create([
+        'type' => $type,
+        'stripe_id' => 'sub_' . uniqid(),
+        'stripe_status' => 'active',
+        'quantity' => 1,
+    ]);
 }
 
 function fakeRequest(): Request
@@ -79,9 +65,10 @@ describe('company access during gateway migration', function (): void {
         $owner = User::factory()->companyOwner()->create();
         $this->company = Company::factory()->recycle($owner)->create();
 
-        // Seed one active plan per provider so the middleware has slugs to check against
-        Price::factory()->for(Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::Company])->create(), 'plan')->create();
-        Price::factory()->for(Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::Company])->create(), 'plan')->create();
+        $this->stripePlan = Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::Company])->create();
+        $this->bartePlan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::Company])->create();
+        Price::factory()->for($this->stripePlan, 'plan')->create();
+        Price::factory()->for($this->bartePlan, 'plan')->create();
 
         filament()->setCurrentPanel(FilamentPanel::Company->value);
         $this->actingAs($owner);
@@ -89,10 +76,9 @@ describe('company access during gateway migration', function (): void {
     });
 
     it('lets a company through when it has an active Stripe subscription (legacy)', function (): void {
-        $middleware = makeCompanyMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: true),
-            barte: new FakeBillingContract(isSubscribed: false),
-        );
+        legacyActiveSubscription($this->company, $this->stripePlan->slug);
+
+        $middleware = makeCompanyMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
@@ -100,10 +86,9 @@ describe('company access during gateway migration', function (): void {
     });
 
     it('lets a company through when it has an active Barte subscription (current gateway)', function (): void {
-        $middleware = makeCompanyMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: false),
-            barte: new FakeBillingContract(isSubscribed: true),
-        );
+        legacyActiveSubscription($this->company, $this->bartePlan->slug);
+
+        $middleware = makeCompanyMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
@@ -111,10 +96,7 @@ describe('company access during gateway migration', function (): void {
     });
 
     it('redirects a company that has no subscription on any provider', function (): void {
-        $middleware = makeCompanyMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: false),
-            barte: new FakeBillingContract(isSubscribed: false),
-        );
+        $middleware = makeCompanyMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
@@ -157,10 +139,7 @@ describe('flamma-company subscription isolation', function (): void {
             'quantity' => 1,
         ]);
 
-        $middleware = makeUserMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-            barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-        );
+        $middleware = makeUserMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
@@ -176,10 +155,7 @@ describe('flamma-company subscription isolation', function (): void {
             'quantity' => 1,
         ]);
 
-        $middleware = makeUserMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-            barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-        );
+        $middleware = makeUserMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
@@ -196,9 +172,10 @@ describe('user access during gateway migration', function (): void {
         $this->company = Company::factory()->recycle($owner)->create();
         $this->company->employees()->attach($this->employee->getKey());
 
-        // Seed one active user plan per provider so getPlansFor() returns slugs to verify
-        Price::factory()->for(Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create(), 'plan')->create();
-        Price::factory()->for(Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create(), 'plan')->create();
+        $this->stripePlan = Plan::factory()->active()->stripe()->state(['type' => BillableTypeEnum::User])->create();
+        $this->bartePlan = Plan::factory()->active()->barte()->state(['type' => BillableTypeEnum::User])->create();
+        Price::factory()->for($this->stripePlan, 'plan')->create();
+        Price::factory()->for($this->bartePlan, 'plan')->create();
 
         filament()->setCurrentPanel(FilamentPanel::User->value);
         $this->actingAs($this->employee);
@@ -206,10 +183,10 @@ describe('user access during gateway migration', function (): void {
     });
 
     it('lets a user through when both the company and the user are on a legacy Stripe plan', function (): void {
-        $middleware = makeUserMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: true, hasActiveSubscription: true),
-            barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-        );
+        legacyActiveSubscription($this->company, 'company');
+        legacyActiveSubscription($this->employee, $this->stripePlan->slug);
+
+        $middleware = makeUserMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
@@ -217,10 +194,10 @@ describe('user access during gateway migration', function (): void {
     });
 
     it('lets a user through when both the company and the user are on a Barte plan', function (): void {
-        $middleware = makeUserMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-            barte: new FakeBillingContract(isSubscribed: true, hasActiveSubscription: true),
-        );
+        legacyActiveSubscription($this->company, 'company');
+        legacyActiveSubscription($this->employee, $this->bartePlan->slug);
+
+        $middleware = makeUserMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
@@ -228,10 +205,7 @@ describe('user access during gateway migration', function (): void {
     });
 
     it('redirects to the plan-inactive page when the company has no active subscription on any provider', function (): void {
-        $middleware = makeUserMiddleware(
-            stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-            barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-        );
+        $middleware = makeUserMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 
@@ -240,11 +214,9 @@ describe('user access during gateway migration', function (): void {
     });
 
     it('redirects a user to the plans page when the company is subscribed but the user has not picked a plan yet', function (): void {
-        $middleware = makeUserMiddleware(
-            // Company has a Stripe subscription, but employee has no individual plan on either provider
-            stripe: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: true),
-            barte: new FakeBillingContract(isSubscribed: false, hasActiveSubscription: false),
-        );
+        legacyActiveSubscription($this->company, 'company');
+
+        $middleware = makeUserMiddleware();
 
         $response = $middleware->handle(fakeRequest(), passThrough());
 

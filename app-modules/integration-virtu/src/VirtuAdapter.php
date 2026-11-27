@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace TresPontosTech\IntegrationVirtu;
 
 use App\Models\Users\User;
-use Illuminate\Database\Eloquent\Builder;
 use TresPontosTech\Billing\Core\Contracts\BillingContract;
 use TresPontosTech\Billing\Core\Contracts\SupportsCheckoutDiscount;
 use TresPontosTech\Billing\Core\DTOs\BillingPortal;
@@ -16,7 +15,6 @@ use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\Price;
-use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Credits\DTOs\CreditOrderDTO;
@@ -50,26 +48,6 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCheckoutDi
      * instead — see CheckoutIdentityDTO.
      */
     public function ensureCustomerExists(Company|User $billable): void {}
-
-    public function isSubscribed(Company|User $billable, string $planSlug): bool
-    {
-        $priceIds = Price::query()
-            ->whereHas('plan', fn (Builder $query) => $query->where('slug', $planSlug))
-            ->pluck('provider_price_id');
-
-        if ($priceIds->isEmpty()) {
-            return false;
-        }
-
-        return $this->activeSubscriptions($billable)
-            ->whereIn('stripe_price', $priceIds)
-            ->exists();
-    }
-
-    public function hasActiveSubscription(Company|User $billable): bool
-    {
-        return $this->activeSubscriptions($billable)->exists();
-    }
 
     /**
      * Creates the hosted link and records a pending subscription keyed by the
@@ -190,17 +168,6 @@ final readonly class VirtuAdapter implements BillingContract, SupportsCheckoutDi
         );
 
         return $amountCents;
-    }
-
-    /**
-     * @return Builder<Subscription>
-     */
-    private function activeSubscriptions(Company|User $billable): Builder
-    {
-        return Subscription::query()
-            ->where('subscriptionable_type', $billable->getMorphClass())
-            ->where('subscriptionable_id', $billable->getKey())
-            ->where('stripe_status', 'active');
     }
 
     private function withBuyerIdentity(string $url, Company|User $billable): string

@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace TresPontosTech\Billing\Core\Actions;
 
 use App\Models\Users\User;
-use TresPontosTech\Billing\Core\BillingManager;
+use TresPontosTech\Billing\Core\Entities\PlanEntity;
 use TresPontosTech\Billing\Core\Enums\BenefitAccessEnum;
-use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\PriceAudienceEnum;
 use TresPontosTech\Billing\Core\Models\Price;
-use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Billing\Core\Repositories\PlanRepository;
 use TresPontosTech\Company\Models\Company;
 
@@ -25,7 +23,6 @@ final readonly class ResolveBenefitAccess
 {
     public function __construct(
         private PlanRepository $planRepository,
-        private BillingManager $billingManager,
     ) {}
 
     /**
@@ -53,28 +50,16 @@ final readonly class ResolveBenefitAccess
 
     private function companyHasActiveSubscription(Company $company): bool
     {
-        return collect(BillingProviderEnum::activeCases())
-            ->contains(fn (BillingProviderEnum $provider): bool => $this->billingManager
-                ->getDriver($provider)
-                ->hasActiveSubscription($company));
+        return $company->subscriptions->grantsAnyAccess();
     }
 
     private function isSubscribedToAnEmployeePlan(User $user): bool
     {
         $employeePlans = $this->planRepository->getPlansFor('user');
 
-        return collect(BillingProviderEnum::activeCases())
-            ->contains(function (BillingProviderEnum $provider) use ($user, $employeePlans): bool {
-                $driver = $this->billingManager->getDriver($provider);
-
-                foreach ($employeePlans as $plan) {
-                    if ($driver->isSubscribed($user, $plan->slug)) {
-                        return true;
-                    }
-                }
-
-                return false;
-            });
+        return $employeePlans->contains(
+            fn (PlanEntity $plan): bool => $user->subscriptions->grantsAccessTo($plan->slug),
+        );
     }
 
     /**
@@ -91,11 +76,8 @@ final readonly class ResolveBenefitAccess
             return false;
         }
 
-        return Subscription::query()
-            ->where('subscriptionable_type', $user->getMorphClass())
-            ->where('subscriptionable_id', $user->getKey())
-            ->where('stripe_status', 'active')
+        return $user->subscriptions
             ->whereIn('stripe_price', $standalonePriceIds)
-            ->exists();
+            ->grantsAnyAccess();
     }
 }

@@ -68,19 +68,6 @@ essentials-seeder: ## Run the essentials seeder
 	@php artisan virtu:plan:create flamma-black-virtu "Flamma Black" 25000 --type=user --audience=subsidized
 	@php artisan app:sync-subscription-to-flamma-company
 
-.PHONY: stripe-listen
-stripe-listen: ## Run Stripe Webhook
-	stripe listen --forward-to localhost:8000/stripe/webhook
-
-.PHONY: stripe-fresh
-stripe-fresh: ## Run migrations and seed the database
-	@echo "Running migrations and seeding the database..."
-	@php artisan migrate:fresh --seed --seeder=EssentialsSeeder
-	@echo "Migrations and seeding completed."
-	@echo "Seeding Stripe"
-	@php artisan billing:sync-stripe
-
-
 .PHONY: barte-fresh
 barte-fresh: ## Run migrations and seed the database
 	@echo "Running migrations and seeding the database..."

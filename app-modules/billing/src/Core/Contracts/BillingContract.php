@@ -10,8 +10,9 @@ use TresPontosTech\Billing\Core\DTOs\CheckoutData;
 use TresPontosTech\Company\Models\Company;
 
 /**
- * What every payment provider must do: sell a subscription and answer whether a
- * billable has one.
+ * What every payment provider must do: sell a subscription and hand over its portal.
+ * Whether a billable has access is not asked here: it is read from our own rows by
+ * SubscriptionCollection.
  *
  * Anything a provider might not be able to do lives in its own interface —
  * SupportsCreditPurchase (credits module), SupportsSubscriptionCancellation — so
@@ -21,13 +22,9 @@ interface BillingContract
 {
     public function ensureCustomerExists(Company|User $billable): void;
 
-    public function isSubscribed(Company|User $billable, string $planSlug): bool;
-
     public function createCheckout(Company|User $billable, CheckoutData $data): string;
 
     public function checkoutOpensInNewTab(): bool;
 
     public function billingPortal(Company|User $billable, string $returnUrl): BillingPortal;
-
-    public function hasActiveSubscription(Company|User $billable): bool;
 }

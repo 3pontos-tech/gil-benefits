@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
 
-it('builds the module subscription, not the cashier one', function (): void {
+it('builds the module subscription on the billing table', function (): void {
     $subscription = Subscription::factory()->create();
 
     expect($subscription)->toBeInstanceOf(Subscription::class)

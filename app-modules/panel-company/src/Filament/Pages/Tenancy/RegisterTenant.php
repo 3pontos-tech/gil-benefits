@@ -8,7 +8,6 @@ use Filament\Pages\Tenancy\RegisterTenant as BaseRegisterTenant;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Str;
 use Leandrocfe\FilamentPtbrFormFields\Document;
-use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Actions\CreateCompanyAction;
 use TresPontosTech\Company\DTOs\CompanyDTO;
 use TresPontosTech\Company\Models\Company;
@@ -24,7 +23,7 @@ class RegisterTenant extends BaseRegisterTenant
             return true;
         }
 
-        return ! Subscription::grantsAccess($tenant, 'company');
+        return ! $tenant->subscriptions->grantsAccessTo('company');
     }
 
     public static function getLabel(): string

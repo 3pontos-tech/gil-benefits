@@ -14,8 +14,6 @@ use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Events\Subscription\SubscriptionCreated;
 use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
-use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
-use TresPontosTech\Billing\Stripe\Subscription\StripeAdapter;
 use TresPontosTech\Company\Models\Company;
 use TresPontosTech\Credits\Contracts\SupportsCreditPurchase;
 use TresPontosTech\Credits\Enums\CreditOrderStatusEnum;
@@ -163,8 +161,7 @@ it('does not declare support for discounts limited to a number of charges', func
 });
 
 it('keeps checkout discounts out of the other gateways', function (): void {
-    expect(is_subclass_of(BarteAdapter::class, SupportsCheckoutDiscount::class))->toBeFalse()
-        ->and(is_subclass_of(StripeAdapter::class, SupportsCheckoutDiscount::class))->toBeFalse();
+    expect(is_subclass_of(BarteAdapter::class, SupportsCheckoutDiscount::class))->toBeFalse();
 });
 
 it('refuses to create a link for an implausible amount', function (): void {
@@ -245,26 +242,6 @@ it('does not claim to cancel subscriptions', function (): void {
 
 it('still honours the core billing contract', function (): void {
     expect($this->adapter)->toBeInstanceOf(BillingContract::class);
-});
-
-it('reads subscription state locally, without calling the gateway', function (): void {
-    expect($this->adapter->hasActiveSubscription($this->user))->toBeFalse()
-        ->and($this->adapter->isSubscribed($this->user, 'virtu-gold'))->toBeFalse();
-
-    Subscription::query()->create([
-        'subscriptionable_type' => $this->user->getMorphClass(),
-        'subscriptionable_id' => $this->user->getKey(),
-        'type' => 'virtu-gold',
-        'stripe_id' => 'checkout_fake1',
-        'stripe_status' => 'active',
-        'stripe_price' => 'pp_virtu_gold',
-        'quantity' => 1,
-    ]);
-
-    expect($this->adapter->hasActiveSubscription($this->user))->toBeTrue()
-        ->and($this->adapter->isSubscribed($this->user, 'virtu-gold'))->toBeTrue()
-        ->and($this->adapter->isSubscribed($this->user, 'some-other-plan'))->toBeFalse()
-        ->and($this->client->createdLinks)->toBe([]);
 });
 
 it('is a no-op when asked to ensure a customer exists', function (): void {

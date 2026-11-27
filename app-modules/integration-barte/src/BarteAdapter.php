@@ -12,7 +12,6 @@ use TresPontosTech\Billing\Core\DTOs\CreateBillingCustomerDto;
 use TresPontosTech\Billing\Core\Enums\BillingProviderEnum;
 use TresPontosTech\Billing\Core\Enums\SeatPricingTierEnum;
 use TresPontosTech\Billing\Core\Models\BillingCustomer;
-use TresPontosTech\Billing\Core\Models\Plan;
 use TresPontosTech\Billing\Core\Models\Price;
 use TresPontosTech\Billing\Core\Models\Subscriptions\Subscription;
 use TresPontosTech\Company\Models\Company;
@@ -46,43 +45,6 @@ final readonly class BarteAdapter implements BillingContract, SupportsCreditPurc
         resolve(CreateBillingCustomer::class)->handle(
             CreateBillingCustomerDto::make($billable, BillingProviderEnum::Barte, $response['uuid'])
         );
-    }
-
-    public function isSubscribed(Company|User $billable, string $planSlug): bool
-    {
-        if (! $this->findCustomer($billable)) {
-            return false;
-        }
-
-        $planUuid = Plan::query()
-            ->where('slug', $planSlug)
-            ->value('provider_product_id');
-
-        if (! $planUuid) {
-            return false;
-        }
-
-        return Subscription::query()
-            ->where('subscriptionable_type', $billable->getMorphClass())
-            ->where('subscriptionable_id', $billable->getKey())
-            ->where('stripe_status', 'active')
-            ->where('stripe_price', $planUuid)
-            ->exists();
-    }
-
-    public function hasActiveSubscription(Company|User $billable): bool
-    {
-        $customer = $this->findCustomer($billable);
-
-        if (! $customer) {
-            return false;
-        }
-
-        return Subscription::query()
-            ->where('subscriptionable_type', $billable->getMorphClass())
-            ->where('subscriptionable_id', $billable->getKey())
-            ->where('stripe_status', 'active')
-            ->exists();
     }
 
     public function createCheckout(Company|User $billable, CheckoutData $data): string

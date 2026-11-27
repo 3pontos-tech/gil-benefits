@@ -11,8 +11,8 @@ external integrations (Google Calendar, HighLevel).
 
 ## Business Model
 
-- **SaaS multi-tenant, B2B2C.** A company subscribes to a tiered plan (billed via
-  Laravel Cashier / Stripe and Barte) and makes financial consulting available to its
+- **SaaS multi-tenant, B2B2C.** A company subscribes to a tiered plan (billed through a
+  payment gateway integration module) and makes financial consulting available to its
   employees.
 - Employees consume credits / appointments according to the company plan; consultants
   deliver the sessions and post-session feedback.

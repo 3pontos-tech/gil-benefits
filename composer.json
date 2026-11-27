@@ -66,7 +66,6 @@
         "laraveljutsu/zap": "^1.13",
         "league/flysystem-aws-s3-v3": "^3.0",
         "leandrocfe/filament-ptbr-form-fields": "^5.0",
-        "maartenpaauw/filament-cashier-billing-provider": "^3.0",
         "mallardduck/blade-lucide-icons": "^2.0",
         "owenvoke/blade-fontawesome": "^3.0",
         "phpoffice/phpword": "^1.4",

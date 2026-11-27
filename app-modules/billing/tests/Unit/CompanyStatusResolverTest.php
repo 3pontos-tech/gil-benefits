@@ -42,10 +42,10 @@ describe('status unificado', function (): void {
 
         expect($status)->toBe($expected);
     })->with([
-        'cashier ativo' => ['active', CompanyFinancialStatusEnum::Active],
-        'cashier em trial' => ['trialing', CompanyFinancialStatusEnum::Trial],
-        'cashier atrasado' => ['past_due', CompanyFinancialStatusEnum::Delinquent],
-        'cashier cancelado' => ['canceled', CompanyFinancialStatusEnum::Cancelled],
+        'stripe ativo' => ['active', CompanyFinancialStatusEnum::Active],
+        'stripe em trial' => ['trialing', CompanyFinancialStatusEnum::Trial],
+        'stripe atrasado' => ['past_due', CompanyFinancialStatusEnum::Delinquent],
+        'stripe cancelado' => ['canceled', CompanyFinancialStatusEnum::Cancelled],
         'gateway pendente' => ['pending', CompanyFinancialStatusEnum::Trial],
         'gateway inadimplente' => ['defaulter', CompanyFinancialStatusEnum::Delinquent],
         'gateway inativo' => ['inactive', CompanyFinancialStatusEnum::Cancelled],
